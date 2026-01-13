@@ -318,7 +318,7 @@ VulkanReplayDumpResourcesBase::FindDrawCallCommandBufferContext(VkCommandBuffer 
 
     for (auto it = draw_call_contexts_.begin(); it != draw_call_contexts_.end(); ++it)
     {
-        if (it->first.second == qs_index)
+        if (it->first.first == bcb_index && it->first.second == qs_index)
         {
             return &it->second;
         }
@@ -448,7 +448,7 @@ VulkanReplayDumpResourcesBase::FindDispatchRaysCommandBufferContext(VkCommandBuf
 
     for (auto it = dispatch_ray_contexts_.begin(); it != dispatch_ray_contexts_.end(); ++it)
     {
-        if (it->first.second == qs_index)
+        if (it->first.first == bcb_index && it->first.second == qs_index)
         {
             return &it->second;
         }
@@ -2404,6 +2404,9 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
                     pipeline_info->dynamic_vertex_input          = gpl_ppl->dynamic_vertex_input;
                     pipeline_info->dynamic_vertex_binding_stride = gpl_ppl->dynamic_vertex_binding_stride;
                 }
+
+                // Accumulate shader stages from the other pipelines from the library
+                pipeline_info->shader_stages |= gpl_ppl->shader_stages;
             }
         }
 

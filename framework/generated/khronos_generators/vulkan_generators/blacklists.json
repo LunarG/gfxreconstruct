@@ -18,7 +18,12 @@
     "vkCreateRayTracingPipelinesKHR",
     "vkCreateExternalComputeQueueNV",
     "vkDestroyExternalComputeQueueNV",
-    "vkGetExternalComputeQueueDataNV"
+    "vkGetExternalComputeQueueDataNV",
+    "vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT",
+    "vkGetBufferOpaqueCaptureDescriptorDataEXT",
+    "vkGetImageOpaqueCaptureDescriptorDataEXT",
+    "vkGetImageViewOpaqueCaptureDescriptorDataEXT",
+    "vkGetSamplerOpaqueCaptureDescriptorDataEXT"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
@@ -46,6 +51,8 @@
     "VkCopyMemoryToImageInfo",
     "VkMemoryToImageCopy",
     "VkCopyImageToMemoryInfo",
-    "VkImageToMemoryCopy"
+    "VkImageToMemoryCopy",
+    "VkLayerSettingEXT",
+    "VkDescriptorGetInfoEXT"
   ]
 }

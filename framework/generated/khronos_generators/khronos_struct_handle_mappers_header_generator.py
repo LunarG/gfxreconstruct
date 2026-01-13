@@ -95,6 +95,14 @@ class KhronosStructHandleMappersHeaderGenerator():
             self.newline()
 
         for struct in self.output_structs:
+            write(
+                'void PushRecaptureStructHandleIds(const Decoded_{type}* id_wrapper, CommonConsumerBase* consumer);'
+                .format(type=struct),
+                file=self.outFile
+            )
+            self.newline()
+
+        for struct in self.output_structs:
             if struct in self.structs_with_handle_ptrs:
                 write(
                     'void SetStructHandleLengths(Decoded_{type}* wrapper);'.

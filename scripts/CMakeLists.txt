@@ -28,8 +28,7 @@ if (D3D12_SUPPORT)
 
     add_custom_target(gfxrecon-optimize-renamed.py ALL)
 
-    add_custom_command(TARGET gfxrecon-optimize-renamed.py
-                       DEPENDS ${CMAKE_SOURCE_SOURCE_DIR}/gfxrecon-optimize-renamed.py
+    add_custom_command(TARGET gfxrecon-optimize-renamed.py POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon-optimize-renamed.py ${CMAKE_CURRENT_BINARY_DIR}/gfxrecon-optimize-renamed.py)
 
     install(FILES gfxrecon-optimize-renamed.py DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS
@@ -37,8 +36,7 @@ if (D3D12_SUPPORT)
 
     add_custom_target(gfxrecon-replay-renamed.py ALL)
 
-    add_custom_command(TARGET gfxrecon-replay-renamed.py
-                       DEPENDS ${CMAKE_SOURCE_SOURCE_DIR}/gfxrecon-replay-renamed.py
+    add_custom_command(TARGET gfxrecon-replay-renamed.py POST_BUILD
                        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/gfxrecon-replay-renamed.py ${CMAKE_CURRENT_BINARY_DIR}/gfxrecon-replay-renamed.py)
 
     install(FILES gfxrecon-replay-renamed.py DESTINATION ${CMAKE_INSTALL_BINDIR} PERMISSIONS

@@ -197,6 +197,16 @@ class KhronosStructHandleMappersBodyGenerator():
                 file=self.outFile
             )
 
+        # Generate push recapture handle ID functions for output structs with handles
+        for struct in self.output_structs:
+            self.newline()
+            write(
+                self.make_struct_handle_push_for_recapture(
+                    struct, self.structs_with_handles[struct]
+                ),
+                file=self.outFile
+            )
+
         # Generate handle memory allocation functions for output structs with handles
         for struct in self.output_structs:
             if struct in self.structs_with_handle_ptrs:
@@ -368,6 +378,59 @@ class KhronosStructHandleMappersBodyGenerator():
                     body += '        handle_mapping::AddHandle<{}>(parent_id, id_wrapper->{name}, handle_struct->{name}, object_info_table{});\n'.format(
                         type,
                         object_info_table_add,
+                        name=member.name
+                    )
+
+        body += '    }\n'
+        body += '}'
+        return body
+    
+    def make_struct_handle_push_for_recapture(self, name, members):
+        """Generating expressions for pushing struct handle IDs for recapture that are embedded in structs."""
+        platform_type = self.get_api_prefix()
+
+        body = 'void PushRecaptureStructHandleIds(const Decoded_{name}* id_wrapper, CommonConsumerBase* consumer)\n'.format(
+            name=name
+        )
+        body += '{\n'
+        body += '    GFXRECON_ASSERT(consumer != nullptr);\n'
+        body += '    if (consumer->IsRecapture() && id_wrapper != nullptr)\n'
+        body += '    {\n'
+
+        for member in members:
+            if self.is_extended_struct_definition(member):
+                func_id = self.get_extended_struct_func_prefix()
+                body += f'        if (id_wrapper->{member.name})\n'
+                body += '        {\n'
+                body += f'            PushRecapture{func_id}StructHandleIds(id_wrapper->{member.name}->GetPointer(), consumer);\n'
+                body += '        }\n'
+            elif self.is_struct(member.base_type):
+                # This is a struct that includes handles.
+                if member.is_array:
+                    body += '        PushRecaptureStructArrayHandleIds<Decoded_{}>(id_wrapper->{name}->GetMetaStructPointer(), id_wrapper->{name}->GetLength(), consumer);\n'.format(
+                        member.base_type, name=member.name
+                    )
+                elif member.is_pointer:
+                    body += '        PushRecaptureStructArrayHandleIds<Decoded_{}>(id_wrapper->{name}->GetMetaStructPointer(), 1, consumer);\n'.format(
+                        member.base_type, name=member.name
+                    )
+                else:
+                    body += '        PushRecaptureStructHandleIds(id_wrapper->{name}, consumer);\n'.format(
+                        name=member.name
+                    )
+            else:
+                # If it is an array or pointer, add with the utility function.
+                if (member.is_array or member.is_pointer):
+                    if member.is_array:
+                        body += '        consumer->PushRecaptureHandleIds(id_wrapper->{name}.GetPointer(), id_wrapper->{name}.GetLength());\n'.format(
+                            name=member.name
+                        )
+                    else:
+                        body += '        consumer->PushRecaptureHandleIds(id_wrapper->{name}.GetPointer(), 1);\n'.format(
+                            name=member.name
+                        )
+                else:
+                    body += '        consumer->PushRecaptureHandleId(&id_wrapper->{name});\n'.format(
                         name=member.name
                     )
 

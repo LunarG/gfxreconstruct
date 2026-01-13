@@ -98,6 +98,7 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
 
 void BlockParser::HandleBlockReadError(BlockIOError error_code, const char* error_message)
 {
+    GFXRECON_ASSERT(err_handler_);
     err_handler_(error_code, error_message);
 }
 
@@ -144,6 +145,28 @@ BlockParser::DecompressionResult BlockParser::DecompressSpan(const BlockBuffer::
     return DecompressionResult{ {}, true };
 }
 
+void BlockParser::WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label, uint32_t sub_type)
+{
+    const format::BlockHeader& block_header = block_buffer.Header();
+    const format::BlockType    block_type   = block_header.type;
+
+    const uint32_t type       = static_cast<uint32_t>(block_type);
+    const char*    compressed = format::IsBlockCompressed(block_type) ? "compressed" : "uncompressed";
+
+    std::stringstream message;
+    if (nullptr != sub_type_label)
+    {
+        message << "Skipping unrecognized " << compressed << " " << sub_type_label << " with type " << sub_type;
+    }
+    else
+    {
+        message << "Skipping unrecognized %s file block with type " << block_type;
+    }
+
+    GFXRECON_LOG_WARNING(
+        "%s (frame %" PRIu64 " block %" PRIu32 ")", message.str().c_str(), frame_number_, block_index_);
+}
+
 ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
 {
     // Note that header parsing has been done by the BlockParser before this call is made.
@@ -173,6 +196,7 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
             break;
         case format::kUnknownBlock:
         default:
+            WarnUnknownBlock(block_buffer);
             parsed_block = ParsedBlock{ ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData() };
             break;
     }
@@ -1514,6 +1538,35 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                                  "Failed to read init subresource data meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetOpaqueCaptureDescriptorDataCommand)
+    {
+        // This command does not support compression.
+        GFXRECON_ASSERT(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetOpaqueDescriptorDataCommand header{};
+
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.object_id);
+        success = success && block_buffer.Read(header.data_size);
+
+        if (success)
+        {
+            const char*         label       = "fill opaque descriptor-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
+
+            return ParsedBlock(block_buffer.ReleaseData(),
+                               SetOpaqueDescriptorDataArgs{ meta_data_id,
+                                                            header.thread_id,
+                                                            header.device_id,
+                                                            header.object_id,
+                                                            header.data_size,
+                                                            read_result.buffer.GetDataAs<uint8_t>() },
+                               std::move(uncompressed_store));
+        }
+
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read set opaque address meta-data block header");
+    }
     else
     {
         if (meta_data_type >= format::MetaDataType::kBeginExperimentalReservedRange ||
@@ -1526,7 +1579,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         else
         {
             // Unrecognized metadata type.
-            GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
+            WarnUnknownBlock(block_buffer, "meta-data block", static_cast<uint32_t>(meta_data_type));
         }
 
         // Handle unsupported meta-data block.
@@ -1535,6 +1588,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             // Without the ability to parse the block, the uncompressed size cannot be determined, nor can the
             // beginning of the parameter buffer. Thus only uncompressed, unknown meta-data blocks can safely
             // be passed through, even as unknown.
+            //
+            // A warning has been generated above
             return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
         else
@@ -1575,7 +1630,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         }
         else
         {
-            GFXRECON_LOG_WARNING("Skipping unrecognized frame marker with type %u", marker_type);
+            WarnUnknownBlock(block_buffer, "frame marker", static_cast<uint32_t>(marker_type));
             return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
     }
@@ -1618,7 +1673,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
         }
         else
         {
-            GFXRECON_LOG_WARNING("Skipping unrecognized state marker with type %u", marker_type);
+            WarnUnknownBlock(block_buffer, "state marker", static_cast<uint32_t>(marker_type));
             return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
     }
