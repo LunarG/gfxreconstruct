@@ -755,7 +755,8 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
         // Store the shader ID LRS map with the state object extra info, to be referenced if this state object is used
         // as a dependency in the creation of another SO.
         state_object_extra_info->export_name_lrs_map = lrs_associations_map;
-        // state_object_extra_info->shader_id_lrs_map.merge(existing_shader_id_lrs_map);
+        state_object_extra_info->shader_id_lrs_map.insert(existing_shader_id_lrs_map.begin(),
+                                                          existing_shader_id_lrs_map.end());
 
         // Populate the state object's shader_id_lrs_map for shaders that were exported.
         graphics::dx12::ID3D12StateObjectPropertiesComPtr props;
@@ -1897,7 +1898,8 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
                 get_object_info_func_(existing_collection_desc_decoder->GetMetaStructPointer()->pExistingCollection);
             GFXRECON_ASSERT(existing_collection_object_info != nullptr);
             auto existing_collection_extra_info = GetExtraInfo<D3D12StateObjectInfo>(existing_collection_object_info);
-            existing_shader_id_lrs_map          = existing_collection_extra_info->shader_id_lrs_map;
+            existing_shader_id_lrs_map.insert(existing_collection_extra_info->shader_id_lrs_map.begin(),
+                                              existing_collection_extra_info->shader_id_lrs_map.end());
 
             // Include LRS associations from the existing collection.
             for (auto& assocation : existing_collection_extra_info->export_name_lrs_map)
