@@ -8,6 +8,10 @@
     vkEnumerateDeviceLayerProperties;
     vkEnumerateDeviceExtensionProperties;
     xrNegotiateLoaderApiLayerInterface;
+    SetInjectedCommandCallbacks;
+    SetSignalTrimmingCallbacks;
+    GFXRSetTrimmingState;
+    GFXRGetCaptureMode;
   local:
     *;
 };
