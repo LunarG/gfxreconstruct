@@ -147,11 +147,7 @@ struct ArgumentBufferExtraInfo
     DxObjectInfo*              argument_buffer{ nullptr };
     uint64_t                   argument_buffer_offset{ 0 };
 
-    bool operator==(const ArgumentBufferExtraInfo& other) const
-    {
-        return (command_signature_info == other.command_signature_info) && (argument_buffer == other.argument_buffer) &&
-               (argument_buffer_offset == other.argument_buffer_offset);
-    }
+    bool operator==(const ArgumentBufferExtraInfo& other) const = default;
 };
 
 struct ResourceValueInfo
@@ -180,12 +176,7 @@ struct ResourceValueInfo
 
     bool operator<(const ResourceValueInfo& other) const { return offset < other.offset; }
 
-    bool operator==(const ResourceValueInfo& other) const
-    {
-        return (offset == other.offset) && (type == other.type) && (size == other.size) &&
-               (state_object == other.state_object) && (arg_buffer_extra_info == other.arg_buffer_extra_info) &&
-               (max_command_count == other.max_command_count);
-    }
+    bool operator==(const ResourceValueInfo& other) const = default;
 };
 
 typedef std::map<DxObjectInfo*, std::set<ResourceValueInfo>> ResourceValueInfoMap;
