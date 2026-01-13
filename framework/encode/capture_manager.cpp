@@ -32,6 +32,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "format/format_util.h"
+#include "util/callbacks.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
 #include "util/date_time.h"
@@ -541,6 +542,8 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                         capture_mode_ = kModeWriteAndTrack;
                     }
 
+                    util::SignalTrimmingStart();
+
                     success = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_ranges_[0]));
                 }
                 else
@@ -566,6 +569,8 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                 {
                     capture_mode_         = kModeWriteAndTrack;
                     trim_key_first_frame_ = current_frame_;
+
+                    util::SignalTrimmingStart();
 
                     success = CreateCaptureFile(api_family,
                                                 util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
@@ -1374,6 +1379,7 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
         }
 
         capture_mode_ |= kModeWrite;
+        util::SignalTrimmingStart();
 
         auto* thread_data = GetThreadData();
         GFXRECON_ASSERT(thread_data != nullptr);
@@ -1418,6 +1424,7 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
         }
 
         capture_mode_ &= ~kModeWrite;
+        util::SignalTrimmingEnd();
 
         assert(file_stream_);
         file_stream_->Flush();

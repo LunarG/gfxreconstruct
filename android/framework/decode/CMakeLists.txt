@@ -70,8 +70,6 @@ target_sources(gfxrecon_decode
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info_table.h>
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info.cpp>
                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info_table.cpp>
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/mark_injected_commands.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/mark_injected_commands.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/parsed_block.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/parsed_block.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
