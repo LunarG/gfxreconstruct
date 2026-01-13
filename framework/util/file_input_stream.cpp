@@ -194,9 +194,9 @@ bool FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
 
 DataSpan FStreamFileInputStream::ReadSpan(const size_t bytes)
 {
-    auto  pool_entry = buffer_pool_->Acquire(bytes);
+    auto       pool_entry = buffer_pool_->Acquire(bytes);
     std::byte* buffer     = pool_entry.Get();
-    bool  success    = ReadBytes(buffer, bytes);
+    bool       success    = ReadBytes(buffer, bytes);
     if (success)
     {
         return DataSpan(std::move(pool_entry), bytes);

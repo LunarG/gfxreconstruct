@@ -490,6 +490,14 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         auto        heap_info = heap_wrapper->GetObjectInfo();
         const auto& heap_desc = heap->GetDesc();
 
+        // Write call to query the device for heap increment size.
+        encoder_.EncodeEnumValue(heap_desc.Type);
+        encoder_.EncodeUInt32Value(heap_info->descriptor_increment);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
+                        heap_info->create_object_id,
+                        &parameter_stream_);
+        parameter_stream_.Clear();
+
         // Write heap creation call.
         StandardCreateWrite(heap_wrapper);
 
@@ -516,14 +524,6 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
                             &parameter_stream_);
             parameter_stream_.Clear();
         }
-
-        // Write call to query the device for heap increment size.
-        encoder_.EncodeEnumValue(heap_desc.Type);
-        encoder_.EncodeUInt32Value(heap_info->descriptor_increment);
-        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
-                        heap_info->create_object_id,
-                        &parameter_stream_);
-        parameter_stream_.Clear();
 
         // Write descriptor creation calls, not use StandardCreateWrite.
         for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)

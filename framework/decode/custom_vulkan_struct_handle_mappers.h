@@ -25,10 +25,6 @@
 
 #include "decode/common_object_info_table.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
-#include "decode/vulkan_pnext_node.h"
-#include "util/defines.h"
-
-#include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -48,6 +44,8 @@ void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapp
 void MapStructHandles(Decoded_VkCopyMemoryToImageInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkCopyImageToMemoryInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDescriptorGetInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

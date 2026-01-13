@@ -41,6 +41,7 @@ struct Decoded_VkAccelerationStructureMotionInstanceNV;
 struct Decoded_VkPerformanceValueDataINTEL;
 struct Decoded_VkIndirectExecutionSetInfoEXT;
 struct Decoded_VkIndirectCommandsTokenDataEXT;
+struct Decoded_VkDescriptorDataEXT;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
@@ -50,6 +51,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceO
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryDataKHR* wrapper);
 size_t
 DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureMotionInstanceNV* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorDataEXT* wrapper);
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo;
@@ -63,6 +65,8 @@ struct Decoded_VkCopyMemoryToImageInfo;
 struct Decoded_VkMemoryToImageCopy;
 struct Decoded_VkCopyImageToMemoryInfo;
 struct Decoded_VkImageToMemoryCopy;
+struct Decoded_VkLayerSettingEXT;
+struct Decoded_VkDescriptorGetInfoEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper);
@@ -75,6 +79,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyMem
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemoryToImageCopy* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyImageToMemoryInfo* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageToMemoryCopy* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkLayerSettingEXT* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorGetInfoEXT* wrapper);
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL;

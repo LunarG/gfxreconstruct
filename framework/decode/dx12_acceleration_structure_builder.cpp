@@ -189,7 +189,7 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
     // non-zero GPU VA must be set for values that will be used.
     const D3D12_GPU_VIRTUAL_ADDRESS kDefaultGpuVa = 1;
 
-    // Reconstruct accleration structure build descs.
+    // Reconstruct acceleration structure build descs.
     temp_geometry_descs_.clear();
     if (inputs_desc.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
     {
@@ -270,7 +270,7 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
                      scratch_buffer_size_,
                      prebuild_info.ScratchDataSizeInBytes,
                      D3D12_HEAP_TYPE_DEFAULT,
-                     D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                     D3D12_RESOURCE_STATE_COMMON,
                      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     UpdateBufferSize(device5_,
                      inputs_buffer_,
@@ -318,6 +318,19 @@ void Dx12AccelerationStructureBuilder::ExecuteBuild(const graphics::Dx12GpuVaMap
     GFXRECON_ASSERT(SUCCEEDED(hr));
     hr = command_list4_->Reset(command_allocator_, nullptr);
     GFXRECON_ASSERT(SUCCEEDED(hr));
+
+    D3D12_RESOURCE_TRANSITION_BARRIER transition;
+    transition.pResource   = scratch_buffer_.GetInterfacePtr();
+    transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
+    transition.StateAfter  = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+
+    D3D12_RESOURCE_BARRIER barrier;
+    barrier.Type       = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Flags      = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.Transition = transition;
+
+    command_list4_->ResourceBarrier(1, &barrier);
 
     // Add the build command.
     command_list4_->BuildRaytracingAccelerationStructure(&build_desc, 0, nullptr);

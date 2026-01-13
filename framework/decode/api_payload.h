@@ -552,6 +552,18 @@ struct AnnotationArgs
 
     auto GetTuple() const { return std::tie(block_index, type, label, annotation_data); }
 };
+struct SetOpaqueDescriptorDataArgs
+{
+    format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
+
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId object_id;
+    uint32_t         size;
+    const uint8_t*   data;
+
+    auto GetTuple() const { return std::tie(thread_id, device_id, object_id, size, data); }
+};
 
 // --- DispatchTraits specializations (kIsLarge via sizeof at compile time) ---
 template <typename T>
@@ -776,6 +788,13 @@ struct DispatchTraits<InitializeMetaArgs> : DispatchFlagTraits<InitializeMetaArg
 {
     static constexpr auto kDecoderMethod = &ApiDecoder::DispatchInitializeMetaCommand;
 };
+
+template <>
+struct DispatchTraits<SetOpaqueDescriptorDataArgs> : DispatchFlagTraits<SetOpaqueDescriptorDataArgs>
+{
+    static constexpr auto kDecoderMethod = &ApiDecoder::DispatchSetOpaqueDescriptorDataCommand;
+};
+
 template <>
 struct DispatchTraits<AnnotationArgs> : DispatchFlagTraits<AnnotationArgs>
 {
@@ -904,7 +923,8 @@ using DispatchArgs = std::variant<DispatchStore<FunctionCallArgs>,
                                   DispatchStore<VulkanAccelerationStructuresWritePropertiesMetaArgs>,
                                   DispatchStore<ViewRelativeLocationArgs>,
                                   DispatchStore<InitializeMetaArgs>,
-                                  DispatchStore<AnnotationArgs>>;
+                                  DispatchStore<AnnotationArgs>,
+                                  DispatchStore<SetOpaqueDescriptorDataArgs>>;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

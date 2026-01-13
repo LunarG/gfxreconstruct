@@ -147,9 +147,10 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::unique_ptr<VkQueueFamilyProperties2[]> queue_family_properties2;
     std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
 
-    // Track RayTracingPipeline / AccelerationStructure properties
+    // track properties of various physical-device extensions
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    ray_tracing_pipeline_properties;
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
+    std::optional<VkPhysicalDeviceDescriptorBufferPropertiesEXT>      descriptor_buffer_properties;
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
@@ -227,6 +228,9 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
     VkDeviceSize created_size{ 0 };
 
     std::unordered_map<VkDeviceAddress, AccelerationStructureBuildState> acceleration_structures;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct ImageViewWrapper;
@@ -252,11 +256,18 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     VkQueue                                             sparse_bind_queue;
 
     std::set<VkSwapchainKHR> parent_swapchains;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct SamplerWrapper : public HandleWrapper<VkSampler>
 {
+    format::HandleId                          device_id{ format::kNullHandleId };
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
@@ -285,6 +296,10 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
     std::unordered_set<AssetWrapperBase*> bound_assets;
     std::mutex                            asset_map_lock;
+
+    // optional deep-copy of modified allocate-info, required for state-tracking / trimming
+    VkMemoryAllocateInfo*      modified_allocation_info{ nullptr };
+    std::unique_ptr<uint8_t[]> modified_allocation_info_data{ nullptr };
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
@@ -297,10 +312,14 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
+    format::HandleId device_id{ format::kNullHandleId };
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
 
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
@@ -619,6 +638,9 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 
     // Only used when tracking
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
+    // optional opaque descriptor-data used by VK_EXT_descriptor_buffer
+    std::vector<uint8_t> opaque_descriptor_data;
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
@@ -641,6 +663,12 @@ struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
     DeviceWrapper*            device{ nullptr };
     VkPipelineCacheCreateInfo create_info;
     std::vector<uint8_t>      cache_data;
+};
+
+struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipelineSessionARM>, AssetWrapperBase
+{
+    VkDataGraphPipelineSessionBindPointARM bind_point;
+    uint32_t                               object_index;
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.
