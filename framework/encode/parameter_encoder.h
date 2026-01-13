@@ -77,7 +77,7 @@ class ParameterEncoder
     void EncodeD3D_FEATURE_LEVELValue(D3D_FEATURE_LEVEL value) { EncodeValue(value); }
 #endif // ENABLE_OPENXR_SUPPORT
     void EncodeLARGE_INTEGERValue(LARGE_INTEGER& value) { EncodeValue(value.QuadPart); }
-    void EncodeLUIDValue(LUID value) { EncodeValue((static_cast<uint64_t>(value.HighPart) << 32) | value.LowPart); }
+    void EncodeLUIDValue(LUID value) { EncodeValue(*reinterpret_cast<int64_t*>(&value)); }
 
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
     void EncodeAddress(const void* value)                                                                             { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
