@@ -163,7 +163,7 @@ struct LARGE_INTEGER
 
 static inline int64_t pack_luid(LUID luid)
 {
-    return (static_cast<uint64_t>(luid.HighPart) << 32) | luid.LowPart;
+    return static_cast<int64_t>((static_cast<uint64_t>(luid.HighPart) << 32) | luid.LowPart);
 }
 
 #ifndef __ANDROID__

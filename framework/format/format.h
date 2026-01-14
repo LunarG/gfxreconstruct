@@ -665,7 +665,7 @@ struct DxgiAdapterDesc
 
 inline int64_t pack_luid(const format::DxgiAdapterDesc& adapter_desc)
 {
-    return (static_cast<uint64_t>(adapter_desc.LuidHighPart) << 32) | adapter_desc.LuidLowPart;
+    return static_cast<int64_t>((static_cast<uint64_t>(adapter_desc.LuidHighPart) << 32) | adapter_desc.LuidLowPart);
 }
 
 struct DxgiAdapterInfoCommandHeader
