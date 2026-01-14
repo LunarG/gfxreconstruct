@@ -34,7 +34,7 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture";
+    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture, --use-ext-frame-boundary";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -247,7 +247,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tVirtual Swapchain of images which match", kSwapchainVirtual);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tthe swapchain in effect at capture time and");
     GFXRECON_WRITE_CONSOLE("          \t\t         \twhich are copied to the underlying swapchain of the");
-    GFXRECON_WRITE_CONSOLE("          \t\t         \timplementation being replayed on. This is default.");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \timplementation being replayed on. Also displays");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \toffscreen frame boundaries to an additional window.");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tThis is default.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tUse the swapchain indices stored in the ", kSwapchainCaptured);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tcapture directly on the swapchain setup for replay.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDisable creating swapchains, surfaces", kSwapchainOffscreen);
@@ -265,13 +267,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tSame as \"--swapchain captured\".");
     GFXRECON_WRITE_CONSOLE("          \t\tIgnored if the \"--swapchain\" option is used.");
     GFXRECON_WRITE_CONSOLE("  --offscreen-swapchain-frame-boundary");
-    GFXRECON_WRITE_CONSOLE("          \t\tShould only be used with offscreen swapchain.");
-    GFXRECON_WRITE_CONSOLE("          \t\tActivates the extension VK_EXT_frame_boundary (always supported if");
-    GFXRECON_WRITE_CONSOLE("          \t\ttrimming, checks for driver support otherwise) and inserts command");
-    GFXRECON_WRITE_CONSOLE("          \t\tbuffer submission with VkFrameBoundaryEXT where vkQueuePresentKHR");
-    GFXRECON_WRITE_CONSOLE("          \t\twas called in the original capture.");
-    GFXRECON_WRITE_CONSOLE("          \t\tThis allows preserving frames when capturing a replay that uses.");
-    GFXRECON_WRITE_CONSOLE("          \t\toffscreen swapchain.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDeprecated. Alias to `--use-ext-frame-boundary`.");
+    GFXRECON_WRITE_CONSOLE("  --use-ext-frame-boundary");
+    GFXRECON_WRITE_CONSOLE("          \t\tConvert all frame boundaries (offscreen and onscreen) to");
+    GFXRECON_WRITE_CONSOLE("          \t\t`VKFrameBoundaryEXT` submissions.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThis option automatically triggers `--swapchain offscreen`.");
     GFXRECON_WRITE_CONSOLE("  --measurement-frame-range <start_frame>-<end_frame>");
     GFXRECON_WRITE_CONSOLE("          \t\tCustom framerange to measure FPS for.");
     GFXRECON_WRITE_CONSOLE("          \t\tThis range will include the start frame but not the end frame.");
