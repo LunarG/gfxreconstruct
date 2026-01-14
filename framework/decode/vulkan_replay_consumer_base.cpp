@@ -3277,6 +3277,9 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         // Fake VK_EXT_frame_boundary if requested, but not supported
         if (sanitize_faked_extension(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
         {
+            VulkanSwapchainOptions modified_options = swapchain_->GetOptions();
+            modified_options.offscreen_swapchain_frame_boundary = false;
+            swapchain_->SetOptions(modified_options);
             // also remove related feature-struct from pnext-chain
             if (graphics::vulkan_struct_remove_pnext<VkPhysicalDeviceFrameBoundaryFeaturesEXT>(&modified_create_info))
             {
