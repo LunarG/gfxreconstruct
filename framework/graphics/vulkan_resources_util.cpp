@@ -2469,16 +2469,13 @@ void UpdateSparseImageMemoryBindMap(VulkanSubresourceSparseImageMemoryBindMap& s
     search_key.aspectMask         = 0;
 
     auto iterator = sparse_image_memory_bind_map.lower_bound(search_key);
-    if (iterator != sparse_image_memory_bind_map.begin())
+    for (; iterator != sparse_image_memory_bind_map.end() && iterator->first.arrayLayer == search_key.arrayLayer &&
+           iterator->first.mipLevel == search_key.mipLevel;
+         ++iterator)
     {
-        for (; iterator != sparse_image_memory_bind_map.end() && iterator->first.arrayLayer == search_key.arrayLayer &&
-               iterator->first.mipLevel == search_key.mipLevel;
-             ++iterator)
+        if (iterator->first.aspectMask & new_bind.subresource.aspectMask)
         {
-            if (iterator->first.aspectMask & new_bind.subresource.aspectMask)
-            {
-                intersecting_subresources.push_back(iterator->first);
-            }
+            intersecting_subresources.push_back(iterator->first);
         }
     }
 
