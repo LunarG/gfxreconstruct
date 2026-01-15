@@ -400,6 +400,8 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
         std::vector<format::HandleId>                    vertex_buffer_resources;
         Decoded_D3D12_CPU_DESCRIPTOR_HANDLE              dsv_descriptor;
         std::vector<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE> rtv_descriptors;
+
+        std::unordered_map<format::HandleId, UINT> unbounded_descriptor_heap_access;
     };
 
     struct DescriptorHeapInfo
