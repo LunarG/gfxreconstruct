@@ -47,6 +47,7 @@ struct LayoutInfo
 
 LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description)
 {
+    // TODO: alignment should handle different block-layouts (std140, std430, scalar), when types are padded
     uint32_t alignment = 0;
     uint32_t num_bytes = type_description->traits.numeric.scalar.width / 8;
 
