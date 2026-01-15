@@ -96,6 +96,15 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
                                                           Decoded_GUID                 riid,
                                                           HandlePointerDecoder<void*>* ppvRootSignature);
 
+    virtual void
+    Process_ID3D12Device_CreateCommandSignature(const ApiCallInfo& call_info,
+                                                format::HandleId   object_id,
+                                                HRESULT            return_value,
+                                                StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* pDesc,
+                                                format::HandleId             pRootSignature,
+                                                Decoded_GUID                 riid,
+                                                HandlePointerDecoder<void*>* ppvCommandSignature) override;
+
     virtual void Process_ID3D12Device_CreateDescriptorHeap(
         const ApiCallInfo&                                        call_info,
         format::HandleId                                          object_id,
@@ -323,6 +332,15 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
                                                    UINT                                      NumCommandLists,
                                                    HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists) override;
 
+    virtual void Process_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
+                                                                   format::HandleId   object_id,
+                                                                   format::HandleId   pCommandSignature,
+                                                                   UINT               MaxCommandCount,
+                                                                   format::HandleId   pArgumentBuffer,
+                                                                   UINT64             ArgumentBufferOffset,
+                                                                   format::HandleId   pCountBuffer,
+                                                                   UINT64             CountBufferOffset) override;
+
     virtual void Process_ID3D12GraphicsCommandList_Reset(const ApiCallInfo& call_info,
                                                          format::HandleId   object_id,
                                                          HRESULT            return_value,
@@ -359,6 +377,11 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
         std::vector<RootParameter> root_parameters;
     };
 
+    struct CommandSignatureInfo
+    {
+        bool is_graphics;
+    };
+
     struct CommandListInfo
     {
         format::HandleId                         graphics_root_signature;
@@ -392,11 +415,12 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
         D3D12_GPU_VIRTUAL_ADDRESS gpu_address{ 0 };
     };
 
-    std::unordered_map<format::HandleId, RootSignatureInfo>  root_signature_infos_;
-    std::unordered_map<format::HandleId, CommandListInfo>    command_list_infos_;
-    std::unordered_map<format::HandleId, DescriptorHeapInfo> descriptor_heap_infos_;
-    std::unordered_map<format::HandleId, BufferResourceInfo> buffer_resource_infos_;
-    UINT                                                     cbv_srv_uav_handle_size_ = 0;
+    std::unordered_map<format::HandleId, RootSignatureInfo>    root_signature_infos_;
+    std::unordered_map<format::HandleId, CommandSignatureInfo> command_signature_infos_;
+    std::unordered_map<format::HandleId, CommandListInfo>      command_list_infos_;
+    std::unordered_map<format::HandleId, DescriptorHeapInfo>   descriptor_heap_infos_;
+    std::unordered_map<format::HandleId, BufferResourceInfo>   buffer_resource_infos_;
+    UINT                                                       cbv_srv_uav_handle_size_ = 0;
 
     ReferencedResourceTable table_;
 };
