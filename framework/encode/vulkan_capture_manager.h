@@ -535,6 +535,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAllocationCallbacks*         pAllocator,
                                               VkSurfaceKHR*                        pSurface);
 
+    void
+    PreProcess_vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR pSurface, const VkAllocationCallbacks* pAllocator);
+
     void PreProcess_vkCreateSwapchainKHR(VkDevice                        device,
                                          const VkSwapchainCreateInfoKHR* pCreateInfo,
                                          const VkAllocationCallbacks*    pAllocator,
