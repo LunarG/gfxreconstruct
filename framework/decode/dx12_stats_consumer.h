@@ -122,7 +122,7 @@ class Dx12StatsConsumer : public Dx12Consumer
         InsertAdapter(new_adapter, gfxr_cmd_adapters_);
         format::HandleId object_id = graphics::dx12::ExtractAdapterCaptureId(new_adapter.extra_info);
 
-        const int64_t luid = (new_adapter.LuidHighPart << 31) | new_adapter.LuidLowPart;
+        const int64_t luid = pack_luid(new_adapter);
         adapter_submission_mapping_.adapter_to_luid_map[object_id] = luid;
     }
 
@@ -351,7 +351,7 @@ class Dx12StatsConsumer : public Dx12Consumer
         bool valid_adapter = false;
         for (const auto& adapter : adapters)
         {
-            const int64_t adapter_luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
+            const int64_t adapter_luid = pack_luid(adapter);
             if (workload_luid == adapter_luid)
             {
                 valid_adapter = true;
