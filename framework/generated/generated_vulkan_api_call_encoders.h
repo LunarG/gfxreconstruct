@@ -2946,6 +2946,43 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndPerTileExecutionQCOM(
     VkCommandBuffer                             commandBuffer,
     const VkPerTileEndInfoQCOM*                 pPerTileEndInfo);
 
+VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutSizeEXT(
+    VkDevice                                    device,
+    VkDescriptorSetLayout                       layout,
+    VkDeviceSize*                               pLayoutSizeInBytes);
+
+VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutBindingOffsetEXT(
+    VkDevice                                    device,
+    VkDescriptorSetLayout                       layout,
+    uint32_t                                    binding,
+    VkDeviceSize*                               pOffset);
+
+VKAPI_ATTR void VKAPI_CALL vkGetDescriptorEXT(
+    VkDevice                                    device,
+    const VkDescriptorGetInfoEXT*               pDescriptorInfo,
+    size_t                                      dataSize,
+    void*                                       pDescriptor);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBuffersEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    bufferCount,
+    const VkDescriptorBufferBindingInfoEXT*     pBindingInfos);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDescriptorBufferOffsetsEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    VkPipelineLayout                            layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    setCount,
+    const uint32_t*                             pBufferIndices,
+    const VkDeviceSize*                         pOffsets);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    VkPipelineLayout                            layout,
+    uint32_t                                    set);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetFragmentShadingRateEnumNV(
     VkCommandBuffer                             commandBuffer,
     VkFragmentShadingRateNV                     shadingRate,
@@ -3440,6 +3477,70 @@ VKAPI_ATTR void VKAPI_CALL vkQueueNotifyOutOfBandNV(
     VkQueue                                     queue,
     const VkOutOfBandQueueTypeInfoNV*           pQueueTypeInfo);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDataGraphPipelinesARM(
+    VkDevice                                    device,
+    VkDeferredOperationKHR                      deferredOperation,
+    VkPipelineCache                             pipelineCache,
+    uint32_t                                    createInfoCount,
+    const VkDataGraphPipelineCreateInfoARM*     pCreateInfos,
+    const VkAllocationCallbacks*                pAllocator,
+    VkPipeline*                                 pPipelines);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDataGraphPipelineSessionARM(
+    VkDevice                                    device,
+    const VkDataGraphPipelineSessionCreateInfoARM* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkDataGraphPipelineSessionARM*              pSession);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDataGraphPipelineSessionBindPointRequirementsARM(
+    VkDevice                                    device,
+    const VkDataGraphPipelineSessionBindPointRequirementsInfoARM* pInfo,
+    uint32_t*                                   pBindPointRequirementCount,
+    VkDataGraphPipelineSessionBindPointRequirementARM* pBindPointRequirements);
+
+VKAPI_ATTR void VKAPI_CALL vkGetDataGraphPipelineSessionMemoryRequirementsARM(
+    VkDevice                                    device,
+    const VkDataGraphPipelineSessionMemoryRequirementsInfoARM* pInfo,
+    VkMemoryRequirements2*                      pMemoryRequirements);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkBindDataGraphPipelineSessionMemoryARM(
+    VkDevice                                    device,
+    uint32_t                                    bindInfoCount,
+    const VkBindDataGraphPipelineSessionMemoryInfoARM* pBindInfos);
+
+VKAPI_ATTR void VKAPI_CALL vkDestroyDataGraphPipelineSessionARM(
+    VkDevice                                    device,
+    VkDataGraphPipelineSessionARM               session,
+    const VkAllocationCallbacks*                pAllocator);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchDataGraphARM(
+    VkCommandBuffer                             commandBuffer,
+    VkDataGraphPipelineSessionARM               session,
+    const VkDataGraphPipelineDispatchInfoARM*   pInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDataGraphPipelineAvailablePropertiesARM(
+    VkDevice                                    device,
+    const VkDataGraphPipelineInfoARM*           pPipelineInfo,
+    uint32_t*                                   pPropertiesCount,
+    VkDataGraphPipelinePropertyARM*             pProperties);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDataGraphPipelinePropertiesARM(
+    VkDevice                                    device,
+    const VkDataGraphPipelineInfoARM*           pPipelineInfo,
+    uint32_t                                    propertiesCount,
+    VkDataGraphPipelinePropertyQueryResultARM*  pProperties);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    uint32_t*                                   pQueueFamilyDataGraphPropertyCount,
+    VkQueueFamilyDataGraphPropertiesARM*        pQueueFamilyDataGraphProperties);
+
+VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM(
+    VkPhysicalDevice                            physicalDevice,
+    const VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM* pQueueFamilyDataGraphProcessingEngineInfo,
+    VkQueueFamilyDataGraphProcessingEnginePropertiesARM* pQueueFamilyDataGraphProcessingEngineProperties);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
@@ -3548,6 +3649,10 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2EXT(
 VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(
     VkCommandBuffer                             commandBuffer,
     const VkBeginCustomResolveInfoEXT*          pBeginCustomResolveInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(
+    VkCommandBuffer                             commandBuffer,
+    const VkComputeOccupancyPriorityParametersNV* pParameters);
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(
     VkDevice                                    device,

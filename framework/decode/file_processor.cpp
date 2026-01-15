@@ -266,8 +266,9 @@ bool FileProcessor::ProcessBlocks()
     BlockBuffer         block_buffer;
     bool                success = true;
 
-    auto        err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
-    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
+    BlockParser block_parser([this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); },
+                             pool_,
+                             compressor_.get());
     // NOTE: To test deferred decompression operation uncomment next line
     // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
 
@@ -318,18 +319,8 @@ bool FileProcessor::ProcessBlocks()
                             }
                         }
                     }
-                    else if (parsed_block.IsUnknown())
-                    {
-                        // Unrecognized block type.
-                        GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64
-                                             ")",
-                                             block_buffer.Header().type,
-                                             current_frame_number_,
-                                             block_index_);
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
-                        // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
-                        success = true;
-                    }
+
+                    // NOTE: Warnings for unknown/invalid blocks are handled in the BlockParser
 
                     if (process_visitor.IsFrameDelimiter())
                     {

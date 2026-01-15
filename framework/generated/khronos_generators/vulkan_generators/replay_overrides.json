@@ -168,6 +168,9 @@
     "vkGetPastPresentationTimingGOOGLE": "OverrideGetPastPresentationTimingGOOGLE",
     "vkGetRefreshCycleDurationGOOGLE": "OverrideGetRefreshCycleDurationGOOGLE",
     "vkGetPhysicalDeviceSurfaceFormatsKHR" : "OverrideGetPhysicalDeviceSurfaceFormatsKHR",
-    "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR"
+    "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR",
+    "vkGetDescriptorEXT": "OverrideGetDescriptorEXT",
+    "vkCmdBindDescriptorBuffersEXT": "OverrideCmdBindDescriptorBuffersEXT",
+    "vkCreateSampler": "OverrideCreateSampler"
   }
 }

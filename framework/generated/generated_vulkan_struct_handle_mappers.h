@@ -30,6 +30,7 @@
 #ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_HANDLE_MAPPERS_H
 #define  GFXRECON_GENERATED_VULKAN_STRUCT_HANDLE_MAPPERS_H
 
+#include "decode/common_consumer_base.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_pnext_node.h"
 #include "format/platform_types.h"
@@ -347,6 +348,20 @@ void MapStructHandles(Decoded_VkGeneratedCommandsInfoNV* wrapper, const CommonOb
 
 void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkDescriptorBufferBindingInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBufferCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkImageCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkImageViewCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSamplerCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkMemoryGetZirconHandleInfoFUCHSIA* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -380,6 +395,20 @@ void MapStructHandles(Decoded_VkPipelineIndirectDeviceAddressInfoNV* wrapper, co
 void MapStructHandles(Decoded_VkShaderCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkLatencySleepInfoNV* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineShaderModuleCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSessionCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSessionBindPointRequirementsInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSessionMemoryRequirementsInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkTileMemoryBindInfoQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -438,6 +467,22 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkDisplayPlanePr
 void AddStructHandles(format::HandleId parent_id, const Decoded_VkDisplayModeProperties2KHR* id_wrapper, const VkDisplayModeProperties2KHR* handle_struct, CommonObjectInfoTable* object_info_table);
 
 void AddStructHandles(format::HandleId parent_id, const Decoded_VkPipelineBinaryHandlesInfoKHR* id_wrapper, const VkPipelineBinaryHandlesInfoKHR* handle_struct, CommonObjectInfoTable* object_info_table);
+
+void PushRecaptureStructHandleIds(const Decoded_VkPhysicalDeviceGroupProperties* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayPropertiesKHR* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayPlanePropertiesKHR* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayModePropertiesKHR* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayProperties2KHR* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayPlaneProperties2KHR* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_VkDisplayModeProperties2KHR* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_VkPipelineBinaryHandlesInfoKHR* id_wrapper, CommonConsumerBase* consumer);
 
 void SetStructHandleLengths(Decoded_VkPhysicalDeviceGroupProperties* wrapper);
 

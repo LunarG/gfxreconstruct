@@ -640,6 +640,12 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         VkBool32                                    isPreprocessed,
         StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
 
+    virtual void Process_vkCmdBindDescriptorBuffersEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    bufferCount,
+        StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos) override;
+
     virtual void Process_vkCmdBindInvocationMaskHUAWEI(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

@@ -187,6 +187,13 @@ class AgsDecoder : public ApiDecoder
         const uint8_t*                                                        build_inputs_data) override
     {}
 
+    void DispatchSetOpaqueDescriptorDataCommand(format::ThreadId thread_id,
+                                                format::HandleId device_id,
+                                                format::HandleId object_id,
+                                                uint32_t         data_size,
+                                                const uint8_t*   data) override
+    {}
+
   protected:
     const std::vector<AgsConsumerBase*>& GetConsumers() const { return consumers_; }
 

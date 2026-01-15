@@ -32,7 +32,7 @@
 #include "format/format.h"
 #include "format/format_util.h"
 
-#include "vulkan/vulkan.h"
+#include "decode/block_parser.h"
 
 #include <vector>
 
@@ -149,4 +149,17 @@ TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
     }
 
     gfxrecon::util::Log::Release();
+}
+
+TEST_CASE("BlockParser basic usage", "[wrapper]")
+{
+    bool err_triggered = false;
+    auto err_handler   = [&err_triggered](gfxrecon::decode::BlockIOError, const char*) { err_triggered = true; };
+
+    auto                          buffer_pool = gfxrecon::util::HeapBufferPool::Create();
+    gfxrecon::decode::BlockParser block_parser(err_handler, buffer_pool, nullptr);
+
+    // this should trigger some error
+    block_parser.HandleBlockReadError(gfxrecon::decode::BlockIOError::kErrorReadingBlockData, "fatal fake error");
+    REQUIRE(err_triggered);
 }

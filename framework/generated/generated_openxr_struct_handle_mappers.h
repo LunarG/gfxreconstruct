@@ -29,6 +29,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
+#include "decode/common_consumer_base.h"
 #include "decode/common_object_info_table.h"
 #include "decode/openxr_next_node.h"
 #include "format/platform_types.h"
@@ -280,6 +281,22 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_XrRenderModelPro
 void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceQueryResultsFB* id_wrapper, const XrSpaceQueryResultsFB* handle_struct, CommonObjectInfoTable* object_info_table);
 
 void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceQueryResultFB* id_wrapper, const XrSpaceQueryResultFB* handle_struct, CommonObjectInfoTable* object_info_table);
+
+void PushRecaptureStructHandleIds(const Decoded_XrSystemProperties* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrInteractionProfileState* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrControllerModelKeyStateMSFT* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrViveTrackerPathsHTCX* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrRenderModelPathInfoFB* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrRenderModelPropertiesFB* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrSpaceQueryResultsFB* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrSpaceQueryResultFB* id_wrapper, CommonConsumerBase* consumer);
 
 #include "decode/common_struct_handle_mappers.h"
 GFXRECON_END_NAMESPACE(decode)
