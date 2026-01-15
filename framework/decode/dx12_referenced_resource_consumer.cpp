@@ -375,6 +375,7 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateCommandList(cons
                                                                             Decoded_GUID            riid,
                                                                             HandlePointerDecoder<void*>* ppCommandList)
 {
+    command_list_infos_.emplace(*ppCommandList->GetPointer(), CommandListInfo{});
     table_.AddUser(pCommandAllocator, *ppCommandList->GetPointer());
 }
 
@@ -388,6 +389,7 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12Device4_CreateCommandList1(
     Decoded_GUID                 riid,
     HandlePointerDecoder<void*>* ppCommandList)
 {
+    command_list_infos_.emplace(*ppCommandList->GetPointer(), CommandListInfo{});
     table_.AddUser(*ppCommandList->GetPointer(), *ppCommandList->GetPointer());
 }
 
@@ -459,7 +461,14 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_IASetInde
     StructPointerDecoder<Decoded_D3D12_INDEX_BUFFER_VIEW>* pView)
 {
     auto& index_buffer_resource = command_list_infos_[object_id].index_buffer_resource;
-    index_buffer_resource       = GetResourceIDForBufferLocation(pView->GetPointer()->BufferLocation);
+    if (pView->IsNull())
+    {
+        index_buffer_resource = format::kNullHandleId;
+    }
+    else
+    {
+        index_buffer_resource = GetResourceIDForBufferLocation(pView->GetPointer()->BufferLocation);
+    }
 }
 
 void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
@@ -474,9 +483,21 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_IASetVert
     {
         vertex_buffer_resources.resize(StartSlot + NumViews, format::kNullHandleId);
     }
-    for (UINT i = 0; i < NumViews; ++i)
+    if (pViews->IsNull())
     {
-        vertex_buffer_resources[StartSlot + i] = GetResourceIDForBufferLocation(pViews->GetPointer()[i].BufferLocation);
+        for (UINT i = 0; i < NumViews; ++i)
+        {
+            vertex_buffer_resources[StartSlot + i] = format::kNullHandleId;
+        }
+        return;
+    }
+    else
+    {
+        for (UINT i = 0; i < NumViews; ++i)
+        {
+            vertex_buffer_resources[StartSlot + i] =
+                GetResourceIDForBufferLocation(pViews->GetPointer()[i].BufferLocation);
+        }
     }
 }
 
@@ -875,6 +896,7 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_Reset(con
                                                                              format::HandleId   pAllocator,
                                                                              format::HandleId   pInitialState)
 {
+    command_list_infos_[object_id] = CommandListInfo{};
     table_.ResetUser(object_id);
 }
 
