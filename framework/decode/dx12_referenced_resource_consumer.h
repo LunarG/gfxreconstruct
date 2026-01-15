@@ -126,6 +126,14 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
                                                   StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
                                                   Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor) override;
 
+    virtual void Process_ID3D12Device_CreateUnorderedAccessView(
+        const ApiCallInfo&                                              call_info,
+        format::HandleId                                                object_id,
+        format::HandleId                                                pResource,
+        format::HandleId                                                pCounterResource,
+        StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+        Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor) override;
+
     virtual void
     Process_ID3D12Device_CreateDepthStencilView(const ApiCallInfo&                                           call_info,
                                                 format::HandleId                                             object_id,
@@ -258,6 +266,18 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
         UINT                      RootParameterIndex,
         D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override;
 
+    virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override;
+
+    virtual void Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
+        const ApiCallInfo&        call_info,
+        format::HandleId          object_id,
+        UINT                      RootParameterIndex,
+        D3D12_GPU_VIRTUAL_ADDRESS BufferLocation) override;
+
     virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(const ApiCallInfo& call_info,
                                                                             format::HandleId   object_id,
                                                                             format::HandleId   pRootSignature) override;
@@ -327,7 +347,12 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
         UINT root_parameter_index;
     };
 
-    using RootParameter = std::variant<std::monostate, DescriptorRange, CBV, SRV>;
+    struct UAV
+    {
+        UINT root_parameter_index;
+    };
+
+    using RootParameter = std::variant<std::monostate, DescriptorRange, CBV, SRV, UAV>;
 
     struct RootSignatureInfo
     {
@@ -336,15 +361,17 @@ class Dx12ReferencedResourceConsumer : public Dx12Consumer
 
     struct CommandListInfo
     {
-        format::HandleId                                 graphics_root_signature;
-        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>         graphics_root_descriptor_tables;
-        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>           graphics_root_cbvs;
-        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>           graphics_root_srvs;
+        format::HandleId                         graphics_root_signature;
+        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> graphics_root_descriptor_tables;
+        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   graphics_root_cbvs;
+        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   graphics_root_srvs;
+        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   graphics_root_uavs;
 
-        format::HandleId                                 compute_root_signature;
-        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>         compute_root_descriptor_tables;
-        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>           compute_root_cbvs;
-        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>           compute_root_srvs;
+        format::HandleId                         compute_root_signature;
+        std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> compute_root_descriptor_tables;
+        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   compute_root_cbvs;
+        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   compute_root_srvs;
+        std::vector<D3D12_GPU_VIRTUAL_ADDRESS>   compute_root_uavs;
 
         format::HandleId                                 index_buffer_resource;
         std::vector<format::HandleId>                    vertex_buffer_resources;
