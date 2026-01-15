@@ -156,6 +156,42 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateRootSignature(
     root_signature_infos_.insert({ ppvRootSignature->GetPointer()[0], root_sig_info });
 }
 
+void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateCommandSignature(
+    const ApiCallInfo&                                          call_info,
+    format::HandleId                                            object_id,
+    HRESULT                                                     return_value,
+    StructPointerDecoder<Decoded_D3D12_COMMAND_SIGNATURE_DESC>* pDesc,
+    format::HandleId                                            pRootSignature,
+    Decoded_GUID                                                riid,
+    HandlePointerDecoder<void*>*                                ppvCommandSignature)
+{
+    const auto* desc = pDesc->GetPointer();
+    for (UINT i = 0; i < desc->NumArgumentDescs; ++i)
+    {
+        switch (desc->pArgumentDescs[i].Type)
+        {
+            case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW:
+            case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED:
+                command_signature_infos_.insert({ ppvCommandSignature->GetPointer()[0], { true } });
+                break;
+            case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH:
+                command_signature_infos_.insert({ ppvCommandSignature->GetPointer()[0], { false } });
+                break;
+            case D3D12_INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW:
+            case D3D12_INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW:
+            case D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW:
+            case D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW:
+            case D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW:
+                GFXRECON_LOG_WARNING_ONCE(
+                    "Command signature(s) created to modify resource bindings during indirect draw/dispatch. "
+                    "Optimized replay may be incorrect.");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     const ApiCallInfo&                                        call_info,
     format::HandleId                                          object_id,
@@ -811,8 +847,25 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12CommandQueue_ExecuteCommandLi
 {
     for (UINT i = 0; i < NumCommandLists; ++i)
     {
-        format::HandleId cmd_list_id       = ppCommandLists->GetPointer()[i];
+        format::HandleId cmd_list_id = ppCommandLists->GetPointer()[i];
         table_.ProcessUserSubmission(cmd_list_id);
+    }
+}
+
+void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
+    const ApiCallInfo& call_info,
+    format::HandleId   object_id,
+    format::HandleId   pCommandSignature,
+    UINT               MaxCommandCount,
+    format::HandleId   pArgumentBuffer,
+    UINT64             ArgumentBufferOffset,
+    format::HandleId   pCountBuffer,
+    UINT64             CountBufferOffset)
+{
+    auto sig_info = command_signature_infos_.find(pCommandSignature);
+    if (sig_info != command_signature_infos_.end())
+    {
+        CommandListTrackDrawResources(object_id, sig_info->second.is_graphics);
     }
 }
 
