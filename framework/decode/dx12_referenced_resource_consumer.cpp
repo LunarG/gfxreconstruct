@@ -144,6 +144,10 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateRootSignature(
         {
             root_sig_info.root_parameters.push_back(SRV{ i });
         }
+        else if (param.ParameterType == D3D12_ROOT_PARAMETER_TYPE_UAV)
+        {
+            root_sig_info.root_parameters.push_back(UAV{ i });
+        }
         else
         {
             root_sig_info.root_parameters.push_back({});
@@ -206,6 +210,28 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateShaderResourceVi
     if (desc_heap_info != descriptor_heap_infos_.end())
     {
         desc_heap_info->second.resources[DestDescriptor.index] = pResource;
+    }
+}
+
+void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
+    const ApiCallInfo&                                              call_info,
+    format::HandleId                                                object_id,
+    format::HandleId                                                pResource,
+    format::HandleId                                                pCounterResource,
+    StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
+{
+    auto desc_heap_info = descriptor_heap_infos_.find(DestDescriptor.heap_id);
+    if (desc_heap_info != descriptor_heap_infos_.end())
+    {
+        desc_heap_info->second.resources[DestDescriptor.index] = pResource;
+        if (pResource == 52138)
+        {
+            GFXRECON_LOG_WARNING("UAV with resource %llu recorded with heap %llu at index %lu",
+                                 pResource,
+                                 DestDescriptor.heap_id,
+                                 DestDescriptor.index);
+        }
     }
 }
 
@@ -515,6 +541,34 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_SetComput
     root_srvs[RootParameterIndex] = BufferLocation;
 }
 
+void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
+    const ApiCallInfo&        call_info,
+    format::HandleId          object_id,
+    UINT                      RootParameterIndex,
+    D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+{
+    auto& root_uavs = command_list_infos_[object_id].graphics_root_uavs;
+    if (root_uavs.size() <= RootParameterIndex)
+    {
+        root_uavs.resize(RootParameterIndex + 1);
+    }
+    root_uavs[RootParameterIndex] = BufferLocation;
+}
+
+void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
+    const ApiCallInfo&        call_info,
+    format::HandleId          object_id,
+    UINT                      RootParameterIndex,
+    D3D12_GPU_VIRTUAL_ADDRESS BufferLocation)
+{
+    auto& root_uavs = command_list_infos_[object_id].compute_root_uavs;
+    if (root_uavs.size() <= RootParameterIndex)
+    {
+        root_uavs.resize(RootParameterIndex + 1);
+    }
+    root_uavs[RootParameterIndex] = BufferLocation;
+}
+
 void Dx12ReferencedResourceConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignature(
     const ApiCallInfo& call_info, format::HandleId object_id, format::HandleId pRootSignature)
 {
@@ -644,6 +698,27 @@ void Dx12ReferencedResourceConsumer::CommandListTrackDrawResources(format::Handl
                     {
                         GFXRECON_LOG_WARNING("Could not find buffer for SRV root parameter %d",
                                              srv->root_parameter_index);
+                        continue;
+                    }
+
+                    table_.AddResourceToUser(command_list_id, resource);
+                }
+                else if (const auto* uav = std::get_if<UAV>(&param))
+                {
+                    // UAV
+                    auto& root_uavs = is_graphics ? cmd_list_info->second.graphics_root_uavs
+                                                  : cmd_list_info->second.compute_root_uavs;
+                    if (uav->root_parameter_index >= root_uavs.size())
+                        continue;
+
+                    auto resource = GetResourceIDForBufferLocation(root_uavs[uav->root_parameter_index]);
+                    GFXRECON_LOG_WARNING("UAV root parameter %d uses GPU address 0x%llx",
+                                         uav->root_parameter_index,
+                                         root_uavs[uav->root_parameter_index]);
+                    if (resource == format::kNullHandleId)
+                    {
+                        GFXRECON_LOG_WARNING("Could not find buffer for UAV root parameter %d",
+                                             uav->root_parameter_index);
                         continue;
                     }
 
