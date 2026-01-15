@@ -659,7 +659,9 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
     auto state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(state_object_decoder);
     if (grow_from_state_object != nullptr)
     {
-        lrs_associations_map = grow_from_state_object->export_name_lrs_map;
+        //lrs_associations_map = grow_from_state_object->export_name_lrs_map;
+        state_object_extra_info->shader_id_lrs_map.insert(grow_from_state_object->shader_id_lrs_map.begin(),
+                                                          grow_from_state_object->shader_id_lrs_map.end());
     }
 
     GetStateObjectLrsAssociationInfo(state_object_id,
