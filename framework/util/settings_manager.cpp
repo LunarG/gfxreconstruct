@@ -62,6 +62,19 @@ SettingsManager::SettingsManager(format::ApiFamilyId api_family)
 
 SettingsManager::~SettingsManager() {}
 
+// Convert a setting value (received either through a settings file or an environment/property string)
+// into a boolean value.
+// In this case, any non-zero integer is considered true, and any string value of "true" is considered true.
+bool SettingsManager::SettingValueToBool(const std::string& setting_value)
+{
+    if (util::platform::StringCompareNoCase("true", setting_value.c_str()) == 0 || atoi(setting_value.c_str()) != 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+// Some D3D defaults are different than Vulkan, those should be initialized here
 void SettingsManager::EnableD3D12SettingsDefaults()
 {
 #ifdef WIN32
@@ -69,6 +82,10 @@ void SettingsManager::EnableD3D12SettingsDefaults()
 #endif
 }
 
+// Vulkan alone has the ability to have a layer settings file which can override the defaults.
+// This file, though, is considered higher importance than only the default values, meaning it
+// can be overridden by environment variables, command-line settings, etc.
+// However, read the content if it exists after we have initialized the defaults.
 bool SettingsManager::ReadVulkanCaptureLayerSettingsFile()
 {
     bool         success           = false;
@@ -112,6 +129,8 @@ bool SettingsManager::ReadVulkanCaptureLayerSettingsFile()
                     // Ignore entries with keys that do not start with the filter prefix.
                     if (platform::StringCompare(key, gfxr_file_layer_prefix_.c_str(), kFilterLength) == 0)
                     {
+                        // Call the generated function to adjust the individual setting based on the key
+                        // to the incoming value (if appropriate)
                         AdjustSettingFromFile(&key[kFilterLength], RemoveQuotes(value));
                     }
                 }
@@ -134,6 +153,29 @@ bool SettingsManager::ReadVulkanCaptureLayerSettingsFile()
         }
     }
     return success;
+}
+
+// Read the environment/property value as a string.  We worry about converting it based on expected
+// type until later.
+bool SettingsManager::ReadEnvironmentVariable(const std::string& setting_string, std::string& value)
+{
+    std::string env_var_name;
+
+#if defined(__ANDROID__)
+    env_var_name = android_property_prefix_ + setting_string;
+    std::transform(env_var_name.begin(), env_var_name.end(), env_var_name.begin(), ::tolower);
+#else
+    env_var_name = desktop_env_var_prefix_ + setting_string;
+    std::transform(env_var_name.begin(), env_var_name.end(), env_var_name.begin(), ::toupper);
+#endif
+    std::string env_var_value = util::platform::GetEnv(env_var_name.c_str());
+    if (!env_var_value.empty())
+    {
+        value = RemoveQuotes(env_var_value);
+        GFXRECON_LOG_DEBUG("Found environment/property %s with value %s", env_var_name.c_str(), env_var_value.c_str());
+        return true;
+    }
+    return false;
 }
 
 #include "generated_settings_manager.cpp"

@@ -376,7 +376,8 @@ class ParsedSetting():
             if len(self.platforms) == 1:
                 if len(description_restriction) == 0:
                     description_restriction += '['
-                description_restriction += GetReadablePlatformString(self.platforms[0]) + ' '
+                description_restriction += GetReadablePlatformString(
+                    self.platforms[0]) + ' '
         else:
             self.platforms.append("ALL")
 
@@ -387,7 +388,8 @@ class ParsedSetting():
             if len(self.apis) == 1:
                 if len(description_restriction) == 0:
                     description_restriction += '['
-                description_restriction += GetReadableApiString(self.apis[0]) + ' '
+                description_restriction += GetReadableApiString(
+                    self.apis[0]) + ' '
         else:
             self.apis.append("ALL")
 
@@ -1040,9 +1042,7 @@ def GenerateToolIfCheck(tool_list, indent: int = 1):
 #   None
 def GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
                            settings_platforms):
-    print(
-        f"Generating {generated_settings_struct_filename} file"
-    )
+    print(f"Generating {generated_settings_struct_filename} file")
 
     # Determine how many different lists we need to track individual
     # groups of settings to tools regions
@@ -1149,9 +1149,7 @@ def GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
 #   None
 def GenerateSettingsManagerSource(parsed_settings, settings_tools,
                                   settings_platforms):
-    print(
-        f"Generating {generated_settings_manager_filename} file"
-    )
+    print(f"Generating {generated_settings_manager_filename} file")
 
     vulkan_capture_settings_per_platform = OrderedDict()
     envvar_read_per_tool_per_api_per_platform = OrderedDict()
@@ -1196,7 +1194,13 @@ def GenerateSettingsManagerSource(parsed_settings, settings_tools,
         setting_manager_source.write(generated_source_copyright)
         setting_manager_source.write("\n// clang-format off\n\n")
         setting_manager_source.write(
-            "\nvoid SettingsManager::AdjustSettingFromFile(const std::string& key,\n"
+            "\n// This functions takes in a settings key value and a string from the Vulkan settings file\n"
+        )
+        setting_manager_source.write(
+            "// and attempts to update the setting value associated with the key.\n"
+        )
+        setting_manager_source.write(
+            "void SettingsManager::AdjustSettingFromFile(const std::string& key,\n"
         )
         setting_manager_source.write(
             "                                            const std::string& value)\n"
@@ -1245,7 +1249,14 @@ def GenerateSettingsManagerSource(parsed_settings, settings_tools,
         setting_manager_source.write("}\n\n")
 
         setting_manager_source.write(
-            "\nvoid SettingsManager::ReadEnvironmentVariables()\n")
+            "\n// This functions checks for any possible environment variables that GFXR cares about,\n"
+        )
+        setting_manager_source.write(
+            "// based on the type of tool running, and adjusts the corresponding setting value\n"
+        )
+        setting_manager_source.write("// based on what is read, if valid.\n")
+        setting_manager_source.write(
+            "void SettingsManager::ReadEnvironmentVariables()\n")
         setting_manager_source.write("{\n")
         setting_manager_source.write("    std::string env_var_value;\n")
 
@@ -1279,7 +1290,14 @@ def GenerateSettingsManagerSource(parsed_settings, settings_tools,
         setting_manager_source.write("}\n\n")
 
         setting_manager_source.write(
-            "\nvoid SettingsManager::UpdateDynamicEnvironmentVariables()\n")
+            "\n// This functions checks only environment variables that may change dynamically,\n"
+        )
+        setting_manager_source.write(
+            "// based on the type of tool running, and adjusts the corresponding setting value\n"
+        )
+        setting_manager_source.write("// based on what is read, if valid.\n")
+        setting_manager_source.write(
+            "void SettingsManager::UpdateDynamicEnvironmentVariables()\n")
         setting_manager_source.write("{\n")
         setting_manager_source.write("    std::string env_var_value;\n")
 

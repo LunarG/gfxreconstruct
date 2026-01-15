@@ -27,6 +27,8 @@
 // clang-format off
 
 
+// This functions takes in a settings key value and a string from the Vulkan settings file
+// and attempts to update the setting value associated with the key.
 void SettingsManager::AdjustSettingFromFile(const std::string& key,
                                             const std::string& value)
 {
@@ -249,6 +251,9 @@ void SettingsManager::AdjustSettingFromFile(const std::string& key,
 }
 
 
+// This functions checks for any possible environment variables that GFXR cares about,
+// based on the type of tool running, and adjusts the corresponding setting value
+// based on what is read, if valid.
 void SettingsManager::ReadEnvironmentVariables()
 {
     std::string env_var_value;
@@ -517,6 +522,9 @@ void SettingsManager::ReadEnvironmentVariables()
 }
 
 
+// This functions checks only environment variables that may change dynamically,
+// based on the type of tool running, and adjusts the corresponding setting value
+// based on what is read, if valid.
 void SettingsManager::UpdateDynamicEnvironmentVariables()
 {
     std::string env_var_value;

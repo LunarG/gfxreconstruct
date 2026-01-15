@@ -24,10 +24,10 @@ pip install jsonschema
 
 Once all dependencies are installed, simply execute the
 [generate_settings.py](./generate_settings.py) Python
-script in this folder by calling:
+script by calling:
 
 ```bash
-python3 generate_settings.py
+python3 scripts/settings_options/generate_settings.py
 ```
 
 This will update the settings in the following locations:
@@ -161,6 +161,13 @@ Supported Primitive types include:
 - SAVE_FILE : the type is a file that is used to save results somewhere
 - SAVE_FOLDER : the type is a folder that will be used to generate data to
 - STRING : Standard string type
+
+#### Group
+
+If this type is a group, it is intended as a mechanism for grouping together
+related settings.
+This is currently only used for VkConfig display but is very useful in the future
+if other means of display settings are ever used.
 
 #### Default
 
