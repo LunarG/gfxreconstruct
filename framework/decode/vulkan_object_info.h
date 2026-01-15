@@ -40,6 +40,7 @@
 #include <cstdint>
 #include <memory>
 #include <map>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -520,7 +521,7 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // keep track of existing usage of buffer-references
-    std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
+    std::set<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 
     // map capture- to replay-time shader-group-handles
     std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t> shader_group_handle_map;
@@ -691,7 +692,12 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
     // collect buffer-device-addresses of locations to replace before submit
     std::unordered_set<VkDeviceAddress> addresses_to_replace;
-    bool                                inside_renderpass = false;
+
+    // maps buffers to (offset/stride)-pairs that need to be resolved
+    // (read back pointers, resolve additional buffers)
+    std::unordered_map<const VulkanBufferInfo*, std::vector<std::pair<size_t, size_t>>> addresses_to_resolve;
+
+    bool inside_renderpass = false;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>

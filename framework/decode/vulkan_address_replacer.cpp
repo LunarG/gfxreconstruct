@@ -28,6 +28,8 @@
 #include "util/alignment_utils.h"
 #include "util/logging.h"
 
+#include <set>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -465,6 +467,66 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
     return VK_NULL_HANDLE;
 }
 
+void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*                  command_buffer_info,
+                                                   const decode::VulkanDeviceAddressTracker& address_tracker)
+{
+    for (const auto& [buffer_info, offset_pairs] : command_buffer_info->addresses_to_resolve)
+    {
+        GFXRECON_ASSERT(buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+        // map buffer
+        void*    ptr = nullptr;
+        VkResult result =
+            resource_allocator_->MapResourceMemoryDirect(VK_WHOLE_SIZE, 0, &ptr, buffer_info->allocator_data);
+
+        if (result == VK_SUCCESS && ptr != nullptr)
+        {
+            for (const auto& [offset, stride] : offset_pairs)
+            {
+                VkDeviceAddress buffer_address =
+                    *reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(ptr) + offset);
+                auto* found_buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(buffer_address);
+                bool  already_replaced  = false;
+
+                // consider already replaced address
+                if (found_buffer_info == nullptr)
+                {
+                    found_buffer_info = address_tracker.GetBufferByReplayDeviceAddress(buffer_address);
+                    already_replaced  = found_buffer_info;
+                }
+                GFXRECON_ASSERT(found_buffer_info);
+
+                // ensure buffer exists and replacement actually required
+                if (found_buffer_info != nullptr && found_buffer_info->replay_address != 0 &&
+                    found_buffer_info->capture_address != found_buffer_info->replay_address)
+                {
+                    VkDeviceAddress base_address =
+                        already_replaced ? found_buffer_info->replay_address : found_buffer_info->capture_address;
+                    uint32_t address_offset = buffer_address - base_address;
+
+                    // this addresses is inside another referenced buffer -> record for replacement
+                    VkDeviceAddress address = found_buffer_info->replay_address + address_offset;
+
+                    VkDeviceAddress range_end = found_buffer_info->replay_address + found_buffer_info->size;
+                    command_buffer_info->addresses_to_replace.insert(address);
+
+                    if (stride > 0)
+                    {
+                        address += stride;
+                        for (; address < range_end; address += stride)
+                        {
+                            command_buffer_info->addresses_to_replace.insert(address);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // everything is resolved, clear
+    command_buffer_info->addresses_to_resolve.clear();
+}
+
 void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInfo*            command_buffer_info,
                                                     VkShaderStageFlags                        stage_flags,
                                                     uint32_t                                  offset,
@@ -519,6 +581,11 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
 
     std::map<std::pair<VkDescriptorSet, uint32_t>, VkWriteDescriptorSetInlineUniformBlock> sets_requiring_update;
 
+    using set_key_t = std::tuple<uint32_t, uint32_t, uint32_t, uint32_t>;
+
+    // map used to identify chained pointer-accesses (identical set/binding/offsets)
+    std::set<set_key_t> dup_map;
+
     for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
     {
         if (buffer_ref_info.source != util::SpirVParsingUtil::BufferReferenceLocation::UNIFORM_BUFFER &&
@@ -528,6 +595,11 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             continue;
         }
         GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
+
+        set_key_t set_key = { static_cast<uint32_t>(buffer_ref_info.source),
+                              buffer_ref_info.set,
+                              buffer_ref_info.binding,
+                              buffer_ref_info.buffer_offset };
 
         // we need a mutable pointer, to allow for in-place corrections
         auto* descriptor_set_info =
@@ -580,18 +652,30 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                     address_tracker.TrackBuffer(buffer_info);
                 }
 
-                VkDeviceSize    offset  = desc_buffer_info.offset + buffer_ref_info.buffer_offset;
-                VkDeviceAddress address = buffer_info->replay_address + offset;
-                VkDeviceAddress range_end =
-                    address + std::min<VkDeviceSize>(buffer_info->size - offset, desc_buffer_info.range);
-                command_buffer_info->addresses_to_replace.insert(address);
+                VkDeviceSize offset = desc_buffer_info.offset + buffer_ref_info.buffer_offset;
 
-                if (buffer_ref_info.array_stride)
+                bool is_pointer_chain = dup_map.contains(set_key);
+
+                if (is_pointer_chain)
                 {
-                    address += buffer_ref_info.array_stride;
-                    for (; address < range_end; address += buffer_ref_info.array_stride)
+                    command_buffer_info->addresses_to_resolve[buffer_info].push_back(
+                        { offset, buffer_ref_info.array_stride });
+                }
+                else
+                {
+                    // collect addresses to-fix using a gpu-dispatch
+                    VkDeviceAddress address = buffer_info->replay_address + offset;
+                    VkDeviceAddress range_end =
+                        address + std::min<VkDeviceSize>(buffer_info->size - offset, desc_buffer_info.range);
+                    command_buffer_info->addresses_to_replace.insert(address);
+
+                    if (buffer_ref_info.array_stride)
                     {
-                        command_buffer_info->addresses_to_replace.insert(address);
+                        address += buffer_ref_info.array_stride;
+                        for (; address < range_end; address += buffer_ref_info.array_stride)
+                        {
+                            command_buffer_info->addresses_to_replace.insert(address);
+                        }
                     }
                 }
             }
@@ -625,6 +709,8 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                 write_inline_uniform_block.pData    = descriptor_set_binding_info.inline_uniform_block.data();
             }
         }
+
+        dup_map.insert(set_key);
     } // pipeline_info->buffer_reference_infos
 
     std::vector<VkWriteDescriptorSet> descriptor_updates;

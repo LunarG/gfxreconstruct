@@ -59,8 +59,7 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                     if (pipeline_info != nullptr && module_info != nullptr)
                     {
                         // extract information about buffer-references, present in shadermodule-info structs
-                        pipeline_info->buffer_reference_infos.insert(pipeline_info->buffer_reference_infos.end(),
-                                                                     module_info->buffer_reference_infos.begin(),
+                        pipeline_info->buffer_reference_infos.insert(module_info->buffer_reference_infos.begin(),
                                                                      module_info->buffer_reference_infos.end());
                     }
 
@@ -112,8 +111,7 @@ void populate_shader_stages(
             if (module_info != nullptr)
             {
                 // extract information about buffer-references, present in shadermodule-info structs
-                pipeline_info->buffer_reference_infos.insert(pipeline_info->buffer_reference_infos.end(),
-                                                             module_info->buffer_reference_infos.begin(),
+                pipeline_info->buffer_reference_infos.insert(module_info->buffer_reference_infos.begin(),
                                                              module_info->buffer_reference_infos.end());
             }
 

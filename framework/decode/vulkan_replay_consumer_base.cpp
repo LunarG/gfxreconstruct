@@ -4113,6 +4113,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (UseAddressReplacement(device_info) && submit_info_data != nullptr)
     {
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+
         for (uint32_t i = 0; i < submitCount; i++)
         {
             std::vector<VkDeviceAddress> addresses_to_replace;
@@ -4128,6 +4131,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             {
                 auto* command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_handles[c]);
                 GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+                // resolve pointer-chains, discover additional referenced buffers
+                address_replacer.ResolveBufferAddresses(command_buffer_info, address_tracker);
+
+                // collect buffer-device-address from all command-buffers
                 addresses_to_replace.insert(addresses_to_replace.end(),
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
@@ -4142,9 +4150,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             {
                 VkSubmitInfo& submit_info_mut = pSubmits->GetPointer()[i];
                 auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
-
-                auto& address_replacer = GetDeviceAddressReplacer(device_info);
-                semaphores[i]          = address_replacer.UpdateBufferAddresses(cmd_buf_info,
+                semaphores[i]                 = address_replacer.UpdateBufferAddresses(cmd_buf_info,
                                                                        addresses_to_replace.data(),
                                                                        addresses_to_replace.size(),
                                                                        GetDeviceAddressTracker(device_info),
@@ -4355,6 +4361,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     if (UseAddressReplacement(device_info) && submit_info_data != nullptr)
     {
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+
         for (uint32_t i = 0; i < submitCount; i++)
         {
             std::vector<VkDeviceAddress> addresses_to_replace;
@@ -4371,6 +4380,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 auto* command_buffer_info =
                     GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_info_metas[c].commandBuffer);
                 GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+                // resolve pointer-chains, discover additional referenced buffers
+                address_replacer.ResolveBufferAddresses(command_buffer_info, address_tracker);
+
+                // collect buffer-device-address from all command-buffers
                 addresses_to_replace.insert(addresses_to_replace.end(),
                                             command_buffer_info->addresses_to_replace.begin(),
                                             command_buffer_info->addresses_to_replace.end());
@@ -4391,7 +4405,6 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 semaphore_info.value                  = 1;
 
                 // runs replacer, sync via semaphore
-                auto& address_replacer   = GetDeviceAddressReplacer(device_info);
                 semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(cmd_buf_info,
                                                                                   addresses_to_replace.data(),
                                                                                   addresses_to_replace.size(),
