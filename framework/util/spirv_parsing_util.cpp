@@ -57,9 +57,8 @@ LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description
             break;
 
         case SpvOpTypeMatrix:
-            num_bytes *= type_description->traits.numeric.matrix.column_count;
-            num_bytes *= type_description->traits.numeric.matrix.row_count;
-            num_bytes = std::max(num_bytes, type_description->traits.numeric.matrix.stride);
+            num_bytes =
+                type_description->traits.numeric.matrix.column_count * type_description->traits.numeric.matrix.stride;
             break;
 
         case SpvOpTypeArray:
