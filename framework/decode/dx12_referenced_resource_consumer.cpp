@@ -713,14 +713,34 @@ void Dx12ReferencedResourceConsumer::CommandListTrackDrawResources(format::Handl
 
                     UINT64 heap_index =
                         (root_descriptor_tables[range->root_parameter_index].ptr - desc_heap_info->start_handle.ptr) /
-                        cbv_srv_uav_handle_size_;
+                            cbv_srv_uav_handle_size_ +
+                        range->offset;
 
-                    for (UINT i = 0; i < range->num_descriptors; ++i)
+                    if (range->num_descriptors == UINT_MAX)
                     {
-                        auto res_it = desc_heap_info->resources.find(heap_index + range->offset + i);
-                        if (res_it != desc_heap_info->resources.end())
+                        // Unbounded descriptor table case
+                        // It takes too long to iterate over all descriptors for every draw call so just track the
+                        // lowest index used for each heap and do the rest of the tracking during ExecuteCommandLists
+                        auto& unbounded_heap_access = cmd_list_info->second.unbounded_descriptor_heap_access;
+                        auto  current_minimum       = unbounded_heap_access.find(desc_heap_id);
+                        if (current_minimum == unbounded_heap_access.end())
                         {
-                            table_.AddResourceToUser(command_list_id, res_it->second);
+                            unbounded_heap_access[desc_heap_id] = heap_index;
+                        }
+                        else if (heap_index < current_minimum->second)
+                        {
+                            current_minimum->second = heap_index;
+                        }
+                    }
+                    else
+                    {
+                        for (UINT i = 0; i < range->num_descriptors; ++i)
+                        {
+                            auto res_it = desc_heap_info->resources.find(heap_index + i);
+                            if (res_it != desc_heap_info->resources.end())
+                            {
+                                table_.AddResourceToUser(command_list_id, res_it->second);
+                            }
                         }
                     }
                 }
@@ -869,6 +889,24 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12CommandQueue_ExecuteCommandLi
     for (UINT i = 0; i < NumCommandLists; ++i)
     {
         format::HandleId cmd_list_id = ppCommandLists->GetPointer()[i];
+
+        // Finish processing the unbounded descriptor heap accesses recorded during draw calls
+        auto cmd_list_info = command_list_infos_.find(cmd_list_id);
+        for (const auto& [desc_heap_id, min_index] : cmd_list_info->second.unbounded_descriptor_heap_access)
+        {
+            auto desc_heap_info = descriptor_heap_infos_.find(desc_heap_id);
+            if (desc_heap_info != descriptor_heap_infos_.end())
+            {
+                for (const auto& [index, resource] : desc_heap_info->second.resources)
+                {
+                    if (index >= min_index)
+                    {
+                        table_.AddResourceToUser(cmd_list_id, resource);
+                    }
+                }
+            }
+        }
+
         table_.ProcessUserSubmission(cmd_list_id);
     }
 }
