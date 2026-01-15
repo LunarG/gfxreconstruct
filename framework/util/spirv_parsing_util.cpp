@@ -58,9 +58,16 @@ LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description
             break;
 
         case SpvOpTypeMatrix:
-            num_bytes =
-                type_description->traits.numeric.matrix.column_count * type_description->traits.numeric.matrix.stride;
-            break;
+        {
+            bool is_col_major = type_description->decoration_flags & SPV_REFLECT_DECORATION_COLUMN_MAJOR ||
+                                !(type_description->decoration_flags & SPV_REFLECT_DECORATION_ROW_MAJOR);
+
+            num_bytes = (is_col_major ? type_description->traits.numeric.matrix.column_count
+                                      : type_description->traits.numeric.matrix.row_count) *
+                        type_description->traits.numeric.matrix.stride;
+        }
+
+        break;
 
         case SpvOpTypeArray:
         case SpvOpTypeRuntimeArray:
