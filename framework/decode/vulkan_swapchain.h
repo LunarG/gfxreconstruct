@@ -60,6 +60,7 @@ class VulkanSwapchain
 
     virtual void Clean();
 
+    VulkanSwapchainOptions GetOptions() { return swapchain_options_; }
     void SetOptions(const VulkanSwapchainOptions& options) { swapchain_options_ = options; }
 
     virtual VkResult CreateSurface(VkResult                             original_result,
