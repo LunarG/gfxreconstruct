@@ -75,6 +75,12 @@ VKAPI_ATTR uint64_t VKAPI_CALL vkGetBlockIndexGFXR();
 
 VKAPI_ATTR void VKAPI_CALL vkDumpAssetsGFXR();
 
+extern "C"
+{
+    GFXR_EXPORT VKAPI_ATTR void VKAPI_CALL GFXRSetTrimmingState(bool trimming_enabled);
+    GFXR_EXPORT VKAPI_ATTR uint32_t VKAPI_CALL GFXRGetCaptureMode();
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateGraphicsPipelines(VkDevice                            device,
                                                          VkPipelineCache                     pipelineCache,
                                                          uint32_t                            createInfoCount,

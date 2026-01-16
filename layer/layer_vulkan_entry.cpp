@@ -515,12 +515,6 @@ GFXRECON_END_NAMESPACE(openxr_layer)
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#if defined(__GNUC__) && __GNUC__ >= 4
-#define GFXR_EXPORT __attribute__((visibility("default")))
-#else
-#define GFXR_EXPORT
-#endif
-
 // To be safe, we extern "C" these items to remove name mangling for all the items we want to export for Android and old
 // loaders to find.
 extern "C"

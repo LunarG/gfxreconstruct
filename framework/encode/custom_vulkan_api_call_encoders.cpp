@@ -36,6 +36,7 @@
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <cassert>
 
@@ -489,6 +490,23 @@ VKAPI_ATTR void VKAPI_CALL vkDumpAssetsGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     manager->SetWriteAssets();
+}
+
+extern "C"
+{
+    GFXR_EXPORT VKAPI_ATTR void VKAPI_CALL GFXRSetTrimmingState(bool trimming_enabled)
+    {
+        static VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+        GFXRECON_ASSERT(manager != nullptr);
+        manager->ExternallySetTrimmingState(trimming_enabled);
+    }
+
+    GFXR_EXPORT VKAPI_ATTR uint32_t VKAPI_CALL GFXRGetCaptureMode()
+    {
+        VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+        GFXRECON_ASSERT(manager != nullptr);
+        return static_cast<uint32_t>(manager->GetCaptureMode());
+    }
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateGraphicsPipelines(VkDevice                            device,
