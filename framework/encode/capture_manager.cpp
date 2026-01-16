@@ -51,8 +51,7 @@ extern char** environ;
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// One based frame count.
-const uint32_t kFirstFrame           = 1;
+const uint32_t kFirstFrame           = 0;
 const size_t   kFileStreamBufferSize = 256 * 1024;
 
 CommonCaptureManager*                          CommonCaptureManager::singleton_;
