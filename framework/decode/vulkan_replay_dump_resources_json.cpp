@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2025 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,26 +23,22 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_options.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "format/format.h"
 #include "format/format_util.h"
-#include "util/file_path.h"
-#include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "generated/generated_vulkan_enum_to_string.h"
+#include PROJECT_VERSION_HEADER_FILE
 #include "util/file_path.h"
 #include "util/logging.h"
-#include <cstdint>
-#include PROJECT_VERSION_HEADER_FILE
-#include "generated/generated_vulkan_enum_to_string.h"
-#include "vulkan_replay_dump_resources_json.h"
 #include "util/platform.h"
-#include "util/file_path.h"
-#include "vulkan/vulkan_core.h"
-#include <cstddef>
+#include "vulkan_replay_dump_resources_json.h"
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayOptions& options) :
     file_(nullptr), current_entry(nullptr), first_block_(true), draw_calls_entry_index(0), dispatch_entry_index(0),
-    trace_rays_entry_index(0)
+    trace_rays_entry_index(0), transfer_entry_index(0)
 {
     header_["vulkanVersion"] = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
@@ -238,11 +234,10 @@ void VulkanReplayDumpResourcesJson::InsertBeforeImageSubresourceInfo(
 void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& json_entry,
                                                      const DumpedBuffer&     dumped_buffer)
 {
-    const VulkanBufferInfo* buffer_info = dumped_buffer.buffer_info;
-
-    if (buffer_info != nullptr)
+    if (dumped_buffer.buffer_info.handle != VK_NULL_HANDLE &&
+        dumped_buffer.buffer_info.capture_id != format::kNullHandleId)
     {
-        json_entry["bufferId"] = buffer_info->capture_id;
+        json_entry["bufferId"] = dumped_buffer.buffer_info.capture_id;
     }
 
     json_entry["offset"] = dumped_buffer.offset;

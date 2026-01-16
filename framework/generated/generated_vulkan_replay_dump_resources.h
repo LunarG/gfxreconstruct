@@ -49,7 +49,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayDumpResources : public VulkanReplayDumpResourcesBase
 {
   public:
-    VulkanReplayDumpResources(const VulkanReplayOptions& options, CommonObjectInfoTable* object_info_table, const VulkanPerDeviceAddressTrackers& address_trackers) : VulkanReplayDumpResourcesBase(options, object_info_table, address_trackers) { }
+    VulkanReplayDumpResources(const VulkanReplayOptions& options,
+                              CommonObjectInfoTable* object_info_table,
+                              const VulkanPerDeviceAddressTrackers& address_trackers,
+                              const graphics::InstanceDispatchTablesMap& instance_tables,
+                              const graphics::DeviceDispatchTablesMap& device_tables) : VulkanReplayDumpResourcesBase(options, object_info_table, address_trackers, instance_tables, device_tables) { }
 
     ~VulkanReplayDumpResources() { }
 
@@ -63,41 +67,45 @@ void Process_vkCmdCopyBuffer(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyBuffer                         func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    srcBuffer,
-    VkBuffer                                    dstBuffer,
+    const VulkanBufferInfo*                     srcBuffer,
+    const VulkanBufferInfo*                     dstBuffer,
     uint32_t                                    regionCount,
-    const VkBufferCopy*                         pRegions);
+    StructPointerDecoder<Decoded_VkBufferCopy>* pRegions,
+    bool before_command);
 
 void Process_vkCmdCopyImage(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyImage                          func,
     VkCommandBuffer                             commandBuffer,
-    VkImage                                     srcImage,
+    const VulkanImageInfo*                      srcImage,
     VkImageLayout                               srcImageLayout,
-    VkImage                                     dstImage,
+    const VulkanImageInfo*                      dstImage,
     VkImageLayout                               dstImageLayout,
     uint32_t                                    regionCount,
-    const VkImageCopy*                          pRegions);
+    StructPointerDecoder<Decoded_VkImageCopy>*  pRegions,
+    bool before_command);
 
 void Process_vkCmdCopyBufferToImage(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyBufferToImage                  func,
     VkCommandBuffer                             commandBuffer,
-    VkBuffer                                    srcBuffer,
-    VkImage                                     dstImage,
+    const VulkanBufferInfo*                     srcBuffer,
+    const VulkanImageInfo*                      dstImage,
     VkImageLayout                               dstImageLayout,
     uint32_t                                    regionCount,
-    const VkBufferImageCopy*                    pRegions);
+    StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions,
+    bool before_command);
 
 void Process_vkCmdCopyImageToBuffer(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyImageToBuffer                  func,
     VkCommandBuffer                             commandBuffer,
-    VkImage                                     srcImage,
+    const VulkanImageInfo*                      srcImage,
     VkImageLayout                               srcImageLayout,
-    VkBuffer                                    dstBuffer,
+    const VulkanBufferInfo*                     dstBuffer,
     uint32_t                                    regionCount,
-    const VkBufferImageCopy*                    pRegions);
+    StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions,
+    bool before_command);
 
 void Process_vkCmdUpdateBuffer(
     const ApiCallInfo&                          call_info,
@@ -386,13 +394,14 @@ void Process_vkCmdBlitImage(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBlitImage                          func,
     VkCommandBuffer                             commandBuffer,
-    VkImage                                     srcImage,
+    const VulkanImageInfo*                      srcImage,
     VkImageLayout                               srcImageLayout,
-    VkImage                                     dstImage,
+    const VulkanImageInfo*                      dstImage,
     VkImageLayout                               dstImageLayout,
     uint32_t                                    regionCount,
-    const VkImageBlit*                          pRegions,
-    VkFilter                                    filter);
+    StructPointerDecoder<Decoded_VkImageBlit>*  pRegions,
+    VkFilter                                    filter,
+    bool before_command);
 
 void Process_vkCmdClearDepthStencilImage(
     const ApiCallInfo&                          call_info,
@@ -519,25 +528,29 @@ void Process_vkCmdCopyBuffer2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyBuffer2                        func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyBufferInfo2*                    pCopyBufferInfo);
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo,
+    bool before_command);
 
 void Process_vkCmdCopyImage2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyImage2                         func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyImageInfo2*                     pCopyImageInfo);
+    StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo,
+    bool before_command);
 
 void Process_vkCmdCopyBufferToImage2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyBufferToImage2                 func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyBufferToImageInfo2*             pCopyBufferToImageInfo);
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo,
+    bool before_command);
 
 void Process_vkCmdCopyImageToBuffer2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyImageToBuffer2                 func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyImageToBufferInfo2*             pCopyImageToBufferInfo);
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo,
+    bool before_command);
 
 void Process_vkCmdSetEvent2(
     const ApiCallInfo&                          call_info,
@@ -565,7 +578,8 @@ void Process_vkCmdBlitImage2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBlitImage2                         func,
     VkCommandBuffer                             commandBuffer,
-    const VkBlitImageInfo2*                     pBlitImageInfo);
+    StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo,
+    bool before_command);
 
 void Process_vkCmdResolveImage2(
     const ApiCallInfo&                          call_info,
@@ -934,31 +948,36 @@ void Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyBuffer2KHR                     func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyBufferInfo2*                    pCopyBufferInfo);
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo,
+    bool before_command);
 
 void Process_vkCmdCopyImage2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyImage2KHR                      func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyImageInfo2*                     pCopyImageInfo);
+    StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo,
+    bool before_command);
 
 void Process_vkCmdCopyBufferToImage2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyBufferToImage2KHR              func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyBufferToImageInfo2*             pCopyBufferToImageInfo);
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo,
+    bool before_command);
 
 void Process_vkCmdCopyImageToBuffer2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyImageToBuffer2KHR              func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyImageToBufferInfo2*             pCopyImageToBufferInfo);
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo,
+    bool before_command);
 
 void Process_vkCmdBlitImage2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBlitImage2KHR                      func,
     VkCommandBuffer                             commandBuffer,
-    const VkBlitImageInfo2*                     pBlitImageInfo);
+    StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo,
+    bool before_command);
 
 void Process_vkCmdResolveImage2KHR(
     const ApiCallInfo&                          call_info,
@@ -1964,8 +1983,9 @@ void Process_vkCmdBuildAccelerationStructuresKHR(
     PFN_vkCmdBuildAccelerationStructuresKHR     func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    infoCount,
-    const VkAccelerationStructureBuildGeometryInfoKHR* pInfos,
-    const VkAccelerationStructureBuildRangeInfoKHR* const * ppBuildRangeInfos);
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>* ppBuildRangeInfos,
+    bool before_command);
 
 void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     const ApiCallInfo&                          call_info,
@@ -1981,7 +2001,8 @@ void Process_vkCmdCopyAccelerationStructureKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyAccelerationStructureKHR       func,
     VkCommandBuffer                             commandBuffer,
-    const VkCopyAccelerationStructureInfoKHR*   pInfo);
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo,
+    bool before_command);
 
 void Process_vkCmdCopyAccelerationStructureToMemoryKHR(
     const ApiCallInfo&                          call_info,
