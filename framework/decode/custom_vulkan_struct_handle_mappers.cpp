@@ -76,6 +76,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const CommonObjectI
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            case VK_DESCRIPTOR_TYPE_BLOCK_MATCH_IMAGE_QCOM:
                 if (!wrapper->pImageInfo->IsNull())
                 {
                     size_t                         len     = wrapper->pImageInfo->GetLength();
