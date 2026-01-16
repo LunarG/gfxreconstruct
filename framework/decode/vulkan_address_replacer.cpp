@@ -310,9 +310,8 @@ void VulkanAddressReplacer::SetRaytracingProperties(const decode::VulkanPhysical
                 replay_acceleration_structure_properties_ =
                     *physical_device_info->replay_device_info->acceleration_structure_properties;
             }
-            GFXRECON_ASSERT(physical_device_info_->replay_device_info->memory_properties.has_value());
-            memory_properties_ = *physical_device_info_->replay_device_info->memory_properties;
         }
+        capture_memory_properties_ = physical_device_info_->capture_memory_properties;
     }
 
     if (capture_ray_properties_ && replay_ray_properties_)
@@ -1702,8 +1701,9 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
         use_host_mem ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
                      : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    uint32_t memory_type_index =
-        graphics::GetMemoryTypeIndex(memory_properties_, memory_requirements.memoryTypeBits, memory_property_flags);
+    // derive the capture-time(!) memory-index from memory_property_flags
+    const uint32_t memory_type_index = graphics::GetMemoryTypeIndex(
+        capture_memory_properties_, memory_requirements.memoryTypeBits, memory_property_flags);
 
     GFXRECON_ASSERT(memory_type_index != std::numeric_limits<uint32_t>::max());
 
@@ -1765,6 +1765,7 @@ bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_
         result = resource_allocator_->MapResourceMemoryDirect(
             VK_WHOLE_SIZE, 0, &buffer_context.mapped_data, buffer_context.allocator_data);
         buffer_context.mapped_data = static_cast<uint8_t*>(buffer_context.mapped_data) + offset;
+        GFXRECON_ASSERT(result == VK_SUCCESS);
         return result == VK_SUCCESS;
     }
     return true;
@@ -2151,7 +2152,7 @@ void VulkanAddressReplacer::update_global_hashmap(VkCommandBuffer command_buffer
         {
             return false;
         }
-        auto& hashmap_control_block = *reinterpret_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
+        auto& hashmap_control_block = *static_cast<gpu_array_t*>(hashmap_control_block_bda_binary_.mapped_data);
 
         if (init_address_blacklist)
         {

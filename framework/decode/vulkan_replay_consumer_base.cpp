@@ -52,7 +52,6 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
-#include "util/linear_hashmap.h"
 #include "decode/mark_injected_commands.h"
 
 #include "spirv_reflect.h"
@@ -63,18 +62,16 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
-#include <cstddef>
-#include <cstdint>
 #include <limits>
 #include <numeric>
 #include <unordered_set>
 #include <future>
+#include <span>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const size_t kMaxEventStatusRetries      = 16;
-const size_t kMaxQueryPoolResultsRetries = 16;
+const size_t kMaxEventStatusRetries = 16;
 
 const char kUnknownDeviceLabel[]  = "<Unknown>";
 const char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
@@ -93,6 +90,20 @@ const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT
 
 const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThanCapture = {
     "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
+};
+
+// LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
+const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeThanCapture = {
+
+    { VK_TIMEOUT, VK_SUCCESS },
+    { VK_NOT_READY, VK_SUCCESS },
+    { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
+    { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
+
+    // silences: [gfxrecon] WARNING - API call vkGetEventStatus returned value VK_EVENT_SET that does not match return
+    // value from capture file: VK_EVENT_RESET.
+    // -> considered harmless and 'can' create a lot of noise.
+    { VK_EVENT_RESET, VK_EVENT_SET },
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -278,6 +289,10 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     background_queue_.join_all();
     main_thread_queue_.poll();
 
+    // This will call the destructor for dump resources.
+    // This needs to be done before parent devices are destroyed
+    resource_dumper_ = nullptr;
+
     // Cleanup screenshot resources before destroying device.
     object_info_table_->VisitVkDeviceInfo([this](const VulkanDeviceInfo* info) {
         assert(info != nullptr);
@@ -319,8 +334,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         graphics::ReleaseLoader(loader_handle_);
     }
 
-    resource_dumper_ = nullptr;
-
     CommonObjectInfoTable::ReleaseSingleton();
     object_info_table_ = nullptr;
 }
@@ -354,6 +367,11 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     if (fps_info_ != nullptr)
     {
         fps_info_->ProcessStateEndMarker(frame_number);
+    }
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->ProcessStateEndMarker();
     }
 }
 
@@ -931,6 +949,20 @@ void VulkanReplayConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId d
     }
 }
 
+void VulkanReplayConsumerBase::ProcessSetOpaqueDescriptorDataCommand(format::HandleId device_id,
+                                                                     format::HandleId object_id,
+                                                                     uint32_t         data_size,
+                                                                     const uint8_t*   data)
+{
+    VulkanDeviceInfo* device_info = object_info_table_->GetVkDeviceInfo(device_id);
+
+    if (device_info != nullptr && data != nullptr && data_size > 0)
+    {
+        // Store the opaque descriptor-data to use at object creation.
+        device_info->opaque_descriptor_data[object_id] = { data, data + data_size };
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                                              format::HandleId pipeline_id,
                                                                              size_t           data_size,
@@ -1102,6 +1134,11 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
                 }
             }
         }
+
+        if (options_.dumping_resources)
+        {
+            resource_dumper_->ProcessInitBufferCommand(block_index_, device_id, buffer_id, data_size, data);
+        }
     }
     else
     {
@@ -1237,6 +1274,18 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                     ", handle = 0x%" PRIx64 ")",
                     image_id,
                     image);
+            }
+
+            if (options_.dumping_resources)
+            {
+                VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+                if (!copy_regions.empty())
+                {
+                    initializer->BeginCommandBuffer(image_info->queue_family_index, &command_buffer);
+                }
+
+                resource_dumper_->ProcessInitImageCommand(
+                    command_buffer, block_index_, device_id, image_id, data_size, aspect, layout, level_sizes, data);
             }
         }
     }
@@ -1476,36 +1525,46 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
 {
     if (original != replay)
     {
-        const bool is_func_allowed_to_differ = kFunctionsAllowedToReturnDifferentCodeThanCapture.count(func_name);
+        // check allow-listed functions
+        bool accept_return_code = kFunctionsAllowedToReturnDifferentCodeThanCapture.contains(func_name);
 
-        if (!is_func_allowed_to_differ && (replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
+        // check allow-listed capture/replay VkResult-values
+        if (const auto it = kResultValuesAllowedDifferentCodeThanCapture.find(original);
+            it != kResultValuesAllowedDifferentCodeThanCapture.end())
         {
-            // Raise a fatal error if replay produced an error that did not occur during capture.  Format not supported
-            // errors are not treated as fatal, but will be reported as warnings below, allowing the replay to attempt
-            // to continue for the case where an application may have queried for formats that it did not use.
-            GFXRECON_LOG_FATAL(
-                "API call at index: %d thread: %d %s returned error value %s that does not match the result from the "
-                "capture file: %s. Replay cannot continue.",
-                call_info.index,
-                call_info.thread_id,
-                func_name,
-                util::ToString<VkResult>(replay).c_str(),
-                util::ToString<VkResult>(original).c_str());
-
-            RaiseFatalError(enumutil::GetResultDescription(replay));
+            accept_return_code = accept_return_code || replay == it->second;
         }
-        else if (!((replay == VK_SUCCESS) &&
-                   ((original == VK_TIMEOUT) || (original == VK_NOT_READY) || (original == VK_ERROR_OUT_OF_DATE_KHR) ||
-                    (original == VK_SUBOPTIMAL_KHR))) ||
-                 is_func_allowed_to_differ)
+
+        if (!accept_return_code)
         {
-            // Report differences between replay result and capture result, unless the replay results indicates
-            // that a wait operation completed before the original or a WSI function succeeded when the original failed.
-            GFXRECON_LOG_WARNING(
-                "API call %s returned value %s that does not match return value from capture file: %s.",
-                func_name,
-                util::ToString<VkResult>(replay).c_str(),
-                util::ToString<VkResult>(original).c_str());
+            if (replay < 0 && replay != VK_ERROR_FORMAT_NOT_SUPPORTED)
+            {
+                // Raise a fatal error if replay produced an error that did not occur during capture.  Format not
+                // supported errors are not treated as fatal, but will be reported as warnings below, allowing the
+                // replay to attempt to continue for the case where an application may have queried for formats that it
+                // did not use.
+                GFXRECON_LOG_FATAL("API call at index: %d thread: %d %s returned error value %s that does not match "
+                                   "the result from the "
+                                   "capture file: %s. Replay cannot continue.",
+                                   call_info.index,
+                                   call_info.thread_id,
+                                   func_name,
+                                   util::ToString<VkResult>(replay).c_str(),
+                                   util::ToString<VkResult>(original).c_str());
+
+                RaiseFatalError(enumutil::GetResultDescription(replay));
+            }
+            else
+            {
+                // Report differences between replay result and capture result, unless the replay results indicates
+                // that a wait operation completed before the original or a WSI function succeeded when the original
+                // failed.
+                GFXRECON_LOG_WARNING(
+                    "API call %s returned value %s that does not match return value from capture file: %s.",
+                    func_name,
+                    util::ToString<VkResult>(replay).c_str(),
+                    util::ToString<VkResult>(original).c_str());
+            }
         }
     }
 }
@@ -1645,32 +1704,48 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties2(VulkanPhysicalDevice
 {
     SetPhysicalDeviceProperties(physical_device_info, &capture_properties->properties, &replay_properties->properties);
 
-    if (auto ray_capture_props =
+    if (auto* ray_capture_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(capture_properties))
     {
         physical_device_info->capture_raytracing_properties = *ray_capture_props;
     }
 
-    if (auto driver_properties_replay_props =
+    if (auto* driver_properties_replay_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDriverProperties>(replay_properties))
     {
         physical_device_info->replay_device_info->driver_properties        = *driver_properties_replay_props;
         physical_device_info->replay_device_info->driver_properties->pNext = nullptr;
     }
 
-    if (auto ray_replay_props =
+    if (auto* ray_replay_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(replay_properties))
     {
         physical_device_info->replay_device_info->raytracing_properties        = *ray_replay_props;
         physical_device_info->replay_device_info->raytracing_properties->pNext = nullptr;
     }
 
-    if (auto acceleration_structure_replay_props =
+    if (auto* acceleration_structure_replay_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceAccelerationStructurePropertiesKHR>(replay_properties))
     {
         physical_device_info->replay_device_info->acceleration_structure_properties =
             *acceleration_structure_replay_props;
         physical_device_info->replay_device_info->acceleration_structure_properties->pNext = nullptr;
+    }
+
+    // VK_EXT_descriptor_buffer: capture-properties
+    if (auto* capture_descriptor_buffer_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDescriptorBufferPropertiesEXT>(capture_properties))
+    {
+        physical_device_info->capture_descriptor_buffer_properties        = *capture_descriptor_buffer_props;
+        physical_device_info->capture_descriptor_buffer_properties->pNext = nullptr;
+    }
+
+    // VK_EXT_descriptor_buffer: replay-properties
+    if (auto* descriptor_buffer_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceDescriptorBufferPropertiesEXT>(replay_properties))
+    {
+        physical_device_info->replay_device_info->descriptor_buffer_properties        = *descriptor_buffer_props;
+        physical_device_info->replay_device_info->descriptor_buffer_properties->pNext = nullptr;
     }
 }
 
@@ -1986,8 +2061,8 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
 {
     if (resource_dumper_ == nullptr)
     {
-        resource_dumper_ =
-            std::make_unique<VulkanReplayDumpResources>(options_, object_info_table_, _device_address_trackers);
+        resource_dumper_ = std::make_unique<VulkanReplayDumpResources>(
+            options_, object_info_table_, _device_address_trackers, instance_tables_, device_tables_);
         GFXRECON_ASSERT(resource_dumper_);
     }
 }
@@ -3966,10 +4041,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
     do
     {
         result = func(device, event);
-    } while ((((original_result == VK_EVENT_SET) && (result == VK_EVENT_RESET)) ||
-              ((original_result == VK_EVENT_RESET) && (result == VK_EVENT_SET))) &&
-             (++retries <= kMaxEventStatusRetries));
-
+    } while (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && ++retries <= kMaxEventStatusRetries);
     return result;
 }
 
@@ -3984,23 +4056,27 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
                                                                VkDeviceSize               stride,
                                                                VkQueryResultFlags         flags)
 {
-    assert((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
-           (pData->GetOutputPointer() != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
+                    (pData->GetOutputPointer() != nullptr));
 
-    VkResult    result;
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
-    size_t      retries    = 0;
 
-    do
+    if (original_result == VK_SUCCESS)
     {
-        result = func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
-    } while (((original_result == VK_SUCCESS) && (result == VK_NOT_READY)) &&
-             (++retries <= kMaxQueryPoolResultsRetries));
+        // instead of polling (busy-waiting) vkGetQueryPoolResults, we just wait
+        flags |= VK_QUERY_RESULT_WAIT_BIT;
+    }
 
-    auto& address_replacer = GetDeviceAddressReplacer(device_info);
-    address_replacer.ProcessGetQueryPoolResults(
-        device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+    VkResult result =
+        func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+
+    if (result == VK_SUCCESS)
+    {
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessGetQueryPoolResults(
+            device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+    }
     return result;
 }
 
@@ -4186,7 +4262,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 resource_dumper_->MustDumpQueueSubmitIndex(index))
             {
                 resource_dumper_->QueueSubmit(
-                    modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info->handle, fence, index);
+                    modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info, fence, index);
             }
             else
             {
@@ -5317,11 +5393,17 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         }
 #endif
 
+        VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
+            VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO
+        };
+        VkMemoryAllocateFlagsInfo flags_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO };
+
         while (current_struct != nullptr)
         {
             if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
             {
-                auto alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
+                auto* alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
+                flags_info             = *alloc_flags_info;
                 if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
                     VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
                 {
@@ -5372,10 +5454,18 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             current_struct = current_struct->pNext;
         }
 
+        if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay &&
+            !UseAddressReplacement(device_info))
+        {
+            uses_address     = true;
+            flags_info.pNext = nullptr;
+            flags_info.flags |=
+                VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT | VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+            graphics::vulkan_struct_add_pnext(modified_allocate_info, &flags_info);
+        }
+
         if (uses_address && !address_override_found)
         {
-            // Insert VkMemoryOpaqueCaptureAddressAllocateInfo into front of pNext chain before allocating
-
             // The Vulkan spec states: If the pNext chain includes a VkImportMemoryHostPointerInfoEXT structure,
             // VkMemoryOpaqueCaptureAddressAllocateInfo::opaqueCaptureAddress must be zero
             // (https://vulkan.lunarg.com/doc/view/1.3.216.0/linux/1.3-extensions/vkspec.html#VUID-VkMemoryAllocateInfo-pNext-03332)
@@ -5384,26 +5474,18 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
                 opaque_address = 0;
             }
 
-            VkMemoryOpaqueCaptureAddressAllocateInfo address_info = {
-                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                modified_allocate_info->pNext,
-                opaque_address
-            };
-            modified_allocate_info->pNext = &address_info;
-
-            result = allocator->AllocateMemory(
-                modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
-        }
-        else
-        {
-            result = allocator->AllocateMemory(
-                modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+            // Insert VkMemoryOpaqueCaptureAddressAllocateInfo into front of pNext chain before allocating
+            address_info.opaqueCaptureAddress = opaque_address;
+            graphics::vulkan_struct_add_pnext(modified_allocate_info, &address_info);
         }
 
-        if ((result == VK_SUCCESS) && (modified_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
+        result = allocator->AllocateMemory(
+            modified_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
+
+        if (result == VK_SUCCESS && modified_allocate_info != nullptr && *replay_memory != VK_NULL_HANDLE)
         {
-            auto memory_info = reinterpret_cast<VulkanDeviceMemoryInfo*>(pMemory->GetConsumerData(0));
-            assert(memory_info != nullptr);
+            auto* memory_info = static_cast<VulkanDeviceMemoryInfo*>(pMemory->GetConsumerData(0));
+            GFXRECON_ASSERT(memory_info != nullptr);
 
             memory_info->allocator      = allocator;
             memory_info->allocator_data = allocator_data;
@@ -5864,7 +5946,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
 VkResult
 VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer                                      func,
                                                VkResult                                                original_result,
-                                               const VulkanDeviceInfo*                                 device_info,
+                                               VulkanDeviceInfo*                                       device_info,
                                                const StructPointerDecoder<Decoded_VkBufferCreateInfo>* pCreateInfo,
                                                const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                                HandlePointerDecoder<VkBuffer>*                            pBuffer)
@@ -5912,8 +5994,17 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     bool force_address =
         UseAddressReplacement(device_info) && (replay_create_info->usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT ||
                                                replay_create_info->usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
+
+    // for buffer-device-addresses or when using VK_EXT_descriptor_buffer we inject those structs in pNext-chain
+    VkBufferOpaqueCaptureAddressCreateInfo opaque_address_info = {
+        VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
+    };
+    VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
+        VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
+    };
 
     auto* buffer_info = reinterpret_cast<VulkanBufferInfo*>(pBuffer->GetConsumerData(0));
     GFXRECON_ASSERT(buffer_info != nullptr);
@@ -5937,14 +6028,12 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     if (device_info->property_feature_info.feature_bufferDeviceAddressCaptureReplay &&
         !UseAddressReplacement(device_info))
     {
-        if ((replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT) ==
-            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+        if (replay_create_info->usage & VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
         {
             uses_address = true;
             address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
         }
-        if ((replay_create_info->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR) ==
-            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
+        if (replay_create_info->usage & VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR)
         {
             uses_address = true;
             address_create_flags |= VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
@@ -5952,22 +6041,34 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
         }
     }
 
+    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
+    {
+        if (auto it = device_info->opaque_descriptor_data.find(capture_id);
+            it != device_info->opaque_descriptor_data.end())
+        {
+            modified_create_info.flags |= VK_BUFFER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
+
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+
+            // add to pNext-chain
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkBuffer object (ID = %" PRIu64 ")",
+                               capture_id);
+        }
+    }
+
     if (uses_address)
     {
-        VkBufferOpaqueCaptureAddressCreateInfo address_info = {
-            VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
-        };
-
         auto entry = device_info->opaque_addresses.find(capture_id);
         if (entry != device_info->opaque_addresses.end())
         {
-            address_info.opaqueCaptureAddress = entry->second;
+            opaque_address_info.opaqueCaptureAddress = entry->second;
 
-            // The shallow copy of VkBufferCreateInfo references the same pNext list from the copy source.  We insert
-            // the buffer address extension struct at the start of the list to avoid modifying the original by appending
-            // to the end.
-            address_info.pNext         = modified_create_info.pNext;
-            modified_create_info.pNext = &address_info;
+            // add to pNext-chain
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_address_info);
 
             modified_create_info.flags |= address_create_flags;
             modified_create_info.usage |= address_usage_flags;
@@ -5977,23 +6078,19 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
             GFXRECON_LOG_DEBUG("Opaque device address is not available for VkBuffer object (ID = %" PRIu64 ")",
                                capture_id);
         }
-
-        result = allocator->CreateBuffer(
-            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
     else if (force_address)
     {
         modified_create_info.usage |= VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
-        result = allocator->CreateBuffer(
-            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
-    }
-    else
-    {
-        result = allocator->CreateBuffer(
-            &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
     }
 
-    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
+    result = allocator->CreateBuffer(
+        &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
+
+    // clean potential opaque creation-data
+    device_info->opaque_descriptor_data.erase(capture_id);
+
+    if (result == VK_SUCCESS && replay_create_info != nullptr && *replay_buffer != VK_NULL_HANDLE)
     {
         buffer_info->allocator_data = allocator_data;
         buffer_info->usage          = replay_create_info->usage;
@@ -6078,7 +6175,7 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
 VkResult
 VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                                      func,
                                               VkResult                                               original_result,
-                                              const VulkanDeviceInfo*                                device_info,
+                                              VulkanDeviceInfo*                                      device_info,
                                               const StructPointerDecoder<Decoded_VkImageCreateInfo>* pCreateInfo,
                                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                               HandlePointerDecoder<VkImage>*                             pImage)
@@ -6099,6 +6196,10 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     auto              replay_create_info   = pCreateInfo->GetPointer();
     VkImageCreateInfo modified_create_info = *replay_create_info;
 
+    VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
+        VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
+    };
+
     // replaying a trimmed capture or dump-resources might require us to copy from images
     // NOTE: we skip TRANSFER_SRC_BIT flag when other incompatible flags are present
     if ((replaying_trimmed_capture_ || options_.dumping_resources) &&
@@ -6116,6 +6217,24 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         {
             // ensure image-initialization can copy
             modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        }
+    }
+
+    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
+    {
+        if (auto it = device_info->opaque_descriptor_data.find(capture_id);
+            it != device_info->opaque_descriptor_data.end())
+        {
+            modified_create_info.flags |= VK_IMAGE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
+
+            // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkImage object (ID = %" PRIu64 ")",
+                               capture_id);
         }
     }
 
@@ -6155,7 +6274,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     VkResult result = allocator->CreateImage(
         &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
 
-    if ((result == VK_SUCCESS) && ((*replay_image) != VK_NULL_HANDLE))
+    if (result == VK_SUCCESS && *replay_image != VK_NULL_HANDLE)
     {
         auto image_info = reinterpret_cast<VulkanImageInfo*>(pImage->GetConsumerData(0));
         GFXRECON_ASSERT(image_info != nullptr);
@@ -6200,6 +6319,9 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
             image_info->size = image_mem_reqs.size;
         }
     }
+
+    // clean potential opaque creation-data
+    device_info->opaque_descriptor_data.erase(capture_id);
 
     return result;
 }
@@ -8960,21 +9082,26 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     PFN_vkCreateAccelerationStructureKHR                                      func,
     VkResult                                                                  original_result,
-    const VulkanDeviceInfo*                                                   device_info,
+    VulkanDeviceInfo*                                                         device_info,
     const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
     HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pAccelerationStructureKHR != nullptr) &&
-           !pAccelerationStructureKHR->IsNull() && (pAccelerationStructureKHR->GetHandlePointer() != nullptr));
+    GFXRECON_ASSERT(device_info != nullptr && pCreateInfo != nullptr && pAccelerationStructureKHR != nullptr &&
+                    !pAccelerationStructureKHR->IsNull() && pAccelerationStructureKHR->GetHandlePointer() != nullptr);
 
     VkResult result              = VK_SUCCESS;
     auto     replay_accel_struct = pAccelerationStructureKHR->GetHandlePointer();
     auto     capture_id          = (*pAccelerationStructureKHR->GetPointer());
     auto     replay_create_info  = pCreateInfo->GetPointer();
     VkDevice device              = device_info->handle;
+
+    // injected into pNext when using VK_EXT_descriptor_buffer
+    VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
+        VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
+    };
 
     // keep track of associated buffer
     auto* acceleration_structure_info =
@@ -8996,6 +9123,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
         acceleration_structure_info->replay_address  = buffer_info->replay_address + replay_create_info->offset;
     }
 
+    VkAccelerationStructureCreateInfoKHR modified_create_info = *replay_create_info;
+
     // even when available, the feature also requires allocator-support
     bool use_capture_replay_feature = device_info->property_feature_info.feature_accelerationStructureCaptureReplay &&
                                       device_info->allocator->SupportsOpaqueDeviceAddresses();
@@ -9003,7 +9132,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     if (use_capture_replay_feature)
     {
         // Set opaque device address
-        VkAccelerationStructureCreateInfoKHR modified_create_info = (*replay_create_info);
         modified_create_info.createFlags |= VK_ACCELERATION_STRUCTURE_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT_KHR;
         auto entry = device_info->opaque_addresses.find(capture_id);
         if (entry != device_info->opaque_addresses.end())
@@ -9020,13 +9148,32 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
                 "Opaque device address is not available for VkAccelerationStructureKHR object (ID = %" PRIu64 ")",
                 capture_id);
         }
+    }
 
-        result = func(device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
-    }
-    else
+    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
     {
-        result = func(device, replay_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
+        if (auto it = device_info->opaque_descriptor_data.find(capture_id);
+            it != device_info->opaque_descriptor_data.end())
+        {
+            modified_create_info.createFlags |=
+                VK_ACCELERATION_STRUCTURE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
+
+            // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG(
+                "Opaque descriptor-data is not available for VkAccelerationStructureKHR object (ID = %" PRIu64 ")",
+                capture_id);
+        }
     }
+
+    result = func(device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_accel_struct);
+
+    // clean potential opaque creation-data
+    device_info->opaque_descriptor_data.erase(capture_id);
 
     // track newly created acceleration-structure
     acceleration_structure_info->handle = replay_accel_struct ? *replay_accel_struct : VK_NULL_HANDLE;
@@ -9082,7 +9229,7 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     // needs to be called before the address replacer
     if (options_.dumping_resources)
     {
-        resource_dumper_->HandleCmdBuildAccelerationStructures(
+        resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
             command_buffer_info, *GetDeviceTable(device_info->handle), infoCount, pInfos, ppBuildRangeInfos);
     }
 
@@ -9112,8 +9259,7 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
         const auto* info_meta = pInfo->GetMetaStructPointer();
         const auto* src       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
         const auto* dst       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
-        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
-            command_buffer_info, *GetDeviceTable(device_info->handle), src, dst);
+        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
     }
 
     VkCommandBuffer                     command_buffer = command_buffer_info->handle;
@@ -9704,7 +9850,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     }
 
     VkResult res = VK_SUCCESS;
-    if (options_.dumping_resources && resource_dumper_->DumpingBeginCommandBufferIndex(index))
+    if (options_.dumping_resources)
     {
         const VulkanDeviceInfo* device = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
 
@@ -10079,7 +10225,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysIndirectKHR(
 VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
     PFN_vkCreateImageView                                func,
     VkResult                                             original_result,
-    const VulkanDeviceInfo*                              device_info,
+    VulkanDeviceInfo*                                    device_info,
     StructPointerDecoder<Decoded_VkImageViewCreateInfo>* create_info_decoder,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
     HandlePointerDecoder<VkImageView>*                   view_decoder)
@@ -10089,7 +10235,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
     const VkAllocationCallbacks* allocator   = GetAllocationCallbacks(allocator_decoder);
     VkImageView*                 out_view    = view_decoder->GetHandlePointer();
 
+    auto                  capture_id           = *view_decoder->GetPointer();
     VkImageViewCreateInfo modified_create_info = *create_info;
+
+    VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
+        VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
+    };
 
     auto* img_info = GetObjectInfoTable().GetVkImageInfo(create_info_decoder->GetMetaStructPointer()->image);
     GFXRECON_ASSERT(img_info != nullptr);
@@ -10111,15 +10262,84 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
             vkuFormatIsSRGB(modified_create_info.format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
     }
 
+    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
+    {
+        if (auto it = device_info->opaque_descriptor_data.find(capture_id);
+            it != device_info->opaque_descriptor_data.end())
+        {
+            modified_create_info.flags |= VK_IMAGE_VIEW_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
+
+            // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkImageView object (ID = %" PRIu64 ")",
+                               capture_id);
+        }
+    }
+
     VkResult result = func(device, &modified_create_info, allocator, out_view);
 
-    if ((result == VK_SUCCESS) && ((*out_view) != VK_NULL_HANDLE))
+    if (result == VK_SUCCESS && *out_view != VK_NULL_HANDLE)
     {
-        auto image_view_info = reinterpret_cast<VulkanImageViewInfo*>(view_decoder->GetConsumerData(0));
+        auto* image_view_info = static_cast<VulkanImageViewInfo*>(view_decoder->GetConsumerData(0));
         GFXRECON_ASSERT(image_view_info != nullptr);
 
         image_view_info->image_id = create_info_decoder->GetMetaStructPointer()->image;
     }
+
+    // clean potential opaque creation-data
+    device_info->opaque_descriptor_data.erase(capture_id);
+
+    return result;
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideCreateSampler(PFN_vkCreateSampler                                func,
+                                                VkResult                                           original_result,
+                                                VulkanDeviceInfo*                                  device_info,
+                                                StructPointerDecoder<Decoded_VkSamplerCreateInfo>* create_info_decoder,
+                                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator_decoder,
+                                                HandlePointerDecoder<VkSampler>*                     sampler_decoder)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    VkDevice                     device      = device_info->handle;
+    const VkSamplerCreateInfo*   create_info = create_info_decoder->GetPointer();
+    const VkAllocationCallbacks* allocator   = GetAllocationCallbacks(allocator_decoder);
+    VkSampler*                   out_sampler = sampler_decoder->GetHandlePointer();
+
+    auto                capture_id           = *sampler_decoder->GetPointer();
+    VkSamplerCreateInfo modified_create_info = *create_info;
+
+    VkOpaqueCaptureDescriptorDataCreateInfoEXT opaque_descriptor_info = {
+        VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT
+    };
+
+    if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
+    {
+        if (auto it = device_info->opaque_descriptor_data.find(capture_id);
+            it != device_info->opaque_descriptor_data.end())
+        {
+            modified_create_info.flags |= VK_SAMPLER_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT;
+
+            // add to pNext-chain
+            opaque_descriptor_info.opaqueCaptureDescriptorData = it->second.data();
+            graphics::vulkan_struct_add_pnext(&modified_create_info, &opaque_descriptor_info);
+        }
+        else
+        {
+            GFXRECON_LOG_DEBUG("Opaque descriptor-data is not available for VkSampler object (ID = %" PRIu64 ")",
+                               capture_id);
+        }
+    }
+
+    VkResult result = func(device, &modified_create_info, allocator, out_sampler);
+
+    // clean potential opaque creation-data
+    device_info->opaque_descriptor_data.erase(capture_id);
 
     return result;
 }
@@ -11078,7 +11298,7 @@ void VulkanReplayConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     }
 }
 
-void VulkanReplayConsumerBase::ProcessCopyVulkanAccelerationStructuresMetaCommand(
+void VulkanReplayConsumerBase::ProcessVulkanCopyAccelerationStructuresCommand(
     format::HandleId device, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos)
 {
     if (loading_trim_state_)
@@ -11087,6 +11307,17 @@ void VulkanReplayConsumerBase::ProcessCopyVulkanAccelerationStructuresMetaComman
         GFXRECON_ASSERT(device_info != nullptr);
 
         MapStructArrayHandles(copy_infos->GetMetaStructPointer(), copy_infos->GetLength(), GetObjectInfoTable());
+
+        if (options_.dumping_resources)
+        {
+            const auto* info_meta = copy_infos->GetMetaStructPointer();
+            if (info_meta != nullptr)
+            {
+                const auto* src = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
+                const auto* dst = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
+                resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
+            }
+        }
 
         if (UseAddressReplacement(device_info))
         {
@@ -11098,7 +11329,7 @@ void VulkanReplayConsumerBase::ProcessCopyVulkanAccelerationStructuresMetaComman
     }
 }
 
-void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaCommand(
+void VulkanReplayConsumerBase::ProcessVulkanBuildAccelerationStructuresCommand(
     format::HandleId                                                           device,
     uint32_t                                                                   info_count,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
@@ -11118,7 +11349,7 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
         // it needs to be called before the address replacer
         if (options_.dumping_resources)
         {
-            resource_dumper_->HandleCmdBuildAccelerationStructures(
+            resource_dumper_->OverrideCmdBuildAccelerationStructuresKHR(
                 nullptr, *GetDeviceTable(device_info->handle), info_count, pInfos, ppRangeInfos);
         }
 
@@ -11128,10 +11359,23 @@ void VulkanReplayConsumerBase::ProcessBuildVulkanAccelerationStructuresMetaComma
                 .ProcessBuildVulkanAccelerationStructuresMetaCommand(
                     info_count, pInfos->GetPointer(), ppRangeInfos->GetPointer(), GetDeviceAddressTracker(device_info));
         }
+
+        if (options_.dumping_resources)
+        {
+            ApiCallInfo call_info{ block_index_, 0 };
+            resource_dumper_->Process_vkCmdBuildAccelerationStructuresKHR(
+                call_info,
+                GetDeviceTable(device_info->handle)->CmdBuildAccelerationStructuresKHR,
+                VK_NULL_HANDLE,
+                info_count,
+                pInfos,
+                ppRangeInfos,
+                false);
+        }
     }
 }
 
-void VulkanReplayConsumerBase::ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+void VulkanReplayConsumerBase::ProcessVulkanWriteAccelerationStructuresPropertiesCommand(
     format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id)
 {
     if (loading_trim_state_)
@@ -11182,22 +11426,41 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     if (UseExtraDescriptorInfo(device_info))
     {
         const auto* writes_meta = p_descriptor_writes->GetMetaStructPointer();
+
         for (uint32_t s = 0; s < descriptor_write_count; ++s)
         {
-            VulkanDescriptorSetInfo* dst_desc_set_info =
-                GetObjectInfoTable().GetVkDescriptorSetInfo(writes_meta[s].dstSet);
-            assert(dst_desc_set_info != nullptr);
+            const auto&              write_meta        = writes_meta[s];
+            VulkanDescriptorSetInfo* dst_desc_set_info = GetObjectInfoTable().GetVkDescriptorSetInfo(write_meta.dstSet);
+            GFXRECON_ASSERT(dst_desc_set_info != nullptr);
 
-            for (uint32_t i = 0; i < in_pDescriptorWrites[s].descriptorCount; ++i)
+            const VkWriteDescriptorSet* write = write_meta.decoded_value;
+            GFXRECON_ASSERT(write != nullptr);
+
+            const uint32_t binding = write->dstBinding;
+            GFXRECON_ASSERT(dst_desc_set_info->descriptors.find(binding) != dst_desc_set_info->descriptors.end());
+            auto& descriptor_set_binding_info = dst_desc_set_info->descriptors[binding];
+            GFXRECON_ASSERT(descriptor_set_binding_info.desc_type == write->descriptorType);
+
+            if (auto* inline_uniform_block_write =
+                    graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write);
+                inline_uniform_block_write != nullptr &&
+                write->descriptorType == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
             {
-                const VkWriteDescriptorSet* write = writes_meta[s].decoded_value;
-                assert(write != nullptr);
+                const uint32_t offset = write->dstArrayElement;
+                const uint32_t size   = write->descriptorCount;
+                GFXRECON_ASSERT(descriptor_set_binding_info.inline_uniform_block.size() >= offset + size);
+                util::platform::MemoryCopy(descriptor_set_binding_info.inline_uniform_block.data() + offset,
+                                           size,
+                                           inline_uniform_block_write->pData,
+                                           size);
 
-                const uint32_t binding = write->dstBinding;
+                // skip iterating individual bytes in below loop
+                continue;
+            }
+
+            for (uint32_t i = 0; i < write->descriptorCount; ++i)
+            {
                 const uint32_t arr_idx = write->dstArrayElement + i;
-
-                assert(dst_desc_set_info->descriptors.find(binding) != dst_desc_set_info->descriptors.end());
-                assert(dst_desc_set_info->descriptors[binding].desc_type == write->descriptorType);
 
                 switch (write->descriptorType)
                 {
@@ -11206,12 +11469,10 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                     {
-                        dst_desc_set_info->descriptors[binding].image_info[arr_idx].image_layout =
-                            in_pDescriptorWrites[s].pImageInfo[i].imageLayout;
-
-                        dst_desc_set_info->descriptors[binding].image_info[arr_idx].image_view_info =
-                            object_info_table_->GetVkImageViewInfo(
-                                writes_meta[s].pImageInfo->GetMetaStructPointer()[i].imageView);
+                        auto& desc_image_info           = descriptor_set_binding_info.image_info[arr_idx];
+                        desc_image_info.image_layout    = write->pImageInfo[i].imageLayout;
+                        desc_image_info.image_view_info = object_info_table_->GetVkImageViewInfo(
+                            write_meta.pImageInfo->GetMetaStructPointer()[i].imageView);
                     }
                     break;
 
@@ -11220,22 +11481,18 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     {
-                        dst_desc_set_info->descriptors[binding].buffer_info[arr_idx].buffer_info =
-                            object_info_table_->GetVkBufferInfo(
-                                writes_meta[s].pBufferInfo->GetMetaStructPointer()[i].buffer);
-
-                        dst_desc_set_info->descriptors[binding].buffer_info[arr_idx].offset =
-                            in_pDescriptorWrites[s].pBufferInfo[i].offset;
-
-                        dst_desc_set_info->descriptors[binding].buffer_info[arr_idx].range =
-                            in_pDescriptorWrites[s].pBufferInfo[i].range;
+                        auto& desc_buffer_info       = descriptor_set_binding_info.buffer_info[arr_idx];
+                        desc_buffer_info.buffer_info = object_info_table_->GetVkBufferInfo(
+                            write_meta.pBufferInfo->GetMetaStructPointer()[i].buffer);
+                        desc_buffer_info.offset = write->pBufferInfo[i].offset;
+                        desc_buffer_info.range  = write->pBufferInfo[i].range;
                     }
                     break;
 
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                     {
-                        dst_desc_set_info->descriptors[binding].texel_buffer_view_info[arr_idx] =
+                        descriptor_set_binding_info.texel_buffer_view_info[arr_idx] =
                             object_info_table_->GetVkBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[i]);
                     }
                     break;
@@ -11243,8 +11500,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                     {
                         const auto* as_descriptors_meta =
-                            GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(
-                                writes_meta[s].pNext);
+                            GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(write_meta.pNext);
                         if (as_descriptors_meta != nullptr)
                         {
                             const auto* as_ids = as_descriptors_meta->pAccelerationStructures.GetPointer();
@@ -11254,29 +11510,12 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                                 const auto* as_info = object_info_table_->GetVkAccelerationStructureKHRInfo(as_ids[as]);
                                 if (as_info != nullptr)
                                 {
-                                    dst_desc_set_info->descriptors[binding].acceleration_structs_khr_info[arr_idx] =
-                                        as_info;
+                                    descriptor_set_binding_info.acceleration_structs_khr_info[arr_idx] = as_info;
                                 }
                             }
                         }
                     }
                     break;
-
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                        if (auto* inline_uniform_block_write =
-                                graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write))
-                        {
-                            const uint32_t offset = write->dstArrayElement;
-                            const uint32_t size   = write->descriptorCount;
-                            GFXRECON_ASSERT(dst_desc_set_info->descriptors[binding].inline_uniform_block.size() >=
-                                            offset + size);
-                            util::platform::MemoryCopy(
-                                dst_desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
-                                size,
-                                inline_uniform_block_write->pData,
-                                size);
-                        }
-                        break;
 
                     default:
                         break;
@@ -11696,6 +11935,62 @@ VkResult VulkanReplayConsumerBase::OverrideGetRefreshCycleDurationGOOGLE(
         return func(device_info->handle, swapchain_info->handle, pDisplayTimingProperties->GetPointer());
     }
     return VK_SUCCESS;
+}
+
+void VulkanReplayConsumerBase::OverrideGetDescriptorEXT(
+    PFN_vkGetDescriptorEXT                                func,
+    VulkanDeviceInfo*                                     device_info,
+    StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT>* pDescriptorInfo,
+    size_t                                                dataSize,
+    PointerDecoder<uint8_t>*                              pDescriptor)
+{
+    GFXRECON_ASSERT(device_info != nullptr && !pDescriptorInfo->IsNull() && pDescriptorInfo->GetPointer() != nullptr &&
+                    pDescriptor->GetOutputPointer() != nullptr);
+
+    VkDevice                device             = device_info->handle;
+    VkDescriptorGetInfoEXT* in_pDescriptorInfo = pDescriptorInfo->GetPointer();
+    void*                   out_pDescriptor    = pDescriptor->GetOutputPointer();
+
+    func(device, in_pDescriptorInfo, dataSize, out_pDescriptor);
+
+    if (UseAddressReplacement(device_info))
+    {
+        GFXRECON_LOG_WARNING("%s: portable replays using '-m rebind' are currently not supported for "
+                             "VK_EXT_descriptor_buffer -> Replay is likely going to fail",
+                             __func__);
+
+        // TODO: portability -> correct BDAs/descriptors/mem-layout for descriptor-buffers
+    }
+    else
+    {
+        // relying on 'descriptorBufferCaptureReplay' we assume this data to match
+        GFXRECON_ASSERT(pDescriptor->GetLength() == pDescriptor->GetOutputLength());
+        GFXRECON_ASSERT(memcmp(pDescriptor->GetPointer(), pDescriptor->GetOutputPointer(), pDescriptor->GetLength()) ==
+                        0);
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideCmdBindDescriptorBuffersEXT(
+    PFN_vkCmdBindDescriptorBuffersEXT                               func,
+    VulkanCommandBufferInfo*                                        commandBuffer_info,
+    uint32_t                                                        bufferCount,
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+{
+    GFXRECON_ASSERT(commandBuffer_info != nullptr && pBindingInfos->GetPointer() != nullptr);
+
+    VulkanDeviceInfo*                 device_info = object_info_table_->GetVkDeviceInfo(commandBuffer_info->parent_id);
+    VkCommandBuffer                   command_buffer   = commandBuffer_info->handle;
+    VkDescriptorBufferBindingInfoEXT* in_pBindingInfos = pBindingInfos->GetPointer();
+
+    if (UseAddressReplacement(device_info))
+    {
+        // auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        // auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        // address_replacer.ProcessCmdBindDescriptorBuffersEXT(
+        //     commandBuffer_info, bufferCount, in_pBindingInfos, address_tracker);
+    }
+
+    func(command_buffer, bufferCount, in_pBindingInfos);
 }
 
 std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateGraphicsPipelines(

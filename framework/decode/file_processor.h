@@ -138,7 +138,7 @@ class FileProcessor
 
     uint64_t GetNumBytesRead() const { return bytes_read_; }
 
-    BlockReadError GetErrorState() const { return error_state_; }
+    BlockIOError GetErrorState() const { return error_state_; }
 
     bool EntireFileWasProcessed() const
     {
@@ -150,7 +150,7 @@ class FileProcessor
         return file_stack_.front().active_file->IsEof();
     }
 
-    bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
+    bool                      UsesFrameMarkers() const { return capture_uses_frame_markers_; }
     bool                      FileSupportsFrameMarkers() const { return file_supports_frame_markers_; }
     const format::FileHeader& GetFileHeader() const { return file_header_; }
 
@@ -164,7 +164,7 @@ class FileProcessor
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
-    void HandleBlockReadError(BlockReadError error_code, const char* error_message);
+    void HandleBlockReadError(BlockIOError error_code, const char* error_message);
 
     bool ProcessExecuteBlocksFromFile(const ExecuteBlocksFromFileArgs& execute_blocks_info);
     void ProcessStateBeginMarker(const StateBeginMarkerArgs& state_begin);
@@ -179,9 +179,6 @@ class FileProcessor
 
     util::DataSpan ReadSpan(size_t buffer_size);
     bool           ReadBytes(void* buffer, size_t buffer_size);
-
-    bool PeekBytes(void* buffer, size_t buffer_size);
-    bool PeekBlockHeader(format::BlockHeader* block_header);
 
     // Reads block header, from input stream.
     bool ReadBlockBuffer(BlockParser& parser, BlockBuffer& buffer);
@@ -203,14 +200,14 @@ class FileProcessor
     uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
-    BlockReadError           error_state_;
+    BlockIOError             error_state_;
     uint64_t                 bytes_read_;
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
 
   protected:
-    BlockReadError CheckFileStatus() const
+    BlockIOError CheckFileStatus() const
     {
         if (file_stack_.empty())
         {
@@ -237,6 +234,12 @@ class FileProcessor
             return true;
         }
         return file_stack_.back().active_file->IsEof();
+    }
+
+    BlockParser& GetBlockParser()
+    {
+        GFXRECON_ASSERT(block_parser_.get() != nullptr);
+        return *block_parser_;
     }
 
   private:
@@ -418,12 +421,13 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    std::string absolute_path_;
+    std::string        absolute_path_;
     format::FileHeader file_header_;
 
   protected:
-    BufferPool        pool_;
-    util::Compressor* compressor_;
+    BufferPool                        pool_;
+    std::unique_ptr<util::Compressor> compressor_;
+    std::unique_ptr<BlockParser>      block_parser_;
 
     struct ActiveFileContext
     {
@@ -431,8 +435,8 @@ class FileProcessor
             active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
 
         FileInputStreamPtr active_file;
-        uint32_t    remaining_commands{ 0 };
-        bool        execute_till_eof{ false };
+        uint32_t           remaining_commands{ 0 };
+        bool               execute_till_eof{ false };
     };
 
     std::deque<ActiveFileContext> file_stack_;

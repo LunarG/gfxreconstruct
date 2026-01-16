@@ -43,9 +43,11 @@ class Dx12FileOptimizer : public FileOptimizer
     uint64_t GetNumOptimizedFillCommands() { return num_optimized_fill_commands_; }
 
   private:
-    bool AddFillMemoryResourceValueCommand(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
+    bool AddFillMemoryResourceValueCommand();
 
-    virtual bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id) override;
+    template <typename Args>
+    decode::FileTransformer::VisitResult         VisitMetaData(const Args& args);
+    bool                                         ProcessMetaData(decode::ParsedBlock& parsed_block) override;
 
     const decode::Dx12FillCommandResourceValueMap*          fill_command_resource_values_;
     decode::Dx12FillCommandResourceValueMap::const_iterator resource_values_iter_;

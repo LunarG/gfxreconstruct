@@ -23,8 +23,10 @@
 #ifndef GFXRECON_DECODE_PARSED_BLOCK_H
 #define GFXRECON_DECODE_PARSED_BLOCK_H
 
+#include "format/format_util.h"
 #include "decode/api_payload.h"
 #include "decode/block_buffer.h"
+#include "format/format_util.h"
 #include "util/span.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -76,7 +78,27 @@ class ParsedBlock
         kUnknown,            // Set when block is of an unknown type (no parsing done beyond header)
         kReady,              // Set when block is decompressed, or doesn't need to be
         kDeferredDecompress, // Set when block type is compressed, but decompression was suppressed
-        kSkip,               // Set when block should be skipped
+    };
+
+    // In order to minimize memory migration overhead for both preloaded and non-preloaded dispatch, we have three
+    // modes of operation:
+    //
+    // kNonOwnedReference:
+    //     For immediate dispatch of ParsedBlocks, unowned references are sufficient.
+    //     NOTE: As the ParsedBlock's constructed under this policy may have pointers referring to the BlockBuffer
+    //           contents, the ParsedBlock must not be retained or used after BlockBuffer reuse/reset/destruction.
+    // kOwnedReferenceAsNeeded:
+    //     For preloaded dispatch, we can minimize the retained memory by only owning references for blocks that are
+    //     actually referenced during replay (either uncompressed, or deferred compressed)
+    // kOwnedReference:
+    //     For preloaded dispatch where raw block data is needed after parsing (for example to support re-compression)
+    //     or Decoders/Consumers that want to access the raw block data.
+    //
+    enum BlockReferencePolicy
+    {
+        kNonOwnedReference,      // Store a "Borrowed" reference to the block data buffer
+        kOwnedReferenceAsNeeded, // Store an owned reference as needed, or not at all
+        kOwnedReference          // Always store an owned reference to the block data buffer
     };
 
     using PoolEntry         = util::HeapBufferPool::Entry; // Placeholder for buffer pool
@@ -86,12 +108,34 @@ class ParsedBlock
     bool IsReady() const { return state_ == BlockState::kReady; }
     bool IsVisitable() const { return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress); }
     bool IsUnknown() const { return state_ == BlockState::kUnknown; }
-    bool IsSkip() const { return state_ == BlockState::kSkip; }
     bool NeedsDecompression() const { return state_ == BlockState::kDeferredDecompress; }
     BlockState            GetState() const { return state_; }
     const util::DataSpan& GetBlockData() const { return block_data_; }
     const DispatchArgs&   GetArgs() const { return dispatch_args_; }
     explicit              operator bool() const { return IsValid(); }
+
+    template <typename T>
+    bool Holds() const
+    {
+        using Store = DispatchStore<T>;
+        return std::holds_alternative<Store>(dispatch_args_);
+    }
+
+    template <typename T>
+    const T& Get() const
+    {
+        using Store = DispatchStore<T>;
+        GFXRECON_ASSERT(Holds<T>());
+        return *(std::get<Store>(dispatch_args_));
+    }
+
+    template <typename T>
+    T& Get()
+    {
+        using Store = DispatchStore<T>;
+        GFXRECON_ASSERT(Holds<T>());
+        return *(std::get<Store>(dispatch_args_));
+    }
 
     // Move only (has owning data)
     ParsedBlock(ParsedBlock&&) noexcept            = default;
@@ -101,50 +145,108 @@ class ParsedBlock
     ParsedBlock(const ParsedBlock&)            = delete;
     ParsedBlock& operator=(const ParsedBlock&) = delete;
 
-    // the EmptyBlockTag tag isn't really needed, we could just overload on BlockState, but I want to make this more
-    // obvious.
-    struct EmptyBlockTag
+    // The *BlockTag tags aren't really needed, we could just overload on BlockState or UncompressedStore, but I want to
+    // make this more obvious.  The goal is to allow simple constructors covering all use cases to ensure RVO works
+    // well.
+    //
+    // NOTE: Passing tags "by value" to avoid adding unnecessary references to the call stack, also consistent with STL
+    //       tag argument usage
+
+    // Create an empty block with no valid data
+    struct InvalidBlockTag
     {};
-    ParsedBlock(const EmptyBlockTag&, BlockState reason) : block_data_(), uncompressed_store_(), state_(reason) {}
+    ParsedBlock(const InvalidBlockTag) : block_data_(), uncompressed_store_(), state_(BlockState::kInvalid) {}
 
-    // NOTE: need to ensure correct state is state vis-a-vis uncompressed store
-    // This is called for compressed blocks to provide the backing store for the uncompress parameter block views
-    // Needs update when deferred decompression is added
-    template <typename ArgPayload>
-    ParsedBlock(util::DataSpan&& block_data, ArgPayload&& args, UncompressedStore&& uncompressed_store) :
-        block_data_(std::move(block_data)), uncompressed_store_(std::move(uncompressed_store)),
-        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(BlockState::kReady)
+    // Create an unparsed block, either because the block type is unknown, or that is known, but has no
+    // matching Args struct
+    struct UnknownBlockTag
+    {};
+    ParsedBlock(const UnknownBlockTag, util::DataSpan&& block_data) :
+        block_data_(std::move(block_data)), uncompressed_store_(), state_(BlockState::kUnknown)
     {}
 
-    // This is called for for when blocks are parsed with deferred decompression
+    //  Create a block that must not be compressed with asserts on tag construction
+    struct IncompressibleBlockTag
+    {
+        IncompressibleBlockTag() = delete;
+        IncompressibleBlockTag(const BlockBuffer& block_buffer)
+        {
+            GFXRECON_ASSERT(!format::IsBlockCompressed(block_buffer.Header().type));
+        }
+    };
+    static util::DataSpan MakeIncompressibleBlockData(BlockBuffer&         block_buffer,
+                                                      BlockReferencePolicy policy,
+                                                      bool                 references_block_buffer) noexcept;
     template <typename ArgPayload>
-    ParsedBlock(util::DataSpan&& block_data, ArgPayload&& args, bool is_compressed) :
-        block_data_(std::move(block_data)), uncompressed_store_(),
-        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))),
-        state_(is_compressed ? BlockState::kDeferredDecompress : BlockState::kReady)
+    ParsedBlock(IncompressibleBlockTag,
+                BlockBuffer&         block_buffer,
+                BlockReferencePolicy policy,
+                bool                 references_block_buffer,
+                ArgPayload&&         args) :
+        block_data_(MakeIncompressibleBlockData(block_buffer, policy, references_block_buffer)),
+        uncompressed_store_(), dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
     {}
 
-    void Decompress(BlockParser& parser);
+    // Create a non-compressed block of a compressible block base type
+    // TODO: Is there a clean way to static assert that a block *type* is compressible here?
+    struct UncompressedBlockTag
+    {};
+    static util::DataSpan MakeUncompressedBlockData(BlockBuffer& block_buffer, BlockReferencePolicy policy) noexcept;
+    template <typename ArgPayload>
+    ParsedBlock(UncompressedBlockTag, BlockBuffer& block_buffer, BlockReferencePolicy policy, ArgPayload&& args) :
+        block_data_(MakeUncompressedBlockData(block_buffer, policy)), uncompressed_store_(),
+        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
+    {}
+
+    // Create a block that has been decompressed on construction
+    struct DecompressedBlockTag
+    {};
+    static util::DataSpan MakeDecompressedBlockData(BlockBuffer& block_buffer, BlockReferencePolicy policy) noexcept;
+
+    // For owned uncompressed store
+    template <typename ArgPayload>
+    ParsedBlock(DecompressedBlockTag,
+                BlockBuffer&         block_buffer,
+                BlockReferencePolicy policy,
+                UncompressedStore&&  uncompressed_store,
+                ArgPayload&&         args) :
+        block_data_(MakeDecompressedBlockData(block_buffer, policy)),
+        uncompressed_store_(std::move(uncompressed_store)),
+        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
+    {}
+
+    // For unowned uncompressed store
+    template <typename ArgPayload>
+    ParsedBlock(DecompressedBlockTag, const BlockBuffer& block_buffer, ArgPayload&& args) :
+        block_data_(block_buffer.MakeNonOwnedData()), uncompressed_store_(),
+        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
+    {}
+
+    // Created a block with deferred decompression
+    struct DeferredDecompressBlockTag
+    {};
+    static util::DataSpan MakeDeferredDecompressBlockData(BlockBuffer&         block_buffer,
+                                                          BlockReferencePolicy policy) noexcept;
+    template <typename ArgPayload>
+    ParsedBlock(DeferredDecompressBlockTag, BlockBuffer& block_buffer, BlockReferencePolicy policy, ArgPayload&& args) :
+        block_data_(MakeDeferredDecompressBlockData(block_buffer, policy)), uncompressed_store_(),
+        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kDeferredDecompress)
+    {}
+
+    [[nodiscard]] bool Decompress(BlockParser& parser);
 
   private:
     template <typename Args>
     BlockBuffer::BlockSpan GetCompressedSpan(Args& args);
-    template <typename Args>
-    static BlockBuffer::BlockSpan::size_type GetUncompressedSize(Args& args);
-    void                                     UpdateUncompressedStore(UncompressedStore&& from_store);
+    void                   UpdateUncompressedStore(UncompressedStore&& from_store);
 
     template <typename ArgPayload>
-    static DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
+    void TouchUpArgsData()
     {
-        using Args     = util::RemoveCvRef_t<ArgPayload>;
-        using ArgStore = DispatchStore<Args>;
-
-        static_assert(util::IsVariantAlternative_v<ArgStore, DispatchArgs>,
-                      "Invalid ArgPayload type, not storable in DispatchArgs");
-        static_assert(std::is_constructible_v<Args, ArgPayload&&>,
-                      "DispatchArgs alternative not constructible from supplied payload");
-
-        return DispatchArgs(std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload));
+        using Args = std::decay_t<ArgPayload>;
+        static_assert(DispatchTraits<Args>::kHasData);
+        // Get is valid on empty (returns nullptr)
+        Get<Args>().data = uncompressed_store_.template GetAs<const uint8_t>();
     }
 
     // The original contents of the read block (also backing store for uncompressed parameter views)

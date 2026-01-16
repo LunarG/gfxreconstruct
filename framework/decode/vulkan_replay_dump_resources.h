@@ -28,9 +28,9 @@
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
+#include "decode/vulkan_replay_dump_resources_transfer.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "format/format.h"
@@ -54,9 +54,11 @@ class VulkanReplayDumpResourcesBase
   public:
     VulkanReplayDumpResourcesBase() = delete;
 
-    VulkanReplayDumpResourcesBase(const VulkanReplayOptions&            options,
-                                  CommonObjectInfoTable*                object_info_table,
-                                  const VulkanPerDeviceAddressTrackers& address_trackers);
+    VulkanReplayDumpResourcesBase(const VulkanReplayOptions&                 options,
+                                  CommonObjectInfoTable*                     object_info_table,
+                                  const VulkanPerDeviceAddressTrackers&      address_trackers,
+                                  const graphics::InstanceDispatchTablesMap& instance_tables,
+                                  const graphics::DeviceDispatchTablesMap&   device_tables);
 
     ~VulkanReplayDumpResourcesBase();
 
@@ -406,15 +408,13 @@ class VulkanReplayDumpResourcesBase
 
     VkResult QueueSubmit(const std::vector<VkSubmitInfo>&   modified_submit_infos,
                          const graphics::VulkanDeviceTable& device_table,
-                         VkQueue                            queue,
+                         const VulkanQueueInfo*             queue,
                          VkFence                            fence,
                          uint64_t                           index);
 
     bool MustDumpQueueSubmitIndex(uint64_t index) const;
 
-    bool DumpingBeginCommandBufferIndex(uint64_t index) const;
-
-    bool IsRecording(VkCommandBuffer original_command_buffer) const;
+    bool IsRecording() const { return active_contexts_; }
 
     void Release();
 
@@ -457,6 +457,23 @@ class VulkanReplayDumpResourcesBase
                     pipeline_info->shader_stages |=
                         static_cast<VkShaderStageFlags>(in_p_create_infos[i].pStages[ss].stage);
                 }
+
+                // handle optional VkPipelineLibraryCreateInfoKHR
+                const auto* pipeline_library_info =
+                    GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
+                if (pipeline_library_info != nullptr)
+                {
+                    const uint32_t          library_count = pipeline_library_info->pLibraries.GetLength();
+                    const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
+
+                    for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
+                    {
+                        const VulkanPipelineInfo* gpl_ppl = object_info_table_->GetVkPipelineInfo(ppl_ids[lib_idx]);
+
+                        // Accumulate shader stages from the other pipelines from the library
+                        pipeline_info->shader_stages |= gpl_ppl->shader_stages;
+                    }
+                }
             }
         }
     }
@@ -489,44 +506,197 @@ class VulkanReplayDumpResourcesBase
 
     void DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler);
 
-    void HandleCmdBuildAccelerationStructures(
+    // Handles population of acceleration_structures_context_ map. For each AS that is build an entry in that map is
+    // created and the input buffers are cloned
+    void OverrideCmdBuildAccelerationStructuresKHR(
         const VulkanCommandBufferInfo*                                             original_command_buffer,
         const graphics::VulkanDeviceTable&                                         device_table,
         uint32_t                                                                   infoCount,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos);
 
-    void HandleCmdCopyAccelerationStructureKHR(const VulkanCommandBufferInfo*            original_command_buffer,
-                                               const graphics::VulkanDeviceTable&        device_table,
+    // Like OverrideCmdBuildAccelerationStructuresKHR Handles population of acceleration_structures_context_ map.
+    // In this case of copying AS it simply makes the new entry in the map to point at the src AS's entry.
+    void HandleCmdCopyAccelerationStructureKHR(const graphics::VulkanDeviceTable&        device_table,
                                                const VulkanAccelerationStructureKHRInfo* src,
                                                const VulkanAccelerationStructureKHRInfo* dst);
 
     void HandleDestroyAccelerationStructureKHR(const VulkanAccelerationStructureKHRInfo* as_info);
 
-    std::vector<DrawCallsDumpingContext*> FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer);
+    void ProcessStateEndMarker();
 
-    std::vector<DispatchTraceRaysDumpingContext*>
-    FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer);
+    std::vector<std::shared_ptr<DrawCallsDumpingContext>>
+    FindDrawCallDumpingContexts(VkCommandBuffer original_command_buffer);
+
+    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>>
+    FindDispatchTraceRaysContexts(VkCommandBuffer original_command_buffer);
+
+    void ProcessInitBufferCommand(uint64_t         cmd_index,
+                                  format::HandleId device_id,
+                                  format::HandleId buffer_id,
+                                  uint64_t         data_size,
+                                  const uint8_t*   data);
+
+    void ProcessInitImageCommand(VkCommandBuffer              command_buffer,
+                                 uint64_t                     cmd_index,
+                                 format::HandleId             device_id,
+                                 format::HandleId             image_id,
+                                 uint64_t                     data_size,
+                                 uint32_t                     aspect,
+                                 uint32_t                     layout,
+                                 const std::vector<uint64_t>& level_sizes,
+                                 const uint8_t*               data);
+
+    void OverrideCmdCopyBuffer(const ApiCallInfo&                          call_info,
+                               PFN_vkCmdCopyBuffer                         func,
+                               VkCommandBuffer                             commandBuffer,
+                               const VulkanBufferInfo*                     srcBuffer,
+                               const VulkanBufferInfo*                     dstBuffer,
+                               uint32_t                                    regionCount,
+                               StructPointerDecoder<Decoded_VkBufferCopy>* pRegions,
+                               bool                                        before_command);
+
+    void OverrideCmdCopyBuffer2(const ApiCallInfo&                               call_info,
+                                PFN_vkCmdCopyBuffer2                             func,
+                                VkCommandBuffer                                  commandBuffer,
+                                StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo,
+                                bool                                             before_command);
+
+    void OverrideCmdCopyBuffer2KHR(const ApiCallInfo&                               call_info,
+                                   PFN_vkCmdCopyBuffer2KHR                          func,
+                                   VkCommandBuffer                                  commandBuffer,
+                                   StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo,
+                                   bool                                             before_command);
+
+    void OverrideCmdCopyBufferToImage(const ApiCallInfo&                               call_info,
+                                      PFN_vkCmdCopyBufferToImage                       func,
+                                      VkCommandBuffer                                  commandBuffer,
+                                      const VulkanBufferInfo*                          srcBuffer,
+                                      const VulkanImageInfo*                           dstImage,
+                                      VkImageLayout                                    dstImageLayout,
+                                      uint32_t                                         regionCount,
+                                      StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions,
+                                      bool                                             before_command);
+
+    void OverrideCmdCopyBufferToImage2(const ApiCallInfo&                                      call_info,
+                                       PFN_vkCmdCopyBufferToImage2                             func,
+                                       VkCommandBuffer                                         commandBuffer,
+                                       StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo,
+                                       bool                                                    before_command);
+
+    void
+    OverrideCmdCopyBufferToImage2KHR(const ApiCallInfo&                                      call_info,
+                                     PFN_vkCmdCopyBufferToImage2KHR                          func,
+                                     VkCommandBuffer                                         commandBuffer,
+                                     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo,
+                                     bool                                                    before_command);
+
+    void OverrideCmdCopyImage(const ApiCallInfo&                         call_info,
+                              PFN_vkCmdCopyImage                         func,
+                              VkCommandBuffer                            commandBuffer,
+                              const VulkanImageInfo*                     srcImage,
+                              VkImageLayout                              srcImageLayout,
+                              const VulkanImageInfo*                     dstImage,
+                              VkImageLayout                              dstImageLayout,
+                              uint32_t                                   regionCount,
+                              StructPointerDecoder<Decoded_VkImageCopy>* pRegions,
+                              bool                                       before_command);
+
+    void OverrideCmdCopyImage2(const ApiCallInfo&                              call_info,
+                               PFN_vkCmdCopyImage2                             func,
+                               VkCommandBuffer                                 commandBuffer,
+                               StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo,
+                               bool                                            before_command);
+
+    void OverrideCmdCopyImage2KHR(const ApiCallInfo&                              call_info,
+                                  PFN_vkCmdCopyImage2KHR                          func,
+                                  VkCommandBuffer                                 commandBuffer,
+                                  StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo,
+                                  bool                                            before_command);
+
+    void OverrideCmdCopyImageToBuffer(const ApiCallInfo&                               call_info,
+                                      PFN_vkCmdCopyImageToBuffer                       func,
+                                      VkCommandBuffer                                  commandBuffer,
+                                      const VulkanImageInfo*                           srcImage,
+                                      VkImageLayout                                    srcImageLayout,
+                                      const VulkanBufferInfo*                          dstBuffer,
+                                      uint32_t                                         regionCount,
+                                      StructPointerDecoder<Decoded_VkBufferImageCopy>* pRegions,
+                                      bool                                             before_command);
+
+    void OverrideCmdCopyImageToBuffer2(const ApiCallInfo&                                      call_info,
+                                       PFN_vkCmdCopyImageToBuffer2                             func,
+                                       VkCommandBuffer                                         commandBuffer,
+                                       StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo,
+                                       bool                                                    before_command);
+
+    void
+    OverrideCmdCopyImageToBuffer2KHR(const ApiCallInfo&                                      call_info,
+                                     PFN_vkCmdCopyImageToBuffer2                             func,
+                                     VkCommandBuffer                                         commandBuffer,
+                                     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo,
+                                     bool                                                    before_command);
+
+    void OverrideCmdBlitImage(const ApiCallInfo&                         call_info,
+                              PFN_vkCmdBlitImage                         func,
+                              VkCommandBuffer                            commandBuffer,
+                              const VulkanImageInfo*                     srcImage,
+                              VkImageLayout                              srcImageLayout,
+                              const VulkanImageInfo*                     dstImage,
+                              VkImageLayout                              dstImageLayout,
+                              uint32_t                                   regionCount,
+                              StructPointerDecoder<Decoded_VkImageBlit>* pRegions,
+                              VkFilter                                   filter,
+                              bool                                       before_command);
+
+    void OverrideCmdBlitImage2(const ApiCallInfo&                              call_info,
+                               PFN_vkCmdBlitImage2                             func,
+                               VkCommandBuffer                                 commandBuffer,
+                               StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo,
+                               bool                                            before_command);
+
+    void OverrideCmdBlitImage2KHR(const ApiCallInfo&                              call_info,
+                                  PFN_vkCmdBlitImage2KHR                          func,
+                                  VkCommandBuffer                                 commandBuffer,
+                                  StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo,
+                                  bool                                            before_command);
+
+    void OverrideCmdBuildAccelerationStructuresKHR(
+        const ApiCallInfo&                                                         call_info,
+        PFN_vkCmdBuildAccelerationStructuresKHR                                    func,
+        VkCommandBuffer                                                            commandBuffer,
+        uint32_t                                                                   infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos,
+        bool                                                                       before_command);
+
+    void
+    OverrideCmdCopyAccelerationStructureKHR(const ApiCallInfo&                    call_info,
+                                            PFN_vkCmdCopyAccelerationStructureKHR func,
+                                            VkCommandBuffer                       commandBuffer,
+                                            StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo,
+                                            bool before_command);
 
   private:
-    bool UpdateRecordingStatus(VkCommandBuffer original_command_buffer);
+    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> FindDispatchTraceRaysContexts(uint64_t bcb_id);
+    std::shared_ptr<DispatchTraceRaysDumpingContext>
+    FindDispatchTraceRaysContext(VkCommandBuffer original_command_buffer, decode::Index qs_index);
 
-    std::vector<DispatchTraceRaysDumpingContext*> FindDispatchRaysCommandBufferContext(uint64_t bcb_id);
-    DispatchTraceRaysDumpingContext* FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer,
-                                                                          decode::Index   qs_index);
+    std::vector<std::shared_ptr<DrawCallsDumpingContext>> FindDrawCallDumpingContexts(uint64_t bcb_id);
+    std::shared_ptr<DrawCallsDumpingContext>              FindDrawCallContext(VkCommandBuffer original_command_buffer,
+                                                                              decode::Index   qs_index);
 
-    std::vector<const DispatchTraceRaysDumpingContext*> FindDispatchRaysCommandBufferContext(uint64_t bcb_id) const;
-    std::vector<const DispatchTraceRaysDumpingContext*>
-    FindDispatchRaysCommandBufferContext(VkCommandBuffer original_command_buffer) const;
+    // Transfer contexts search funcs
+    std::vector<std::shared_ptr<const TransferDumpingContext>> FindTransferContextBcbIndex(uint64_t bcb_index) const;
+    std::vector<std::shared_ptr<TransferDumpingContext>>       FindTransferContextCmdIndex(uint64_t cmd_index);
+    std::shared_ptr<TransferDumpingContext> FindTransferContextBcbQsIndex(uint64_t bcb_index, uint64_t qs_index);
+    std::shared_ptr<TransferDumpingContext> FindTransferContext(VkCommandBuffer original_command_buffer,
+                                                                decode::Index   qs_index);
 
-    DrawCallsDumpingContext* FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer,
-                                                              decode::Index   qs_index);
-
-    std::vector<DrawCallsDumpingContext*> FindDrawCallCommandBufferContext(uint64_t bcb_id);
-
-    std::vector<const DrawCallsDumpingContext*>
-    FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer) const;
-    std::vector<const DrawCallsDumpingContext*> FindDrawCallCommandBufferContext(uint64_t bcb_id) const;
+    // Context tracking. These functions should be called when a dumping context has done its job.
+    void ReleaseDrawCallContexts(decode::Index qs_index);
+    void ReleaseDispatchTraceRaysContexts(decode::Index qs_index);
+    void ReleaseTransferContexts(decode::Index qs_index);
 
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,
@@ -560,18 +730,6 @@ class VulkanReplayDumpResourcesBase
                                            uint32_t                              stride,
                                            DrawCallsDumpingContext::DrawCallType drawcall_type);
 
-    struct PushConstantBlock
-    {
-        VkDeviceAddress array_of_pointers;
-        VkDeviceAddress out_buffer;
-        uint32_t        count;
-    };
-
-    static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device_table,
-                                           VkDevice                           device,
-                                           VkPipeline*                        compute_ppl,
-                                           VkPipelineLayout*                  ppl_layout);
-
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;
 
@@ -582,12 +740,22 @@ class VulkanReplayDumpResourcesBase
     std::unordered_map<VkCommandBuffer, decode::Index> cb_bcb_map_;
 
     // DrawCall dumping contexts. One per BeginCommandBuffer - QueueSubmit pair
-    std::map<BeginCmdBufQueueSubmitPair, DrawCallsDumpingContext> draw_call_contexts_;
+    std::map<BeginCmdBufQueueSubmitPair, std::shared_ptr<DrawCallsDumpingContext>> draw_call_contexts_;
 
     // Dispatch-TraceRays call dumping contexts. One per BeginCommandBuffer - QueueSubmit pair
-    std::map<BeginCmdBufQueueSubmitPair, DispatchTraceRaysDumpingContext> dispatch_ray_contexts_;
+    std::map<BeginCmdBufQueueSubmitPair, std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_ray_contexts_;
 
-    bool                   recording_;
+    // Transfer call dumping contexts. One per BeginCommandBuffer - QueueSubmit pair
+    std::map<BeginCmdBufQueueSubmitPair, std::shared_ptr<TransferDumpingContext>> transfer_contexts_;
+
+    // Keep track of the number of active dumping contexts. A context is considered active when it's associated
+    // BeginCommandBuffer is issued and until it is submitted in its associated QueueSubmit index.
+    //
+    // TransferDumpingContext is a bit different as it is not strictly associated with a command buffer and as a result
+    // it does not require to a BeginCommandBuffer to become active. This is convenient in cases when dumping transfer
+    // commands from the state setup section which are not recorded as part of a Vulkan command buffer
+    size_t active_contexts_;
+
     bool                   dump_resources_before_;
     CommonObjectInfoTable* object_info_table_;
     bool                   output_json_per_command;

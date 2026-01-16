@@ -7521,6 +7521,110 @@ struct Decoded_VkCheckpointData2NV
     uint64_t pCheckpointMarker{ 0 };
 };
 
+struct Decoded_VkPhysicalDevicePresentTimingFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePresentTimingFeaturesEXT;
+
+    VkPhysicalDevicePresentTimingFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPresentTimingSurfaceCapabilitiesEXT
+{
+    using struct_type = VkPresentTimingSurfaceCapabilitiesEXT;
+
+    VkPresentTimingSurfaceCapabilitiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainCalibratedTimestampInfoEXT
+{
+    using struct_type = VkSwapchainCalibratedTimestampInfoEXT;
+
+    VkSwapchainCalibratedTimestampInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId swapchain{ format::kNullHandleId };
+};
+
+struct Decoded_VkSwapchainTimingPropertiesEXT
+{
+    using struct_type = VkSwapchainTimingPropertiesEXT;
+
+    VkSwapchainTimingPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainTimeDomainPropertiesEXT
+{
+    using struct_type = VkSwapchainTimeDomainPropertiesEXT;
+
+    VkSwapchainTimeDomainPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkTimeDomainKHR> pTimeDomains;
+    PointerDecoder<uint64_t> pTimeDomainIds;
+};
+
+struct Decoded_VkPastPresentationTimingInfoEXT
+{
+    using struct_type = VkPastPresentationTimingInfoEXT;
+
+    VkPastPresentationTimingInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId swapchain{ format::kNullHandleId };
+};
+
+struct Decoded_VkPresentStageTimeEXT
+{
+    using struct_type = VkPresentStageTimeEXT;
+
+    VkPresentStageTimeEXT* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPastPresentationTimingEXT
+{
+    using struct_type = VkPastPresentationTimingEXT;
+
+    VkPastPresentationTimingEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPresentStageTimeEXT>* pPresentStages{ nullptr };
+};
+
+struct Decoded_VkPastPresentationTimingPropertiesEXT
+{
+    using struct_type = VkPastPresentationTimingPropertiesEXT;
+
+    VkPastPresentationTimingPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPastPresentationTimingEXT>* pPresentationTimings{ nullptr };
+};
+
+struct Decoded_VkPresentTimingInfoEXT
+{
+    using struct_type = VkPresentTimingInfoEXT;
+
+    VkPresentTimingInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPresentTimingsInfoEXT
+{
+    using struct_type = VkPresentTimingsInfoEXT;
+
+    VkPresentTimingsInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPresentTimingInfoEXT>* pTimingInfos{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL
 {
     using struct_type = VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL;
@@ -8214,6 +8318,15 @@ struct Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT;
+
+    VkPhysicalDeviceTextureCompressionASTC3DFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDevicePresentBarrierFeaturesNV
 {
     using struct_type = VkPhysicalDevicePresentBarrierFeaturesNV;
@@ -8324,6 +8437,122 @@ struct Decoded_VkQueryLowLatencySupportNV
 
     PNextNode* pNext{ nullptr };
     uint64_t pQueriedLowLatencyData{ 0 };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferPropertiesEXT;
+
+    VkPhysicalDeviceDescriptorBufferPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT;
+
+    VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDescriptorBufferFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceDescriptorBufferFeaturesEXT;
+
+    VkPhysicalDeviceDescriptorBufferFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorAddressInfoEXT
+{
+    using struct_type = VkDescriptorAddressInfoEXT;
+
+    VkDescriptorAddressInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorBufferBindingInfoEXT
+{
+    using struct_type = VkDescriptorBufferBindingInfoEXT;
+
+    VkDescriptorBufferBindingInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT
+{
+    using struct_type = VkDescriptorBufferBindingPushDescriptorBufferHandleEXT;
+
+    VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId buffer{ format::kNullHandleId };
+};
+
+struct Decoded_VkBufferCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkBufferCaptureDescriptorDataInfoEXT;
+
+    VkBufferCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId buffer{ format::kNullHandleId };
+};
+
+struct Decoded_VkImageCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkImageCaptureDescriptorDataInfoEXT;
+
+    VkImageCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId image{ format::kNullHandleId };
+};
+
+struct Decoded_VkImageViewCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkImageViewCaptureDescriptorDataInfoEXT;
+
+    VkImageViewCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId imageView{ format::kNullHandleId };
+};
+
+struct Decoded_VkSamplerCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkSamplerCaptureDescriptorDataInfoEXT;
+
+    VkSamplerCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId sampler{ format::kNullHandleId };
+};
+
+struct Decoded_VkOpaqueCaptureDescriptorDataCreateInfoEXT
+{
+    using struct_type = VkOpaqueCaptureDescriptorDataCreateInfoEXT;
+
+    VkOpaqueCaptureDescriptorDataCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t opaqueCaptureDescriptorData{ 0 };
+};
+
+struct Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT
+{
+    using struct_type = VkAccelerationStructureCaptureDescriptorDataInfoEXT;
+
+    VkAccelerationStructureCaptureDescriptorDataInfoEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId accelerationStructure{ format::kNullHandleId };
+    format::HandleId accelerationStructureNV{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT
@@ -9904,11 +10133,11 @@ struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV
 {
-    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT;
+    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV;
 
-    VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* decoded_value{ nullptr };
+    VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -9986,17 +10215,6 @@ struct Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT
     VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkLayerSettingEXT
-{
-    using struct_type = VkLayerSettingEXT;
-
-    VkLayerSettingEXT* decoded_value{ nullptr };
-
-    StringDecoder pLayerName;
-    StringDecoder pSettingName;
-    PointerDecoder<uint8_t> pValues;
 };
 
 struct Decoded_VkLayerSettingsCreateInfoEXT
@@ -10127,6 +10345,221 @@ struct Decoded_VkLatencySurfaceCapabilitiesNV
 
     PNextNode* pNext{ nullptr };
     PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
+struct Decoded_VkPhysicalDeviceDataGraphFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceDataGraphFeaturesARM;
+
+    VkPhysicalDeviceDataGraphFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineConstantARM
+{
+    using struct_type = VkDataGraphPipelineConstantARM;
+
+    VkDataGraphPipelineConstantARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    uint64_t pConstantData{ 0 };
+};
+
+struct Decoded_VkDataGraphPipelineResourceInfoARM
+{
+    using struct_type = VkDataGraphPipelineResourceInfoARM;
+
+    VkDataGraphPipelineResourceInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineCompilerControlCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineCompilerControlCreateInfoARM;
+
+    VkDataGraphPipelineCompilerControlCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StringDecoder pVendorOptions;
+};
+
+struct Decoded_VkDataGraphPipelineCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineCreateInfoARM;
+
+    VkDataGraphPipelineCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId layout{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkDataGraphPipelineResourceInfoARM>* pResourceInfos{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineShaderModuleCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineShaderModuleCreateInfoARM;
+
+    VkDataGraphPipelineShaderModuleCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId module{ format::kNullHandleId };
+    StringDecoder pName;
+    StructPointerDecoder<Decoded_VkSpecializationInfo>* pSpecializationInfo{ nullptr };
+    StructPointerDecoder<Decoded_VkDataGraphPipelineConstantARM>* pConstants{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineSessionCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineSessionCreateInfoARM;
+
+    VkDataGraphPipelineSessionCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId dataGraphPipeline{ format::kNullHandleId };
+};
+
+struct Decoded_VkDataGraphPipelineSessionBindPointRequirementsInfoARM
+{
+    using struct_type = VkDataGraphPipelineSessionBindPointRequirementsInfoARM;
+
+    VkDataGraphPipelineSessionBindPointRequirementsInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId session{ format::kNullHandleId };
+};
+
+struct Decoded_VkDataGraphPipelineSessionBindPointRequirementARM
+{
+    using struct_type = VkDataGraphPipelineSessionBindPointRequirementARM;
+
+    VkDataGraphPipelineSessionBindPointRequirementARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineSessionMemoryRequirementsInfoARM
+{
+    using struct_type = VkDataGraphPipelineSessionMemoryRequirementsInfoARM;
+
+    VkDataGraphPipelineSessionMemoryRequirementsInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId session{ format::kNullHandleId };
+};
+
+struct Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM
+{
+    using struct_type = VkBindDataGraphPipelineSessionMemoryInfoARM;
+
+    VkBindDataGraphPipelineSessionMemoryInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId session{ format::kNullHandleId };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
+struct Decoded_VkDataGraphPipelineInfoARM
+{
+    using struct_type = VkDataGraphPipelineInfoARM;
+
+    VkDataGraphPipelineInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId dataGraphPipeline{ format::kNullHandleId };
+};
+
+struct Decoded_VkDataGraphPipelinePropertyQueryResultARM
+{
+    using struct_type = VkDataGraphPipelinePropertyQueryResultARM;
+
+    VkDataGraphPipelinePropertyQueryResultARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> pData;
+};
+
+struct Decoded_VkDataGraphPipelineIdentifierCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineIdentifierCreateInfoARM;
+
+    VkDataGraphPipelineIdentifierCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<uint8_t> pIdentifier;
+};
+
+struct Decoded_VkDataGraphPipelineDispatchInfoARM
+{
+    using struct_type = VkDataGraphPipelineDispatchInfoARM;
+
+    VkDataGraphPipelineDispatchInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDataGraphProcessingEngineARM
+{
+    using struct_type = VkPhysicalDeviceDataGraphProcessingEngineARM;
+
+    VkPhysicalDeviceDataGraphProcessingEngineARM* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDataGraphOperationSupportARM
+{
+    using struct_type = VkPhysicalDeviceDataGraphOperationSupportARM;
+
+    VkPhysicalDeviceDataGraphOperationSupportARM* decoded_value{ nullptr };
+
+    StringDecoder name;
+};
+
+struct Decoded_VkQueueFamilyDataGraphPropertiesARM
+{
+    using struct_type = VkQueueFamilyDataGraphPropertiesARM;
+
+    VkQueueFamilyDataGraphPropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkPhysicalDeviceDataGraphProcessingEngineARM* engine{ nullptr };
+    Decoded_VkPhysicalDeviceDataGraphOperationSupportARM* operation{ nullptr };
+};
+
+struct Decoded_VkDataGraphProcessingEngineCreateInfoARM
+{
+    using struct_type = VkDataGraphProcessingEngineCreateInfoARM;
+
+    VkDataGraphProcessingEngineCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPhysicalDeviceDataGraphProcessingEngineARM>* pProcessingEngines{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM
+{
+    using struct_type = VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM;
+
+    VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesARM
+{
+    using struct_type = VkQueueFamilyDataGraphProcessingEnginePropertiesARM;
+
+    VkQueueFamilyDataGraphProcessingEnginePropertiesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM
+{
+    using struct_type = VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM;
+
+    VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM
@@ -10737,6 +11170,15 @@ struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT;
+
+    VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceDepthClampControlFeaturesEXT;
@@ -11007,15 +11449,6 @@ struct Decoded_VkPipelineCacheHeaderVersionDataGraphQCOM
     PointerDecoder<uint32_t> toolchainVersion;
 };
 
-struct Decoded_VkPhysicalDeviceDataGraphOperationSupportARM
-{
-    using struct_type = VkPhysicalDeviceDataGraphOperationSupportARM;
-
-    VkPhysicalDeviceDataGraphOperationSupportARM* decoded_value{ nullptr };
-
-    StringDecoder name;
-};
-
 struct Decoded_VkDataGraphPipelineBuiltinModelCreateInfoQCOM
 {
     using struct_type = VkDataGraphPipelineBuiltinModelCreateInfoQCOM;
@@ -11035,6 +11468,24 @@ struct Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderLongVectorFeaturesEXT;
+
+    VkPhysicalDeviceShaderLongVectorFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderLongVectorPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderLongVectorPropertiesEXT;
+
+    VkPhysicalDeviceShaderLongVectorPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC
 {
     using struct_type = VkPhysicalDevicePipelineCacheIncrementalModeFeaturesSEC;
@@ -11049,6 +11500,24 @@ struct Decoded_VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT
     using struct_type = VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT;
 
     VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkComputeOccupancyPriorityParametersNV
+{
+    using struct_type = VkComputeOccupancyPriorityParametersNV;
+
+    VkComputeOccupancyPriorityParametersNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV;
+
+    VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -11813,8 +12282,6 @@ typedef Decoded_VkRenderPassFragmentDensityMapOffsetEndInfoEXT Decoded_VkSubpass
 typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT;
 
 typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
-
-typedef Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV;
 
 typedef Decoded_VkRenderingEndInfoKHR Decoded_VkRenderingEndInfoEXT;
 

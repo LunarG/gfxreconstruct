@@ -39,20 +39,30 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 using FileInputStream    = util::FStreamFileInputStream;
 using FileInputStreamPtr = std::shared_ptr<FileInputStream>;
 
-enum BlockReadError : int32_t
+enum BlockIOError : int32_t
 {
     kEndOfFile                         = 1, // when block reading is EOF at a block boundary
     kErrorNone                         = 0,
     kErrorInvalidFileDescriptor        = -1,
     kErrorOpeningFile                  = -2,
-    kErrorReadingFile                  = -3, // ferror() returned true at start of frame processing.
+    kErrorReadingFile                  = -3, // ferror() return true at start of file
     kErrorReadingFileHeader            = -4,
     kErrorReadingBlockHeader           = -5,
     kErrorReadingCompressedBlockHeader = -6,
     kErrorReadingBlockData             = -7,
     kErrorReadingCompressedBlockData   = -8,
     kErrorInvalidFourCC                = -9,
-    kErrorUnsupportedCompressionType   = -10
+    kErrorUnsupportedCompressionType   = -10,
+    kErrorSeekingFile                  = -11, // Additional error types from FileTransformer
+    kErrorWritingFile                  = -12,
+    kErrorWritingFileHeader            = -13,
+    kErrorWritingBlockHeader           = -14,
+    kErrorWritingCompressedBlockHeader = -15,
+    kErrorWritingBlockData             = -16,
+    kErrorWritingCompressedBlockData   = -17,
+    kErrorCopyingBlockData             = -18,
+    kErrorUnsupportedBlockType         = -19
+
 };
 
 // TODO: Find a better allocator (or improve this one), and share with FileInputStream
@@ -79,7 +89,7 @@ class BlockParser
     // Threshhold data came from a histogram of numerous large traces and is chosen as a trade-off
     // that allows the majority of blocks to be decompressed when parsed and enqueued (for preloaded replay), while
     // the 3/4 of the *bytes* are not decompressed when enqueued, limiting the memory impact
-    static constexpr size_t kSmallThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
+    static constexpr size_t kDeferThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
 
     using UncompressedStore = ParsedBlock::UncompressedStore;
 
@@ -90,7 +100,7 @@ class BlockParser
     [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return block_index_; }
 
     // Parse the block header and load a block buffer
-    BlockReadError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
+    BlockIOError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
 
     // Define parsers for every block and sub-block type
     ParsedBlock ParseBlock(BlockBuffer& block_buffer);
@@ -101,16 +111,36 @@ class BlockParser
     ParsedBlock ParseStateMarker(BlockBuffer& block_buffer);
     ParsedBlock ParseAnnotation(BlockBuffer& block_buffer);
 
-    void                           HandleBlockReadError(BlockReadError error_code, const char* error_message);
+    void HandleBlockReadError(BlockIOError error_code, const char* error_message);
+    void
+    WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label = nullptr, uint32_t sub_type = 0U);
+
+    bool ShouldDeferDecompression(size_t block_size);
+
+    // Control use of parser local storage for decompression
+    struct UseParserLocalStorageTag
+    {};
+    bool                           DecompressSpan(const BlockBuffer::BlockSpan&   compressed_span,
+                                                  size_t                          expanded_size,
+                                                  ParsedBlock::UncompressedStore& uncompressed_buffer);
     ParsedBlock::UncompressedStore DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
+    const uint8_t*
+    DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size, UseParserLocalStorageTag);
 
-    using ErrorHandler = std::function<void(BlockReadError, const char*)>;
-    BlockParser(const ErrorHandler& err, BufferPool& pool, util::Compressor* compressor) :
-        pool_(pool), err_handler_(err), compressor_(compressor)
+    using ErrorHandler = std::function<void(BlockIOError, const char*)>;
+    BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
+        pool_(pool), err_handler_(std::move(err)), compressor_(compressor)
     {}
+    BlockParser() = delete;
 
-    void                SetDecompressionPolicy(DecompressionPolicy policy) { decompression_policy_ = policy; }
-    DecompressionPolicy GetDecompressionPolicy() const { return decompression_policy_; }
+    void SetDecompressionPolicy(DecompressionPolicy policy) noexcept { decompression_policy_ = policy; }
+    void SetBlockReferencePolicy(ParsedBlock::BlockReferencePolicy policy) noexcept
+    {
+        block_reference_policy_ = policy;
+    }
+
+    DecompressionPolicy               GetDecompressionPolicy() const noexcept { return decompression_policy_; }
+    ParsedBlock::BlockReferencePolicy GetBlockReferencePolicy() const noexcept { return block_reference_policy_; }
 
   private:
     struct ParameterReadResult
@@ -120,17 +150,30 @@ class BlockParser
         size_t                 uncompressed_size = 0;
         BlockBuffer::BlockSpan buffer;
     };
+
+    template <typename ArgPayload>
+    [[nodiscard]] ParsedBlock MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
+                                                          const BlockParser::ParameterReadResult& result,
+                                                          ArgPayload&&                            args);
+
+    template <typename ArgPayload>
+    ParsedBlock
+    MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload&& args, bool references_block_buffer = false);
+
     constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
     ParameterReadResult
     ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer);
-    bool                DecompressWhenParsed(const ParsedBlock& parsed_block);
-    BufferPool          pool_; // TODO: Get a better pool, and share with FileInputStream
-    const ErrorHandler& err_handler_;
-    util::Compressor*   compressor_           = nullptr;
-    DecompressionPolicy decompression_policy_ = DecompressionPolicy::kAlways;
+
+    BufferPool                        pool_; // TODO: Get a better pool, and share with FileInputStream
+    ErrorHandler                      err_handler_;
+    util::Compressor*                 compressor_             = nullptr;
+    DecompressionPolicy               decompression_policy_   = DecompressionPolicy::kAlways;
+    ParsedBlock::BlockReferencePolicy block_reference_policy_ = ParsedBlock::BlockReferencePolicy::kNonOwnedReference;
 
     uint64_t frame_number_ = 0;
     uint64_t block_index_  = 0;
+
+    ParsedBlock::UncompressedStore uncompressed_working_buffer_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

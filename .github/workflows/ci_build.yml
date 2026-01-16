@@ -53,10 +53,10 @@ jobs:
         then
           clang-format-14 --version
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
-          python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
           python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
           python3 framework/generated/generate_openxr.py # check generated code isn't out of date
           git diff --exit-code
+          python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
         else
           python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
         fi

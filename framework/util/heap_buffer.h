@@ -40,8 +40,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class HeapBuffer
 {
   public:
-    using DataType   = std::byte;
-    using Store      = std::unique_ptr<DataType[]>;
+    using DataType = std::byte;
+    using Store    = std::unique_ptr<DataType[]>;
 
     using value_type = DataType;
     using pointer    = DataType*;
@@ -72,6 +72,14 @@ class HeapBuffer
         static_assert(!std::is_reference_v<T>, "T must not be a reference type");
         static_assert(IsByteEquivalent_v<T>, "Buffer reinterpretation only valid for byte-like types.");
         return reinterpret_cast<T*>(store_.get());
+    }
+
+    template <typename T>
+    [[nodiscard]] auto GetAs() const noexcept
+    {
+        static_assert(!std::is_reference_v<T>, "T must not be a reference type");
+        static_assert(IsByteEquivalent_v<T>, "Buffer reinterpretation only valid for byte-like types.");
+        return reinterpret_cast<const std::decay_t<T>*>(store_.get());
     }
 
     size_t Capacity() const { return store_ ? capacity_ : 0U; }
@@ -116,8 +124,18 @@ class HeapBufferPool : public std::enable_shared_from_this<HeapBufferPool>
         Entry& operator=(Entry&& other) noexcept;
         Entry() = default;
 
+        void  Reset() noexcept;
+        Pool* GetPool() const { return pool_; }
+
+        // The public "pool" constructor aquires an entry from the pool
+        // suitable for use in emplaced containers or wrappers
+        Entry(Pool* pool, size_t size) : Entry(pool->Acquire(size)) {}
+
       private:
-        Entry(Pool* pool, size_t size) : DataBuffer(size), pool_(pool) {}
+        // The private constructor is used by the pool to create new entries
+        struct PoolAcquireTag
+        {};
+        Entry(PoolAcquireTag, Pool* pool, size_t size) : DataBuffer(size), pool_(pool) {}
         void DisavowPool() { pool_ = nullptr; }
 
         // Pool is guarded by a refcount of Acquire'd Entry objects

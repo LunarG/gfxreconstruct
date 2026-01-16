@@ -102,8 +102,8 @@ extern "C"
 
 void android_main(struct android_app* app)
 {
-    GFXRECON_WRITE_CONSOLE("====== Entering android_main");
     gfxrecon::util::Log::Init();
+    GFXRECON_WRITE_CONSOLE("====== Entering android_main");
 
     // Keep screen on while window is active.
     ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
@@ -256,7 +256,7 @@ void android_main(struct android_app* app)
                 fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
 
                 if ((file_processor->GetCurrentFrameNumber() > 0) &&
-                    (file_processor->GetErrorState() == gfxrecon::decode::BlockReadError::kErrorNone))
+                    (file_processor->GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone))
                 {
                     if (file_processor->GetCurrentFrameNumber() < measurement_start_frame)
                     {
@@ -271,7 +271,7 @@ void android_main(struct android_app* app)
                         fps_info.LogMeasurements();
                     }
                 }
-                else if (file_processor->GetErrorState() != gfxrecon::decode::BlockReadError::kErrorNone)
+                else if (file_processor->GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
                 {
                     GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 }
@@ -303,9 +303,12 @@ void android_main(struct android_app* app)
         app->userData = nullptr;
     }
 
+    GFXRECON_WRITE_CONSOLE("====== Exiting android_main");
+
     gfxrecon::util::Log::Release();
 
     gfxrecon::util::DestroyActivity(app);
+
     raise(SIGTERM);
 }
 

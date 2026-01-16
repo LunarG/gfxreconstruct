@@ -32,21 +32,21 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Parse the block header and load the whole block into a block buffer
-BlockReadError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
+BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
     using BlockSizeType = decltype(format::BlockHeader::size);
-    BlockSizeType  block_size;
-    BlockReadError status = kErrorNone;
+    BlockSizeType block_size;
+    BlockIOError  status = kErrorNone;
 
-    if (!input_stream->PeekBytes(&block_size, 1))
+    const size_t peeked_bytes = input_stream->PeekBytes(&block_size, sizeof(block_size));
+    if (peeked_bytes == 0)
     {
-        // No bytes remaining in file, or an error condition
-        // If no error return kEndOfFile with an empty block
+        // We're at EOF without a single byte to read
         status = input_stream->IsError() ? kErrorReadingBlockHeader : kEndOfFile;
     }
-    else if (!input_stream->PeekBytes(&block_size, sizeof(block_size)))
+    else if (peeked_bytes < sizeof(block_size))
     {
-        // The file is empty, but doesn't contain even a full header's information
+        // The file ended, but doesn't contain even a full header's information
         status = kErrorReadingBlockHeader;
     }
 
@@ -76,10 +76,11 @@ BlockReadError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bl
         if (status == kErrorNone)
         {
             // Note this leave the BlockBuffer read position at the first byte following the header.
-            util::DataSpan block_span = input_stream->ReadSpan(static_cast<size_t>(total_block_size));
-            if (block_span.IsValid())
+            bool success =
+                input_stream->ReadOverwriteSpan(static_cast<size_t>(total_block_size), block_buffer.GetBlockStore());
+            if (success)
             {
-                block_buffer.Reset(std::move(block_span));
+                block_buffer.InitBlockHeaderFromSpan();
             }
             else
             {
@@ -96,39 +97,158 @@ BlockReadError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bl
     return status;
 }
 
-void BlockParser::HandleBlockReadError(BlockReadError error_code, const char* error_message)
+void BlockParser::HandleBlockReadError(BlockIOError error_code, const char* error_message)
 {
+    GFXRECON_ASSERT(err_handler_);
     err_handler_(error_code, error_message);
 }
 
-bool BlockParser::DecompressWhenParsed(const ParsedBlock& parsed_block)
+bool BlockParser::ShouldDeferDecompression(size_t block_size)
 {
-    switch (decompression_policy_)
+    // NOTE: Using multiple ifs for clarity
+    if (decompression_policy_ == kAlways)
     {
-        case kAlways:
-        default:
-            // always Decompressing when needed is safest with unknown mode
-            return parsed_block.NeedsDecompression();
-        case kNever:
-            return false;
-        case kQueueOptimized:
-            return parsed_block.NeedsDecompression() && parsed_block.GetBlockData().size() <= kSmallThreshold;
+        return false;
+    }
+    else if (decompression_policy_ == kNever)
+    {
+        return true;
+    }
+
+    GFXRECON_ASSERT(decompression_policy_ == kQueueOptimized);
+    return block_size > kDeferThreshold;
+}
+
+bool BlockParser::DecompressSpan(const BlockBuffer::BlockSpan&   compressed_span,
+                                 size_t                          expanded_size,
+                                 ParsedBlock::UncompressedStore& uncompressed_buffer)
+{
+    GFXRECON_ASSERT(!compressed_span.empty());
+    size_t uncompressed_size = compressor_->Decompress(compressed_span.size(),
+                                                       reinterpret_cast<const uint8_t*>(compressed_span.data()),
+                                                       expanded_size,
+                                                       uncompressed_buffer.GetAs<uint8_t>());
+    if (uncompressed_size == expanded_size)
+    {
+        return true;
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");
+        return false;
     }
 }
 
 ParsedBlock::UncompressedStore BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
                                                            size_t                        expanded_size)
 {
-    if (!compressed_span.empty())
+    auto uncompressed_buffer = pool_->Acquire(expanded_size);
+    if (DecompressSpan(compressed_span, expanded_size, uncompressed_buffer))
     {
-        auto   uncompressed_buffer = pool_->Acquire(expanded_size);
-        size_t uncompressed_size   = compressor_->Decompress(compressed_span.size(),
-                                                           reinterpret_cast<const uint8_t*>(compressed_span.data()),
-                                                           expanded_size,
-                                                           uncompressed_buffer.GetAs<uint8_t>());
         return uncompressed_buffer;
     }
-    return ParsedBlock::UncompressedStore();
+    else
+    {
+        return ParsedBlock::UncompressedStore();
+    }
+}
+const uint8_t* BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
+                                           size_t                        expanded_size,
+                                           UseParserLocalStorageTag)
+{
+    uncompressed_working_buffer_.ReserveDiscarding(expanded_size);
+    if (DecompressSpan(compressed_span, expanded_size, uncompressed_working_buffer_))
+    {
+        return reinterpret_cast<const uint8_t*>(uncompressed_working_buffer_.data());
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");
+        return nullptr;
+    }
+}
+void BlockParser::WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label, uint32_t sub_type)
+{
+    const format::BlockHeader& block_header = block_buffer.Header();
+    const format::BlockType    block_type   = block_header.type;
+
+    const uint32_t type       = static_cast<uint32_t>(block_type);
+    const char*    compressed = format::IsBlockCompressed(block_type) ? "compressed" : "uncompressed";
+
+    std::stringstream message;
+    if (nullptr != sub_type_label)
+    {
+        message << "Skipping unrecognized " << compressed << " " << sub_type_label << " with type " << sub_type;
+    }
+    else
+    {
+        message << "Skipping unrecognized %s file block with type " << block_type;
+    }
+
+    GFXRECON_LOG_WARNING(
+        "%s (frame %" PRIu64 " block %" PRIu32 ")", message.str().c_str(), frame_number_, block_index_);
+}
+
+// Create a block that is compressible with correct handling of both compression state and decompression policy
+template <typename ArgPayload>
+[[nodiscard]] ParsedBlock BlockParser::MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
+                                                                   const BlockParser::ParameterReadResult& read_result,
+                                                                   ArgPayload&&                            args)
+{
+    if (read_result.is_compressed)
+    {
+        if (ShouldDeferDecompression(block_buffer.GetData().size()))
+        {
+            return ParsedBlock(ParsedBlock::DeferredDecompressBlockTag{},
+                               block_buffer,
+                               block_reference_policy_,
+                               std::forward<ArgPayload>(args));
+        }
+        else
+        {
+            if (block_reference_policy_ == ParsedBlock::kNonOwnedReference)
+            {
+                // Use parser local storage for decompression to avoid retaining owned references in this mode
+                const uint8_t* uncompressed_data =
+                    DecompressSpan(read_result.buffer, read_result.uncompressed_size, UseParserLocalStorageTag{});
+                if (uncompressed_data == nullptr)
+                {
+                    return ParsedBlock(ParsedBlock::InvalidBlockTag());
+                }
+                args.data = uncompressed_data;
+                return ParsedBlock(ParsedBlock::DecompressedBlockTag{}, block_buffer, std::forward<ArgPayload>(args));
+            }
+
+            // Use owned uncompressed storage only as needed
+            UncompressedStore uncompressed_store = DecompressSpan(read_result.buffer, read_result.uncompressed_size);
+            args.data                            = uncompressed_store.template GetAs<const uint8_t>();
+            if (uncompressed_store.empty())
+            {
+                return ParsedBlock(ParsedBlock::InvalidBlockTag());
+            }
+            return ParsedBlock(ParsedBlock::DecompressedBlockTag{},
+                               block_buffer,
+                               block_reference_policy_,
+                               std::move(uncompressed_store),
+                               std::forward<ArgPayload>(args));
+        }
+    }
+    else
+    {
+        return ParsedBlock(
+            ParsedBlock::UncompressedBlockTag{}, block_buffer, block_reference_policy_, std::forward<ArgPayload>(args));
+    }
+}
+// Create a block that is never compressed with correct handling of both compression state and decompression policy
+template <typename ArgPayload>
+[[nodiscard]] ParsedBlock
+BlockParser::MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload&& args, bool references_block_buffer)
+{
+    return ParsedBlock(ParsedBlock::IncompressibleBlockTag{ block_buffer },
+                       block_buffer,
+                       block_reference_policy_,
+                       references_block_buffer,
+                       std::forward<ArgPayload>(args));
 }
 
 ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
@@ -137,41 +257,32 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
     const format::BlockHeader& block_header = block_buffer.Header();
     format::BlockType          base_type    = format::RemoveCompressedBlockBit(block_header.type);
-    ParsedBlock parsed_block = ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kUnknown);
     switch (base_type)
     {
         case format::kFunctionCallBlock:
-            parsed_block = ParseFunctionCall(block_buffer);
+            return ParseFunctionCall(block_buffer);
             break;
         case format::kMethodCallBlock:
-            parsed_block = ParseMethodCall(block_buffer);
+            return ParseMethodCall(block_buffer);
             break;
         case format::kMetaDataBlock:
-            parsed_block = ParseMetaData(block_buffer);
+            return ParseMetaData(block_buffer);
             break;
         case format::kFrameMarkerBlock:
-            parsed_block = ParseFrameMarker(block_buffer);
+            return ParseFrameMarker(block_buffer);
             break;
         case format::kStateMarkerBlock:
-            parsed_block = ParseStateMarker(block_buffer);
+            return ParseStateMarker(block_buffer);
             break;
         case format::kAnnotation:
-            parsed_block = ParseAnnotation(block_buffer);
+            return ParseAnnotation(block_buffer);
             break;
         case format::kUnknownBlock:
-            break;
         default:
+            WarnUnknownBlock(block_buffer);
+            return ParsedBlock{ ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData() };
             break;
     }
-
-    // Support various Decompression policies, also checks if decompression is needed
-    if (DecompressWhenParsed(parsed_block))
-    {
-        GFXRECON_ASSERT(format::IsBlockCompressed(block_buffer.Header().type));
-        parsed_block.Decompress(*this);
-    }
-
-    return parsed_block;
 }
 
 // The parameter buffer always takes up the end of the block
@@ -197,6 +308,7 @@ BlockParser::ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, u
     };
 
     result.is_compressed = format::IsBlockCompressed(block_buffer.Header().type);
+    size_t buffer_size   = 0;
     if (result.is_compressed)
     {
         // The data size is encoded just ahead of the compressed buffer
@@ -210,6 +322,7 @@ BlockParser::ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, u
         {
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
             result.uncompressed_size = static_cast<size_t>(uncompressed_size);
+            buffer_size              = block_buffer.Remainder();
         }
         else
         {
@@ -221,23 +334,31 @@ BlockParser::ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, u
     {
         // For uncompressed blocks the data size is the parameter buffer size
         result.uncompressed_size = block_buffer.Remainder();
+        buffer_size              = result.uncompressed_size;
     }
 
     if (result.success)
     {
-        // We only try to read the buffer (span), if no previous errors have occurred.
-        const size_t buffer_size = block_buffer.Remainder();
-        result.buffer            = block_buffer.ReadSpan(buffer_size);
-        // Empty spans are valid, some blocks have no parameter buffer section, So check obtained size against expected
-        // size, though that would reflect an internal error in the block buffer, as we're reading what it says it has
-        // left (Remainder).
-        result.success = result.buffer.size() == buffer_size;
-
-        if (!result.success)
+        // We only try to read the buffer (span), if no previous errors have occurred, and if non-empty.
+        if (buffer_size > 0)
         {
-            const BlockReadError error_code =
-                result.is_compressed ? kErrorReadingCompressedBlockData : kErrorReadingBlockData;
-            HandleBlockReadError(error_code, error_string("data").str().c_str());
+            result.buffer  = block_buffer.ReadSpan(buffer_size);
+            result.success = result.buffer.size() == buffer_size;
+
+            if (!result.success)
+            {
+                const BlockIOError error_code =
+                    result.is_compressed ? kErrorReadingCompressedBlockData : kErrorReadingBlockData;
+                HandleBlockReadError(error_code, error_string("data").str().c_str());
+            }
+        }
+        else
+        {
+            // Shouldn't ever been a compressed parameter buffer with an empty remainder
+            GFXRECON_ASSERT(!result.is_compressed);
+
+            // Simplify compressed block handling, by never treating an empty span as compressed
+            result.is_compressed = false;
         }
     }
     return result;
@@ -263,11 +384,13 @@ ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
 
         if (read_result.success)
         {
-            return ParsedBlock(
-                block_buffer.ReleaseData(),
-                FunctionCallArgs{
-                    api_call_id, call_info, read_result.buffer.GetDataAs<uint8_t>(), read_result.uncompressed_size },
-                read_result.is_compressed);
+            return MakeCompressibleParsedBlock(
+                block_buffer,
+                read_result,
+                FunctionCallArgs{ api_call_id,
+                                  call_info,
+                                  reinterpret_cast<const uint8_t*>(read_result.buffer.data()),
+                                  read_result.uncompressed_size });
         }
     }
     else
@@ -275,7 +398,7 @@ ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
@@ -298,13 +421,14 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
         ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer);
         if (read_result.success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               MethodCallArgs{ call_id,
-                                               object_id,
-                                               call_info,
-                                               read_result.buffer.GetDataAs<const uint8_t>(),
-                                               read_result.uncompressed_size },
-                               read_result.is_compressed);
+            return MakeCompressibleParsedBlock(
+                block_buffer,
+                read_result,
+                MethodCallArgs{ call_id,
+                                object_id,
+                                call_info,
+                                reinterpret_cast<const uint8_t*>(read_result.buffer.data()),
+                                read_result.uncompressed_size });
         }
     }
     else
@@ -312,7 +436,7 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read method call block header");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
@@ -327,11 +451,10 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     // Optional backing store for the various uncompressed metadata contents
-    UncompressedStore uncompressed_store;
 
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
 
@@ -350,14 +473,15 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.memory_size);
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   FillMemoryArgs{ meta_data_id,
-                                                   header.thread_id,
-                                                   header.memory_id,
-                                                   header.memory_offset,
-                                                   header.memory_size,
-                                                   read_result.buffer.GetDataAs<uint8_t>() },
-                                   read_result.is_compressed);
+                return MakeCompressibleParsedBlock(
+                    block_buffer,
+                    read_result,
+                    FillMemoryArgs{ meta_data_id,
+                                    header.thread_id,
+                                    header.memory_id,
+                                    header.memory_offset,
+                                    header.memory_size,
+                                    reinterpret_cast<const uint8_t*>(read_result.buffer.data()) });
             }
         }
         else
@@ -383,13 +507,15 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (read_result.success)
             {
-                return ParsedBlock(
-                    std::move(block_buffer.ReleaseData()),
+                return MakeCompressibleParsedBlock(
+                    block_buffer,
+                    read_result,
                     // Note that both the meta_data_id and the data_size are not passed to the decoder in Dispatch
                     // but needed by the Dispatch and Decompression visitors respectively.
-                    FillMemoryResourceValueArgs{
-                        meta_data_id, read_result.uncompressed_size, header, read_result.buffer.GetDataAs<uint8_t>() },
-                    read_result.is_compressed);
+                    FillMemoryResourceValueArgs{ meta_data_id,
+                                                 read_result.uncompressed_size,
+                                                 header,
+                                                 reinterpret_cast<const uint8_t*>(read_result.buffer.data()) });
             }
         }
         else
@@ -400,9 +526,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kResizeWindowCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::ResizeWindowCommand command;
 
         success = block_buffer.Read(command.thread_id);
@@ -412,10 +535,10 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(
-                std::move(block_buffer.ReleaseData()),
-                ResizeWindowArgs{ meta_data_id, command.thread_id, command.surface_id, command.width, command.height },
-                std::move(uncompressed_store));
+            // This command does not support compression
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                ResizeWindowArgs{ meta_data_id, command.thread_id, command.surface_id, command.width, command.height });
         }
         else
         {
@@ -424,8 +547,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kResizeWindowCommand2)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
 
         format::ResizeWindowCommand2 command;
 
@@ -437,14 +558,14 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               ResizeWindow2Args{ meta_data_id,
-                                                  command.thread_id,
-                                                  command.surface_id,
-                                                  command.width,
-                                                  command.height,
-                                                  command.pre_transform },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer,
+                                                 ResizeWindow2Args{ meta_data_id,
+                                                                    command.thread_id,
+                                                                    command.surface_id,
+                                                                    command.width,
+                                                                    command.height,
+                                                                    command.pre_transform });
         }
         else
         {
@@ -477,9 +598,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               ExeFileArgs{ meta_data_id, header.thread_id, header },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer, ExeFileArgs{ meta_data_id, header.thread_id, header });
         }
     }
     else if (meta_data_type == format::MetaDataType::kDriverInfoCommand)
@@ -492,16 +612,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               DriverArgs{ meta_data_id, header.thread_id, header },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer, DriverArgs{ meta_data_id, header.thread_id, header });
         }
     }
     else if (meta_data_type == format::MetaDataType::kDisplayMessageCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::DisplayMessageCommandHeader header;
 
         success = block_buffer.Read(header.thread_id);
@@ -517,12 +633,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                const char* message_start = parameter_data.GetDataAs<char>();
+                const char* message_start = reinterpret_cast<const char*>(parameter_data.data());
                 std::string message(message_start, std::next(message_start, static_cast<size_t>(message_size)));
 
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   DisplayMessageArgs{ meta_data_id, header.thread_id, message },
-                                   std::move(uncompressed_store));
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(
+                    block_buffer, DisplayMessageArgs{ meta_data_id, header.thread_id, std::move(message) });
             }
             else
             {
@@ -572,33 +688,24 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   CreateHardwareBufferArgs{ meta_data_id,
-                                                             header.thread_id,
-                                                             0u,
-                                                             header.memory_id,
-                                                             header.buffer_id,
-                                                             header.format,
-                                                             header.width,
-                                                             header.height,
-                                                             header.stride,
-                                                             header.usage,
-                                                             header.layers,
-                                                             entries },
-                                   std::move(uncompressed_store));
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(block_buffer,
+                                                     CreateHardwareBufferArgs{ meta_data_id,
+                                                                               header.thread_id,
+                                                                               0u,
+                                                                               header.memory_id,
+                                                                               header.buffer_id,
+                                                                               header.format,
+                                                                               header.width,
+                                                                               header.height,
+                                                                               header.stride,
+                                                                               header.usage,
+                                                                               header.layers,
+                                                                               std::move(entries) });
             }
             else
             {
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read create hardware buffer meta-data block");
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockData,
-                                         "Failed to read create hardware buffer meta-data block");
-                }
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read create hardware buffer meta-data block");
             }
         }
         else
@@ -641,33 +748,24 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   CreateHardwareBufferArgs{ meta_data_id,
-                                                             header.thread_id,
-                                                             0u,
-                                                             header.memory_id,
-                                                             header.buffer_id,
-                                                             header.format,
-                                                             header.width,
-                                                             header.height,
-                                                             header.stride,
-                                                             header.usage,
-                                                             header.layers,
-                                                             entries },
-                                   std::move(uncompressed_store));
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(block_buffer,
+                                                     CreateHardwareBufferArgs{ meta_data_id,
+                                                                               header.thread_id,
+                                                                               0u,
+                                                                               header.memory_id,
+                                                                               header.buffer_id,
+                                                                               header.format,
+                                                                               header.width,
+                                                                               header.height,
+                                                                               header.stride,
+                                                                               header.usage,
+                                                                               header.layers,
+                                                                               std::move(entries) });
             }
             else
             {
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read create hardware buffer meta-data block");
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockData,
-                                         "Failed to read create hardware buffer meta-data block");
-                }
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read create hardware buffer meta-data block");
             }
         }
         else
@@ -711,33 +809,24 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   CreateHardwareBufferArgs{ meta_data_id,
-                                                             header.thread_id,
-                                                             header.device_id,
-                                                             header.memory_id,
-                                                             header.buffer_id,
-                                                             header.format,
-                                                             header.width,
-                                                             header.height,
-                                                             header.stride,
-                                                             header.usage,
-                                                             header.layers,
-                                                             entries },
-                                   std::move(uncompressed_store));
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(block_buffer,
+                                                     CreateHardwareBufferArgs{ meta_data_id,
+                                                                               header.thread_id,
+                                                                               header.device_id,
+                                                                               header.memory_id,
+                                                                               header.buffer_id,
+                                                                               header.format,
+                                                                               header.width,
+                                                                               header.height,
+                                                                               header.stride,
+                                                                               header.usage,
+                                                                               header.layers,
+                                                                               std::move(entries) });
             }
             else
             {
-                if (format::IsBlockCompressed(block_header.type))
-                {
-                    HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                         "Failed to read create hardware buffer meta-data block");
-                }
-                else
-                {
-                    HandleBlockReadError(kErrorReadingBlockData,
-                                         "Failed to read create hardware buffer meta-data block");
-                }
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read create hardware buffer meta-data block");
             }
         }
         else
@@ -755,9 +844,9 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               DestroyHardwareBufferArgs{ meta_data_id, command.thread_id, command.buffer_id },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer, DestroyHardwareBufferArgs{ meta_data_id, command.thread_id, command.buffer_id });
         }
         else
         {
@@ -766,9 +855,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kCreateHeapAllocationCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::CreateHeapAllocationCommand header;
 
         success = block_buffer.Read(header.thread_id);
@@ -777,10 +863,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               CreateHeapAllocationArgs{
-                                   meta_data_id, header.thread_id, header.allocation_id, header.allocation_size },
-                               std::move(uncompressed_store));
+
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                CreateHeapAllocationArgs{
+                    meta_data_id, header.thread_id, header.allocation_id, header.allocation_size });
         }
         else
         {
@@ -789,9 +877,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kSetDevicePropertiesCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::SetDevicePropertiesCommand header;
 
         success = block_buffer.Read(header.thread_id);
@@ -816,18 +901,18 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   SetDevicePropertiesArgs(meta_data_id,
-                                                           header.thread_id,
-                                                           header.physical_device_id,
-                                                           header.api_version,
-                                                           header.driver_version,
-                                                           header.vendor_id,
-                                                           header.device_id,
-                                                           header.device_type,
-                                                           header.pipeline_cache_uuid,
-                                                           device_name),
-                                   std::move(uncompressed_store));
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(block_buffer,
+                                                     SetDevicePropertiesArgs(meta_data_id,
+                                                                             header.thread_id,
+                                                                             header.physical_device_id,
+                                                                             header.api_version,
+                                                                             header.driver_version,
+                                                                             header.vendor_id,
+                                                                             header.device_id,
+                                                                             header.device_type,
+                                                                             header.pipeline_cache_uuid,
+                                                                             device_name));
             }
             else
             {
@@ -843,9 +928,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kSetDeviceMemoryPropertiesCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::SetDeviceMemoryPropertiesCommand header;
 
         success = block_buffer.Read(header.thread_id);
@@ -886,10 +968,11 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   SetDeviceMemoryPropertiesArgs{
-                                       meta_data_id, header.thread_id, header.physical_device_id, types, heaps },
-                                   std::move(uncompressed_store));
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(
+                    block_buffer,
+                    SetDeviceMemoryPropertiesArgs{
+                        meta_data_id, header.thread_id, header.physical_device_id, types, std::move(heaps) });
             }
             else
             {
@@ -905,9 +988,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kSetOpaqueAddressCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::SetOpaqueAddressCommand header;
 
         success = block_buffer.Read(header.thread_id);
@@ -917,10 +997,11 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               SetOpaqueAddressArgs{
-                                   meta_data_id, header.thread_id, header.device_id, header.object_id, header.address },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                SetOpaqueAddressArgs{
+                    meta_data_id, header.thread_id, header.device_id, header.object_id, header.address });
         }
         else
         {
@@ -929,9 +1010,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kSetRayTracingShaderGroupHandlesCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::SetRayTracingShaderGroupHandlesCommandHeader header;
 
         success = block_buffer.Read(header.thread_id);
@@ -951,14 +1029,16 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               SetRayTracingShaderGroupHandlesArgs{ meta_data_id,
-                                                                    header.thread_id,
-                                                                    header.device_id,
-                                                                    header.pipeline_id,
-                                                                    static_cast<size_t>(header.data_size),
-                                                                    parameter_data.GetDataAs<uint8_t>() },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                SetRayTracingShaderGroupHandlesArgs{ meta_data_id,
+                                                     header.thread_id,
+                                                     header.device_id,
+                                                     header.pipeline_id,
+                                                     static_cast<size_t>(header.data_size),
+                                                     reinterpret_cast<const uint8_t*>(parameter_data.data()) },
+                true /* references block buffer */);
         }
         else
         {
@@ -968,9 +1048,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kSetSwapchainImageStateCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::SetSwapchainImageStateCommandHeader header;
 
         success = block_buffer.Read(header.thread_id);
@@ -998,14 +1075,14 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   SetSwapchainImageStateArgs{ meta_data_id,
-                                                               header.thread_id,
-                                                               header.device_id,
-                                                               header.swapchain_id,
-                                                               header.last_presented_image,
-                                                               entries },
-                                   std::move(uncompressed_store));
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(block_buffer,
+                                                     SetSwapchainImageStateArgs{ meta_data_id,
+                                                                                 header.thread_id,
+                                                                                 header.device_id,
+                                                                                 header.swapchain_id,
+                                                                                 header.last_presented_image,
+                                                                                 std::move(entries) });
             }
             else
             {
@@ -1021,9 +1098,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kBeginResourceInitCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::BeginResourceInitCommand header;
 
         success = block_buffer.Read(header.thread_id);
@@ -1033,11 +1107,11 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(
-                std::move(block_buffer.ReleaseData()),
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
                 BeginResourceInitArgs{
-                    meta_data_id, header.thread_id, header.device_id, header.total_copy_size, header.max_copy_size },
-                std::move(uncompressed_store));
+                    meta_data_id, header.thread_id, header.device_id, header.total_copy_size, header.max_copy_size });
         }
         else
         {
@@ -1046,9 +1120,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kEndResourceInitCommand)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::EndResourceInitCommand header;
 
         success = block_buffer.Read(header.thread_id);
@@ -1056,9 +1127,9 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               EndResourceInitArgs{ meta_data_id, header.thread_id, header.device_id },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer, EndResourceInitArgs{ meta_data_id, header.thread_id, header.device_id });
         }
         else
         {
@@ -1080,14 +1151,15 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   InitBufferArgs{ meta_data_id,
-                                                   header.thread_id,
-                                                   header.device_id,
-                                                   header.buffer_id,
-                                                   header.data_size,
-                                                   read_result.buffer.GetDataAs<uint8_t>() },
-                                   read_result.is_compressed);
+                return MakeCompressibleParsedBlock(
+                    block_buffer,
+                    read_result,
+                    InitBufferArgs{ meta_data_id,
+                                    header.thread_id,
+                                    header.device_id,
+                                    header.buffer_id,
+                                    header.data_size,
+                                    reinterpret_cast<const uint8_t*>(read_result.buffer.data()) });
             }
         }
         else
@@ -1123,17 +1195,18 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   InitImageArgs{ meta_data_id,
-                                                  header.thread_id,
-                                                  header.device_id,
-                                                  header.image_id,
-                                                  header.data_size,
-                                                  header.aspect,
-                                                  header.layout,
-                                                  level_sizes,
-                                                  read_result.buffer.GetDataAs<uint8_t>() },
-                                   read_result.is_compressed);
+                return MakeCompressibleParsedBlock(
+                    block_buffer,
+                    read_result,
+                    InitImageArgs{ meta_data_id,
+                                   header.thread_id,
+                                   header.device_id,
+                                   header.image_id,
+                                   header.data_size,
+                                   header.aspect,
+                                   header.layout,
+                                   level_sizes,
+                                   reinterpret_cast<const uint8_t*>(read_result.buffer.data()) });
             }
         }
         else
@@ -1161,9 +1234,11 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   InitSubresourceArgs{ meta_data_id, header, read_result.buffer.GetDataAs<uint8_t>() },
-                                   read_result.is_compressed);
+                return MakeCompressibleParsedBlock(
+                    block_buffer,
+                    read_result,
+                    InitSubresourceArgs{
+                        meta_data_id, header, reinterpret_cast<const uint8_t*>(read_result.buffer.data()) });
             }
         }
         else
@@ -1214,13 +1289,14 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.inputs_data_size);
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   InitDx12AccelerationStructureArgs{ meta_data_id,
-                                                                      read_result.uncompressed_size,
-                                                                      header,
-                                                                      geom_descs,
-                                                                      read_result.buffer.GetDataAs<uint8_t>() },
-                                   read_result.is_compressed);
+                return MakeCompressibleParsedBlock(
+                    block_buffer,
+                    read_result,
+                    InitDx12AccelerationStructureArgs{ meta_data_id,
+                                                       read_result.uncompressed_size,
+                                                       header,
+                                                       geom_descs,
+                                                       reinterpret_cast<const uint8_t*>(read_result.buffer.data()) });
             }
         }
         else
@@ -1250,9 +1326,8 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               GetDxgiAdapterArgs{ meta_data_id, adapter_info_header },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer, GetDxgiAdapterArgs{ meta_data_id, adapter_info_header });
         }
         else
         {
@@ -1270,9 +1345,9 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               GetDx12RuntimeArgs{ meta_data_id, dx12_runtime_info_header },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer,
+                                                 GetDx12RuntimeArgs{ meta_data_id, dx12_runtime_info_header });
         }
         else
         {
@@ -1281,9 +1356,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kParentToChildDependency)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::ParentToChildDependencyHeader header;
         success = block_buffer.Read(header.thread_id);
         success = success && block_buffer.Read(header.dependency_type);
@@ -1306,10 +1378,10 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
                     if (success)
                     {
-                        return ParsedBlock(
-                            std::move(block_buffer.ReleaseData()),
-                            SetTlasToBlasDependencyArgs{ meta_data_id, header.parent_id, std::move(blases) },
-                            std::move(uncompressed_store));
+                        // This command does not support compression.
+                        return MakeIncompressibleParsedBlock(
+                            block_buffer,
+                            SetTlasToBlasDependencyArgs{ meta_data_id, header.parent_id, std::move(blases) });
                     }
                     else
                     {
@@ -1340,7 +1412,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+            return ParsedBlock(ParsedBlock::InvalidBlockTag());
         }
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.string_length);
@@ -1351,13 +1423,14 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+            return ParsedBlock(ParsedBlock::InvalidBlockTag());
         }
 
-        const char* env_string = parameter_data.GetDataAs<char>();
-        return ParsedBlock(block_buffer.ReleaseData(),
-                           SetEnvironmentVariablesArgs{ meta_data_id, header, env_string },
-                           std::move(uncompressed_store));
+        const char* env_string = reinterpret_cast<const char*>(parameter_data.data());
+        // This command does not support compression.
+        return MakeIncompressibleParsedBlock(block_buffer,
+                                             SetEnvironmentVariablesArgs{ meta_data_id, header, env_string },
+                                             true /* references block buffer */);
     }
     else if (meta_data_type == format::MetaDataType::kVulkanBuildAccelerationStructuresCommand)
     {
@@ -1369,10 +1442,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               VulkanAccelerationStructuresBuildMetaArgs{
-                                   meta_data_id, parameter_data.GetDataAs<uint8_t>(), parameter_buffer_size },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                VulkanAccelerationStructuresBuildMetaArgs{
+                    meta_data_id, reinterpret_cast<const uint8_t*>(parameter_data.data()), parameter_buffer_size },
+                true /* references block buffer */);
         }
         else
         {
@@ -1390,10 +1465,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               VulkanAccelerationStructuresCopyMetaArgs{
-                                   meta_data_id, parameter_data.GetDataAs<uint8_t>(), parameter_buffer_size },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                VulkanAccelerationStructuresCopyMetaArgs{
+                    meta_data_id, reinterpret_cast<const uint8_t*>(parameter_data.data()), parameter_buffer_size },
+                true /* references block buffer */);
         }
     }
     else if (meta_data_type == format::MetaDataType::kVulkanWriteAccelerationStructuresPropertiesCommand)
@@ -1406,10 +1483,12 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               VulkanAccelerationStructuresWritePropertiesMetaArgs{
-                                   meta_data_id, parameter_data.GetDataAs<uint8_t>(), parameter_buffer_size },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                VulkanAccelerationStructuresWritePropertiesMetaArgs{
+                    meta_data_id, reinterpret_cast<const uint8_t*>(parameter_data.data()), parameter_buffer_size },
+                true /* references block buffer */);
         }
     }
     else if (meta_data_type == format::MetaDataType::kExecuteBlocksFromFile)
@@ -1428,13 +1507,13 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             {
                 if (success)
                 {
-                    return ParsedBlock(block_buffer.ReleaseData(),
-                                       ExecuteBlocksFromFileArgs{ meta_data_id,
-                                                                  exec_from_file.thread_id,
-                                                                  exec_from_file.n_blocks,
-                                                                  exec_from_file.offset,
-                                                                  filename_c_str },
-                                       std::move(uncompressed_store));
+                    // This command does not support compression.
+                    return MakeIncompressibleParsedBlock(block_buffer,
+                                                         ExecuteBlocksFromFileArgs{ meta_data_id,
+                                                                                    exec_from_file.thread_id,
+                                                                                    exec_from_file.n_blocks,
+                                                                                    exec_from_file.offset,
+                                                                                    std::move(filename_c_str) });
                 }
             }
         }
@@ -1446,9 +1525,6 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     }
     else if (meta_data_type == format::MetaDataType::kViewRelativeLocation)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
-
         format::ViewRelativeLocation Location;
         format::ThreadId             thread_id;
         success = block_buffer.Read(thread_id);
@@ -1461,9 +1537,9 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
         if (success)
         {
-            return ParsedBlock(block_buffer.ReleaseData(),
-                               ViewRelativeLocationArgs{ meta_data_id, thread_id, location },
-                               std::move(uncompressed_store));
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer,
+                                                 ViewRelativeLocationArgs{ meta_data_id, thread_id, location });
         }
         else
         {
@@ -1487,9 +1563,11 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 
             if (read_result.success)
             {
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   InitializeMetaArgs{ meta_data_id, header, read_result.buffer.GetDataAs<uint8_t>() },
-                                   read_result.is_compressed);
+                return MakeCompressibleParsedBlock(
+                    block_buffer,
+                    read_result,
+                    InitializeMetaArgs{
+                        meta_data_id, header, reinterpret_cast<const uint8_t*>(read_result.buffer.data()) });
             }
         }
         else
@@ -1497,6 +1575,36 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             HandleBlockReadError(kErrorReadingBlockHeader,
                                  "Failed to read init subresource data meta-data block header");
         }
+    }
+    else if (meta_data_type == format::MetaDataType::kSetOpaqueCaptureDescriptorDataCommand)
+    {
+        // This command does not support compression.
+        GFXRECON_ASSERT(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetOpaqueDescriptorDataCommand header{};
+
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.object_id);
+        success = success && block_buffer.Read(header.data_size);
+
+        if (success)
+        {
+            const char*         label       = "fill opaque descriptor-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
+
+            return MakeIncompressibleParsedBlock(
+                block_buffer,
+                SetOpaqueDescriptorDataArgs{ meta_data_id,
+                                             header.thread_id,
+                                             header.device_id,
+                                             header.object_id,
+                                             header.data_size,
+                                             reinterpret_cast<const uint8_t*>(read_result.buffer.data()) },
+                true /* references block buffer */);
+        }
+
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read set opaque address meta-data block header");
     }
     else
     {
@@ -1510,15 +1618,27 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         else
         {
             // Unrecognized metadata type.
-            GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
+            WarnUnknownBlock(block_buffer, "meta-data block", static_cast<uint32_t>(meta_data_type));
         }
-        // Skip unsupported meta-data block.
-        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-        // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
-        success = true;
+
+        // Handle unsupported meta-data block.
+        if (!format::IsBlockCompressed(block_header.type))
+        {
+            // Without the ability to parse the block, the uncompressed size cannot be determined, nor can the
+            // beginning of the parameter buffer. Thus only uncompressed, unknown meta-data blocks can safely
+            // be passed through, even as unknown.
+            //
+            // A warning has been generated above
+            return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
+        }
+        else
+        {
+            HandleBlockReadError(kErrorUnsupportedBlockType,
+                                 "Unrecognized compressed meta-data block type is not supported");
+        }
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
@@ -1532,7 +1652,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
@@ -1544,13 +1664,13 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         // Unlike most blocks, only one subtype results in a dispatchable command
         if (marker_type == format::kEndMarker)
         {
-            return ParsedBlock(
-                block_buffer.ReleaseData(), FrameEndMarkerArgs{ frame_number }, ParsedBlock::UncompressedStore());
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer, FrameEndMarkerArgs{ frame_number });
         }
         else
         {
-            GFXRECON_LOG_WARNING("Skipping unrecognized frame marker with type %u", marker_type);
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kSkip);
+            WarnUnknownBlock(block_buffer, "frame marker", static_cast<uint32_t>(marker_type));
+            return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
     }
     else
@@ -1558,7 +1678,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
@@ -1572,7 +1692,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     uint64_t frame_number = 0;
@@ -1582,18 +1702,18 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
     {
         if (marker_type == format::kBeginMarker)
         {
-            return ParsedBlock(
-                std::move(block_buffer.ReleaseData()), StateBeginMarkerArgs{ frame_number }, UncompressedStore());
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer, StateBeginMarkerArgs{ frame_number });
         }
         else if (marker_type == format::kEndMarker)
         {
-            return ParsedBlock(
-                std::move(block_buffer.ReleaseData()), StateEndMarkerArgs{ frame_number }, UncompressedStore());
+            // This command does not support compression.
+            return MakeIncompressibleParsedBlock(block_buffer, StateEndMarkerArgs{ frame_number });
         }
         else
         {
-            GFXRECON_LOG_WARNING("Skipping unrecognized state marker with type %u", marker_type);
-            return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kSkip);
+            WarnUnknownBlock(block_buffer, "state marker", static_cast<uint32_t>(marker_type));
+            return ParsedBlock(ParsedBlock::UnknownBlockTag(), block_buffer.ReleaseData());
         }
     }
     else
@@ -1601,7 +1721,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read state marker data");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
@@ -1615,7 +1735,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
-        return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+        return ParsedBlock(ParsedBlock::InvalidBlockTag());
     }
 
     decltype(format::AnnotationHeader::label_length) label_length = 0;
@@ -1640,20 +1760,21 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
             {
                 if (label_length > 0)
                 {
-                    const char* label_start = parameter_data.GetDataAs<char>();
+                    const char* label_start = reinterpret_cast<const char*>(parameter_data.data());
                     label.assign(label_start, std::next(label_start, label_length));
                 }
 
                 if (data_length > 0)
                 {
-                    const char* data_start = std::next(parameter_data.GetDataAs<char>(), label_length);
+                    const char* data_start =
+                        std::next(reinterpret_cast<const char*>(parameter_data.data()), label_length);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_length);
                     data.assign(data_start, std::next(data_start, static_cast<size_t>(data_length)));
                 }
 
-                return ParsedBlock(block_buffer.ReleaseData(),
-                                   AnnotationArgs{ block_index_, annotation_type, std::move(label), std::move(data) },
-                                   UncompressedStore());
+                // This command does not support compression.
+                return MakeIncompressibleParsedBlock(
+                    block_buffer, AnnotationArgs{ block_index_, annotation_type, std::move(label), std::move(data) });
             }
             else
             {
@@ -1666,7 +1787,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
     }
 
-    return ParsedBlock(ParsedBlock::EmptyBlockTag(), ParsedBlock::BlockState::kInvalid);
+    return ParsedBlock(ParsedBlock::InvalidBlockTag());
 }
 
 GFXRECON_END_NAMESPACE(decode)

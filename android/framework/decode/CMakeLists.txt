@@ -132,14 +132,19 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_common.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_common.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_as.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_as.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_draw_calls.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_draw_calls.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_compute_ray_tracing.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_compute_ray_tracing.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_delegate.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_delegate.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_delegate_dumped_resources.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_json.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_json.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_transfer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_dump_resources_transfer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.cpp

@@ -66,9 +66,6 @@ _emit_extensions = []
 _remove_extensions = [
     "VK_AMDX_shader_enqueue",
     "VK_ARM_tensors",
-    "VK_ARM_data_graph",
-    ## @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
-    "VK_EXT_descriptor_buffer",
     "VK_EXT_metal_objects",
     "VK_EXT_pipeline_properties",
     "VK_FUCHSIA_buffer_collection",
@@ -270,6 +267,9 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             },
             'VkDebugUtilsObjectTagInfoEXT': {
                 'objectHandle': 'objectType'
+            },
+            'VkDescriptorGetInfoEXT': {
+                'objectHandle': 'objectType'
             }
         }
 
@@ -288,6 +288,10 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             'D3D12_GPU_VIRTUAL_ADDRESS':
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
+
+        self.ADD_AS_CHAINABLE_STRUCTS = [
+            "VkSurfaceCapabilities2KHR",
+        ]
 
         self.VIDEO_TREE = None
 
@@ -358,7 +362,7 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             self.enumEnumerants[group_name] = enumerants
 
     def make_dump_resources_func_decl(
-        self, return_type, name, values, is_override
+        self, return_type, name, values, is_override, is_transfer
     ):
         """make_consumer_decl - return VulkanConsumer class member function declaration.
         Generate VulkanConsumer class member function declaration.
@@ -393,9 +397,15 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
                     count = value.pointer_count
 
                     if self.is_struct(type_name):
-                        param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
-                            type_name
-                        )
+                        if count > 1:
+                            param_type = 'StructPointerDecoder<Decoded_{}*>*'.format(
+                                type_name
+                            )
+                        else:
+                            param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
+                                type_name
+                            )
+
                     elif self.is_handle(type_name) and type_name != 'VkCommandBuffer':
                         param_type = 'HandlePointerDecoder<{}>*'.format(type_name)
                     else:
@@ -418,6 +428,10 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
                 param_type, value.name, self.INDENT_SIZE,
                 self.genOpts.align_func_param
             )
+            param_decls.append(param_decl)
+
+        if is_transfer:
+            param_decl = ' ' * self.INDENT_SIZE + "bool before_command"
             param_decls.append(param_decl)
 
         if param_decls:

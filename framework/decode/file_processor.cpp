@@ -49,12 +49,6 @@ FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
 
 FileProcessor::~FileProcessor()
 {
-    if (nullptr != compressor_)
-    {
-        delete compressor_;
-        compressor_ = nullptr;
-    }
-
     DecodeAllocator::DestroyInstance();
 }
 
@@ -80,10 +74,21 @@ bool FileProcessor::Initialize(const std::string& filename)
         error_state_ = kErrorOpeningFile;
     }
 
-    // Find absolute path of capture file
     if (success)
     {
+        // Find absolute path of capture file
         absolute_path_ = util::filepath::GetBasedir(filename);
+
+        // Initialize block parser, with the compressor created during file header processing.
+        auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
+            HandleBlockReadError(err, message);
+        } };
+        block_parser_ = std::make_unique<BlockParser>(err_handler, pool_, compressor_.get());
+        success       = block_parser_.get() != nullptr;
+        if (!success)
+        {
+            error_state_ = kErrorOpeningFile;
+        }
     }
 
     return success;
@@ -111,6 +116,7 @@ bool FileProcessor::ProcessBlocksOneFrame()
     {
         decoder->SetCurrentFrameNumber(current_frame_number_);
     }
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
     return ProcessBlocks();
 }
 
@@ -183,8 +189,8 @@ bool FileProcessor::ContinueDecoding()
 
 bool FileProcessor::ProcessFileHeader()
 {
-    bool               success = false;
-    file_header_               = format::FileHeader();
+    bool success = false;
+    file_header_ = format::FileHeader();
 
     assert(file_stack_.front().active_file);
 
@@ -221,7 +227,7 @@ bool FileProcessor::ProcessFileHeader()
                     }
                 }
 
-                compressor_ = format::CreateCompressor(enabled_options_.compression_type);
+                compressor_.reset(format::CreateCompressor(enabled_options_.compression_type));
 
                 if ((compressor_ == nullptr) && (enabled_options_.compression_type != format::CompressionType::kNone))
                 {
@@ -269,11 +275,10 @@ void FileProcessor::DecrementRemainingCommands()
 
 bool FileProcessor::ProcessBlocks()
 {
-    BlockBuffer         block_buffer;
-    bool                success = true;
+    BlockBuffer block_buffer;
+    bool        success = true;
 
-    auto        err_handler = [this](BlockReadError err, const char* message) { HandleBlockReadError(err, message); };
-    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_);
+    BlockParser& block_parser = GetBlockParser();
     // NOTE: To test deferred decompression operation uncomment next line
     // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
 
@@ -296,7 +301,6 @@ bool FileProcessor::ProcessBlocks()
 
             if (success)
             {
-                const format::BlockType base_type = format::RemoveCompressedBlockBit(block_buffer.Header().type);
                 if (SkipBlockProcessing())
                 {
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
@@ -313,26 +317,20 @@ bool FileProcessor::ProcessBlocks()
                     //       Invalid, Unknown, and Skip are not Visitable
                     if (parsed_block.IsVisitable())
                     {
-                        std::visit(process_visitor, parsed_block.GetArgs());
-                        success = process_visitor.IsSuccess();
+                        // Deferred decompress failure implies a late uncovering of an invalid block.
+                        success = parsed_block.Decompress(block_parser); // Safe without testing block state.
                         if (success)
                         {
-                            parsed_block.Decompress(block_parser); // Safe without testing block state.
-                            std::visit(dispatch_visitor, parsed_block.GetArgs());
+                            std::visit(process_visitor, parsed_block.GetArgs());
+                            success = process_visitor.IsSuccess();
+                            if (success)
+                            {
+                                std::visit(dispatch_visitor, parsed_block.GetArgs());
+                            }
                         }
                     }
-                    else if (parsed_block.IsUnknown())
-                    {
-                        // Unrecognized block type.
-                        GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u (frame %u block %" PRIu64
-                                             ")",
-                                             block_buffer.Header().type,
-                                             current_frame_number_,
-                                             block_index_);
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_buffer.Header().size);
-                        // Replacing the result of SkipBytes. The BlockBuffer read succeeded, so skip would.
-                        success = true;
-                    }
+
+                    // NOTE: Warnings for unknown/invalid blocks are handled in the BlockParser
 
                     if (process_visitor.IsFrameDelimiter())
                     {
@@ -360,8 +358,8 @@ bool FileProcessor::ProcessBlocks()
 // the correct sizing of the block payload are done by the caller
 bool FileProcessor::ReadBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer)
 {
-    bool           success = true;
-    BlockReadError status  = parser.ReadBlockBuffer(GetCurrentFile().active_file, block_buffer);
+    bool         success = true;
+    BlockIOError status  = parser.ReadBlockBuffer(GetCurrentFile().active_file, block_buffer);
     if (status == kErrorNone)
     {
         bytes_read_ += block_buffer.Size();
@@ -382,30 +380,6 @@ bool FileProcessor::ReadBlockBuffer(BlockParser& parser, BlockBuffer& block_buff
 bool FileProcessor::GetBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer)
 {
     return ReadBlockBuffer(parser, block_buffer);
-}
-
-bool FileProcessor::PeekBytes(void* buffer, size_t buffer_size)
-{
-    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
-    // without forcing use of mutability
-    const auto& active_file = file_stack_.back().active_file;
-    assert(active_file);
-
-    return active_file->PeekBytes(buffer, buffer_size);
-}
-
-bool FileProcessor::PeekBlockHeader(format::BlockHeader* block_header)
-{
-    assert(block_header != nullptr);
-
-    bool success = false;
-
-    if (PeekBytes(block_header, sizeof(*block_header)))
-    {
-        success = true;
-    }
-
-    return success;
 }
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
@@ -517,7 +491,7 @@ bool FileProcessor::SetActiveFile(const std::string&             filename,
     }
 }
 
-void FileProcessor::HandleBlockReadError(BlockReadError error_code, const char* error_message)
+void FileProcessor::HandleBlockReadError(BlockIOError error_code, const char* error_message)
 {
     GFXRECON_ASSERT(!file_stack_.empty());
     const auto& active_file = file_stack_.back().active_file;

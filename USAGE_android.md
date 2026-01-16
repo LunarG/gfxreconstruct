@@ -19,6 +19,9 @@ to one of these other documents:
  * [GFXReconstruct for Desktop Vulkan](./USAGE_desktop_Vulkan.md)
  * [GFXReconstruct for Desktop D3D12](./USAGE_desktop_D3D12.md)
 
+Additional instructions for debugging the GFXReconstruct capture layer on Android can be found here:
+ * [GFXReconstruct Capture layer debugging - Android](./docs/DEBUG_android.md)
+
 ## Index
 
 1. [Capturing API Calls](#capturing-api-calls)

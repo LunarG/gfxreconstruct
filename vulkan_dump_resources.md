@@ -11,6 +11,7 @@
     6. [Index vector dimensionality](#index-vector-dimensionality)
     7. [A more complex example](#a-more-complex-example)
     8. [Culling dumped descriptors](#culling-dumped-descriptors)
+    9. [Transfer commands](#transfer-commands)
 2. [Vulkan dump resources options](#vulkan-dump-resources-options)
     1. [gfxrecon-replay command line parameters](#gfxrecon-replay-command-line-parameters)
     2. [Input json options](#input-json-options)
@@ -40,6 +41,10 @@ GFXReconstruct offers the capability to dump resources when replaying a capture 
 4. Descriptor bindings used as inputs in all shader stages.
 
     All images and buffers used as descriptor bindings by draw calls, dispatch and ray tracing shaders.
+
+5. Transfer commands
+
+    Target resources of transfer commands
 
 The resources are dumped into files and can either be image files (bmp or png) or binary files.
 
@@ -161,7 +166,7 @@ In order to dump the draw call from the secondary command buffer `230` the follo
     "Draw": [ [ 761 ], [ ] ],
     "RenderPass": [ [ [ ] ], [ [ 3948, 3950 ] ] ],
     "ExecuteCommands": [ [ [ ] ], [ [ 3949, 754 ] ] ],
-    "QueueSubmit": [ 3952 ]
+    "QueueSubmit": [ 3952, 3952 ]
 }
 ```
 
@@ -171,7 +176,7 @@ Indices are provided in GFXReconstruct as vectors of indices. Each index vector,
 
 * `"BeginCommandBuffer"` and `"QueueSubmit"`: **1D**
 
-Commands recorded in multiple command buffers can be dumped in a single run. For each command buffer the index of the `vkBeginCommandBuffer` must be provided. The index of the `vkQueueSubmit` in which the command buffer is submitted must be provided. Both these vectors must have the same number of indices.
+Commands recorded in multiple command buffers can be dumped in a single run. For each command buffer the index of the `vkBeginCommandBuffer` must be provided. The index of the `vkQueueSubmit` in which the command buffer is submitted must be provided. Both these vectors must have the same number of indices, so in the case of multiple command buffers being submitted in the same `vkQueueSubmit` the submission index needs to be duplicated.
 
 * `"Draw"`, `"Dispatch"` and `"TraceRays"`: **2D**
 
@@ -315,6 +320,54 @@ Image descriptors can be fine grained further by specifying the desired subresou
 ```
 
 `VK_REMAINING_MIP_LEVELS` and `VK_REMAINING_ARRAY_LAYERS` can be used in `LevelCount` and `LayerCount` respectively.
+
+### Transfer commands
+
+Target resources of transfer commands can also be dumped. Currently the supported transfer commands are the following:
+- `vkCmdCopyBuffer`
+- `vkCmdCopyBuffer2`
+- `vkCmdCopyBuffer2KHR`
+- `vkCmdCopyBufferToImage`
+- `vkCmdCopyBufferToImage2`
+- `vkCmdCopyBufferToImage2KHR`
+- `vkCmdCopyImage`
+- `vkCmdCopyImage2`
+- `vkCmdCopyImage2KHR`
+- `vkCmdCopyImageToBuffer`
+- `vkCmdCopyImageToBuffer2`
+- `vkCmdCopyImageToBuffer2KHR`
+- `vkCmdBlitImage`
+- `vkCmdBlitImage2`
+- `vkCmdBlitImage2KHR`
+- `vkCmdBuildAccelerationStructuresKHR`
+- `vkCmdCopyAccelerationStructureKHR`
+
+Additionally the following GFXR transfer meta commands can also be dumped:
+- `kInitBufferCommand`
+- `kInitImageCommand`
+- `kVulkanBuildAccelerationStructuresCommand`
+- `kVulkanCopyAccelerationStructuresCommand`
+The meta commands can only exist in the state setup block. The state setup block exists only for trimmed captures and its purpose is to initialize all Vulkan objects that have been created outside the captured region.
+
+`vkCmdCopyBuffer` and its variations and `vkCmdCopyImageToBuffer` and its variations will dump the target buffer's regions as separate binary files.
+
+`vkCmdCopyImage` and its variations and `vkCmdCopyBufferToImage` and its variations will dump the target image's regions as separate image files (or binary files depending on the circumstances).
+
+Transfer command indices need to specified in a similar manner as with the other commands. The `Transfer` json entry is used for this. An example:
+
+```Json
+"BeginCommandBuffer": [ 250 ],
+"Transfer": [[266, 267]],
+"QueueSubmit": [ 270 ]
+```
+
+The supported transfer meta commands can be found in the state setup of a trimmed capture. To do so `0` should be used a special block index for both `BeginCommandBuffer` and `QueueSubmit`. For example:
+
+```Json
+"BeginCommandBuffer": [ 0 ],
+"Transfer": [[266, 267]],
+"QueueSubmit": [ 0 ]
+```
 
 ## Vulkan dump resources options
 
