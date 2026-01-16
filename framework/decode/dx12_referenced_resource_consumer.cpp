@@ -261,13 +261,6 @@ void Dx12ReferencedResourceConsumer::Process_ID3D12Device_CreateUnorderedAccessV
     if (desc_heap_info != descriptor_heap_infos_.end())
     {
         desc_heap_info->second.resources[DestDescriptor.index] = pResource;
-        if (pResource == 52138)
-        {
-            GFXRECON_LOG_WARNING("UAV with resource %llu recorded with heap %llu at index %lu",
-                                 pResource,
-                                 DestDescriptor.heap_id,
-                                 DestDescriptor.index);
-        }
     }
 }
 
