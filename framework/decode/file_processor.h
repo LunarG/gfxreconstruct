@@ -102,6 +102,8 @@ class FileProcessor
     };
 
   public:
+    constexpr static uint32_t kFirstFrame = 0;
+
     FileProcessor();
 
     FileProcessor(uint64_t block_limit);
@@ -123,7 +125,7 @@ class FileProcessor
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.
-    bool ProcessNextFrame();
+    virtual bool ProcessNextFrame();
 
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
@@ -172,19 +174,15 @@ class FileProcessor
     void ProcessAnnotation(const AnnotationArgs& annotation);
 
   protected:
-    bool DoProcessNextFrame(const std::function<bool()>& block_processor);
-    bool ProcessBlocksOneFrame();
+    using BlockProcessor = std::function<bool()>;
 
-    bool ContinueDecoding();
+    bool ContinueDecoding(uint64_t block_index, bool check_decoders);
 
     util::DataSpan ReadSpan(size_t buffer_size);
     bool           ReadBytes(void* buffer, size_t buffer_size);
 
     // Reads block header, from input stream.
     bool ReadBlockBuffer(BlockParser& parser, BlockBuffer& buffer);
-
-    // Gets the block buffer from input stream or preloaded data if available
-    virtual bool GetBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer);
 
     void UpdateEndFrameState();
 
@@ -194,7 +192,20 @@ class FileProcessor
 
     void PrintBlockInfo() const;
 
-    bool HandleBlockEof(const char* operation, bool report_frame_and_block);
+    enum class ProcessBlockState : int32_t
+    {
+        // Negative values indicate terminal states. Do not call ProcessBlocks again after receiving these.
+        //
+        // Returned when ProcessBlocks ...
+        kFrameBoundary = 1,  // encountered a frame boundary
+        kRunning       = 0,  // never. Internal state: continue looping in ProcessBlocks
+        kEndProcessing = -1, // completed processing (!ContinueDecoding or clean EOF)
+        kError         = -2, // encountered an error
+    };
+    static bool ContinueProcessing(ProcessBlockState state) { return static_cast<int32_t>(state) >= 0; }
+    static bool IsFrameBoundary(ProcessBlockState state) { return state == ProcessBlockState::kFrameBoundary; }
+
+    ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
 
   protected:
     uint64_t                 current_frame_number_;
@@ -207,6 +218,7 @@ class FileProcessor
     uint64_t block_index_;
 
   protected:
+    bool         IsFileValid() const;
     BlockIOError CheckFileStatus() const
     {
         if (file_stack_.empty())
@@ -236,13 +248,19 @@ class FileProcessor
         return file_stack_.back().active_file->IsEof();
     }
 
+    // Dispatch function is allowed to modify the ParsedBlock as needed before processing
+    // including decompression, or even stealing the contents for deferred processing.
+    using DispatchFunction = std::function<ProcessBlockState(uint64_t, ParsedBlock&)>;
+    ProcessBlockState ProcessBlocks(DispatchFunction& dispatch, bool check_decoder_completeness);
+
+    void SetDecoderFrameNumber(uint64_t frame_number);
+
     BlockParser& GetBlockParser()
     {
         GFXRECON_ASSERT(block_parser_.get() != nullptr);
         return *block_parser_;
     }
 
-  private:
     class DispatchVisitor
     {
       public:
@@ -256,6 +274,7 @@ class FileProcessor
                 {
                     [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
                     SetDecoderApiCallId(*decoder, args);
+                    decoder->SetCurrentBlockIndex(block_index_);
                     auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
                         (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
                     };
@@ -285,11 +304,15 @@ class FileProcessor
             decoders_(decoders), annotation_handler_(annotation_handler)
         {}
 
+        void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }
+
       private:
         const std::vector<ApiDecoder*>& decoders_;
         AnnotationHandler*              annotation_handler_;
+        uint64_t                        block_index_;
     };
 
+  private:
     class ProcessVisitor
     {
       public:
@@ -352,9 +375,7 @@ class FileProcessor
         template <typename Args>
         void operator()(const Args&)
         {
-            // The default behavior for a Visit is a successful, non-frame-delimiter
-            is_frame_delimiter = false;
-            success            = true;
+            Reset();
         }
 
         // Avoid unpacking the Arg from it's store in the Arg specific overloads
@@ -367,6 +388,11 @@ class FileProcessor
         bool IsSuccess() const { return success; }
         bool IsFrameDelimiter() const { return is_frame_delimiter; }
         ProcessVisitor(FileProcessor& file_processor) : file_processor_(file_processor) {}
+        void Reset()
+        {
+            is_frame_delimiter = false;
+            success            = true;
+        }
 
       private:
         bool           is_frame_delimiter = false;
@@ -375,22 +401,9 @@ class FileProcessor
     };
 
     bool ProcessFileHeader();
-    bool ProcessBlocks();
 
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
-
-    bool IsFileValid() const
-    {
-        if (!file_stack_.empty())
-        {
-            return file_stack_.back().active_file->IsReady();
-        }
-        else
-        {
-            return false;
-        }
-    }
 
     bool SeekActiveFile(const FileInputStreamPtr& file, int64_t offset, util::platform::FileSeekOrigin origin);
 
@@ -404,8 +417,6 @@ class FileProcessor
                        bool                           execute_till_eof);
 
     void DecrementRemainingCommands();
-
-    std::string ApplyAbsolutePath(const std::string& file);
 
   private:
     std::vector<format::FileOptionPair> file_options_;
