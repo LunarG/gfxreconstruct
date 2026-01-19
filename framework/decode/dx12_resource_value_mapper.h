@@ -231,8 +231,9 @@ class Dx12ResourceValueMapper
     std::unique_ptr<Dx12ResourceValueTracker>       resource_value_tracker_;
     bool                                            performed_rv_mapping_{ false };
 
-    const graphics::Dx12GpuVaMap&    gpu_va_map_;
-    const decode::Dx12DescriptorMap& descriptor_map_;
+    const graphics::Dx12GpuVaMap&                                         gpu_va_map_;
+    const decode::Dx12DescriptorMap&                                      descriptor_map_;
+    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map_;
 
     bool do_value_mapping_;
 

@@ -153,7 +153,9 @@ struct ResourceValueInfo
     uint64_t                offset{ 0 };
     ResourceValueType       type{ ResourceValueType::kUnknown };
     uint64_t                size{ 0 };
-    D3D12StateObjectInfo*   state_object{ nullptr }; ///< Used to map values in shader records.
+    D3D12StateObjectInfo*   state_object{
+        nullptr
+    }; ///< State object bound for the command associated with this RV.
     ArgumentBufferExtraInfo arg_buffer_extra_info;
     uint32_t                max_command_count{ 0 };
 
@@ -460,8 +462,7 @@ struct D3D12StateObjectInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D12StateObjectInfo";
     D3D12StateObjectInfo() : DxObjectExtraInfo(kType) {}
 
-    std::map<std::wstring, format::HandleId>                              export_name_lrs_map;
-    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map;
+    std::map<std::wstring, format::HandleId> export_name_lrs_map;
 };
 
 GFXRECON_END_NAMESPACE(decode)

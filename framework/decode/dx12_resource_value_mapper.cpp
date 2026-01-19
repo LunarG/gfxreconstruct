@@ -767,8 +767,7 @@ void Dx12ResourceValueMapper::PostProcessCreateStateObject(
                     auto local_root_sig_extra_info = GetExtraInfo<D3D12RootSignatureInfo>(local_root_sig_object_info);
                     GFXRECON_ASSERT(local_root_sig_extra_info != nullptr);
 
-                    state_object_extra_info->shader_id_lrs_map[replay_shader_id] =
-                        local_root_sig_extra_info->resource_value_infos;
+                    shader_id_lrs_map_[replay_shader_id] = local_root_sig_extra_info->resource_value_infos;
                 }
             }
         }
@@ -1259,8 +1258,8 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
         resource_info->mapped_shader_ids[final_offset] = replay_shader_id;
 
         // Map values in the shader record's local root signature.
-        auto shader_id_lrs_iter = value_info.state_object->shader_id_lrs_map.find(replay_shader_id);
-        if (shader_id_lrs_iter != value_info.state_object->shader_id_lrs_map.end())
+        auto shader_id_lrs_iter = shader_id_lrs_map_.find(replay_shader_id);
+        if (shader_id_lrs_iter != shader_id_lrs_map_.end())
         {
             for (const auto& shader_record_value_info : shader_id_lrs_iter->second)
             {
