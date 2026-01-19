@@ -634,7 +634,7 @@ inline std::string GetCpuAffinity()
     std::string affinity;
 
 #ifdef __linux__
-    cpu_set_t mask;
+    cpu_set_t   mask;
     if (sched_getaffinity(0, sizeof(mask), &mask))
     {
         return affinity;
@@ -767,16 +767,44 @@ inline bool FilePuts(const char* char_string, FILE* stream)
     return FileWrite(char_string, strlen(char_string), stream);
 }
 
+inline size_t FileReadBytes(void* buffer, size_t bytes, FILE* stream)
+{
+    size_t read_count    = 0;
+    char*  dest_buffer   = static_cast<char*>(buffer);
+    size_t bytes_to_read = bytes;
+    while (read_count < bytes) // Early out for zero byte reads
+    {
+        size_t bytes_read = fread(dest_buffer, 1, bytes_to_read, stream);
+        read_count += bytes_read;
+        if (bytes_read < bytes_to_read)
+        {
+            dest_buffer += bytes_read;
+            bytes_to_read -= bytes_read;
+
+            if (feof(stream))
+            {
+                break;
+            }
+            else if (ferror(stream))
+            {
+                int err = errno;
+                if ((err == EWOULDBLOCK) || (err == EINTR) || (err == EAGAIN))
+                {
+                    clearerr(stream);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    return read_count;
+}
+
 inline bool FileRead(void* buffer, size_t bytes, FILE* stream)
 {
-    size_t read_count = 0;
-    int    err        = 0;
-    do
-    {
-        read_count = fread(buffer, bytes, 1, stream);
-        err        = ferror(stream);
-    } while (!feof(stream) && read_count < 1 && (err == EWOULDBLOCK || err == EINTR || err == EAGAIN));
-    return (read_count == 1 || bytes == 0);
+    return FileReadBytes(buffer, bytes, stream) == bytes;
 }
 
 inline int32_t SetFileBufferSize(FILE* stream, size_t buffer_size)

@@ -2608,7 +2608,7 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
                                                                0,
                                                                &dst_img_format_props);
 
-        const VkExtent3D scaled_extent = decode::ScaleExtent(extent, scale);
+        const VkExtent3D scaled_extent = graphics::ScaleExtent(extent, scale);
         if ((dst_img_format_props.maxExtent.width < scaled_extent.width) ||
             (dst_img_format_props.maxExtent.height < scaled_extent.height) ||
             (dst_img_format_props.maxExtent.depth < scaled_extent.depth))

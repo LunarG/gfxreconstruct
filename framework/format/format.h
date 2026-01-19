@@ -663,6 +663,11 @@ struct DxgiAdapterDesc
     uint32_t extra_info; // 2 bits (LSB) to store Type and 30 bits for object ID
 };
 
+inline int64_t pack_luid(const format::DxgiAdapterDesc& adapter_desc)
+{
+    return static_cast<int64_t>((static_cast<uint64_t>(adapter_desc.LuidHighPart) << 32) | adapter_desc.LuidLowPart);
+}
+
 struct DxgiAdapterInfoCommandHeader
 {
     MetaDataHeader  meta_header;

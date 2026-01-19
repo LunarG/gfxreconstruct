@@ -582,31 +582,59 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkLayerSe
         case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
         case VK_LAYER_SETTING_TYPE_UINT32_EXT:
             bytes_read += wrapper->pValues.DecodeUInt32(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_INT32_EXT:
             bytes_read += wrapper->pValues.DecodeInt32(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_INT64_EXT:
             bytes_read += wrapper->pValues.DecodeInt64(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_UINT64_EXT:
             bytes_read += wrapper->pValues.DecodeUInt64(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
             bytes_read += wrapper->pValues.DecodeFloat(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
             bytes_read += wrapper->pValues.DecodeDouble(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_STRING_EXT:
-            bytes_read += wrapper->string_decoder.Decode(buffer + bytes_read, buffer_size - bytes_read);
+        {
+            uint32_t attrib;
+            ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+            // VkLayerSettingEXT was incorrectly encoded for strings before 23f420bd as void* but also decoded
+            // that way (correctly for the encoding).  Decoding captures from before 23f420bd will potentially
+            // crash, so detect captures encoded the incorrect way and attempt to handle them gracefully.
+
+            bool is_string = (attrib & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString;
+
+            if (is_string)
+            {
+                bytes_read += wrapper->string_decoder.Decode(buffer + bytes_read, buffer_size - bytes_read);
+                value->pValues = static_cast<const void*>(wrapper->string_decoder.GetPointer());
+            }
+            else
+            {
+                GFXRECON_LOG_INFO("Detected and discarding VkLayerSettingEXT string value incorrectly encoded as "
+                                  "void*. Settings will not be passed downstream. See commit 23f420bd.");
+                // XXX Note that it is unlikely the encoded buffer (1 uint8_t) will contain the captured layer settings
+                // settings.  Decode a uint8_t buffer to move past the data and discard the results.
+                bytes_read += wrapper->pValues.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
+                value->valueCount = 0;
+            }
             break;
+        }
         case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
             break;
     }
-    value->pValues = value->type == VK_LAYER_SETTING_TYPE_STRING_EXT
-                         ? static_cast<const void*>(wrapper->string_decoder.GetPointer())
-                         : static_cast<const void*>(wrapper->pValues.GetPointer());
+
     return bytes_read;
 }
 

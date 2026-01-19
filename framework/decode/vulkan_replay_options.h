@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2023 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -133,6 +133,9 @@ struct VulkanReplayOptions : public ReplayOptions
 
     std::vector<CommandIndices> TraceRays_Indices;
     CommandImageSubresource     TraceRaysSubresources;
+
+    std::vector<CommandIndices> Transfer_Indices;
+    CommandImageSubresource     TransferSubresources;
 
     // ExecuteCommands block index : vector or BeginCommandBuffer indices of secondary cbs.
     std::vector<ExecuteCommands> ExecuteCommands_Indices;

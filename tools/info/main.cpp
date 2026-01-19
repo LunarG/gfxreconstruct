@@ -660,7 +660,7 @@ void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 
         for (const auto& adapter : adapters)
         {
-            const int64_t luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
+            const int64_t luid = pack_luid(adapter);
 
             std::string adapter_workload_pct = "";
 

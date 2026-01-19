@@ -59,6 +59,8 @@ class VulkanDispatchTableGeneratorOptions(VulkanBaseGeneratorOptions):
             'vulkan/vk_layer.h',
         ))
 
+        self.begin_end_file_data.system_headers.append('unordered_map')
+
         self.begin_end_file_data.pre_namespace_code.extend((
             '#ifdef WIN32',
             '#ifdef CreateEvent',
@@ -130,6 +132,13 @@ class VulkanDispatchTableGenerator(VulkanBaseGenerator, KhronosDispatchTableGene
     def endFile(self):
         """Method override."""
         KhronosDispatchTableGenerator.generateDispatchTable(self)
+
+        write (
+            'using DeviceDispatchTablesMap = std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>;',
+            file=self.outFile)
+        write (
+            'using InstanceDispatchTablesMap = std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable>;\n',
+            file=self.outFile)
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
