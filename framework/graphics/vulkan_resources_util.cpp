@@ -2374,6 +2374,161 @@ void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& spars
     }
 }
 
+void GetIntersectForSparseImageMemoryBind(const VkSparseImageMemoryBind&        old_bind,
+                                          const VkSparseImageMemoryBind&        new_bind,
+                                          std::vector<VkSparseImageMemoryBind>& new_binds,
+                                          std::vector<VkOffset3D>&              removed_binds)
+{
+    const VkOffset3D& old_offset = old_bind.offset;
+    const VkExtent3D& old_extent = old_bind.extent;
+    const VkOffset3D& new_offset = new_bind.offset;
+    const VkExtent3D& new_extent = new_bind.extent;
+
+    // If there is no intersection, we can stop
+    if ((old_offset.x + old_extent.width <= new_offset.x || new_offset.x + new_extent.width <= old_offset.x) ||
+        (old_offset.y + old_extent.height <= new_offset.y || new_offset.y + new_extent.height <= old_offset.y) ||
+        (old_offset.z + old_extent.depth <= new_offset.z || new_offset.z + new_extent.depth <= old_offset.z))
+    {
+        return;
+    }
+
+    // If there is an intersection, no matter the type, the old binding will have to be removed
+    removed_binds.push_back(old_offset);
+
+    // Check for each possible "slice" of the old 3D rectangular binding if the binding is overriden or must be kept.
+    // If the binding must be kept, a new bind structure is added
+
+    if (old_offset.x < new_offset.x)
+    {
+        VkSparseImageMemoryBind bind = old_bind;
+        bind.extent.width            = new_offset.x - old_offset.x;
+        new_binds.push_back(bind);
+    }
+
+    if (old_offset.x + old_extent.width > new_offset.x + new_extent.width)
+    {
+        VkSparseImageMemoryBind bind = old_bind;
+        bind.offset.x                = new_offset.x + new_extent.width;
+        bind.extent.width            = old_offset.x + old_extent.width - bind.offset.x;
+        new_binds.push_back(bind);
+    }
+
+    if (old_offset.y < new_offset.y)
+    {
+        VkSparseImageMemoryBind bind = old_bind;
+        bind.offset.x                = std::max(new_offset.x, old_offset.x);
+        bind.extent.width            = std::min(new_extent.width, old_offset.x + old_extent.width - bind.offset.x);
+        bind.extent.height           = new_offset.y - old_offset.y;
+        new_binds.push_back(bind);
+    }
+
+    if (old_offset.y + old_extent.height > new_offset.y + new_extent.height)
+    {
+        VkSparseImageMemoryBind bind = old_bind;
+        bind.offset.x                = std::max(new_offset.x, old_offset.x);
+        bind.offset.y                = new_offset.y + new_extent.height;
+        bind.extent.width            = std::min(new_extent.width, old_offset.x + old_extent.width - bind.offset.x);
+        bind.extent.height           = old_offset.y + old_extent.height - bind.offset.y;
+        new_binds.push_back(bind);
+    }
+
+    if (old_offset.z < new_offset.z)
+    {
+        VkSparseImageMemoryBind bind = old_bind;
+        bind.offset.x                = std::max(new_offset.x, old_offset.x);
+        bind.offset.y                = std::max(new_offset.y, old_offset.y);
+        bind.extent.width            = std::min(new_extent.width, old_offset.x + old_extent.width - bind.offset.x);
+        bind.extent.height           = std::min(new_extent.height, old_offset.y + old_extent.height - bind.offset.y);
+        bind.extent.depth            = new_offset.z - old_offset.z;
+        new_binds.push_back(bind);
+    }
+
+    if (old_offset.z + old_extent.depth > new_offset.z + new_extent.depth)
+    {
+        VkSparseImageMemoryBind bind = old_bind;
+        bind.offset.x                = std::max(new_offset.x, old_offset.x);
+        bind.offset.y                = std::max(new_offset.y, old_offset.y);
+        bind.offset.z                = new_offset.z + new_extent.depth;
+        bind.extent.width            = std::min(new_extent.width, old_offset.x + old_extent.width - bind.offset.x);
+        bind.extent.height           = std::min(new_extent.height, old_offset.y + old_extent.height - bind.offset.y);
+        bind.extent.depth            = old_offset.z + old_extent.depth - bind.offset.z;
+        new_binds.push_back(bind);
+    }
+}
+
+void UpdateSparseImageMemoryBindMap(VulkanSubresourceSparseImageMemoryBindMap& sparse_image_memory_bind_map,
+                                    const VkSparseImageMemoryBind&             new_bind)
+{
+    // First we want to search for bound VkImageSubresource that may intersect with the new range
+    // (we'll care about <x,y,z> later)
+    // The aspect mask is a bit particular as it is a bit field...
+
+    std::vector<VkImageSubresource> intersecting_subresources;
+
+    VkImageSubresource search_key = new_bind.subresource;
+    search_key.aspectMask         = 0;
+
+    auto iterator = sparse_image_memory_bind_map.lower_bound(search_key);
+    for (; iterator != sparse_image_memory_bind_map.end() && iterator->first.arrayLayer == search_key.arrayLayer &&
+           iterator->first.mipLevel == search_key.mipLevel;
+         ++iterator)
+    {
+        if (iterator->first.aspectMask & new_bind.subresource.aspectMask)
+        {
+            intersecting_subresources.push_back(iterator->first);
+        }
+    }
+
+    // If there is no intersecting subresource, we can just add the new bind
+    if (intersecting_subresources.empty())
+    {
+        sparse_image_memory_bind_map[new_bind.subresource][new_bind.offset] = new_bind;
+        return;
+    }
+
+    // Otherwise, go over the subresources that needs to be updated
+    for (VkImageSubresource subresource : intersecting_subresources)
+    {
+        // We may need to split the subresource depending on the aspectMask
+        VkImageAspectFlags aspect_mask = (subresource.aspectMask & new_bind.subresource.aspectMask);
+        if (aspect_mask != subresource.aspectMask)
+        {
+            VkImageSubresource subresource_in            = subresource;
+            subresource_in.aspectMask                    = aspect_mask;
+            sparse_image_memory_bind_map[subresource_in] = sparse_image_memory_bind_map[subresource];
+
+            VkImageSubresource subresource_out            = subresource;
+            subresource_out.aspectMask                    = subresource.aspectMask ^ aspect_mask;
+            sparse_image_memory_bind_map[subresource_out] = sparse_image_memory_bind_map[subresource];
+
+            subresource.aspectMask = aspect_mask;
+        }
+
+        // Update the bound range depending on the offset and size
+
+        VulkanOffset3DSparseImageMemoryBindMap& bind_map = sparse_image_memory_bind_map[subresource];
+
+        std::vector<VkSparseImageMemoryBind> new_binds;
+        std::vector<VkOffset3D>              removed_binds;
+
+        for (const auto& elt : bind_map)
+        {
+            GetIntersectForSparseImageMemoryBind(elt.second, new_bind, new_binds, removed_binds);
+        }
+
+        for (const VkOffset3D& offset : removed_binds)
+        {
+            bind_map.erase(offset);
+        }
+
+        for (const VkSparseImageMemoryBind& bind : new_binds)
+        {
+            bind_map.insert({ bind.offset, bind });
+        }
+        bind_map.insert({ new_bind.offset, new_bind });
+    }
+}
+
 bool VulkanResourcesUtil::IsBlitSupported(VkFormat       src_format,
                                           VkImageTiling  src_image_tiling,
                                           VkFormat       dst_format,

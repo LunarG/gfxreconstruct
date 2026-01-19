@@ -372,6 +372,14 @@ bool GetIntersectForSparseMemoryBind(uint32_t               new_bind_resource_of
 void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& sparse_memory_bind_map,
                                const VkSparseMemoryBind&                   new_sparse_memory_bind);
 
+void GetIntersectForSparseImageMemoryBind(const VkSparseImageMemoryBind&        old_bind,
+                                          const VkSparseImageMemoryBind&        new_bind,
+                                          std::vector<VkSparseImageMemoryBind>& new_binds,
+                                          std::vector<VkOffset3D>&              removed_binds);
+
+void UpdateSparseImageMemoryBindMap(VulkanSubresourceSparseImageMemoryBindMap& sparse_image_memory_bind_map,
+                                    const VkSparseImageMemoryBind&             new_bind);
+
 bool GetImageTexelSize(VkFormat      format,
                        VkDeviceSize* texel_size,
                        bool*         is_texel_block_size,
