@@ -118,9 +118,9 @@ def ConvertLowerSnakeToUpperCamelCase(in_string):
 def GenerateDefaultCaptureFileNameString(prefix: str, filename: str):
     entry = []
     entry.append("#if defined(__ANDROID__)")
-    entry.append(f"{prefix} = std::string(\"/sdcard/{filename}\");")
+    entry.append(f"{prefix} = \"/sdcard/{filename}\";")
     entry.append("#else")
-    entry.append(f"{prefix} = std::string(\"{filename}\");")
+    entry.append(f"{prefix} = \"{filename}\";")
     entry.append("#endif")
     return entry
 
@@ -767,24 +767,24 @@ class ParsedSetting():
         elif (self.type.primitive_type == "SAVE_FILE"
               or self.type.primitive_type == "SAVE_FOLDER"):
             type_string = "std::string"
-            default_string = f"std::string(\"{self.type.default}\")"
+            default_string = f"\"{self.type.default}\""
         elif self.type.primitive_type == "LIST":
             type_string = "std::string"
-            default_string = "std::string(\""
+            default_string = "\""
             for item in self.type.default:
                 default_string += item
-            default_string += "\")"
+            default_string += "\""
         else:
             type_string = "std::string"
-            default_string = f"std::string(\"{self.type.default.lower()}\")"
+            default_string = f"\"{self.type.default.lower()}\""
 
         if self.type.android_base is not None:
             setting_struct_entry.append("#if defined(__ANDROID__)")
             setting_struct_entry.append("    " +
                                         PadStringToColumn(type_string, 12) +
-                                        name_string + "{std::string(\"" +
+                                        name_string + "{\"" +
                                         self.type.android_base +
-                                        self.type.default + "\")};")
+                                        self.type.default + "\"};")
             setting_struct_entry.append("#else")
             setting_struct_entry.append("    " +
                                         PadStringToColumn(type_string, 12) +
