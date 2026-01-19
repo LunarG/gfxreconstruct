@@ -33,34 +33,34 @@
 struct GfxrCaptureSettingsStruct
 {
     // clang-format off
-    std::string capture_compression_type{std::string("lz4")};
+    std::string capture_compression_type{"lz4"};
 #if defined(__ANDROID__)
-    std::string capture_file{std::string("/sdcard/gfxrecon_capture.gfxr")};
+    std::string capture_file{"/sdcard/gfxrecon_capture.gfxr"};
 #else
-    std::string capture_file{std::string("gfxrecon_capture.gfxr")};
+    std::string capture_file{"gfxrecon_capture.gfxr"};
 #endif
     bool        capture_file_flush{false};
     bool        capture_file_timestamp{true};
-    std::string capture_frames{std::string("")};
-    std::string capture_process_name{std::string("")};
-    std::string capture_queue_submits{std::string("")};
+    std::string capture_frames{""};
+    std::string capture_process_name{""};
+    std::string capture_queue_submits{""};
     bool        capture_dynamic_trigger{false};
     bool        capture_dynamic_trigger_dump_assets{false};
-    std::string capture_trigger_frames{std::string("")};
+    std::string capture_trigger_frames{""};
     bool        capture_use_asset_file{false};
     bool        force_command_serialization{false};
     bool        log_allow_indents{false};
     bool        log_break_on_error{false};
     bool        log_detailed{false};
     bool        log_errors_to_stderr{true};
-    std::string log_file{std::string("")};
+    std::string log_file{""};
     bool        log_file_create_new{true};
     bool        log_file_flush_after_write{false};
     bool        log_file_keep_open{true};
-    std::string log_level{std::string("info")};
+    std::string log_level{"info"};
     bool        log_output_to_console{true};
     bool        log_timestamps{false};
-    std::string memory_tracking_mode{std::string("page_guard")};
+    std::string memory_tracking_mode{"page_guard"};
     bool        page_guard_copy_on_map{true};
     bool        page_guard_persistent_memory{false};
     bool        page_guard_separate_read{true};
@@ -70,25 +70,25 @@ struct GfxrCaptureSettingsStruct
     bool        queue_zero_only{false};
     bool        quit_after_capture_frames{false};
 #if defined(__ANDROID__)
-    std::string screenshot_dir{std::string("/sdcard")};
+    std::string screenshot_dir{"/sdcard"};
 #else
-    std::string screenshot_dir{std::string("")};
+    std::string screenshot_dir{""};
 #endif
-    std::string screenshot_format{std::string("bmp")};
-    std::string screenshot_frames{std::string("")};
+    std::string screenshot_format{"bmp"};
+    std::string screenshot_frames{""};
     int32_t     screenshot_interval{1};
 
     // D3D12-Specific
     uint32_t    accel_struct_padding{0};
-    std::string capture_draw_calls{std::string("")};
+    std::string capture_draw_calls{""};
     bool        capture_iunknown_wrapping{false};
     bool        debug_device_lost{false};
     bool        debug_layer{false};
     bool        disable_dxr{false};
     bool        disable_meta_command{false};
-    std::string rv_annotation_descriptor{std::string("")};
+    std::string rv_annotation_descriptor{""};
     bool        rv_annotation_experimental{false};
-    std::string rv_annotation_gpuva{std::string("")};
+    std::string rv_annotation_gpuva{""};
     bool        rv_annotation_rand{false};
 
     // Vulkan-Specific
@@ -104,16 +104,16 @@ struct GfxrCaptureSettingsStruct
     bool        page_guard_track_ahb_memory{false};
 #endif // defined(__ANDROID__)
 #if defined(__linux__)
-    std::string capture_environment{std::string("")};
-    std::string capture_trigger{std::string("")};
+    std::string capture_environment{""};
+    std::string capture_trigger{""};
 #endif // defined(__linux__)
 #if defined(__APPLE__)
-    std::string capture_environment{std::string("")};
-    std::string capture_trigger{std::string("")};
+    std::string capture_environment{""};
+    std::string capture_trigger{""};
 #endif // defined(__APPLE__)
 #if defined(WIN32)
-    std::string capture_environment{std::string("")};
-    std::string capture_trigger{std::string("")};
+    std::string capture_environment{""};
+    std::string capture_trigger{""};
     bool        log_output_to_os_debug_string{false};
     bool        page_guard_external_memory{false};
 #endif // defined(WIN32)
