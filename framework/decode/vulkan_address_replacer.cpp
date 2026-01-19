@@ -661,12 +661,11 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
 
                 VkDeviceSize offset = desc_buffer_info.offset + buffer_ref_info.buffer_offset;
 
-                bool is_pointer_chain = dup_map.contains(set_key);
-
-                if (is_pointer_chain)
+                // detected a chain of pointer-accesses
+                if (dup_map.contains(set_key))
                 {
-                    command_buffer_info->addresses_to_resolve[buffer_info].push_back(
-                        { offset, buffer_ref_info.array_stride });
+                    command_buffer_info->addresses_to_resolve[buffer_info].emplace_back(static_cast<size_t>(offset),
+                                                                                        buffer_ref_info.array_stride);
                 }
                 else
                 {

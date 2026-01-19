@@ -695,7 +695,7 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
     // maps buffers to (offset/stride)-pairs that need to be resolved
     // (read back pointers, resolve additional buffers)
-    std::unordered_map<const VulkanBufferInfo*, std::vector<std::pair<size_t, size_t>>> addresses_to_resolve;
+    std::unordered_map<const VulkanBufferInfo*, std::vector<std::pair<size_t, uint32_t>>> addresses_to_resolve;
 
     bool inside_renderpass = false;
 };
