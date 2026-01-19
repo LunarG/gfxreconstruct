@@ -472,7 +472,14 @@ void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*     
 {
     for (const auto& [buffer_info, offset_pairs] : command_buffer_info->addresses_to_resolve)
     {
-        GFXRECON_ASSERT(buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        // TODO: implement read-back for device-local GPU buffer using a compute-dispatch or vkCmdCopyBuffers
+        if (!(buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
+        {
+            GFXRECON_LOG_WARNING_ONCE("%s: is required for buffer-handle: %d -- but currently only implemented for "
+                                      "host-visible buffers. replay is likely going to fail.",
+                                      buffer_info->capture_id);
+            continue;
+        }
 
         // map buffer
         void*    ptr = nullptr;
