@@ -90,35 +90,45 @@ struct Paths
     std::filesystem::path app_trimming_json_path;
     std::filesystem::path known_good_trimming_json_path;
 
-    void trimming_paths(char const* test_name, char const* trimming_frames)
+    void trimming_paths(char const* test_name, char const* trimming_frames, bool trigger_trimming)
     {
-        // Trimming suffix is like "_frame_10" or "_frames_10_through_100"
-        std::string s_trimming_frames = trimming_frames;
-        std::string trimming_suffix   = "_frame";
-        std::string range_begin       = "";
-        std::string range_end         = "";
+        std::string trimming_suffix;
+        if (trimming_frames != nullptr)
+        {
+            GFXRECON_ASSERT(!trigger_trimming);
 
-        auto index = s_trimming_frames.find("-");
-        if (index == std::string::npos)
-        {
-            range_begin = s_trimming_frames;
-        }
-        else
-        {
-            range_begin = s_trimming_frames.substr(0, index);
-            range_end   = s_trimming_frames.substr(index + 1);
-        }
+            // Trimming suffix is like "_frame_10" or "_frames_10_through_100"
+            std::string s_trimming_frames = trimming_frames;
+            trimming_suffix               = "_frame";
+            std::string range_begin       = "";
+            std::string range_end         = "";
 
-        if (!range_end.empty())
-        {
-            trimming_suffix += "s";
+            auto index = s_trimming_frames.find("-");
+            if (index == std::string::npos)
+            {
+                range_begin = s_trimming_frames;
+            }
+            else
+            {
+                range_begin = s_trimming_frames.substr(0, index);
+                range_end   = s_trimming_frames.substr(index + 1);
+            }
+
+            if (!range_end.empty())
+            {
+                trimming_suffix += "s";
+            }
+            trimming_suffix += "_";
+            trimming_suffix += range_begin;
+            if (!range_end.empty())
+            {
+                trimming_suffix += "_through_";
+                trimming_suffix += range_end;
+            }
         }
-        trimming_suffix += "_";
-        trimming_suffix += range_begin;
-        if (!range_end.empty())
+        else if (trigger_trimming)
         {
-            trimming_suffix += "_through_";
-            trimming_suffix += range_end;
+            trimming_suffix = "_trim_trigger";
         }
 
         std::string capture_trimming_file = test_name + trimming_suffix;
@@ -135,7 +145,7 @@ struct Paths
         known_good_trimming_json_path.replace_extension(".json");
     }
 
-    Paths(char const* test_name, char const* trimming_frames)
+    Paths(char const* test_name, char const* trimming_frames, bool trigger_trimming)
     {
         working_directory = full_app_directory;
         working_directory.append("res");
@@ -164,9 +174,9 @@ struct Paths
         known_good_json_path = std::filesystem::path{ known_good_path };
         known_good_json_path.replace_extension(".json");
 
-        if (trimming_frames)
+        if (trimming_frames != nullptr || trigger_trimming)
         {
-            trimming_paths(test_name, trimming_frames);
+            trimming_paths(test_name, trimming_frames, trigger_trimming);
         }
     }
 };
@@ -243,22 +253,31 @@ int run_command(std::filesystem::path const& working_directory,
 
 void run_in_background(const char* test_name)
 {
-    Paths paths{ test_name, nullptr };
+    Paths paths{ test_name, nullptr, false };
     run_command(paths.working_directory, paths.full_executable_path, { test_name, "&" });
 }
 
-void run_trimming_app(const Paths& paths, const char* test_name, char const* trimming_frames)
+void run_trimming_app(const Paths& paths, const char* test_name, char const* trimming_frames, bool trigger_trimming)
 {
     EnvironmentVariables env_vars;
 
     // To not affect the other tests, set env var programmatically, and unset it when it isn't needed.
-    env_vars.SetEnv("GFXRECON_CAPTURE_FRAMES", trimming_frames);
+    if (trimming_frames != nullptr)
+    {
+        env_vars.SetEnv("GFXRECON_CAPTURE_FRAMES", trimming_frames);
+    }
+    else
+    {
+        GFXRECON_ASSERT(trigger_trimming);
+        env_vars.SetEnv("GFXRECON_CAPTURE_TRIGGER", "F12");
+    }
 
     auto result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
     ASSERT_EQ(result, 0) << "trimming command failed " << paths.full_executable_path << " in path "
                          << paths.working_directory;
 
     env_vars.UnsetEnv("GFXRECON_CAPTURE_FRAMES");
+    env_vars.UnsetEnv("GFXRECON_CAPTURE_TRIGGER");
 
     // convert actual gfxr
     result = run_command(paths.base_path, paths.convert_path, { paths.capture_trimming_path.string() });
@@ -284,11 +303,11 @@ void run_trimming_app(const Paths& paths, const char* test_name, char const* tri
     ASSERT_EQ(trimming_diff.size(), 0) << std::setw(4) << trimming_diff;
 }
 
-void verify_gfxr(const char* test_name, char const* trimming_frames)
+void verify_gfxr(const char* test_name, char const* trimming_frames, bool trigger_trimming)
 {
     EnvironmentVariables env_vars;
 
-    Paths paths{ test_name, trimming_frames };
+    Paths paths{ test_name, trimming_frames, trigger_trimming };
     int   result;
 
     bool workind_directory_exists = std::filesystem::exists(paths.working_directory);
@@ -321,8 +340,8 @@ void verify_gfxr(const char* test_name, char const* trimming_frames)
     auto diff = nlohmann::json::diff(known_json, app_json);
     ASSERT_EQ(diff.size(), 0) << std::setw(4) << diff;
 
-    if (trimming_frames)
+    if (trimming_frames || trigger_trimming)
     {
-        run_trimming_app(paths, test_name, trimming_frames);
+        run_trimming_app(paths, test_name, trimming_frames, trigger_trimming);
     }
 }
