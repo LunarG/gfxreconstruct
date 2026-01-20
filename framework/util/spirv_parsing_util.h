@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <tuple>
 
 #include "util/defines.h"
 #include "encode/vulkan_state_info.h"

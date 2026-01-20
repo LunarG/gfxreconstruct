@@ -477,6 +477,7 @@ void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*     
         {
             GFXRECON_LOG_WARNING_ONCE("%s: is required for buffer-handle: %d -- but currently only implemented for "
                                       "host-visible buffers. replay is likely going to fail.",
+                                      __func__,
                                       buffer_info->capture_id);
             continue;
         }
@@ -490,8 +491,10 @@ void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*     
         {
             for (const auto& [offset, stride] : offset_pairs)
             {
+                // read an address from mapped pointer
                 VkDeviceAddress buffer_address =
                     *reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(ptr) + offset);
+
                 auto* found_buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(buffer_address);
                 bool  already_replaced  = false;
 
@@ -527,6 +530,9 @@ void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*     
                     }
                 }
             }
+
+            // unmap buffer again
+            resource_allocator_->UnmapResourceMemoryDirect(buffer_info->allocator_data);
         }
     }
 
