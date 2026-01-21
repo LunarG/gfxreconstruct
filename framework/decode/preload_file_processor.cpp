@@ -40,6 +40,10 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
         error_state_ = CheckFileStatus();
         return;
     }
+    if (!advance_to_next_frame_)
+    {
+        return;
+    }
 
     // Block processing will update current_frame_number_, so save and restore it,
     // as callers rely on it remaining unchanged by preload.
@@ -74,12 +78,12 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
     GFXRECON_ASSERT(!preload_head_);
     ResetPreload();
 
-    ProcessBlockState preload_result = ProcessBlockState::kFrameBoundary;
+    ProcessBlockState preload_result        = ProcessBlockState::kFrameBoundary;
     bool              first_preloaded_frame = true;
     while ((count != 0U) && (preload_result == ProcessBlockState::kFrameBoundary))
     {
-        uint64_t         current_preload_frame = current_frame_number_;
-        preload_result                         = PreloadBlocksOneFrame();
+        uint64_t current_preload_frame = current_frame_number_;
+        preload_result                 = PreloadBlocksOneFrame();
 
         if (preload_result != ProcessBlockState::kError)
         {
@@ -176,22 +180,29 @@ bool PreloadFileProcessor::ProcessNextFrame()
     }
 
     ProcessBlockState process_result = ReplayOneFrame();
+    return AdvanceToNextFrame(process_result);
+}
 
-    const bool at_end = (!replay_cursor_);
-    if (at_end)
+bool PreloadFileProcessor::AdvanceToNextFrame(ProcessBlockState process_result)
+{
+    if (advance_to_next_frame_)
     {
-        if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+        const bool at_end = (!replay_cursor_);
+        if (at_end)
         {
-            // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+            if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+            {
+                // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+                current_frame_number_++;
+            }
+            // Return true only if both the replay and preload are in a continue state
+            return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
+        }
+
+        if (IsFrameBoundary(process_result))
+        {
             current_frame_number_++;
         }
-        // Return true only if both the replay and preload are in a continue state
-        return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
-    }
-
-    if (IsFrameBoundary(process_result))
-    {
-        current_frame_number_++;
     }
     return ContinueProcessing(process_result);
 }
@@ -208,7 +219,7 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
     while (process_state == ProcessBlockState::kRunning)
     {
         ParsedBlock& queued_block = *replay_cursor_;
-        uint64_t block_index = queued_block.GetBlockIndex();
+        uint64_t     block_index  = queued_block.GetBlockIndex();
         if (!ContinueDecoding(block_index, true /* check decoder completion */))
         {
             process_state = ProcessBlockState::kEndProcessing;
