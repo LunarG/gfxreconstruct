@@ -1347,7 +1347,7 @@ void VulkanReplayConsumerBase::PushRecaptureHandleIds(const format::HandleId* id
             for (uint64_t i = 0; i < id_count; ++i)
             {
                 auto id = id_array[id_count - i - 1];
-                if (id < kRecaptureHandleIdOffset)
+                if (id != format::kNullHandleId && id < kRecaptureHandleIdOffset)
                 {
                     encode::CommonCaptureManager::PushUniqueId(id);
                 }
