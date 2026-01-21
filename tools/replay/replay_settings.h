@@ -42,7 +42,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit,--idle-before-submit,--present-override";
+    "present-mode,--wait-before-first-submit,--idle-before-submit,--present-override,--loop-frame,--loop-count";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -121,6 +121,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
+    GFXRECON_WRITE_CONSOLE("  --loop-frame <N>\tEnable frame repeat (experimental).");
+    GFXRECON_WRITE_CONSOLE("          \t\tN specifies the frame number to repeat; default is 0.");
+    GFXRECON_WRITE_CONSOLE("  --loop-count <N>\tSpecify the number of times to repeat the frame when");
+    GFXRECON_WRITE_CONSOLE("          \t\tloop frame is enabled. Default is 0: replay forever.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-all");
     GFXRECON_WRITE_CONSOLE("          \t\tGenerate screenshots for all frames.  When this");
     GFXRECON_WRITE_CONSOLE("          \t\toption is specified, --screenshots is ignored.");
