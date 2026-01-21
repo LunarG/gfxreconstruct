@@ -4161,6 +4161,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 submit_info_mut.waitSemaphoreCount = 1;
                 submit_info_mut.pWaitSemaphores    = &semaphores[i];
 
+                // If waitSemaphoreCount was 0, pWaitDstStageMask might be nullptr.
+                // Make sure it points to valid data in all cases.
+                static VkPipelineStageFlags wait_stage_mask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                submit_info_mut.pWaitDstStageMask           = &wait_stage_mask;
+
                 // handle potential timeline-semaphores in pnext-chain
                 if (auto* timeline_info =
                         graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&submit_info_mut))
@@ -4403,6 +4408,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 VkSemaphoreSubmitInfo& semaphore_info = semaphore_infos[i];
                 semaphore_info.sType                  = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
                 semaphore_info.value                  = 1;
+                semaphore_info.stageMask              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
                 // runs replacer, sync via semaphore
                 semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(cmd_buf_info,
