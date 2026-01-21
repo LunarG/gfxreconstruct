@@ -44,6 +44,8 @@ class PreloadFileProcessor : public FileProcessor
     // Preloads *count* frames to continuous, expandable memory buffer
     void PreloadNextFrames(size_t count);
 
+    bool RewindOneFrame() override;
+
   private:
     // Read and parse all blocks for one frame
     using ParsedBlockQueue  = std::deque<ParsedBlock>;

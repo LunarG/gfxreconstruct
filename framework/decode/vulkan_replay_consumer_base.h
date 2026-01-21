@@ -1964,6 +1964,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     std::unordered_map<format::HandleId, std::pair<const VulkanDeviceInfo*, VkPipelineCache>> tracked_pipeline_caches_;
     std::unordered_map<VkPipeline, format::HandleId> pipeline_cache_correspondances_;
+
+    application::Application& GetApplication() { return *application_; }
 };
 
 GFXRECON_END_NAMESPACE(decode)

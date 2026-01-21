@@ -469,6 +469,12 @@ class FileProcessor
     };
     using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
     ActiveStreamCache stream_cache_;
+
+  public:
+    virtual bool RewindOneFrame() { return false; }
+
+  protected:
+    bool frame_rewinded_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

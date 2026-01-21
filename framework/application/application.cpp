@@ -66,8 +66,8 @@ Application::Application(const std::string&     name,
                          const std::string&     cli_wsi_extension,
                          void*                  platform_specific_wsi_data) :
     name_(name),
-    file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0),
-    cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
+    file_processor_(file_processor), running_(false), paused_(false),
+    pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
 {
     if (!cli_wsi_extension_.empty())
     {
@@ -126,6 +126,11 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
     fps_info_ = fps_info;
 }
 
+void Application::SetFrameLooping(bool active)
+{
+    frame_loop_ = active;
+}
+
 void Application::Run()
 {
     running_ = true;
@@ -154,10 +159,11 @@ void Application::Run()
                 }
 
                 auto preload_frames_count = fps_info_->ShouldPreloadFrames(frame_number);
-                if (preload_frames_count > 0U)
+                if (preload_frames_count > 0U || frame_loop_)
                 {
                     auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
                     GFXRECON_ASSERT(preload_processor)
+                    preload_frames_count = frame_loop_ ? 1 : preload_frames_count;
                     preload_processor->PreloadNextFrames(preload_frames_count);
                 }
 

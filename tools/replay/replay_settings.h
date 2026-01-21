@@ -36,7 +36,8 @@ const char kOptions[] =
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
     "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture";
 const char kArguments[] =
-    "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
+    "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--frame-loop,--frame-loop-count,--wsi,--surface-"
+    "index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
@@ -58,7 +59,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s\t[-h | --help] [--version]", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("\t\t\t[--cpu-mask <binary-mask>] [--gpu <index>] [--gpu-group <index>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused] [--sync] [--screenshot-all]");
+    GFXRECON_WRITE_CONSOLE(
+        "\t\t\t[--pause-frame <N>] [--paused] [--frame-loop <N>] [--frame-loop-count <N>] [--sync] [--screenshot-all]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshots <N1(-N2),...>] [--screenshot-format <format>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-size <width>x<height>]");
@@ -121,6 +123,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
+    GFXRECON_WRITE_CONSOLE("  --frame-loop <N>\tEnable frame repeat (experimental).");
+    GFXRECON_WRITE_CONSOLE("          \t\tN specifies the frame number to repeat; default is 0.");
+    GFXRECON_WRITE_CONSOLE(
+        "  --frame-loop-count <N>\tSpecify the number of times to repeat the frame when frame repeat is enabled.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault is 0: replay forever.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-all");
     GFXRECON_WRITE_CONSOLE("          \t\tGenerate screenshots for all frames.  When this");
     GFXRECON_WRITE_CONSOLE("          \t\toption is specified, --screenshots is ignored.");

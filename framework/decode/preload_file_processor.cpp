@@ -38,6 +38,11 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
         error_state_ = CheckFileStatus();
         return;
     }
+    if (frame_rewinded_)
+    {
+        frame_rewinded_ = false;
+        return;
+    }
 
     // Block processing will update current_frame_number_, so save and restore it,
     // as callers rely on it remaining unchanged by preload.
@@ -137,6 +142,12 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::PreloadBlocksOneFrame(Par
     return ProcessBlocks(dispatch, false /* check decoder completion */);
 }
 
+bool PreloadFileProcessor::RewindOneFrame()
+{
+    frame_rewinded_ = true;
+    return frame_rewinded_;
+}
+
 bool PreloadFileProcessor::ProcessNextFrame()
 {
     // Clean up preloaded frames if we're at the end of the preloaded frames.  It's done here
@@ -155,24 +166,29 @@ bool PreloadFileProcessor::ProcessNextFrame()
 
     PreloadedFrame&   frame          = *(current_preloaded_frame_->get());
     ProcessBlockState process_result = ReplayOneFrame(frame);
-    ++current_preloaded_frame_;
 
-    const bool at_end = (current_preloaded_frame_ == preloaded_frames_.end());
-    if (at_end)
+    if (!frame_rewinded_)
     {
-        if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+        ++current_preloaded_frame_;
+
+        const bool at_end = (current_preloaded_frame_ == preloaded_frames_.end());
+        if (at_end)
         {
-            // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+            if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+            {
+                // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+                current_frame_number_++;
+            }
+            // Return true only if both the replay and preload are in a continue state
+            return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
+        }
+
+        if (IsFrameBoundary(process_result))
+        {
             current_frame_number_++;
         }
-        // Return true only if both the replay and preload are in a continue state
-        return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
     }
 
-    if (IsFrameBoundary(process_result))
-    {
-        current_frame_number_++;
-    }
     return ContinueProcessing(process_result);
 }
 

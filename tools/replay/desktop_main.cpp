@@ -27,6 +27,7 @@
 #include "application/application.h"
 #include "decode/file_processor.h"
 #include "decode/preload_file_processor.h"
+#include "decode/vulkan_replay_frame_loop_consumer.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
@@ -138,7 +139,12 @@ int main(int argc, const char** argv)
 
         std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
-        if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
+        uint32_t frame_loop_target = 0;
+        uint32_t frame_loop_count  = std::numeric_limits<uint32_t>::max();
+        bool     enable_frame_loop = GetFrameLoop(arg_parser, frame_loop_target);
+        GetFrameLoopCount(arg_parser, frame_loop_count);
+
+        if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption) || enable_frame_loop)
         {
             file_processor = std::make_unique<gfxrecon::decode::PreloadFileProcessor>();
         }
@@ -202,8 +208,21 @@ int main(int argc, const char** argv)
                                                  quit_after_frame,
                                                  quit_frame);
 
-            gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
-            gfxrecon::decode::VulkanDecoder        vulkan_decoder;
+            std::unique_ptr<gfxrecon::decode::VulkanReplayConsumer> vulkan_replay_consumer;
+
+            if (enable_frame_loop)
+            {
+                vulkan_replay_consumer = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
+                    application, vulkan_replay_options, frame_loop_target, frame_loop_count);
+                application->SetFrameLooping(true);
+            }
+            else
+            {
+                vulkan_replay_consumer =
+                    std::make_unique<gfxrecon::decode::VulkanReplayConsumer>(application, vulkan_replay_options);
+            }
+
+            gfxrecon::decode::VulkanDecoder vulkan_decoder;
 
             if (vulkan_replay_options.capture)
             {
@@ -212,15 +231,15 @@ int main(int argc, const char** argv)
                 // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
                 // calls into the capture layer instead of directly into the loader and Vulkan runtime.
                 // Set the capture manager's instance and device creation callbacks.
-                vulkan_replay_consumer.SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
-                                                         gfxrecon::vulkan_recapture::dispatch_CreateInstance,
-                                                         gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+                vulkan_replay_consumer->SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
+                                                          gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                                                          gfxrecon::vulkan_recapture::dispatch_CreateDevice);
             }
 
             ApiReplayOptions  api_replay_options;
             ApiReplayConsumer api_replay_consumer;
             api_replay_options.vk_replay_options   = &vulkan_replay_options;
-            api_replay_consumer.vk_replay_consumer = &vulkan_replay_consumer;
+            api_replay_consumer.vk_replay_consumer = vulkan_replay_consumer.get();
 
 #if defined(D3D12_SUPPORT)
             gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);
@@ -243,11 +262,11 @@ int main(int argc, const char** argv)
 
             if (vulkan_replay_options.enable_vulkan)
             {
-                vulkan_replay_consumer.SetFatalErrorHandler(
+                vulkan_replay_consumer->SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
-                vulkan_replay_consumer.SetFpsInfo(&fps_info);
+                vulkan_replay_consumer->SetFpsInfo(&fps_info);
 
-                vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
+                vulkan_decoder.AddConsumer(vulkan_replay_consumer.get());
                 file_processor->AddDecoder(&vulkan_decoder);
 
                 file_processor->SetPrintBlockInfoFlag(vulkan_replay_options.enable_print_block_info,
@@ -286,6 +305,7 @@ int main(int argc, const char** argv)
                         dx12_decoder.RemoveConsumer(tracking_consumer);
                     }
                 }
+
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
                 file_processor->AddDecoder(&dx12_decoder);
 
@@ -302,7 +322,7 @@ int main(int argc, const char** argv)
             gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
             gfxrecon::decode::OpenXrDecoder        openxr_decoder;
             gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
-            openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
+            openxr_replay_consumer.SetVulkanReplayConsumer(vulkan_replay_consumer.get());
             openxr_replay_consumer.SetFpsInfo(&fps_info);
             openxr_decoder.AddConsumer(&openxr_replay_consumer);
             file_processor->AddDecoder(&openxr_decoder);

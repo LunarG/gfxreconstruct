@@ -99,6 +99,10 @@ def CreateReplayParser():
     parser.add_argument('--debug-messenger-level', metavar='LEVEL', help='Specify highest debug messenger severity level. Options are: debug, info, warning, and error. Default is warning. (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
+
+    parser.add_argument('--frame-loop', default=0, help='Replay the given frame repeatedly')
+    parser.add_argument('--frame-loop-count', default=0, help='Replay the repeated frame N times')
+
     parser.add_argument('--cpu-mask', metavar='binary_mask', help='Set of CPU cores used by the replayer. `binary-mask` is a succession of "0" and "1" that specifies used/unused cores read from left to right. For example "10010" activates the first and fourth cores and deactivate all other cores. If the option is not set, all cores can be used. If the option is set only for some cores, the other cores are not used. (forwarded to replay tool)')
     parser.add_argument('--screenshot-all', action='store_true', default=False, help='Generate screenshots for all frames.  When this option is specified, --screenshots is ignored (forwarded to replay tool)')
     parser.add_argument('--screenshots', metavar='RANGES', help='Generate screenshots for the specified frames.  Target frames are specified as a comma separated list of frame ranges.  A frame range can be specified as a single value, to specify a single frame, or as two hyphenated values, to specify the first and last frames to process.  Frame ranges should be specified in ascending order and cannot overlap.  Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: 200,301-305 will generate six screenshots (forwarded to replay tool)')
@@ -172,6 +176,14 @@ def MakeExtrasString(args):
 
     if args.paused:
         arg_list.append('--paused')
+
+    if args.frame_loop:
+        arg_list.append("--frame-loop")
+        arg_list.append('{}'.format(args.frame_loop))
+
+    if args.frame_loop_count:
+        arg_list.append('--frame-loop-count')
+        arg_list.append('{}'.format(args.frame_loop_count))
 
     if args.cpu_mask:
         arg_list.append('--cpu-mask')
