@@ -82,7 +82,7 @@ class KhronosExportJsonConsumerBodyGenerator():
         """Method may be overriden"""
         return False
 
-    def decode_as_handle(self, value):
+    def decode_as_handle(self, command, value):
         """Method may be overridden.
         Indicates that the given type should be decoded as a handle."""
         return self.is_handle_like(value.base_type)
@@ -138,7 +138,7 @@ class KhronosExportJsonConsumerBodyGenerator():
                     to_json = 'Bool32ToJson(args["{0}"], {0}, json_options)'
                 elif value.name == 'ppData' or self.decode_as_hex(value):
                     to_json = 'FieldToJsonAsHex(args["{0}"], {0}, json_options)'
-                elif self.decode_as_handle(value):
+                elif self.decode_as_handle(name, value):
                     to_json = 'HandleToJson(args["{0}"], {0}, json_options)'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flags_type_aliases:
