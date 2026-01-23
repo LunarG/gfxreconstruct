@@ -33,12 +33,7 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
                                                  VkFlags                              flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>*  surface,
                                                  const graphics::VulkanInstanceTable* instance_table,
-                                                 application::Application*            application,
-                                                 const int32_t                        xpos,
-                                                 const int32_t                        ypos,
-                                                 const uint32_t                       width,
-                                                 const uint32_t                       height,
-                                                 bool                                 force_windowed)
+                                                 application::Application*            application)
 {
     GFXRECON_ASSERT(surface);
 

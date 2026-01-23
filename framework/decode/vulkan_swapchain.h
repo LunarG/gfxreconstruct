@@ -39,18 +39,17 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const int32_t  kDefaultWindowPositionX = 0;
-const int32_t  kDefaultWindowPositionY = 0;
-const uint32_t kDefaultWindowWidth     = 320;
-const uint32_t kDefaultWindowHeight    = 240;
-
-class ScreenshotHandler;
-
 struct VulkanSwapchainOptions
 {
-    bool    virtual_swapchain_skip_blit{ false };
-    int32_t surface_index{ -1 };
-    bool    offscreen_swapchain_frame_boundary{ false };
+    bool     force_windowed{ false };
+    uint32_t windowed_width{ 320 };
+    uint32_t windowed_height{ 240 };
+    bool     force_windowed_origin{ false };
+    int32_t  window_topleft_x{ 0 };
+    int32_t  window_topleft_y{ 0 };
+    bool     virtual_swapchain_skip_blit{ false };
+    int32_t  surface_index{ -1 };
+    bool     offscreen_swapchain_frame_boundary{ false };
 };
 
 class VulkanSwapchain
@@ -68,12 +67,7 @@ class VulkanSwapchain
                                    VkFlags                              flags,
                                    HandlePointerDecoder<VkSurfaceKHR>*  surface,
                                    const graphics::VulkanInstanceTable* instance_table,
-                                   application::Application*            application,
-                                   const int32_t                        xpos,
-                                   const int32_t                        ypos,
-                                   const uint32_t                       width,
-                                   const uint32_t                       height,
-                                   bool                                 force_windowed = false);
+                                   application::Application*            application);
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const VulkanInstanceInfo*    instance_info,

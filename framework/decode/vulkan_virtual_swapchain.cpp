@@ -58,7 +58,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
 
     if (device_info != nullptr)
     {
-        device = device_info->handle;
+        device          = device_info->handle;
         physical_device = device_info->parent;
     }
     device_table_ = device_table;
@@ -806,10 +806,10 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         uint32_t    capture_image_index = capture_image_indices[i];
         uint32_t    replay_image_index  = present_info->pImageIndices[i];
 
-        auto aspect_mask       = graphics::GetFormatAspects(swapchain_info->format);
-        subresource.aspectMask = aspect_mask;
-        initial_barrier_virtual_image.subresourceRange.aspectMask   = aspect_mask;
-        final_barrier_virtual_image.subresourceRange.aspectMask     = aspect_mask;
+        auto aspect_mask                                          = graphics::GetFormatAspects(swapchain_info->format);
+        subresource.aspectMask                                    = aspect_mask;
+        initial_barrier_virtual_image.subresourceRange.aspectMask = aspect_mask;
+        final_barrier_virtual_image.subresourceRange.aspectMask   = aspect_mask;
         initial_barrier_swapchain_image.subresourceRange.aspectMask = aspect_mask;
         final_barrier_swapchain_image.subresourceRange.aspectMask   = aspect_mask;
 
