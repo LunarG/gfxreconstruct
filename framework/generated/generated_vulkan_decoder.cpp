@@ -8802,6 +8802,28 @@ size_t VulkanDecoder::Decode_vkGetImageViewAddressNVX(const ApiCallInfo& call_in
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetDeviceCombinedImageSamplerIndexNVX(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    uint64_t imageViewIndex;
+    uint64_t samplerIndex;
+    uint64_t return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageViewIndex);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &samplerIndex);
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceCombinedImageSamplerIndexNVX(call_info, return_value, device, imageViewIndex, samplerIndex);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdDrawIndirectCountAMD(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -16401,6 +16423,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetImageViewAddressNVX:
         Decode_vkGetImageViewAddressNVX(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX:
+        Decode_vkGetDeviceCombinedImageSamplerIndexNVX(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD:
         Decode_vkCmdDrawIndirectCountAMD(call_info, parameter_buffer, buffer_size);

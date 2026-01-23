@@ -604,6 +604,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModesCreate
 void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentModeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainPresentScalingCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkReleaseSwapchainImagesInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixFeaturesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixPropertiesKHR& value);
@@ -1209,6 +1210,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteIndirectExecutionSetSh
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageAlignmentControlFeaturesMESA& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageAlignmentControlPropertiesMESA& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageAlignmentControlCreateInfoMESA& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPushConstantBankInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePushConstantBankFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePushConstantBankPropertiesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthClampControlFeaturesEXT& value);
@@ -1248,6 +1252,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCache
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkComputeOccupancyPriorityParametersNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value);
