@@ -109,6 +109,15 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
+    virtual void FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                      const VulkanDeviceInfo*              device_info,
+                                      const VulkanSemaphoreInfo*           semaphore_info,
+                                      const VulkanImageInfo*               image_info,
+                                      VulkanInstanceInfo*                  instance_info,
+                                      const graphics::VulkanInstanceTable* instance_table,
+                                      const graphics::VulkanDeviceTable*   device_table,
+                                      application::Application*            application) override;
+
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
                                                       uint32_t                last_presented_image,
@@ -170,6 +179,33 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
+
+    // This structure contains the data tied to a swapchain image created for presenting offscreen frame boundaries
+    struct OFBSwapchainImageData
+    {
+        VkImage         image{ VK_NULL_HANDLE };
+        VkCommandBuffer copy_command_buffer{ VK_NULL_HANDLE };
+        VkSemaphore     copy_semaphore{ VK_NULL_HANDLE };
+    };
+
+    // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
+    // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
+    struct OFBData
+    {
+        VulkanSurfaceKHRInfo               surface_info{};
+        HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
+        VkQueue                            queue{ VK_NULL_HANDLE };
+        VkCommandPool                      command_pool{ VK_NULL_HANDLE };
+        VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };
+
+        std::vector<VkSemaphore> acquire_semaphores{};
+        uint32_t                 acquire_index{ 0 };
+
+        std::vector<OFBSwapchainImageData> image_datas{};
+    };
+
+    OFBData                  ofb_data_;
+    std::vector<VkSemaphore> ofb_submit_semaphores_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
