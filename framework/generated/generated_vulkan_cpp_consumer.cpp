@@ -9927,6 +9927,25 @@ void VulkanCppConsumer::Process_vkCmdEndTransformFeedbackEXT(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT);
 }
+void VulkanCppConsumer::Process_vkGetDeviceCombinedImageSamplerIndexNVX(
+    const ApiCallInfo&                          call_info,
+    uint64_t                                    returnValue,
+    format::HandleId                            device,
+    uint64_t                                    imageViewIndex,
+    uint64_t                                    samplerIndex)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkGetDeviceCombinedImageSamplerIndexNVX");
+    fprintf(file,
+            "\t\tloaded_vkGetDeviceCombinedImageSamplerIndexNVX(%s, %" PRIu64 "UL, %" PRIu64 "UL);\n",
+            this->GetHandle(device).c_str(),
+            imageViewIndex,
+            samplerIndex);
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX);
+}
+
 void VulkanCppConsumer::Process_vkGetImageViewAddressNVX(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,

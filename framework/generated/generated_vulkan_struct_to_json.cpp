@@ -8972,6 +8972,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkReleaseSwapchain
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["internallySynchronizedQueues"] = static_cast<bool>(decoded_value.internallySynchronizedQueues);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCooperativeMatrixPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -17810,6 +17823,48 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageAlignmentCo
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushConstantBankInfoNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPushConstantBankInfoNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPushConstantBankInfoNV& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["bank"] = decoded_value.bank;
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePushConstantBankFeaturesNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDevicePushConstantBankFeaturesNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDevicePushConstantBankFeaturesNV& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["pushConstantBank"] = static_cast<bool>(decoded_value.pushConstantBank);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePushConstantBankPropertiesNV* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDevicePushConstantBankPropertiesNV& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDevicePushConstantBankPropertiesNV& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["maxGraphicsPushConstantBanks"] = decoded_value.maxGraphicsPushConstantBanks;
+        jdata["maxComputePushConstantBanks"] = decoded_value.maxComputePushConstantBanks;
+        jdata["maxGraphicsPushDataBanks"] = decoded_value.maxGraphicsPushDataBanks;
+        jdata["maxComputePushDataBanks"] = decoded_value.maxComputePushDataBanks;
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -18351,6 +18406,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["computeOccupancyPriority"] = static_cast<bool>(decoded_value.computeOccupancyPriority);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["shaderSubgroupPartitioned"] = static_cast<bool>(decoded_value.shaderSubgroupPartitioned);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -20690,6 +20758,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INTERNALLY_SYNCHRONIZED_QUEUES_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(data->GetMetaStructPointer());
@@ -21299,6 +21374,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_CONSTANT_BANK_FEATURES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePushConstantBankFeaturesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_CONSTANT_BANK_PROPERTIES_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePushConstantBankPropertiesNV*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDevicePushDescriptorProperties*>(data->GetMetaStructPointer());
@@ -21771,6 +21860,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }
@@ -22478,6 +22574,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkProtectedSubmitInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PUSH_CONSTANT_BANK_INFO_NV:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPushConstantBankInfoNV*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }

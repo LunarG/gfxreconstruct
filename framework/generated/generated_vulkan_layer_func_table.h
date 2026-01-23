@@ -469,6 +469,7 @@ static inline const std::unordered_map<std::string, PFN_vkVoidFunction> GetVulka
         { "vkGetImageViewHandleNVX",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetImageViewHandleNVX) },
         { "vkGetImageViewHandle64NVX",                                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetImageViewHandle64NVX) },
         { "vkGetImageViewAddressNVX",                                                                            reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetImageViewAddressNVX) },
+        { "vkGetDeviceCombinedImageSamplerIndexNVX",                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetDeviceCombinedImageSamplerIndexNVX) },
         { "vkCmdDrawIndirectCountAMD",                                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdDrawIndirectCountAMD) },
         { "vkCmdDrawIndexedIndirectCountAMD",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::vkCmdDrawIndexedIndirectCountAMD) },
         { "vkGetShaderInfoAMD",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::vkGetShaderInfoAMD) },
