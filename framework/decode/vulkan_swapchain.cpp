@@ -52,12 +52,7 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                             ori
                                         VkFlags                              flags,
                                         HandlePointerDecoder<VkSurfaceKHR>*  surface,
                                         const graphics::VulkanInstanceTable* instance_table,
-                                        application::Application*            application,
-                                        const int32_t                        xpos,
-                                        const int32_t                        ypos,
-                                        const uint32_t                       width,
-                                        const uint32_t                       height,
-                                        bool                                 force_windowed)
+                                        application::Application*            application)
 {
     assert(instance_info != nullptr);
 
@@ -98,7 +93,12 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                             ori
         // By default, the created window will be automatically in full screen mode, and its location will be set to 0,0
         // if the requested size exceeds or equals the current screen size. If the user specifies "--fw" or "--fwo" this
         // behavior will change, and replay will instead render in windowed mode.
-        auto* window = window_factory->Create(xpos, ypos, width, height, force_windowed);
+        auto* window =
+            window_factory->Create(swapchain_options_.window_topleft_x,
+                                   swapchain_options_.window_topleft_y,
+                                   swapchain_options_.windowed_width,
+                                   swapchain_options_.windowed_height,
+                                   swapchain_options_.force_windowed || swapchain_options_.force_windowed_origin);
 
         if (window == nullptr)
         {

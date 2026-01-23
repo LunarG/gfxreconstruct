@@ -58,8 +58,8 @@ struct ReplayOptions
     bool                         flush_measurement_frame_range{ false };
     bool                         flush_inside_measurement_range{ false };
     bool                         force_windowed{ false };
-    uint32_t                     windowed_width{ 0 };
-    uint32_t                     windowed_height{ 0 };
+    uint32_t                     windowed_width{ 320 };
+    uint32_t                     windowed_height{ 240 };
     bool                         force_windowed_origin{ false };
     int32_t                      window_topleft_x{ 0 };
     int32_t                      window_topleft_y{ 0 };
