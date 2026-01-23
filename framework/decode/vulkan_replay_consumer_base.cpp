@@ -243,6 +243,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     swapchain_options.virtual_swapchain_skip_blit        = options_.virtual_swapchain_skip_blit;
     swapchain_options.surface_index                      = options_.surface_index;
     swapchain_options.offscreen_swapchain_frame_boundary = options_.offscreen_swapchain_frame_boundary;
+    swapchain_options.present_mode_option                = options_.present_mode_option;
     swapchain_->SetOptions(swapchain_options);
 
     if (options_.enable_debug_device_lost)
@@ -10410,11 +10411,9 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                                                             const VulkanSemaphoreInfo* semaphore_info,
                                                             const VulkanImageInfo*     image_info)
 {
-    GFXRECON_ASSERT((device_info != nullptr));
+    GFXRECON_ASSERT(device_info != nullptr);
 
-    VkDevice    device    = device_info->handle;
-    VkSemaphore semaphore = semaphore_info ? semaphore_info->handle : VK_NULL_HANDLE;
-    VkImage     image     = image_info ? image_info->handle : VK_NULL_HANDLE;
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
 
     if (screenshot_handler_ != nullptr && !options_.screenshot_ignore_frameBoundaryAndroid)
     {
@@ -10443,10 +10442,10 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
             screenshot_handler_->WriteImage(filename_prefix,
                                             device_info,
-                                            GetDeviceTable(device),
+                                            device_table,
                                             memory_properties,
                                             device_info->allocator.get(),
-                                            image,
+                                            image_info->handle,
                                             image_info->format,
                                             image_info->extent.width,
                                             image_info->extent.height,
@@ -10460,7 +10459,18 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
         util::EndInjectedCommands();
     }
 
-    func(device, semaphore, image);
+    CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
+
+    VulkanPhysicalDeviceInfo* physical_device_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
+    GFXRECON_ASSERT(physical_device_info != nullptr);
+
+    VulkanInstanceInfo* instance_info = object_info_table.GetVkInstanceInfo(physical_device_info->parent_id);
+    GFXRECON_ASSERT(instance_info != nullptr);
+
+    const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
+
+    swapchain_->FrameBoundaryANDROID(
+        func, device_info, semaphore_info, image_info, instance_info, instance_table, device_table, application_.get());
 }
 
 // We want to allow skipping the query for tool properties because the capture layer actually adds this extension

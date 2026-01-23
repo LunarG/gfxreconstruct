@@ -266,6 +266,29 @@ void VulkanCapturedSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func
     func(command_buffer, pDependencyInfo);
 }
 
+void VulkanCapturedSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                                   const VulkanDeviceInfo*              device_info,
+                                                   const VulkanSemaphoreInfo*           semaphore_info,
+                                                   const VulkanImageInfo*               image_info,
+                                                   VulkanInstanceInfo*                  instance_info,
+                                                   const graphics::VulkanInstanceTable* instance_table,
+                                                   const graphics::VulkanDeviceTable*   device_table,
+                                                   application::Application*            application)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    VkDevice    device    = device_info->handle;
+    VkSemaphore semaphore = (semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
+    VkImage     image     = (image_info == nullptr ? VK_NULL_HANDLE : image_info->handle);
+
+    func(device, semaphore, image);
+}
+
 void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateCommand(
     const VulkanDeviceInfo*                             device_info,
     VulkanSwapchainKHRInfo*                             swapchain_info,
