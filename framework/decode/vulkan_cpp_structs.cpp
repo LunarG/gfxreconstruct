@@ -1294,6 +1294,7 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_MAX_ENUM_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_SEQUENCE_INDEX_EXT:
             GFXRECON_LOG_ERROR(
                 "GenerateStruct_VkIndirectCommandsLayoutTokenEXT: unhandled case in switch-statement: %d",
                 metaInfo->decoded_type);
