@@ -27,24 +27,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
-{
-    VulkanReplayConsumer::ProcessFrameEndMarker(frame_number);
-
-    if (frame_number == target_frame_)
-    {
-        in_loop_mode_ = loop_count_ > 0;
-        loop_count_--;
-    }
-
-    if (in_loop_mode_)
-    {
-        WaitDevicesIdle();
-        GetApplication().SetFrameLooping(true);
-        GFXRECON_LOG_INFO("Replaying frame %llu again", frame_number);
-    }
-}
-
 void VulkanReplayFrameLoopConsumer::Process_vkCreateInstance(
     const ApiCallInfo&                                   call_info,
     VkResult                                             returnValue,

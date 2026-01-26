@@ -32,6 +32,7 @@
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
+#include "graphics/frame_loop_info.h"
 
 // Includes for recapture
 #include "encode/vulkan_capture_manager.h"
@@ -174,10 +175,14 @@ void android_main(struct android_app* app)
 
                 std::unique_ptr<gfxrecon::decode::VulkanReplayConsumer> vulkan_replay_consumer;
 
+                gfxrecon::graphics::FrameLoopInfo fl_info;
                 if (enable_frame_loop)
                 {
+                    fl_info = gfxrecon::graphics::FrameLoopInfo(loop_frame, loop_count);
+                    application->SetFrameLoopInfo(&fl_info);
+
                     vulkan_replay_consumer = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
-                        application, replay_options, loop_frame, loop_count);
+                        application, replay_options, fl_info);
                 }
                 else
                 {
