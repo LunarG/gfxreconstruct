@@ -133,6 +133,17 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
                                       HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain) override;
 
+    void ProcessCreateHardwareBufferCommand(format::HandleId                                    device_id,
+                                            format::HandleId                                    memory_id,
+                                            uint64_t                                            buffer_id,
+                                            uint32_t                                            format,
+                                            uint32_t                                            width,
+                                            uint32_t                                            height,
+                                            uint32_t                                            stride,
+                                            uint64_t                                            usage,
+                                            uint32_t                                            layers,
+                                            const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+
   private:
     /// The frame to loop.
     uint32_t target_frame_{ 0 };

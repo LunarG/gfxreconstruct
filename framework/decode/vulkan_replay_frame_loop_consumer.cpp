@@ -276,5 +276,27 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateSwapchainKHR(
         call_info, returnValue, device, pCreateInfo, pAllocator, pSwapchain);
 }
 
+void VulkanFrameLoopReplayConsumer::ProcessCreateHardwareBufferCommand(
+    format::HandleId                                    device_id,
+    format::HandleId                                    memory_id,
+    uint64_t                                            buffer_id,
+    uint32_t                                            format,
+    uint32_t                                            width,
+    uint32_t                                            height,
+    uint32_t                                            stride,
+    uint64_t                                            usage,
+    uint32_t                                            layers,
+    const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+{
+    if (in_loop_mode_)
+    {
+        // When repeating a frame, the hardware buffer has already been created during the first iteration of the frame.
+        return;
+    }
+
+    VulkanReplayConsumer::ProcessCreateHardwareBufferCommand(
+        device_id, memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
