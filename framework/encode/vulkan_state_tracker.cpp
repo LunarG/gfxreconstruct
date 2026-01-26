@@ -1214,14 +1214,15 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     {
                         vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
-                                src_binding.images[d].imageView);
+                                src_binding.images[current_src_array_element + d].imageView);
                         if (image_view_wrapper != nullptr)
                         {
                             image_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
                         }
 
                         vulkan_wrappers::SamplerWrapper* sampler_wrapper =
-                            vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(src_binding.images[i].sampler);
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(
+                                src_binding.images[current_src_array_element + d].sampler);
                         if (sampler_wrapper != nullptr)
                         {
                             sampler_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
@@ -1238,7 +1239,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     {
                         vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
-                                src_binding.storage_images[d].imageView);
+                                src_binding.storage_images[current_src_array_element + d].imageView);
                         if (image_view_wrapper != nullptr)
                         {
                             image_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
@@ -1254,7 +1255,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     for (uint32_t d = 0; d < current_copies; ++d)
                     {
                         vulkan_wrappers::BufferWrapper* buffer_wrapper =
-                            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(src_binding.buffers[i].buffer);
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                                src_binding.buffers[current_src_array_element + d].buffer);
                         if (buffer_wrapper != nullptr)
                         {
                             buffer_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
@@ -1271,7 +1273,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     {
                         vulkan_wrappers::BufferWrapper* buffer_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
-                                src_binding.storage_buffers[i].buffer);
+                                src_binding.storage_buffers[current_src_array_element + d].buffer);
                         if (buffer_wrapper != nullptr)
                         {
                             buffer_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
@@ -1288,7 +1290,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     {
                         vulkan_wrappers::AccelerationStructureKHRWrapper* accel_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
-                                src_binding.acceleration_structures[i]);
+                                src_binding.acceleration_structures[current_src_array_element + d]);
                         if (accel_wrapper != nullptr)
                         {
                             accel_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
@@ -1311,7 +1313,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     {
                         vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
-                                src_binding.uniform_texel_buffer_views[i]);
+                                src_binding.uniform_texel_buffer_views[current_src_array_element + d]);
                         if (buffer_view_wrapper != nullptr)
                         {
                             buffer_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
@@ -1328,7 +1330,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     {
                         vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
                             vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
-                                src_binding.storage_texel_buffer_views[i]);
+                                src_binding.storage_texel_buffer_views[current_src_array_element + d]);
                         if (buffer_view_wrapper != nullptr)
                         {
                             buffer_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
