@@ -42,6 +42,97 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
 
     void ProcessFrameEndMarker(uint64_t frame_number) override;
 
+    void Process_vkCreateInstance(const ApiCallInfo&                                   call_info,
+                                  VkResult                                             returnValue,
+                                  StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
+                                  StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                  HandlePointerDecoder<VkInstance>*                    pInstance) override;
+
+    void Process_vkCreateXlibSurfaceKHR(const ApiCallInfo&                                        call_info,
+                                        VkResult                                                  returnValue,
+                                        format::HandleId                                          instance,
+                                        StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                        HandlePointerDecoder<VkSurfaceKHR>*                       pSurface) override;
+
+    void Process_vkCreateXcbSurfaceKHR(const ApiCallInfo&                                       call_info,
+                                       VkResult                                                 returnValue,
+                                       format::HandleId                                         instance,
+                                       StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>* pCreateInfo,
+                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
+                                       HandlePointerDecoder<VkSurfaceKHR>*                      pSurface) override;
+
+    void Process_vkCreateWaylandSurfaceKHR(const ApiCallInfo&                                           call_info,
+                                           VkResult                                                     returnValue,
+                                           format::HandleId                                             instance,
+                                           StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>* pCreateInfo,
+                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                           HandlePointerDecoder<VkSurfaceKHR>* pSurface) override;
+
+    void Process_vkCreateAndroidSurfaceKHR(const ApiCallInfo&                                           call_info,
+                                           VkResult                                                     returnValue,
+                                           format::HandleId                                             instance,
+                                           StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
+                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                           HandlePointerDecoder<VkSurfaceKHR>* pSurface) override;
+
+    void Process_vkCreateWin32SurfaceKHR(const ApiCallInfo&                                         call_info,
+                                         VkResult                                                   returnValue,
+                                         format::HandleId                                           instance,
+                                         StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>* pCreateInfo,
+                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                         HandlePointerDecoder<VkSurfaceKHR>*                        pSurface) override;
+
+    void Process_vkCreateMetalSurfaceEXT(const ApiCallInfo&                                         call_info,
+                                         VkResult                                                   returnValue,
+                                         format::HandleId                                           instance,
+                                         StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>* pCreateInfo,
+                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                         HandlePointerDecoder<VkSurfaceKHR>*                        pSurface) override;
+
+    void Process_vkCreateHeadlessSurfaceEXT(const ApiCallInfo&                                            call_info,
+                                            VkResult                                                      returnValue,
+                                            format::HandleId                                              instance,
+                                            StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>* pCreateInfo,
+                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
+                                            HandlePointerDecoder<VkSurfaceKHR>* pSurface) override;
+
+    void Process_vkCreateDirectFBSurfaceEXT(const ApiCallInfo&                                            call_info,
+                                            VkResult                                                      returnValue,
+                                            format::HandleId                                              instance,
+                                            StructPointerDecoder<Decoded_VkDirectFBSurfaceCreateInfoEXT>* pCreateInfo,
+                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
+                                            HandlePointerDecoder<VkSurfaceKHR>* pSurface) override;
+
+    void Process_vkCreateScreenSurfaceQNX(const ApiCallInfo&                                          call_info,
+                                          VkResult                                                    returnValue,
+                                          format::HandleId                                            instance,
+                                          StructPointerDecoder<Decoded_VkScreenSurfaceCreateInfoQNX>* pCreateInfo,
+                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
+                                          HandlePointerDecoder<VkSurfaceKHR>* pSurface) override;
+
+    void
+    Process_vkCreateDisplayPlaneSurfaceKHR(const ApiCallInfo&                                           call_info,
+                                           VkResult                                                     returnValue,
+                                           format::HandleId                                             instance,
+                                           StructPointerDecoder<Decoded_VkDisplaySurfaceCreateInfoKHR>* pCreateInfo,
+                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                           HandlePointerDecoder<VkSurfaceKHR>* pSurface) override;
+
+    void Process_vkCreateDevice(const ApiCallInfo&                                   call_info,
+                                VkResult                                             returnValue,
+                                format::HandleId                                     physicalDevice,
+                                StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                HandlePointerDecoder<VkDevice>*                      pDevice) override;
+
+    void Process_vkCreateSwapchainKHR(const ApiCallInfo&                                      call_info,
+                                      VkResult                                                returnValue,
+                                      format::HandleId                                        device,
+                                      StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
+                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+                                      HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain) override;
+
   private:
     /// The frame to loop.
     uint32_t target_frame_{ 0 };
