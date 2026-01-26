@@ -31,10 +31,10 @@ void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
 {
     VulkanReplayConsumer::ProcessFrameEndMarker(frame_number);
 
-    if (frame_number == target_frame_)
+    if (frame_number == frame_loop_info_.GetLoopFrameIdx())
     {
-        in_loop_mode_ = loop_count_ > 0;
-        loop_count_--;
+        in_loop_mode_ = frame_loop_info_.GetLoopIterations() > 0;
+        frame_loop_info_.DecrementLoopIterations();
     }
 
     if (in_loop_mode_)
@@ -42,7 +42,9 @@ void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
         WaitDevicesIdle();
         bool success = GetApplication().GetFileProcessor()->RewindOneFrame();
         GFXRECON_ASSERT(success);
-        GFXRECON_LOG_INFO("Replaying frame %llu again", frame_number);
+        GFXRECON_LOG_INFO("Replaying frame %llu again (%lu iterations remaining)",
+                          frame_number,
+                          frame_loop_info_.GetLoopIterations());
     }
 }
 
@@ -276,7 +278,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateSwapchainKHR(
         call_info, returnValue, device, pCreateInfo, pAllocator, pSwapchain);
 }
 
-void VulkanFrameLoopReplayConsumer::ProcessCreateHardwareBufferCommand(
+void VulkanReplayFrameLoopConsumer::ProcessCreateHardwareBufferCommand(
     format::HandleId                                    device_id,
     format::HandleId                                    memory_id,
     uint64_t                                            buffer_id,

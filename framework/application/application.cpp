@@ -126,11 +126,6 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
     fps_info_ = fps_info;
 }
 
-void Application::SetFrameLooping(bool active)
-{
-    frame_loop_ = active;
-}
-
 void Application::Run()
 {
     running_ = true;
@@ -159,11 +154,12 @@ void Application::Run()
                 }
 
                 auto preload_frames_count = fps_info_->ShouldPreloadFrames(frame_number);
-                if (preload_frames_count > 0U || frame_loop_)
+                bool at_loop_frame        = frame_loop_info_->GetLoopFrameIdx() == frame_number;
+                if (preload_frames_count > 0U || at_loop_frame)
                 {
                     auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
                     GFXRECON_ASSERT(preload_processor)
-                    preload_frames_count = frame_loop_ ? 1 : preload_frames_count;
+                    preload_frames_count = at_loop_frame ? 1 : preload_frames_count;
                     preload_processor->PreloadNextFrames(preload_frames_count);
                 }
 

@@ -31,6 +31,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
+#include "graphics/frame_loop_info.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 
@@ -210,11 +211,14 @@ int main(int argc, const char** argv)
 
             std::unique_ptr<gfxrecon::decode::VulkanReplayConsumer> vulkan_replay_consumer;
 
+            gfxrecon::graphics::FrameLoopInfo fl_info;
             if (enable_frame_loop)
             {
+                fl_info = gfxrecon::graphics::FrameLoopInfo(frame_loop_target, frame_loop_count);
+                application->SetFrameLoopInfo(&fl_info);
+
                 vulkan_replay_consumer = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
-                    application, vulkan_replay_options, frame_loop_target, frame_loop_count);
-                application->SetFrameLooping(true);
+                    application, vulkan_replay_options, fl_info);
             }
             else
             {
