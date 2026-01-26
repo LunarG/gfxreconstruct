@@ -168,6 +168,13 @@ class Dx12ResourceValueMapper
         std::map<uint64_t, graphics::Dx12ShaderIdentifier> mapped_shader_ids;
     };
 
+    struct ShaderIdAssociationInfo
+    {
+        std::set<format::HandleId>  state_object_ids;
+        format::HandleId            lrs_id;
+        std::set<ResourceValueInfo> resource_values;
+    };
+
     static void CopyResourceValues(const ResourceCopyInfo& copy_info, ResourceValueInfoMap& resource_value_info_map);
 
     static void CopyMappedResourceValues(const ResourceCopyInfo& copy_info);
@@ -192,13 +199,13 @@ class Dx12ResourceValueMapper
     void InitializeRequiredObjects(ID3D12CommandQueue* command_queue, D3D12CommandQueueInfo* command_queue_extra_info);
 
     void GetShaderTableResourceValues(ResourceValueInfoMap&     resource_value_info_map,
-                                      D3D12StateObjectInfo*     state_object_extra_info,
+                                      DxObjectInfo*             state_object,
                                       D3D12_GPU_VIRTUAL_ADDRESS start_address,
                                       UINT64                    size,
                                       UINT64                    stride);
 
     void GetDispatchRaysResourceValues(ResourceValueInfoMap&           resource_value_info_map,
-                                       D3D12StateObjectInfo*           state_object_extra_info,
+                                       DxObjectInfo*                   state_object,
                                        const D3D12_DISPATCH_RAYS_DESC& desc);
 
     void GetExecuteIndirectResourceValues(std::set<ResourceValueInfo>& dst_resource_value_info_map,
@@ -206,7 +213,7 @@ class Dx12ResourceValueMapper
                                           uint32_t                     command_count,
                                           uint64_t                     command_offset,
                                           uint8_t                      stride,
-                                          D3D12StateObjectInfo*        state_object);
+                                          DxObjectInfo*                state_object);
 
     // Parse the D3D12_STATE_OBJECT_DESC for LRS association information.
     void GetStateObjectLrsAssociationInfo(
@@ -231,9 +238,9 @@ class Dx12ResourceValueMapper
     std::unique_ptr<Dx12ResourceValueTracker>       resource_value_tracker_;
     bool                                            performed_rv_mapping_{ false };
 
-    const graphics::Dx12GpuVaMap&                                         gpu_va_map_;
-    const decode::Dx12DescriptorMap&                                      descriptor_map_;
-    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map_;
+    const graphics::Dx12GpuVaMap&                                     gpu_va_map_;
+    const decode::Dx12DescriptorMap&                                  descriptor_map_;
+    std::map<graphics::Dx12ShaderIdentifier, ShaderIdAssociationInfo> shader_id_associations_;
 
     bool do_value_mapping_;
 
