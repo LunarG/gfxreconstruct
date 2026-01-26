@@ -109,7 +109,10 @@ class KhronosReplayConsumerBodyGenerator():
                     elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
                         dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
                     else:
-                        dump_resource_arglist += 'in_' + val.name + '->handle'
+                        if is_dr_override and val.base_type != "VkCommandBuffer":
+                            dump_resource_arglist += 'in_' + val.name
+                        else:
+                            dump_resource_arglist += 'in_' + val.name + '->handle'
                 else:
                     if val.is_pointer and val.base_type in ["void", "uint32_t"]:
                         # avoids passing a PointerDecoder* here (which is wrong but compiles fine, yikes)
