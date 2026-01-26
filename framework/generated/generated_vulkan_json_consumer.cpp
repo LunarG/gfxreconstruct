@@ -6846,6 +6846,23 @@ void VulkanExportJsonConsumer::Process_vkGetImageViewAddressNVX(
     WriteBlockEnd();
 }
 
+void VulkanExportJsonConsumer::Process_vkGetDeviceCombinedImageSamplerIndexNVX(
+    const ApiCallInfo&                          call_info,
+    uint64_t                                    returnValue,
+    format::HandleId                            device,
+    uint64_t                                    imageViewIndex,
+    uint64_t                                    samplerIndex)
+{
+    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetDeviceCombinedImageSamplerIndexNVX");
+    const JsonOptions& json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+        HandleToJson(args["device"], device, json_options);
+        FieldToJson(args["imageViewIndex"], imageViewIndex, json_options);
+        FieldToJson(args["samplerIndex"], samplerIndex, json_options);
+    WriteBlockEnd();
+}
+
 void VulkanExportJsonConsumer::Process_vkCmdDrawIndirectCountAMD(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

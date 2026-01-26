@@ -2363,6 +2363,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INTERNALLY_SYNCHRONIZED_QUEUES_FEATURES_KHR: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR(out,
+                                                                        casted_struct,
+                                                                        decoded_struct,
+                                                                        consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(pnext_meta_data->GetMetaStructPointer());
@@ -6353,6 +6363,36 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_CONSTANT_BANK_FEATURES_NV: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePushConstantBankFeaturesNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePushConstantBankFeaturesNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePushConstantBankFeaturesNV(out,
+                                                           casted_struct,
+                                                           decoded_struct,
+                                                           consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_CONSTANT_BANK_PROPERTIES_NV: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDevicePushConstantBankPropertiesNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDevicePushConstantBankPropertiesNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDevicePushConstantBankPropertiesNV(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PUSH_CONSTANT_BANK_INFO_NV: {
+                auto casted_struct = reinterpret_cast<const VkPushConstantBankInfoNV*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPushConstantBankInfoNV*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPushConstantBankInfoNV(out,
+                                         casted_struct,
+                                         decoded_struct,
+                                         consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
@@ -6660,6 +6700,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                    casted_struct,
                                                                    decoded_struct,
                                                                    consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT(out,
+                                                                     casted_struct,
+                                                                     decoded_struct,
+                                                                     consumer);
 
                 break;
             }

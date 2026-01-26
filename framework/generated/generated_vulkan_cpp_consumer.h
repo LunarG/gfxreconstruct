@@ -2724,6 +2724,13 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         uint32_t                                    counterBufferCount,
         HandlePointerDecoder<VkBuffer>*             pCounterBuffers,
         PointerDecoder<VkDeviceSize>*               pCounterBufferOffsets) override;
+    virtual void Process_vkGetDeviceCombinedImageSamplerIndexNVX(
+        const ApiCallInfo&                          call_info,
+        uint64_t                                    returnValue,
+        format::HandleId                            device,
+        uint64_t                                    imageViewIndex,
+        uint64_t                                    samplerIndex) override;
+
     virtual void Process_vkGetImageViewAddressNVX(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,

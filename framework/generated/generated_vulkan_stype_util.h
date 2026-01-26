@@ -472,6 +472,7 @@ template <> constexpr VkStructureType GetSType<VkSwapchainPresentModesCreateInfo
 template <> constexpr VkStructureType GetSType<VkSwapchainPresentModeInfoKHR>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_KHR; }
 template <> constexpr VkStructureType GetSType<VkSwapchainPresentScalingCreateInfoKHR>(){ return VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR; }
 template <> constexpr VkStructureType GetSType<VkReleaseSwapchainImagesInfoKHR>(){ return VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_KHR; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INTERNALLY_SYNCHRONIZED_QUEUES_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkCooperativeMatrixPropertiesKHR>(){ return VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceCooperativeMatrixFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceCooperativeMatrixPropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_KHR; }
@@ -1015,6 +1016,9 @@ template <> constexpr VkStructureType GetSType<VkWriteIndirectExecutionSetShader
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceImageAlignmentControlFeaturesMESA>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceImageAlignmentControlPropertiesMESA>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA; }
 template <> constexpr VkStructureType GetSType<VkImageAlignmentControlCreateInfoMESA>(){ return VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA; }
+template <> constexpr VkStructureType GetSType<VkPushConstantBankInfoNV>(){ return VK_STRUCTURE_TYPE_PUSH_CONSTANT_BANK_INFO_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDevicePushConstantBankFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_CONSTANT_BANK_FEATURES_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDevicePushConstantBankPropertiesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_CONSTANT_BANK_PROPERTIES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_PROPERTIES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDepthClampControlFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT; }
@@ -1053,6 +1057,7 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDevicePipelineCacheIncr
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_UNIFORM_BUFFER_UNSIZED_ARRAY_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkComputeOccupancyPriorityParametersNV>(){ return VK_STRUCTURE_TYPE_COMPUTE_OCCUPANCY_PRIORITY_PARAMETERS_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_OCCUPANCY_PRIORITY_FEATURES_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryTrianglesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryAabbsDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryInstancesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR; }

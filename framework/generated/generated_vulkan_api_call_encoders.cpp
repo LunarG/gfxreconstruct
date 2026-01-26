@@ -16716,6 +16716,45 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewAddressNVX(
 
 }
 
+VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceCombinedImageSamplerIndexNVX(
+    VkDevice                                    device,
+    uint64_t                                    imageViewIndex,
+    uint64_t                                    samplerIndex)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX>::Dispatch(manager, device, imageViewIndex, samplerIndex);
+
+    uint64_t result = vulkan_wrappers::GetDeviceTable(device)->GetDeviceCombinedImageSamplerIndexNVX(device, imageViewIndex, samplerIndex);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeUInt64Value(imageViewIndex);
+        encoder->EncodeUInt64Value(samplerIndex);
+        encoder->EncodeUInt64Value(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX>::Dispatch(manager, result, device, imageViewIndex, samplerIndex);
+
+    return result;
+
+}
+
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountAMD(
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
@@ -23392,7 +23431,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(
 
 }
 
-VKAPI_ATTR void                                    VKAPI_CALL vkCmdSetColorWriteEnableEXT(
+VKAPI_ATTR void VKAPI_CALL vkCmdSetColorWriteEnableEXT(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    attachmentCount,
     const VkBool32*                             pColorWriteEnables)

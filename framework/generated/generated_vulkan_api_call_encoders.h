@@ -2212,6 +2212,11 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewAddressNVX(
     VkImageView                                 imageView,
     VkImageViewAddressPropertiesNVX*            pProperties);
 
+VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceCombinedImageSamplerIndexNVX(
+    VkDevice                                    device,
+    uint64_t                                    imageViewIndex,
+    uint64_t                                    samplerIndex);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountAMD(
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
@@ -3081,7 +3086,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceScreenPresentationSupportQNX(
     uint32_t                                    queueFamilyIndex,
     struct _screen_window*                      window);
 
-VKAPI_ATTR void                                    VKAPI_CALL vkCmdSetColorWriteEnableEXT(
+VKAPI_ATTR void VKAPI_CALL vkCmdSetColorWriteEnableEXT(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    attachmentCount,
     const VkBool32*                             pColorWriteEnables);
