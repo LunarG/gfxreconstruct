@@ -34,10 +34,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
   public:
     VulkanReplayFrameLoopConsumer(std::shared_ptr<application::Application> application,
                                   const VulkanReplayOptions&                options,
-                                  uint32_t                                  target_frame,
-                                  uint32_t loop_count = std::numeric_limits<uint32_t>::max()) :
+                                  graphics::FrameLoopInfo&                  frame_loop_info) :
         VulkanReplayConsumer(application, options),
-        target_frame_(target_frame), loop_count_(loop_count)
+        frame_loop_info_(frame_loop_info)
     {}
 
     void ProcessFrameEndMarker(uint64_t frame_number) override;
@@ -145,11 +144,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
                                             const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
 
   private:
-    /// The frame to loop.
-    uint32_t target_frame_{ 0 };
-
-    /// The number of times to loop the frame.
-    uint32_t loop_count_{ 1 };
+    graphics::FrameLoopInfo& frame_loop_info_;
 
     /// Indicates whether we are currently in loop mode.
     bool in_loop_mode_{ false };
