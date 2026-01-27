@@ -1387,6 +1387,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                   uint32_t                            size,
                                   PointerDecoder<uint8_t>*            data_decoder);
 
+    void OverrideCmdPushConstants2(PFN_vkCmdPushConstants2                            func,
+                                   VulkanCommandBufferInfo*                           command_buffer_info,
+                                   StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo);
+
     void OverrideCmdBeginRenderPass(PFN_vkCmdBeginRenderPass                             func,
                                     VulkanCommandBufferInfo*                             command_buffer_info,
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,

@@ -10047,6 +10047,45 @@ void VulkanReplayConsumerBase::OverrideCmdPushConstants(PFN_vkCmdPushConstants  
     func(command_buffer, pipeline_layout, stage_flags, offset, size, data);
 }
 
+void VulkanReplayConsumerBase::OverrideCmdPushConstants2(
+    PFN_vkCmdPushConstants2                            func,
+    VulkanCommandBufferInfo*                           command_buffer_info,
+    StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
+{
+    GFXRECON_ASSERT(func != nullptr && command_buffer_info != nullptr && pPushConstantsInfo != nullptr);
+
+    VkPushConstantsInfo*         push_constants_info      = pPushConstantsInfo->GetPointer();
+    Decoded_VkPushConstantsInfo* meta_push_constants_info = pPushConstantsInfo->GetMetaStructPointer();
+    GFXRECON_ASSERT(push_constants_info != nullptr && meta_push_constants_info != nullptr);
+
+    VkCommandBuffer  command_buffer  = command_buffer_info->handle;
+    VkPipelineLayout pipeline_layout = push_constants_info->layout;
+    void*            data            = meta_push_constants_info->pValues.GetPointer();
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE && pipeline_layout != VK_NULL_HANDLE && data != nullptr);
+
+    auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    VkShaderStageFlags stage_flags = push_constants_info->stageFlags;
+    uint32_t           offset      = push_constants_info->offset;
+    uint32_t           size        = push_constants_info->size;
+
+    if (UseAddressReplacement(device_info))
+    {
+        const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessCmdPushConstants(command_buffer_info, stage_flags, offset, size, data, address_tracker);
+    }
+
+    // keep track of current push-constants
+    command_buffer_info->push_constant_stage_flags     = stage_flags;
+    command_buffer_info->push_constant_pipeline_layout = pipeline_layout;
+    command_buffer_info->push_constant_data.resize(offset + size, 0);
+    memcpy(command_buffer_info->push_constant_data.data() + offset, data, size);
+
+    func(command_buffer, push_constants_info);
+}
+
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
     VulkanCommandBufferInfo*                             command_buffer_info,

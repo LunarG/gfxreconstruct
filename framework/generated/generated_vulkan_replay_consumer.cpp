@@ -3794,15 +3794,15 @@ void VulkanReplayConsumer::Process_vkCmdPushConstants2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkPushConstantsInfo* in_pPushConstantsInfo = pPushConstantsInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pPushConstantsInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdPushConstants2(in_commandBuffer, in_pPushConstantsInfo);
+    OverrideCmdPushConstants2(GetDeviceTable(in_commandBuffer->handle)->CmdPushConstants2, in_commandBuffer, pPushConstantsInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushConstants2(call_info, GetDeviceTable(in_commandBuffer)->CmdPushConstants2, in_commandBuffer, in_pPushConstantsInfo);
+        resource_dumper_->Process_vkCmdPushConstants2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPushConstants2, in_commandBuffer->handle, pPushConstantsInfo->GetPointer());
     }
 }
 
@@ -6662,15 +6662,15 @@ void VulkanReplayConsumer::Process_vkCmdPushConstants2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPushConstantsInfo>* pPushConstantsInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkPushConstantsInfo* in_pPushConstantsInfo = pPushConstantsInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pPushConstantsInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdPushConstants2KHR(in_commandBuffer, in_pPushConstantsInfo);
+    OverrideCmdPushConstants2(GetDeviceTable(in_commandBuffer->handle)->CmdPushConstants2KHR, in_commandBuffer, pPushConstantsInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushConstants2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushConstants2KHR, in_commandBuffer, in_pPushConstantsInfo);
+        resource_dumper_->Process_vkCmdPushConstants2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPushConstants2KHR, in_commandBuffer->handle, pPushConstantsInfo->GetPointer());
     }
 }
 
