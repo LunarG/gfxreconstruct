@@ -39,6 +39,8 @@ class FrameLoopInfo
         loop_iterations_{ loop_iterations }
     {}
 
+    bool     IsLoopRequested() const { return loop_frame_idx_ != 0; }
+    bool     IsLooping() const { return is_looping_; }
     void     SetLooping(bool looping) { is_looping_ = looping; }
     uint32_t GetLoopFrameIdx() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }
