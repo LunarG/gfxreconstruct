@@ -141,11 +141,13 @@ void Application::Run()
             // Add one to match "trim frame range semantic"
             uint32_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 
-            bool at_loop_frame = false;
+            bool is_loop_requested = false;
+            bool at_loop_frame     = false;
 
             if (frame_loop_info_ != nullptr)
             {
-                at_loop_frame = (frame_number == frame_loop_info_->GetLoopFrameIdx());
+                is_loop_requested = frame_loop_info_->IsLoopRequested();
+                at_loop_frame     = (frame_number == frame_loop_info_->GetLoopFrameIdx());
 
                 // Quit when frame looping has finished.
                 if (frame_loop_info_->GetLoopIterations() == 0)
@@ -169,7 +171,7 @@ void Application::Run()
                 }
 
                 auto preload_frames_count = fps_info_->ShouldPreloadFrames(frame_number);
-                if (preload_frames_count > 0U || at_loop_frame)
+                if (preload_frames_count > 0U || is_loop_requested)
                 {
                     auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
                     GFXRECON_ASSERT(preload_processor)
