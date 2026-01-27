@@ -31,7 +31,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanVirtualSwapchain : public VulkanSwapchain
 {
   public:
-    virtual ~VulkanVirtualSwapchain() override {}
+    ~VulkanVirtualSwapchain() override = default;
+
+    void CleanDeviceResources(VkDevice device) override;
 
     virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
                                         PFN_vkCreateSwapchainKHR              func,
@@ -204,8 +206,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         std::vector<OFBSwapchainImageData> image_datas{};
     };
 
-    OFBData                  ofb_data_;
-    std::vector<VkSemaphore> ofb_submit_semaphores_;
+    std::unordered_map<VkDevice, OFBData> ofb_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
