@@ -1077,6 +1077,28 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
                 offset += sizeof(*subobject);
                 break;
             }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER1:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12Rasterizer1Subobject*>(current);
+                subobject->type                    = type;
+                wrapper->rasterizer1.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->rasterizer1));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12Rasterizer2Subobject*>(current);
+                subobject->type                    = type;
+                wrapper->rasterizer2.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->rasterizer2));
+
+                offset += sizeof(*subobject);
+                break;
+            }
             default:
                 // Type is unrecognized.  Check for an invalid type value to determine if capture did not recogize the
                 // type and log a warning.
