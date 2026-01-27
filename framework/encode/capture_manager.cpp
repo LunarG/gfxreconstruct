@@ -856,7 +856,6 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
         {
             // Stop recording and close file.
             DeactivateTrimming(current_lock);
-            GFXRECON_LOG_INFO("Finished recording graphics API capture");
 
             // Advance to next range
             ++trim_current_range_;
@@ -899,7 +898,6 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
     {
         // Stop recording and close file.
         DeactivateTrimming(current_lock);
-        GFXRECON_LOG_INFO("Finished recording graphics API capture");
     }
 }
 
@@ -911,7 +909,6 @@ void CommonCaptureManager::DeactivateTrimmingDrawCalls(std::shared_lock<ApiCallM
         {
             // Stop recording and close file.
             DeactivateTrimming(current_lock);
-            GFXRECON_LOG_INFO("Finished recording graphics API capture");
 
             // No more trim ranges to capture. Capture can be disabled and resources can be released.
             trim_enabled_  = false;
@@ -1308,6 +1305,8 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 
 void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock)
 {
+    GFXRECON_LOG_INFO("Started recording graphics API capture, frame %" PRIu32, GetCurrentFrame());
+
     auto has_shared_lock = current_lock.owns_lock();
     if (has_shared_lock)
     {
@@ -1377,6 +1376,8 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
     {
         current_lock.lock();
     }
+
+    GFXRECON_LOG_INFO("Finished recording graphics API capture, frame %" PRIu32, GetCurrentFrame() - 1);
 }
 
 void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
