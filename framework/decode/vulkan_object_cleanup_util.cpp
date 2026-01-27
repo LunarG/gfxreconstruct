@@ -693,10 +693,12 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                                         &CommonObjectInfoTable::VisitVkDeviceInfo,
                                         &CommonObjectInfoTable::RemoveVkDeviceInfo,
                                         [&](const VulkanDeviceInfo* object_info) {
-                                            assert(object_info != nullptr);
+                                            GFXRECON_ASSERT(object_info != nullptr);
+                                            GFXRECON_ASSERT(swapchain != nullptr)
+                                            swapchain->CleanDeviceResources(object_info->handle);
                                             object_info->allocator->Destroy();
-                                            auto table = get_device_table(object_info->handle);
-                                            table->DestroyDevice(object_info->handle, nullptr);
+                                            auto* device_table = get_device_table(object_info->handle);
+                                            device_table->DestroyDevice(object_info->handle, nullptr);
                                         });
 
     // Remove the objects that are not destroyed from the table.

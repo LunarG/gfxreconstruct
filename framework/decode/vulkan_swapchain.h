@@ -56,9 +56,11 @@ struct VulkanSwapchainOptions
 class VulkanSwapchain
 {
   public:
-    virtual ~VulkanSwapchain() {}
+    virtual ~VulkanSwapchain() = default;
 
     virtual void Clean();
+
+    virtual void CleanDeviceResources(VkDevice) {}
 
     void SetOptions(const VulkanSwapchainOptions& options) { swapchain_options_ = options; }
 
