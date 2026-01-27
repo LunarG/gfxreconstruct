@@ -295,6 +295,11 @@ void VulkanOffscreenSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID  
                                                     const graphics::VulkanDeviceTable*   device_table,
                                                     application::Application*            application)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+
     GFXRECON_ASSERT(device_info != nullptr);
 
     VkSemaphore semaphore = (semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
