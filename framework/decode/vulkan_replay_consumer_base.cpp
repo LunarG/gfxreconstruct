@@ -8302,6 +8302,23 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     capture_image_indices_.clear();
     swapchain_infos_.clear();
 
+    struct local_fence_t
+    {
+        VkFence                            fence        = VK_NULL_HANDLE;
+        VkDevice                           device       = VK_NULL_HANDLE;
+        const graphics::VulkanDeviceTable* device_table = nullptr;
+
+        local_fence_t(VkDevice d, const graphics::VulkanDeviceTable* t) : device(d), device_table(t)
+        {
+            VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+            fence_create_info.pNext             = nullptr;
+            fence_create_info.flags             = 0;
+            VkResult result = device_table->CreateFence(device, &fence_create_info, nullptr, &fence);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+        }
+        ~local_fence_t() { device_table->DestroyFence(device, fence, nullptr); }
+    };
+
     decode::BeginInjectedCommands();
 
     if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
@@ -8341,14 +8358,10 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     VkDevice device = swapchain_info->device_info->handle;
                     GFXRECON_ASSERT(device);
 
-                    auto    device_table  = GetDeviceTable(device);
-                    VkFence acquire_fence = VK_NULL_HANDLE;
+                    auto device_table = GetDeviceTable(device);
 
-                    VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-                    fence_create_info.pNext             = nullptr;
-                    fence_create_info.flags             = 0;
-                    result = device_table->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
-                    GFXRECON_ASSERT(result == VK_SUCCESS);
+                    // create a local fence
+                    local_fence_t acquire_fence(device, device_table);
 
                     uint32_t replay_index = 0;
                     result                = swapchain_->AcquireNextImageKHR(original_result,
@@ -8357,13 +8370,13 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                                              swapchain_info,
                                                              std::numeric_limits<uint64_t>::max(),
                                                              VK_NULL_HANDLE,
-                                                             acquire_fence,
+                                                             acquire_fence.fence,
                                                              capture_image_index,
                                                              &replay_index);
                     GFXRECON_ASSERT((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR));
 
                     result = device_table->WaitForFences(
-                        device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                        device, 1, &acquire_fence.fence, true, std::numeric_limits<uint64_t>::max());
                     GFXRECON_ASSERT(result == VK_SUCCESS);
 
                     swapchain_info->acquired_indices[capture_image_index] = { replay_index, true };
@@ -8495,13 +8508,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     auto device_table = GetDeviceTable(device);
                     GFXRECON_ASSERT(device_table);
 
-                    VkFence acquire_fence = VK_NULL_HANDLE;
-
-                    VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
-                    fence_create_info.pNext             = nullptr;
-                    fence_create_info.flags             = 0;
-                    result = device_table->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
-                    GFXRECON_ASSERT(result == VK_SUCCESS);
+                    // create a local fence
+                    local_fence_t acquire_fence(device, device_table);
 
                     uint32_t replay_index = 0;
                     result                = swapchain_->AcquireNextImageKHR(original_result,
@@ -8510,13 +8518,13 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                                              swapchain_info,
                                                              std::numeric_limits<uint64_t>::max(),
                                                              VK_NULL_HANDLE,
-                                                             acquire_fence,
+                                                             acquire_fence.fence,
                                                              capture_image_index,
                                                              &replay_index);
                     GFXRECON_ASSERT((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR));
 
                     result = device_table->WaitForFences(
-                        device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                        device, 1, &acquire_fence.fence, true, std::numeric_limits<uint64_t>::max());
                     GFXRECON_ASSERT(result == VK_SUCCESS);
 
                     swapchain_info->acquired_indices[capture_image_index] = { replay_index, true };
