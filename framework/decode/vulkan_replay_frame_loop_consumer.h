@@ -143,9 +143,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
 
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
-
-    /// Indicates whether we are currently in loop mode.
-    bool in_loop_mode_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)
