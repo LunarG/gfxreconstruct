@@ -291,6 +291,7 @@ static std::string GetVkVersionString(uint32_t api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
+#if ENABLE_OPENXR_SUPPORT
 static std::string GetXrVersionString(uint32_t api_version)
 {
     uint32_t major = XR_VERSION_MAJOR(api_version);
@@ -299,6 +300,7 @@ static std::string GetXrVersionString(uint32_t api_version)
 
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
+#endif /* ENABLE_OPENXR_SUPPORT */
 
 void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
                             gfxrecon::decode::FileProcessor& file_processor,
