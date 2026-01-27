@@ -2812,6 +2812,13 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            imageView,
         StructPointerDecoder<Decoded_VkImageViewAddressPropertiesNVX>* pProperties) override;
 
+    virtual void Process_vkGetDeviceCombinedImageSamplerIndexNVX(
+        const ApiCallInfo&                          call_info,
+        uint64_t                                    returnValue,
+        format::HandleId                            device,
+        uint64_t                                    imageViewIndex,
+        uint64_t                                    samplerIndex) override;
+
     virtual void Process_vkCmdDrawIndirectCountAMD(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
