@@ -95,11 +95,6 @@ class Application final
         return GFXRECON_NARROWING_CAST(uint32_t, file_processor_->GetCurrentFrameNumber());
     }
 
-    decode::FileProcessor* GetFileProcessor() const
-    {
-        return file_processor_;
-    }
-
   private:
     // clang-format off
     std::string                                                  name_;              ///< Application name to display in window title bar.

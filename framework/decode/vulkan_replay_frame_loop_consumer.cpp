@@ -27,27 +27,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
-{
-    VulkanReplayConsumer::ProcessFrameEndMarker(frame_number);
-
-    if (frame_number == frame_loop_info_.GetLoopFrameIdx())
-    {
-        in_loop_mode_ = frame_loop_info_.GetLoopIterations() > 0;
-        frame_loop_info_.DecrementLoopIterations();
-    }
-
-    if (in_loop_mode_)
-    {
-        WaitDevicesIdle();
-        bool success = GetApplication().GetFileProcessor()->RewindOneFrame();
-        GFXRECON_ASSERT(success);
-        GFXRECON_LOG_INFO("Replaying frame %llu again (%lu iterations remaining)",
-                          frame_number,
-                          frame_loop_info_.GetLoopIterations());
-    }
-}
-
 void VulkanReplayFrameLoopConsumer::Process_vkCreateInstance(
     const ApiCallInfo&                                   call_info,
     VkResult                                             returnValue,
@@ -55,7 +34,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkInstance>*                    pInstance)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the instance has already been created during the first iteration of the frame.
         return;
@@ -72,7 +51,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateXlibSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                       pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -90,7 +69,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateXcbSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                      pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -108,7 +87,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateWaylandSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                          pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -126,7 +105,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateAndroidSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                          pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -144,7 +123,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateWin32SurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                        pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -161,7 +140,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateMetalSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                        pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -179,7 +158,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateHeadlessSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                           pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -197,7 +176,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateDirectFBSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                           pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -215,7 +194,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateScreenSurfaceQNX(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                         pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -233,7 +212,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*                          pSurface)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the surface has already been created during the first iteration of the frame.
         return;
@@ -251,7 +230,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDevice>*                      pDevice)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the device has already been created during the first iteration of the frame.
         return;
@@ -268,7 +247,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateSwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*                   pSwapchain)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the swapchain has already been created during the first iteration of the frame.
         return;
@@ -290,7 +269,7 @@ void VulkanReplayFrameLoopConsumer::ProcessCreateHardwareBufferCommand(
     uint32_t                                            layers,
     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
 {
-    if (in_loop_mode_)
+    if (frame_loop_info_.IsLooping())
     {
         // When repeating a frame, the hardware buffer has already been created during the first iteration of the frame.
         return;

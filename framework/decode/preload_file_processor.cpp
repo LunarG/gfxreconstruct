@@ -38,9 +38,8 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
         error_state_ = CheckFileStatus();
         return;
     }
-    if (frame_rewinded_)
+    if (!advance_to_next_frame)
     {
-        frame_rewinded_ = false;
         return;
     }
 
@@ -142,12 +141,6 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::PreloadBlocksOneFrame(Par
     return ProcessBlocks(dispatch, false /* check decoder completion */);
 }
 
-bool PreloadFileProcessor::RewindOneFrame()
-{
-    frame_rewinded_ = true;
-    return frame_rewinded_;
-}
-
 bool PreloadFileProcessor::ProcessNextFrame()
 {
     // Clean up preloaded frames if we're at the end of the preloaded frames.  It's done here
@@ -167,7 +160,12 @@ bool PreloadFileProcessor::ProcessNextFrame()
     PreloadedFrame&   frame          = *(current_preloaded_frame_->get());
     ProcessBlockState process_result = ReplayOneFrame(frame);
 
-    if (!frame_rewinded_)
+    return AdvanceToNextFrame(process_result);
+}
+
+bool PreloadFileProcessor::AdvanceToNextFrame(ProcessBlockState process_result)
+{
+    if (advance_to_next_frame)
     {
         ++current_preloaded_frame_;
 
