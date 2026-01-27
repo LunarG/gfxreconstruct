@@ -39,8 +39,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
         frame_loop_info_(frame_loop_info)
     {}
 
-    void ProcessFrameEndMarker(uint64_t frame_number) override;
-
     void Process_vkCreateInstance(const ApiCallInfo&                                   call_info,
                                   VkResult                                             returnValue,
                                   StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
@@ -145,9 +143,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
 
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
-
-    /// Indicates whether we are currently in loop mode.
-    bool in_loop_mode_{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

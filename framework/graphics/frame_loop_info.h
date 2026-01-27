@@ -39,11 +39,15 @@ class FrameLoopInfo
         loop_iterations_{ loop_iterations }
     {}
 
+    bool     IsLoopRequested() const { return loop_frame_idx_ != 0; }
+    bool     IsLooping() const { return is_looping_; }
+    void     SetLooping(bool looping) { is_looping_ = looping; }
     uint32_t GetLoopFrameIdx() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }
     void     DecrementLoopIterations() { loop_iterations_--; }
 
   private:
+    bool     is_looping_{ false };
     uint32_t loop_frame_idx_{ 0 };
     uint32_t loop_iterations_{ std::numeric_limits<uint32_t>::max() };
 };
