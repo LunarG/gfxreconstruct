@@ -161,6 +161,8 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
+    void SetRepeatFrameNTimes(uint32_t repeat_frame_n_times) { repeat_frame_n_times_ = repeat_frame_n_times; }
+
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
@@ -320,7 +322,6 @@ class FileProcessor
         void operator()(const ExecuteBlocksFromFileArgs& execute_blocks)
         {
             // The block and marker type are implied by the Args type
-            is_frame_delimiter = false;
             success            = file_processor_.ProcessExecuteBlocksFromFile(execute_blocks);
         }
 
@@ -328,7 +329,6 @@ class FileProcessor
         void operator()(const StateBeginMarkerArgs& state_begin)
         {
             // The block and marker type are implied by the Args type
-            is_frame_delimiter = false;
             success            = true;
             file_processor_.ProcessStateBeginMarker(state_begin);
         }
@@ -336,7 +336,7 @@ class FileProcessor
         void operator()(const StateEndMarkerArgs& state_end)
         {
             // The block and marker type are implied by the Args type
-            is_frame_delimiter = false;
+            is_state_delimiter = true;
             success            = true;
             file_processor_.ProcessStateEndMarker(state_end);
         }
@@ -344,7 +344,6 @@ class FileProcessor
         void operator()(const AnnotationArgs& annotation)
         {
             // The block and marker type are implied by the Command type
-            is_frame_delimiter = false;
             success            = true;
             file_processor_.ProcessAnnotation(annotation);
         }
@@ -353,7 +352,6 @@ class FileProcessor
         void operator()(const Args&)
         {
             // The default behavior for a Visit is a successful, non-frame-delimiter
-            is_frame_delimiter = false;
             success            = true;
         }
 
@@ -366,10 +364,12 @@ class FileProcessor
 
         bool IsSuccess() const { return success; }
         bool IsFrameDelimiter() const { return is_frame_delimiter; }
+        bool IsStateDelimiter() const { return is_state_delimiter; }
         ProcessVisitor(FileProcessor& file_processor) : file_processor_(file_processor) {}
 
       private:
         bool           is_frame_delimiter = false;
+        bool           is_state_delimiter = false;
         bool           success            = true;
         FileProcessor& file_processor_;
     };
@@ -420,6 +420,7 @@ class FileProcessor
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
+    uint32_t                            repeat_frame_n_times_{ 0 };
 
     std::string        absolute_path_;
     format::FileHeader file_header_;
