@@ -1189,8 +1189,8 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
         switch (swapchain_options_.present_mode_option)
         {
             case util::PresentModeOption::kCapture:
-                // There is no "capture", but the closest is immediate as it is non-blocking.
-                swapchain_create_info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+                // There is no corresponding present-mode for "capture", so we fall back to FIFO.
+                swapchain_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
                 break;
             case util::PresentModeOption::kImmediate:
                 swapchain_create_info.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
