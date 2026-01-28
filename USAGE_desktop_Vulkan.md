@@ -768,7 +768,9 @@ Optional arguments:
                             virtual     Virtual Swapchain of images which match
                                         the swapchain in effect at capture time and
                                         which are copied to the underlying swapchain of the
-                                        implementation being replayed on. This is default.
+                                        implementation being replayed on. Also displays
+                                        offscreen frame boundaries to an additional window.
+                                        This is default.
                             captured    Use the swapchain indices stored in the
                                         capture directly on the swapchain setup for replay.
                             offscreen   Disable creating swapchains, surfaces
