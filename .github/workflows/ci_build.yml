@@ -170,102 +170,101 @@ jobs:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
 
-  macOS:
-    name: ${{ matrix.config.name }}
-    if: false # pause macOS builds as they are running into the 10s of minutes to hours as of 1/28/2026
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - {
-            name: "macOS Release",
-            os: macos-latest,
-            artifact: "gfxreconstruct-dev-macOS-release",
-            test_failure_artifact: "gfxreconstruct-dev-test-failure-macOS-release",
-            type: "release",
-            build_dir: "build"
-          }
-          - {
-            name: "macOS Debug",
-            os: macos-latest,
-            artifact: "gfxreconstruct-dev-macOS-debug",
-            test_failure_artifact: "gfxreconstruct-dev-test-failure-macOS-debug",
-            type: "debug",
-            build_dir: "dbuild"
-          }
-    steps:
-    - name: Clone repository
-      uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-    - name: Setup sccache
-      uses: mozilla-actions/sccache-action@v0.0.9
-    - name: Cache dependencies
-      id: cache-deps
-      uses: actions/cache@v3
-      with:
-        path: ~/deps
-        key: ${{ matrix.config.os }} deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
-    - name: Build dependencies
-      if: steps.cache-deps.outputs.cache-hit != 'true'
-      run: .github/workflows/scripts/build-dependencies-macos.sh
-    - name: Run build script
-      run: |
-        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
-      env:
-        SCCACHE_GHA_ENABLED: on
-        SCCACHE_CACHE_MULTIARCH: on
-        SCCACHE_IDLE_TIMEOUT: 0
-        CMAKE_C_COMPILER_LAUNCHER: sccache
-        CMAKE_CXX_COMPILER_LAUNCHER: sccache
-    - name: Run test app test cases
-      id: test_apps
-      run: |
-        WORKING_PATH="$(pwd)/${{matrix.config.build_dir}}/darwin/universal/output/test"
-        cd $WORKING_PATH
-        curl https://sdk.lunarg.com/sdk/download/1.4.304.0/mac/vulkansdk-macos-1.4.304.0.zip -o ./vulkan-sdk.zip
-        unzip ./vulkan-sdk.zip -d ./vulkan-sdk
-        sudo ./vulkan-sdk/InstallVulkan.app/Contents/MacOS/InstallVulkan --root $(pwd)/VulkanSDK/1.3.304.0 --accept-licenses --default-answer --confirm-command install
-        sudo dscl . -create /Users/test
-        sudo dscl . append /Groups/staff GroupMembership test
-        sudo dscl . -create /Users/test UserShell /bin/bash
-        sudo dscl . -create /Users/test RealName "Test"
-        sudo dscl . -create /Users/test UniqueID "1001"
-        sudo dscl . -create /Users/test PrimaryGroupID 80
-        sudo dscl . -create /Users/test NFSHomeDirectory /Users/test
-        sudo mkdir -p /Users/test
-        sudo chown -R test:staff /Users/test
-        sudo chmod -R g+w .
-        sudo su - test -c "cd $WORKING_PATH && VULKAN_LIBRARY_PATH=$(pwd)/VulkanSDK/1.3.304.0/macOS/lib/libvulkan.dylib ./run-tests_macos.sh"
-    - name: Upload test failure artifacts
-      uses: actions/upload-artifact@v4
-      if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
-      with:
-        name: ${{ matrix.config.test_failure_artifact }}
-        path: |
-          ${{matrix.config.build_dir}}/darwin/universal/output/test
-          !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk
-          !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk.zip
-          !${{matrix.config.build_dir}}/darwin/universal/output/test/VulkanSDK
-    - name: Prepare artifacts
-      run: |
-        cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-        cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-        cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
-        mv ${{ matrix.config.build_dir }}/darwin/universal/output/bin gfxreconstruct-dev
-        mv ${{ matrix.config.build_dir }}/darwin/universal/output/lib*/*.dylib gfxreconstruct-dev/
-        mv ${{ matrix.config.build_dir }}/darwin/universal/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
-        # GitHub's artifact uploader doesn't preserve permissions, so zip everything ourselves
-        # This will result in a zip in a zip, but Finder's unzip will conveniently unzip both at once, so it's not too bad
-        cd gfxreconstruct-dev
-        zip -r9 "../${{ matrix.config.artifact }}.zip" *
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.config.artifact }}
-        path: ${{ matrix.config.artifact }}.zip
+#   macOS:
+#     name: ${{ matrix.config.name }}
+#     runs-on: ${{ matrix.config.os }}
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         config:
+#           - {
+#             name: "macOS Release",
+#             os: macos-latest,
+#             artifact: "gfxreconstruct-dev-macOS-release",
+#             test_failure_artifact: "gfxreconstruct-dev-test-failure-macOS-release",
+#             type: "release",
+#             build_dir: "build"
+#           }
+#           - {
+#             name: "macOS Debug",
+#             os: macos-latest,
+#             artifact: "gfxreconstruct-dev-macOS-debug",
+#             test_failure_artifact: "gfxreconstruct-dev-test-failure-macOS-debug",
+#             type: "debug",
+#             build_dir: "dbuild"
+#           }
+#     steps:
+#     - name: Clone repository
+#       uses: actions/checkout@v4
+#       with:
+#         submodules: 'recursive'
+#     - name: Setup sccache
+#       uses: mozilla-actions/sccache-action@v0.0.9
+#     - name: Cache dependencies
+#       id: cache-deps
+#       uses: actions/cache@v3
+#       with:
+#         path: ~/deps
+#         key: ${{ matrix.config.os }} deps ${{ hashFiles('.github/workflows/scripts/build-dependencies-macos.sh') }}
+#     - name: Build dependencies
+#       if: steps.cache-deps.outputs.cache-hit != 'true'
+#       run: .github/workflows/scripts/build-dependencies-macos.sh
+#     - name: Run build script
+#       run: |
+#         python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
+#       env:
+#         SCCACHE_GHA_ENABLED: on
+#         SCCACHE_CACHE_MULTIARCH: on
+#         SCCACHE_IDLE_TIMEOUT: 0
+#         CMAKE_C_COMPILER_LAUNCHER: sccache
+#         CMAKE_CXX_COMPILER_LAUNCHER: sccache
+#     - name: Run test app test cases
+#       id: test_apps
+#       run: |
+#         WORKING_PATH="$(pwd)/${{matrix.config.build_dir}}/darwin/universal/output/test"
+#         cd $WORKING_PATH
+#         curl https://sdk.lunarg.com/sdk/download/1.4.304.0/mac/vulkansdk-macos-1.4.304.0.zip -o ./vulkan-sdk.zip
+#         unzip ./vulkan-sdk.zip -d ./vulkan-sdk
+#         sudo ./vulkan-sdk/InstallVulkan.app/Contents/MacOS/InstallVulkan --root $(pwd)/VulkanSDK/1.3.304.0 --accept-licenses --default-answer --confirm-command install
+#         sudo dscl . -create /Users/test
+#         sudo dscl . append /Groups/staff GroupMembership test
+#         sudo dscl . -create /Users/test UserShell /bin/bash
+#         sudo dscl . -create /Users/test RealName "Test"
+#         sudo dscl . -create /Users/test UniqueID "1001"
+#         sudo dscl . -create /Users/test PrimaryGroupID 80
+#         sudo dscl . -create /Users/test NFSHomeDirectory /Users/test
+#         sudo mkdir -p /Users/test
+#         sudo chown -R test:staff /Users/test
+#         sudo chmod -R g+w .
+#         sudo su - test -c "cd $WORKING_PATH && VULKAN_LIBRARY_PATH=$(pwd)/VulkanSDK/1.3.304.0/macOS/lib/libvulkan.dylib ./run-tests_macos.sh"
+#     - name: Upload test failure artifacts
+#       uses: actions/upload-artifact@v4
+#       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
+#       with:
+#         name: ${{ matrix.config.test_failure_artifact }}
+#         path: |
+#           ${{matrix.config.build_dir}}/darwin/universal/output/test
+#           !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk
+#           !${{matrix.config.build_dir}}/darwin/universal/output/test/vulkan-sdk.zip
+#           !${{matrix.config.build_dir}}/darwin/universal/output/test/VulkanSDK
+#     - name: Prepare artifacts
+#       run: |
+#         cp LICENSE.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+#         cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+#         cp USAGE_desktop_Vulkan.md ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+#         cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/darwin/universal/output/bin/
+#         mv ${{ matrix.config.build_dir }}/darwin/universal/output/bin gfxreconstruct-dev
+#         mv ${{ matrix.config.build_dir }}/darwin/universal/output/lib*/*.dylib gfxreconstruct-dev/
+#         mv ${{ matrix.config.build_dir }}/darwin/universal/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
+#         # GitHub's artifact uploader doesn't preserve permissions, so zip everything ourselves
+#         # This will result in a zip in a zip, but Finder's unzip will conveniently unzip both at once, so it's not too bad
+#         cd gfxreconstruct-dev
+#         zip -r9 "../${{ matrix.config.artifact }}.zip" *
+#     - name: Upload artifacts
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: ${{ matrix.config.artifact }}
+#         path: ${{ matrix.config.artifact }}.zip
 
   android:
     name: ${{ matrix.config.name }}
