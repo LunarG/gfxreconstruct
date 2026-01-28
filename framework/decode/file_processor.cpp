@@ -28,6 +28,13 @@
 #include "util/logging.h"
 
 #include <string>
+#include <limits>
+#if defined(__ANDROID__)
+#include <android/trace.h>
+#else
+#define ATrace_beginSection(name)
+#define ATrace_endSection()
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -112,12 +119,58 @@ bool FileProcessor::ProcessNextFrame()
 
 bool FileProcessor::ProcessBlocksOneFrame()
 {
-    for (ApiDecoder* decoder : decoders_)
-    {
-        decoder->SetCurrentFrameNumber(current_frame_number_);
-    }
+    ATrace_beginSection("ProcessBlocksOneFrame");
     block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
-    return ProcessBlocks();
+    if (current_frame_number_ == kFirstFrame) {
+        // Process initial resources state
+        ATrace_beginSection("InitState");
+        if (!ProcessBlocks())
+        {
+            return false;
+        }
+        ATrace_endSection();
+    }
+
+    int64_t start_offset = 0;
+    bool    do_repeat    = (repeat_frame_n_times_ > 0) && (!file_stack_.empty());
+
+    if (do_repeat)
+    {
+        start_offset = GetCurrentFile().active_file->Tell();
+    }
+
+    uint32_t start_frame = current_frame_number_;
+
+    // Handle limited command counts (e.g. from trim ranges or secondary files)
+    uint32_t remaining_commands_before       = 0;
+
+    remaining_commands_before = GetCurrentFile().remaining_commands;
+
+    for (uint32_t i = 0; i <= repeat_frame_n_times_; ++i)
+    {
+        // Ensure we replay with the same frame number
+        current_frame_number_ = start_frame;
+       
+        for (ApiDecoder* decoder : decoders_)
+        {
+            decoder->SetCurrentFrameNumber(current_frame_number_);
+        }
+        
+        GetCurrentFile().remaining_commands = (i < repeat_frame_n_times_) ? remaining_commands_before + 1 : remaining_commands_before;
+
+        if (!ProcessBlocks())
+        {
+            return false;
+        }
+
+        if (i < repeat_frame_n_times_)
+        {
+            SeekActiveFile(start_offset, util::platform::FileSeekSet);
+        }
+    }
+
+    ATrace_endSection();
+    return true;
 }
 
 bool FileProcessor::DoProcessNextFrame(const std::function<bool()>& block_processor)
@@ -275,6 +328,7 @@ void FileProcessor::DecrementRemainingCommands()
 
 bool FileProcessor::ProcessBlocks()
 {
+    ATrace_beginSection("ProcessBlocks");
     BlockBuffer block_buffer;
     bool        success = true;
 
@@ -331,12 +385,19 @@ bool FileProcessor::ProcessBlocks()
                     }
 
                     // NOTE: Warnings for unknown/invalid blocks are handled in the BlockParser
-
+                    if (process_visitor.IsStateDelimiter())
+                    {
+                        ++block_index_;
+                        DecrementRemainingCommands();
+                        break;
+                    }
                     if (process_visitor.IsFrameDelimiter())
                     {
                         // The ProcessVisitor (pre-dispatch) is not the right place to update the frame state, so do it
                         // here
                         UpdateEndFrameState();
+                        ++block_index_;
+                        DecrementRemainingCommands();
                         break;
                     }
                 }
@@ -349,8 +410,8 @@ bool FileProcessor::ProcessBlocks()
         ++block_index_;
         DecrementRemainingCommands();
     }
+    ATrace_endSection();
 
-    DecrementRemainingCommands();
     return success;
 }
 
@@ -526,7 +587,6 @@ void FileProcessor::UpdateEndFrameState()
 
     // Make sure to increment the frame number on the way out.
     ++current_frame_number_;
-    ++block_index_;
 }
 
 bool FileProcessor::ProcessFrameDelimiter(gfxrecon::format::ApiCallId call_id)

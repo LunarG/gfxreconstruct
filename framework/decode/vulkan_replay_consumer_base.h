@@ -1659,6 +1659,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void ClearRecaptureHandleIds() override;
     virtual bool IsRecapture() override { return options_.capture; }
 
+    void SetWaitBeforeFirstFrameMinMs(uint32_t ms) { wait_before_first_frame_min_ms_ = ms; }
+    void SetSleepAroundGpuFrameMs(double ms) { sleep_around_gpu_frame_ms_ = ms; }
+    void SetFrameWarmUpGpuLoad(uint32_t load) { frame_warm_up_gpu_load_ = load; }
+    void WarmUpDevice(const VulkanQueueInfo* queue_info, uint32_t warm_up_load);
+
     //// End recapture members
 
   private:
@@ -1964,6 +1969,29 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     std::unordered_map<format::HandleId, std::pair<const VulkanDeviceInfo*, VkPipelineCache>> tracked_pipeline_caches_;
     std::unordered_map<VkPipeline, format::HandleId> pipeline_cache_correspondances_;
+
+    uint32_t wait_before_first_frame_min_ms_{ 0 };
+    double   sleep_around_gpu_frame_ms_{ 0.0 };
+    uint32_t frame_warm_up_gpu_load_{ 0 };
+    struct WarmUpResources
+    {
+        VkDescriptorPool      descriptor_pool{ VK_NULL_HANDLE };
+        VkDescriptorSetLayout descriptor_set_layout{ VK_NULL_HANDLE };
+        VkDescriptorSet       descriptor_set{ VK_NULL_HANDLE };
+        VkPipelineLayout      pipeline_layout{ VK_NULL_HANDLE };
+        VkPipeline            pipeline{ VK_NULL_HANDLE };
+        VkBuffer              buffer{ VK_NULL_HANDLE };
+        VkDeviceMemory        buffer_memory{ VK_NULL_HANDLE };
+        VkShaderModule        shader_module{ VK_NULL_HANDLE };
+        VkCommandPool         command_pool{ VK_NULL_HANDLE };
+        VkCommandBuffer       command_buffer{ VK_NULL_HANDLE };
+        VkFence               fence{ VK_NULL_HANDLE };
+        std::vector<VkSemaphore> semaphores;
+        uint32_t next_semaphore_index{ 0 };
+    };
+    std::unordered_map<VkDevice, WarmUpResources> warmup_resources_;
+
+    void InsertRenderPassBarrier(VkCommandBuffer command_buffer, const VulkanCommandBufferInfo* command_buffer_info);
 };
 
 GFXRECON_END_NAMESPACE(decode)

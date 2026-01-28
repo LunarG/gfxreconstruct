@@ -56,6 +56,7 @@ class FStreamFileInputStream
     bool     Open(const std::string& filename);
     void     Close();
     bool     FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+    int64_t  Tell() const;
     bool     ReadBytes(void* buffer, size_t bytes);
     size_t   PeekBytes(void* buffer, size_t bytes);
     bool     ReadOverwriteSpan(const size_t bytes, DataSpan& span);

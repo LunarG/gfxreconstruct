@@ -34,7 +34,7 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture";
+    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--render-pass-barrier";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -42,7 +42,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode";
+    "present-mode,--wait-before-first-frame-ms,--sleep-around-gpu-frame-ms,--frame-warm-up-gpu-load,--frame-repeats";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -381,6 +381,55 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are: bmp, png");
 
 #endif
+}
+
+static uint32_t GetRepeatFrameNTimes(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t repeat_frame_n_times = 0;
+    const auto& value             = arg_parser.GetArgumentValue(kRepeatFrameNTimesArgument);
+    if (!value.empty())
+    {
+        repeat_frame_n_times = static_cast<uint32_t>(std::stoi(value));
+    }
+    return repeat_frame_n_times;
+}
+
+static uint32_t GetWaitBeforeFirstFrameMs(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t wait_before_first_frame_ms = 0;
+    const auto& value                   = arg_parser.GetArgumentValue(kWaitBeforeFirstFrameMsArgument);
+    if (!value.empty())
+    {
+        wait_before_first_frame_ms = static_cast<uint32_t>(std::stoi(value));
+    }
+    return wait_before_first_frame_ms;
+}
+
+static double GetSleepAroundGpuFrameMs(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    double sleep_around_gpu_frame_ms = 0.0;
+    const auto& value                = arg_parser.GetArgumentValue(kSleepAroundGpuFrameMsArgument);
+    if (!value.empty())
+    {
+        sleep_around_gpu_frame_ms = std::stod(value);
+    }
+    return sleep_around_gpu_frame_ms;
+}
+
+static uint32_t GetFrameWarmUpGpuLoad(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t frame_warm_up_gpu_load = 0;
+    const auto& value               = arg_parser.GetArgumentValue(kFrameWarmUpGpuLoadArgument);
+    if (!value.empty())
+    {
+        frame_warm_up_gpu_load = static_cast<uint32_t>(std::stoi(value));
+    }
+    return frame_warm_up_gpu_load;
+}
+
+static bool GetRenderPassBarrier(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    return arg_parser.IsOptionSet(kRenderPassBarrierArgument);
 }
 
 #endif // GFXRECON_REPLAY_SETTINGS_H

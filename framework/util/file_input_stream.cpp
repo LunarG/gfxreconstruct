@@ -104,6 +104,19 @@ bool FStreamFileInputStream::FileSeek(int64_t offset, util::platform::FileSeekOr
     return false;
 }
 
+int64_t FStreamFileInputStream::Tell() const
+{
+    if (fd_)
+    {
+        int64_t pos = util::platform::FileTell(fd_);
+        if (pos >= 0)
+        {
+            return pos - static_cast<int64_t>(read_ahead_bytes_);
+        }
+    }
+    return -1;
+}
+
 size_t FStreamFileInputStream::ReadFromReadAheadBuffer(void* buffer, size_t bytes)
 {
     char* dest = static_cast<char*>(buffer);

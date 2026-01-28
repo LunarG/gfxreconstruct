@@ -198,6 +198,14 @@ void Application::SetPaused(bool paused)
     paused_ = paused;
 }
 
+void Application::SetRepeatFrameNTimes(uint32_t repeat_frame_n_times)
+{
+    if (file_processor_)
+    {
+        file_processor_->SetRepeatFrameNTimes(repeat_frame_n_times);
+    }
+}
+
 bool Application::PlaySingleFrame()
 {
     bool success = false;
