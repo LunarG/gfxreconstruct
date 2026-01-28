@@ -153,14 +153,14 @@ struct ResourceValueInfo
     uint64_t                offset{ 0 };
     ResourceValueType       type{ ResourceValueType::kUnknown };
     uint64_t                size{ 0 };
-    D3D12StateObjectInfo*   state_object{ nullptr }; ///< Used to map values in shader records.
+    DxObjectInfo*           state_object{ nullptr }; ///< State object bound for the command associated with this RV.
     ArgumentBufferExtraInfo arg_buffer_extra_info;
     uint32_t                max_command_count{ 0 };
 
     ResourceValueInfo(uint64_t                in_offset,
                       ResourceValueType       in_type,
                       uint64_t                in_size,
-                      D3D12StateObjectInfo*   in_state_object,
+                      DxObjectInfo*           in_state_object,
                       ArgumentBufferExtraInfo in_arg_buffer_extra_info,
                       uint32_t                in_max_command_count)
     {
@@ -239,7 +239,7 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
 
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{
         nullptr
-    }; ///< The command queue that was used to create the swapchain.
+    };                           ///< The command queue that was used to create the swapchain.
     bool is_fullscreen{ false }; ///< Swapchain full screen flag.
 };
 
@@ -460,8 +460,7 @@ struct D3D12StateObjectInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D12StateObjectInfo";
     D3D12StateObjectInfo() : DxObjectExtraInfo(kType) {}
 
-    std::map<std::wstring, format::HandleId>                              export_name_lrs_map;
-    std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map;
+    std::map<std::wstring, format::HandleId> export_name_lrs_map;
 };
 
 GFXRECON_END_NAMESPACE(decode)
