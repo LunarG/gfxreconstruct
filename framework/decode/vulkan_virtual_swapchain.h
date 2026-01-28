@@ -33,7 +33,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
   public:
     ~VulkanVirtualSwapchain() override = default;
 
-    void CleanDeviceResources(VkDevice device) override;
+    void CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table) override;
 
     virtual VkResult CreateSwapchainKHR(VkResult                              original_result,
                                         PFN_vkCreateSwapchainKHR              func,

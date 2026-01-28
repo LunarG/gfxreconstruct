@@ -31,13 +31,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device)
+void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
 {
+    GFXRECON_ASSERT(device != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(device_table != nullptr);
+
     // cleanup offscreen-frame-boundary (OFB) assets
     if (auto it = ofb_data_.find(device); it != ofb_data_.end())
     {
-        const auto& ofb_data     = it->second;
-        auto*       device_table = encode::vulkan_wrappers::GetDeviceTable(device);
+        const auto& ofb_data = it->second;
 
         if (ofb_data.command_pool != VK_NULL_HANDLE)
         {

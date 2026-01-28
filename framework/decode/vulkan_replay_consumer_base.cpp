@@ -3497,14 +3497,13 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 
     if (device_info != nullptr && device_info->duplicate_source_id == format::kNullHandleId)
     {
-        device = device_info->handle;
+        device                  = device_info->handle;
+        const auto device_table = GetDeviceTable(device);
 
         if (screenshot_handler_ != nullptr)
         {
             util::BeginInjectedCommands();
-
-            screenshot_handler_->DestroyDeviceResources(device, GetDeviceTable(device));
-
+            screenshot_handler_->DestroyDeviceResources(device, device_table);
             util::EndInjectedCommands();
         }
 
@@ -3513,7 +3512,7 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
 
         // free potential swapchain-resources for the device
         GFXRECON_ASSERT(swapchain_)
-        swapchain_->CleanDeviceResources(device_info->handle);
+        swapchain_->CleanDeviceResources(device_info->handle, device_table);
 
         device_info->allocator->Destroy();
     }
