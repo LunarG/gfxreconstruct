@@ -21,7 +21,15 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include "util/strings.h"
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
 #include <algorithm>
 #include <sstream>
 #include <locale>
