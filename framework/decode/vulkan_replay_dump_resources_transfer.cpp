@@ -1069,8 +1069,8 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
                                                                         pRegions[i].dstSubresource.mipLevel) };
 
             device_table_->CmdCopyImage(commandBuffer,
-                                        srcImage->handle,
-                                        srcImageLayout,
+                                        dstImage->handle,
+                                        dstImageLayout,
                                         blit_image_params->copied_image.image,
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                         1,
