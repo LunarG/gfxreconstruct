@@ -172,6 +172,7 @@ jobs:
 
   macOS:
     name: ${{ matrix.config.name }}
+    if: false # pause macOS builds as they are running into the 10s of minutes to hours as of 1/28/2026
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
