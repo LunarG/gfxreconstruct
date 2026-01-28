@@ -41,10 +41,30 @@ void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device, const graphic
     {
         const auto& ofb_data = it->second;
 
+        for (auto semaphore : ofb_data.acquire_semaphores)
+        {
+            device_table->DestroySemaphore(device, semaphore, nullptr);
+        }
+
+        for (auto& img_data : ofb_data.image_datas)
+        {
+            if (img_data.copy_command_buffer != VK_NULL_HANDLE)
+            {
+                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &img_data.copy_command_buffer);
+            }
+
+            if (img_data.copy_semaphore != VK_NULL_HANDLE)
+            {
+                device_table->DestroySemaphore(device, img_data.copy_semaphore, nullptr);
+            }
+        }
+
         if (ofb_data.command_pool != VK_NULL_HANDLE)
         {
             device_table->DestroyCommandPool(device, ofb_data.command_pool, nullptr);
         }
+
+        ofb_data_.erase(device);
     }
 }
 
