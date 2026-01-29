@@ -3766,6 +3766,10 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
 
                 if (old_physical_device_info->handle == new_physical_device_info->handle)
                 {
+                    GFXRECON_LOG_DEBUG("VulkanPhysicalDeviceInfo (%p) will be replaced with (%p) because of multiple "
+                                       "calls to vkEnumeratePhysicalDevices in the capture file.",
+                                       old_physical_device_info,
+                                       new_physical_device_info);
                     *new_physical_device_info = *old_physical_device_info;
                 }
             }
