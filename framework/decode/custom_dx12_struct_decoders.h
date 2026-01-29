@@ -239,6 +239,8 @@ struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC
     Decoded_D3D12_CACHED_PIPELINE_STATE cached_pso;
     Decoded_D3D12_DEPTH_STENCIL_DESC1   depth_stencil1;
     Decoded_D3D12_VIEW_INSTANCING_DESC  view_instancing;
+    Decoded_D3D12_RASTERIZER_DESC1      rasterizer1;
+    Decoded_D3D12_RASTERIZER_DESC2      rasterizer2;
 };
 
 struct Decoded_D3D12_STATE_OBJECT_DESC
