@@ -58,7 +58,11 @@ pipeline {
                     def tests
 
                     node {
-                        checkout scm
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: params.PROJECT_BRANCH]],
+                            userRemoteConfigs: [[url: params.PROJECT_REPO]]
+                        ])
                         def runJob = load 'ci/runJob.groovy'
 
                         tests = [

@@ -26,20 +26,21 @@ def gfxrTestWindows(
                 dir('gfxreconstruct') {
                     checkout scm
 
-                    withEnv([
-                        "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                        "PROJECT_COMMIT=${env.GIT_COMMIT}",
-                        "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                        "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                        "TEST_SUITE=${testSuite}",
-                        "BITS=${bits}",
-                        "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=../vulkantest-results/${name}"
-                    ]) {
-                        bat 'ci/runJob.bat'
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withEnv([
+                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                            "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=${bits}",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=../vulkantest-results/${name}"
+                        ]) {
+                            bat(script: 'ci/runJob.bat')
+                        }
                     }
                 }
-
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
@@ -77,20 +78,21 @@ def gfxrTestLinux(
                 dir('gfxreconstruct') {
                     checkout scm
 
-                    withEnv([
-                        "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                        "PROJECT_COMMIT=${env.GIT_COMMIT}",
-                        "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                        "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                        "TEST_SUITE=${testSuite}",
-                        "BITS=${bits}",
-                        "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=../vulkantest-results/${name}"
-                    ]) {
-                        sh 'ci/runJob.sh'
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withEnv([
+                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                            "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=${bits}",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=../vulkantest-results/${name}"
+                        ]) {
+                            sh(script: 'ci/runJob.sh')
+                        }
                     }
                 }
-
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
@@ -128,28 +130,27 @@ def gfxrTestAndroid(
                 dir('gfxreconstruct') {
                     checkout scm
 
-                    withEnv([
-                        "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                        "PROJECT_COMMIT=${env.GIT_COMMIT}",
-                        "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                        "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                        "TEST_SUITE=${testSuite}",
-                        "BITS=${bits}",
-                        "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=../vulkantest-results/${name}"
-                    ]) {
-                        sh 'ci/runJobAndroid.sh'
-
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withEnv([
+                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                            "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=${bits}",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=../vulkantest-results/${name}"
+                        ]) {
+                            sh(script: 'ci/runJobAndroid.sh')
+                        }
                     }
                 }
-
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                     allowEmptyArchive: false,
                     onlyIfSuccessful: false,
                 )
-
             }
         }
     }
@@ -208,22 +209,23 @@ def gfxrTestWindowsManual(
 
                     def commitHash = bat(script: '@git rev-parse HEAD', returnStdout: true).trim()
 
-                    withEnv([
-                        "PROJECT_REPO=${projectRepo}",
-                        "PROJECT_COMMIT=${commitHash}",
-                        "TEST_REPO=${testRepo}",
-                        "TEST_BRANCH=${testBranch}",
-                        "TEST_SUITE_REPO=${testSuiteRepo}",
-                        "TEST_SUITE_BRANCH=${testSuiteBranch}",
-                        "TEST_SUITE=${testSuite}",
-                        "BITS=${bits}",
-                        "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=../vulkantest-results/${stageName}"
-                    ]) {
-                        bat 'ci/runJob.bat'
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withEnv([
+                            "PROJECT_REPO=${projectRepo}",
+                            "PROJECT_COMMIT=${commitHash}",
+                            "TEST_REPO=${testRepo}",
+                            "TEST_BRANCH=${testBranch}",
+                            "TEST_SUITE_REPO=${testSuiteRepo}",
+                            "TEST_SUITE_BRANCH=${testSuiteBranch}",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=${bits}",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=../vulkantest-results/${stageName}"
+                        ]) {
+                            bat(script: 'ci/runJob.bat')
+                        }
                     }
                 }
-
                 archiveArtifacts(
                     artifacts: 'vulkantest-results/**',
                     excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
@@ -273,28 +275,29 @@ def gfxrTestLinuxManual(
 
                     def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
-                    withEnv([
-                        "PROJECT_REPO=${projectRepo}",
-                        "PROJECT_COMMIT=${commitHash}",
-                        "TEST_REPO=${testRepo}",
-                        "TEST_BRANCH=${testBranch}",
-                        "TEST_SUITE_REPO=${testSuiteRepo}",
-                        "TEST_SUITE_BRANCH=${testSuiteBranch}",
-                        "TEST_SUITE=${testSuite}",
-                        "BITS=${bits}",
-                        "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=../vulkantest-results/${stageName}"
-                    ]) {
-                        sh 'ci/runJob.sh'
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withEnv([
+                            "PROJECT_REPO=${projectRepo}",
+                            "PROJECT_COMMIT=${commitHash}",
+                            "TEST_REPO=${testRepo}",
+                            "TEST_BRANCH=${testBranch}",
+                            "TEST_SUITE_REPO=${testSuiteRepo}",
+                            "TEST_SUITE_BRANCH=${testSuiteBranch}",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=${bits}",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=../vulkantest-results/${stageName}"
+                        ]) {
+                            sh(script: 'ci/runJob.sh')
+                        }
                     }
-
-                    archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
-                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                        allowEmptyArchive: true,
-                        onlyIfSuccessful: false
-                    )
                 }
+                archiveArtifacts(
+                    artifacts: 'vulkantest-results/**',
+                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                    allowEmptyArchive: true,
+                    onlyIfSuccessful: false
+                )
             }
         }
     }
@@ -338,28 +341,29 @@ def gfxrTestAndroidManual(
 
                     def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
-                    withEnv([
-                        "PROJECT_REPO=${projectRepo}",
-                        "PROJECT_COMMIT=${commitHash}",
-                        "TEST_REPO=${testRepo}",
-                        "TEST_BRANCH=${testBranch}",
-                        "TEST_SUITE_REPO=${testSuiteRepo}",
-                        "TEST_SUITE_BRANCH=${testSuiteBranch}",
-                        "TEST_SUITE=${testSuite}",
-                        "BITS=${bits}",
-                        "BUILD_MODE=${buildMode}",
-                        "RESULTS_DIR=../vulkantest-results/${stageName}"
-                    ]) {
-                        sh 'ci/runJobAndroid.sh'
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        withEnv([
+                            "PROJECT_REPO=${projectRepo}",
+                            "PROJECT_COMMIT=${commitHash}",
+                            "TEST_REPO=${testRepo}",
+                            "TEST_BRANCH=${testBranch}",
+                            "TEST_SUITE_REPO=${testSuiteRepo}",
+                            "TEST_SUITE_BRANCH=${testSuiteBranch}",
+                            "TEST_SUITE=${testSuite}",
+                            "BITS=${bits}",
+                            "BUILD_MODE=${buildMode}",
+                            "RESULTS_DIR=../vulkantest-results/${stageName}"
+                        ]) {
+                            sh(script: 'ci/runJobAndroid.sh')
+                        }
                     }
-
-                    archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
-                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                        allowEmptyArchive: true,
-                        onlyIfSuccessful: false
-                    )
                 }
+                archiveArtifacts(
+                    artifacts: 'vulkantest-results/**',
+                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                    allowEmptyArchive: true,
+                    onlyIfSuccessful: false
+                )
             }
         }
     }
