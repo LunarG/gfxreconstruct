@@ -11743,19 +11743,6 @@ std::string GenerateStruct_VkPipelineBinaryKeysAndDataKHR(std::ostream &out, con
 }
 
 
-std::string GenerateStruct_VkPipelineCreateInfoKHR(std::ostream &out, const VkPipelineCreateInfoKHR* structInfo, Decoded_VkPipelineCreateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "pipelineCreateInfoKHR");
-    out << "\t\t" << "VkPipelineCreateInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkReleaseCapturedPipelineDataInfoKHR(std::ostream &out, const VkReleaseCapturedPipelineDataInfoKHR* structInfo, Decoded_VkReleaseCapturedPipelineDataInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);

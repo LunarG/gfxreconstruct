@@ -97,12 +97,6 @@ struct VideoSessionParametersKHRWrapper               : public HandleWrapper<VkV
 struct ShaderEXTWrapper                               : public HandleWrapper<VkShaderEXT> {};
 
 struct PipelineBinaryKHRWrapper                       : public HandleWrapper<VkPipelineBinaryKHR> {};
-struct PipelineBinaryCreateInfoKHRWrapper             : public HandleWrapper<VkPipelineBinaryCreateInfoKHR> {};
-struct PipelineBinaryDataInfoKHRWrapper               : public HandleWrapper<VkPipelineBinaryDataInfoKHR> {};
-struct PipelineBinaryDataKHRWrapper                   : public HandleWrapper<VkPipelineBinaryDataKHR> {};
-struct PipelineBinaryHandlesInfoKHRWrapper            : public HandleWrapper<VkPipelineBinaryHandlesInfoKHR> {};
-struct PipelineBinaryKeyKHRWrapper                    : public HandleWrapper<VkPipelineBinaryKeyKHR> {};
-struct PipelineBinaryKeysAndDataKHRWrapper            : public HandleWrapper<VkPipelineBinaryKeysAndDataKHR> {};
 struct ReleaseCapturedPipelineDataInfoKHRWrapper      : public HandleWrapper<VkReleaseCapturedPipelineDataInfoKHR> {};
 struct DevicePipelineBinaryInternalCacheControlKHRWrapper      : public HandleWrapper<VkDevicePipelineBinaryInternalCacheControlKHR> {};
 struct PipelineBinaryInfoKHRWrapper      : public HandleWrapper<VkPipelineBinaryInfoKHR> {};

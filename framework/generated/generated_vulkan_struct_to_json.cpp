@@ -8762,18 +8762,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryKe
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreateInfoKHR* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPipelineCreateInfoKHR& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineCreateInfoKHR& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)

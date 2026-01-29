@@ -572,7 +572,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDevicePipelineBi
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryKeyKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryDataKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryKeysAndDataKHR* data, const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreateInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryCreateInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkReleaseCapturedPipelineDataInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());

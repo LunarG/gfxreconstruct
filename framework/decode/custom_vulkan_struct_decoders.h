@@ -331,6 +331,15 @@ struct Decoded_VkDescriptorGetInfoEXT
     Decoded_VkDescriptorDataEXT* data{ nullptr };
 };
 
+struct Decoded_VkPipelineCreateInfoKHR
+{
+    using struct_type = VkPipelineCreateInfoKHR;
+
+    VkPipelineCreateInfoKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
