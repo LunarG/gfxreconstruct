@@ -191,7 +191,12 @@ void Application::Run()
 
                 if (at_loop_frame)
                 {
-                    file_processor_->WaitDecodersIdle();
+                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
+                    GFXRECON_ASSERT(preload_processor)
+                    preload_processor->WaitDecodersIdle();
+                    // When looping, drop any state blocks to avoid reapplying them on each loop iteration.
+                    preload_processor->DropStateBlocks();
+
                     frame_loop_info_->DecrementLoopIterations();
                 }
             }

@@ -48,6 +48,12 @@ class PreloadFileProcessor : public FileProcessor
     // Otherwise, remain on the current preloaded frame so that it can be replayed again.
     void SetAdvanceToNextFrame(bool advance) { advance_to_next_frame = advance; }
 
+    // Drops all blocks within a State Begin/End marker pair from preloaded frames.
+    void DropStateBlocks();
+
+  protected:
+    bool IsFileValid() const override;
+
   private:
     // Read and parse all blocks for one frame
     using ParsedBlockQueue  = std::deque<ParsedBlock>;

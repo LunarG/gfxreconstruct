@@ -190,6 +190,44 @@ bool PreloadFileProcessor::AdvanceToNextFrame(ProcessBlockState process_result)
     return ContinueProcessing(process_result);
 }
 
+void PreloadFileProcessor::DropStateBlocks()
+{
+    for (auto& preloaded_frame : preloaded_frames_)
+    {
+        ParsedBlockReplay& blocks = preloaded_frame->blocks;
+
+        // Find a state begin marker
+        auto begin_it = std::find_if(blocks.begin(), blocks.end(), [](const ParsedBlock& block_ptr) {
+            return block_ptr.Holds<StateBeginMarkerArgs>();
+        });
+        if (begin_it != blocks.end())
+        {
+            // Find the corresponding state end marker
+            auto end_it = std::find_if(blocks.begin(), blocks.end(), [](const ParsedBlock& block_ptr) {
+                return block_ptr.Holds<StateEndMarkerArgs>();
+            });
+            GFXRECON_ASSERT(end_it != blocks.end());
+            GFXRECON_ASSERT(begin_it < end_it);
+            blocks.erase(begin_it, std::next(end_it));
+
+            GFXRECON_LOG_INFO("Dropped state blocks from preloaded frame %" PRIu64, preloaded_frame->frame_number);
+        }
+    }
+}
+
+bool PreloadFileProcessor::IsFileValid() const
+{
+    if (advance_to_next_frame)
+    {
+        return FileProcessor::IsFileValid();
+    }
+    else
+    {
+        // When not advancing frames, ensure there is at least one preloaded frame to replay
+        return !preloaded_frames_.empty();
+    }
+}
+
 FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame(PreloadedFrame& frame)
 {
     BlockParser&    block_parser = GetBlockParser();
