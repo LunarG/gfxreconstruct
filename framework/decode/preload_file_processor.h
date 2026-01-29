@@ -48,6 +48,12 @@ class PreloadFileProcessor : public FileProcessor
     /// Otherwise, remain on the current preloaded frame so that it can be replayed again.
     void SetAdvanceToNextFrame(bool advance) { advance_to_next_frame_ = advance; };
 
+    /// Skips all blocks before a `StateEndMarker` from preloaded frames.
+    void SkipStateBlocks();
+
+  protected:
+    bool IsFileValid() const override;
+
   private:
     constexpr static size_t kWorkingStoreInitialSize = 4096;
 
