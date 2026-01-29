@@ -57,8 +57,11 @@ struct VulkanDevicePropertyFeatureInfo
     VkBool32 feature_bufferDeviceAddressCaptureReplay{ VK_FALSE };
     VkBool32 feature_accelerationStructureCaptureReplay{ VK_FALSE };
     VkBool32 feature_rayTracingPipelineShaderGroupHandleCaptureReplay{ VK_FALSE };
+    VkBool32 feature_descriptorBufferCaptureReplay{ VK_FALSE };
 
     VkBool32 feature_samplerYcbcrConversion{ VK_FALSE };
+
+    VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
 };
 
 class VulkanDeviceUtil
@@ -95,7 +98,6 @@ class VulkanDeviceUtil
                                                   const VkPhysicalDevice               physical_device,
                                                   T*                                   feature_struct);
 
-  private:
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
     VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };
     VkBool32  bufferDeviceAddressCaptureReplay_original{ VK_FALSE };
@@ -107,6 +109,10 @@ class VulkanDeviceUtil
     // VkPhysicalDeviceRayTracingPipelineFeaturesKHR::rayTracingPipelineShaderGroupHandleCaptureReplay
     VkBool32* rayTracingPipelineShaderGroupHandleCaptureReplay_ptr{ nullptr };
     VkBool32  rayTracingPipelineShaderGroupHandleCaptureReplay_original{ VK_FALSE };
+
+    // VkPhysicalDeviceDescriptorBufferFeaturesEXT::descriptorBufferCaptureReplay
+    VkBool32* descriptorBufferCaptureReplay_ptr{ nullptr };
+    VkBool32  descriptorBufferCaptureReplay_original{ VK_FALSE };
 
     // VkPhysicalDeviceSamplerYcbcrConversionFeatures
     VkBool32* samplerYcbcrConversion_ptr{ nullptr };

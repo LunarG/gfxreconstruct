@@ -24,6 +24,7 @@
 #ifndef GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
 #define GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
 
+#include "string_array_decoder.h"
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -33,7 +34,6 @@
 #include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_pnext_node.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
-#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
@@ -233,12 +233,12 @@ struct Decoded_VkIndirectCommandsLayoutTokenEXT
 {
     using struct_type = VkIndirectCommandsLayoutTokenEXT;
 
-    VkIndirectCommandsLayoutTokenEXT* decoded_value;
+    VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
 
     PNextNode*                              pNext{ nullptr };
     VkIndirectCommandsTokenTypeEXT          decoded_type;
-    Decoded_VkIndirectCommandsTokenDataEXT* data;
-    uint32_t                                offset;
+    Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
+    uint32_t                                offset{};
 };
 
 struct Decoded_VkCopyMemoryToImageInfo
@@ -287,6 +287,48 @@ struct Decoded_VkImageToMemoryCopy
     Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
     Decoded_VkOffset3D*               imageOffset{ nullptr };
     Decoded_VkExtent3D*               imageExtent{ nullptr };
+};
+
+struct Decoded_VkLayerSettingEXT
+{
+    using struct_type = VkLayerSettingEXT;
+
+    VkLayerSettingEXT* decoded_value{ nullptr };
+
+    StringDecoder           pLayerName;
+    StringDecoder           pSettingName;
+    PointerDecoder<uint8_t> pValues;
+
+    // if type is VK_LAYER_SETTING_TYPE_STRING_EXT we need to decode an array of strings
+    StringArrayDecoder string_decoder;
+};
+
+struct Decoded_VkDescriptorDataEXT
+{
+    using struct_type = VkDescriptorDataEXT;
+
+    VkDescriptorDataEXT* decoded_value{ nullptr };
+
+    HandlePointerDecoder<VkSampler>                           pSampler;
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pCombinedImageSampler{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pInputAttachmentImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pSampledImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pStorageImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pUniformTexelBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pStorageTexelBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pUniformBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pStorageBuffer{ nullptr };
+};
+
+struct Decoded_VkDescriptorGetInfoEXT
+{
+    using struct_type = VkDescriptorGetInfoEXT;
+
+    VkDescriptorGetInfoEXT* decoded_value{ nullptr };
+
+    PNextNode*                   pNext{ nullptr };
+    VkDescriptorType             decoded_type;
+    Decoded_VkDescriptorDataEXT* data{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

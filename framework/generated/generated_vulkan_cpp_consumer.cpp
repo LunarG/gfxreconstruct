@@ -9927,6 +9927,25 @@ void VulkanCppConsumer::Process_vkCmdEndTransformFeedbackEXT(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT);
 }
+void VulkanCppConsumer::Process_vkGetDeviceCombinedImageSamplerIndexNVX(
+    const ApiCallInfo&                          call_info,
+    uint64_t                                    returnValue,
+    format::HandleId                            device,
+    uint64_t                                    imageViewIndex,
+    uint64_t                                    samplerIndex)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkGetDeviceCombinedImageSamplerIndexNVX");
+    fprintf(file,
+            "\t\tloaded_vkGetDeviceCombinedImageSamplerIndexNVX(%s, %" PRIu64 "UL, %" PRIu64 "UL);\n",
+            this->GetHandle(device).c_str(),
+            imageViewIndex,
+            samplerIndex);
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX);
+}
+
 void VulkanCppConsumer::Process_vkGetImageViewAddressNVX(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -13410,6 +13429,186 @@ void VulkanCppConsumer::Process_vkCmdEndPerTileExecutionQCOM(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdEndPerTileExecutionQCOM);
 }
+void VulkanCppConsumer::Process_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    set)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkCmdBindDescriptorBufferEmbeddedSamplersEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindDescriptorBufferEmbeddedSamplersEXT(%s, %s, %s, %u);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
+            this->GetHandle(layout).c_str(),
+            set);
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindDescriptorBufferEmbeddedSamplersEXT);
+}
+
+void VulkanCppConsumer::Process_vkCmdBindDescriptorBuffersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    bufferCount,
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pbinding_infos;
+    std::string pbinding_infos_array = "NULL";
+    PointerPairContainer<decltype(pBindingInfos->GetPointer()), decltype(pBindingInfos->GetMetaStructPointer())> pbinding_infos_pair{ pBindingInfos->GetPointer(), pBindingInfos->GetMetaStructPointer(), bufferCount };
+    std::string pbinding_infos_names = toStringJoin(pbinding_infos_pair.begin(),
+                                                    pbinding_infos_pair.end(),
+                                                    [&](auto pair) {{ return GenerateStruct_VkDescriptorBufferBindingInfoEXT(stream_pbinding_infos, pair.t1, pair.t2, *this); }},
+                                                    ", ");
+    if (stream_pbinding_infos.str().length() > 0) {
+        fprintf(file, "%s", stream_pbinding_infos.str().c_str());
+        if (bufferCount == 1) {
+            pbinding_infos_array = "&" + pbinding_infos_names;
+        } else if (bufferCount > 1) {
+            pbinding_infos_array = "pBindingInfos_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkDescriptorBufferBindingInfoEXT %s[] = { %s };\n", pbinding_infos_array.c_str(), pbinding_infos_names.c_str());
+        }
+    }
+    pfn_loader_.AddMethodName("vkCmdBindDescriptorBuffersEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdBindDescriptorBuffersEXT(%s, %u, %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            bufferCount,
+            pbinding_infos_array.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdBindDescriptorBuffersEXT);
+}
+
+void VulkanCppConsumer::Process_vkCmdSetDescriptorBufferOffsetsEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    setCount,
+    PointerDecoder<uint32_t>*                   pBufferIndices,
+    PointerDecoder<VkDeviceSize>*               pOffsets)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pbuffer_indices_array = "pBufferIndices_" + std::to_string(this->GetNextId());
+    if (setCount > 0) {
+        std::string pbuffer_indices_values = toStringJoin(pBufferIndices->GetPointer(),
+                                                          pBufferIndices->GetPointer() + setCount,
+                                                          [&](const auto current) { return std::to_string(current) + ""; },
+                                                          ", ");
+        fprintf(file, "\t\tuint32_t %s[] = { %s };\n", pbuffer_indices_array.c_str(), pbuffer_indices_values.c_str());
+    } else {
+        pbuffer_indices_array = "NULL";
+    }
+    std::string poffsets_array = "pOffsets_" + std::to_string(this->GetNextId());
+    if (setCount > 0) {
+        std::string poffsets_values = toStringJoin(pOffsets->GetPointer(),
+                                                   pOffsets->GetPointer() + setCount,
+                                                   [&](const auto current) { return std::to_string(current) + "UL"; },
+                                                   ", ");
+        fprintf(file, "\t\tVkDeviceSize %s[] = { %s };\n", poffsets_array.c_str(), poffsets_values.c_str());
+    } else {
+        poffsets_array = "NULL";
+    }
+    pfn_loader_.AddMethodName("vkCmdSetDescriptorBufferOffsetsEXT");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetDescriptorBufferOffsetsEXT(%s, %s, %s, %u, %u, %s, %s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            util::ToString<VkPipelineBindPoint>(pipelineBindPoint).c_str(),
+            this->GetHandle(layout).c_str(),
+            firstSet,
+            setCount,
+            pbuffer_indices_array.c_str(),
+            poffsets_array.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetDescriptorBufferOffsetsEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetDescriptorEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDescriptorGetInfoEXT>* pDescriptorInfo,
+    size_t                                      dataSize,
+    PointerDecoder<uint8_t>*                    pDescriptor)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pdescriptor_info;
+    std::string pdescriptor_info_struct = GenerateStruct_VkDescriptorGetInfoEXT(stream_pdescriptor_info,
+                                                                                pDescriptorInfo->GetPointer(),
+                                                                                pDescriptorInfo->GetMetaStructPointer(),
+                                                                                *this);
+    fprintf(file, "%s", stream_pdescriptor_info.str().c_str());
+    std::string pdescriptor_name = "NULL";
+    if (!pDescriptor->IsNull()) {
+        pdescriptor_name = "pDescriptor_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdescriptor_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
+    pfn_loader_.AddMethodName("vkGetDescriptorEXT");
+    fprintf(file,
+            "\t\tloaded_vkGetDescriptorEXT(%s, &%s, %" PRIu64 ", %s);\n",
+            this->GetHandle(device).c_str(),
+            pdescriptor_info_struct.c_str(),
+            util::platform::SizeTtoUint64(dataSize),
+            pdescriptor_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutBindingOffsetEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            layout,
+    uint32_t                                    binding,
+    PointerDecoder<VkDeviceSize>*               pOffset)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string poffset_name = "NULL";
+    if (!pOffset->IsNull()) {
+        poffset_name = "pOffset_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceSize %s = %s;\n", poffset_name.c_str(), util::ToString(*pOffset->GetPointer()).c_str());
+        poffset_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetDescriptorSetLayoutBindingOffsetEXT");
+    fprintf(file,
+            "\t\tloaded_vkGetDescriptorSetLayoutBindingOffsetEXT(%s, %s, %u, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(layout).c_str(),
+            binding,
+            poffset_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutBindingOffsetEXT);
+}
+
+void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSizeEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            layout,
+    PointerDecoder<VkDeviceSize>*               pLayoutSizeInBytes)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string playout_size_in_bytes_name = "NULL";
+    if (!pLayoutSizeInBytes->IsNull()) {
+        playout_size_in_bytes_name = "pLayoutSizeInBytes_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceSize %s = %s;\n", playout_size_in_bytes_name.c_str(), util::ToString(*pLayoutSizeInBytes->GetPointer()).c_str());
+        playout_size_in_bytes_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetDescriptorSetLayoutSizeEXT");
+    fprintf(file,
+            "\t\tloaded_vkGetDescriptorSetLayoutSizeEXT(%s, %s, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(layout).c_str(),
+            playout_size_in_bytes_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSizeEXT);
+}
 void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -15861,6 +16060,374 @@ void VulkanCppConsumer::Process_vkSetLatencySleepModeNV(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkSetLatencySleepModeNV);
 }
+void VulkanCppConsumer::Process_vkBindDataGraphPipelineSessionMemoryARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM>* pBindInfos)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pbind_infos;
+    std::string pbind_infos_array = "NULL";
+    PointerPairContainer<decltype(pBindInfos->GetPointer()), decltype(pBindInfos->GetMetaStructPointer())> pbind_infos_pair{ pBindInfos->GetPointer(), pBindInfos->GetMetaStructPointer(), bindInfoCount };
+    std::string pbind_infos_names = toStringJoin(pbind_infos_pair.begin(),
+                                                 pbind_infos_pair.end(),
+                                                 [&](auto pair) {{ return GenerateStruct_VkBindDataGraphPipelineSessionMemoryInfoARM(stream_pbind_infos, pair.t1, pair.t2, *this); }},
+                                                 ", ");
+    if (stream_pbind_infos.str().length() > 0) {
+        fprintf(file, "%s", stream_pbind_infos.str().c_str());
+        if (bindInfoCount == 1) {
+            pbind_infos_array = "&" + pbind_infos_names;
+        } else if (bindInfoCount > 1) {
+            pbind_infos_array = "pBindInfos_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkBindDataGraphPipelineSessionMemoryInfoARM %s[] = { %s };\n", pbind_infos_array.c_str(), pbind_infos_names.c_str());
+        }
+    }
+    pfn_loader_.AddMethodName("vkBindDataGraphPipelineSessionMemoryARM");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkBindDataGraphPipelineSessionMemoryARM(%s, %u, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            bindInfoCount,
+            pbind_infos_array.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkBindDataGraphPipelineSessionMemoryARM);
+}
+
+void VulkanCppConsumer::Process_vkCmdDispatchDataGraphARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            session,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineDispatchInfoARM>* pInfo)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pinfo;
+    std::string pinfo_struct = GenerateStruct_VkDataGraphPipelineDispatchInfoARM(stream_pinfo,
+                                                                                 pInfo->GetPointer(),
+                                                                                 pInfo->GetMetaStructPointer(),
+                                                                                 *this);
+    fprintf(file, "%s", stream_pinfo.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdDispatchDataGraphARM");
+    fprintf(file,
+            "\t\tloaded_vkCmdDispatchDataGraphARM(%s, %s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            this->GetHandle(session).c_str(),
+            pinfo_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdDispatchDataGraphARM);
+}
+
+void VulkanCppConsumer::Process_vkCreateDataGraphPipelineSessionARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineSessionCreateInfoARM>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkDataGraphPipelineSessionARM>* pSession)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcreate_info;
+    std::string pcreate_info_struct = GenerateStruct_VkDataGraphPipelineSessionCreateInfoARM(stream_pcreate_info,
+                                                                                             pCreateInfo->GetPointer(),
+                                                                                             pCreateInfo->GetMetaStructPointer(),
+                                                                                             *this);
+    fprintf(file, "%s", stream_pcreate_info.str().c_str());
+    std::string psession_name = "pSession_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM));
+    AddKnownVariables("VkDataGraphPipelineSessionARM", psession_name, pSession->GetPointer());
+    if (returnValue == VK_SUCCESS) {
+        this->AddHandles(psession_name,
+                         pSession->GetPointer());
+    }
+    pfn_loader_.AddMethodName("vkCreateDataGraphPipelineSessionARM");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDataGraphPipelineSessionARM(%s, &%s, %s, &%s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pcreate_info_struct.c_str(),
+            "nullptr",
+            psession_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCreateDataGraphPipelineSessionARM);
+}
+
+void VulkanCppConsumer::Process_vkCreateDataGraphPipelinesARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            deferredOperation,
+    format::HandleId                            pipelineCache,
+    uint32_t                                    createInfoCount,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineCreateInfoARM>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkPipeline>*           pPipelines)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcreate_infos;
+    std::string pcreate_infos_array = "NULL";
+    PointerPairContainer<decltype(pCreateInfos->GetPointer()), decltype(pCreateInfos->GetMetaStructPointer())> pcreate_infos_pair{ pCreateInfos->GetPointer(), pCreateInfos->GetMetaStructPointer(), createInfoCount };
+    std::string pcreate_infos_names = toStringJoin(pcreate_infos_pair.begin(),
+                                                   pcreate_infos_pair.end(),
+                                                   [&](auto pair) {{ return GenerateStruct_VkDataGraphPipelineCreateInfoARM(stream_pcreate_infos, pair.t1, pair.t2, *this); }},
+                                                   ", ");
+    if (stream_pcreate_infos.str().length() > 0) {
+        fprintf(file, "%s", stream_pcreate_infos.str().c_str());
+        if (createInfoCount == 1) {
+            pcreate_infos_array = "&" + pcreate_infos_names;
+        } else if (createInfoCount > 1) {
+            pcreate_infos_array = "pCreateInfos_" + std::to_string(this->GetNextId());
+            fprintf(file, "\t\tVkDataGraphPipelineCreateInfoARM %s[] = { %s };\n", pcreate_infos_array.c_str(), pcreate_infos_names.c_str());
+        }
+    }
+    std::string ppipelines_name = "pPipelines_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_PIPELINE));
+    AddKnownVariables("VkPipeline", ppipelines_name, pPipelines->GetPointer(), createInfoCount);
+    if (returnValue == VK_SUCCESS) {
+        this->AddHandles(ppipelines_name,
+                         pPipelines->GetPointer(), createInfoCount);
+    }
+    pfn_loader_.AddMethodName("vkCreateDataGraphPipelinesARM");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCreateDataGraphPipelinesARM(%s, %s, %s, %u, %s, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(deferredOperation).c_str(),
+            this->GetHandle(pipelineCache).c_str(),
+            createInfoCount,
+            pcreate_infos_array.c_str(),
+            "nullptr",
+            ppipelines_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCreateDataGraphPipelinesARM);
+}
+
+void VulkanCppConsumer::Process_vkDestroyDataGraphPipelineSessionARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            session,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkDestroyDataGraphPipelineSessionARM");
+    fprintf(file,
+            "\t\tloaded_vkDestroyDataGraphPipelineSessionARM(%s, %s, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(session).c_str(),
+            "nullptr");
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkDestroyDataGraphPipelineSessionARM);
+}
+
+void VulkanCppConsumer::Process_vkGetDataGraphPipelineAvailablePropertiesARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineInfoARM>* pPipelineInfo,
+    PointerDecoder<uint32_t>*                   pPropertiesCount,
+    PointerDecoder<VkDataGraphPipelinePropertyARM>* pProperties)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ppipeline_info;
+    std::string ppipeline_info_struct = GenerateStruct_VkDataGraphPipelineInfoARM(stream_ppipeline_info,
+                                                                                  pPipelineInfo->GetPointer(),
+                                                                                  pPipelineInfo->GetMetaStructPointer(),
+                                                                                  *this);
+    fprintf(file, "%s", stream_ppipeline_info.str().c_str());
+    std::string pproperties_count_name = "NULL";
+    if (!pPropertiesCount->IsNull()) {
+        pproperties_count_name = "pPropertiesCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperties_count_name.c_str(), util::ToString(*pPropertiesCount->GetPointer()).c_str());
+        pproperties_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperties_count = pPropertiesCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDataGraphPipelinePropertyARM %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperties_count);
+    }
+    pfn_loader_.AddMethodName("vkGetDataGraphPipelineAvailablePropertiesARM");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetDataGraphPipelineAvailablePropertiesARM(%s, &%s, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            ppipeline_info_struct.c_str(),
+            pproperties_count_name.c_str(),
+            pproperties_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDataGraphPipelineAvailablePropertiesARM);
+}
+
+void VulkanCppConsumer::Process_vkGetDataGraphPipelinePropertiesARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineInfoARM>* pPipelineInfo,
+    uint32_t                                    propertiesCount,
+    StructPointerDecoder<Decoded_VkDataGraphPipelinePropertyQueryResultARM>* pProperties)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ppipeline_info;
+    std::string ppipeline_info_struct = GenerateStruct_VkDataGraphPipelineInfoARM(stream_ppipeline_info,
+                                                                                  pPipelineInfo->GetPointer(),
+                                                                                  pPipelineInfo->GetMetaStructPointer(),
+                                                                                  *this);
+    fprintf(file, "%s", stream_ppipeline_info.str().c_str());
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDataGraphPipelinePropertyQueryResultARM %s[%d] = {};\n", pproperties_name.c_str(), propertiesCount);
+    }
+    pfn_loader_.AddMethodName("vkGetDataGraphPipelinePropertiesARM");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetDataGraphPipelinePropertiesARM(%s, &%s, %u, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            ppipeline_info_struct.c_str(),
+            propertiesCount,
+            pproperties_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDataGraphPipelinePropertiesARM);
+}
+
+void VulkanCppConsumer::Process_vkGetDataGraphPipelineSessionBindPointRequirementsARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineSessionBindPointRequirementsInfoARM>* pInfo,
+    PointerDecoder<uint32_t>*                   pBindPointRequirementCount,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineSessionBindPointRequirementARM>* pBindPointRequirements)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pinfo;
+    std::string pinfo_struct = GenerateStruct_VkDataGraphPipelineSessionBindPointRequirementsInfoARM(stream_pinfo,
+                                                                                                     pInfo->GetPointer(),
+                                                                                                     pInfo->GetMetaStructPointer(),
+                                                                                                     *this);
+    fprintf(file, "%s", stream_pinfo.str().c_str());
+    std::string pbind_point_requirement_count_name = "NULL";
+    if (!pBindPointRequirementCount->IsNull()) {
+        pbind_point_requirement_count_name = "pBindPointRequirementCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pbind_point_requirement_count_name.c_str(), util::ToString(*pBindPointRequirementCount->GetPointer()).c_str());
+        pbind_point_requirement_count_name.insert(0, "&");
+    }
+    std::string pbind_point_requirements_name = "NULL";
+    if (!pBindPointRequirements->IsNull()) {
+        const uint32_t* in_pbind_point_requirement_count = pBindPointRequirementCount->GetPointer();
+        pbind_point_requirements_name = "pBindPointRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDataGraphPipelineSessionBindPointRequirementARM %s[%d] = {};\n", pbind_point_requirements_name.c_str(), *in_pbind_point_requirement_count);
+    }
+    pfn_loader_.AddMethodName("vkGetDataGraphPipelineSessionBindPointRequirementsARM");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetDataGraphPipelineSessionBindPointRequirementsARM(%s, &%s, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pinfo_struct.c_str(),
+            pbind_point_requirement_count_name.c_str(),
+            pbind_point_requirements_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDataGraphPipelineSessionBindPointRequirementsARM);
+}
+
+void VulkanCppConsumer::Process_vkGetDataGraphPipelineSessionMemoryRequirementsARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDataGraphPipelineSessionMemoryRequirementsInfoARM>* pInfo,
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pinfo;
+    std::string pinfo_struct = GenerateStruct_VkDataGraphPipelineSessionMemoryRequirementsInfoARM(stream_pinfo,
+                                                                                                  pInfo->GetPointer(),
+                                                                                                  pInfo->GetMetaStructPointer(),
+                                                                                                  *this);
+    fprintf(file, "%s", stream_pinfo.str().c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2 %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetDataGraphPipelineSessionMemoryRequirementsARM");
+    fprintf(file,
+            "\t\tloaded_vkGetDataGraphPipelineSessionMemoryRequirementsARM(%s, &%s, %s);\n",
+            this->GetHandle(device).c_str(),
+            pinfo_struct.c_str(),
+            pmemory_requirements_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetDataGraphPipelineSessionMemoryRequirementsARM);
+}
+
+void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM>* pQueueFamilyDataGraphProcessingEngineInfo,
+    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesARM>* pQueueFamilyDataGraphProcessingEngineProperties)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pqueue_family_data_graph_processing_engine_info;
+    std::string pqueue_family_data_graph_processing_engine_info_struct = GenerateStruct_VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM(stream_pqueue_family_data_graph_processing_engine_info,
+                                                                                                                                                    pQueueFamilyDataGraphProcessingEngineInfo->GetPointer(),
+                                                                                                                                                    pQueueFamilyDataGraphProcessingEngineInfo->GetMetaStructPointer(),
+                                                                                                                                                    *this);
+    fprintf(file, "%s", stream_pqueue_family_data_graph_processing_engine_info.str().c_str());
+    std::string pqueue_family_data_graph_processing_engine_properties_name = "NULL";
+    if (!pQueueFamilyDataGraphProcessingEngineProperties->IsNull()) {
+        pqueue_family_data_graph_processing_engine_properties_name = "pQueueFamilyDataGraphProcessingEngineProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkQueueFamilyDataGraphProcessingEnginePropertiesARM %s = {};\n", pqueue_family_data_graph_processing_engine_properties_name.c_str());
+        pqueue_family_data_graph_processing_engine_properties_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM");
+    fprintf(file,
+            "\t\tloaded_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM(%s, &%s, %s);\n",
+            this->GetHandle(physicalDevice).c_str(),
+            pqueue_family_data_graph_processing_engine_info_struct.c_str(),
+            pqueue_family_data_graph_processing_engine_properties_name.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM);
+}
+
+void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    PointerDecoder<uint32_t>*                   pQueueFamilyDataGraphPropertyCount,
+    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM>* pQueueFamilyDataGraphProperties)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::string pqueue_family_data_graph_property_count_name = "NULL";
+    if (!pQueueFamilyDataGraphPropertyCount->IsNull()) {
+        pqueue_family_data_graph_property_count_name = "pQueueFamilyDataGraphPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pqueue_family_data_graph_property_count_name.c_str(), util::ToString(*pQueueFamilyDataGraphPropertyCount->GetPointer()).c_str());
+        pqueue_family_data_graph_property_count_name.insert(0, "&");
+    }
+    std::string pqueue_family_data_graph_properties_name = "NULL";
+    if (!pQueueFamilyDataGraphProperties->IsNull()) {
+        const uint32_t* in_pqueue_family_data_graph_property_count = pQueueFamilyDataGraphPropertyCount->GetPointer();
+        pqueue_family_data_graph_properties_name = "pQueueFamilyDataGraphProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkQueueFamilyDataGraphPropertiesARM %s[%d] = {};\n", pqueue_family_data_graph_properties_name.c_str(), *in_pqueue_family_data_graph_property_count);
+    }
+    pfn_loader_.AddMethodName("vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM(%s, %u, %s, %s), %s);\n",
+            this->GetHandle(physicalDevice).c_str(),
+            queueFamilyIndex,
+            pqueue_family_data_graph_property_count_name.c_str(),
+            pqueue_family_data_graph_properties_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM);
+}
 void VulkanCppConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -16420,6 +16987,27 @@ void VulkanCppConsumer::Process_vkCmdBeginCustomResolveEXT(
             pbegin_custom_resolve_info_struct.c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginCustomResolveEXT);
+}
+void VulkanCppConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV>* pParameters)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pparameters;
+    std::string pparameters_struct = GenerateStruct_VkComputeOccupancyPriorityParametersNV(stream_pparameters,
+                                                                                           pParameters->GetPointer(),
+                                                                                           pParameters->GetMetaStructPointer(),
+                                                                                           *this);
+    fprintf(file, "%s", stream_pparameters.str().c_str());
+    pfn_loader_.AddMethodName("vkCmdSetComputeOccupancyPriorityNV");
+    fprintf(file,
+            "\t\tloaded_vkCmdSetComputeOccupancyPriorityNV(%s, &%s);\n",
+            this->GetHandle(commandBuffer).c_str(),
+            pparameters_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCmdSetComputeOccupancyPriorityNV);
 }
 void VulkanCppConsumer::Process_vkCmdBuildAccelerationStructuresIndirectKHR(
     const ApiCallInfo&                          call_info,

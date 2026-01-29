@@ -815,6 +815,8 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetSwapchainTimeDomainPropertiesEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x134a),
     ApiCall_vkGetSwapchainTimingPropertiesEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x134b),
     ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134c),
+    ApiCall_vkCmdSetComputeOccupancyPriorityNV                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x134d),
+    ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134e),
 
     ApiCall_VulkanLast,
 

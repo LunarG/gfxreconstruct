@@ -71,7 +71,6 @@ class BlockBuffer
     bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
 
     BlockSpan ReadSpan(size_t buffer_size);
-    BlockSpan ReadSpanAt(size_t buffer_size, size_t at);
 
     size_t                     Size() const { return block_span_.size(); }
     const format::BlockHeader& Header() const { return header_; }
@@ -89,22 +88,30 @@ class BlockBuffer
     // TODO: Remove this when preload_file_processor is converted to the common BlockParser/ParsedBlock approach
     bool IsFrameDelimiter(const FileProcessor& file_processor) const;
 
-    void Reset(util::DataSpan&& block_span);
     void Reset()
     {
         read_pos_ = 0;
         block_span_.Reset();
     };
 
-    util::DataSpan&& ReleaseData() { return std::move(block_span_); }
-    bool             SeekForward(size_t size);
-    bool             SeekTo(size_t size);
+    const util::DataSpan&          GetData() const noexcept { return block_span_; }
+    [[nodiscard]] util::DataSpan&& ReleaseData() noexcept { return std::move(block_span_); }
 
-    bool IsAvailable(size_t size) const { return IsAvailableAt(size, read_pos_); }
-    bool IsAvailableAt(size_t size, size_t at) const { return Size() >= (at + size); }
+    [[nodiscard]] util::DataSpan MakeNonOwnedData() const noexcept
+    {
+        return util::DataSpan(block_span_, util::DataSpan::NonOwnedSpanTag{});
+    }
+
+    bool SeekForward(size_t size);
+    bool SeekTo(size_t size);
+
+    bool IsAvailable(size_t size) const noexcept { return IsAvailableAt(size, read_pos_); }
+    bool IsAvailableAt(size_t size, size_t at) const noexcept { return Size() >= (at + size); }
+
+    util::DataSpan& GetBlockStore() { return block_span_; }
+    void            InitBlockHeaderFromSpan();
 
   private:
-    void                InitBlockHeaderFromSpan();
     size_t              read_pos_{ 0 };
     uint64_t            block_index_{ 0U };
     util::DataSpan      block_span_;

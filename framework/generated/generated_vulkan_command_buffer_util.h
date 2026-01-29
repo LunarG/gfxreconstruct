@@ -243,6 +243,12 @@ void TrackCmdExecuteGeneratedCommandsNVHandles(vulkan_wrappers::CommandBufferWra
 
 void TrackCmdBindPipelineShaderGroupNVHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipeline pipeline);
 
+void TrackCmdBindDescriptorBuffersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bufferCount, const VkDescriptorBufferBindingInfoEXT* pBindingInfos);
+
+void TrackCmdSetDescriptorBufferOffsetsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout);
+
+void TrackCmdBindDescriptorBufferEmbeddedSamplersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout);
+
 void TrackCmdBindInvocationMaskHUAWEIHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImageView imageView);
 
 void TrackCmdBuildMicromapsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t infoCount, const VkMicromapBuildInfoEXT* pInfos);
@@ -262,6 +268,8 @@ void TrackCmdUpdatePipelineIndirectBufferNVHandles(vulkan_wrappers::CommandBuffe
 void TrackCmdOpticalFlowExecuteNVHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkOpticalFlowSessionNV session);
 
 void TrackCmdBindShadersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t stageCount, const VkShaderEXT* pShaders);
+
+void TrackCmdDispatchDataGraphARMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkDataGraphPipelineSessionARM session);
 
 void TrackCmdBindTileMemoryQCOMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkTileMemoryBindInfoQCOM* pTileMemoryBindInfo);
 

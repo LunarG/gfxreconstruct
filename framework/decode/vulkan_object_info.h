@@ -40,6 +40,7 @@
 #include <cstdint>
 #include <memory>
 #include <map>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -89,6 +90,7 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV = 22,
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeVectorPropertiesNV                   = 23,
     kPhysicalDeviceArrayEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM = 24,
+    kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM               = 25,
 
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
@@ -109,6 +111,8 @@ enum DeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
     kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsKHR    = 7,
     kDeviceArrayGetPipelineBinaryDataKHR                                = 8,
+    kDeviceArrayGetDataGraphPipelineSessionBindPointRequirementsARM     = 9,
+    kDeviceArrayGetDataGraphPipelineAvailablePropertiesARM              = 10,
 
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
@@ -173,8 +177,9 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceDriverProperties>                   driver_properties;
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>    raytracing_properties;
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
+    std::optional<VkPhysicalDeviceDescriptorBufferPropertiesEXT>      descriptor_buffer_properties;
 
-    bool IsPropertiesNull()
+    bool IsPropertiesNull() const
     {
         // Not include memory properties.
         return properties == std::nullopt || driver_properties == std::nullopt ||
@@ -298,6 +303,9 @@ struct VulkanPhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
     // capture raytracing (shader-binding-table) properties
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_raytracing_properties = {};
 
+    // capture descriptor-buffer properties (VK_EXT_descriptor_buffer)
+    std::optional<VkPhysicalDeviceDescriptorBufferPropertiesEXT> capture_descriptor_buffer_properties = {};
+
     // Closest matching replay device.
     VulkanReplayDeviceInfo* replay_device_info{ nullptr };
 
@@ -321,7 +329,8 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     std::shared_ptr<VulkanResourceAllocator> allocator;
     std::unordered_map<uint32_t, size_t>     array_counts;
 
-    std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
+    std::unordered_map<format::HandleId, uint64_t>             opaque_addresses;
+    std::unordered_map<format::HandleId, std::vector<uint8_t>> opaque_descriptor_data;
 
     // Map pipeline ID to ray tracing shader group handle capture replay data.
     std::unordered_map<format::HandleId, std::vector<uint8_t>> shader_group_handles;
@@ -512,7 +521,7 @@ struct VulkanPipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // keep track of existing usage of buffer-references
-    std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
+    std::set<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 
     // map capture- to replay-time shader-group-handles
     std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t> shader_group_handle_map;
@@ -683,7 +692,12 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
     // collect buffer-device-addresses of locations to replace before submit
     std::unordered_set<VkDeviceAddress> addresses_to_replace;
-    bool                                inside_renderpass = false;
+
+    // maps buffers to (offset/stride)-pairs that need to be resolved
+    // (read back pointers, resolve additional buffers)
+    std::unordered_map<const VulkanBufferInfo*, std::vector<std::pair<size_t, uint32_t>>> addresses_to_resolve;
+
+    bool inside_renderpass = false;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
@@ -736,6 +750,13 @@ struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAcceleratio
 
     // This is only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags memory_property_flags{ 0 };
+};
+
+struct VulkanDataGraphPipelineSessionARMInfo : public VulkanObjectInfo<VkDataGraphPipelineSessionARM>
+{
+    // The following values are only used for memory portability.
+    VulkanResourceAllocator::ResourceData    allocator_data{ 0 };
+    VkDataGraphPipelineSessionCreateFlagsARM flags{};
 };
 
 struct VulkanDescriptorSetBindingInfo

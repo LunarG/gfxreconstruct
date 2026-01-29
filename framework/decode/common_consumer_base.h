@@ -61,6 +61,7 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
     virtual void PushRecaptureHandleId(const format::HandleId* id) {}
     virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) {}
     virtual void ClearRecaptureHandleIds() {}
+    virtual bool IsRecapture() { return false; }
 
   protected:
     uint64_t frame_number_{ 0 };

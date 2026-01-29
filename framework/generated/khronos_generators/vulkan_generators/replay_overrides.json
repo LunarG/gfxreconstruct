@@ -143,6 +143,8 @@
     "vkCmdWriteAccelerationStructuresPropertiesKHR": "OverrideCmdWriteAccelerationStructuresPropertiesKHR",
     "vkCmdBindPipeline": "OverrideCmdBindPipeline",
     "vkCmdPushConstants": "OverrideCmdPushConstants",
+    "vkCmdPushConstants2": "OverrideCmdPushConstants2",
+    "vkCmdPushConstants2KHR": "OverrideCmdPushConstants2",
     "vkCmdBindDescriptorSets": "OverrideCmdBindDescriptorSets",
     "vkCmdBindDescriptorSets2KHR": "OverrideCmdBindDescriptorSets2",
     "vkCmdBindDescriptorSets2": "OverrideCmdBindDescriptorSets2",
@@ -168,6 +170,9 @@
     "vkGetPastPresentationTimingGOOGLE": "OverrideGetPastPresentationTimingGOOGLE",
     "vkGetRefreshCycleDurationGOOGLE": "OverrideGetRefreshCycleDurationGOOGLE",
     "vkGetPhysicalDeviceSurfaceFormatsKHR" : "OverrideGetPhysicalDeviceSurfaceFormatsKHR",
-    "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR"
+    "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR",
+    "vkGetDescriptorEXT": "OverrideGetDescriptorEXT",
+    "vkCmdBindDescriptorBuffersEXT": "OverrideCmdBindDescriptorBuffersEXT",
+    "vkCreateSampler": "OverrideCreateSampler"
   }
 }

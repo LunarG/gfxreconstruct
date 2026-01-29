@@ -1767,6 +1767,48 @@ void TrackCmdBindPipelineShaderGroupNVHandles(vulkan_wrappers::CommandBufferWrap
     if(pipeline != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineWrapper>(pipeline));
 }
 
+void TrackCmdBindDescriptorBuffersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t bufferCount, const VkDescriptorBufferBindingInfoEXT* pBindingInfos)
+{
+    assert(wrapper != nullptr);
+
+    if (pBindingInfos != nullptr)
+    {
+        for (uint32_t pBindingInfos_index = 0; pBindingInfos_index < bufferCount; ++pBindingInfos_index)
+        {
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindingInfos->pNext);
+            while (pnext_header)
+            {
+                switch (pnext_header->sType)
+                {
+                    default:
+                        break;
+                    case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
+                    {
+                        auto pnext_value = reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(pnext_header);
+                        if(pnext_value->buffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(pnext_value->buffer));
+                        break;
+                    }
+                }
+                pnext_header = pnext_header->pNext;
+            }
+        }
+    }
+}
+
+void TrackCmdSetDescriptorBufferOffsetsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout)
+{
+    assert(wrapper != nullptr);
+
+    if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
+}
+
+void TrackCmdBindDescriptorBufferEmbeddedSamplersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkPipelineLayout layout)
+{
+    assert(wrapper != nullptr);
+
+    if(layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(layout));
+}
+
 void TrackCmdBindInvocationMaskHUAWEIHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImageView imageView)
 {
     assert(wrapper != nullptr);
@@ -1864,6 +1906,13 @@ void TrackCmdBindShadersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
             if(pShaders[pShaders_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ShaderEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ShaderEXTWrapper>(pShaders[pShaders_index]));
         }
     }
+}
+
+void TrackCmdDispatchDataGraphARMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkDataGraphPipelineSessionARM session)
+{
+    assert(wrapper != nullptr);
+
+    if(session != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DataGraphPipelineSessionARMHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(session));
 }
 
 void TrackCmdBindTileMemoryQCOMHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkTileMemoryBindInfoQCOM* pTileMemoryBindInfo)

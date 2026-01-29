@@ -147,6 +147,15 @@ void FieldToJson(nlohmann::ordered_json&         jdata,
                  const format::DeviceMemoryHeap& data,
                  const util::JsonOptions&        options = util::JsonOptions());
 
+void FieldToJson(nlohmann::ordered_json&            jdata,
+                 VkDescriptorType                   discriminant,
+                 const Decoded_VkDescriptorDataEXT* data,
+                 const util::JsonOptions&           options = util::JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json&               jdata,
+                 const Decoded_VkDescriptorGetInfoEXT* data,
+                 const util::JsonOptions&              options = util::JsonOptions());
+
 template <typename T>
 void FieldToJson(nlohmann::ordered_json&  jdata,
                  const std::vector<T>&    data,
@@ -158,6 +167,10 @@ void FieldToJson(nlohmann::ordered_json&  jdata,
         FieldToJson(jdata[i++], item, options);
     }
 }
+
+void FieldToJson(nlohmann::ordered_json&          jdata,
+                 const Decoded_VkLayerSettingEXT* data,
+                 const util::JsonOptions&         options = util::JsonOptions());
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

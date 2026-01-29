@@ -30,7 +30,6 @@
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
 #include "encode/parameter_buffer.h"
-#include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_tracker.h"
@@ -38,7 +37,6 @@
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -50,7 +48,6 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
-#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -309,6 +306,16 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  const VkImageCreateInfo*     pCreateInfo,
                                  const VkAllocationCallbacks* pAllocator,
                                  VkImage*                     pImage);
+
+    VkResult OverrideCreateImageView(VkDevice                     device,
+                                     const VkImageViewCreateInfo* pCreateInfo,
+                                     const VkAllocationCallbacks* pAllocator,
+                                     VkImageView*                 pImageView);
+
+    VkResult OverrideCreateSampler(VkDevice                     device,
+                                   const VkSamplerCreateInfo*   pCreateInfo,
+                                   const VkAllocationCallbacks* pAllocator,
+                                   VkSampler*                   pSampler);
 
     VkResult OverrideCreateAccelerationStructureKHR(VkDevice                                    device,
                                                     const VkAccelerationStructureCreateInfoKHR* pCreateInfo,
@@ -666,9 +673,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  bind_memory_range_index++)
                             {
                                 auto& bind_memory_range = image_bind.pBinds[bind_memory_range_index];
-                                // TODO: Implement handling for tracking binding information of sparse image
-                                // subresources.
-                                GFXRECON_LOG_ERROR_ONCE("Binding of sparse image blocks is not supported!");
+                                graphics::UpdateSparseImageMemoryBindMap(wrapper->sparse_subresource_memory_bind_map,
+                                                                         bind_memory_range);
                             }
                         }
                     }
@@ -1787,6 +1793,11 @@ class VulkanCaptureManager : public ApiCaptureManager
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
+
+    void WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
+                                             format::HandleId object_id,
+                                             size_t           data_size,
+                                             const void*      data);
 
     void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                      format::HandleId pipeline_id,

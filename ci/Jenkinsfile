@@ -1,0 +1,98 @@
+pipeline {
+    agent none
+
+    options {
+        disableConcurrentBuilds(abortPrevious: true)
+        buildDiscarder(logRotator(
+            daysToKeepStr: '90',
+            numToKeepStr: '100',
+            artifactDaysToKeepStr: '90',
+            artifactNumToKeepStr: '100'
+        ))
+    }
+
+    stages {
+        stage('Per Commit Tests') {
+            steps {
+                script {
+                    def tests
+
+                    // Checkout and load on any available node
+                    node {
+                        checkout scm
+                        def runJob = load 'ci/runJob.groovy'
+
+                        tests = [
+                            'Android Rel64': runJob.gfxrTestAndroid('Android R64', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "commit-suite.json"),
+                            'Android Dbg64': runJob.gfxrTestAndroid('Android D32', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit32, "commit-suite.json"),
+                            'Linux Mesa Rel64': runJob.gfxrTestLinux('Linux Mesa Rel64', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit64, "commit-suite.json"),
+                            'Linux Mesa Dbg32': runJob.gfxrTestLinux('Linux Mesa Dbg32', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit32, "commit-suite.json"),
+                            'Linux Nnvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "commit-suite.json"),
+                            'Linux Nnvidia Dbg32': runJob.gfxrTestLinux('Linux Nvidia Dbg32', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit32, "commit-suite.json"),
+                            'Mac': runJob.gfxrTestLinux('Mac', runJob.ReleaseMode, runJob.MacLabel, runJob.Bit64, "commit-suite.json"),
+                            'Windows AMD Rel64': runJob.gfxrTestWindows('Windows AMD Rel64', runJob.ReleaseMode, runJob.WinAMDLabel, runJob.Bit64, "commit-suite.json"),
+                            'Windows AMD Dbg32': runJob.gfxrTestWindows('Windows AMD Dbg32', runJob.ReleaseMode, runJob.WinAMDLabel, runJob.Bit32, "commit-suite.json"),
+                            'Windows Nvidia Rel64': runJob.gfxrTestWindows('Windows Nvidia Rel64', runJob.ReleaseMode, runJob.WinNvidiaLabel, runJob.Bit64, "commit-suite.json"),
+                            'Windows Nvidia Dbg32': runJob.gfxrTestWindows('Windows Nvidia Dbg32', runJob.ReleaseMode, runJob.WinNvidiaLabel, runJob.Bit32, "commit-suite.json"),
+                            'Windows11 AMD Rel64': runJob.gfxrTestWindows('Windows11 AMD Rel64', runJob.ReleaseMode, runJob.Win11AMDLabel, runJob.Bit64, "commit-suite.json"),
+                            'Windows11 AMD Dbg32': runJob.gfxrTestWindows('Windows11 AMD Dbg32', runJob.ReleaseMode, runJob.Win11AMDLabel, runJob.Bit32, "commit-suite.json"),
+                            'Windows11 ARM Rel64': runJob.gfxrTestWindows('Windows11 ARM Rel64', runJob.ReleaseMode, runJob.Win11ARMLabel, runJob.Bit64, "commit-suite.json"),
+                            'Windows11 ARM Dbg64': runJob.gfxrTestWindows('Windows11 ARM Dbg64', runJob.ReleaseMode, runJob.Win11ARMLabel, runJob.Bit64, "commit-suite.json")
+                        ]
+                    }
+                    // parallel runs OUTSIDE the node block - each branch allocates its own node
+                    parallel tests
+                }
+            }
+        }
+
+        stage('Trigger Extended Tests') {
+            when {
+                branch 'dev'
+            }
+
+            steps {
+                script {
+                    def quietPeriodSeconds = calculateQuietPeriod()
+                    build job: 'gfxreconstruct-pipelines/gfxreconstruct-extended',
+                          wait: false,
+                          propagate: false,
+                          quietPeriod: quietPeriodSeconds
+                }
+            }
+        }
+    }
+}
+
+// extended should only be run between 8pm and midnight, only on weekdays
+// this function will calculate the amount of time to wait until the next time extended should run
+def calculateQuietPeriod() {
+    def now = new Date()
+    def hour = now.getHours()
+    def dayOfWeek = now.getDay()  // 0=Sun, 1=Mon, ..., 6=Sat
+
+    // In window (Mon-Fri 8pm-midnight): run immediately
+    if (dayOfWeek >= 1 && dayOfWeek <= 5 && hour >= 20 && hour < 24) {
+        return 0
+    }
+
+    // Calculate seconds until next 8pm Mon-Fri
+    def target = now.clone()
+    target.setHours(20)
+    target.setMinutes(0)
+    target.setSeconds(0)
+
+    // If today is weekday and before 8pm, target is today
+    if (dayOfWeek >= 1 && dayOfWeek <= 5 && hour < 20) {
+        // target is today at 8pm, already set
+    }
+    // If weekend or after midnight, find next weekday
+    else {
+        target = target + 1  // tomorrow
+        while (target.getDay() == 0 || target.getDay() == 6) {
+            target = target + 1  // skip weekend
+        }
+    }
+
+    return (int) ((target.getTime() - now.getTime()) / 1000)
+}

@@ -1,0 +1,108 @@
+pipeline {
+    agent none
+
+    parameters {
+        string(
+            name: 'PROJECT_REPO',
+            defaultValue: 'git@github.com:LunarG/gfxreconstruct.git',
+            description: 'Project repository URL'
+        )
+        string(
+            name: 'PROJECT_BRANCH',
+            defaultValue: 'dev',
+            description: 'Project branch to build'
+        )
+        string(
+            name: 'TEST_REPO',
+            defaultValue: 'git@github.com:LunarG/VulkanTests',
+            description: 'Test repository URL'
+        )
+        string(
+            name: 'TEST_BRANCH',
+            defaultValue: '',
+            description: 'Test repository branch (leave empty for default)'
+        )
+        string(
+            name: 'TEST_SUITE_REPO',
+            defaultValue: 'git@github.com:LunarG/ci-gfxr-suites',
+            description: 'Test suite repository URL'
+        )
+        string(
+            name: 'TEST_SUITE_BRANCH',
+            defaultValue: '',
+            description: 'Test suite repository branch (leave empty for default)'
+        )
+        string(
+            name: 'TEST_SUITE',
+            defaultValue: 'extended-suite.json',
+            description: 'Test suite filename'
+        )
+
+    }
+
+    options {
+        disableConcurrentBuilds(abortPrevious: true)
+        buildDiscarder(logRotator(
+            daysToKeepStr: '90',
+            numToKeepStr: '100',
+            artifactDaysToKeepStr: '90',
+            artifactNumToKeepStr: '100'
+        ))
+    }
+
+    stages {
+
+        stage('Extended Tests') {
+            steps {
+                script {
+                    def tests
+
+                    node {
+                        checkout scm
+                        def runJob = load 'ci/runJob.groovy'
+
+                        tests = [
+                            'Android Rel64': runJob.gfxrTestAndroidManual('Android R64', runJob.AndroidLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH),
+                            'Linux Mesa Rel64': runJob.gfxrTestLinuxManual('Linux Mesa Rel64', runJob.LinuxMesaLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH),
+                            'Linux Nnvidia Rel64': runJob.gfxrTestLinuxManual('Linux Nvidia Rel64', runJob.LinuxNvidiaLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH),
+                            'Windows AMD Rel64': runJob.gfxrTestWindowsManual('Windows AMD Rel64', runJob.WinAMDExtendedLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH),
+                            'Windows Nvidia Rel64': runJob.gfxrTestWindowsManual('Windows Nvidia Rel64', runJob.WinNvidiaExtendedLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH),
+                        ]
+                    }
+                    parallel tests
+                }
+            }
+        }
+    }
+
+}
