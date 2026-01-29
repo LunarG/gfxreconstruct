@@ -195,6 +195,10 @@ void Application::Run()
                     auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
                     GFXRECON_ASSERT(preload_processor)
                     preload_processor->WaitDecodersIdle();
+
+                    // When replaying a frame again, skip any state blocks to avoid reapplying them again.
+                    preload_processor->SkipStateBlocks();
+
                     GFXRECON_LOG_INFO("Looping frame (%i iterations remaining)", frame_loop_info_->GetLoopIterations());
                     frame_loop_info_->DecrementLoopIterations();
                 }
