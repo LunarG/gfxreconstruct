@@ -3539,6 +3539,21 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
         SetInstancePhysicalDeviceEntries(
             instance_info, capture_device_count, capture_devices, replay_device_count, replay_devices);
 
+        // If it's not the first time we enumerate physical devices, they may already exist in the object info table.
+        // If they do, we want to copy them because otherwise they will be overwritten and capture data will be lost.
+        GetObjectInfoTable().VisitVkPhysicalDeviceInfo([&](const VulkanPhysicalDeviceInfo* old_physical_device_info) {
+            for (uint32_t i = 0; i < replay_device_count; ++i)
+            {
+                VulkanPhysicalDeviceInfo* new_physical_device_info =
+                    reinterpret_cast<VulkanPhysicalDeviceInfo*>(pPhysicalDevices->GetConsumerData(i));
+
+                if (old_physical_device_info->handle == new_physical_device_info->handle)
+                {
+                    *new_physical_device_info = *old_physical_device_info;
+                }
+            }
+        });
+
         for (uint32_t i = 0; i < replay_device_count; ++i)
         {
             auto physical_device_info =
