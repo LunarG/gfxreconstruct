@@ -5690,6 +5690,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkReleaseSwapchainImagesInfoK
     encoder->EncodeUInt32Array(value.pImageIndices, value.imageIndexCount);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.internallySynchronizedQueues);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixPropertiesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -10898,6 +10905,30 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageAlignmentControlCreate
     encoder->EncodeUInt32Value(value.maximumRequestedAlignment);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPushConstantBankInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.bank);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePushConstantBankFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.pushConstantBank);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePushConstantBankPropertiesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxGraphicsPushConstantBanks);
+    encoder->EncodeUInt32Value(value.maxComputePushConstantBanks);
+    encoder->EncodeUInt32Value(value.maxGraphicsPushDataBanks);
+    encoder->EncodeUInt32Value(value.maxComputePushDataBanks);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -11207,6 +11238,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeOccupa
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.computeOccupancyPriority);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.shaderSubgroupPartitioned);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)

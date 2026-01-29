@@ -46,7 +46,10 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
     }
     else if (peeked_bytes < sizeof(block_size))
     {
-        // The file ended, but doesn't contain even a full header's information
+        // The file ended, but doesn't contain even a full block_size field
+        // Clear the peek buffer, to make sure the input_stream reports EOF
+        // We don't need the result, just the side_effect
+        input_stream->ReadBytes(&block_size, peeked_bytes);
         status = kErrorReadingBlockHeader;
     }
 
