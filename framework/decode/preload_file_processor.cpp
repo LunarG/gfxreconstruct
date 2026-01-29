@@ -204,12 +204,46 @@ bool PreloadFileProcessor::AdvanceToNextFrame(ProcessBlockState process_result)
             current_frame_number_++;
         }
     }
+
     return ContinueProcessing(process_result);
+}
+
+void PreloadFileProcessor::SkipStateBlocks()
+{
+    GFXRECON_ASSERT(replay_cursor_);
+    for (auto drop_cursor = replay_cursor_; drop_cursor; ++drop_cursor)
+    {
+        ParsedBlock& block = *drop_cursor;
+        if (block.Holds<StateEndMarkerArgs>())
+        {
+            ++drop_cursor;
+            auto blocks_skipped = std::distance(replay_cursor_, drop_cursor);
+            GFXRECON_LOG_INFO("Skipped %" PRIu64 " state blocks from preloaded frame %" PRIu64,
+                              blocks_skipped,
+                              current_frame_number_);
+            replay_cursor_ = drop_cursor;
+            break;
+        }
+    }
+}
+
+bool PreloadFileProcessor::IsFileValid() const
+{
+    if (advance_to_next_frame_)
+    {
+        return FileProcessor::IsFileValid();
+    }
+    else
+    {
+        // When not advancing frames, ensure there is at least one preloaded frame to replay
+        return !preload_head_;
+    }
 }
 
 FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
 {
     GFXRECON_ASSERT(replay_cursor_);
+    auto current_cursor = replay_cursor_;
 
     BlockParser&    block_parser = GetBlockParser();
     DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
@@ -218,7 +252,7 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
     ProcessBlockState process_state = ProcessBlockState::kRunning;
     while (process_state == ProcessBlockState::kRunning)
     {
-        ParsedBlock& queued_block = *replay_cursor_;
+        ParsedBlock& queued_block = *current_cursor;
         uint64_t     block_index  = queued_block.GetBlockIndex();
         if (!ContinueDecoding(block_index, true /* check decoder completion */))
         {
@@ -275,14 +309,19 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
         }
 
         // Advance
-        ++replay_cursor_;
+        ++current_cursor;
 
-        if ((process_state == ProcessBlockState::kRunning) && !replay_cursor_)
+        if ((process_state == ProcessBlockState::kRunning) && !current_cursor)
         {
             // We did not end on a frame boundary, but that's okay if preloading end frame is beyond last complete frame
             // and there is a last incomplete frame, because of interrupt during record
             process_state = ProcessBlockState::kEndProcessing;
         }
+    }
+
+    if (advance_to_next_frame_)
+    {
+        replay_cursor_ = current_cursor;
     }
 
     return process_state;
