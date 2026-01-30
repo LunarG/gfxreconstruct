@@ -294,6 +294,7 @@ class PageGuardManager
     pthread_t       signal_handler_watcher_thread_;
     static uint32_t signal_handler_watcher_restores_;
 
+    static void  InstallSignalHandlerWatcher();
     static void* SignalHandlerWatcher(void*);
     static bool  CheckSignalHandler();
     void         MarkAllTrackedMemoryAsDirty();

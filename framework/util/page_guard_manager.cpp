@@ -356,12 +356,28 @@ bool PageGuardManager::CheckSignalHandler()
     return false;
 }
 
+void PageGuardManager::InstallSignalHandlerWatcher()
+{
+    GFXRECON_ASSERT(instance_ != nullptr);
+
+    if (instance_->enable_signal_handler_watcher_ &&
+#if defined(__ANDROID__)
+        !instance_->libsigchain_active_ &&
+#endif
+        (instance_->signal_handler_watcher_max_restores_ < 0 ||
+         signal_handler_watcher_restores_ < static_cast<uint32_t>(instance_->signal_handler_watcher_max_restores_)))
+    {
+        int ret = pthread_create(&instance_->signal_handler_watcher_thread_, nullptr, SignalHandlerWatcher, nullptr);
+        if (ret)
+        {
+            GFXRECON_LOG_ERROR("Page guard manager failed spawning thread (%s)", strerror(ret));
+        }
+    }
+}
+
 void* PageGuardManager::SignalHandlerWatcher(void* args)
 {
     while (instance_->enable_signal_handler_watcher_ &&
-#if defined(__ANDROID__)
-           !instance_->libsigchain_active_ &&
-#endif
            (instance_->signal_handler_watcher_max_restores_ < 0 ||
             signal_handler_watcher_restores_ < static_cast<uint32_t>(instance_->signal_handler_watcher_max_restores_)))
     {
@@ -392,20 +408,6 @@ void PageGuardManager::Create(bool                 enable_copy_on_map,
                                          enable_signal_handler_watcher,
                                          signal_handler_watcher_max_restores,
                                          protection_mode);
-
-#if !defined(WIN32)
-        if (enable_signal_handler_watcher &&
-            (signal_handler_watcher_max_restores < 0 ||
-             signal_handler_watcher_restores_ < static_cast<uint32_t>(signal_handler_watcher_max_restores)))
-        {
-            int ret =
-                pthread_create(&instance_->signal_handler_watcher_thread_, nullptr, SignalHandlerWatcher, nullptr);
-            if (ret)
-            {
-                GFXRECON_LOG_ERROR("Page guard manager failed spawning thread (%s)", strerror(ret));
-            }
-        }
-#endif
     }
     else
     {
@@ -590,6 +592,8 @@ void PageGuardManager::AddExceptionHandler()
             {
                 exception_handler_       = reinterpret_cast<void*>(PageGuardExceptionHandler);
                 exception_handler_count_ = 1;
+
+                InstallSignalHandlerWatcher();
             }
             else
             {
