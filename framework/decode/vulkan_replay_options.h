@@ -164,6 +164,14 @@ struct VulkanReplayOptions : public ReplayOptions
     std::string load_pipeline_cache_filename;
     std::string save_pipeline_cache_filename;
     bool        add_new_pipeline_caches;
+
+    // Time of instantiation of this struct.
+    std::chrono::high_resolution_clock::time_point start_time{ std::chrono::high_resolution_clock::now() };
+
+    // Milliseconds to wait before first queue submit.
+    uint32_t wait_before_first_submit{ 0 };
+
+    void MaybeWaitBeforeFirstSubmit() const;
 };
 
 GFXRECON_END_NAMESPACE(decode)

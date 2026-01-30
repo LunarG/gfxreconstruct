@@ -4098,6 +4098,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                                                        StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
                                                        const VulkanFenceInfo*                      fence_info)
 {
+    options_.MaybeWaitBeforeFirstSubmit();
+
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
     VkResult            result       = VK_SUCCESS;
@@ -4353,6 +4355,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                                                         StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
                                                         const VulkanFenceInfo*                       fence_info)
 {
+    options_.MaybeWaitBeforeFirstSubmit();
+
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
     VkResult             result       = VK_SUCCESS;
