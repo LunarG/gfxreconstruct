@@ -620,6 +620,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                                            trace_settings.page_guard_unblock_sigsegv,
                                            trace_settings.page_guard_signal_handler_watcher,
                                            trace_settings.page_guard_signal_handler_watcher_max_restores,
+                                           trace_settings.page_guard_use_libsigchain,
                                            mem_prot_mode);
         }
     }

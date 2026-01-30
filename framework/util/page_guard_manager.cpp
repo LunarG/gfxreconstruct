@@ -210,7 +210,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 
 PageGuardManager* PageGuardManager::instance_ = nullptr;
 
-void PageGuardManager::InitializeSystemExceptionContext(void)
+void PageGuardManager::InitializeSystemExceptionContext(bool use_libsigchain)
 {
 #if defined(__linux__)
     if (s_alt_stack == nullptr)
@@ -220,15 +220,18 @@ void PageGuardManager::InitializeSystemExceptionContext(void)
     }
 #endif
 #if defined(__ANDROID__)
-    AddSpecialSignalHandlerFn =
-        reinterpret_cast<PFN_AddSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "AddSpecialSignalHandlerFn"));
-    RemoveSpecialSignalHandlerFn =
-        reinterpret_cast<PFN_RemoveSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "RemoveSpecialSignalHandlerFn"));
-    if (!AddSpecialSignalHandlerFn || !RemoveSpecialSignalHandlerFn)
+    if (use_libsigchain)
     {
-        AddSpecialSignalHandlerFn    = nullptr;
-        RemoveSpecialSignalHandlerFn = nullptr;
-        GFXRECON_LOG_WARNING("PageGuardManager could not find libsigchain symbols. Falling back to sigaction.")
+        AddSpecialSignalHandlerFn =
+            reinterpret_cast<PFN_AddSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "AddSpecialSignalHandlerFn"));
+        RemoveSpecialSignalHandlerFn =
+            reinterpret_cast<PFN_RemoveSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "RemoveSpecialSignalHandlerFn"));
+        if (!AddSpecialSignalHandlerFn || !RemoveSpecialSignalHandlerFn)
+        {
+            AddSpecialSignalHandlerFn    = nullptr;
+            RemoveSpecialSignalHandlerFn = nullptr;
+            GFXRECON_LOG_WARNING("PageGuardManager could not find libsigchain symbols. Falling back to sigaction.")
+        }
     }
 #endif
 }
@@ -240,6 +243,7 @@ PageGuardManager::PageGuardManager() :
                      kDefaultEnableSignalHandlerWatcher,
                      kDefaultSignalHandlerWatcherMaxRestores,
                      kDefaultEnableReadWriteSamePage,
+                     kDefaultUseLibsigchain,
                      kDefaultMemoryProtMode)
 {}
 
@@ -249,6 +253,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
                                    bool                 unblock_SIGSEGV,
                                    bool                 enable_signal_handler_watcher,
                                    int                  signal_handler_watcher_max_restores,
+                                   bool                 use_libsigchain,
                                    MemoryProtectionMode protection_mode) :
     exception_handler_(nullptr),
     exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
@@ -268,7 +273,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
 
     if (kMProtectMode == protection_mode_)
     {
-        InitializeSystemExceptionContext();
+        InitializeSystemExceptionContext(use_libsigchain);
     }
     else
     {
@@ -277,7 +282,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
             GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect memory tracking mode.");
 
             protection_mode_ = kMProtectMode;
-            InitializeSystemExceptionContext();
+            InitializeSystemExceptionContext(use_libsigchain);
         }
     }
 }
@@ -397,6 +402,7 @@ void PageGuardManager::Create(bool                 enable_copy_on_map,
                               bool                 unblock_SIGSEGV,
                               bool                 enable_signal_handler_watcher,
                               int                  signal_handler_watcher_max_restores,
+                              bool                 page_guard_use_libsigchain,
                               MemoryProtectionMode protection_mode)
 {
     if (instance_ == nullptr)
@@ -407,6 +413,7 @@ void PageGuardManager::Create(bool                 enable_copy_on_map,
                                          unblock_SIGSEGV,
                                          enable_signal_handler_watcher,
                                          signal_handler_watcher_max_restores,
+                                         page_guard_use_libsigchain,
                                          protection_mode);
     }
     else
