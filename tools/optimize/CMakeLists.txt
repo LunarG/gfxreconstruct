@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2020 LunarG, Inc.
+# Copyright (c) 2026 LunarG, Inc.
 # Copyright (c) 2022-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -43,6 +43,7 @@ target_sources(gfxrecon-optimize
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/block_skipping_file_processor.cpp>
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
                    $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
+                   $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
               )
 
 if (MSVC)
