@@ -500,37 +500,15 @@ VulkanReplayDumpResourcesBase::FindTransferContext(VkCommandBuffer original_comm
     return nullptr;
 }
 
-void VulkanReplayDumpResourcesBase::ReleaseDrawCallContexts(decode::Index qs_index)
+template <typename MapOfContexts>
+void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(MapOfContexts contexts, decode::Index qs_index)
 {
-    for (const auto& [qs_bcb_pair, context] : draw_call_contexts_)
-    {
-        if (qs_bcb_pair.second == qs_index)
-        {
-            --active_contexts_;
-        }
-    }
-}
-
-void VulkanReplayDumpResourcesBase::ReleaseDispatchTraceRaysContexts(decode::Index qs_index)
-{
-    for (const auto& [qs_bcb_pair, context] : dispatch_ray_contexts_)
-    {
-        if (qs_bcb_pair.second == qs_index)
-        {
-            --active_contexts_;
-        }
-    }
-}
-
-void VulkanReplayDumpResourcesBase::ReleaseTransferContexts(decode::Index qs_index)
-{
-    for (const auto& [qs_bcb_pair, context] : transfer_contexts_)
-    {
-        if (qs_bcb_pair.second == qs_index)
-        {
-            --active_contexts_;
-        }
-    }
+    const auto count = std::erase_if(contexts, [qs_index](const auto& item) {
+        const auto& [bcb_qs_pair, context] = item;
+        return bcb_qs_pair.second == qs_index;
+    });
+    GFXRECON_ASSERT(count <= active_contexts_);
+    active_contexts_ -= count;
 }
 
 VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t                 bcb_index,
@@ -1919,7 +1897,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             return res;
         }
 
-        for (auto [bcb_qs_pair, transf_context] : transfer_contexts_)
+        for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
         {
             if (bcb_qs_pair.second == index)
             {
@@ -1931,10 +1909,13 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                     RaiseFatalError(("Dumping transfer failed (" + util::ToString<VkResult>(res) + ")").c_str());
                     return res;
                 }
-
-                // Keep track of active contexts.
-                ReleaseTransferContexts(index);
             }
+        }
+
+        if (submitted)
+        {
+            // Keep track of active contexts.
+            ReleaseDumpingContexts(transfer_contexts_, index);
         }
     }
 
@@ -1965,7 +1946,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 }
 
                 // Keep track of active contexts.
-                ReleaseDrawCallContexts(index);
+                ReleaseDumpingContexts(draw_call_contexts_, index);
 
                 submitted = true;
             }
@@ -1989,7 +1970,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 }
 
                 // Keep track of active contexts.
-                ReleaseDispatchTraceRaysContexts(index);
+                ReleaseDumpingContexts(dispatch_ray_contexts_, index);
 
                 submitted = true;
             }
@@ -2231,7 +2212,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                                  accumulated_secondaries_command_buffers.data());
 
                             func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);
-                            dc_primary_context->FinalizeCommandBuffer();
                             dc_primary_context->MergeRenderPasses(*dc_secondary_context);
                             ++finalized_primaries;
                         }
@@ -2248,6 +2228,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                         {
                             func(*primary_it, 1, &pCommandBuffers[i]);
                         }
+
+                        dc_primary_context->UpdateSecondaries(*dc_secondary_context.get());
 
                         // All primaries have been finalized. Nothing else to do
                         if (finalized_primaries == primary_last - primary_first)
@@ -2266,7 +2248,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                     }
                 }
             }
-            dc_primary_context->UpdateSecondaries();
         }
         else
         {
@@ -3252,7 +3233,7 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
 
         // ProcessStateEndMarker marks the end of the state setup section. If a TransferDumpingContext was assigned to
         // dump transfer commands from there then now it becomes inactive.
-        ReleaseTransferContexts(0);
+        ReleaseDumpingContexts(transfer_contexts_, 0);
     }
 }
 

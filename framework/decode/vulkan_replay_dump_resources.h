@@ -693,10 +693,11 @@ class VulkanReplayDumpResourcesBase
     std::shared_ptr<TransferDumpingContext> FindTransferContext(VkCommandBuffer original_command_buffer,
                                                                 decode::Index   qs_index);
 
-    // Context tracking. These functions should be called when a dumping context has done its job.
-    void ReleaseDrawCallContexts(decode::Index qs_index);
-    void ReleaseDispatchTraceRaysContexts(decode::Index qs_index);
-    void ReleaseTransferContexts(decode::Index qs_index);
+    // Context tracking. This functions should be called when a dumping context has done its job.
+    // The context will be erased from its corresponding map and the active_contexts_ counter will be
+    // adjusted accordingly.
+    template <typename MapOfContexts>
+    void ReleaseDumpingContexts(MapOfContexts contexts, decode::Index qs_index);
 
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,
