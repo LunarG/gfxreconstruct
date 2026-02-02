@@ -182,6 +182,13 @@ struct VulkanReplayOptions : public ReplayOptions
     /// Serialize render passes by injecting an execution barrier before each render pass begin.
     bool serialize_render_passes{ false };
 
+    /// Path to SPIR-V binary used for the compute dispatch warm-up pass.
+    std::string frame_warm_up_spirv_path;
+
+    // Workload scale factor for the compute dispatch warm-up pass.
+    // A bigger `frame_warm_up_load` means more synthetic GPU work to ramp/stabilize GPU clocks before replay.
+    uint32_t frame_warm_up_load{ 0 };
+
     void MaybeWaitBeforeFirstSubmit() const;
 };
 
