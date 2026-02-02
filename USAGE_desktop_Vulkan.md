@@ -873,6 +873,13 @@ Optional arguments:
               If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
   --wait-before-first-submit <milliseconds>
               Wait for the specified amount of milliseconds before processing the first submit.
+  --frame-warm-up-spirv <spirv-file>
+              Specify a SPIR-V file for the compute warm-up pass.
+              Warm-up runs only when this option and a non-zero
+              --frame-warm-up-load are both provided.
+  --frame-warm-up-load <load>
+              Specify workload scale factor for a compute dispatch warm-up pass
+              run before each frame replay. Default is 0 (disabled).
 ```
 
 ### Key Controls
