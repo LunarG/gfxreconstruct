@@ -873,6 +873,9 @@ Optional arguments:
               If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
   --wait-before-first-submit <milliseconds>
               Wait for the specified amount of milliseconds before processing the first submit.
+  --frame-warm-up-load <load>
+              Specify workload scale factor for a compute dispatch warm-up pass
+              run before each frame replay. Default is 0 (disabled).
 ```
 
 ### Key Controls
