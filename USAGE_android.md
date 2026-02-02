@@ -1008,6 +1008,14 @@ options:
                         Wait for the specified amount of milliseconds before
                         processing the first submit. (forwarded to replay tool)
   --idle-before-submit  Wait for the GPU to become idle before each submit.
+  --frame-warm-up-spirv DEVICE_FILE
+                        Specify a SPIR-V file for the compute warm-up pass.
+                        Warm-up runs only when this option and a non-zero
+                        --frame-warm-up-load are both provided.
+                        (forwarded to replay tool)
+  --frame-warm-up-load LOAD
+                        Specify workload scale factor for a compute dispatch warm-up pass
+                        run before each frame replay. Default is 0 (disabled).
                         (forwarded to replay tool)
   --serialize-render-passes
                         Serialize render passes by injecting execution barriers before render pass begin during replay. (forwarded to replay tool)
