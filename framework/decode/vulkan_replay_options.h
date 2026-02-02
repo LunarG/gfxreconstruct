@@ -171,6 +171,10 @@ struct VulkanReplayOptions : public ReplayOptions
     // Milliseconds to wait before first queue submit.
     uint32_t wait_before_first_submit{ 0 };
 
+    // Workload scale factor for the compute dispatch warm-up pass.
+    // A bigger `frame_warm_up_load` means more synthetic GPU work to ramp/stabilize GPU clocks before replay.
+    uint32_t frame_warm_up_load{ 0 };
+
     void MaybeWaitBeforeFirstSubmit() const;
 };
 

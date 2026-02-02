@@ -31,6 +31,7 @@
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_address_replacer.h"
+#include "decode/vulkan_frame_warm_up.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
@@ -1796,6 +1797,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
+    VulkanFrameWarmUp&                  GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info);
 
     /**
      * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
@@ -1934,6 +1936,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VulkanPerDeviceAddressTrackers  _device_address_trackers;
     VulkanPerDeviceAddressReplacers _device_address_replacers;
+    VulkanPerDeviceFrameWarmUp      device_frame_warmups_;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
