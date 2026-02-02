@@ -288,6 +288,7 @@ class PageGuardManager
     const bool               enable_separate_read_;
     const bool               unblock_sigsegv_;
     bool                     enable_signal_handler_watcher_;
+    bool                     handler_watcher_running_;
     int                      signal_handler_watcher_max_restores_;
 
     // Only applies to WIN32 builds and Linux/Android builds with PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION defined.

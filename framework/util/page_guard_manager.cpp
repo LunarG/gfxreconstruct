@@ -259,7 +259,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
     exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
-    enable_signal_handler_watcher_(enable_signal_handler_watcher),
+    enable_signal_handler_watcher_(enable_signal_handler_watcher), handler_watcher_running_(false),
     signal_handler_watcher_max_restores_(signal_handler_watcher_max_restores),
     enable_read_write_same_page_(expect_read_write_same_page), protection_mode_(protection_mode), uffd_is_init_(false)
 {
@@ -365,7 +365,7 @@ void PageGuardManager::InstallSignalHandlerWatcher()
 {
     GFXRECON_ASSERT(instance_ != nullptr);
 
-    if (instance_->enable_signal_handler_watcher_ &&
+    if ((instance_->enable_signal_handler_watcher_ && !instance_->handler_watcher_running_) &&
 #if defined(__ANDROID__)
         !instance_->libsigchain_active_ &&
 #endif
@@ -382,6 +382,8 @@ void PageGuardManager::InstallSignalHandlerWatcher()
 
 void* PageGuardManager::SignalHandlerWatcher(void* args)
 {
+    instance_->handler_watcher_running_ = true;
+
     while (instance_->enable_signal_handler_watcher_ &&
            (instance_->signal_handler_watcher_max_restores_ < 0 ||
             signal_handler_watcher_restores_ < static_cast<uint32_t>(instance_->signal_handler_watcher_max_restores_)))
@@ -391,6 +393,8 @@ void* PageGuardManager::SignalHandlerWatcher(void* args)
             ++signal_handler_watcher_restores_;
         }
     }
+
+    instance_->handler_watcher_running_ = false;
 
     return NULL;
 }
