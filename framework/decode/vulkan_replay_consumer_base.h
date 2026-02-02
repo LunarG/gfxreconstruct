@@ -45,6 +45,7 @@
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_replay_dump_resources.h"
 #include "graphics/fps_info.h"
+#include "graphics/vulkan_frame_warm_up.h"
 #include "util/defines.h"
 #include "util/logging.h"
 #include "util/threadpool.h"
@@ -1950,6 +1951,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // faked extensions is a list of currently bypassed extensions.
     // goal is to allow replay when 'benign' extensions are missing during replay.
     std::vector<const char*> faked_extensions_;
+
+    std::unique_ptr<graphics::VulkanFrameWarmUp> frame_warm_up_{ nullptr };
+
+    void MaybeWarmUp(const VulkanQueueInfo* queue_info);
 
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:

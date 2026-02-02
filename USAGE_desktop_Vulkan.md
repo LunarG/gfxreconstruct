@@ -863,9 +863,11 @@ Optional arguments:
                         `--load-pipeline-cache`.
   --quit-after-frame
               Specify a frame after which replay will terminate.
-
   --deduplicate-device
               If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
+  --frame-warm-up-load <load>
+              Specify workload scale factor for a compute dispatch warm-up pass
+              run before each frame replay. Default is 0 (disabled).
 ```
 
 ### Key Controls
