@@ -682,7 +682,7 @@ std::string GetVulkanDeviceTypeString(VkPhysicalDeviceType device_type)
             return "VK_PHYSICAL_DEVICE_TYPE_CPU";
             break;
         default:
-            return std::format("Unknown ({})", static_cast<int>(device_type));
+            return std::string("Unknown (") + std::to_string(device_type) + ")";
             break;
     }
 }
