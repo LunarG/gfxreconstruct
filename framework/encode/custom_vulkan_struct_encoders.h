@@ -51,6 +51,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorGetInfoEXT& value);
 
+// Vulkan structures we check in the pNext chain that really should not be there.
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopy& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopy& value);
+
 // Platform defined structures that are external to Vulkan.
 void EncodeStruct(ParameterEncoder* encoder, const ACL& value);
 void EncodeStruct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);

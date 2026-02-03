@@ -1200,6 +1200,30 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLayerDeviceCreateInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureBuildGeometryInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureBuildSizesInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureCaptureDescriptorDataInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureDeviceAddressInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureGeometryAabbsDataKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureGeometryInstancesDataKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_LINEAR_SWEPT_SPHERES_DATA_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureGeometryLinearSweptSpheresDataNV*>(base), 1, unwrap_memory));
         break;
@@ -1209,6 +1233,15 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_SPHERES_DATA_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureGeometrySpheresDataNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureGeometryTrianglesDataKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureMemoryRequirementsInfoNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureMotionInfoNV*>(base), 1, unwrap_memory));
         break;
@@ -1217,6 +1250,15 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_VERSION_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAccelerationStructureVersionInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAcquireNextImageInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ACQUIRE_PROFILING_LOCK_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAcquireProfilingLockInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_AMIGO_PROFILING_SUBMIT_INFO_SEC:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAmigoProfilingSubmitInfoSEC*>(base), 1, unwrap_memory));
@@ -1230,8 +1272,26 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_RESOLVE_PROPERTIES_ANDROID:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAndroidHardwareBufferFormatResolvePropertiesANDROID*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAndroidHardwareBufferPropertiesANDROID*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAndroidHardwareBufferUsageANDROID*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAndroidSurfaceCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ANTI_LAG_DATA_AMD:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAntiLagDataAMD*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ANTI_LAG_PRESENTATION_INFO_AMD:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAntiLagPresentationInfoAMD*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_APPLICATION_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkApplicationInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAttachmentDescription2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAttachmentDescriptionStencilLayout*>(base), 1, unwrap_memory));
@@ -1239,17 +1299,41 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_ATTACHMENT_FEEDBACK_LOOP_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAttachmentFeedbackLoopInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAttachmentReference2*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAttachmentReferenceStencilLayout*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_BEGIN_CUSTOM_RESOLVE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBeginCustomResolveInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindAccelerationStructureMemoryInfoNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindBufferMemoryDeviceGroupInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindBufferMemoryInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindDataGraphPipelineSessionMemoryInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindDescriptorSetsInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindImageMemoryDeviceGroupInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindImageMemoryInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindImageMemorySwapchainInfoKHR*>(base), 1, unwrap_memory));
@@ -1260,11 +1344,44 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_BIND_MEMORY_STATUS:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindMemoryStatus*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindSparseInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBindVideoSessionMemoryInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_BLIT_IMAGE_CUBIC_WEIGHTS_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBlitImageCubicWeightsInfoQCOM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBlitImageInfo2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferCaptureDescriptorDataInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_COPY_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferCopy2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferDeviceAddressCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferDeviceAddressInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferImageCopy2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferMemoryBarrier*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferMemoryBarrier2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferMemoryRequirementsInfo2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferOpaqueCaptureAddressCreateInfo*>(base), 1, unwrap_memory));
@@ -1272,8 +1389,32 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferUsageFlags2CreateInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBufferViewCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_BUILD_PARTITIONED_ACCELERATION_STRUCTURE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkBuildPartitionedAccelerationStructureInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCalibratedTimestampInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCheckpointData2NV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCheckpointDataNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferAllocateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferBeginInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferInheritanceInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM*>(base), 1, unwrap_memory));
@@ -1284,11 +1425,83 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_VIEWPORT_SCISSOR_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferInheritanceViewportScissorInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferSubmitInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandPoolCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COMPUTE_OCCUPANCY_PRIORITY_PARAMETERS_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkComputeOccupancyPriorityParametersNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkComputePipelineCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_INDIRECT_BUFFER_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkComputePipelineIndirectBufferInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkConditionalRenderingBeginInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_CONVERT_COOPERATIVE_VECTOR_MATRIX_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkConvertCooperativeVectorMatrixInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_FLEXIBLE_DIMENSIONS_PROPERTIES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCooperativeMatrixFlexibleDimensionsPropertiesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCooperativeMatrixPropertiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCooperativeMatrixPropertiesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COOPERATIVE_VECTOR_PROPERTIES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCooperativeVectorPropertiesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyAccelerationStructureInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyAccelerationStructureToMemoryInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyBufferInfo2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyBufferToImageInfo2*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyCommandTransformInfoQCOM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyDescriptorSet*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyImageInfo2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyImageToBufferInfo2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyImageToImageInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_MEMORY_INDIRECT_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyMemoryIndirectInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyMemoryToAccelerationStructureInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INDIRECT_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyMemoryToImageIndirectInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_MICROMAP_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyMemoryToMicromapInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_MICROMAP_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyMicromapInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCopyMicromapToMemoryInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_CUSTOM_RESOLVE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCustomResolveCreateInfoEXT*>(base), 1, unwrap_memory));
@@ -1302,11 +1515,41 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_COMPILER_CONTROL_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineCompilerControlCreateInfoARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineConstantARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CONSTANT_TENSOR_SEMI_STRUCTURED_SPARSITY_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CREATE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_DISPATCH_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineDispatchInfoARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_IDENTIFIER_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineIdentifierCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelinePropertyQueryResultARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineResourceInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENT_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineSessionBindPointRequirementARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineSessionBindPointRequirementsInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_CREATE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineSessionCreateInfoARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineSessionMemoryRequirementsInfoARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphPipelineShaderModuleCreateInfoARM*>(base), 1, unwrap_memory));
@@ -1314,14 +1557,35 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PROCESSING_ENGINE_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDataGraphProcessingEngineCreateInfoARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugMarkerMarkerInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugMarkerObjectNameInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugMarkerObjectTagInfoEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugReportCallbackCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugUtilsLabelEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugUtilsMessengerCallbackDataEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugUtilsObjectNameInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDebugUtilsObjectTagInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DECOMPRESS_MEMORY_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDecompressMemoryInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDedicatedAllocationBufferCreateInfoNV*>(base), 1, unwrap_memory));
@@ -1332,17 +1596,47 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDedicatedAllocationMemoryAllocateInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DEPENDENCY_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDependencyInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEPTH_BIAS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDepthBiasInfoEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DEPTH_BIAS_REPRESENTATION_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDepthBiasRepresentationInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_ADDRESS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorAddressInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorBufferBindingInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorPoolCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorPoolInlineUniformBlockCreateInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetAllocateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetBindingReferenceVALVE*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetLayoutBindingFlagsCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetLayoutCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetLayoutHostMappingInfoVALVE*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetLayoutSupport*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetVariableDescriptorCountAllocateInfo*>(base), 1, unwrap_memory));
@@ -1350,14 +1644,32 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorSetVariableDescriptorCountLayoutSupport*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDescriptorUpdateTemplateCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DEVICE_ADDRESS_BINDING_CALLBACK_DATA_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceAddressBindingCallbackDataEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceBufferMemoryRequirements*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceDeviceMemoryReportCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceEventInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceFaultCountsEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceFaultInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceGroupBindSparseInfo*>(base), 1, unwrap_memory));
@@ -1367,6 +1679,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceGroupPresentCapabilitiesKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceGroupPresentInfoKHR*>(base), 1, unwrap_memory));
@@ -1380,8 +1695,20 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceGroupSwapchainCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceImageMemoryRequirements*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceImageSubresourceInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceMemoryOpaqueCaptureAddressInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceMemoryOverallocationCreateInfoAMD*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceMemoryReportCallbackDataEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEVICE_PIPELINE_BINARY_INTERNAL_CACHE_CONTROL_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDevicePipelineBinaryInternalCacheControlKHR*>(base), 1, unwrap_memory));
@@ -1389,14 +1716,38 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDevicePrivateDataCreateInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceQueueCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceQueueInfo2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DEVICE_QUEUE_SHADER_CORE_CONTROL_CREATE_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceQueueShaderCoreControlCreateInfoARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_INFO_LUNARG:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDirectDriverLoadingInfoLUNARG*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DIRECT_DRIVER_LOADING_LIST_LUNARG:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDirectDriverLoadingListLUNARG*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDirectFBSurfaceCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPATCH_TILE_INFO_QCOM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDispatchTileInfoQCOM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayEventInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayModeCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayModeProperties2KHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_MODE_STEREO_PROPERTIES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayModeStereoPropertiesNV*>(base), 1, unwrap_memory));
@@ -1404,8 +1755,26 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayNativeHdrSurfaceCapabilitiesAMD*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayPlaneCapabilities2KHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayPlaneInfo2KHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayPlaneProperties2KHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_POWER_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayPowerInfoEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayPresentInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplayProperties2KHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplaySurfaceCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_STEREO_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDisplaySurfaceStereoCreateInfoNV*>(base), 1, unwrap_memory));
@@ -1415,6 +1784,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDrmFormatModifierPropertiesListEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_EVENT_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkEventCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExportFenceCreateInfo*>(base), 1, unwrap_memory));
@@ -1440,6 +1812,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExportSemaphoreWin32HandleInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalBufferProperties*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalFenceProperties*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalFormatANDROID*>(base), 1, unwrap_memory));
         break;
@@ -1458,8 +1836,23 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalMemoryImageCreateInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkExternalSemaphoreProperties*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_FENCE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFenceCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFenceGetFdInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFenceGetWin32HandleInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFilterCubicImageViewImageFormatPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFormatProperties2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFormatProperties3*>(base), 1, unwrap_memory));
@@ -1470,8 +1863,29 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFrameBoundaryEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFramebufferAttachmentImageInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFramebufferAttachmentsCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFramebufferCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_FRAMEBUFFER_MIXED_SAMPLES_COMBINATION_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkFramebufferMixedSamplesCombinationNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeneratedCommandsInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeneratedCommandsInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoNV*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(base), 1, unwrap_memory));
@@ -1479,20 +1893,56 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeometryAABBNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GEOMETRY_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeometryNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGeometryTrianglesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGetLatencyMarkerInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGraphicsPipelineLibraryCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGraphicsPipelineShaderGroupsCreateInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkGraphicsShaderGroupCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_HDR_METADATA_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHdrMetadataEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_HDR_VIVID_DYNAMIC_METADATA_HUAWEI:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHdrVividDynamicMetadataHUAWEI*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHeadlessSurfaceCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_HOST_IMAGE_COPY_DEVICE_PERFORMANCE_QUERY:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHostImageCopyDevicePerformanceQuery*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkHostImageLayoutTransitionInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIOSSurfaceCreateInfoMVK*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageAlignmentControlCreateInfoMESA*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_BLIT_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageBlit2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageCaptureDescriptorDataInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageCompressionControlEXT*>(base), 1, unwrap_memory));
@@ -1500,26 +1950,71 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageCompressionPropertiesEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_IMAGE_COPY_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageCopy2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageDrmFormatModifierExplicitCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageDrmFormatModifierListCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageDrmFormatModifierPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageFormatListCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageFormatProperties2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageMemoryBarrier*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageMemoryBarrier2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageMemoryRequirementsInfo2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGEPIPE_SURFACE_CREATE_INFO_FUCHSIA:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImagePipeSurfaceCreateInfoFUCHSIA*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImagePlaneMemoryRequirementsInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageResolve2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageStencilUsageCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageSubresource2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageSwapchainCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageViewASTCDecodeModeEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageViewAddressPropertiesNVX*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageViewCaptureDescriptorDataInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageViewCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageViewHandleInfoNVX*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImageViewMinLodCreateInfoEXT*>(base), 1, unwrap_memory));
@@ -1535,6 +2030,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportFenceFdInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportFenceWin32HandleInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportMemoryFdInfoKHR*>(base), 1, unwrap_memory));
@@ -1554,17 +2055,71 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportMemoryZirconHandleInfoFUCHSIA*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportSemaphoreFdInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportSemaphoreWin32HandleInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkImportSemaphoreZirconHandleInfoFUCHSIA*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectCommandsLayoutTokenNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectExecutionSetPipelineInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectExecutionSetShaderInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_LAYOUT_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkIndirectExecutionSetShaderLayoutInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INITIALIZE_PERFORMANCE_API_INFO_INTEL:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkInitializePerformanceApiInfoINTEL*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkInstanceCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_LATENCY_SLEEP_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLatencySleepInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_LATENCY_SLEEP_MODE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLatencySleepModeInfoNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_LATENCY_SUBMISSION_PRESENT_ID_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLatencySubmissionPresentIdNV*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_LATENCY_SURFACE_CAPABILITIES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLatencySurfaceCapabilitiesNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_LATENCY_TIMINGS_FRAME_REPORT_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLatencyTimingsFrameReportNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLayerSettingsCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMacOSSurfaceCreateInfoMVK*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMappedMemoryRange*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryAllocateFlagsInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryAllocateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_BARRIER:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryBarrier*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_MEMORY_BARRIER_2:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryBarrier2*>(base), 1, unwrap_memory));
@@ -1578,14 +2133,74 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryDedicatedRequirements*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryFdPropertiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryGetAndroidHardwareBufferInfoANDROID*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryGetFdInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_GET_METAL_HANDLE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryGetMetalHandleInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryGetRemoteAddressInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryGetWin32HandleInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryGetZirconHandleInfoFUCHSIA*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryHostPointerPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_MAP_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryMapInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryMapPlacedInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_METAL_HANDLE_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryMetalHandlePropertiesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryOpaqueCaptureAddressAllocateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryPriorityAllocateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryRequirements2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryUnmapInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryWin32HandlePropertiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MEMORY_ZIRCON_HANDLE_PROPERTIES_FUCHSIA:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMemoryZirconHandlePropertiesFUCHSIA*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMetalSurfaceCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMicromapBuildInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MICROMAP_BUILD_SIZES_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMicromapBuildSizesInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MICROMAP_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMicromapCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MICROMAP_VERSION_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMicromapVersionInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMultisamplePropertiesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkMultisampledRenderToSingleSampledInfoEXT*>(base), 1, unwrap_memory));
@@ -1602,17 +2217,71 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_OPAQUE_CAPTURE_DESCRIPTOR_DATA_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpaqueCaptureDescriptorDataCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_EXECUTE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpticalFlowExecuteInfoNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpticalFlowImageFormatInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpticalFlowImageFormatPropertiesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpticalFlowSessionCreateInfoNV*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOpticalFlowSessionCreatePrivateDataInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_OUT_OF_BAND_QUEUE_TYPE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkOutOfBandQueueTypeInfoNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_FLAGS_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPartitionedAccelerationStructureFlagsNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_INSTANCES_INPUT_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPartitionedAccelerationStructureInstancesInputNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPastPresentationTimingEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPastPresentationTimingInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPastPresentationTimingPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PER_TILE_BEGIN_INFO_QCOM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerTileBeginInfoQCOM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PER_TILE_END_INFO_QCOM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerTileEndInfoQCOM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_CONFIGURATION_ACQUIRE_INFO_INTEL:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceConfigurationAcquireInfoINTEL*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceCounterARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceCounterDescriptionARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceCounterDescriptionKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceCounterKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_MARKER_INFO_INTEL:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceMarkerInfoINTEL*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_OVERRIDE_INFO_INTEL:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceOverrideInfoINTEL*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceQuerySubmitInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PERFORMANCE_STREAM_MARKER_INFO_INTEL:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceStreamMarkerInfoINTEL*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevice16BitStorageFeatures*>(base), 1, unwrap_memory));
@@ -1860,6 +2529,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExternalBufferInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExternalFenceInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FORMAT_RESOLVE_FEATURES_ANDROID:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExternalFormatResolveFeaturesANDROID*>(base), 1, unwrap_memory));
         break;
@@ -1874,6 +2549,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExternalMemoryRDMAFeaturesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExternalSemaphoreInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(base), 1, unwrap_memory));
@@ -1929,6 +2607,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateFeaturesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRateKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFragmentShadingRatePropertiesKHR*>(base), 1, unwrap_memory));
         break;
@@ -1943,6 +2624,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceGroupProperties*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HDR_VIVID_FEATURES_HUAWEI:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceHdrVividFeaturesHUAWEI*>(base), 1, unwrap_memory));
@@ -1976,6 +2660,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceImageFormatInfo2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_PROCESSING_2_FEATURES_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceImageProcessing2FeaturesQCOM*>(base), 1, unwrap_memory));
@@ -2021,6 +2708,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceInvocationMaskFeaturesHUAWEI*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceLayeredApiPropertiesKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceLayeredApiPropertiesListKHR*>(base), 1, unwrap_memory));
@@ -2108,6 +2798,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMemoryPriorityFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMemoryProperties2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesEXT*>(base), 1, unwrap_memory));
@@ -2268,6 +2961,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePrivateDataFeatures*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceProperties2*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceProtectedMemoryFeatures*>(base), 1, unwrap_memory));
         break;
@@ -2288,6 +2984,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePushDescriptorProperties*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT*>(base), 1, unwrap_memory));
@@ -2520,6 +3219,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShadingRateImagePropertiesNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceSparseImageFormatInfo2*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceSubgroupProperties*>(base), 1, unwrap_memory));
         break;
@@ -2531,6 +3233,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceSurfaceInfo2KHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR*>(base), 1, unwrap_memory));
@@ -2571,6 +3276,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceTimelineSemaphoreProperties*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceToolProperties*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -2610,11 +3318,17 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_INTRA_REFRESH_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVideoEncodeIntraRefreshFeaturesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_QUANTIZATION_MAP_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVideoEncodeQuantizationMapFeaturesKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_ENCODE_RGB_CONVERSION_FEATURES_VALVE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVideoEncodeRgbConversionFeaturesVALVE*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVideoFormatInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceVideoMaintenance1FeaturesKHR*>(base), 1, unwrap_memory));
@@ -2664,11 +3378,29 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineBinaryCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_DATA_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineBinaryDataInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineBinaryHandlesInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineBinaryInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_BINARY_KEY_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineBinaryKeyKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineCacheCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineColorBlendAdvancedStateCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineColorBlendStateCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineColorWriteCreateInfoEXT*>(base), 1, unwrap_memory));
@@ -2688,11 +3420,32 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineCreateFlags2CreateInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineCreationFeedbackCreateInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineDepthStencilStateCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineDiscardRectangleStateCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineDynamicStateCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineExecutableInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineExecutableInternalRepresentationKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineExecutablePropertiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineExecutableStatisticKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_DENSITY_MAP_LAYERED_CREATE_INFO_VALVE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineFragmentDensityMapLayeredCreateInfoVALVE*>(base), 1, unwrap_memory));
@@ -2703,11 +3456,23 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineFragmentShadingRateStateCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineIndirectDeviceAddressInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineInputAssemblyStateCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineLayoutCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineMultisampleStateCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineRasterizationConservativeStateCreateInfoEXT*>(base), 1, unwrap_memory));
@@ -2720,6 +3485,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineRasterizationProvokingVertexStateCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineRasterizationStateCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineRasterizationStateRasterizationOrderAMD*>(base), 1, unwrap_memory));
@@ -2739,6 +3507,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineSampleLocationsStateCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineShaderStageCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_MODULE_IDENTIFIER_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineShaderStageModuleIdentifierCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
@@ -2748,8 +3519,14 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineTessellationDomainOriginStateCreateInfo*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineTessellationStateCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineVertexInputStateCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV*>(base), 1, unwrap_memory));
@@ -2766,6 +3543,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineViewportShadingRateImageStateCreateInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineViewportStateCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPipelineViewportSwizzleStateCreateInfoNV*>(base), 1, unwrap_memory));
         break;
@@ -2781,11 +3561,17 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PRESENT_ID_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentIdKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentRegionsKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentTimesInfoGOOGLE*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PRESENT_TIMING_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentTimingInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PRESENT_TIMING_SURFACE_CAPABILITIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentTimingSurfaceCapabilitiesEXT*>(base), 1, unwrap_memory));
@@ -2793,14 +3579,29 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_PRESENT_TIMINGS_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentTimingsInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PRESENT_WAIT_2_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPresentWait2InfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPrivateDataSlotCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkProtectedSubmitInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PUSH_CONSTANT_BANK_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPushConstantBankInfoNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPushConstantsInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPushDescriptorSetInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryLowLatencySupportNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryPoolCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryPoolPerformanceCreateInfoKHR*>(base), 1, unwrap_memory));
@@ -2817,11 +3618,20 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyDataGraphProcessingEnginePropertiesARM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyDataGraphPropertiesARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyGlobalPriorityProperties*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyOwnershipTransferPropertiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyProperties2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyQueryResultStatusPropertiesKHR*>(base), 1, unwrap_memory));
@@ -2829,8 +3639,38 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueueFamilyVideoPropertiesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRayTracingPipelineCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_INTERFACE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRayTracingPipelineInterfaceCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRayTracingShaderGroupCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRayTracingShaderGroupCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkReleaseCapturedPipelineDataInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkReleaseSwapchainImagesInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassBeginInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassCreateInfo2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassCreationControlEXT*>(base), 1, unwrap_memory));
@@ -2859,6 +3699,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_INFO_ARM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassStripeInfoARM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassStripeSubmitInfoARM*>(base), 1, unwrap_memory));
         break;
@@ -2871,11 +3714,20 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderPassTransformBeginInfoQCOM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_RENDERING_AREA_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingAreaInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_FLAGS_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingAttachmentFlagsInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingAttachmentInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_LOCATION_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingAttachmentLocationInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RENDERING_END_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingEndInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(base), 1, unwrap_memory));
@@ -2883,8 +3735,14 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_RENDERING_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_RENDERING_INPUT_ATTACHMENT_INDEX_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkRenderingInputAttachmentIndexInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkResolveImageInfo2*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkResolveImageModeInfoKHR*>(base), 1, unwrap_memory));
@@ -2898,6 +3756,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerBorderColorComponentMappingCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerCaptureDescriptorDataInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerCreateInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_SAMPLER_CUBIC_WEIGHTS_CREATE_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerCubicWeightsCreateInfoQCOM*>(base), 1, unwrap_memory));
         break;
@@ -2906,6 +3770,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerReductionModeCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerYcbcrConversionCreateInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerYcbcrConversionImageFormatProperties*>(base), 1, unwrap_memory));
@@ -2916,14 +3783,50 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_YCBCR_DEGAMMA_CREATE_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkScreenSurfaceCreateInfoQNX*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreGetFdInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreGetWin32HandleInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreGetZirconHandleInfoFUCHSIA*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreSignalInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreSubmitInfo*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreTypeCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSemaphoreWaitInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSetDescriptorBufferOffsetsInfoEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SET_LATENCY_MARKER_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSetLatencyMarkerInfoNV*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SET_PRESENT_CONFIG_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSetPresentConfigNV*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkShaderCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkShaderModuleCreateInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SHADER_MODULE_IDENTIFIER_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkShaderModuleIdentifierEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(base), 1, unwrap_memory));
@@ -2931,14 +3834,50 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSharedPresentSurfaceCapabilitiesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSparseImageFormatProperties2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSparseImageMemoryRequirements2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_STREAM_DESCRIPTOR_SURFACE_CREATE_INFO_GGP:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkStreamDescriptorSurfaceCreateInfoGGP*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SUBMIT_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubmitInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SUBMIT_INFO_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubmitInfo2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubpassBeginInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubpassDependency2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubpassDescription2*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubpassDescriptionDepthStencilResolve*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SUBPASS_END_INFO:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubpassEndInfo*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SUBPASS_RESOLVE_PERFORMANCE_QUERY_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubpassResolvePerformanceQueryEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SUBRESOURCE_HOST_MEMCPY_SIZE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubresourceHostMemcpySize*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSubresourceLayout2*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilities2EXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilities2KHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilitiesFullScreenExclusiveEXT*>(base), 1, unwrap_memory));
@@ -2951,6 +3890,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_PRESENT_WAIT_2_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceCapabilitiesPresentWait2KHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceFormat2KHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSurfaceFullScreenExclusiveInfoEXT*>(base), 1, unwrap_memory));
@@ -2976,6 +3918,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainCounterCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainDisplayNativeHdrCreateInfoAMD*>(base), 1, unwrap_memory));
         break;
@@ -2997,6 +3942,12 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainPresentScalingCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_TIME_DOMAIN_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainTimeDomainPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_SWAPCHAIN_TIMING_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkSwapchainTimingPropertiesEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(base), 1, unwrap_memory));
         break;
@@ -3009,14 +3960,38 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_TILE_MEMORY_SIZE_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTileMemorySizeInfoQCOM*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_TILE_PROPERTIES_QCOM:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTilePropertiesQCOM*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkTimelineSemaphoreSubmitInfo*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkValidationCacheCreateInfoEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkValidationFeaturesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkValidationFlagsEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVertexInputAttributeDescription2EXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVertexInputBindingDescription2EXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkViSurfaceCreateInfoNN*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoBeginCodingInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoCapabilitiesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoCodingControlInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeAV1CapabilitiesKHR*>(base), 1, unwrap_memory));
@@ -3053,6 +4028,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeH264SessionParametersCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoDecodeUsageInfoKHR*>(base), 1, unwrap_memory));
@@ -3111,6 +4089,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_GOP_REMAINING_FRAME_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264GopRemainingFrameInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_NALU_SLICE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264NaluSliceInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH264PictureInfoKHR*>(base), 1, unwrap_memory));
         break;
@@ -3147,6 +4128,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_QUANTIZATION_MAP_CAPABILITIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeH265QuantizationMapCapabilitiesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INTRA_REFRESH_CAPABILITIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeIntraRefreshCapabilitiesKHR*>(base), 1, unwrap_memory));
         break;
@@ -3158,6 +4142,9 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeQualityLevelInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeQualityLevelPropertiesKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_CAPABILITIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeQuantizationMapCapabilitiesKHR*>(base), 1, unwrap_memory));
@@ -3171,11 +4158,20 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeRateControlInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RATE_CONTROL_LAYER_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeRateControlLayerInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_RGB_CONVERSION_CAPABILITIES_VALVE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeRgbConversionCapabilitiesVALVE*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_INTRA_REFRESH_CREATE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeSessionIntraRefreshCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeSessionParametersFeedbackInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_GET_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeSessionParametersGetInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_RGB_CONVERSION_CREATE_INFO_VALVE:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeSessionRgbConversionCreateInfoVALVE*>(base), 1, unwrap_memory));
@@ -3183,17 +4179,26 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_ENCODE_USAGE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEncodeUsageInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoEndCodingInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_VIDEO_FORMAT_AV1_QUANTIZATION_MAP_PROPERTIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoFormatAV1QuantizationMapPropertiesKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_FORMAT_H265_QUANTIZATION_MAP_PROPERTIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoFormatH265QuantizationMapPropertiesKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoFormatPropertiesKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_VIDEO_FORMAT_QUANTIZATION_MAP_PROPERTIES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoFormatQuantizationMapPropertiesKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoPictureResourceInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoProfileInfoKHR*>(base), 1, unwrap_memory));
@@ -3204,11 +4209,32 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
     case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_INTRA_REFRESH_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoReferenceIntraRefreshInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoReferenceSlotInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoSessionCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoSessionMemoryRequirementsKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoSessionParametersCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkVideoSessionParametersUpdateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWaylandSurfaceCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWin32SurfaceCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base), 1, unwrap_memory));
@@ -3221,6 +4247,18 @@ VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMe
         break;
     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_PARTITIONED_ACCELERATION_STRUCTURE_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteDescriptorSetPartitionedAccelerationStructureNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteIndirectExecutionSetPipelineEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkWriteIndirectExecutionSetShaderEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkXcbSurfaceCreateInfoKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkXlibSurfaceCreateInfoKHR*>(base), 1, unwrap_memory));
         break;
     }
 
@@ -3245,62 +4283,364 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             }
             return copy;
         }
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureBuildGeometryInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureCaptureDescriptorDataInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureCreateInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureCreateInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureDeviceAddressInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureGeometryTrianglesDataKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureMemoryRequirementsInfoNV*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_DISPLACEMENT_MICROMAP_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureTrianglesDisplacementMicromapNV*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkAccelerationStructureTrianglesOpacityMicromapEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkAcquireNextImageInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindAccelerationStructureMemoryInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindBufferMemoryInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_DATA_GRAPH_PIPELINE_SESSION_MEMORY_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindDataGraphPipelineSessionMemoryInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindDescriptorBufferEmbeddedSamplersInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_SETS_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindDescriptorSetsInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindImageMemoryInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkBindImageMemorySwapchainInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_SPARSE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindSparseInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBindVideoSessionMemoryInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBlitImageInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BUFFER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBufferCaptureDescriptorDataInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBufferDeviceAddressInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBufferMemoryBarrier*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBufferMemoryBarrier2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBufferMemoryRequirementsInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkBufferViewCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCalibratedTimestampInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCommandBufferAllocateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCommandBufferBeginInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCommandBufferInheritanceInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCommandBufferSubmitInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkComputePipelineCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkConditionalRenderingBeginInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyAccelerationStructureInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyAccelerationStructureToMemoryInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyBufferInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyBufferToImageInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyDescriptorSet*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyImageInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyImageToBufferInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_IMAGE_TO_IMAGE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyImageToImageInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyMemoryToAccelerationStructureInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INDIRECT_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyMemoryToImageIndirectInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_MEMORY_TO_MICROMAP_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyMemoryToMicromapInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_MICROMAP_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyMicromapInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_COPY_MICROMAP_TO_MEMORY_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkCopyMicromapToMemoryInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_CREATE_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDataGraphPipelineCreateInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDataGraphPipelineInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_BIND_POINT_REQUIREMENTS_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDataGraphPipelineSessionBindPointRequirementsInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_CREATE_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDataGraphPipelineSessionCreateInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDataGraphPipelineSessionMemoryRequirementsInfoARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDataGraphPipelineShaderModuleCreateInfoARM*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDedicatedAllocationMemoryAllocateInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DEPENDENCY_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDependencyInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorBufferBindingInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DESCRIPTOR_BUFFER_BINDING_PUSH_DESCRIPTOR_BUFFER_HANDLE_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorBufferBindingPushDescriptorBufferHandleEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorSetAllocateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorSetBindingReferenceVALVE*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorSetLayoutCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDescriptorUpdateTemplateCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDeviceCreateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDeviceImageMemoryRequirements*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDeviceImageSubresourceInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDeviceMemoryOpaqueCaptureAddressInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDisplayModeProperties2KHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDisplayPlaneInfo2KHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDisplayPlaneProperties2KHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDisplayProperties2KHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDisplaySurfaceCreateInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkFenceGetFdInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkFenceGetWin32HandleInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkFrameBoundaryEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkFramebufferCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGeneratedCommandsInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGeneratedCommandsInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGeneratedCommandsMemoryRequirementsInfoNV*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGeometryAABBNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GEOMETRY_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGeometryNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGeometryTrianglesNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkGraphicsPipelineShaderGroupsCreateInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGraphicsShaderGroupCreateInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkHostImageLayoutTransitionInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageCaptureDescriptorDataInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageMemoryBarrier*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageMemoryBarrier2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageMemoryRequirementsInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkImageSwapchainCreateInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageViewCaptureDescriptorDataInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageViewCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImageViewHandleInfoNVX*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImportFenceFdInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImportFenceWin32HandleInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImportSemaphoreFdInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImportSemaphoreWin32HandleInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkImportSemaphoreZirconHandleInfoFUCHSIA*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectCommandsLayoutCreateInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectCommandsLayoutTokenNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_PIPELINE_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectExecutionSetPipelineInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectExecutionSetShaderInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_INDIRECT_EXECUTION_SET_SHADER_LAYOUT_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkIndirectExecutionSetShaderLayoutInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_LATENCY_SLEEP_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkLatencySleepInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMappedMemoryRange*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryAllocateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryDedicatedAllocateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryGetAndroidHardwareBufferInfoANDROID*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryGetFdInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_GET_METAL_HANDLE_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryGetMetalHandleInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryGetRemoteAddressInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryGetWin32HandleInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryGetZirconHandleInfoFUCHSIA*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_MAP_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryMapInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMemoryUnmapInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMicromapBuildInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_MICROMAP_CREATE_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkMicromapCreateInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PAST_PRESENTATION_TIMING_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPastPresentationTimingInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPhysicalDeviceGroupProperties*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPhysicalDeviceSurfaceInfo2KHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineBinaryCreateInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_DATA_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineBinaryDataInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineBinaryHandlesInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineBinaryInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineExecutableInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_INDIRECT_DEVICE_ADDRESS_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineIndirectDeviceAddressInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineLayoutCreateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPipelineShaderStageCreateInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPresentInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PUSH_CONSTANTS_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPushConstantsInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkPushDescriptorSetInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkRayTracingPipelineCreateInfoNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RELEASE_CAPTURED_PIPELINE_DATA_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkReleaseCapturedPipelineDataInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkReleaseSwapchainImagesInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkRenderPassBeginInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkRenderPassStripeSubmitInfoARM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkRenderingAttachmentInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkRenderingFragmentShadingRateAttachmentInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RENDERING_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkRenderingInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkResolveImageInfo2*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SAMPLER_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSamplerCaptureDescriptorDataInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSamplerCreateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkSamplerYcbcrConversionInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSemaphoreGetFdInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSemaphoreGetWin32HandleInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSemaphoreGetZirconHandleInfoFUCHSIA*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSemaphoreSignalInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSemaphoreSubmitInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSemaphoreWaitInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSetDescriptorBufferOffsetsInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkShaderCreateInfoEXT*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkShaderModuleCreateInfo*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SUBMIT_INFO:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSubmitInfo*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SUBMIT_INFO_2:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSubmitInfo2*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_SWAPCHAIN_CALIBRATED_TIMESTAMP_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkSwapchainCalibratedTimestampInfoEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkSwapchainCreateInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkSwapchainPresentFenceInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoBeginCodingInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoDecodeInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoEncodeInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUANTIZATION_MAP_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoEncodeQuantizationMapInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_GET_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoEncodeSessionParametersGetInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoPictureResourceInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoReferenceSlotInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkVideoSessionParametersCreateInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
@@ -3309,6 +4649,10 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_PIPELINE_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteIndirectExecutionSetPipelineEXT*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_WRITE_INDIRECT_EXECUTION_SET_SHADER_EXT:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteIndirectExecutionSetShaderEXT*>(base), unwrap_memory);
         }
     }
 
