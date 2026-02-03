@@ -6557,6 +6557,69 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
         const auto type = reinterpret_cast<const XrBaseInStructure*>(data->GetPointer())->type;
         switch (type)
         {
+            case XR_TYPE_ACTION_CREATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTION_SET_CREATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionSetCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTION_SPACE_CREATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionSpaceCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTION_STATE_BOOLEAN:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionStateBoolean*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTION_STATE_FLOAT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionStateFloat*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTION_STATE_GET_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionStateGetInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTION_STATE_POSE:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionStatePose*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTION_STATE_VECTOR2F:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionStateVector2f*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ACTIONS_SYNC_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrActionsSyncInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_ACTIVE_ACTION_SET_PRIORITIES_EXT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrActiveActionSetPrioritiesEXT*>(data->GetMetaStructPointer());
@@ -6571,9 +6634,58 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_API_LAYER_PROPERTIES:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrApiLayerProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_BINDING_MODIFICATIONS_KHR:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrBindingModificationsKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_BODY_JOINT_LOCATIONS_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrBodyJointLocationsFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_BODY_JOINTS_LOCATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrBodyJointsLocateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_BODY_SKELETON_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrBodySkeletonFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_BODY_TRACKER_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrBodyTrackerCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_BOUND_SOURCES_FOR_ACTION_ENUMERATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrBoundSourcesForActionEnumerateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_BOUNDARY_2D_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrBoundary2DFB*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6588,6 +6700,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
             case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerColorScaleBiasKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerCubeKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerCylinderKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6613,9 +6739,58 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerEquirect2KHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerEquirectKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_COMPOSITION_LAYER_IMAGE_LAYOUT_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerImageLayoutFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerPassthroughFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerPassthroughHTC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerProjection*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerProjectionView*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COMPOSITION_LAYER_QUAD:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerQuad*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6655,9 +6830,366 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_CONTROLLER_MODEL_KEY_STATE_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrControllerModelKeyStateMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_CONTROLLER_MODEL_NODE_PROPERTIES_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrControllerModelNodePropertiesMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_CONTROLLER_MODEL_NODE_STATE_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrControllerModelNodeStateMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_CONTROLLER_MODEL_PROPERTIES_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrControllerModelPropertiesMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_CONTROLLER_MODEL_STATE_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrControllerModelStateMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_COORDINATE_SPACE_CREATE_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrCoordinateSpaceCreateInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_DEBUG_UTILS_LABEL_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrDebugUtilsLabelEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrDebugUtilsMessengerCallbackDataEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrDebugUtilsMessengerCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrDebugUtilsObjectNameInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_DEVICE_PCM_SAMPLE_RATE_STATE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrDevicePcmSampleRateStateFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_DIGITAL_LENS_CONTROL_ALMALENCE:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrDigitalLensControlALMALENCE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEnvironmentDepthImageAcquireInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEnvironmentDepthImageMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEnvironmentDepthImageViewMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEnvironmentDepthProviderCreateInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEnvironmentDepthSwapchainStateMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_BUFFER:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataBuffer*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataDisplayRefreshRateChangedFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataEventsLost*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataEyeCalibrationChangedML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataHeadsetFitChangedML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataInstanceLossPending*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataInteractionProfileChanged*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataLocalizationChangedML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataMainSessionVisibilityChangedEXTX*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataMarkerTrackingUpdateVARJO*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataPassthroughStateChangedFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataPerfSettingsEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataReferenceSpaceChangePending*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SCENE_CAPTURE_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSceneCaptureCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSessionStateChanged*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpaceEraseCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpaceListSaveCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpaceQueryCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpaceQueryResultsAvailableFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpaceSaveCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpaceSetStatusCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpaceShareCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataSpatialAnchorCreateCompleteFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataUserPresenceChangedEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_BACKSPACE_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataVirtualKeyboardBackspaceMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_COMMIT_TEXT_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataVirtualKeyboardCommitTextMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_ENTER_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataVirtualKeyboardEnterMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_HIDDEN_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataVirtualKeyboardHiddenMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_SHOWN_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataVirtualKeyboardShownMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataVisibilityMaskChangedKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEventDataViveTrackerConnectedHTCX*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EXTENSION_PROPERTIES:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrExtensionProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EXTERNAL_CAMERA_OCULUS:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrExternalCameraOCULUS*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6669,9 +7201,100 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_EYE_GAZES_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEyeGazesFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EYE_GAZES_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEyeGazesInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_EYE_TRACKER_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrEyeTrackerCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACE_EXPRESSION_INFO2_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFaceExpressionInfo2FB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACE_EXPRESSION_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFaceExpressionInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFaceExpressionWeights2FB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACE_EXPRESSION_WEIGHTS_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFaceExpressionWeightsFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACE_TRACKER_CREATE_INFO2_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFaceTrackerCreateInfo2FB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACE_TRACKER_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFaceTrackerCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACIAL_EXPRESSIONS_HTC:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFacialExpressionsHTC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FACIAL_TRACKER_CREATE_INFO_HTC:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFacialTrackerCreateInfoHTC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FORCE_FEEDBACK_CURL_APPLY_LOCATIONS_MNDX:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrForceFeedbackCurlApplyLocationsMNDX*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_FOVEATED_VIEW_CONFIGURATION_VIEW_VARJO:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrFoveatedViewConfigurationViewVARJO*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FOVEATION_APPLY_INFO_HTC:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFoveationApplyInfoHTC*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6697,6 +7320,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_FOVEATION_EYE_TRACKED_STATE_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFoveationEyeTrackedStateMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_FOVEATION_LEVEL_PROFILE_CREATE_INFO_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrFoveationLevelProfileCreateInfoFB*>(data->GetMetaStructPointer());
@@ -6704,9 +7334,86 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_FOVEATION_PROFILE_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFoveationProfileCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FRAME_BEGIN_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFrameBeginInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FRAME_END_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFrameEndInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_FRAME_END_INFO_ML:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrFrameEndInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FRAME_STATE:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFrameState*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FRAME_WAIT_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFrameWaitInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FUTURE_CANCEL_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFutureCancelInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FUTURE_COMPLETION_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFutureCompletionEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FUTURE_POLL_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFuturePollInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_FUTURE_POLL_RESULT_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrFuturePollResultEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GEOMETRY_INSTANCE_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGeometryInstanceCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GEOMETRY_INSTANCE_TRANSFORM_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGeometryInstanceTransformFB*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6788,9 +7495,65 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGraphicsRequirementsD3D11KHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGraphicsRequirementsD3D12KHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGraphicsRequirementsMetalKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGraphicsRequirementsOpenGLESKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGraphicsRequirementsOpenGLKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGraphicsRequirementsVulkanKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAND_JOINT_LOCATIONS_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHandJointLocationsEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_HAND_JOINT_VELOCITIES_EXT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrHandJointVelocitiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHandJointsLocateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6802,9 +7565,37 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_HAND_MESH_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHandMeshMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAND_MESH_SPACE_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHandMeshSpaceCreateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAND_MESH_UPDATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHandMeshUpdateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_HAND_POSE_TYPE_INFO_MSFT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrHandPoseTypeInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHandTrackerCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6837,9 +7628,44 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_HAND_TRACKING_MESH_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHandTrackingMeshFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_HAND_TRACKING_SCALE_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrHandTrackingScaleFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAPTIC_ACTION_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHapticActionInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHapticAmplitudeEnvelopeVibrationFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHapticPcmVibrationFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_HAPTIC_VIBRATION:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrHapticVibration*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6851,6 +7677,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_INPUT_SOURCE_LOCALIZED_NAME_GET_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrInputSourceLocalizedNameGetInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_INSTANCE_CREATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrInstanceCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrInstanceCreateInfoAndroidKHR*>(data->GetMetaStructPointer());
@@ -6858,9 +7698,93 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_INSTANCE_PROPERTIES:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrInstanceProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrInteractionProfileAnalogThresholdVALVE*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrInteractionProfileDpadBindingEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_INTERACTION_PROFILE_STATE:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrInteractionProfileState*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrInteractionProfileSuggestedBinding*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_KEYBOARD_SPACE_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrKeyboardSpaceCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_KEYBOARD_TRACKING_QUERY_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrKeyboardTrackingQueryFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrLoaderInitInfoAndroidKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_LOCAL_DIMMING_FRAME_END_INFO_META:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrLocalDimmingFrameEndInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_LOCALIZATION_ENABLE_EVENTS_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrLocalizationEnableEventsInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_LOCALIZATION_MAP_IMPORT_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrLocalizationMapImportInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_LOCALIZATION_MAP_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrLocalizationMapML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_MAP_LOCALIZATION_REQUEST_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrMapLocalizationRequestInfoML*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6879,6 +7803,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_MARKER_DETECTOR_CREATE_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrMarkerDetectorCreateInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_MARKER_DETECTOR_CUSTOM_PROFILE_INFO_ML:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrMarkerDetectorCustomProfileInfoML*>(data->GetMetaStructPointer());
@@ -6893,9 +7824,65 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_MARKER_DETECTOR_SNAPSHOT_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrMarkerDetectorSnapshotInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_MARKER_DETECTOR_STATE_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrMarkerDetectorStateML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_MARKER_SPACE_CREATE_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrMarkerSpaceCreateInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_MARKER_SPACE_CREATE_INFO_VARJO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrMarkerSpaceCreateInfoVARJO*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_NEW_SCENE_COMPUTE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrNewSceneComputeInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_PASSTHROUGH_BRIGHTNESS_CONTRAST_SATURATION_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrPassthroughBrightnessContrastSaturationFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_COLOR_HTC:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughColorHTC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_COLOR_LUT_CREATE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughColorLutCreateInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_COLOR_LUT_UPDATE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughColorLutUpdateInfoMETA*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6928,9 +7915,135 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_PASSTHROUGH_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughCreateInfoHTC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_KEYBOARD_HANDS_INTENSITY_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughKeyboardHandsIntensityFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_LAYER_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughLayerCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrPassthroughMeshTransformInfoHTC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_PREFERENCES_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughPreferencesMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PASSTHROUGH_STYLE_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPassthroughStyleFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PERFORMANCE_METRICS_COUNTER_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPerformanceMetricsCounterMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PERFORMANCE_METRICS_STATE_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPerformanceMetricsStateMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PLANE_DETECTOR_BEGIN_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPlaneDetectorBeginInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PLANE_DETECTOR_CREATE_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPlaneDetectorCreateInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PLANE_DETECTOR_GET_INFO_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPlaneDetectorGetInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PLANE_DETECTOR_LOCATION_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPlaneDetectorLocationEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PLANE_DETECTOR_LOCATIONS_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPlaneDetectorLocationsEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_PLANE_DETECTOR_POLYGON_BUFFER_EXT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrPlaneDetectorPolygonBufferEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_RECOMMENDED_LAYER_RESOLUTION_GET_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrRecommendedLayerResolutionGetInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_RECOMMENDED_LAYER_RESOLUTION_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrRecommendedLayerResolutionMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_REFERENCE_SPACE_CREATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrReferenceSpaceCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_RENDER_MODEL_BUFFER_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrRenderModelBufferFB*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6942,9 +8055,86 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_RENDER_MODEL_LOAD_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrRenderModelLoadInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_RENDER_MODEL_PATH_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrRenderModelPathInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_RENDER_MODEL_PROPERTIES_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrRenderModelPropertiesFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_ROOM_LAYOUT_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrRoomLayoutFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_CAPTURE_REQUEST_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneCaptureRequestInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_COMPONENT_LOCATIONS_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneComponentLocationsMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SCENE_COMPONENT_PARENT_FILTER_INFO_MSFT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSceneComponentParentFilterInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_COMPONENTS_GET_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneComponentsGetInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_COMPONENTS_LOCATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneComponentsLocateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_COMPONENTS_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneComponentsMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneCreateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_DESERIALIZE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneDeserializeInfoMSFT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6970,6 +8160,41 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SCENE_MESH_BUFFERS_GET_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneMeshBuffersGetInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_MESH_BUFFERS_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneMeshBuffersMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_MESH_INDICES_UINT16_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneMeshIndicesUint16MSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_MESH_INDICES_UINT32_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneMeshIndicesUint32MSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_MESH_VERTEX_BUFFER_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneMeshVertexBufferMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SCENE_MESHES_MSFT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSceneMeshesMSFT*>(data->GetMetaStructPointer());
@@ -6987,6 +8212,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
             case XR_TYPE_SCENE_OBJECTS_MSFT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSceneObjectsMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SCENE_OBSERVER_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSceneObserverCreateInfoMSFT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -7019,9 +8251,23 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_LAYER_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSecondaryViewConfigurationLayerInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_SESSION_BEGIN_INFO_MSFT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSecondaryViewConfigurationSessionBeginInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_STATE_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSecondaryViewConfigurationStateMSFT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -7033,6 +8279,48 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SEMANTIC_LABELS_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSemanticLabelsFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SEMANTIC_LABELS_SUPPORT_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSemanticLabelsSupportInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SERIALIZED_SCENE_FRAGMENT_DATA_GET_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSerializedSceneFragmentDataGetInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSessionActionSetsAttachInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SESSION_BEGIN_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSessionBeginInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SESSION_CREATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSessionCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SESSION_CREATE_INFO_OVERLAY_EXTX:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSessionCreateInfoOverlayEXTX*>(data->GetMetaStructPointer());
@@ -7040,9 +8328,121 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceComponentFilterInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_COMPONENT_STATUS_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceComponentStatusFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_COMPONENT_STATUS_SET_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceComponentStatusSetInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_CONTAINER_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceContainerFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_ERASE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceEraseInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_LIST_SAVE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceListSaveInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_LOCATION:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceLocation*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_LOCATIONS:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceLocations*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_QUERY_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceQueryInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_QUERY_RESULTS_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceQueryResultsFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_SAVE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceSaveInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_SHARE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceShareInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SPACE_STORAGE_LOCATION_FILTER_INFO_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSpaceStorageLocationFilterInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_TRIANGLE_MESH_GET_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceTriangleMeshGetInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_TRIANGLE_MESH_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceTriangleMeshMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_USER_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceUserCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceUuidFilterInfoFB*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -7061,6 +8461,90 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SPACES_LOCATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpacesLocateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialAnchorCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_HTC:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialAnchorCreateInfoHTC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialAnchorCreateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_ANCHOR_FROM_PERSISTED_ANCHOR_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_ANCHOR_PERSISTENCE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialAnchorPersistenceInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialAnchorSpaceCreateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_GET_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialGraphNodeBindingPropertiesGetInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialGraphNodeBindingPropertiesMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_GRAPH_NODE_SPACE_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialGraphNodeSpaceCreateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SPATIAL_GRAPH_STATIC_NODE_BINDING_CREATE_INFO_MSFT:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpatialGraphStaticNodeBindingCreateInfoMSFT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_CREATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainCreateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SWAPCHAIN_CREATE_INFO_FOVEATION_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSwapchainCreateInfoFoveationFB*>(data->GetMetaStructPointer());
@@ -7068,9 +8552,100 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageAcquireInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageD3D11KHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageD3D12KHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageFoveationVulkanFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageMetalKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageOpenGLESKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageOpenGLKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageReleaseInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageVulkanKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainImageWaitInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainStateFoveationFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainStateSamplerOpenGLESFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSwapchainStateSamplerVulkanFB*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -7159,6 +8734,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SYSTEM_GET_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSystemGetInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SYSTEM_HAND_TRACKING_MESH_PROPERTIES_MSFT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSystemHandTrackingMeshPropertiesMSFT*>(data->GetMetaStructPointer());
@@ -7229,6 +8811,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SYSTEM_PROPERTIES:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSystemProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_SYSTEM_RENDER_MODEL_PROPERTIES_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSystemRenderModelPropertiesFB*>(data->GetMetaStructPointer());
@@ -7264,9 +8853,44 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_TRIANGLE_MESH_CREATE_INFO_FB:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrTriangleMeshCreateInfoFB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_USER_CALIBRATION_ENABLE_EVENTS_INFO_ML:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrUserCalibrationEnableEventsInfoML*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIEW:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrView*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrViewConfigurationDepthRangeEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIEW_CONFIGURATION_PROPERTIES:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrViewConfigurationProperties*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIEW_CONFIGURATION_VIEW:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrViewConfigurationView*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -7285,6 +8909,90 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_VIEW_LOCATE_INFO:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrViewLocateInfo*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIEW_STATE:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrViewState*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_ANIMATION_STATE_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardAnimationStateMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_CREATE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardCreateInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_INPUT_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardInputInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_LOCATION_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardLocationInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_MODEL_ANIMATION_STATES_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardModelAnimationStatesMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_MODEL_VISIBILITY_SET_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardModelVisibilitySetInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_SPACE_CREATE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardSpaceCreateInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_TEXT_CONTEXT_CHANGE_INFO_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardTextContextChangeInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VIRTUAL_KEYBOARD_TEXTURE_DATA_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVirtualKeyboardTextureDataMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VISIBILITY_MASK_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVisibilityMaskKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_VISUAL_MESH_COMPUTE_LOD_INFO_MSFT:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrVisualMeshComputeLodInfoMSFT*>(data->GetMetaStructPointer());
@@ -7292,9 +9000,30 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_VIVE_TRACKER_PATHS_HTCX:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrViveTrackerPathsHTCX*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VULKAN_GRAPHICS_DEVICE_GET_INFO_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVulkanGraphicsDeviceGetInfoKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_VULKAN_SWAPCHAIN_CREATE_INFO_META:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrVulkanSwapchainCreateInfoMETA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_VULKAN_SWAPCHAIN_FORMAT_LIST_CREATE_INFO_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrVulkanSwapchainFormatListCreateInfoKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
