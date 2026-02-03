@@ -67,7 +67,8 @@ Application::Application(const std::string&     name,
                          void*                  platform_specific_wsi_data) :
     name_(name),
     file_processor_(file_processor), running_(false), paused_(false),
-    pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
+    pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension),
+    fps_info_(nullptr), frame_loop_info_{ nullptr }
 {
     if (!cli_wsi_extension_.empty())
     {
@@ -147,6 +148,12 @@ void Application::Run()
             {
                 is_loop_requested = frame_loop_info_->IsLoopRequested();
                 at_loop_frame     = (frame_number == frame_loop_info_->GetLoopFrameIdx());
+
+                if (frame_loop_info_->GetLoopIterations() == 0)
+                {
+                    running_ = false;
+                    break;
+                }
             }
 
             if (fps_info_ != nullptr)
@@ -163,12 +170,6 @@ void Application::Run()
                 }
 
                 auto preload_frames_count = fps_info_->ShouldPreloadFrames(frame_number);
-
-                if (frame_loop_info_->GetLoopIterations() == 0)
-                {
-                    running_ = false;
-                    break;
-                }
 
                 if (preload_frames_count > 0U || is_loop_requested)
                 {
@@ -194,6 +195,7 @@ void Application::Run()
                     auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
                     GFXRECON_ASSERT(preload_processor)
                     preload_processor->WaitDecodersIdle();
+                    GFXRECON_LOG_INFO("Looping frame (%i iterations remaining)", frame_loop_info_->GetLoopIterations());
                     // When looping, drop any state blocks to avoid reapplying them on each loop iteration.
                     preload_processor->DropStateBlocks();
 
