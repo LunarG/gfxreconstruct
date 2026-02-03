@@ -31,7 +31,7 @@ android {
             path "CMakeLists.txt"
         }
     }
-    if (project.hasProperty("EnableOpenXRCaptureOfReplay"))
+    if (providers.gradleProperty("EnableOpenXRCaptureOfReplay").present)
     {
         logger.info('GFXReconstruct OpenXR capture layer enabled in replay application (you must also enable the Vulkan side as well manually)')
     }

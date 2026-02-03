@@ -8,13 +8,13 @@ android {
         minSdkVersion 26
         targetSdkVersion 33
         ndk {
-            if (project.hasProperty("armeabi-v7a")) {
+            if (providers.gradleProperty("armeabi-v7a").present) {
                 abiFilters 'armeabi-v7a'
-            } else if (project.hasProperty("arm64-v8a")) {
+            } else if (providers.gradleProperty("arm64-v8a").present) {
                 abiFilters 'arm64-v8a'
-            } else if (project.hasProperty("x86")) {
+            } else if (providers.gradleProperty("x86").present) {
                 abiFilters 'x86'
-            } else if (project.hasProperty("x86_64")) {
+            } else if (providers.gradleProperty("x86_64").present) {
                 abiFilters 'x86_64'
             } else {
                 abiFilters 'arm64-v8a', 'x86_64'
@@ -24,7 +24,8 @@ android {
             cmake {
                 cppFlags "-fexceptions", "-Wno-nullability-completeness"
                 arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
-                if (project.hasProperty("DisableOpenXR")) {
+
+                if (providers.gradleProperty("DisableOpenXR").present) {
                     logger.info('GFXReconstruct layer built with NO OpenXr Support! [DisableOpenXR found]')
                     arguments.add("-DGFXRECON_ENABLE_OPENXR=OFF")
                 }
