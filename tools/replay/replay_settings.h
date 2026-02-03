@@ -247,7 +247,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tVirtual Swapchain of images which match", kSwapchainVirtual);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tthe swapchain in effect at capture time and");
     GFXRECON_WRITE_CONSOLE("          \t\t         \twhich are copied to the underlying swapchain of the");
-    GFXRECON_WRITE_CONSOLE("          \t\t         \timplementation being replayed on. This is default.");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \timplementation being replayed on. Also displays");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \toffscreen frame boundaries to an additional window.");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tThis is only available and default for Vulkan.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tUse the swapchain indices stored in the ", kSwapchainCaptured);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tcapture directly on the swapchain setup for replay.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDisable creating swapchains, surfaces", kSwapchainOffscreen);
