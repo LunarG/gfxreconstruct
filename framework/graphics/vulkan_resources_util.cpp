@@ -999,6 +999,59 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
     return resource_size;
 }
 
+uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkFormat               format,
+                                                          const VkExtent3D&      extent,
+                                                          uint32_t               mip_levels,
+                                                          uint32_t               array_layers,
+                                                          VkImageAspectFlagBits  aspect,
+                                                          std::vector<uint64_t>& subresource_offsets,
+                                                          std::vector<uint64_t>& subresource_sizes)
+{
+    // Calculate linear size for CmdCopyImageToBuffer output (bufferRowLength=0).
+    // GetImageMemoryRequirements returns optimal size which can differ on mobile GPUs.
+    const VkFormat aspect_format = GetImageAspectFormat(format, aspect);
+    VkDeviceSize   texel_size    = 0;
+    bool           is_texel_block_size;
+    uint16_t       block_width, block_height;
+
+    if (!GetImageTexelSize(aspect_format, &texel_size, &is_texel_block_size, &block_width, &block_height))
+    {
+        GFXRECON_LOG_ERROR("Format %s is not supported", util::ToString<VkFormat>(aspect_format).c_str());
+        return 0;
+    }
+
+    const uint32_t total_subresources = mip_levels * array_layers;
+    subresource_sizes.resize(total_subresources);
+    subresource_offsets.resize(total_subresources);
+
+    uint64_t resource_size = 0;
+    uint32_t sub           = 0;
+    for (uint32_t m = 0; m < mip_levels; ++m)
+    {
+        VkExtent3D mip_extent = graphics::ScaleToMipLevel(extent, m);
+
+        if (is_texel_block_size)
+        {
+            mip_extent.width  = (mip_extent.width + block_width - 1) / block_width;
+            mip_extent.height = (mip_extent.height + block_height - 1) / block_height;
+        }
+
+        const VkDeviceSize mip_size = texel_size * mip_extent.width * mip_extent.height * mip_extent.depth;
+
+        for (uint32_t l = 0; l < array_layers; ++l)
+        {
+            subresource_sizes[sub]   = mip_size;
+            subresource_offsets[sub] = resource_size;
+
+            ++sub;
+            resource_size += mip_size;
+        }
+    }
+    GFXRECON_ASSERT(total_subresources == sub);
+
+    return resource_size;
+}
+
 VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
 {
     GFXRECON_ASSERT(size > 0);
@@ -2274,7 +2327,7 @@ bool GetIntersectForSparseMemoryBind(VkDeviceSize               new_bind_resourc
                                      bool&                      new_bind_range_include_existing_bind_tange,
                                      bool&                      existing_bind_range_include_new_bind_tange)
 {
-    bool     intersection_exist = false;
+    bool         intersection_exist = false;
     VkDeviceSize intersection_start = std::max(new_bind_resource_offset, existing_bind_resource_offset);
     VkDeviceSize intersection_end   = std::min(new_bind_resource_offset + new_bind_resource_size,
                                              existing_bind_resource_offset + existing_bind_resource_size);
