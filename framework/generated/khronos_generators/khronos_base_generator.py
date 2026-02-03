@@ -517,8 +517,8 @@ class KhronosBaseGenerator(OutputGenerator):
         # Command parameter and struct member data for the current feature
         self.struct_names = set()                                # Set of current API's struct typenames
         self.struct_type_names = OrderedDict()                   # Map of current API's struct type enums
+        self.all_possible_extendable_structs = set()             # Set of all possible extendable structures
         self.all_extended_structs = dict()                       # Map of all extended struct names
-        self.feature_extended_structs = dict()                   # Map of per-feature extended struct names
         self.children_structs = dict()                           # Map of children struct names to lists of child struct names
         self.all_struct_members = OrderedDict()                  # Map of struct names to lists of per-member ValueInfo
         self.feature_struct_members = OrderedDict()              # Map of per-feature struct names to lists of per-member ValueInfo
@@ -805,7 +805,6 @@ class KhronosBaseGenerator(OutputGenerator):
         self.feature_struct_members = OrderedDict()
         self.feature_struct_aliases = OrderedDict()
         self.feature_cmd_params = OrderedDict()
-        self.feature_extended_structs = dict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -1458,7 +1457,6 @@ class KhronosBaseGenerator(OutputGenerator):
                     == self.get_struct_type_enum_name() and
                     current_struct_member.name == self.get_struct_type_var_name()
                 ):
-
                     # Check for value in the XML element.
                     values = current_xml_member.attrib.get('values')
                     if values:
@@ -1467,21 +1465,22 @@ class KhronosBaseGenerator(OutputGenerator):
                 # If this is the extended struct member, and we already have this structure
                 # in the list of handled structs, it means one of the structs that extends
                 # this one has a handle.  So add it to the handle list
-                if (
-                    current_struct_member.name
-                    == self.get_extended_struct_var_name()
-                    and typename in self.all_extended_structs
-                ):
+                if current_struct_member.name == self.get_extended_struct_var_name():
+                    if typename in self.struct_type_names and not self.is_struct_black_listed(typename):
+                        self.all_possible_extendable_structs.add(typename)
+                        self.extension_structs_with_handles[typename] = True
+                        self.extension_structs_with_handle_ptrs[typename] = True
 
-                    append_member = None
-                    for extended_struct in self.all_extended_structs[typename]:
-                        if extended_struct in self.structs_with_handles:
-                            append_member = current_struct_member
-                            if extended_struct in self.structs_with_handle_ptrs:
-                                # Have to loop through all to ensure we pick up ...pointers
-                                has_handle_pointers = True
-                    if append_member:
-                        handles.append(copy.deepcopy(append_member))
+                    if typename in self.all_extended_structs:
+                        append_member = None
+                        for extended_struct in self.all_extended_structs[typename]:
+                            if extended_struct in self.structs_with_handles:
+                                append_member = current_struct_member
+                                if extended_struct in self.structs_with_handle_ptrs:
+                                    # Have to loop through all to ensure we pick up ...pointers
+                                    has_handle_pointers = True
+                        if append_member:
+                            handles.append(copy.deepcopy(append_member))
 
                 # If this member is a handle, of course we have handles in this struct
                 elif self.is_handle(current_struct_member.base_type):
@@ -1560,7 +1559,6 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def add_extended_structs(self, name, extended):
         self.all_extended_structs.setdefault(name,[]).append(extended)
-        self.feature_extended_structs.setdefault(name,[]).append(extended)
 
     def add_struct_alias(self, name, alias):
         self.all_struct_aliases[name] = alias
@@ -2470,6 +2468,15 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def struct_has_handles(self, typename):
         return self.is_struct(typename) and (typename in self.structs_with_handles)
+
+    # Structs that might have handles include any struct KNOWN to have handles,
+    # any struct that has GENERIC handles, and any struct that could be extended since
+    # we do not know if any of the extendable structs have handles
+    def struct_might_have_handles(self, typename):
+        return (self.is_struct(typename)
+                and ((typename in self.structs_with_handles)
+                    or (typename in self.GENERIC_HANDLE_STRUCTS)
+                    or (typename in self.all_possible_extendable_structs)))
 
     def child_struct_has_handles(self, typename):
         for child in self.children_structs.get(typename, []):

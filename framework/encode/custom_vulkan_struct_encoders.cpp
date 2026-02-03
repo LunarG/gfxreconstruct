@@ -365,6 +365,20 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& valu
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopy& value)
+{
+    GFXRECON_LOG_WARNING(
+        "Encoding stand-alone VkMemoryToImageCopy.  Expected to be part of VkCopyMemoryToImageInfo not standalone.")
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVoidPtr(value.pHostPointer);
+    encoder->EncodeUInt32Value(value.memoryRowLength);
+    encoder->EncodeUInt32Value(value.memoryImageHeight);
+    EncodeStruct(encoder, value.imageSubresource);
+    EncodeStruct(encoder, value.imageOffset);
+    EncodeStruct(encoder, value.imageExtent);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -396,6 +410,20 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
             EncodeStruct(encoder, region.imageExtent);
         }
     }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopy& value)
+{
+    GFXRECON_LOG_WARNING(
+        "Encoding stand-alone VkImageToMemoryCopy.  Expected to be part of VkCopyImageToMemoryInfo not standalone.")
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVoidPtr(value.pHostPointer);
+    encoder->EncodeUInt32Value(value.memoryRowLength);
+    encoder->EncodeUInt32Value(value.memoryImageHeight);
+    EncodeStruct(encoder, value.imageSubresource);
+    EncodeStruct(encoder, value.imageOffset);
+    EncodeStruct(encoder, value.imageExtent);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)

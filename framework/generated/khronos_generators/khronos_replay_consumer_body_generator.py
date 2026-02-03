@@ -698,9 +698,7 @@ class KhronosReplayConsumerBodyGenerator():
                         if need_temp_value:
                             expr += '{}->GetPointer();'.format(value.name)
 
-                        if (value.base_type in self.structs_with_handles) or (
-                            value.base_type in self.GENERIC_HANDLE_STRUCTS
-                        ):
+                        if self.struct_might_have_handles(value.base_type):
                             preexpr.append(expr)
                             if value.is_array:
                                 expr = 'MapStructArrayHandles({name}->GetMetaStructPointer(), {name}->GetLength(), GetObjectInfoTable());'.format(
