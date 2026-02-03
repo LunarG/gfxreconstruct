@@ -42,7 +42,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode";
+    "present-mode,--wait-before-first-submit";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -349,6 +349,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --deduplicate-device");
     GFXRECON_WRITE_CONSOLE("          \t\tIf set, at most one VkDevice will be created for each VkPhysicalDevice for "
                            "RenderDoc and DXVK case.");
+    GFXRECON_WRITE_CONSOLE("  --wait-before-first-submit <milliseconds>");
+    GFXRECON_WRITE_CONSOLE("          \t\tWait specified milliseconds before submitting the first command buffer.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")
