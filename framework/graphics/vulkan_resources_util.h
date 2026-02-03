@@ -82,6 +82,17 @@ class VulkanResourcesUtil
                                           std::vector<uint64_t>* subresource_sizes    = nullptr,
                                           bool                   all_layers_per_level = false);
 
+    uint64_t GetImageResourceSizesLinear(VkFormat               format,
+                                         VkImageType            type,
+                                         const VkExtent3D&      extent,
+                                         uint32_t               mip_levels,
+                                         uint32_t               array_layers,
+                                         VkImageTiling          tiling,
+                                         VkImageAspectFlagBits  aspect,
+                                         std::vector<uint64_t>* subresource_offsets  = nullptr,
+                                         std::vector<uint64_t>* subresource_sizes    = nullptr,
+                                         bool                   all_layers_per_level = false);
+
     //! aggregate type to group information about an image-resource
     struct ImageResource
     {
