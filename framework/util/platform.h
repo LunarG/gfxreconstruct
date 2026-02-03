@@ -123,6 +123,14 @@ const int32_t kMaxPropertyLength = 255;
 typedef DWORD   pid_t;
 typedef HMODULE LibraryHandle;
 
+inline std::wstring ToWString(const char* str)
+{
+    int          wsize = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+    std::wstring wstr(wsize - 1, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, wstr.data(), wsize);
+    return wstr;
+}
+
 inline pid_t GetCurrentProcessId()
 {
     return ::GetCurrentProcessId();
@@ -140,7 +148,7 @@ inline void TriggerDebugBreak()
 
 inline LibraryHandle OpenLibrary(const char* name)
 {
-    return LoadLibraryA(name);
+    return LoadLibraryW(ToWString(name).c_str());
 }
 
 inline void CloseLibrary(LibraryHandle handle)
@@ -223,7 +231,14 @@ inline int32_t StringCopy(wchar_t* destination, size_t destination_size, const w
 
 inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 {
-    return static_cast<int32_t>(fopen_s(stream, filename, mode));
+    // NB: On NTFS a "component" (between slashes) cannot be more than
+    // 255 characters even if "long paths" are enabled on the system and
+    // the app manifest enables long paths.
+    // (https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation)
+    // strerror will return "Invalid argument" if a component is more
+    // than 255 characters
+
+    return static_cast<int32_t>(_wfopen_s(stream, ToWString(filename).c_str(), ToWString(mode).c_str()));
 }
 
 inline int64_t FileTell(FILE* stream)
@@ -270,7 +285,7 @@ inline int32_t GMTime(tm* gm_time, const time_t* timer)
 
 inline int32_t MakeDirectory(const char* filename)
 {
-    return _mkdir(filename);
+    return _wmkdir(ToWString(filename).c_str());
 }
 
 inline size_t GetSystemPageSize()
