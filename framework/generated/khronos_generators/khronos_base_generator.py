@@ -1468,6 +1468,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 if current_struct_member.name == self.get_extended_struct_var_name():
                     if typename in self.struct_type_names and not self.is_struct_black_listed(typename):
                         self.all_possible_extendable_structs.add(typename)
+                        self.extension_structs_with_handles[typename] = True
+                        self.extension_structs_with_handle_ptrs[typename] = True
 
                     if typename in self.all_extended_structs:
                         append_member = None

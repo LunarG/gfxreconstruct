@@ -279,8 +279,12 @@ void OpenXrReplayConsumer::Process_xrLocateSpace(
     XrSpaceLocation* out_location = location->IsNull() ? nullptr : location->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATION, nullptr });
     InitializeOutputStructNext(location);
 
+    PushRecaptureStructHandleIds(location->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_space)->LocateSpace(in_space, in_baseSpace, time, out_location);
     CheckResult("xrLocateSpace", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
+
+    AddStructHandles(space, location->GetMetaStructPointer(), out_location, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrLocateSpace>::UpdateState(this, call_info, returnValue, space, baseSpace, time, location, replay_result);
 }
 

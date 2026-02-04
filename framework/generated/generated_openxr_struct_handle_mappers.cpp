@@ -190,6 +190,11 @@ void MapStructHandles(Decoded_XrSpaceLocation* wrapper, const CommonObjectInfoTa
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        if (wrapper->next)
+        {
+            MapNextStructHandles(wrapper->next, object_info_table);
+        }
     }
 }
 
@@ -5759,6 +5764,17 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_XrSystemProperti
     }
 }
 
+void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceLocation* id_wrapper, const XrSpaceLocation* handle_struct, CommonObjectInfoTable* object_info_table)
+{
+    if (id_wrapper != nullptr)
+    {
+        if (id_wrapper->next)
+        {
+            AddNextStructHandles(parent_id, id_wrapper->next->GetPointer(), id_wrapper->next->GetMetaStructPointer(), handle_struct->next, object_info_table);
+        }
+    }
+}
+
 void AddStructHandles(format::HandleId parent_id, const Decoded_XrInteractionProfileState* id_wrapper, const XrInteractionProfileState* handle_struct, CommonObjectInfoTable* object_info_table)
 {
     if (id_wrapper != nullptr)
@@ -5822,6 +5838,18 @@ void PushRecaptureStructHandleIds(const Decoded_XrSystemProperties* id_wrapper, 
     if (consumer->IsRecapture() && id_wrapper != nullptr)
     {
         consumer->PushRecaptureHandleId(&id_wrapper->systemId);
+    }
+}
+
+void PushRecaptureStructHandleIds(const Decoded_XrSpaceLocation* id_wrapper, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrapper != nullptr)
+    {
+        if (id_wrapper->next)
+        {
+            PushRecaptureNextStructHandleIds(id_wrapper->next->GetPointer(), consumer);
+        }
     }
 }
 

@@ -910,6 +910,8 @@ void MapNextStructHandles(OpenXrNextNode* value, const CommonObjectInfoTable& ob
 
 void AddStructHandles(format::HandleId parent_id, const Decoded_XrSystemProperties* id_wrapper, const XrSystemProperties* handle_struct, CommonObjectInfoTable* object_info_table);
 
+void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceLocation* id_wrapper, const XrSpaceLocation* handle_struct, CommonObjectInfoTable* object_info_table);
+
 void AddStructHandles(format::HandleId parent_id, const Decoded_XrInteractionProfileState* id_wrapper, const XrInteractionProfileState* handle_struct, CommonObjectInfoTable* object_info_table);
 
 void AddStructHandles(format::HandleId parent_id, const Decoded_XrControllerModelKeyStateMSFT* id_wrapper, const XrControllerModelKeyStateMSFT* handle_struct, CommonObjectInfoTable* object_info_table);
@@ -925,6 +927,8 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceQueryResu
 void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceQueryResultFB* id_wrapper, const XrSpaceQueryResultFB* handle_struct, CommonObjectInfoTable* object_info_table);
 
 void PushRecaptureStructHandleIds(const Decoded_XrSystemProperties* id_wrapper, CommonConsumerBase* consumer);
+
+void PushRecaptureStructHandleIds(const Decoded_XrSpaceLocation* id_wrapper, CommonConsumerBase* consumer);
 
 void PushRecaptureStructHandleIds(const Decoded_XrInteractionProfileState* id_wrapper, CommonConsumerBase* consumer);
 

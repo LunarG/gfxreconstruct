@@ -54,6 +54,17 @@ void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unw
 {
 }
 
+void UnwrapStructHandles(XrSpaceLocation* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
+    }
+}
+
 void UnwrapStructHandles(XrSwapchainImageBaseHeader* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -2044,6 +2055,8 @@ void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memo
             return UnwrapStructPtrHandles(reinterpret_cast<const XrSpaceEraseInfoFB*>(base), unwrap_memory);
         case XR_TYPE_SPACE_LIST_SAVE_INFO_FB:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrSpaceListSaveInfoFB*>(base), unwrap_memory);
+        case XR_TYPE_SPACE_LOCATION:
+            return UnwrapStructPtrHandles(reinterpret_cast<const XrSpaceLocation*>(base), unwrap_memory);
         case XR_TYPE_SPACE_QUERY_RESULTS_FB:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrSpaceQueryResultsFB*>(base), unwrap_memory);
         case XR_TYPE_SPACE_SAVE_INFO_FB:

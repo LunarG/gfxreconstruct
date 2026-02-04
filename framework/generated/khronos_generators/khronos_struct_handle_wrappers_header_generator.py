@@ -87,7 +87,7 @@ class KhronosStructHandleWrappersHeaderGenerator():
         lines.append('')
         write('\n'.join(lines), file=self.outFile)
 
-        self.generate_create_wrapper_funcs()
+        self.generate_create_wrapper_funcs(api_data)
 
         write(
             'template <typename ParentWrapper, typename CoParentWrapper, typename T>',
@@ -187,7 +187,7 @@ class KhronosStructHandleWrappersHeaderGenerator():
                 self.output_structs.append(member.base_type)
                 self.process_struct_members_to_output_struct(member)
 
-    def generate_create_wrapper_funcs(self):
+    def generate_create_wrapper_funcs(self, api_data):
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
@@ -227,6 +227,8 @@ class KhronosStructHandleWrappersHeaderGenerator():
                     'dref_value': '&',
                 }
             for member in self.structs_with_handles[struct]:
+                if member.name == api_data.extended_struct_variable and member.base_type == "void":
+                    continue
                 # Set up the information needed to generation the createwrapper call
                 info = { **default_info }
                 info['prefix'] = self.get_wrapper_prefix_from_type(member.base_type)
