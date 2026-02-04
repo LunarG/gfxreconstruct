@@ -7988,7 +7988,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         result = swapchain_->GetSwapchainImagesKHR(
             original_result, func, device_info, swapchain_info, capture_image_count, replay_image_count, replay_images);
 
-        if ((result == VK_SUCCESS) && (replay_images != nullptr) && (replay_image_count != nullptr))
+        // If replay_image_count isn't full image count, it will return VK_INCOMPLETE.
+        // Their image infos should also be initialized, even if it's VK_INCOMPLETE.
+        if ((result == VK_SUCCESS || result == VK_INCOMPLETE) && (replay_images != nullptr) &&
+            (replay_image_count != nullptr))
         {
             uint32_t count = (*replay_image_count);
 
