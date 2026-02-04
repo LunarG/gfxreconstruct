@@ -227,7 +227,7 @@ class KhronosStructHandleWrappersHeaderGenerator():
                     'dref_value': '&',
                 }
             for member in self.structs_with_handles[struct]:
-                if member.name == api_data.extended_struct_variable and member.base_type == "void":
+                if self.is_extended_struct_definition(member):
                     continue
                 # Set up the information needed to generation the createwrapper call
                 info = { **default_info }

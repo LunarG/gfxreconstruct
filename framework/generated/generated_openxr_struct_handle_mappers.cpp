@@ -5768,10 +5768,6 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_XrSpaceLocation*
 {
     if (id_wrapper != nullptr)
     {
-        if (id_wrapper->next)
-        {
-            AddNextStructHandles(parent_id, id_wrapper->next->GetPointer(), id_wrapper->next->GetMetaStructPointer(), handle_struct->next, object_info_table);
-        }
     }
 }
 
@@ -5846,10 +5842,6 @@ void PushRecaptureStructHandleIds(const Decoded_XrSpaceLocation* id_wrapper, Com
     GFXRECON_ASSERT(consumer != nullptr);
     if (consumer->IsRecapture() && id_wrapper != nullptr)
     {
-        if (id_wrapper->next)
-        {
-            PushRecaptureNextStructHandleIds(id_wrapper->next->GetPointer(), consumer);
-        }
     }
 }
 

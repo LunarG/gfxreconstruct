@@ -330,11 +330,7 @@ class KhronosStructHandleMappersBodyGenerator():
 
         for member in members:
             if self.is_extended_struct_definition(member):
-                func_id = self.get_extended_struct_func_prefix()
-                body += f'        if (id_wrapper->{member.name})\n'
-                body += '        {\n'
-                body += f'            Add{func_id}StructHandles(parent_id, id_wrapper->{member.name}->GetPointer(), id_wrapper->{member.name}->GetMetaStructPointer(), handle_struct->{member.name}, object_info_table);\n'
-                body += '        }\n'
+                continue
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
@@ -399,11 +395,7 @@ class KhronosStructHandleMappersBodyGenerator():
 
         for member in members:
             if self.is_extended_struct_definition(member):
-                func_id = self.get_extended_struct_func_prefix()
-                body += f'        if (id_wrapper->{member.name})\n'
-                body += '        {\n'
-                body += f'            PushRecapture{func_id}StructHandleIds(id_wrapper->{member.name}->GetPointer(), consumer);\n'
-                body += '        }\n'
+                continue
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
