@@ -22,6 +22,7 @@
 
 #include "vulkan_capture_common.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "util/platform.h"
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -937,7 +938,41 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
 
         if (vk_result == VK_SUCCESS)
         {
-            CommonWriteFillMemoryCmd(memory_id, data_size, data, vulkan_capture_manager, vulkan_state_writer);
+            // Calculate AHB's stride. desc.stride is in pixels
+            const VKU_FORMAT_INFO linear_format_info = vkuGetFormatInfo(host_image_format);
+            const uint32_t        ahb_stride = (desc.stride ? desc.stride : desc.width) * linear_format_info.block_size;
+
+            // Query the stride of the host image we created
+            VkSubresourceLayout      host_mem_layout;
+            const VkImageSubresource host_sub_resource = { host_image_aspect_mask, 0, 0 };
+            device_table->GetImageSubresourceLayout(device, host_image, &host_sub_resource, &host_mem_layout);
+
+            // If strides don't match copy dumped image into a tightly packed memory
+            if (static_cast<VkDeviceSize>(ahb_stride) != host_mem_layout.rowPitch)
+            {
+                const size_t         tightly_packed_image_size = ahb_stride * desc.height;
+                std::vector<uint8_t> tightly_packed_image(tightly_packed_image_size);
+
+                // Move image into the tightly packed memory
+                const uint8_t* in_ptr  = static_cast<uint8_t*>(data);
+                uint8_t*       out_ptr = tightly_packed_image.data();
+                for (uint32_t y = 0; y < desc.height; ++y)
+                {
+                    util::platform::MemoryCopy(out_ptr, ahb_stride, in_ptr, ahb_stride);
+                    in_ptr += host_mem_layout.rowPitch;
+                    out_ptr += ahb_stride;
+                }
+
+                CommonWriteFillMemoryCmd(memory_id,
+                                         tightly_packed_image.size(),
+                                         tightly_packed_image.data(),
+                                         vulkan_capture_manager,
+                                         vulkan_state_writer);
+            }
+            else
+            {
+                CommonWriteFillMemoryCmd(memory_id, data_size, data, vulkan_capture_manager, vulkan_state_writer);
+            }
         }
 
         device_table->DestroyFence(device, fence, nullptr);
