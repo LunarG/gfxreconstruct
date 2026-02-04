@@ -61,6 +61,6 @@ GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 typedef bool (*PFN_InitializeAgsCapture)(gfxrecon::encode::AgsDispatchTable*);
-typedef void (*PFN_ReleaseAgsCapture)(gfxrecon::encode::AgsDispatchTable*);
+typedef void(WINAPI* PFN_ReleaseAgsCapture)(gfxrecon::encode::AgsDispatchTable*);
 
 #endif // GFXRECON_ENCODE_AGS_DISPATCH_TABLE_H
