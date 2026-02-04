@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     def quietPeriodSeconds = calculateQuietPeriod()
-                    build job: 'gfxreconstruct-pipelines/gfxreconstruct-extended',
+                    build job: 'gfxr-pipelines/gfxr-extended',
                           wait: false,
                           propagate: false,
                           quietPeriod: quietPeriodSeconds
