@@ -519,7 +519,6 @@ class KhronosBaseGenerator(OutputGenerator):
         self.struct_type_names = OrderedDict()                   # Map of current API's struct type enums
         self.all_possible_extendable_structs = set()             # Set of all possible extendable structures
         self.all_extended_structs = dict()                       # Map of all extended struct names
-        self.feature_extended_structs = dict()                   # Map of per-feature extended struct names
         self.children_structs = dict()                           # Map of children struct names to lists of child struct names
         self.all_struct_members = OrderedDict()                  # Map of struct names to lists of per-member ValueInfo
         self.feature_struct_members = OrderedDict()              # Map of per-feature struct names to lists of per-member ValueInfo
@@ -806,7 +805,6 @@ class KhronosBaseGenerator(OutputGenerator):
         self.feature_struct_members = OrderedDict()
         self.feature_struct_aliases = OrderedDict()
         self.feature_cmd_params = OrderedDict()
-        self.feature_extended_structs = dict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -1559,7 +1557,6 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def add_extended_structs(self, name, extended):
         self.all_extended_structs.setdefault(name,[]).append(extended)
-        self.feature_extended_structs.setdefault(name,[]).append(extended)
 
     def add_struct_alias(self, name, alias):
         self.all_struct_aliases[name] = alias

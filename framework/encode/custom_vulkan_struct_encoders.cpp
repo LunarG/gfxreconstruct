@@ -367,7 +367,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& valu
 
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopy& value)
 {
-    GFXRECON_LOG_WARNING("Encoding stand-alone VkMemoryToImageCopy.  Expected to be part of VkCopyMemoryToImageInfo not standalone.")
+    GFXRECON_LOG_WARNING(
+        "Encoding stand-alone VkMemoryToImageCopy.  Expected to be part of VkCopyMemoryToImageInfo not standalone.")
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVoidPtr(value.pHostPointer);
@@ -413,7 +414,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopy& value)
 {
-    GFXRECON_LOG_WARNING("Encoding stand-alone VkImageToMemoryCopy.  Expected to be part of VkCopyImageToMemoryInfo not standalone.")
+    GFXRECON_LOG_WARNING(
+        "Encoding stand-alone VkImageToMemoryCopy.  Expected to be part of VkCopyImageToMemoryInfo not standalone.")
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVoidPtr(value.pHostPointer);
