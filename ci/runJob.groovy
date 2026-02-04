@@ -10,43 +10,53 @@ def gfxrTestWindows(
         stage(name) {
             echo "About to allocate node with label: ${label}"
             node(label) {
-                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+                try {
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                retry(3) {
-                    try {
-                        cleanWs(deleteDirs: true)
-                    } catch (Exception e) {
-                        sleep(time: 5)
-                        throw e
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
+                            throw e
+                        }
                     }
-                }
 
-                bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
+                    bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
-                dir('gfxreconstruct') {
-                    checkout scm
+                    dir('gfxreconstruct') {
+                        checkout scm
 
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        withEnv([
-                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                            "PROJECT_COMMIT=${env.GIT_COMMIT}",
-                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                            "TEST_SUITE=${testSuite}",
-                            "BITS=${bits}",
-                            "BUILD_MODE=${buildMode}",
-                            "RESULTS_DIR=../vulkantest-results/${name}"
-                        ]) {
-                            bat(script: 'ci/runJob.bat')
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withEnv([
+                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                                "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=../vulkantest-results/${name}"
+                            ]) {
+                                bat(script: 'ci/runJob.bat')
+                            }
+                        }
+                    }
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                        allowEmptyArchive: false,
+                        onlyIfSuccessful: false,
+                    )
+                } finally {
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
                         }
                     }
                 }
-                archiveArtifacts(
-                    artifacts: 'vulkantest-results/**',
-                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                    allowEmptyArchive: false,
-                    onlyIfSuccessful: false,
-                )
             }
         }
     }
@@ -62,43 +72,53 @@ def gfxrTestLinux(
     return {
         stage(name) {
             node(label) {
-                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+                try {
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                retry(3) {
-                    try {
-                        cleanWs(deleteDirs: true)
-                    } catch (Exception e) {
-                        sleep(time: 5)
-                        throw e
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
+                            throw e
+                        }
                     }
-                }
 
-                sh 'rm -rf vulkantest-results'
+                    sh 'rm -rf vulkantest-results'
 
-                dir('gfxreconstruct') {
-                    checkout scm
+                    dir('gfxreconstruct') {
+                        checkout scm
 
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        withEnv([
-                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                            "PROJECT_COMMIT=${env.GIT_COMMIT}",
-                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                            "TEST_SUITE=${testSuite}",
-                            "BITS=${bits}",
-                            "BUILD_MODE=${buildMode}",
-                            "RESULTS_DIR=../vulkantest-results/${name}"
-                        ]) {
-                            sh(script: 'ci/runJob.sh')
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withEnv([
+                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                                "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=../vulkantest-results/${name}"
+                            ]) {
+                                sh(script: 'ci/runJob.sh')
+                            }
+                        }
+                    }
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                        allowEmptyArchive: false,
+                        onlyIfSuccessful: false,
+                    )
+                } finally {
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
                         }
                     }
                 }
-                archiveArtifacts(
-                    artifacts: 'vulkantest-results/**',
-                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                    allowEmptyArchive: false,
-                    onlyIfSuccessful: false,
-                )
             }
         }
     }
@@ -114,43 +134,53 @@ def gfxrTestAndroid(
     return {
         stage(name) {
             node(label) {
-                echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
+                try {
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${label}"
 
-                retry(3) {
-                    try {
-                        cleanWs(deleteDirs: true)
-                    } catch (Exception e) {
-                        sleep(time: 5)
-                        throw e
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
+                            throw e
+                        }
                     }
-                }
 
-                sh 'rm -rf vulkantest-results'
+                    sh 'rm -rf vulkantest-results'
 
-                dir('gfxreconstruct') {
-                    checkout scm
+                    dir('gfxreconstruct') {
+                        checkout scm
 
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        withEnv([
-                            "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                            "PROJECT_COMMIT=${env.GIT_COMMIT}",
-                            "TEST_REPO=git@github.com:LunarG/VulkanTests",
-                            "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
-                            "TEST_SUITE=${testSuite}",
-                            "BITS=${bits}",
-                            "BUILD_MODE=${buildMode}",
-                            "RESULTS_DIR=../vulkantest-results/${name}"
-                        ]) {
-                            sh(script: 'ci/runJobAndroid.sh')
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withEnv([
+                                "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
+                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "TEST_REPO=git@github.com:LunarG/VulkanTests",
+                                "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
+                                "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=../vulkantest-results/${name}"
+                            ]) {
+                                sh(script: 'ci/runJobAndroid.sh')
+                            }
+                        }
+                    }
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                        allowEmptyArchive: false,
+                        onlyIfSuccessful: false,
+                    )
+                } finally {
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
                         }
                     }
                 }
-                archiveArtifacts(
-                    artifacts: 'vulkantest-results/**',
-                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                    allowEmptyArchive: false,
-                    onlyIfSuccessful: false,
-                )
             }
         }
     }
@@ -187,51 +217,61 @@ def gfxrTestWindowsManual(
     return {
         stage(stageName) {
             node(nodeLabel) {
-                echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
+                try {
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
 
-                retry(3) {
-                    try {
-                        cleanWs(deleteDirs: true)
-                    } catch (Exception e) {
-                        sleep(time: 5)
-                        throw e
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
+                            throw e
+                        }
                     }
-                }
 
-                bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
+                    bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
-                dir('gfxreconstruct') {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: projectBranch]],
-                        userRemoteConfigs: [[url: projectRepo]]
-                    ])
+                    dir('gfxreconstruct') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: projectBranch]],
+                            userRemoteConfigs: [[url: projectRepo]]
+                        ])
 
-                    def commitHash = bat(script: '@git rev-parse HEAD', returnStdout: true).trim()
+                        def commitHash = bat(script: '@git rev-parse HEAD', returnStdout: true).trim()
 
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        withEnv([
-                            "PROJECT_REPO=${projectRepo}",
-                            "PROJECT_COMMIT=${commitHash}",
-                            "TEST_REPO=${testRepo}",
-                            "TEST_BRANCH=${testBranch}",
-                            "TEST_SUITE_REPO=${testSuiteRepo}",
-                            "TEST_SUITE_BRANCH=${testSuiteBranch}",
-                            "TEST_SUITE=${testSuite}",
-                            "BITS=${bits}",
-                            "BUILD_MODE=${buildMode}",
-                            "RESULTS_DIR=../vulkantest-results/${stageName}"
-                        ]) {
-                            bat(script: 'ci/runJob.bat')
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withEnv([
+                                "PROJECT_REPO=${projectRepo}",
+                                "PROJECT_COMMIT=${commitHash}",
+                                "TEST_REPO=${testRepo}",
+                                "TEST_BRANCH=${testBranch}",
+                                "TEST_SUITE_REPO=${testSuiteRepo}",
+                                "TEST_SUITE_BRANCH=${testSuiteBranch}",
+                                "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=../vulkantest-results/${stageName}"
+                            ]) {
+                                bat(script: 'ci/runJob.bat')
+                            }
+                        }
+                    }
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                        allowEmptyArchive: true,
+                        onlyIfSuccessful: false
+                    )
+                } finally {
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
                         }
                     }
                 }
-                archiveArtifacts(
-                    artifacts: 'vulkantest-results/**',
-                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                    allowEmptyArchive: true,
-                    onlyIfSuccessful: false
-                )
             }
         }
     }
@@ -253,51 +293,61 @@ def gfxrTestLinuxManual(
     return {
         stage(stageName) {
             node(nodeLabel) {
-                echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
+                try {
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
 
-                retry(3) {
-                    try {
-                        cleanWs(deleteDirs: true)
-                    } catch (Exception e) {
-                        sleep(time: 5)
-                        throw e
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
+                            throw e
+                        }
                     }
-                }
 
-                sh 'rm -rf vulkantest-results'
+                    sh 'rm -rf vulkantest-results'
 
-                dir('gfxreconstruct') {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: projectBranch]],
-                        userRemoteConfigs: [[url: projectRepo]]
-                    ])
+                    dir('gfxreconstruct') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: projectBranch]],
+                            userRemoteConfigs: [[url: projectRepo]]
+                        ])
 
-                    def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                        def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
 
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        withEnv([
-                            "PROJECT_REPO=${projectRepo}",
-                            "PROJECT_COMMIT=${commitHash}",
-                            "TEST_REPO=${testRepo}",
-                            "TEST_BRANCH=${testBranch}",
-                            "TEST_SUITE_REPO=${testSuiteRepo}",
-                            "TEST_SUITE_BRANCH=${testSuiteBranch}",
-                            "TEST_SUITE=${testSuite}",
-                            "BITS=${bits}",
-                            "BUILD_MODE=${buildMode}",
-                            "RESULTS_DIR=../vulkantest-results/${stageName}"
-                        ]) {
-                            sh(script: 'ci/runJob.sh')
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withEnv([
+                                "PROJECT_REPO=${projectRepo}",
+                                "PROJECT_COMMIT=${commitHash}",
+                                "TEST_REPO=${testRepo}",
+                                "TEST_BRANCH=${testBranch}",
+                                "TEST_SUITE_REPO=${testSuiteRepo}",
+                                "TEST_SUITE_BRANCH=${testSuiteBranch}",
+                                "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=../vulkantest-results/${stageName}"
+                            ]) {
+                                sh(script: 'ci/runJob.sh')
+                            }
+                        }
+                    }
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                        allowEmptyArchive: true,
+                        onlyIfSuccessful: false
+                    )
+                } finally {
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
                         }
                     }
                 }
-                archiveArtifacts(
-                    artifacts: 'vulkantest-results/**',
-                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                    allowEmptyArchive: true,
-                    onlyIfSuccessful: false
-                )
             }
         }
     }
@@ -319,51 +369,61 @@ def gfxrTestAndroidManual(
     return {
         stage(stageName) {
             node(nodeLabel) {
-                echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
+                try {
+                    echo "Running on node: ${env.NODE_NAME} with label requirement: ${nodeLabel}"
 
-                retry(3) {
-                    try {
-                        cleanWs(deleteDirs: true)
-                    } catch (Exception e) {
-                        sleep(time: 5)
-                        throw e
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
+                            throw e
+                        }
                     }
-                }
-
-                sh 'rm -rf vulkantest-results'
-
-                dir('gfxreconstruct') {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: projectBranch]],
-                        userRemoteConfigs: [[url: projectRepo]]
-                    ])
-
-                    def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        withEnv([
-                            "PROJECT_REPO=${projectRepo}",
-                            "PROJECT_COMMIT=${commitHash}",
-                            "TEST_REPO=${testRepo}",
-                            "TEST_BRANCH=${testBranch}",
-                            "TEST_SUITE_REPO=${testSuiteRepo}",
-                            "TEST_SUITE_BRANCH=${testSuiteBranch}",
-                            "TEST_SUITE=${testSuite}",
-                            "BITS=${bits}",
-                            "BUILD_MODE=${buildMode}",
-                            "RESULTS_DIR=../vulkantest-results/${stageName}"
-                        ]) {
-                            sh(script: 'ci/runJobAndroid.sh')
+    
+                    sh 'rm -rf vulkantest-results'
+    
+                    dir('gfxreconstruct') {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: projectBranch]],
+                            userRemoteConfigs: [[url: projectRepo]]
+                        ])
+    
+                        def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+    
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            withEnv([
+                                "PROJECT_REPO=${projectRepo}",
+                                "PROJECT_COMMIT=${commitHash}",
+                                "TEST_REPO=${testRepo}",
+                                "TEST_BRANCH=${testBranch}",
+                                "TEST_SUITE_REPO=${testSuiteRepo}",
+                                "TEST_SUITE_BRANCH=${testSuiteBranch}",
+                                "TEST_SUITE=${testSuite}",
+                                "BITS=${bits}",
+                                "BUILD_MODE=${buildMode}",
+                                "RESULTS_DIR=../vulkantest-results/${stageName}"
+                            ]) {
+                                sh(script: 'ci/runJobAndroid.sh')
+                            }
+                        }
+                    }
+                    archiveArtifacts(
+                        artifacts: 'vulkantest-results/**',
+                        excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
+                        allowEmptyArchive: true,
+                        onlyIfSuccessful: false
+                    )
+                } finally {
+                    retry(3) {
+                        try {
+                            cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+                        } catch (Exception e) {
+                            sleep(time: 5)
                         }
                     }
                 }
-                archiveArtifacts(
-                    artifacts: 'vulkantest-results/**',
-                    excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
-                    allowEmptyArchive: true,
-                    onlyIfSuccessful: false
-                )
             }
         }
     }
