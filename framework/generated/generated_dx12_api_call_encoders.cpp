@@ -6769,7 +6769,7 @@ void Encode_ID3D12StateObjectDatabase_FindStateObjectDesc(
         {
             omit_output_data = true;
         }
-        encoder->EncodeVoidArray(pKey, keySize);
+        encoder->EncodeVoidArray(pKey, KeySize);
         encoder->EncodeUInt32Value(KeySize);
         
         encoder->EncodeVoidPtr(pContext);
@@ -6793,7 +6793,7 @@ void Encode_ID3D12StateObjectDatabase_FindObjectVersion(
         {
             omit_output_data = true;
         }
-        encoder->EncodeVoidArray(pKey, keySize);
+        encoder->EncodeVoidArray(pKey, KeySize);
         encoder->EncodeUInt32Value(KeySize);
         encoder->EncodeUInt32Ptr(pVersion, omit_output_data);
         encoder->EncodeInt32Value(return_value);

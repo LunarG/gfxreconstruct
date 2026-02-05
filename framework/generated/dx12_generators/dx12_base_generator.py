@@ -107,6 +107,9 @@ class ValueInfo():
       is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
       is_const - True if the member is a const.
     """
+    # In agility SDK 1.618.5, it has typo in "FindStateObjectDesc(_In_reads_(keySize)" and "FindObjectVersion(_In_reads_(keySize)"
+    # This typo might be fixed by future Agility SDK.    
+    SDK_TYPO_FIX_LIST = [{"keySize":"KeySize"}]
 
     def __init__(
         self,
@@ -130,6 +133,11 @@ class ValueInfo():
         self.full_type = full_type
         self.pointer_count = pointer_count
         self.array_length = array_length
+
+        for typo_fix in self.SDK_TYPO_FIX_LIST:
+            if self.array_length in typo_fix:
+                self.array_length = typo_fix[self.array_length]
+
         self.array_length_value = array_length_value
         self.array_capacity = array_capacity
         self.array_dimension = array_dimension
