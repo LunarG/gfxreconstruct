@@ -11622,37 +11622,39 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     }
 }
 
-template <typename PipelineHandle>
-bool VulkanReplayConsumerBase::ShouldSkipPipelineCreationForCompileRequired(
-    VkResult                              original_result,
-    uint32_t                              create_info_count,
-    HandlePointerDecoder<PipelineHandle>* pipelines,
-    const char*                           pipeline_type)
+bool VulkanReplayConsumerBase::ShouldSkipPipelineCreationForCompileRequired(VkResult original_result,
+                                                                            uint32_t create_info_count,
+                                                                            HandlePointerDecoder<VkPipeline>* pipelines,
+                                                                            const char* pipeline_type)
 {
-    GFXRECON_ASSERT((pipelines != nullptr) && !pipelines->IsNull() && (pipelines->GetHandlePointer() != nullptr));
+    GFXRECON_ASSERT(pipelines != nullptr && !pipelines->IsNull() && pipelines->GetHandlePointer() != nullptr);
 
-    if ((original_result == VK_PIPELINE_COMPILE_REQUIRED) || (original_result == VK_PIPELINE_COMPILE_REQUIRED_EXT))
+    if (original_result == VK_PIPELINE_COMPILE_REQUIRED)
     {
         GFXRECON_LOG_WARNING("Skipping execution of %s creation due to original result being "
                              "VK_PIPELINE_COMPILE_REQUIRED(_EXT). Returning VK_NULL_HANDLE for created pipeline.",
                              pipeline_type);
 
-        PipelineHandle* handles = pipelines->GetHandlePointer();
+        VkPipeline* handles = pipelines->GetHandlePointer();
         for (uint32_t i = 0; i < create_info_count; ++i)
         {
             handles[i] = VK_NULL_HANDLE;
         }
         return true;
     }
-
     return false;
 }
 
-template <typename CreateInfo>
+template <typename T>
 void VulkanReplayConsumerBase::RemoveFailOnCompileRequiredFlags(uint32_t    create_info_count,
-                                                                CreateInfo* create_infos,
+                                                                T*          create_infos,
                                                                 const char* pipeline_type)
 {
+    static_assert(std::is_same_v<T, VkGraphicsPipelineCreateInfo> || std::is_same_v<T, VkComputePipelineCreateInfo> ||
+                      std::is_same_v<T, VkRayTracingPipelineCreateInfoKHR> ||
+                      std::is_same_v<T, VkRayTracingPipelineCreateInfoNV>,
+                  "only Vk***PipelineCreateInfo types supported");
+
     if (create_infos == nullptr)
     {
         return;
@@ -11660,14 +11662,6 @@ void VulkanReplayConsumerBase::RemoveFailOnCompileRequiredFlags(uint32_t    crea
 
     for (uint32_t i = 0; i < create_info_count; ++i)
     {
-        if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT)
-        {
-            create_infos[i].flags &= ~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT;
-            GFXRECON_LOG_WARNING("Removed VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT flag from %s "
-                                 "create info index %u during replay.",
-                                 pipeline_type,
-                                 i);
-        }
         if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
         {
             create_infos[i].flags &= ~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT;
