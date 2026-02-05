@@ -78,10 +78,12 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Fence, AddEntry<ID3D12Fence_Wrapper, ParentWrapper> },
     { IID_ID3D12Fence1, AddEntry<ID3D12Fence_Wrapper, ParentWrapper> },
     { IID_ID3D12PipelineState, AddEntry<ID3D12PipelineState_Wrapper, ParentWrapper> },
+    { IID_ID3D12PipelineState1, AddEntry<ID3D12PipelineState_Wrapper, ParentWrapper> },
     { IID_ID3D12DescriptorHeap, AddEntry<ID3D12DescriptorHeap_Wrapper, ParentWrapper> },
     { IID_ID3D12QueryHeap, AddEntry<ID3D12QueryHeap_Wrapper, ParentWrapper> },
     { IID_ID3D12CommandSignature, AddEntry<ID3D12CommandSignature_Wrapper, ParentWrapper> },
     { IID_ID3D12CommandQueue, AddEntry<ID3D12CommandQueue_Wrapper, ParentWrapper> },
+    { IID_ID3D12CommandQueue1, AddEntry<ID3D12CommandQueue_Wrapper, ParentWrapper> },
     { IID_ID3D12PipelineLibrary, AddEntry<ID3D12PipelineLibrary_Wrapper, ParentWrapper> },
     { IID_ID3D12PipelineLibrary1, AddEntry<ID3D12PipelineLibrary_Wrapper, ParentWrapper> },
     { IID_ID3D12LifetimeOwner, AddEntry<ID3D12LifetimeOwner_Wrapper, ParentWrapper> },
@@ -90,6 +92,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12StateObject, AddEntry<ID3D12StateObject_Wrapper, ParentWrapper> },
     { IID_ID3D12StateObjectProperties, AddEntry<ID3D12StateObjectProperties_Wrapper, ParentWrapper> },
     { IID_ID3D12StateObjectProperties1, AddEntry<ID3D12StateObjectProperties_Wrapper, ParentWrapper> },
+    { IID_ID3D12StateObjectProperties2, AddEntry<ID3D12StateObjectProperties_Wrapper, ParentWrapper> },
     { IID_ID3D12WorkGraphProperties, AddEntry<ID3D12WorkGraphProperties_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceRemovedExtendedDataSettings, AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceRemovedExtendedDataSettings1, AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper, ParentWrapper> },
@@ -121,6 +124,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Device12, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device13, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
     { IID_ID3D12Device14, AddEntry<ID3D12Device_Wrapper, ParentWrapper> },
+    { IID_ID3D12StateObjectDatabase, AddEntry<ID3D12StateObjectDatabase_Wrapper, ParentWrapper> },
     { IID_ID3D12VirtualizationGuestDevice, AddEntry<ID3D12VirtualizationGuestDevice_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
     { IID_ID3D12Tools1, AddEntry<ID3D12Tools_Wrapper, ParentWrapper> },
@@ -133,6 +137,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DeviceFactory, AddEntry<ID3D12DeviceFactory_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceConfiguration, AddEntry<ID3D12DeviceConfiguration_Wrapper, ParentWrapper> },
     { IID_ID3D12DeviceConfiguration1, AddEntry<ID3D12DeviceConfiguration_Wrapper, ParentWrapper> },
+    { IID_ID3D12StateObjectDatabaseFactory, AddEntry<ID3D12StateObjectDatabaseFactory_Wrapper, ParentWrapper> },
     { IID_ID3D12CommandList, AddEntry<ID3D12CommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12GraphicsCommandList, AddEntry<ID3D12CommandList_Wrapper, ParentWrapper> },
     { IID_ID3D12GraphicsCommandList1, AddEntry<ID3D12CommandList_Wrapper, ParentWrapper> },
@@ -225,10 +230,12 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Fence, AddEntry<ID3D12Fence_Wrapper> },
     { IID_ID3D12Fence1, AddEntry<ID3D12Fence_Wrapper> },
     { IID_ID3D12PipelineState, AddEntry<ID3D12PipelineState_Wrapper> },
+    { IID_ID3D12PipelineState1, AddEntry<ID3D12PipelineState_Wrapper> },
     { IID_ID3D12DescriptorHeap, AddEntry<ID3D12DescriptorHeap_Wrapper> },
     { IID_ID3D12QueryHeap, AddEntry<ID3D12QueryHeap_Wrapper> },
     { IID_ID3D12CommandSignature, AddEntry<ID3D12CommandSignature_Wrapper> },
     { IID_ID3D12CommandQueue, AddEntry<ID3D12CommandQueue_Wrapper> },
+    { IID_ID3D12CommandQueue1, AddEntry<ID3D12CommandQueue_Wrapper> },
     { IID_ID3D12PipelineLibrary, AddEntry<ID3D12PipelineLibrary_Wrapper> },
     { IID_ID3D12PipelineLibrary1, AddEntry<ID3D12PipelineLibrary_Wrapper> },
     { IID_ID3D12LifetimeOwner, AddEntry<ID3D12LifetimeOwner_Wrapper> },
@@ -237,6 +244,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12StateObject, AddEntry<ID3D12StateObject_Wrapper> },
     { IID_ID3D12StateObjectProperties, AddEntry<ID3D12StateObjectProperties_Wrapper> },
     { IID_ID3D12StateObjectProperties1, AddEntry<ID3D12StateObjectProperties_Wrapper> },
+    { IID_ID3D12StateObjectProperties2, AddEntry<ID3D12StateObjectProperties_Wrapper> },
     { IID_ID3D12WorkGraphProperties, AddEntry<ID3D12WorkGraphProperties_Wrapper> },
     { IID_ID3D12DeviceRemovedExtendedDataSettings, AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper> },
     { IID_ID3D12DeviceRemovedExtendedDataSettings1, AddEntry<ID3D12DeviceRemovedExtendedDataSettings_Wrapper> },
@@ -268,6 +276,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12Device12, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device13, AddEntry<ID3D12Device_Wrapper> },
     { IID_ID3D12Device14, AddEntry<ID3D12Device_Wrapper> },
+    { IID_ID3D12StateObjectDatabase, AddEntry<ID3D12StateObjectDatabase_Wrapper> },
     { IID_ID3D12VirtualizationGuestDevice, AddEntry<ID3D12VirtualizationGuestDevice_Wrapper> },
     { IID_ID3D12Tools, AddEntry<ID3D12Tools_Wrapper> },
     { IID_ID3D12Tools1, AddEntry<ID3D12Tools_Wrapper> },
@@ -280,6 +289,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D12DeviceFactory, AddEntry<ID3D12DeviceFactory_Wrapper> },
     { IID_ID3D12DeviceConfiguration, AddEntry<ID3D12DeviceConfiguration_Wrapper> },
     { IID_ID3D12DeviceConfiguration1, AddEntry<ID3D12DeviceConfiguration_Wrapper> },
+    { IID_ID3D12StateObjectDatabaseFactory, AddEntry<ID3D12StateObjectDatabaseFactory_Wrapper> },
     { IID_ID3D12CommandList, AddEntry<ID3D12CommandList_Wrapper> },
     { IID_ID3D12GraphicsCommandList, AddEntry<ID3D12CommandList_Wrapper> },
     { IID_ID3D12GraphicsCommandList1, AddEntry<ID3D12CommandList_Wrapper> },
@@ -402,6 +412,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12PipelineState_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D12PipelineState1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12PipelineState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D12DescriptorHeap)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12DescriptorHeap_Wrapper*>(wrapper);
@@ -418,6 +433,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12CommandQueue)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12CommandQueue_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12CommandQueue1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12CommandQueue_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
@@ -458,6 +478,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12StateObjectProperties1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12StateObjectProperties_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12StateObjectProperties2)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12StateObjectProperties_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
@@ -617,6 +642,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D12StateObjectDatabase)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12StateObjectDatabase_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D12VirtualizationGuestDevice)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12VirtualizationGuestDevice_Wrapper*>(wrapper);
@@ -675,6 +705,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D12DeviceConfiguration1)
     {
         auto* new_wrapper = reinterpret_cast<ID3D12DeviceConfiguration_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D12StateObjectDatabaseFactory)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D12StateObjectDatabaseFactory_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D12CommandList)

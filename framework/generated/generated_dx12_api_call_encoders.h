@@ -200,6 +200,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_GRAPHICS_PIPELINE_STATE
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_COMPUTE_PIPELINE_STATE_DESC& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_ROOT_SIGNATURE_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RT_FORMAT_ARRAY& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS& value);
@@ -277,6 +283,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTI
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS20& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_D3D12_OPTIONS21& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_TIGHT_ALIGNMENT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_PREDICATION& value);
 
@@ -540,6 +548,12 @@ void Encode_ID3D12PipelineState_GetCachedBlob(
     ID3D12PipelineState_Wrapper* wrapper,
     HRESULT return_value,
     ID3DBlob** ppBlob);
+
+void Encode_ID3D12PipelineState1_GetRootSignature(
+    ID3D12PipelineState1_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID riid,
+    void** ppvRootSignature);
 
 void Encode_ID3D12DescriptorHeap_GetDesc(
     ID3D12DescriptorHeap_Wrapper* wrapper,
@@ -981,6 +995,28 @@ void Encode_ID3D12CommandQueue_GetClockCalibration(
 void Encode_ID3D12CommandQueue_GetDesc(
     ID3D12CommandQueue_Wrapper* wrapper,
     D3D12_COMMAND_QUEUE_DESC return_value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS& value);
+
+void Encode_ID3D12CommandQueue1_SetProcessPriority(
+    ID3D12CommandQueue1_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_COMMAND_QUEUE_PROCESS_PRIORITY Priority);
+
+void Encode_ID3D12CommandQueue1_GetProcessPriority(
+    ID3D12CommandQueue1_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_COMMAND_QUEUE_PROCESS_PRIORITY* pOutValue);
+
+void Encode_ID3D12CommandQueue1_SetGlobalPriority(
+    ID3D12CommandQueue1_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY Priority);
+
+void Encode_ID3D12CommandQueue1_GetGlobalPriority(
+    ID3D12CommandQueue1_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY* pOutValue);
 
 void Encode_ID3D12Device_GetNodeCount(
     ID3D12Device_Wrapper* wrapper,
@@ -1465,6 +1501,20 @@ void Encode_ID3D12StateObjectProperties1_GetProgramIdentifier(
     ID3D12StateObjectProperties1_Wrapper* wrapper,
     D3D12_PROGRAM_IDENTIFIER return_value,
     LPCWSTR pProgramName);
+
+void Encode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram(
+    ID3D12StateObjectProperties2_Wrapper* wrapper,
+    HRESULT return_value,
+    LPCWSTR pProgramName,
+    REFIID riid,
+    void** ppvRootSignature);
+
+void Encode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader(
+    ID3D12StateObjectProperties2_Wrapper* wrapper,
+    HRESULT return_value,
+    LPCWSTR pExportName,
+    REFIID riid,
+    void** ppvRootSignature);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_NODE_ID& value);
 
@@ -2074,6 +2124,64 @@ void Encode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(
     REFIID riid,
     void** ppvRootSignature);
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXISTING_COLLECTION_BY_KEY_DESC& value);
+
+void Encode_ID3D12StateObjectDatabase_SetApplicationDesc(
+    ID3D12StateObjectDatabase_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D12_APPLICATION_DESC* pApplicationDesc);
+
+void Encode_ID3D12StateObjectDatabase_GetApplicationDesc(
+    ID3D12StateObjectDatabase_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D12ApplicationDescFunc CallbackFunc,
+    void* pContext);
+
+void Encode_ID3D12StateObjectDatabase_StorePipelineStateDesc(
+    ID3D12StateObjectDatabase_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pKey,
+    UINT KeySize,
+    UINT Version,
+    const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc);
+
+void Encode_ID3D12StateObjectDatabase_FindPipelineStateDesc(
+    ID3D12StateObjectDatabase_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pKey,
+    UINT KeySize,
+    D3D12PipelineStateFunc CallbackFunc,
+    void* pContext);
+
+void Encode_ID3D12StateObjectDatabase_StoreStateObjectDesc(
+    ID3D12StateObjectDatabase_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pKey,
+    UINT KeySize,
+    UINT Version,
+    const D3D12_STATE_OBJECT_DESC* pDesc,
+    const void* pStateObjectToGrowFromKey,
+    UINT StateObjectToGrowFromKeySize);
+
+void Encode_ID3D12StateObjectDatabase_FindStateObjectDesc(
+    ID3D12StateObjectDatabase_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pKey,
+    UINT KeySize,
+    D3D12StateObjectFunc CallbackFunc,
+    void* pContext);
+
+void Encode_ID3D12StateObjectDatabase_FindObjectVersion(
+    ID3D12StateObjectDatabase_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pKey,
+    UINT KeySize,
+    UINT* pVersion);
+
 void Encode_ID3D12VirtualizationGuestDevice_ShareWithHost(
     ID3D12VirtualizationGuestDevice_Wrapper* wrapper,
     HRESULT return_value,
@@ -2224,6 +2332,14 @@ void Encode_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerF
     LPCWSTR RootSignatureSubobjectName,
     REFIID riid,
     void** ppvDeserializer);
+
+void Encode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(
+    ID3D12StateObjectDatabaseFactory_Wrapper* wrapper,
+    HRESULT return_value,
+    LPCWSTR pDatabaseFile,
+    D3D12_STATE_OBJECT_DATABASE_FLAGS flags,
+    REFIID riid,
+    void** ppvStateObjectDatabase);
 
 void Encode_ID3D12GraphicsCommandList5_RSSetShadingRate(
     ID3D12GraphicsCommandList5_Wrapper* wrapper,

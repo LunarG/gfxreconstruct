@@ -114,6 +114,8 @@ void WrapID3D12ShaderCacheSession(REFIID riid, void** object, DxWrapperResources
 
 void WrapID3D12Device(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapID3D12StateObjectDatabase(REFIID riid, void** object, DxWrapperResources* resources);
+
 void WrapID3D12VirtualizationGuestDevice(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12Tools(REFIID riid, void** object, DxWrapperResources* resources);
@@ -127,6 +129,8 @@ void WrapID3D12SDKConfiguration(REFIID riid, void** object, DxWrapperResources* 
 void WrapID3D12DeviceFactory(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12DeviceConfiguration(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D12StateObjectDatabaseFactory(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D12CommandList(REFIID riid, void** object, DxWrapperResources* resources);
 
@@ -195,10 +199,12 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12Fence, WrapID3D12Fence },
     { IID_ID3D12Fence1, WrapID3D12Fence },
     { IID_ID3D12PipelineState, WrapID3D12PipelineState },
+    { IID_ID3D12PipelineState1, WrapID3D12PipelineState },
     { IID_ID3D12DescriptorHeap, WrapID3D12DescriptorHeap },
     { IID_ID3D12QueryHeap, WrapID3D12QueryHeap },
     { IID_ID3D12CommandSignature, WrapID3D12CommandSignature },
     { IID_ID3D12CommandQueue, WrapID3D12CommandQueue },
+    { IID_ID3D12CommandQueue1, WrapID3D12CommandQueue },
     { IID_ID3D12PipelineLibrary, WrapID3D12PipelineLibrary },
     { IID_ID3D12PipelineLibrary1, WrapID3D12PipelineLibrary },
     { IID_ID3D12LifetimeOwner, WrapID3D12LifetimeOwner },
@@ -207,6 +213,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12StateObject, WrapID3D12StateObject },
     { IID_ID3D12StateObjectProperties, WrapID3D12StateObjectProperties },
     { IID_ID3D12StateObjectProperties1, WrapID3D12StateObjectProperties },
+    { IID_ID3D12StateObjectProperties2, WrapID3D12StateObjectProperties },
     { IID_ID3D12WorkGraphProperties, WrapID3D12WorkGraphProperties },
     { IID_ID3D12DeviceRemovedExtendedDataSettings, WrapID3D12DeviceRemovedExtendedDataSettings },
     { IID_ID3D12DeviceRemovedExtendedDataSettings1, WrapID3D12DeviceRemovedExtendedDataSettings },
@@ -238,6 +245,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12Device12, WrapID3D12Device },
     { IID_ID3D12Device13, WrapID3D12Device },
     { IID_ID3D12Device14, WrapID3D12Device },
+    { IID_ID3D12StateObjectDatabase, WrapID3D12StateObjectDatabase },
     { IID_ID3D12VirtualizationGuestDevice, WrapID3D12VirtualizationGuestDevice },
     { IID_ID3D12Tools, WrapID3D12Tools },
     { IID_ID3D12Tools1, WrapID3D12Tools },
@@ -250,6 +258,7 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D12DeviceFactory, WrapID3D12DeviceFactory },
     { IID_ID3D12DeviceConfiguration, WrapID3D12DeviceConfiguration },
     { IID_ID3D12DeviceConfiguration1, WrapID3D12DeviceConfiguration },
+    { IID_ID3D12StateObjectDatabaseFactory, WrapID3D12StateObjectDatabaseFactory },
     { IID_ID3D12CommandList, WrapID3D12CommandList },
     { IID_ID3D12GraphicsCommandList, WrapID3D12CommandList },
     { IID_ID3D12GraphicsCommandList1, WrapID3D12CommandList },

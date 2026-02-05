@@ -260,6 +260,33 @@ struct Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC
     Decoded_D3D12_CACHED_PIPELINE_STATE* CachedPSO{ nullptr };
 };
 
+struct Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC
+{
+    using struct_type = D3D12_SERIALIZED_ROOT_SIGNATURE_DESC;
+
+    D3D12_SERIALIZED_ROOT_SIGNATURE_DESC* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> pSerializedBlob;
+};
+
+struct Decoded_D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE
+{
+    using struct_type = D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE;
+
+    D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE* decoded_value{ nullptr };
+
+    Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC* Desc{ nullptr };
+};
+
+struct Decoded_D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE
+{
+    using struct_type = D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE;
+
+    D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE* decoded_value{ nullptr };
+
+    Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC* Desc{ nullptr };
+};
+
 struct Decoded_D3D12_RT_FORMAT_ARRAY
 {
     using struct_type = D3D12_RT_FORMAT_ARRAY;
@@ -539,6 +566,13 @@ struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21
     using struct_type = D3D12_FEATURE_DATA_D3D12_OPTIONS21;
 
     D3D12_FEATURE_DATA_D3D12_OPTIONS21* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT
+{
+    using struct_type = D3D12_FEATURE_DATA_TIGHT_ALIGNMENT;
+
+    D3D12_FEATURE_DATA_TIGHT_ALIGNMENT* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_FEATURE_DATA_PREDICATION
@@ -1224,6 +1258,13 @@ struct Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER
     using struct_type = D3D12_WRITEBUFFERIMMEDIATE_PARAMETER;
 
     D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS
+{
+    using struct_type = D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS;
+
+    D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS* decoded_value{ nullptr };
 };
 
 struct Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT
@@ -2046,6 +2087,36 @@ struct Decoded_D3D12_BUFFER_BARRIER
     D3D12_BUFFER_BARRIER* decoded_value{ nullptr };
 
     format::HandleId pResource{ format::kNullHandleId };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT
+{
+    using struct_type = D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT;
+
+    D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* decoded_value{ nullptr };
+
+    WStringDecoder szAdapterFamily;
+};
+
+struct Decoded_D3D12_APPLICATION_DESC
+{
+    using struct_type = D3D12_APPLICATION_DESC;
+
+    D3D12_APPLICATION_DESC* decoded_value{ nullptr };
+
+    WStringDecoder pExeFilename;
+    WStringDecoder pName;
+    WStringDecoder pEngineName;
+};
+
+struct Decoded_D3D12_EXISTING_COLLECTION_BY_KEY_DESC
+{
+    using struct_type = D3D12_EXISTING_COLLECTION_BY_KEY_DESC;
+
+    D3D12_EXISTING_COLLECTION_BY_KEY_DESC* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> pKey;
+    StructPointerDecoder<Decoded_D3D12_EXPORT_DESC>* pExports{ nullptr };
 };
 
 struct Decoded_D3D12_SUBRESOURCE_DATA

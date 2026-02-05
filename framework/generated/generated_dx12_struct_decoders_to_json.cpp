@@ -443,6 +443,40 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMPUTE_PIPE
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_SERIALIZED_ROOT_SIGNATURE_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC& meta_struct = *data;
+        FieldToJson(jdata["pSerializedBlob"], meta_struct.pSerializedBlob, options);
+        FieldToJson(jdata["SerializedBlobSizeInBytes"], decoded_value.SerializedBlobSizeInBytes, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE& meta_struct = *data;
+        FieldToJson(jdata["Desc"], meta_struct.Desc, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE& meta_struct = *data;
+        FieldToJson(jdata["Desc"], meta_struct.Desc, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RT_FORMAT_ARRAY* data, const JsonOptions& options)
 {
     using namespace util;
@@ -960,6 +994,17 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         FieldToJson(jdata["ExecuteIndirectTier"], decoded_value.ExecuteIndirectTier, options);
         Bool32ToJson(jdata["SampleCmpGradientAndBiasSupported"], decoded_value.SampleCmpGradientAndBiasSupported, options);
         Bool32ToJson(jdata["ExtendedCommandInfoSupported"], decoded_value.ExtendedCommandInfoSupported, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_TIGHT_ALIGNMENT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT& meta_struct = *data;
+        FieldToJson(jdata["SupportTier"], decoded_value.SupportTier, options);
     }
 }
 
@@ -2758,6 +2803,17 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_WRITEBUFFERI
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS& meta_struct = *data;
+        FieldToJson(jdata["ComputeQueuesPer3DQueue"], decoded_value.ComputeQueuesPer3DQueue, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT* data, const JsonOptions& options)
 {
     using namespace util;
@@ -4402,6 +4458,50 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BARRIER_GROU
                 break;
             }
         }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& meta_struct = *data;
+        FieldToJson(jdata["szAdapterFamily"], meta_struct.szAdapterFamily, options);
+        FieldToJson(jdata["MinimumABISupportVersion"], decoded_value.MinimumABISupportVersion, options);
+        FieldToJson(jdata["MaximumABISupportVersion"], decoded_value.MaximumABISupportVersion, options);
+        FieldToJson(jdata["CompilerVersion"], decoded_value.CompilerVersion, options);
+        FieldToJson(jdata["ApplicationProfileVersion"], decoded_value.ApplicationProfileVersion, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_APPLICATION_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_APPLICATION_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_APPLICATION_DESC& meta_struct = *data;
+        FieldToJson(jdata["pExeFilename"], meta_struct.pExeFilename, options);
+        FieldToJson(jdata["pName"], meta_struct.pName, options);
+        FieldToJson(jdata["Version"], decoded_value.Version, options);
+        FieldToJson(jdata["pEngineName"], meta_struct.pEngineName, options);
+        FieldToJson(jdata["EngineVersion"], decoded_value.EngineVersion, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_EXISTING_COLLECTION_BY_KEY_DESC* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D12_EXISTING_COLLECTION_BY_KEY_DESC& decoded_value = *data->decoded_value;
+        const Decoded_D3D12_EXISTING_COLLECTION_BY_KEY_DESC& meta_struct = *data;
+        FieldToJson(jdata["pKey"], meta_struct.pKey, options);
+        FieldToJson(jdata["KeySize"], decoded_value.KeySize, options);
+        FieldToJson(jdata["NumExports"], decoded_value.NumExports, options);
+        FieldToJson(jdata["pExports"], meta_struct.pExports, options);
     }
 }
 
