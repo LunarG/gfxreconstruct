@@ -32,21 +32,12 @@
 #define GFXRECON_FORMAT_API_CALL_ID_H
 
 #include "util/defines.h"
+#include "util/logging.h" // For GFXRECON_ASSERT
 
 #include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
-
-constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
-{
-    return ((static_cast<uint32_t>(family) << 16) & 0xffff0000) | (static_cast<uint32_t>(api_call) & 0x0000ffff);
-}
-
-constexpr uint16_t GetApiCallFamily(uint32_t call_id)
-{
-    return static_cast<uint16_t>((call_id >> 16) & 0x0000ffff);
-}
 
 enum ApiFamilyId : uint16_t
 {
@@ -57,8 +48,22 @@ enum ApiFamilyId : uint16_t
     ApiFamily_AGS       = 4,
     ApiFamily_D3D11     = 5,
     ApiFamily_D3D11On12 = 6,
-    ApiFamily_OpenXR    = 7
+    ApiFamily_OpenXR    = 7,
+
+    // Family IDs greater than ApiFamily_Reserve_Start are reserved for future use
+    ApiFamily_Reserve_Start = 128,
 };
+
+constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
+{
+    GFXRECON_ASSERT(family < ApiFamily_Reserve_Start);
+    return ((static_cast<uint32_t>(family) << 16) & 0xffff0000) | (static_cast<uint32_t>(api_call) & 0x0000ffff);
+}
+
+constexpr uint16_t GetApiCallFamily(uint32_t call_id)
+{
+    return static_cast<uint16_t>((call_id >> 16) & 0x0000ffff);
+}
 
 enum ApiCallId : uint32_t
 {
@@ -816,6 +821,7 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetSwapchainTimingPropertiesEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x134b),
     ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134c),
     ApiCall_vkCmdSetComputeOccupancyPriorityNV                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x134d),
+    ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134e),
 
     ApiCall_VulkanLast,
 

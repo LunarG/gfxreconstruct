@@ -535,6 +535,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAllocationCallbacks*         pAllocator,
                                               VkSurfaceKHR*                        pSurface);
 
+    void
+    PreProcess_vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR pSurface, const VkAllocationCallbacks* pAllocator);
+
     void PreProcess_vkCreateSwapchainKHR(VkDevice                        device,
                                          const VkSwapchainCreateInfoKHR* pCreateInfo,
                                          const VkAllocationCallbacks*    pAllocator,
@@ -670,9 +673,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  bind_memory_range_index++)
                             {
                                 auto& bind_memory_range = image_bind.pBinds[bind_memory_range_index];
-                                // TODO: Implement handling for tracking binding information of sparse image
-                                // subresources.
-                                GFXRECON_LOG_ERROR_ONCE("Binding of sparse image blocks is not supported!");
+                                graphics::UpdateSparseImageMemoryBindMap(wrapper->sparse_subresource_memory_bind_map,
+                                                                         bind_memory_range);
                             }
                         }
                     }

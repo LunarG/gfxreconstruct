@@ -24,7 +24,6 @@
 #define GFXRECON_UTIL_ALIGNED_VALUE_H
 
 #include "util/defines.h"
-#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -73,7 +72,7 @@ inline constexpr uint64_t next_pow_2(uint64_t v)
  */
 inline constexpr uint64_t aligned_value(uint64_t value, uint64_t alignment)
 {
-    GFXRECON_ASSERT(is_pow_2(alignment));
+    assert(is_pow_2(alignment));
     return alignment ? (value + alignment - 1) & ~(alignment - 1) : value;
 }
 
@@ -86,7 +85,7 @@ inline constexpr uint64_t aligned_value(uint64_t value, uint64_t alignment)
  */
 inline constexpr uint32_t div_up(uint32_t nom, uint32_t denom)
 {
-    GFXRECON_ASSERT(denom > 0);
+    assert(denom > 0);
     return (nom + denom - 1) / denom;
 }
 

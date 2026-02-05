@@ -587,6 +587,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresent
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentModeInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentScalingCreateInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkReleaseSwapchainImagesInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInternallySynchronizedQueuesFeaturesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCooperativeMatrixPropertiesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR* data, const util::JsonOptions& options = util::JsonOptions());
@@ -1192,6 +1193,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteIndirectExe
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageAlignmentControlPropertiesMESA* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageAlignmentControlCreateInfoMESA* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushConstantBankInfoNV* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePushConstantBankFeaturesNV* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePushConstantBankPropertiesNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
@@ -1231,6 +1235,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderUniformBufferUnsizedArrayFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputeOccupancyPriorityParametersNV* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryAabbsDataKHR* data, const util::JsonOptions& options = util::JsonOptions());

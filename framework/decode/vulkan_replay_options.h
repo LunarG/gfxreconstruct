@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2023 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -134,6 +134,9 @@ struct VulkanReplayOptions : public ReplayOptions
     std::vector<CommandIndices> TraceRays_Indices;
     CommandImageSubresource     TraceRaysSubresources;
 
+    std::vector<CommandIndices> Transfer_Indices;
+    CommandImageSubresource     TransferSubresources;
+
     // ExecuteCommands block index : vector or BeginCommandBuffer indices of secondary cbs.
     std::vector<ExecuteCommands> ExecuteCommands_Indices;
 
@@ -161,6 +164,14 @@ struct VulkanReplayOptions : public ReplayOptions
     std::string load_pipeline_cache_filename;
     std::string save_pipeline_cache_filename;
     bool        add_new_pipeline_caches;
+
+    // Time of instantiation of this struct.
+    std::chrono::high_resolution_clock::time_point start_time{ std::chrono::high_resolution_clock::now() };
+
+    // Milliseconds to wait before first queue submit.
+    uint32_t wait_before_first_submit{ 0 };
+
+    void MaybeWaitBeforeFirstSubmit() const;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -24,6 +24,7 @@
 #ifndef GFXRECON_UTIL_WAYLAND_LOADER_H
 #define GFXRECON_UTIL_WAYLAND_LOADER_H
 
+#include <wayland-client-core.h>
 #include <wayland-client.h>
 
 #include "util/defines.h"
@@ -46,6 +47,9 @@ class WaylandLoader
         decltype(wl_display_dispatch_pending)* display_dispatch_pending;
         decltype(wl_display_flush)*            display_flush;
         decltype(wl_display_roundtrip)*        display_roundtrip;
+        decltype(wl_display_create_queue)*     display_create_queue;
+        decltype(wl_display_roundtrip_queue)*  display_roundtrip_queue;
+        decltype(wl_event_queue_destroy)*      event_queue_destroy;
 
         // proxy functions
         decltype(wl_proxy_add_listener)*                  proxy_add_listener;
@@ -53,6 +57,9 @@ class WaylandLoader
         decltype(wl_proxy_marshal)*                       proxy_marshal;
         decltype(wl_proxy_marshal_constructor)*           proxy_marshal_constructor;
         decltype(wl_proxy_marshal_constructor_versioned)* proxy_marshal_constructor_versioned;
+        decltype(wl_proxy_create_wrapper)*                proxy_create_wrapper;
+        decltype(wl_proxy_set_queue)*                     proxy_set_queue;
+        decltype(wl_proxy_wrapper_destroy)*               proxy_wrapper_destroy;
 
         // interfaces
         decltype(wl_compositor_interface)*    compositor_interface;
@@ -279,11 +286,20 @@ class WaylandLoader
 
     ~WaylandLoader();
 
+    WaylandLoader(const WaylandLoader& other)            = delete;
+    WaylandLoader& operator=(const WaylandLoader& other) = delete;
+    WaylandLoader(WaylandLoader&& other) noexcept;
+    WaylandLoader& operator=(WaylandLoader&& other) noexcept;
+
+    void swap(WaylandLoader& other) noexcept;
+
     bool Initialize();
 
     const FunctionTable& GetFunctionTable() const { return function_table_; }
 
   private:
+    void Deinitialize();
+
     util::platform::LibraryHandle libwayland_;
     FunctionTable                 function_table_;
 };

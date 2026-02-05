@@ -45,6 +45,8 @@
 #include "vk_video/vulkan_video_codec_h265std_encode.h"
 #include "vk_video/vulkan_video_codecs_common.h"
 
+#include <unordered_map>
+
 #ifdef WIN32
 #ifdef CreateEvent
 #undef CreateEvent
@@ -519,6 +521,7 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectByteCountEXT(VkCommandBuffer,
 inline VKAPI_ATTR uint32_t VKAPI_CALL vkGetImageViewHandleNVX(VkDevice, const VkImageViewHandleInfoNVX*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageViewHandleNVX was called, resulting in no-op behavior."); return 0; }
 inline VKAPI_ATTR uint64_t VKAPI_CALL vkGetImageViewHandle64NVX(VkDevice, const VkImageViewHandleInfoNVX*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageViewHandle64NVX was called, resulting in no-op behavior."); return 0; }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewAddressNVX(VkDevice, VkImageView, VkImageViewAddressPropertiesNVX*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetImageViewAddressNVX was called, resulting in no-op behavior."); return VK_SUCCESS; }
+inline VKAPI_ATTR uint64_t VKAPI_CALL vkGetDeviceCombinedImageSamplerIndexNVX(VkDevice, uint64_t, uint64_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetDeviceCombinedImageSamplerIndexNVX was called, resulting in no-op behavior."); return 0; }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawIndirectCountAMD was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCountAMD(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawIndexedIndirectCountAMD was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkGetShaderInfoAMD(VkDevice, VkPipeline, VkShaderStageFlagBits, VkShaderInfoTypeAMD, size_t*, void*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkGetShaderInfoAMD was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -655,7 +658,7 @@ inline VKAPI_ATTR void VKAPI_CALL vkCmdSetRasterizerDiscardEnableEXT(VkCommandBu
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetDepthBiasEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetDepthBiasEnableEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetLogicOpEXT(VkCommandBuffer, VkLogicOp) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetLogicOpEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartEnableEXT(VkCommandBuffer, VkBool32) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetPrimitiveRestartEnableEXT was called, resulting in no-op behavior."); }
-inline VKAPI_ATTR void                                    VKAPI_CALL vkCmdSetColorWriteEnableEXT(VkCommandBuffer, uint32_t, const VkBool32*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetColorWriteEnableEXT was called, resulting in no-op behavior."); }
+inline VKAPI_ATTR void VKAPI_CALL vkCmdSetColorWriteEnableEXT(VkCommandBuffer, uint32_t, const VkBool32*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdSetColorWriteEnableEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiEXT(VkCommandBuffer, uint32_t, const VkMultiDrawInfoEXT*, uint32_t, uint32_t, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawMultiEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR void VKAPI_CALL vkCmdDrawMultiIndexedEXT(VkCommandBuffer, uint32_t, const VkMultiDrawIndexedInfoEXT*, uint32_t, uint32_t, uint32_t, const int32_t*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCmdDrawMultiIndexedEXT was called, resulting in no-op behavior."); }
 inline VKAPI_ATTR VkResult VKAPI_CALL vkCreateMicromapEXT(VkDevice, const VkMicromapCreateInfoEXT*, const VkAllocationCallbacks*, VkMicromapEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function vkCreateMicromapEXT was called, resulting in no-op behavior."); return VK_SUCCESS; }
@@ -1252,6 +1255,7 @@ struct VulkanDeviceTable
     PFN_vkGetImageViewHandleNVX GetImageViewHandleNVX{ noop::vkGetImageViewHandleNVX };
     PFN_vkGetImageViewHandle64NVX GetImageViewHandle64NVX{ noop::vkGetImageViewHandle64NVX };
     PFN_vkGetImageViewAddressNVX GetImageViewAddressNVX{ noop::vkGetImageViewAddressNVX };
+    PFN_vkGetDeviceCombinedImageSamplerIndexNVX GetDeviceCombinedImageSamplerIndexNVX{ noop::vkGetDeviceCombinedImageSamplerIndexNVX };
     PFN_vkCmdDrawIndirectCountAMD CmdDrawIndirectCountAMD{ noop::vkCmdDrawIndirectCountAMD };
     PFN_vkCmdDrawIndexedIndirectCountAMD CmdDrawIndexedIndirectCountAMD{ noop::vkCmdDrawIndexedIndirectCountAMD };
     PFN_vkGetShaderInfoAMD GetShaderInfoAMD{ noop::vkGetShaderInfoAMD };
@@ -1992,6 +1996,7 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkGetImageViewHandleNVX", &table->GetImageViewHandleNVX);
     LoadVulkanFunction(gpa, device, "vkGetImageViewHandle64NVX", &table->GetImageViewHandle64NVX);
     LoadVulkanFunction(gpa, device, "vkGetImageViewAddressNVX", &table->GetImageViewAddressNVX);
+    LoadVulkanFunction(gpa, device, "vkGetDeviceCombinedImageSamplerIndexNVX", &table->GetDeviceCombinedImageSamplerIndexNVX);
     LoadVulkanFunction(gpa, device, "vkCmdDrawIndirectCountAMD", &table->CmdDrawIndirectCountAMD);
     LoadVulkanFunction(gpa, device, "vkCmdDrawIndexedIndirectCountAMD", &table->CmdDrawIndexedIndirectCountAMD);
     LoadVulkanFunction(gpa, device, "vkGetShaderInfoAMD", &table->GetShaderInfoAMD);
@@ -2260,6 +2265,9 @@ static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, 
     LoadVulkanFunction(gpa, device, "vkCmdDrawMeshTasksIndirectEXT", &table->CmdDrawMeshTasksIndirectEXT);
     LoadVulkanFunction(gpa, device, "vkCmdDrawMeshTasksIndirectCountEXT", &table->CmdDrawMeshTasksIndirectCountEXT);
 }
+
+using DeviceDispatchTablesMap = std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanDeviceTable>;
+using InstanceDispatchTablesMap = std::unordered_map<graphics::VulkanDispatchKey, graphics::VulkanInstanceTable>;
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

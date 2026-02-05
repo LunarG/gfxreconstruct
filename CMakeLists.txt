@@ -305,6 +305,10 @@ if (APPLE)
             ${CMAKE_PREFIX_PATH})
 endif ()
 
+if(ANDROID)
+    add_link_options(-Wl,-z,max-page-size=16384)
+endif()
+
 # GFXReconstruct provided find modules
 if (WIN32)
     find_package(Detours)

@@ -32,6 +32,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "format/format_util.h"
+#include "util/callbacks.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
 #include "util/date_time.h"
@@ -64,6 +65,30 @@ std::atomic<format::HandleId>              CommonCaptureManager::default_unique_
 uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
 thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
 thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
+
+static std::mutex external_trim_trigger_mutex_g;
+static bool       externally_set_trimming_state_g          = false;
+static bool       previous_externally_set_trimming_state_g = false;
+
+extern "C"
+{
+    // The following two functions are made public and should be discoverable via dlsym.
+
+    // The purpose of this functions is to allow another module to be able to control trimming by calling this function
+    // with the appropriate argument. Calling with true starts trimming and false ends trimming.
+    GFXR_EXPORT void GFXRSetTrimmingState(bool trimming_enabled)
+    {
+        std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
+        externally_set_trimming_state_g = trimming_enabled;
+    }
+
+    // The purpose of this functions is to allow another module to query the current capture mode.
+    GFXR_EXPORT uint32_t GFXRGetCaptureMode()
+    {
+        const CommonCaptureManager* manager = CommonCaptureManager::Get();
+        return manager != nullptr ? manager->GetCaptureMode() : 0;
+    }
+}
 
 format::HandleId CommonCaptureManager::GetUniqueId()
 {
@@ -517,6 +542,8 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                         capture_mode_ = kModeWriteAndTrack;
                     }
 
+                    util::SignalTrimmingStart();
+
                     success = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_ranges_[0]));
                 }
                 else
@@ -537,10 +564,13 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
 
                 // Enable state tracking when hotkey pressed
                 if (IsTrimHotkeyPressed() ||
-                    trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled)
+                    trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled ||
+                    ExternalTriggerEnabled())
                 {
                     capture_mode_         = kModeWriteAndTrack;
                     trim_key_first_frame_ = current_frame_;
+
+                    util::SignalTrimmingStart();
 
                     success = CreateCaptureFile(api_family,
                                                 util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
@@ -828,6 +858,32 @@ bool CommonCaptureManager::RuntimeTriggerDisabled()
     return result;
 }
 
+bool CommonCaptureManager::ExternalTriggerEnabled()
+{
+    std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
+
+    if (!previous_externally_set_trimming_state_g && externally_set_trimming_state_g)
+    {
+        previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
+        return true;
+    }
+
+    return false;
+}
+
+bool CommonCaptureManager::ExternalTriggerDisabled()
+{
+    std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
+
+    if (previous_externally_set_trimming_state_g && !externally_set_trimming_state_g)
+    {
+        previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
+        return true;
+    }
+
+    return false;
+}
+
 bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
 {
     CaptureSettings settings;
@@ -895,7 +951,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
     }
     else if (IsTrimHotkeyPressed() ||
              ((trim_key_frames_ > 0) && (current_boundary_count >= (trim_key_first_frame_ + trim_key_frames_))) ||
-             RuntimeTriggerDisabled())
+             RuntimeTriggerDisabled() || ExternalTriggerDisabled())
     {
         // Stop recording and close file.
         DeactivateTrimming(current_lock);
@@ -949,7 +1005,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
             }
         }
     }
-    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled())
+    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled() || ExternalTriggerEnabled())
     {
         bool success =
             CreateCaptureFile(api_family, util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
@@ -1323,6 +1379,7 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
         }
 
         capture_mode_ |= kModeWrite;
+        util::SignalTrimmingStart();
 
         auto* thread_data = GetThreadData();
         GFXRECON_ASSERT(thread_data != nullptr);
@@ -1367,6 +1424,7 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
         }
 
         capture_mode_ &= ~kModeWrite;
+        util::SignalTrimmingEnd();
 
         assert(file_stream_);
         file_stream_->Flush();

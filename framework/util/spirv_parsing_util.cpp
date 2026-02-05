@@ -25,17 +25,84 @@
 #include <optional>
 #include <deque>
 #include "spirv_reflect.h"
+#include "util/alignment_utils.h"
 #include "util/spirv_helper.h"
 #include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-// used to enable type as key for std::set/map
-bool operator<(const SpirVParsingUtil::BufferReferenceInfo& lhs, const SpirVParsingUtil::BufferReferenceInfo& rhs)
+struct LayoutInfo
 {
-    return std::make_tuple(lhs.source, lhs.set, lhs.binding, lhs.buffer_offset, lhs.array_stride) <
-           std::make_tuple(rhs.source, rhs.set, rhs.binding, rhs.buffer_offset, rhs.array_stride);
+    uint32_t alignment = 0;
+    uint32_t size      = 0;
+};
+
+LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description)
+{
+    // TODO: alignment should handle different block-layouts (std140, std430, scalar), when types are padded
+    uint32_t alignment = 0;
+    uint32_t num_bytes = type_description->traits.numeric.scalar.width / 8;
+
+    switch (type_description->op)
+    {
+        case SpvOpTypeVector:
+            num_bytes *= type_description->traits.numeric.vector.component_count;
+            break;
+
+        case SpvOpTypeMatrix:
+        {
+            bool is_col_major = type_description->decoration_flags & SPV_REFLECT_DECORATION_COLUMN_MAJOR ||
+                                !(type_description->decoration_flags & SPV_REFLECT_DECORATION_ROW_MAJOR);
+
+            num_bytes = (is_col_major ? type_description->traits.numeric.matrix.column_count
+                                      : type_description->traits.numeric.matrix.row_count) *
+                        type_description->traits.numeric.matrix.stride;
+        }
+
+        break;
+
+        case SpvOpTypeArray:
+        case SpvOpTypeRuntimeArray:
+            num_bytes = std::max(num_bytes, type_description->traits.array.stride);
+            for (uint32_t d = 0; d < type_description->traits.array.dims_count; ++d)
+            {
+                num_bytes *= type_description->traits.array.dims[d] == SPV_REFLECT_ARRAY_DIM_RUNTIME
+                                 ? 1
+                                 : type_description->traits.array.dims[d];
+            }
+            break;
+
+        case SpvOpTypeStruct:
+        {
+            uint32_t offset    = 0;
+            uint32_t max_align = 0;
+
+            for (uint32_t i = 0; i < type_description->member_count; ++i)
+            {
+                LayoutInfo layout_info = compute_type_layout(&type_description->members[i]);
+                offset                 = util::aligned_value(offset, layout_info.alignment);
+                offset += layout_info.size;
+                max_align = std::max(max_align, layout_info.alignment);
+            }
+
+            num_bytes = util::aligned_value(offset, max_align);
+        }
+        break;
+
+        case SpvOpTypePointer:
+        case SpvOpTypeForwardPointer:
+            // Vulkan device address / buffer ref
+            num_bytes = sizeof(uint64_t);
+
+            // TODO: only true for std140, std430, could fail for scalar?
+            // alignment = sizeof(uint64_t);
+            break;
+
+        default:
+            break;
+    }
+    return { alignment, num_bytes };
 }
 
 // Instruction represents a single Spv::Op instruction.
@@ -298,33 +365,10 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                         auto* member = td->members + j;
                         queue.push_back({ member, offset, stride, member_names });
 
-                        uint32_t num_scalar_bytes = member->traits.numeric.scalar.width / 8;
-
-                        if (member->op == SpvOpTypeVector)
-                        {
-                            num_scalar_bytes *= member->traits.numeric.vector.component_count;
-                        }
-                        else if (member->op == SpvOpTypeMatrix)
-                        {
-                            num_scalar_bytes *= member->traits.numeric.matrix.column_count;
-                            num_scalar_bytes *= member->traits.numeric.matrix.row_count;
-                            num_scalar_bytes = std::max(num_scalar_bytes, member->traits.numeric.matrix.stride);
-                        }
-                        else if (member->op == SpvOpTypePointer || member->op == SpvOpTypeForwardPointer)
-                        {
-                            num_scalar_bytes = sizeof(uint64_t);
-                        }
-                        else if (member->op == SpvOpTypeArray || member->op == SpvOpTypeRuntimeArray)
-                        {
-                            num_scalar_bytes = std::max(num_scalar_bytes, member->traits.array.stride);
-                            for (uint32_t d = 0; d < member->traits.array.dims_count; ++d)
-                            {
-                                num_scalar_bytes *= member->traits.array.dims[d] == spv::OpTypeRuntimeArray
-                                                        ? 1
-                                                        : member->traits.array.dims[d];
-                            }
-                        }
-                        offset += num_scalar_bytes;
+                        // align offset, add size
+                        auto layout_info = compute_type_layout(member);
+                        offset           = util::aligned_value(offset, layout_info.alignment);
+                        offset += layout_info.size;
                     }
                 }
             }
@@ -474,30 +518,12 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                     // offset calculation
                                     for (uint32_t m = 0; m < idx; ++m)
                                     {
-                                        uint32_t    num_scalar_bytes = 0;
-                                        const auto& member           = td->members[m];
-                                        num_scalar_bytes             = member.traits.numeric.scalar.width / 8;
+                                        auto layout_info = compute_type_layout(&td->members[m]);
 
-                                        if (member.op == SpvOpTypeVector)
-                                        {
-                                            num_scalar_bytes *= member.traits.numeric.vector.component_count;
-                                        }
-                                        else if (member.op == SpvOpTypeMatrix)
-                                        {
-                                            num_scalar_bytes *= member.traits.numeric.matrix.column_count;
-                                            num_scalar_bytes *= member.traits.numeric.matrix.row_count;
-                                            num_scalar_bytes =
-                                                std::max(num_scalar_bytes, member.traits.numeric.matrix.stride);
-                                        }
-                                        else if (member.op == SpvOpTypePointer || member.op == SpvOpTypeForwardPointer)
-                                        {
-                                            num_scalar_bytes = sizeof(uint64_t);
-                                        }
-                                        else if (member.op == SpvOpTypeArray || member.op == SpvOpTypeRuntimeArray)
-                                        {
-                                            num_scalar_bytes = std::max(num_scalar_bytes, member.traits.array.stride);
-                                        }
-                                        buffer_reference_info.buffer_offset += num_scalar_bytes;
+                                        // align offset, add size
+                                        buffer_reference_info.buffer_offset = util::aligned_value(
+                                            buffer_reference_info.buffer_offset, layout_info.alignment);
+                                        buffer_reference_info.buffer_offset += layout_info.size;
                                     }
 
                                     td = td->members + idx;

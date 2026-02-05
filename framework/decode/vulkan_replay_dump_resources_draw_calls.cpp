@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -38,33 +38,30 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
-
 #include <tuple>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
-#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 DrawCallsDumpingContext::DrawCallsDumpingContext(
-    const CommandIndices*                       draw_indices,
-    const RenderPassIndices*                    renderpass_indices,
-    const CommandImageSubresource&              dc_subresources,
-    CommonObjectInfoTable&                      object_info_table,
-    const VulkanReplayOptions&                  options,
-    VulkanDumpResourcesDelegate&                delegate,
-    const util::Compressor*                     compressor,
-    DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-    const VulkanPerDeviceAddressTrackers&       address_trackers) :
+    const CommandIndices*                             draw_indices,
+    const RenderPassIndices*                          renderpass_indices,
+    const CommandImageSubresource&                    dc_subresources,
+    CommonObjectInfoTable&                            object_info_table,
+    const VulkanReplayOptions&                        options,
+    VulkanDumpResourcesDelegate&                      delegate,
+    const util::Compressor*                           compressor,
+    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+    const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
     current_cb_index_(0), dc_subresources_(dc_subresources), active_renderpass_(nullptr),
     active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0), current_subpass_(0),
     delegate_(delegate), options_(options), compressor_(compressor), current_render_pass_type_(kNone),
     aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
-    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), recording_(false), device_table_(nullptr),
-    instance_table_(nullptr), object_info_table_(object_info_table),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
+    object_info_table_(object_info_table),
     replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false },
     acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
 {
@@ -255,6 +252,252 @@ DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t   
     return entry_it->second.get();
 }
 
+void DrawCallsDumpingContext::CmdDraw(const ApiCallInfo& call_info,
+                                      PFN_vkCmdDraw      func,
+                                      VkCommandBuffer    original_command_buffer,
+                                      uint32_t           vertex_count,
+                                      uint32_t           instance_count,
+                                      uint32_t           first_vertex,
+                                      uint32_t           first_instance)
+{
+    const uint64_t dc_index  = call_info.index;
+    const bool     must_dump = MustDumpDrawCall(dc_index);
+
+    // Finalize draw call command buffer before the actual draw call in order
+    // to handle dumping render targets before the draw call
+    if (options_.dump_resources_before && must_dump)
+    {
+        FinalizeCommandBuffer();
+    }
+
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
+    if (must_dump)
+    {
+        dc_params = InsertNewDrawParameters(dc_index, vertex_count, instance_count, first_vertex, first_instance);
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, vertex_count, instance_count, first_vertex, first_instance);
+    }
+
+    if (must_dump)
+    {
+        FinalizeCommandBuffer(dc_params);
+    }
+}
+
+void DrawCallsDumpingContext::CmdDrawIndexed(const ApiCallInfo&   call_info,
+                                             PFN_vkCmdDrawIndexed func,
+                                             VkCommandBuffer      original_command_buffer,
+                                             uint32_t             index_count,
+                                             uint32_t             instance_count,
+                                             uint32_t             first_index,
+                                             int32_t              vertex_offset,
+                                             uint32_t             first_instance)
+{
+    const uint64_t dc_index  = call_info.index;
+    const bool     must_dump = MustDumpDrawCall(dc_index);
+
+    // Finalize draw call command buffer before the actual draw call in order
+    // to handle dumping render targets before the draw call
+    if (options_.dump_resources_before && must_dump)
+    {
+        FinalizeCommandBuffer();
+    }
+
+    // Copy vertex attribute info
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
+    if (must_dump)
+    {
+        dc_params = InsertNewDrawIndexedParameters(
+            dc_index, index_count, instance_count, first_index, vertex_offset, first_instance);
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, index_count, instance_count, first_index, vertex_offset, first_instance);
+    }
+
+    if (must_dump)
+    {
+        FinalizeCommandBuffer(dc_params);
+    }
+}
+
+void DrawCallsDumpingContext::CmdDrawIndirect(const ApiCallInfo&      call_info,
+                                              PFN_vkCmdDrawIndirect   func,
+                                              VkCommandBuffer         original_command_buffer,
+                                              const VulkanBufferInfo* buffer_info,
+                                              VkDeviceSize            offset,
+                                              uint32_t                draw_count,
+                                              uint32_t                stride)
+{
+    const uint64_t dc_index  = call_info.index;
+    const bool     must_dump = MustDumpDrawCall(dc_index);
+
+    // Finalize draw call command buffer before the actual draw call in order
+    // to handle dumping render targets before the draw call
+    if (options_.dump_resources_before && must_dump)
+    {
+        FinalizeCommandBuffer();
+    }
+
+    // Copy vertex attribute info
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
+    if (must_dump)
+    {
+        dc_params = InsertNewDrawIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, buffer_info->handle, offset, draw_count, stride);
+    }
+
+    if (must_dump)
+    {
+        FinalizeCommandBuffer(dc_params);
+    }
+}
+
+void DrawCallsDumpingContext::CmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
+                                                     PFN_vkCmdDrawIndexedIndirect func,
+                                                     VkCommandBuffer              original_command_buffer,
+                                                     const VulkanBufferInfo*      buffer_info,
+                                                     VkDeviceSize                 offset,
+                                                     uint32_t                     draw_count,
+                                                     uint32_t                     stride)
+{
+    const uint64_t dc_index  = call_info.index;
+    const bool     must_dump = MustDumpDrawCall(dc_index);
+
+    // Finalize draw call command buffer before the actual draw call in order
+    // to handle dumping render targets before the draw call
+    if (options_.dump_resources_before && must_dump)
+    {
+        FinalizeCommandBuffer();
+    }
+
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
+    if (must_dump)
+    {
+        dc_params = InsertNewDrawIndexedIndirectParameters(dc_index, buffer_info, offset, draw_count, stride);
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, buffer_info->handle, offset, draw_count, stride);
+    }
+
+    if (must_dump)
+    {
+        FinalizeCommandBuffer(dc_params);
+    }
+}
+
+void DrawCallsDumpingContext::CmdDrawIndirectCount(const ApiCallInfo&                    call_info,
+                                                   PFN_vkCmdDrawIndirectCount            func,
+                                                   VkCommandBuffer                       original_command_buffer,
+                                                   const VulkanBufferInfo*               buffer_info,
+                                                   VkDeviceSize                          offset,
+                                                   const VulkanBufferInfo*               count_buffer_info,
+                                                   VkDeviceSize                          count_buffer_offset,
+                                                   uint32_t                              max_draw_count,
+                                                   uint32_t                              stride,
+                                                   DrawCallsDumpingContext::DrawCallType drawcall_type)
+{
+    const uint64_t dc_index  = call_info.index;
+    const bool     must_dump = MustDumpDrawCall(dc_index);
+
+    // Finalize draw call command buffer before the actual draw call in order
+    // to handle dumping render targets before the draw call
+    if (options_.dump_resources_before && must_dump)
+    {
+        FinalizeCommandBuffer();
+    }
+
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
+    if (must_dump)
+    {
+        dc_params = InsertNewIndirectCountParameters(dc_index,
+                                                     buffer_info,
+                                                     offset,
+                                                     count_buffer_info,
+                                                     count_buffer_offset,
+                                                     max_draw_count,
+                                                     stride,
+                                                     drawcall_type);
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
+    }
+
+    if (must_dump)
+    {
+        FinalizeCommandBuffer(dc_params);
+    }
+}
+
+void DrawCallsDumpingContext::CmdDrawIndexedIndirectCount(const ApiCallInfo&                    call_info,
+                                                          PFN_vkCmdDrawIndexedIndirectCount     func,
+                                                          VkCommandBuffer                       original_command_buffer,
+                                                          const VulkanBufferInfo*               buffer_info,
+                                                          VkDeviceSize                          offset,
+                                                          const VulkanBufferInfo*               count_buffer_info,
+                                                          VkDeviceSize                          count_buffer_offset,
+                                                          uint32_t                              max_draw_count,
+                                                          uint32_t                              stride,
+                                                          DrawCallsDumpingContext::DrawCallType drawcall_type)
+{
+    const uint64_t dc_index  = call_info.index;
+    const bool     must_dump = MustDumpDrawCall(dc_index);
+
+    // Finalize draw call command buffer before the actual draw call in order
+    // to handle dumping render targets before the draw call
+    if (options_.dump_resources_before && must_dump)
+    {
+        FinalizeCommandBuffer();
+    }
+
+    DrawCallsDumpingContext::DrawCallParams* dc_params = nullptr;
+    if (must_dump)
+    {
+        dc_params = InsertNewDrawIndexedIndirectCountParameters(dc_index,
+                                                                buffer_info,
+                                                                offset,
+                                                                count_buffer_info,
+                                                                count_buffer_offset,
+                                                                max_draw_count,
+                                                                stride,
+                                                                drawcall_type);
+    }
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+    for (CommandBufferIterator it = first; it < last; ++it)
+    {
+        func(*it, buffer_info->handle, offset, count_buffer_info->handle, count_buffer_offset, max_draw_count, stride);
+    }
+
+    if (must_dump)
+    {
+        FinalizeCommandBuffer(dc_params);
+    }
+}
+
 VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_params)
 {
     GFXRECON_ASSERT(IsDrawCallIndirect(dc_params.type));
@@ -283,13 +526,16 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         ic_params.new_params_buffer_size = copy_buffer_size;
 
-        VkResult res = CloneBuffer(object_info_table_,
-                                   device_table_,
-                                   replay_device_phys_mem_props_,
-                                   ic_params.params_buffer_info,
-                                   &ic_params.new_params_buffer,
-                                   &ic_params.new_params_memory,
-                                   copy_buffer_size);
+        VkResult res =
+            CreateVkBuffer(copy_buffer_size,
+                           *device_table_,
+                           object_info_table_.GetVkDeviceInfo(ic_params.params_buffer_info->parent_id)->handle,
+                           nullptr,
+                           nullptr,
+                           replay_device_phys_mem_props_,
+                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                           &ic_params.new_params_buffer,
+                           &ic_params.new_params_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
@@ -357,13 +603,15 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
         // Create a buffer to copy the draw count parameter
         const VkDeviceSize count_buffer_size = sizeof(uint32_t);
         assert(count_buffer_size <= ic_params.count_buffer_info->size);
-        res = CloneBuffer(object_info_table_,
-                          device_table_,
-                          replay_device_phys_mem_props_,
-                          ic_params.count_buffer_info,
-                          &ic_params.new_count_buffer,
-                          &ic_params.new_count_memory,
-                          count_buffer_size);
+        res = CreateVkBuffer(count_buffer_size,
+                             *device_table_,
+                             object_info_table_.GetVkDeviceInfo(ic_params.count_buffer_info->parent_id)->handle,
+                             nullptr,
+                             nullptr,
+                             replay_device_phys_mem_props_,
+                             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                             &ic_params.new_count_buffer,
+                             &ic_params.new_count_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
@@ -426,13 +674,16 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
 
         i_params.new_params_buffer_size = copy_buffer_size;
 
-        VkResult res = CloneBuffer(object_info_table_,
-                                   device_table_,
-                                   replay_device_phys_mem_props_,
-                                   i_params.params_buffer_info,
-                                   &i_params.new_params_buffer,
-                                   &i_params.new_params_memory,
-                                   copy_buffer_size);
+        VkResult res =
+            CreateVkBuffer(copy_buffer_size,
+                           *device_table_,
+                           object_info_table_.GetVkDeviceInfo(i_params.params_buffer_info->parent_id)->handle,
+                           nullptr,
+                           nullptr,
+                           replay_device_phys_mem_props_,
+                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                           &i_params.new_params_buffer,
+                           &i_params.new_params_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
@@ -705,11 +956,11 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     GFXRECON_ASSERT(!RP_indices_.empty());
 
-    if (current_render_pass_type_ == kRenderPass)
+    if (current_render_pass_type_ == RenderPassType::kRenderPass)
     {
         device_table_->CmdEndRenderPass(current_command_buffer);
     }
-    else if (current_render_pass_type_ == kDynamicRendering)
+    else if (current_render_pass_type_ == RenderPassType::kDynamicRendering)
     {
         device_table_->CmdEndRenderingKHR(current_command_buffer);
 
@@ -758,9 +1009,12 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
     // Copy indirect draw params.
     // In case --dump-resources-before-draw is set, since each dc_params (each entry in draw_call_params_) represents
     // both "before" and "after" case, we should do this only once. For the "before" commands dc_params in
-    // FinalizeCommandBuffer() will be null so we distinquish between "befre" and "after" and call
+    // FinalizeCommandBuffer() will be null so we distinguish between "before" and "after" and call
     // CopyDrawIndirectParameters() just once.
-    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type))
+    // If current_render_pass_type_ == RenderPassType::kNone it means that we are inside a secondary which means that we
+    // will be inside a render pass once vkCmdExecuteCommands is issued
+    if (dc_params != nullptr && IsDrawCallIndirect(dc_params->type) &&
+        current_render_pass_type_ != RenderPassType::kNone)
     {
         CopyDrawIndirectParameters(*dc_params);
     }
@@ -769,8 +1023,6 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     // Increment index of command buffer that is going to be finalized next
     ++current_cb_index_;
-
-    recording_ = current_cb_index_ < command_buffers_.size();
 }
 
 bool DrawCallsDumpingContext::MustDumpDrawCall(uint64_t index) const
@@ -849,6 +1101,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         {
             submission_fence = fence;
         }
+
+        device_table_->ResetFences(device_info->handle, 1, &submission_fence);
 
         VkResult res = device_table_->QueueSubmit(queue, 1, &si, submission_fence);
         if (res != VK_SUCCESS)
@@ -930,7 +1184,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             const auto& dc_entry = dc_param_entry->second.get();
 
             const VulkanDelegateDumpDrawCallContext draw_call_info{
-                DumpResourcesCommandType::kGraphics, instance_table_, device_table_, dc_entry
+                DumpResourcesPipelineStage::kGraphics, instance_table_, device_table_, dc_entry
             };
 
             delegate_.DumpDrawCallInfo(draw_call_info);
@@ -1355,7 +1609,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                                 array_index,
                                 image_info,
                                 can_dump_image,
-                                DumpResourcesCommandType::kGraphics);
+                                DumpResourcesPipelineStage::kGraphics);
 
                             if (can_dump_image != ImageDumpResult::kCanDump)
                             {
@@ -1412,7 +1666,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             }
                             else
                             {
-                                new_dumped_image.CopyDumpedInfo(dumped_desc_entry->second);
+                                new_dumped_image = dumped_desc_entry->second;
                             }
                         }
                     }
@@ -1455,10 +1709,11 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            DumpResourcesCommandType::kGraphics);
+                            DumpResourcesPipelineStage::kGraphics);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_desc_entry =
@@ -1495,7 +1750,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1537,10 +1792,11 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            DumpResourcesCommandType::kGraphics);
+                            DumpResourcesPipelineStage::kGraphics);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_desc_entry =
@@ -1577,7 +1833,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1602,7 +1858,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         desc_binding.desc_type,
                         desc_set_index,
                         desc_binding_index,
-                        DumpResourcesCommandType::kGraphics);
+                        DumpResourcesPipelineStage::kGraphics);
 
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;
@@ -1635,10 +1891,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             array_index,
                             as_info,
                             options_.dump_resources_dump_build_AS_input_buffers,
-                            DumpResourcesCommandType::kGraphics);
+                            DumpResourcesPipelineStage::kGraphics);
 
-                        auto& new_dumped_as =
-                            std::get<DumpedTopLevelAccelerationStructure>(new_dumped_desc.dumped_resource);
+                        auto& new_dumped_as = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_descs_entry =
                             render_pass_dumped_descriptors_[rp].acceleration_structures.find(loc);
@@ -1652,14 +1907,19 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                             auto& dumped_as_data =
                                 std::get<VulkanDelegateAccelerationStructureDumpedData>(res_info.dumped_data);
 
-                            VkResult res = DumpTopLevelAccelerationStructure(new_dumped_as,
-                                                                             dumped_as_data.data,
-                                                                             acceleration_structures_context_,
-                                                                             device_info,
-                                                                             *device_table_,
-                                                                             object_info_table_,
-                                                                             *instance_table_,
-                                                                             address_trackers_);
+                            auto tlas_context_entry = acceleration_structures_context_.find(as_info);
+                            GFXRECON_ASSERT(tlas_context_entry != acceleration_structures_context_.end());
+                            AccelerationStructureDumpResourcesContext* tlas_context = tlas_context_entry->second.get();
+
+                            VkResult res = DumpAccelerationStructure(new_dumped_as,
+                                                                     dumped_as_data.data,
+                                                                     tlas_context,
+                                                                     acceleration_structures_context_,
+                                                                     device_info,
+                                                                     *device_table_,
+                                                                     object_info_table_,
+                                                                     *instance_table_,
+                                                                     address_trackers_);
                             if (res != VK_SUCCESS)
                             {
                                 GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",
@@ -1673,7 +1933,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         }
                         else
                         {
-                            new_dumped_as.CopyDumpedInfo(dumped_descs_entry->second);
+                            new_dumped_as = dumped_descs_entry->second;
                         }
                     }
                 }
@@ -2007,7 +2267,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 dc_index,
                 qs_index,
                 index_type,
-                dc_params.referenced_index_buffer.buffer_info,
+                dc_params.referenced_index_buffer.buffer_info->handle,
+                dc_params.referenced_index_buffer.buffer_info->capture_id,
                 total_size,
                 offset);
 
@@ -2253,15 +2514,16 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     total_size = vb_entry.buffer_info->size - offset;
                 }
 
-                auto& new_dumped_vertex_buffer =
-                    dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(DumpResourceType::kVertex,
-                                                                                        bcb_index,
-                                                                                        dc_index,
-                                                                                        qs_index,
-                                                                                        binding_index,
-                                                                                        vb_entry.buffer_info,
-                                                                                        total_size,
-                                                                                        offset);
+                auto& new_dumped_vertex_buffer = dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(
+                    DumpResourceType::kVertex,
+                    bcb_index,
+                    dc_index,
+                    qs_index,
+                    binding_index,
+                    vb_entry.buffer_info->handle,
+                    vb_entry.buffer_info->capture_id,
+                    total_size,
+                    offset);
 
                 VulkanDelegateDumpResourceContext res_info = res_info_base;
                 res_info.dumped_resource                   = &new_dumped_vertex_buffer;
@@ -2367,8 +2629,6 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
         GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
         return res;
     }
-
-    recording_ = true;
 
     return VK_SUCCESS;
 }
@@ -2506,10 +2766,11 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
         if (!has_external_dependencies_post)
         {
             VkSubpassDependency post_dependency;
-            post_dependency.srcSubpass    = sub;
-            post_dependency.dstSubpass    = VK_SUBPASS_EXTERNAL;
-            post_dependency.dstStageMask  = VK_PIPELINE_STAGE_TRANSFER_BIT;
-            post_dependency.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            post_dependency.srcSubpass      = sub;
+            post_dependency.dstSubpass      = VK_SUBPASS_EXTERNAL;
+            post_dependency.dstStageMask    = VK_PIPELINE_STAGE_TRANSFER_BIT;
+            post_dependency.dstAccessMask   = VK_ACCESS_TRANSFER_READ_BIT;
+            post_dependency.dependencyFlags = VkDependencyFlags(0);
 
             // Injecting one for color
             if (has_color)
@@ -3491,7 +3752,7 @@ DrawCallsDumpingContext::RenderPassSubpassPair DrawCallsDumpingContext::GetRende
         for (const auto& ex_com : secondaries_)
         {
             const uint64_t execute_commands_index = ex_com.first;
-            for (const DrawCallsDumpingContext* secondary_context : ex_com.second)
+            for (const auto secondary_context : ex_com.second)
             {
                 const CommandIndices& secondary_dcs = secondary_context->GetDrawCallIndices();
 
@@ -3613,8 +3874,8 @@ void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>
     new_entry_it->second.depth_attachment_layout  = depth_attachment_layout;
 }
 
-void DrawCallsDumpingContext::AssignSecondary(uint64_t                 execute_commands_index,
-                                              DrawCallsDumpingContext* secondary_context)
+void DrawCallsDumpingContext::AssignSecondary(uint64_t                                 execute_commands_index,
+                                              std::shared_ptr<DrawCallsDumpingContext> secondary_context)
 {
     GFXRECON_ASSERT(secondary_context);
 
@@ -3734,41 +3995,37 @@ void DrawCallsDumpingContext::MergeRenderPasses(const DrawCallsDumpingContext& s
     current_renderpass_ += secondary_context.rendering_attachment_layouts_.size();
 }
 
-void DrawCallsDumpingContext::UpdateSecondaries()
+void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& secondary_context)
 {
     // The purpose of this function is to transfer rendering context from a primary to its secondaries.
     // This function must be called only for primary command buffer contexes, even if a secondary has secondaries.
     GFXRECON_ASSERT(command_buffer_level_ == DumpResourcesCommandBufferLevel::kPrimary);
 
-    for (auto& execute_commands : secondaries_)
-    {
-        for (auto& secondary_context : execute_commands.second)
-        {
-            secondary_context->SecondaryUpdateContextFromPrimary(bound_gr_pipeline_,
-                                                                 bound_vertex_buffers_,
-                                                                 bound_index_buffer_,
-                                                                 dynamic_vertex_input_state_,
-                                                                 bound_descriptor_sets_gr_);
-        }
-    }
+    secondary_context.SecondaryUpdateContextFromPrimary(bound_gr_pipeline_,
+                                                        bound_vertex_buffers_,
+                                                        bound_index_buffer_,
+                                                        dynamic_vertex_input_state_,
+                                                        bound_descriptor_sets_gr_);
 
     // Move secondary draw call parameters to primary's list of draw call params.
     // When DumpDrawCalls is called it's better to have all draw call parameters available in the primary which is
     // submitted.
-    for (auto& execute_commands : secondaries_)
+    DrawCallParameters& secondary_dc_params = secondary_context.GetDrawCallParameters();
+    for (auto& secondary_dc_param : secondary_dc_params)
     {
-        for (auto& secondary_context : execute_commands.second)
+        const auto new_entry =
+            draw_call_params_.insert(std::make_pair(secondary_dc_param.first, std::move(secondary_dc_param.second)));
+        GFXRECON_ASSERT(new_entry.second);
+
+        FinalizeCommandBuffer(new_entry.first->second.get());
+
+        // Finalize the command buffer for the before case as well
+        if (options_.dump_resources_before)
         {
-            DrawCallParameters& secondary_dc_params = secondary_context->GetDrawCallParameters();
-            for (auto& secondary_dc_param : secondary_dc_params)
-            {
-                const auto new_entry = draw_call_params_.insert(
-                    std::make_pair(secondary_dc_param.first, std::move(secondary_dc_param.second)));
-                GFXRECON_ASSERT(new_entry.second);
-            }
-            secondary_dc_params.clear();
+            FinalizeCommandBuffer();
         }
     }
+    secondary_dc_params.clear();
 }
 
 void DrawCallsDumpingContext::SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,

@@ -33,9 +33,8 @@
 #include "util/platform.h"
 #ifdef WIN32
 #include "graphics/dx12_image_renderer.h"
-#else
-#include "format/platform_types.h"
 #endif
+#include "format/platform_types.h"
 #include "format/format.h"
 
 #ifdef WIN32
