@@ -9305,17 +9305,23 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
     HandlePointerDecoder<VkPipeline>*                                      pPipelines)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     assert((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
            (pPipelines != nullptr) && !pPipelines->IsNull() && (pPipelines->GetHandlePointer() != nullptr));
+
+    if (ShouldSkipPipelineCreationForCompileRequired(
+            original_result, createInfoCount, pPipelines, "ray tracing pipeline (KHR)"))
+    {
+        return original_result;
+    }
 
     VkResult                                 result          = VK_SUCCESS;
     VkDevice                                 device          = device_info->handle;
     const VkRayTracingPipelineCreateInfoKHR* in_pCreateInfos = pCreateInfos->GetPointer();
-    const VkAllocationCallbacks*             in_pAllocator   = GetAllocationCallbacks(pAllocator);
-    VkPipeline*                              out_pPipelines  = pPipelines->GetHandlePointer();
-    VkDeferredOperationKHR                   in_deferredOperation =
+    RemoveFailOnCompileRequiredFlags(
+        createInfoCount, const_cast<VkRayTracingPipelineCreateInfoKHR*>(in_pCreateInfos), "ray tracing pipeline (KHR)");
+    const VkAllocationCallbacks* in_pAllocator  = GetAllocationCallbacks(pAllocator);
+    VkPipeline*                  out_pPipelines = pPipelines->GetHandlePointer();
+    VkDeferredOperationKHR       in_deferredOperation =
         (deferred_operation_info != nullptr) ? deferred_operation_info->handle : VK_NULL_HANDLE;
     VkPipelineCache in_pipelineCache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
     VkPipelineCache overridePipelineCache = in_pipelineCache;
@@ -9684,10 +9690,18 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesNV(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*            pAllocator,
     HandlePointerDecoder<VkPipeline>*                                     pPipelines)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     assert((device_info != nullptr) && (createInfoCount > 0) && (pCreateInfos != nullptr) && (pPipelines != nullptr) &&
            (pCreateInfos->GetPointer() != nullptr) && (pPipelines->GetHandlePointer() != nullptr));
+
+    if (ShouldSkipPipelineCreationForCompileRequired(
+            original_result, createInfoCount, pPipelines, "ray tracing pipeline (NV)"))
+    {
+        return original_result;
+    }
+
+    const VkRayTracingPipelineCreateInfoNV* in_pCreateInfos = pCreateInfos->GetPointer();
+    RemoveFailOnCompileRequiredFlags(
+        createInfoCount, const_cast<VkRayTracingPipelineCreateInfoNV*>(in_pCreateInfos), "ray tracing pipeline (NV)");
 
     VkPipelineCache pipelineCache = (pipeline_cache_info == nullptr) ? VK_NULL_HANDLE : pipeline_cache_info->handle;
     VkPipelineCache overridePipelineCache = pipelineCache;
@@ -9704,7 +9718,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesNV(
     VkResult result = func(device_info->handle,
                            overridePipelineCache,
                            createInfoCount,
-                           pCreateInfos->GetPointer(),
+                           in_pCreateInfos,
                            GetAllocationCallbacks(pAllocator),
                            pPipelines->GetHandlePointer());
 
@@ -11570,6 +11584,57 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     }
 }
 
+bool VulkanReplayConsumerBase::ShouldSkipPipelineCreationForCompileRequired(VkResult original_result,
+                                                                            uint32_t create_info_count,
+                                                                            HandlePointerDecoder<VkPipeline>* pipelines,
+                                                                            const char* pipeline_type)
+{
+    GFXRECON_ASSERT(pipelines != nullptr && !pipelines->IsNull() && pipelines->GetHandlePointer() != nullptr);
+
+    if (original_result == VK_PIPELINE_COMPILE_REQUIRED)
+    {
+        GFXRECON_LOG_WARNING("Skipping execution of %s creation due to original result being "
+                             "VK_PIPELINE_COMPILE_REQUIRED(_EXT). Returning VK_NULL_HANDLE for created pipeline.",
+                             pipeline_type);
+
+        VkPipeline* handles = pipelines->GetHandlePointer();
+        for (uint32_t i = 0; i < create_info_count; ++i)
+        {
+            handles[i] = VK_NULL_HANDLE;
+        }
+        return true;
+    }
+    return false;
+}
+
+template <typename T>
+void VulkanReplayConsumerBase::RemoveFailOnCompileRequiredFlags(uint32_t    create_info_count,
+                                                                T*          create_infos,
+                                                                const char* pipeline_type)
+{
+    static_assert(std::is_same_v<T, VkGraphicsPipelineCreateInfo> || std::is_same_v<T, VkComputePipelineCreateInfo> ||
+                      std::is_same_v<T, VkRayTracingPipelineCreateInfoKHR> ||
+                      std::is_same_v<T, VkRayTracingPipelineCreateInfoNV>,
+                  "only Vk***PipelineCreateInfo types supported");
+
+    if (create_infos == nullptr)
+    {
+        return;
+    }
+
+    for (uint32_t i = 0; i < create_info_count; ++i)
+    {
+        if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
+        {
+            create_infos[i].flags &= ~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT;
+            GFXRECON_LOG_WARNING("Removed VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT flag from %s create "
+                                 "info index %u during replay.",
+                                 pipeline_type,
+                                 i);
+        }
+    }
+}
+
 [[nodiscard]] std::vector<std::unique_ptr<char[]>> VulkanReplayConsumerBase::ReplaceShaders(
     uint32_t create_info_count, VkGraphicsPipelineCreateInfo* create_infos, const format::HandleId* pipelines) const
 {
@@ -11643,6 +11708,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     VkPipeline*                         out_pipelines             = pPipelines->GetHandlePointer();
     VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
+    if (ShouldSkipPipelineCreationForCompileRequired(
+            original_result, create_info_count, pPipelines, "graphics pipeline"))
+    {
+        return original_result;
+    }
+
+    RemoveFailOnCompileRequiredFlags(
+        create_info_count, const_cast<VkGraphicsPipelineCreateInfo*>(in_p_create_infos), "graphics pipeline");
+
     // If there is no pipeline cache and we want to create a new one
     format::HandleId cache_pipeline_id = format::kNullHandleId;
     if (pipeline_cache == VK_NULL_HANDLE && options_.add_new_pipeline_caches)
@@ -11704,15 +11778,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
                     (pPipelines != nullptr) && !pPipelines->IsNull() && (pPipelines->GetHandlePointer() != nullptr));
 
-    VkDevice                           in_device                 = device_info->handle;
-    const VkComputePipelineCreateInfo* in_p_create_infos         = pCreateInfos->GetPointer();
-    const VkAllocationCallbacks*       in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
-    VkPipeline*                        out_pipelines             = pPipelines->GetHandlePointer();
+    if (ShouldSkipPipelineCreationForCompileRequired(
+            original_result, create_info_count, pPipelines, "compute pipeline"))
+    {
+        return original_result;
+    }
+
+    VkDevice                           in_device         = device_info->handle;
+    const VkComputePipelineCreateInfo* in_p_create_infos = pCreateInfos->GetPointer();
+    RemoveFailOnCompileRequiredFlags(
+        create_info_count, const_cast<VkComputePipelineCreateInfo*>(in_p_create_infos), "compute pipeline");
+    const VkAllocationCallbacks* in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
+    VkPipeline*                  out_pipelines             = pPipelines->GetHandlePointer();
     VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
     // If there is no pipeline cache and we want to create a new one
