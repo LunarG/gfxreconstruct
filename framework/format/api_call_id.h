@@ -1378,6 +1378,23 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState                                  = MakeApiCallId(ApiFamily_D3D12, 0x1169),
     ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus                             = MakeApiCallId(ApiFamily_D3D12, 0x116a),
 
+    // Agility SDK 1.618.5
+    ApiCall_ID3D12PipelineState1_GetRootSignature                                                 = MakeApiCallId(ApiFamily_D3D12, 0x116b),
+    ApiCall_ID3D12CommandQueue1_SetProcessPriority                                                = MakeApiCallId(ApiFamily_D3D12, 0x116c),
+    ApiCall_ID3D12CommandQueue1_GetProcessPriority                                                = MakeApiCallId(ApiFamily_D3D12, 0x116d),
+    ApiCall_ID3D12CommandQueue1_SetGlobalPriority                                                 = MakeApiCallId(ApiFamily_D3D12, 0x116e),
+    ApiCall_ID3D12CommandQueue1_GetGlobalPriority                                                 = MakeApiCallId(ApiFamily_D3D12, 0x116f),
+    ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram                         = MakeApiCallId(ApiFamily_D3D12, 0x1170),
+    ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader                          = MakeApiCallId(ApiFamily_D3D12, 0x1171),
+    ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc                                          = MakeApiCallId(ApiFamily_D3D12, 0x1172),
+    ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc                                          = MakeApiCallId(ApiFamily_D3D12, 0x1173),
+    ApiCall_ID3D12StateObjectDatabase_StorePipelineStateDesc                                      = MakeApiCallId(ApiFamily_D3D12, 0x1174),
+    ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc                                       = MakeApiCallId(ApiFamily_D3D12, 0x1175),
+    ApiCall_ID3D12StateObjectDatabase_StoreStateObjectDesc                                        = MakeApiCallId(ApiFamily_D3D12, 0x1176),
+    ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc                                         = MakeApiCallId(ApiFamily_D3D12, 0x1177),
+    ApiCall_ID3D12StateObjectDatabase_FindObjectVersion                                           = MakeApiCallId(ApiFamily_D3D12, 0x1178),
+    ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile                    = MakeApiCallId(ApiFamily_D3D12, 0x1179),
+
     // AGS API
     // amd_ags.h
     ApiCall_Ags_agsInitialize_6_0_1                                                               = MakeApiCallId(ApiFamily_AGS, 0x1000),
