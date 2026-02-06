@@ -146,9 +146,10 @@ decode::VulkanDeviceAddressTracker::GetBufferByCaptureDeviceAddress(VkDeviceAddr
 }
 
 const decode::VulkanBufferInfo*
-decode::VulkanDeviceAddressTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const
+decode::VulkanDeviceAddressTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address,
+                                                                    size_t*         offset) const
 {
-    return GetBufferInfo(replay_address, buffer_replay_addresses_);
+    return GetBufferInfo(replay_address, buffer_replay_addresses_, offset);
 }
 
 VulkanBufferInfo* VulkanDeviceAddressTracker::GetBufferByHandle(VkBuffer handle)

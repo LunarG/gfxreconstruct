@@ -2319,7 +2319,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
 {
     auto*                                                  p_infos_meta = pInfos->GetMetaStructPointer();
-    const auto*                                            p_infos      = p_infos_meta->decoded_value;
+    const auto*                                            p_infos      = pInfos->GetPointer();
     const VkAccelerationStructureBuildRangeInfoKHR* const* range_infos  = ppBuildRangeInfos->GetPointer();
 
     for (uint32_t i = 0; i < infoCount; ++i)
@@ -2342,9 +2342,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
 
         VkResult res = new_entry.first->second->CloneBuildAccelerationStructuresInputBuffers(
             (original_command_buffer != nullptr) ? original_command_buffer->handle : VK_NULL_HANDLE,
-            &p_infos_meta[i],
+            p_infos[i],
             range_infos[i],
-            dump_as_build_input_buffers_);
+            dump_as_build_input_buffers_,
+            false);
         if (res != VK_SUCCESS)
         {
             return;

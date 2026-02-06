@@ -1212,9 +1212,10 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 // Clone build input buffers
                 res = new_build_info.vk_objects.as_context.CloneBuildAccelerationStructuresInputBuffers(
                     command_buffer,
-                    &p_infos_meta[i],
+                    p_infos[i],
                     p_range_infos[i],
-                    options_.dump_resources_dump_build_AS_input_buffers);
+                    options_.dump_resources_dump_build_AS_input_buffers,
+                    !before_command);
                 if (res != VK_SUCCESS)
                 {
                     return res;

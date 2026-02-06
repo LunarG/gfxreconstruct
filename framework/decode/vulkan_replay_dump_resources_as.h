@@ -106,11 +106,11 @@ struct AccelerationStructureDumpResourcesContext
     } serialized_data;
 
     // Clones buffers used as inputs in vkCmdBuildAccelerationStructuresKHR command.
-    VkResult CloneBuildAccelerationStructuresInputBuffers(
-        VkCommandBuffer                                            original_command_buffer,
-        const Decoded_VkAccelerationStructureBuildGeometryInfoKHR* p_infos_meta,
-        const VkAccelerationStructureBuildRangeInfoKHR*            range_infos,
-        bool                                                       dump_as_build_input_buffers);
+    VkResult CloneBuildAccelerationStructuresInputBuffers(VkCommandBuffer original_command_buffer,
+                                                          const VkAccelerationStructureBuildGeometryInfoKHR& build_info,
+                                                          const VkAccelerationStructureBuildRangeInfoKHR* range_infos,
+                                                          bool dump_as_build_input_buffers,
+                                                          bool after_address_replacer);
 
     // Clones input buffers from src_context
     VkResult CloneBuildAccelerationStructuresInputBuffers(VkCommandBuffer original_command_buffer,

@@ -94,14 +94,13 @@ static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device
 }
 
 VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStructuresInputBuffers(
-    VkCommandBuffer                                            original_command_buffer,
-    const Decoded_VkAccelerationStructureBuildGeometryInfoKHR* p_infos_meta,
-    const VkAccelerationStructureBuildRangeInfoKHR*            range_infos,
-    bool                                                       dump_as_build_input_buffers)
+    VkCommandBuffer                                    original_command_buffer,
+    const VkAccelerationStructureBuildGeometryInfoKHR& build_info,
+    const VkAccelerationStructureBuildRangeInfoKHR*    range_infos,
+    bool                                               dump_as_build_input_buffers,
+    bool                                               after_address_replacer)
 {
-    const auto* p_infos = p_infos_meta->decoded_value;
-
-    if (p_infos->pGeometries == nullptr)
+    if (build_info.pGeometries == nullptr)
     {
         return VK_SUCCESS;
     }
@@ -122,9 +121,6 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
     const VkCommandBuffer command_buffer =
         original_command_buffer == VK_NULL_HANDLE ? temp_cmd_buff.command_buffer : original_command_buffer;
 
-    GFXRECON_ASSERT(p_infos_meta->pGeometries != nullptr);
-    const auto* p_geometries_meta = p_infos_meta->pGeometries->GetMetaStructPointer();
-
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     GFXRECON_ASSERT(phys_dev_info != nullptr);
 
@@ -139,11 +135,11 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
     const VulkanDeviceAddressTracker& device_address_tracker = address_tracker_entry->second;
 
-    for (uint32_t g = 0; g < p_infos->geometryCount; ++g)
+    for (uint32_t g = 0; g < build_info.geometryCount; ++g)
     {
         // Either pGeometries or ppGeometries is used. The other one must be NULL
         const VkAccelerationStructureGeometryKHR* const geometry =
-            p_infos->pGeometries != nullptr ? &p_infos->pGeometries[g] : p_infos->ppGeometries[g];
+            build_info.pGeometries != nullptr ? &build_info.pGeometries[g] : build_info.ppGeometries[g];
 
         const VkAccelerationStructureBuildRangeInfoKHR& range = range_infos[g];
         if (!range.primitiveCount)
@@ -169,8 +165,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 const VkAccelerationStructureGeometryTrianglesDataKHR& triangles = geometry->geometry.triangles;
 
                 size_t                  buffer_device_address_offset;
-                const VulkanBufferInfo* vertex_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                    triangles.vertexData.deviceAddress, &buffer_device_address_offset);
+                const VulkanBufferInfo* vertex_buffer_info =
+                    after_address_replacer
+                        ? device_address_tracker.GetBufferByReplayDeviceAddress(triangles.vertexData.deviceAddress,
+                                                                                &buffer_device_address_offset)
+                        : device_address_tracker.GetBufferByCaptureDeviceAddress(triangles.vertexData.deviceAddress,
+                                                                                 &buffer_device_address_offset);
                 if (vertex_buffer_info == nullptr)
                 {
                     continue;
@@ -219,8 +219,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.index_type = triangles.indexType;
                 if (triangles.indexType != VK_INDEX_TYPE_NONE_KHR)
                 {
-                    const VulkanBufferInfo* index_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                        triangles.indexData.deviceAddress, &buffer_device_address_offset);
+                    const VulkanBufferInfo* index_buffer_info =
+                        after_address_replacer
+                            ? device_address_tracker.GetBufferByReplayDeviceAddress(triangles.indexData.deviceAddress,
+                                                                                    &buffer_device_address_offset)
+                            : device_address_tracker.GetBufferByCaptureDeviceAddress(triangles.indexData.deviceAddress,
+                                                                                     &buffer_device_address_offset);
 
                     if (index_buffer_info != nullptr)
                     {
@@ -263,8 +267,11 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 if (triangles.transformData.deviceAddress)
                 {
                     const VulkanBufferInfo* transform_buffer_info =
-                        device_address_tracker.GetBufferByCaptureDeviceAddress(triangles.transformData.deviceAddress,
-                                                                               &buffer_device_address_offset);
+                        after_address_replacer
+                            ? device_address_tracker.GetBufferByReplayDeviceAddress(
+                                  triangles.transformData.deviceAddress, &buffer_device_address_offset)
+                            : device_address_tracker.GetBufferByCaptureDeviceAddress(
+                                  triangles.transformData.deviceAddress, &buffer_device_address_offset);
                     if (transform_buffer_info == nullptr)
                     {
                         continue;
@@ -316,8 +323,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 const VkAccelerationStructureGeometryAabbsDataKHR& aabbs = geometry->geometry.aabbs;
 
                 size_t                  buffer_device_address_offset;
-                const VulkanBufferInfo* aabb_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                    aabbs.data.deviceAddress, &buffer_device_address_offset);
+                const VulkanBufferInfo* aabb_buffer_info =
+                    after_address_replacer
+                        ? device_address_tracker.GetBufferByReplayDeviceAddress(aabbs.data.deviceAddress,
+                                                                                &buffer_device_address_offset)
+                        : device_address_tracker.GetBufferByCaptureDeviceAddress(aabbs.data.deviceAddress,
+                                                                                 &buffer_device_address_offset);
                 GFXRECON_ASSERT(aabb_buffer_info != nullptr);
                 if (aabb_buffer_info == nullptr)
                 {
@@ -405,8 +416,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_instances.instance_buffer_size  = instance_buffer_size;
 
                 size_t                  buffer_device_address_offset;
-                const VulkanBufferInfo* instances_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                    instances.data.deviceAddress, &buffer_device_address_offset);
+                const VulkanBufferInfo* instances_buffer_info =
+                    after_address_replacer
+                        ? device_address_tracker.GetBufferByReplayDeviceAddress(instances.data.deviceAddress,
+                                                                                &buffer_device_address_offset)
+                        : device_address_tracker.GetBufferByCaptureDeviceAddress(instances.data.deviceAddress,
+                                                                                 &buffer_device_address_offset);
                 if (instances_buffer_info == nullptr)
                 {
                     continue;
