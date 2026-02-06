@@ -60,7 +60,7 @@ Each command (either a Vulkan command issued by the application or a meta comman
 
 The simplest way to find the command block index for each Vulkan command is to use the `gfxrecon-convert` tool on a capture file which will convert the capture into a human readable json file. Use the `--format jsonl` option to produce a json file with one command per line. The resulting jsonl file looks something like this:
 
-```
+```Json
 {"index":301,"function":{"name":"vkBeginCommandBuffer","thread":2,"return":"VK_SUCCESS","args":{"commandBuffer":80, ... }}},
 {"index":302,"function":{"name":"vkCmdBeginRenderPass","thread":2,"cmd_index":1,"args":{"commandBuffer":80, ... }}},
 {"index":303,"function":{"name":"vkCmdBindPipeline","thread":2,"cmd_index":2,"args":{"commandBuffer":80, ... }}},
@@ -118,7 +118,7 @@ specified like with the primary command buffers. The index of the `vkCmdExecuteC
 
 Assuming the following imaginary excerpt from a capture file that contains the following commands:
 
-```
+```Json
 {"index":301,"function":{"name":"vkBeginCommandBuffer", ... } },
 {"index":302,"function":{"name":"vkCmdBeginRenderPass", ... } },
 {"index":303,"function":{"name":"vkCmdBindPipeline", ... } },
@@ -138,7 +138,7 @@ Assuming the following imaginary excerpt from a capture file that contains the f
 
 It is possible to dump the depth and color attachments of all `vkCmdDraw` commands by providing the following json input file:
 
-```
+```Json
 {
     "BeginCommandBuffer": [ 301 ],
     "Draw": [ [ 307, 308, 309, 310, 311, 312 ] ],
@@ -160,7 +160,7 @@ An example involving secondary command buffers
 
 In order to dump the draw call from the secondary command buffer `230` the following json input file should be provided:
 
-```
+```Json
 {
     "BeginCommandBuffer": [ 754, 736 ],
     "Draw": [ [ 761 ], [ ] ],
@@ -183,7 +183,7 @@ Commands recorded in multiple command buffers can be dumped in a single run. For
 These vectors are two dimensional. The first dimension corresponds to `BeginCommandBuffer` each vector belongs to.
 I.e.:
 
-```
+```Json
 {
     "BeginCommandBuffer" :  [ 10, 20 ],
     "TraceRays":            [ [ 220, 230, 240 ], [] ],
@@ -204,7 +204,7 @@ Inside a command buffer, Vulkan allows multiple render passes with multiple sub-
 
 A hypothetical json output of the `gfxrecon-convert` tool could look something like the following:
 
-```
+```Json
 {"index":10,"function":{"name":"vkBeginCommandBuffer","thread":2,"return":"VK_SUCCESS","args":{"commandBuffer":59, ... }}},
 {"index":11,"function":{"name":"vkBeginCommandBuffer","thread":2,"return":"VK_SUCCESS","args":{"commandBuffer":60, ... }}},
 {"index":12,"function":{"name":"vkCmdBeginRenderPass","thread":2,"cmd_index":1,"args":{"commandBuffer":59, ... }}},
@@ -234,7 +234,7 @@ A hypothetical json output of the `gfxrecon-convert` tool could look something l
 
 The indices submitted to `gfxrecon-replay` for dumping are the following:
 
-```
+```Json
 {
     "BeginCommandBuffer" : [ 10, 11 ],
     "Draw" :               [ [ 13, 14, 16, 17, 20, 21, 22, 23 ],
@@ -486,7 +486,7 @@ The draw calls are listed in an array. Each draw call entry contains information
 
 Here is an example of a json output file:
 
-```
+```Json
 [
 {
   "header": {
