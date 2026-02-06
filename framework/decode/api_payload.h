@@ -107,6 +107,7 @@ struct DispatchFlagTraits
     static constexpr bool kHasData          = DispatchHasData<Command>::value;
     static constexpr bool kHasDataSize      = DispatchHasDataSize<Command>::value;
     static constexpr bool kHasCommandHeader = DispatchHasCommandHeader<Command>::value;
+    static constexpr bool kIsTrivial        = std::is_trivially_destructible_v<Command>;
 };
 
 // --- Payload structs (argument order preserved) ---
@@ -809,18 +810,71 @@ class DispatchStore
   public:
     using ValueType                = T;
     constexpr static bool kIsLarge = DispatchTraits<T>::kIsLarge;
-    using StoreType                = std::conditional_t<kIsLarge, std::unique_ptr<T>, T>;
+    using StoreType                = std::conditional_t<kIsLarge, T*, T>;
 
     // Forwarding constructor handling l-values and r-values
     // The enable_if_t restricts the constructor to only accept types compatible with T
     // and to prevent hijacking copy or move constructors with this general constructor
     template <
         typename U,
+        typename Allocator,
         typename = std::enable_if_t<std::is_constructible_v<T, U&&> && !std::is_same_v<std::decay_t<U>, DispatchStore>,
                                     DispatchStore>>
-    explicit DispatchStore(U&& args) : store_(MakeStore(std::forward<U>(args)))
+    explicit DispatchStore(U&& args, Allocator& allocator) : store_(MakeStore(std::forward<U>(args), allocator))
     {}
-    DispatchStore() = default;
+    DispatchStore()
+    {
+        if constexpr (kIsLarge)
+        {
+            store_ = nullptr;
+        }
+    }
+
+    DispatchStore(DispatchStore&& other)
+    {
+        if constexpr (kIsLarge)
+        {
+            store_       = other.store_;
+            other.store_ = nullptr;
+        }
+        else
+        {
+            new (&store_) T(std::move(other.store_));
+        }
+    }
+
+    ~DispatchStore()
+    {
+        if constexpr (kIsLarge && !std::is_trivially_destructible_v<T>)
+        {
+            if (store_ != nullptr)
+            {
+                store_->~T();
+                store_ = nullptr;
+            }
+        }
+    }
+
+    DispatchStore& operator=(DispatchStore&& other)
+    {
+        if (this != &other)
+        {
+            if constexpr (kIsLarge)
+            {
+                if (store_ != nullptr)
+                {
+                    store_->~T();
+                }
+                store_       = other.store_;
+                other.store_ = nullptr;
+            }
+            else
+            {
+                store_ = std::move(other.store_);
+            }
+        }
+        return *this;
+    }
 
     const T& operator*() const
     {
@@ -871,12 +925,12 @@ class DispatchStore
     }
 
   private:
-    template <typename U>
-    StoreType MakeStore(U&& input)
+    template <typename U, typename Allocator>
+    StoreType MakeStore(U&& input, Allocator& allocator)
     {
         if constexpr (kIsLarge)
         {
-            return std::make_unique<T>(std::forward<U>(input));
+            return new (allocator.Allocate(sizeof(T))) T(std::forward<U>(input));
         }
         else
         {
@@ -928,8 +982,8 @@ using DispatchArgs = std::variant<DispatchStore<FunctionCallArgs>,
                                   DispatchStore<SetOpaqueDescriptorDataArgs>>;
 
 // Helper to create DispatchArgs variant from arbitrary ArgPayload type, with sanity checks
-template <typename ArgPayload>
-inline DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
+template <typename ArgPayload, typename Allocator>
+inline DispatchArgs MakeDispatchArgs(ArgPayload&& payload, Allocator& allocator)
 {
     using Args     = util::RemoveCvRef_t<ArgPayload>;
     using ArgStore = DispatchStore<Args>;
@@ -939,7 +993,7 @@ inline DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
     static_assert(std::is_constructible_v<Args, ArgPayload&&>,
                   "DispatchArgs alternative not constructible from supplied payload");
 
-    return DispatchArgs{ std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload) };
+    return DispatchArgs{ std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload), allocator };
 }
 
 template <typename Args>

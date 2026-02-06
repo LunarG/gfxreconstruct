@@ -54,35 +54,28 @@ BlockBuffer::BlockSpan BlockBuffer::ReadSpan(size_t buffer_size)
     {
         const auto span_pos = read_pos_;
         read_pos_ += buffer_size;
-        return BlockSpan(block_span_.data() + span_pos, buffer_size);
+        return block_span_.subspan(span_pos, buffer_size);
     }
     return BlockSpan();
 }
 
-// Create a block buffer from a block data span
-// Reading the block header contents from the given span
-BlockBuffer::BlockBuffer(util::DataSpan&& block_span) : read_pos_{ 0 }, block_span_(std::move(block_span))
+void BlockBuffer::Reset(uint8_t* buffer, size_t size)
 {
-    InitBlockHeaderFromSpan();
-}
-
-void BlockBuffer::InitBlockHeaderFromSpan()
-{
-    GFXRECON_ASSERT(block_span_.IsValid());
+    // Reset read position and block span
+    block_span_ = BlockSpan(buffer, size);
+    read_pos_   = 0;
 
     // Block header is always at the start of the block span
-    read_pos_          = 0;
     const bool success = ReadBytes(&header_, sizeof(format::BlockHeader));
 
     // Bad or incorrect block data should never be present
-    const bool correct = success && block_span_.Size() == header_.size + sizeof(header_);
-    assert(correct);
+    GFXRECON_ASSERT(success && (block_span_.size() == header_.size + sizeof(header_)));
 
     // Only report failure to read header, span size validity checks are done later in calling code
     if (!success)
     {
         // Tag block buffer as invalid
-        block_span_.Reset();
+        block_span_ = BlockSpan();
     }
 }
 

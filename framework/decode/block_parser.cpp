@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/block_buffer.h"
 #include "decode/block_parser.h"
 #include "format/format_util.h"
 
@@ -34,22 +35,21 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // Parse the block header and load the whole block into a block buffer
 BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer)
 {
-    using BlockSizeType = decltype(format::BlockHeader::size);
-    BlockSizeType block_size;
+    format::BlockHeader block_header;
     BlockIOError  status = kErrorNone;
 
-    const size_t peeked_bytes = input_stream->PeekBytes(&block_size, sizeof(block_size));
+    const size_t peeked_bytes = input_stream->PeekBytes(&block_header, sizeof(block_header));
     if (peeked_bytes == 0)
     {
         // We're at EOF without a single byte to read
         status = input_stream->IsError() ? kErrorReadingBlockHeader : kEndOfFile;
     }
-    else if (peeked_bytes < sizeof(block_size))
+    else if (peeked_bytes < sizeof(block_header))
     {
         // The file ended, but doesn't contain even a full block_size field
         // Clear the peek buffer, to make sure the input_stream reports EOF
         // We don't need the result, just the side_effect
-        input_stream->ReadBytes(&block_size, peeked_bytes);
+        input_stream->ReadBytes(&block_header, peeked_bytes);
         status = kErrorReadingBlockHeader;
     }
 
@@ -58,14 +58,17 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
         // NOTE: If BlockSkippingFileProcessor performance is significantly harmed we could defer the data span read
         // here For 32bit size_t is << BlockSizeType ... but expecting support for > 4GB blocks on 32 bit platforms
         // isn't reasonable
+        using BlockSizeType = decltype(format::BlockHeader::size);
+
         constexpr size_t        size_t_max        = std::numeric_limits<size_t>::max();
         constexpr BlockSizeType block_size_max    = std::numeric_limits<BlockSizeType>::max();
         constexpr bool          small_size        = size_t_max < std::numeric_limits<BlockSizeType>::max();
         constexpr size_t        block_header_size = sizeof(format::BlockHeader);
 
-        GFXRECON_ASSERT(block_size <= (block_size_max - BlockSizeType(block_header_size)));
-        const BlockSizeType total_block_size = block_size + sizeof(format::BlockHeader);
+        GFXRECON_ASSERT(block_header.size <= (block_size_max - (block_header_size)));
+        const BlockSizeType total_block_size = block_header.size + sizeof(format::BlockHeader);
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, total_block_size);
+        const size_t actual_block_size = static_cast<size_t>(total_block_size);
 
         if constexpr (small_size)
         {
@@ -78,12 +81,20 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
         }
         if (status == kErrorNone)
         {
+            // The allocator needs to know how much linear allocation will be needed for this block
+            // as it may need to allocate a new BlockBatch (in enqueued/retained modes)
+            // Also, depending on operation mode, decompression policy and block type, we may use working storage
+            // or block allocator storage for the raw block data
+            AllocationInfo alloc_info  = GetAllocationInfo(block_header.type, actual_block_size);
+            uint8_t*       block_store = block_allocator_.StartBlock(alloc_info);
+
             // Note this leave the BlockBuffer read position at the first byte following the header.
-            bool success =
-                input_stream->ReadOverwriteSpan(static_cast<size_t>(total_block_size), block_buffer.GetBlockStore());
+            bool success = input_stream->ReadBytes(block_store, actual_block_size);
             if (success)
             {
-                block_buffer.InitBlockHeaderFromSpan();
+                // We have a new block to parse, store the data in the block buffer
+                // Get the allocator ready for the next block
+                block_buffer.Reset(block_store, actual_block_size);
             }
             else
             {
@@ -94,19 +105,19 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
 
     if (status != kErrorNone)
     {
-        block_buffer.Reset();
+        block_buffer.Clear();
     }
 
     return status;
 }
 
-void BlockParser::HandleBlockReadError(BlockIOError error_code, const char* error_message)
+void BlockParser::HandleBlockReadError(BlockIOError error_code, const char* error_message) const
 {
     GFXRECON_ASSERT(err_handler_);
     err_handler_(error_code, error_message);
 }
 
-bool BlockParser::ShouldDeferDecompression(size_t block_size)
+bool BlockParser::ShouldDeferDecompression(size_t block_size) const
 {
     // NOTE: Using multiple ifs for clarity
     if (decompression_policy_ == DecompressionPolicy::kAlways)
@@ -122,54 +133,39 @@ bool BlockParser::ShouldDeferDecompression(size_t block_size)
     return block_size > kDeferThreshold;
 }
 
-bool BlockParser::DecompressSpan(const BlockBuffer::BlockSpan&   compressed_span,
-                                 size_t                          expanded_size,
-                                 ParsedBlock::UncompressedStore& uncompressed_buffer)
+const uint8_t* BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
+                                           size_t                        expanded_size,
+                                           uint8_t*                      uncompressed_buffer) const
 {
     GFXRECON_ASSERT(!compressed_span.empty());
+    GFXRECON_ASSERT(uncompressed_buffer != nullptr);
     size_t uncompressed_size = compressor_->Decompress(compressed_span.size(),
                                                        reinterpret_cast<const uint8_t*>(compressed_span.data()),
                                                        expanded_size,
-                                                       uncompressed_buffer.GetAs<uint8_t>());
-    if (uncompressed_size == expanded_size)
-    {
-        return true;
-    }
-    else
-    {
-        HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");
-        return false;
-    }
-}
-
-ParsedBlock::UncompressedStore BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
-                                                           size_t                        expanded_size)
-{
-    auto uncompressed_buffer = pool_->Acquire(expanded_size);
-    if (DecompressSpan(compressed_span, expanded_size, uncompressed_buffer))
-    {
-        return uncompressed_buffer;
-    }
-    else
-    {
-        return ParsedBlock::UncompressedStore();
-    }
-}
-const uint8_t* BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compressed_span,
-                                           size_t                        expanded_size,
-                                           UseParserLocalStorageTag)
-{
-    uncompressed_working_buffer_.ReserveDiscarding(expanded_size);
-    if (DecompressSpan(compressed_span, expanded_size, uncompressed_working_buffer_))
-    {
-        return reinterpret_cast<const uint8_t*>(uncompressed_working_buffer_.data());
-    }
-    else
+                                                       uncompressed_buffer);
+    if (uncompressed_size != expanded_size)
     {
         HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");
         return nullptr;
     }
+
+    return uncompressed_buffer;
 }
+
+const uint8_t* BlockParser::DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size)
+{
+    auto uncompressed_buffer = static_cast<uint8_t*>(block_allocator_.Allocate(expanded_size));
+    return DecompressSpan(compressed_span, expanded_size, uncompressed_buffer);
+}
+
+const uint8_t*
+BlockParser::DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, UseParserLocalStorageTag)
+{
+    uncompressed_working_buffer_.ReserveDiscarding(expanded_size);
+    auto uncompressed_buffer = uncompressed_working_buffer_.GetAs<uint8_t>();
+    return DecompressSpan(compressed_span, expanded_size, uncompressed_buffer);
+}
+
 void BlockParser::WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label, uint32_t sub_type)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
@@ -194,74 +190,61 @@ void BlockParser::WarnUnknownBlock(const BlockBuffer& block_buffer, const char* 
 
 // Create a block that is compressible with correct handling of both compression state and decompression policy
 template <typename ArgPayload>
-[[nodiscard]] ParsedBlock BlockParser::MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
-                                                                   const BlockParser::ParameterReadResult& read_result,
-                                                                   ArgPayload&&                            args)
+[[nodiscard]] ParsedBlock& BlockParser::MakeCompressibleParsedBlock(BlockBuffer& block_buffer,
+                                                                    const BlockParser::ParameterReadResult& read_result,
+                                                                    ArgPayload&&                            args)
 {
     if (read_result.is_compressed)
     {
-        if (ShouldDeferDecompression(block_buffer.GetData().size()))
+        if (ShouldDeferDecompression(block_buffer.Size()))
         {
-            return ParsedBlock(ParsedBlock::DeferredDecompressBlockTag{},
-                               block_index_,
-                               block_buffer,
-                               block_reference_policy_,
-                               std::forward<ArgPayload>(args));
+            return EmplaceBlock(ParsedBlock::BlockState::kDeferredDecompress,
+                                block_index_,
+                                block_buffer.GetData(),
+                                std::forward<ArgPayload>(args));
         }
         else
         {
-            if (block_reference_policy_ == ParsedBlock::kNonOwnedReference)
+            uint8_t* uncompressed_buffer = nullptr;
+            if (operation_mode_ == kImmediate)
             {
                 // Use parser local storage for decompression to avoid retaining owned references in this mode
-                const uint8_t* uncompressed_data =
-                    DecompressSpan(read_result.buffer, read_result.uncompressed_size, UseParserLocalStorageTag{});
-                if (uncompressed_data == nullptr)
-                {
-                    return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
-                }
-                args.data = uncompressed_data;
-                return ParsedBlock(
-                    ParsedBlock::DecompressedBlockTag{}, block_index_, block_buffer, std::forward<ArgPayload>(args));
+                uncompressed_working_buffer_.ReserveDiscarding(read_result.uncompressed_size);
+                uncompressed_buffer = uncompressed_working_buffer_.template GetAs<uint8_t>();
+            }
+            else
+            {
+                // Allocate uncompressed storage from the block allocator for enqueued/retained modes
+                uncompressed_buffer = static_cast<uint8_t*>(block_allocator_.Allocate(read_result.uncompressed_size));
             }
 
-            // Use owned uncompressed storage only as needed
-            UncompressedStore uncompressed_store = DecompressSpan(read_result.buffer, read_result.uncompressed_size);
-            args.data                            = uncompressed_store.template GetAs<const uint8_t>();
-            if (uncompressed_store.empty())
+            const uint8_t* decompressed_data =
+                DecompressSpan(read_result.buffer, read_result.uncompressed_size, uncompressed_buffer);
+            if (decompressed_data == nullptr)
             {
-                return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+                return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
             }
-            return ParsedBlock(ParsedBlock::DecompressedBlockTag{},
-                               block_index_,
-                               block_buffer,
-                               block_reference_policy_,
-                               std::move(uncompressed_store),
-                               std::forward<ArgPayload>(args));
+            args.data = decompressed_data;
+            return EmplaceBlock(
+                ParsedBlock::BlockState::kReady, block_index_, block_buffer.GetData(), std::forward<ArgPayload>(args));
         }
     }
     else
     {
-        return ParsedBlock(ParsedBlock::UncompressedBlockTag{},
-                           block_index_,
-                           block_buffer,
-                           block_reference_policy_,
-                           std::forward<ArgPayload>(args));
+        return EmplaceBlock(
+            ParsedBlock::BlockState::kReady, block_index_, block_buffer.GetData(), std::forward<ArgPayload>(args));
     }
 }
 // Create a block that is never compressed with correct handling of both compression state and decompression policy
 template <typename ArgPayload>
-[[nodiscard]] ParsedBlock
+ParsedBlock&
 BlockParser::MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload&& args, bool references_block_buffer)
 {
-    return ParsedBlock(ParsedBlock::IncompressibleBlockTag{ block_buffer },
-                       block_index_,
-                       block_buffer,
-                       block_reference_policy_,
-                       references_block_buffer,
-                       std::forward<ArgPayload>(args));
+    return EmplaceBlock(
+        ParsedBlock::BlockState::kReady, block_index_, block_buffer.GetData(), std::forward<ArgPayload>(args));
 }
 
-ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
+ParsedBlock& BlockParser::ParseBlock(BlockBuffer& block_buffer)
 {
     // Note that header parsing has been done by the BlockParser before this call is made.
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
@@ -290,9 +273,86 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer)
         case format::kUnknownBlock:
         default:
             WarnUnknownBlock(block_buffer);
-            return ParsedBlock{ ParsedBlock::UnknownBlockTag(), block_index_, block_buffer.ReleaseData() };
+            return EmplaceBlock(ParsedBlock::UnknownBlockTag(), block_index_, block_buffer.GetData());
             break;
     }
+}
+
+// Establish which storage to use for raw block data
+// NOTE: The logic is more explicitly defined here than absolutely necessary for clarity, but it's a little conceptually
+// messy, mixing the operation mode, decompression policy, block size and type, and the compiler should optimize as
+// needed
+BlockParser::AllocationInfo BlockParser::GetAllocationInfo(format::BlockType type, size_t raw_block_size)
+{
+    // Default, immediate mode always uses the working buffer, and only allocates the ParsedBlock
+    // in the block allocator
+    AllocationInfo info{ raw_block_size, sizeof(ParsedBlock), true, BlockAllocator::AllocatorMode::kImmediate };
+
+    auto size_considering_jumbo = [](size_t size) {
+        if (BlockAllocator::IsJumboAllocation(size))
+        {
+            size = 0U;
+        }
+        return size;
+    };
+
+    auto decompressed_size = [&size_considering_jumbo](size_t compressed_size) {
+        // Estimate 1.25:1 compression ratio for compressed non-jumbo blocks
+        size_t est_decompressed_size = compressed_size + (compressed_size >> 2);
+        return size_considering_jumbo(est_decompressed_size);
+    };
+
+    if (operation_mode_ == kEnqueueRetained)
+    {
+        // Conversely, retained mode always uses the block allocator
+        info.use_working_buffer = false;
+        info.mode               = BlockAllocator::AllocatorMode::kEnqueue;
+
+        // Jumbo blocks always use dynamic allocation
+        if (!block_allocator_.IsJumboAllocation(raw_block_size))
+        {
+            // All blocks retain raw block data in BlockBatch
+            info.linear_allocation += raw_block_size;
+            if (format::IsBlockCompressed(type) && !ShouldDeferDecompression(raw_block_size))
+            {
+                // If the decompressed size isn't jumbo we need to allocate separately
+                info.linear_allocation += decompressed_size(raw_block_size);
+            }
+        }
+    }
+    else if (operation_mode_ == kEnqueued)
+    {
+        info.mode = BlockAllocator::AllocatorMode::kEnqueue;
+
+        // In enqueued mode, we want to retain the raw block data IFF required.
+        // Either we retain the raw block data for dipatch time use (either DispatchArgs backing or deferred
+        // decompression), or retain the decompressed block.
+        if (format::IsBlockCompressed(type))
+        {
+            if (ShouldDeferDecompression(raw_block_size))
+            {
+                // Use block allocator for deferred decompression in enqueued modes
+                // as we need to retain the raw block data, to decompress later
+                info.use_working_buffer = false;
+                info.linear_allocation += size_considering_jumbo(raw_block_size);
+            }
+            else
+            {
+                // Use working buffer for raw block if immediate decompression in enqueued mode
+                // but include estimated decompressed size
+                info.use_working_buffer = true;
+                info.linear_allocation += decompressed_size(raw_block_size);
+            }
+        }
+        else
+        {
+            // The raw block data may be referenced by DispatchArgs in enqueued modes
+            info.use_working_buffer = false;
+            info.linear_allocation += size_considering_jumbo(raw_block_size);
+        }
+    }
+
+    return info;
 }
 
 // The parameter buffer always takes up the end of the block
@@ -374,7 +434,7 @@ BlockParser::ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, u
     return result;
 }
 
-ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
+ParsedBlock& BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
@@ -408,10 +468,10 @@ ParsedBlock BlockParser::ParseFunctionCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+    return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
 }
 
-ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
+ParsedBlock& BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
@@ -446,10 +506,10 @@ ParsedBlock BlockParser::ParseMethodCall(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read method call block header");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+    return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
 }
 
-ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
+ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
@@ -461,7 +521,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+        return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
     }
 
     // Optional backing store for the various uncompressed metadata contents
@@ -1422,7 +1482,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
-            return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+            return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
         }
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.string_length);
@@ -1433,7 +1493,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
-            return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+            return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
         }
 
         const char* env_string = reinterpret_cast<const char*>(parameter_data.data());
@@ -1639,7 +1699,7 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             // be passed through, even as unknown.
             //
             // A warning has been generated above
-            return ParsedBlock(ParsedBlock::UnknownBlockTag{}, block_index_, block_buffer.ReleaseData());
+            return EmplaceBlock(ParsedBlock::UnknownBlockTag{}, block_index_, block_buffer.GetData());
         }
         else
         {
@@ -1648,10 +1708,10 @@ ParsedBlock BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         }
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+    return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
 }
 
-ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
+ParsedBlock& BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
@@ -1662,7 +1722,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+        return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
     }
 
     // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
@@ -1680,7 +1740,7 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         else
         {
             WarnUnknownBlock(block_buffer, "frame marker", static_cast<uint32_t>(marker_type));
-            return ParsedBlock(ParsedBlock::UnknownBlockTag{}, block_index_, block_buffer.ReleaseData());
+            return EmplaceBlock(ParsedBlock::UnknownBlockTag{}, block_index_, block_buffer.GetData());
         }
     }
     else
@@ -1688,10 +1748,10 @@ ParsedBlock BlockParser::ParseFrameMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+    return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
 }
 
-ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
+ParsedBlock& BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
@@ -1702,7 +1762,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+        return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
     }
 
     uint64_t frame_number = 0;
@@ -1723,7 +1783,7 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
         else
         {
             WarnUnknownBlock(block_buffer, "state marker", static_cast<uint32_t>(marker_type));
-            return ParsedBlock(ParsedBlock::UnknownBlockTag{}, block_index_, block_buffer.ReleaseData());
+            return EmplaceBlock(ParsedBlock::UnknownBlockTag{}, block_index_, block_buffer.GetData());
         }
     }
     else
@@ -1731,10 +1791,10 @@ ParsedBlock BlockParser::ParseStateMarker(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read state marker data");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+    return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
 }
 
-ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
+ParsedBlock& BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
 {
     // The caller is responsible for reading the block and parsing the header
     GFXRECON_ASSERT(block_buffer.ReadPos() == sizeof(format::BlockHeader));
@@ -1745,7 +1805,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
     if (!success)
     {
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
-        return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+        return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
     }
 
     decltype(format::AnnotationHeader::label_length) label_length = 0;
@@ -1797,7 +1857,7 @@ ParsedBlock BlockParser::ParseAnnotation(BlockBuffer& block_buffer)
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read annotation block header");
     }
 
-    return ParsedBlock(ParsedBlock::InvalidBlockTag(), block_index_);
+    return EmplaceBlock(ParsedBlock::InvalidBlockTag(), block_index_);
 }
 
 GFXRECON_END_NAMESPACE(decode)

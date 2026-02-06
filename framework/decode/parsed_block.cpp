@@ -28,22 +28,46 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename Args>
-BlockBuffer::BlockSpan ParsedBlock::GetCompressedSpan(Args& args)
+ParsedBlock::BlockSpan ParsedBlock::GetCompressedSpan(Args& args)
 {
     if constexpr (DispatchTraits<Args>::kHasData)
     {
         // The data field for a deferred decompresion points to the start of the compressed block
-        GFXRECON_ASSERT(state_ == kDeferredDecompress);
-        GFXRECON_ASSERT(!block_data_.empty());
-        // Assure that the data pointer is within block_data span (part 1)
-        GFXRECON_ASSERT(args.data >= block_data_.GetDataAs<uint8_t>());
-        const size_t offset = args.data - block_data_.GetDataAs<uint8_t>();
+        GFXRECON_ASSERT(state_ == BlockState::kDeferredDecompress);
+        GFXRECON_ASSERT(block_data_ != nullptr);
+        const size_t block_size = GetBlockSize();
+        const size_t offset     = args.data - block_data_;
 
-        // Assure that the data pointer is within block_data span (part 2)
-        GFXRECON_ASSERT(offset <= block_data_.size());
-        return block_data_.AsSpan(offset);
+        // Assure that the compressed data pointer is within block_data span
+        GFXRECON_ASSERT(args.data >= block_data_);
+        GFXRECON_ASSERT(offset <= block_size);
+
+        uint64_t compressed_size = block_size - offset;
+
+        return BlockSpan(block_data_ + offset, compressed_size);
     }
-    return BlockBuffer::BlockSpan();
+    return BlockSpan();
+}
+
+size_t ParsedBlock::GetBlockSize() const noexcept
+{
+    size_t block_size = 0;
+    if (block_data_ != nullptr)
+    {
+        // The block size is stored in the first 8 bytes of the block data
+        // NOTE: The conversion to size_t is safe, as it was validated when the block was read
+        // NOTE: This assumes std::max_align_t allignment for the block data buffer (which is true)
+        // NOTE: If the header is ever redefined to encode the size differently, this will need to be updated
+        uint64_t block_size_from_header = *reinterpret_cast<const uint64_t*>(block_data_);
+        block_size                      = static_cast<size_t>(block_size_from_header) + sizeof(format::BlockHeader);
+    }
+    return block_size;
+}
+
+ParsedBlock::BlockSpan ParsedBlock::GetBlockSpan() const noexcept
+{
+    size_t size = GetBlockSize();
+    return { block_data_, size };
 }
 
 bool ParsedBlock::Decompress(BlockParser& parser)
@@ -60,95 +84,20 @@ bool ParsedBlock::Decompress(BlockParser& parser)
         using Args = std::decay_t<decltype(args)>;
         if constexpr (DispatchTraits<Args>::kHasData)
         {
-            auto              compressed_span    = GetCompressedSpan(args);
-            auto              uncompressed_size  = GetDispatchArgsDataSize(args);
-            UncompressedStore uncompressed_store = parser.DecompressSpan(compressed_span, uncompressed_size);
-            if (!uncompressed_store.empty())
+            auto compressed_span    = GetCompressedSpan(args);
+            auto uncompressed_size  = GetDispatchArgsDataSize(args);
+            auto uncompressed_store = parser.DecompressSpan(compressed_span, uncompressed_size);
+            if (uncompressed_store != nullptr)
             {
                 // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
-                args.data = uncompressed_store.template GetAs<const uint8_t>();
-                UpdateUncompressedStore(std::move(uncompressed_store));
+                args.data = uncompressed_store;
+                state_    = BlockState::kReady;
             }
         }
     };
 
     std::visit(decompress, dispatch_args_);
     return IsReady();
-}
-
-void ParsedBlock::UpdateUncompressedStore(UncompressedStore&& from_store)
-{
-    GFXRECON_ASSERT(state_ == kDeferredDecompress);
-    state_              = kReady;
-    uncompressed_store_ = std::move(from_store);
-}
-
-util::DataSpan ParsedBlock::MakeIncompressibleBlockData(BlockBuffer&         block_buffer,
-                                                        BlockReferencePolicy policy,
-                                                        bool                 references_block_buffer) noexcept
-{
-    if ((policy == ParsedBlock::kOwnedReference) ||
-        ((policy == ParsedBlock::kOwnedReferenceAsNeeded) && references_block_buffer))
-    {
-        // Use case:
-        //     Preload replay of incompressible blocks that reference the raw block data as the *Arg::data parameter
-        //     buffer
-        return block_buffer.ReleaseData();
-    }
-
-    // Use case:
-    //     Immediate dispatch or usage within the life span of the block buffer
-    return block_buffer.MakeNonOwnedData();
-}
-
-util::DataSpan ParsedBlock::MakeUncompressedBlockData(BlockBuffer& block_buffer, BlockReferencePolicy policy) noexcept
-{
-    if ((policy == ParsedBlock::kOwnedReference) || (policy == ParsedBlock::kOwnedReferenceAsNeeded))
-    {
-        // Use case:
-        //     Preload replay noncompressed blocks that reference the raw block data as the *Arg::data parameter buffer
-        return block_buffer.ReleaseData();
-    }
-
-    // Use case:
-    //     Immediate dispatch or usage within the life span of the block buffer
-    return block_buffer.MakeNonOwnedData();
-}
-
-util::DataSpan ParsedBlock::MakeDecompressedBlockData(BlockBuffer& block_buffer, BlockReferencePolicy policy) noexcept
-{
-    if (policy == kOwnedReference)
-    {
-        // Use case:
-        //    If decoders/consumer that require block data exist during Preload replay
-        return block_buffer.ReleaseData();
-    }
-    else if (policy == kNonOwnedReference)
-    {
-        // Use case:
-        //    For immediate dispatch with raw block consuming decoder/consumers or
-        return block_buffer.MakeNonOwnedData();
-    }
-
-    // Use case:
-    //    Preload replay without raw block consuming decoder/consumers (likely/performance mode of
-    //    operation) NOTE: it is invalid to access the raw block data in this use case
-    return util::DataSpan();
-}
-
-util::DataSpan ParsedBlock::MakeDeferredDecompressBlockData(BlockBuffer&         block_buffer,
-                                                            BlockReferencePolicy policy) noexcept
-{
-    if (policy == kNonOwnedReference)
-    {
-        // Use case:
-        //     FileTransformer does deferred decompression within the lifespan of the block_buffer
-        return block_buffer.MakeNonOwnedData();
-    }
-
-    // Use case:
-    //     Preload replay deferred decompression is long after the block_buffer has be reused or destructed
-    return block_buffer.ReleaseData();
 }
 
 GFXRECON_END_NAMESPACE(decode)
