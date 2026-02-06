@@ -1262,6 +1262,39 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMeshShaderPropertiesEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawMeshTasksIndirectCommandEXT* data, const util::JsonOptions& options = util::JsonOptions());
 
+
+template <typename T>
+void VulkanParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())
+{
+    // First read in the type to know which child we need to handle
+    VkStructureType struct_type;
+    FieldToJson(jdata["type"], struct_type, options);
+
+    switch (struct_type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("VulkanParentChildFieldToJson: unrecognized child structure type %d", struct_type);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_VkComputePipelineCreateInfo*>(data), options);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_VkGraphicsPipelineCreateInfo*>(data), options);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_VkRayTracingPipelineCreateInfoKHR*>(data), options);
+            break;
+        }
+    }
+}
+
 /// Works out the type of the struct at the end of a pNext pointer and dispatches
 /// recursively to the FieldToJson for that.
 void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const util::JsonOptions& options = util::JsonOptions());

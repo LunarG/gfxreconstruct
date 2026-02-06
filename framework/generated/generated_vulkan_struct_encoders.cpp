@@ -5572,9 +5572,64 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKH
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value)
 {
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.sType)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct(VkPipelineCreateInfoKHR): unrecognized child structure type %d", value.sType);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+        {
+            const VkComputePipelineCreateInfo& child_value = reinterpret_cast<const VkComputePipelineCreateInfo&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+        {
+            const VkGraphicsPipelineCreateInfo& child_value = reinterpret_cast<const VkGraphicsPipelineCreateInfo&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+        {
+            const VkRayTracingPipelineCreateInfoKHR& child_value = reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
+
+template <>
+void EncodeStructArrayLoop<VkPipelineCreateInfoKHR>(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR* value, size_t len)
+{
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value->sType)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->sType);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+        {
+            EncodeStructArrayLoop<VkComputePipelineCreateInfo>(encoder, reinterpret_cast<const VkComputePipelineCreateInfo *>(value), len);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+        {
+            EncodeStructArrayLoop<VkGraphicsPipelineCreateInfo>(encoder, reinterpret_cast<const VkGraphicsPipelineCreateInfo *>(value), len);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+        {
+            EncodeStructArrayLoop<VkRayTracingPipelineCreateInfoKHR>(encoder, reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR *>(value), len);
+            break;
+        }
+    }
+}
+
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value)
 {

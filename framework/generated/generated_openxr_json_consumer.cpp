@@ -4258,7 +4258,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateEnvironmentDepthSwapchainImage
         HandleToJson(args["swapchain"], swapchain, json_options);
         FieldToJson(args["imageCapacityInput"], imageCapacityInput, json_options);
         FieldToJson(args["imageCountOutput"], imageCountOutput, json_options);
-        ParentChildFieldToJson(args["images"], images, json_options);
+        OpenXrParentChildFieldToJson(args["images"], images, json_options);
     WriteBlockEnd();
 }
 

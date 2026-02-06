@@ -5324,15 +5324,6 @@ struct Decoded_VkPipelineBinaryKeysAndDataKHR
     StructPointerDecoder<Decoded_VkPipelineBinaryDataKHR>* pPipelineBinaryData{ nullptr };
 };
 
-struct Decoded_VkPipelineCreateInfoKHR
-{
-    using struct_type = VkPipelineCreateInfoKHR;
-
-    VkPipelineCreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPipelineBinaryCreateInfoKHR
 {
     using struct_type = VkPipelineBinaryCreateInfoKHR;
@@ -12329,6 +12320,132 @@ typedef Decoded_VkPhysicalDevicePipelineProtectedAccessFeatures Decoded_VkPhysic
 typedef Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo Decoded_VkShaderRequiredSubgroupSizeCreateInfoEXT;
 
 typedef Decoded_VkRenderingEndInfoKHR Decoded_VkRenderingEndInfoEXT;
+
+union VkPipelineCreateInfoKHRSizeUnion
+{
+    VkComputePipelineCreateInfo a;
+    VkGraphicsPipelineCreateInfo b;
+    VkRayTracingPipelineCreateInfoKHR c;
+};
+
+struct Decoded_VkPipelineCreateInfoKHR
+{
+    using struct_type = VkPipelineCreateInfoKHR;
+    using union_size_type = VkPipelineCreateInfoKHRSizeUnion;
+
+    VkPipelineCreateInfoKHR* decoded_value{ nullptr };
+
+    static Decoded_VkPipelineCreateInfoKHR* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_VkPipelineCreateInfoKHR* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        VkStructureType vk_type = static_cast<VkStructureType>(peek_structure_type);
+
+        switch (vk_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_VkPipelineCreateInfoKHR>(len, initialize);
+                break;
+         case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+             return_type = reinterpret_cast<Decoded_VkPipelineCreateInfoKHR*>(DecodeAllocator::Allocate<Decoded_VkComputePipelineCreateInfo>(len, initialize));
+             break;
+         case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+             return_type = reinterpret_cast<Decoded_VkPipelineCreateInfoKHR*>(DecodeAllocator::Allocate<Decoded_VkGraphicsPipelineCreateInfo>(len, initialize));
+             break;
+         case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+             return_type = reinterpret_cast<Decoded_VkPipelineCreateInfoKHR*>(DecodeAllocator::Allocate<Decoded_VkRayTracingPipelineCreateInfoKHR>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineCreateInfoKHR* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        VkStructureType vk_type = static_cast<VkStructureType>(peek_structure_type);
+
+        switch (vk_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+            {
+                Decoded_VkComputePipelineCreateInfo* local_dest = reinterpret_cast<Decoded_VkComputePipelineCreateInfo*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+            }
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+            {
+                Decoded_VkGraphicsPipelineCreateInfo* local_dest = reinterpret_cast<Decoded_VkGraphicsPipelineCreateInfo*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+            {
+                Decoded_VkRayTracingPipelineCreateInfoKHR* local_dest = reinterpret_cast<Decoded_VkRayTracingPipelineCreateInfoKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+            }
+        }
+        return bytes_read;
+    }
+
+    VkPipelineCreateInfoKHR *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        VkStructureType struct_type = decoded_value->sType;
+        VkPipelineCreateInfoKHR *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<VkPipelineCreateInfoKHR>(len);
+                break;
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+            {
+                auto *allocation = DecodeAllocator::Allocate<VkComputePipelineCreateInfo>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = VkComputePipelineCreateInfo{ VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO };
+                }
+                output_data = reinterpret_cast<VkPipelineCreateInfoKHR*>(allocation);
+                break;
+            }
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+            {
+                auto *allocation = DecodeAllocator::Allocate<VkGraphicsPipelineCreateInfo>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = VkGraphicsPipelineCreateInfo{ VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO };
+                }
+                output_data = reinterpret_cast<VkPipelineCreateInfoKHR*>(allocation);
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<VkRayTracingPipelineCreateInfoKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = VkRayTracingPipelineCreateInfoKHR{ VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR };
+                }
+                output_data = reinterpret_cast<VkPipelineCreateInfoKHR*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
+    PNextNode* pNext{ nullptr };
+};
+
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

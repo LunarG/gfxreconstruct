@@ -262,6 +262,8 @@ void MapStructHandles(Decoded_VkVideoEncodeInfoKHR* wrapper, const CommonObjectI
 
 void MapStructHandles(Decoded_VkVideoEncodeSessionParametersGetInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPipelineCreateInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPipelineBinaryCreateInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPipelineBinaryInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);

@@ -274,6 +274,13 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             }
         }
 
+        # Structures we want to force as being children of another struct
+        self.FORCE_STRUCT_PARENTS = {
+            'VkGraphicsPipelineCreateInfo' : "VkPipelineCreateInfoKHR",
+            'VkComputePipelineCreateInfo' : "VkPipelineCreateInfoKHR",
+            'VkRayTracingPipelineCreateInfoKHR' : "VkPipelineCreateInfoKHR"
+        }
+
         self.REPLACE_TYPE = {
             "VkRemoteAddressNV": {
                 "baseType": "void",

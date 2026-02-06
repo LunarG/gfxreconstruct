@@ -173,6 +173,8 @@ class KhronosDecoderBodyGenerator():
         elif self.is_handle_like(value.base_type):
             is_handle_like = True
 
+        type_var_enum = self.get_struct_type_enum_name()
+
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
             if type_name in self.EXTERNAL_OBJECT_TYPES and not value.is_array:
@@ -198,7 +200,7 @@ class KhronosDecoderBodyGenerator():
                         main_body += '                                                   peak_length,\n'
                         main_body += '                                                   peak_structure_type))\n'
                         main_body += '     {\n'
-                        main_body += '         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);\n'
+                        main_body += f'         {type_var_enum} xr_type = static_cast<{type_var_enum}>(peak_structure_type);\n'
                         main_body += '         switch (xr_type)\n'
                         main_body += '         {\n'
                         for child in self.children_structs[value.base_type]:

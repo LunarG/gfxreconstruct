@@ -475,7 +475,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUserCalibrationE
 
 
 template <typename T>
-void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())
+void OpenXrParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())
 {
     // First read in the type to know which child we need to handle
     XrStructureType struct_type;
@@ -485,7 +485,7 @@ void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const 
     {
         default:
         {
-            GFXRECON_LOG_WARNING("ParentChildFieldToJson: unrecognized child structure type %d", struct_type);
+            GFXRECON_LOG_WARNING("OpenXrParentChildFieldToJson: unrecognized child structure type %d", struct_type);
             break;
         }
         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:

@@ -691,6 +691,38 @@ void UnwrapStructHandles(VkVideoEncodeSessionParametersGetInfoKHR* value, Handle
 {
 }
 
+void UnwrapStructHandles(VkPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        switch (value->sType)
+        {
+            default:
+                // Handle as parent-type below
+                break;
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+                UnwrapStructHandles(reinterpret_cast<VkComputePipelineCreateInfo*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+                UnwrapStructHandles(reinterpret_cast<VkGraphicsPipelineCreateInfo*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+                UnwrapStructHandles(reinterpret_cast<VkRayTracingPipelineCreateInfoKHR*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
+    }
+}
+
 void UnwrapStructHandles(VkPipelineBinaryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
 }
