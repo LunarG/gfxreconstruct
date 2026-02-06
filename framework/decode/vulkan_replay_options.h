@@ -119,7 +119,7 @@ struct VulkanReplayOptions : public ReplayOptions
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };
     VkFlags                      debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                    VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
+                                                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
 
     // Dumping resources related configurable replay options
     std::vector<BeginCmdBufQueueSubmitPair> BeginCommandBufferQueueSubmit_Indices;
@@ -172,7 +172,7 @@ struct VulkanReplayOptions : public ReplayOptions
 
     void MaybeWaitBeforeFirstSubmit() const;
 
-    bool        render_pass_barrier{ false };
+    bool render_pass_barrier{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1975,19 +1975,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     uint32_t frame_warm_up_gpu_load_{ 0 };
     struct WarmUpResources
     {
-        VkDescriptorPool      descriptor_pool{ VK_NULL_HANDLE };
-        VkDescriptorSetLayout descriptor_set_layout{ VK_NULL_HANDLE };
-        VkDescriptorSet       descriptor_set{ VK_NULL_HANDLE };
-        VkPipelineLayout      pipeline_layout{ VK_NULL_HANDLE };
-        VkPipeline            pipeline{ VK_NULL_HANDLE };
-        VkBuffer              buffer{ VK_NULL_HANDLE };
-        VkDeviceMemory        buffer_memory{ VK_NULL_HANDLE };
-        VkShaderModule        shader_module{ VK_NULL_HANDLE };
-        VkCommandPool         command_pool{ VK_NULL_HANDLE };
-        VkCommandBuffer       command_buffer{ VK_NULL_HANDLE };
-        VkFence               fence{ VK_NULL_HANDLE };
+        VkDescriptorPool         descriptor_pool{ VK_NULL_HANDLE };
+        VkDescriptorSetLayout    descriptor_set_layout{ VK_NULL_HANDLE };
+        VkDescriptorSet          descriptor_set{ VK_NULL_HANDLE };
+        VkPipelineLayout         pipeline_layout{ VK_NULL_HANDLE };
+        VkPipeline               pipeline{ VK_NULL_HANDLE };
+        VkBuffer                 buffer{ VK_NULL_HANDLE };
+        VkDeviceMemory           buffer_memory{ VK_NULL_HANDLE };
+        VkShaderModule           shader_module{ VK_NULL_HANDLE };
+        VkCommandPool            command_pool{ VK_NULL_HANDLE };
+        VkCommandBuffer          command_buffer{ VK_NULL_HANDLE };
+        VkFence                  fence{ VK_NULL_HANDLE };
         std::vector<VkSemaphore> semaphores;
-        uint32_t next_semaphore_index{ 0 };
+        uint32_t                 next_semaphore_index{ 0 };
     };
     std::unordered_map<VkDevice, WarmUpResources> warmup_resources_;
 

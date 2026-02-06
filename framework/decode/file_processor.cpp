@@ -120,7 +120,8 @@ bool FileProcessor::ProcessBlocksOneFrame()
 {
     ATrace_beginSection("ProcessBlocksOneFrame");
     block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
-    if (current_frame_number_ == kFirstFrame) {
+    if (current_frame_number_ == kFirstFrame)
+    {
         // Process initial resources state
         ATrace_beginSection("InitState");
         if (!ProcessBlocks())
@@ -141,7 +142,7 @@ bool FileProcessor::ProcessBlocksOneFrame()
     uint32_t start_frame = current_frame_number_;
 
     // Handle limited command counts (e.g. from trim ranges or secondary files)
-    uint32_t remaining_commands_before       = 0;
+    uint32_t remaining_commands_before = 0;
 
     remaining_commands_before = GetCurrentFile().remaining_commands;
 
@@ -149,13 +150,14 @@ bool FileProcessor::ProcessBlocksOneFrame()
     {
         // Ensure we replay with the same frame number
         current_frame_number_ = start_frame;
-       
+
         for (ApiDecoder* decoder : decoders_)
         {
             decoder->SetCurrentFrameNumber(current_frame_number_);
         }
-        
-        GetCurrentFile().remaining_commands = (i < repeat_frame_n_times_) ? remaining_commands_before + 1 : remaining_commands_before;
+
+        GetCurrentFile().remaining_commands =
+            (i < repeat_frame_n_times_) ? remaining_commands_before + 1 : remaining_commands_before;
 
         if (!ProcessBlocks())
         {

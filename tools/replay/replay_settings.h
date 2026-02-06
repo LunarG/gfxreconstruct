@@ -42,7 +42,8 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit,--wait-before-first-frame-ms,--sleep-around-gpu-frame-ms,--frame-warm-up-gpu-load,--frame-repeats";
+    "present-mode,--wait-before-first-submit,--wait-before-first-frame-ms,--sleep-around-gpu-frame-ms,--frame-warm-up-"
+    "gpu-load,--frame-repeats";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -389,8 +390,8 @@ static void PrintUsage(const char* exe_name)
 
 static uint32_t GetRepeatFrameNTimes(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    uint32_t repeat_frame_n_times = 0;
-    const auto& value             = arg_parser.GetArgumentValue(kRepeatFrameNTimesArgument);
+    uint32_t    repeat_frame_n_times = 0;
+    const auto& value                = arg_parser.GetArgumentValue(kRepeatFrameNTimesArgument);
     if (!value.empty())
     {
         repeat_frame_n_times = static_cast<uint32_t>(std::stoi(value));
@@ -400,8 +401,8 @@ static uint32_t GetRepeatFrameNTimes(const gfxrecon::util::ArgumentParser& arg_p
 
 static uint32_t GetWaitBeforeFirstFrameMs(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    uint32_t wait_before_first_frame_ms = 0;
-    const auto& value                   = arg_parser.GetArgumentValue(kWaitBeforeFirstFrameMsArgument);
+    uint32_t    wait_before_first_frame_ms = 0;
+    const auto& value                      = arg_parser.GetArgumentValue(kWaitBeforeFirstFrameMsArgument);
     if (!value.empty())
     {
         wait_before_first_frame_ms = static_cast<uint32_t>(std::stoi(value));
@@ -411,8 +412,8 @@ static uint32_t GetWaitBeforeFirstFrameMs(const gfxrecon::util::ArgumentParser& 
 
 static double GetSleepAroundGpuFrameMs(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    double sleep_around_gpu_frame_ms = 0.0;
-    const auto& value                = arg_parser.GetArgumentValue(kSleepAroundGpuFrameMsArgument);
+    double      sleep_around_gpu_frame_ms = 0.0;
+    const auto& value                     = arg_parser.GetArgumentValue(kSleepAroundGpuFrameMsArgument);
     if (!value.empty())
     {
         sleep_around_gpu_frame_ms = std::stod(value);
@@ -422,8 +423,8 @@ static double GetSleepAroundGpuFrameMs(const gfxrecon::util::ArgumentParser& arg
 
 static uint32_t GetFrameWarmUpGpuLoad(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    uint32_t frame_warm_up_gpu_load = 0;
-    const auto& value               = arg_parser.GetArgumentValue(kFrameWarmUpGpuLoadArgument);
+    uint32_t    frame_warm_up_gpu_load = 0;
+    const auto& value                  = arg_parser.GetArgumentValue(kFrameWarmUpGpuLoadArgument);
     if (!value.empty())
     {
         frame_warm_up_gpu_load = static_cast<uint32_t>(std::stoi(value));
