@@ -1305,21 +1305,6 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                               0,
                                               nullptr);
 
-            // Flush temporary build
-            dst_buf_mem_barrier.dstAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
-            dst_buf_mem_barrier.buffer        = new_build_info.vk_objects.buffer;
-            device_table_->CmdPipelineBarrier(command_buffer,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
-                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &dst_buf_mem_barrier,
-                                              0,
-                                              nullptr);
-
             // Inject vkCmdCopyBuffer to Copy destination's backing buffer
             const std::vector<VkBufferCopy> region{ VkBufferCopy{ 0, 0, dst_as->size } };
             CopyBufferAndBarrier(

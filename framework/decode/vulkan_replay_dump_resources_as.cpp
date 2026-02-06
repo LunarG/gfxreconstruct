@@ -618,7 +618,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             {
                 GFXRECON_ASSERT(triangles->index_buffer_size);
 
-                res = CreateVkBuffer(triangles->index_type,
+                res = CreateVkBuffer(triangles->index_buffer_size,
                                      device_table,
                                      device_info->handle,
                                      nullptr,
