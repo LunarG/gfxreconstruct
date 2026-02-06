@@ -24,7 +24,6 @@
 #include "application/metal_context.h"
 #include "application/metal_window.h"
 #include "application/application.h"
-#include <AppKit/AppKit.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
