@@ -388,6 +388,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --dump-resources-image-format <format>");
     GFXRECON_WRITE_CONSOLE("          \t\tImage file format to use when dumping image resources.");
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are: bmp, png");
+    GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir>");
+    GFXRECON_WRITE_CONSOLE(
+        "       \t\t\tReplace the shader code in each Create*Pipeline/CreateStateObject/AddToStateObject");
+    GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<handle_id> if found, where");
+    GFXRECON_WRITE_CONSOLE(
+        "       \t\t\t<handle_id> is the handle id of the Create*Pipeline/CreateStateObject/AddToStateObject call.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tSee gfxrecon-extract.");
 
 #endif
 }
