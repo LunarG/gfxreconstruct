@@ -322,14 +322,14 @@ class FileProcessor
         void operator()(const ExecuteBlocksFromFileArgs& execute_blocks)
         {
             // The block and marker type are implied by the Args type
-            success            = file_processor_.ProcessExecuteBlocksFromFile(execute_blocks);
+            success = file_processor_.ProcessExecuteBlocksFromFile(execute_blocks);
         }
 
         // State Marker control
         void operator()(const StateBeginMarkerArgs& state_begin)
         {
             // The block and marker type are implied by the Args type
-            success            = true;
+            success = true;
             file_processor_.ProcessStateBeginMarker(state_begin);
         }
 
@@ -344,7 +344,7 @@ class FileProcessor
         void operator()(const AnnotationArgs& annotation)
         {
             // The block and marker type are implied by the Command type
-            success            = true;
+            success = true;
             file_processor_.ProcessAnnotation(annotation);
         }
 
@@ -352,7 +352,7 @@ class FileProcessor
         void operator()(const Args&)
         {
             // The default behavior for a Visit is a successful, non-frame-delimiter
-            success            = true;
+            success = true;
         }
 
         // Avoid unpacking the Arg from it's store in the Arg specific overloads
@@ -433,7 +433,7 @@ class FileProcessor
     struct ActiveFileContext
     {
         ActiveFileContext(FileInputStreamPtr&& active_file_, bool execute_til_eof_ = false) :
-            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
+            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_) {};
 
         FileInputStreamPtr active_file;
         uint32_t           remaining_commands{ 0 };

@@ -68,8 +68,8 @@ const char kLayerProperty[]      = "debug.vulkan.layers";
 
 const int32_t kSwipeDistance = 200;
 
-void        ProcessAppCmd(struct android_app* app, int32_t cmd);
-int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
+void    ProcessAppCmd(struct android_app* app, int32_t cmd);
+int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event);
 
 static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 

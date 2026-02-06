@@ -79,25 +79,22 @@ class FStreamFileInputStream
 #if FILE_INPUT_STREAM_USE_FREAD
     constexpr static size_t kReadAheadBufferSize = 1024U;
 #else
-    constexpr static size_t        kReadAheadAlignment  = 4096U;
-    constexpr static size_t        kReadAheadBufferSize = 2U * kReadAheadAlignment;
+    constexpr static size_t kReadAheadAlignment  = 4096U;
+    constexpr static size_t kReadAheadBufferSize = 2U * kReadAheadAlignment;
 #endif
 
     // Design assumes kMaxPeekBytes << kReadAheadBufferSize, as we move data when peeking would
     // exceed the read ahead buffer size, and we want to avoid moving large amounts of data.
     constexpr static size_t kMaxPeekBytes = 32U;
 
-    size_t GetMaxPeekBytes() const noexcept
-    {
-        return kMaxPeekBytes;
-    }
+    size_t GetMaxPeekBytes() const noexcept { return kMaxPeekBytes; }
 
   protected:
     bool   HasReadAhead() const noexcept;
     size_t ReadFromReadAheadBuffer(void* buffer, size_t bytes);
     size_t ReadBytesImpl(void* buffer, size_t bytes);
 
-    std::string   filename_;
+    std::string filename_;
 
 #if FILE_INPUT_STREAM_USE_FREAD
     FILE*                                  fd_{ nullptr };

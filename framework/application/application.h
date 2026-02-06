@@ -89,10 +89,7 @@ class Application final
 
     void StopRunning() { running_ = false; }
 
-    uint32_t GetCurrentFrameNumber() const
-    {
-        return file_processor_->GetCurrentFrameNumber();
-    }
+    uint32_t GetCurrentFrameNumber() const { return file_processor_->GetCurrentFrameNumber(); }
 
   private:
     // clang-format off
