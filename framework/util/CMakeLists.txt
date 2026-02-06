@@ -54,6 +54,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/hash.h
                     ${CMAKE_CURRENT_LIST_DIR}/heap_buffer.h
                     ${CMAKE_CURRENT_LIST_DIR}/heap_buffer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/hybrid_linear_allocator.h
+                    ${CMAKE_CURRENT_LIST_DIR}/hybrid_linear_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/image_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/json_util.h
