@@ -499,5 +499,27 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorGetInfoEXT& value
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+
+    const VkBaseInStructure* pNextUntyped = (const VkBaseInStructure*)value.pNext;
+    switch (pNextUntyped->sType)
+    {
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(value.pNext));
+            break;
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR*>(value.pNext));
+            break;
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkComputePipelineCreateInfo*>(value.pNext));
+            break;
+        default:
+            GFXRECON_LOG_ERROR("Unrecognized VkPipelineCreateInfoKHR::pNext structure type: %d", pNextUntyped->sType);
+            break;
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -47,6 +47,8 @@ void MapStructHandles(Decoded_VkCopyImageToMemoryInfo* wrapper, const CommonObje
 
 void MapStructHandles(Decoded_VkDescriptorGetInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPipelineCreateInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

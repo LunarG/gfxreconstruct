@@ -1605,5 +1605,70 @@ std::string GenerateStruct_VkDescriptorGetInfoEXT(std::ostream&                 
     return {};
 }
 
+std::string GenerateStruct_VkPipelineCreateInfoKHR(std::ostream&                    out,
+                                                   const VkPipelineCreateInfoKHR*   structInfo,
+                                                   Decoded_VkPipelineCreateInfoKHR* metaInfo,
+                                                   VulkanCppConsumerBase&           consumer)
+{
+    std::string pnext_name;
+
+    const VkBaseInStructure* pNext = reinterpret_cast<const VkBaseInStructure*>(structInfo->pNext);
+    GFXRECON_ASSERT(pNext != nullptr);
+
+    switch (pNext->sType)
+    {
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+        {
+            pnext_name =
+                "&" +
+                GenerateStruct_VkGraphicsPipelineCreateInfo(
+                    out,
+                    reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(pNext),
+                    reinterpret_cast<Decoded_VkGraphicsPipelineCreateInfo*>(metaInfo->pNext->GetMetaStructPointer()),
+                    consumer);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+        {
+            pnext_name = "&" + GenerateStruct_VkRayTracingPipelineCreateInfoKHR(
+                                   out,
+                                   reinterpret_cast<const VkRayTracingPipelineCreateInfoKHR*>(pNext),
+                                   reinterpret_cast<Decoded_VkRayTracingPipelineCreateInfoKHR*>(
+                                       metaInfo->pNext->GetMetaStructPointer()),
+                                   consumer);
+            break;
+        }
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+        {
+            pnext_name =
+                "&" +
+                GenerateStruct_VkComputePipelineCreateInfo(
+                    out,
+                    reinterpret_cast<const VkComputePipelineCreateInfo*>(pNext),
+                    reinterpret_cast<Decoded_VkComputePipelineCreateInfo*>(metaInfo->pNext->GetMetaStructPointer()),
+                    consumer);
+            break;
+        }
+        default:
+        {
+            GFXRECON_LOG_ERROR("Unrecognized VkPipelineCreateInfoKHR::pNext structure type: %d", pNext->sType);
+            break;
+        }
+    }
+
+    std::stringstream struct_body;
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    std::string variable_name = consumer.AddStruct(struct_body, "pipelineCreateInfoKHR");
+    out << "\t\t"
+        << "VkPipelineCreateInfoKHR " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

@@ -5570,12 +5570,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKH
     EncodeStructArray(encoder, value.pPipelineBinaryData, value.binaryCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);

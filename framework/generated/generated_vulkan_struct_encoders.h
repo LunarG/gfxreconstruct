@@ -589,7 +589,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDevicePipelineBinaryInterna
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeyKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkReleaseCapturedPipelineDataInfoKHR& value);

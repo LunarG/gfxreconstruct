@@ -173,6 +173,8 @@
     "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR",
     "vkGetDescriptorEXT": "OverrideGetDescriptorEXT",
     "vkCmdBindDescriptorBuffersEXT": "OverrideCmdBindDescriptorBuffersEXT",
-    "vkCreateSampler": "OverrideCreateSampler"
+    "vkCreateSampler": "OverrideCreateSampler",
+    "vkCreatePipelineBinariesKHR": "OverrideCreatePipelineBinariesKHR",
+    "vkGetPipelineKeyKHR": "OverrideGetPipelineKeyKHR"
   }
 }

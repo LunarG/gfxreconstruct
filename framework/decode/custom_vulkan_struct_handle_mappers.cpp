@@ -221,5 +221,35 @@ void MapStructHandles(Decoded_VkDescriptorGetInfoEXT* wrapper, const CommonObjec
     }
 }
 
+void MapStructHandles(Decoded_VkPipelineCreateInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        GFXRECON_ASSERT(wrapper->decoded_value->pNext != nullptr);
+        VkBaseOutStructure* pNext = reinterpret_cast<VkBaseOutStructure*>(wrapper->decoded_value->pNext);
+        switch (pNext->sType)
+        {
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+                MapStructHandles(
+                    reinterpret_cast<Decoded_VkGraphicsPipelineCreateInfo*>(wrapper->pNext->GetMetaStructPointer()),
+                    object_info_table);
+                break;
+            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+                MapStructHandles(reinterpret_cast<Decoded_VkRayTracingPipelineCreateInfoKHR*>(
+                                     wrapper->pNext->GetMetaStructPointer()),
+                                 object_info_table);
+                break;
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+                MapStructHandles(
+                    reinterpret_cast<Decoded_VkComputePipelineCreateInfo*>(wrapper->pNext->GetMetaStructPointer()),
+                    object_info_table);
+                break;
+            default:
+                GFXRECON_LOG_ERROR("Unrecognized VkPipelineCreateInfoKHR::pNext structure type: %d", pNext->sType);
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

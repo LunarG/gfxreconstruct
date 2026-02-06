@@ -1606,6 +1606,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         uint32_t                          bufferCount,
                                         StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos);
 
+    VkResult OverrideCreatePipelineBinariesKHR(PFN_vkCreatePipelineBinariesKHR func,
+                                               VkResult                        original_result,
+                                               const VulkanDeviceInfo*         device_info,
+                                               StructPointerDecoder<Decoded_VkPipelineBinaryCreateInfoKHR>* pCreateInfo,
+                                               StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                               StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries);
+
+    VkResult OverrideGetPipelineKeyKHR(PFN_vkGetPipelineKeyKHR                                func,
+                                       VkResult                                               original_result,
+                                       const VulkanDeviceInfo*                                device_info,
+                                       StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>* pPipelineCreateInfo,
+                                       StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>*  pPipelineKey);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
