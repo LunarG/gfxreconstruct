@@ -186,6 +186,11 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.vertex_buffer_stride = triangles.vertexStride;
                 new_triangles.range                = range;
 
+                if (!range.primitiveCount)
+                {
+                    continue;
+                }
+
                 VkResult res = CreateVkBuffer(vertex_buffer_size,
                                               device_table,
                                               device,
@@ -326,6 +331,11 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_aabbs.buffer_size = range.primitiveCount * sizeof(VkAabbPositionsKHR);
                 new_aabbs.range       = range;
 
+                if (!range.primitiveCount)
+                {
+                    continue;
+                }
+
                 VkResult res = CreateVkBuffer(new_aabbs.buffer_size,
                                               device_table,
                                               device,
@@ -404,6 +414,11 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 const VulkanBufferInfo* instances_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
                     instances.data.deviceAddress, &buffer_device_address_offset);
                 if (instances_buffer_info == nullptr)
+                {
+                    continue;
+                }
+
+                if (!range.primitiveCount)
                 {
                     continue;
                 }
