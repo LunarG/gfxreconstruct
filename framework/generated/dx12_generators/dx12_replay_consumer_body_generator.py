@@ -523,6 +523,12 @@ class Dx12ReplayConsumerBodyGenerator(
                                 )
                             else:
                                 length = value.array_length
+                        else:
+                            for dict_name, not_array_list in self.NOT_ARRAY_DICT.items():
+                                if value.name in not_array_list:
+                                    length = '!{}ByteLength->IsNull() ? *{}ByteLength->GetPointer() : 1'.format(
+                                        value.name, value.name)
+                                    break
                         code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
                             value.name, value.name, length
                         )

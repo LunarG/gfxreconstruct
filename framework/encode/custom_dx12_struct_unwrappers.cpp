@@ -185,6 +185,12 @@ void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMe
                 case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
                     offset += sizeof(format::Dx12ViewInstancingSubobject);
                     break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER1:
+                    offset += sizeof(format::Dx12Rasterizer1Subobject);
+                    break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2:
+                    offset += sizeof(format::Dx12Rasterizer2Subobject);
+                    break;
                 default:
                     // Type is unrecognized.  Write an invalid enum value so the decoder know the data is incomplete,
                     // and log a warning.

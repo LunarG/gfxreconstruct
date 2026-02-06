@@ -250,7 +250,12 @@ class Dx12BaseGenerator():
         ]
     ]
 
-    NOT_ARRAY_DICT = {'D3D12_MESSAGE': ['pDescription']}
+    NOT_ARRAY_DICT = {
+        'D3D12_MESSAGE': ['pDescription'],
+        'ID3D12InfoQueue_GetMessage': ['pMessage'],
+        'ID3D12InfoQueue_GetStorageFilter': ['pFilter'],
+        'ID3D12InfoQueue_GetRetrievalFilter': ['pFilter'],
+    }
 
     # convert base type into the encode function name
     CONVERT_FUNCTION_LIST = [
