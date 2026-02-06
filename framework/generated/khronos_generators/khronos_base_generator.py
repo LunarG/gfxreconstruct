@@ -457,6 +457,9 @@ class KhronosBaseGenerator(OutputGenerator):
         # Platform specific structure types that have been defined extarnally to the current API's headers
         self.PLATFORM_STRUCTS = []
 
+        # These structures should be treated as if they have handles because their children do
+        self.FORCE_STRUCT_PARENTS = {}
+
         self.GENERIC_HANDLE_APICALLS = {}
 
         self.MAP_STRUCT_TYPE = {}
@@ -1520,6 +1523,12 @@ class KhronosBaseGenerator(OutputGenerator):
             # If this struct has a parent name, keep track of all
             # the parents and their children
             parent_name = element.get('parentstruct')
+
+            # If the parentstruct field is not present, check to see if this is supposed to be
+            # forced as a parent/child relationship
+            if not parent_name and typename in self.FORCE_STRUCT_PARENTS:
+                parent_name = self.FORCE_STRUCT_PARENTS[typename]
+
             if parent_name:
                 # If it doesn't already appear in the list of parents,
                 # add an entry for it.

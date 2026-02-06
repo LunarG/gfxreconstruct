@@ -63,9 +63,16 @@ class KhronosStructTypeUtilGenerator():
         )
         self.newline()
 
+    # Skip this struct if it is a TRUE parent.  However, if it is a forced one, keep it in this list
+    # of structs we want types for.
     def skip_struct_type(self, struct):
         """ Maybe be overridden """
-        return struct in self.children_structs
+        skip_this = struct in self.children_structs
+        for key, value in self.FORCE_STRUCT_PARENTS.items():
+            if struct == value:
+                skip_this = False
+                break
+        return skip_this
 
     def write_struct_type_data(self):
         current_api_data = self.get_api_data()

@@ -590,6 +590,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeyKHR& value
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value);
+
+template <>
+void EncodeStructArrayLoop<VkPipelineCreateInfoKHR>(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkReleaseCapturedPipelineDataInfoKHR& value);

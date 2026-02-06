@@ -28,8 +28,7 @@
   "functions-encoder": [
     "vkCreateComputePipelines",
     "vkCreateGraphicsPipelines",
-    "vkCreateRayTracingPipelinesNV",
-    "vkCreateRayTracingPipelinesKHR"
+    "vkCreateRayTracingPipelinesNV"
   ],
   "functions-decoder": [
     "vkDeferredOperationJoinKHR"

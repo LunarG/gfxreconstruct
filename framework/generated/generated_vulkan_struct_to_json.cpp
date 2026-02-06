@@ -8769,6 +8769,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreateIn
         const VkPipelineCreateInfoKHR& decoded_value = *data->decoded_value;
         const Decoded_VkPipelineCreateInfoKHR& meta_struct = *data;
 
+        switch (decoded_value.sType)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_VkComputePipelineCreateInfo*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_VkGraphicsPipelineCreateInfo*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_VkRayTracingPipelineCreateInfoKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }

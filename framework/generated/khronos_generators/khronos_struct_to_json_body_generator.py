@@ -107,7 +107,8 @@ class KhronosStructToJsonBodyGenerator():
         indent1 = indent + '    '
         indent2 = indent1 + '    '
 
-        body += f'{indent1}switch ({decoded_value}.type)\n'
+        struct_type_var = self.get_struct_type_var_name()
+        body += f'{indent1}switch ({decoded_value}.{struct_type_var})\n'
         body += f'{indent1}{{\n'
         body += f'{indent2}default:\n'
         body += f'{indent2}    // Handle as base-type below\n'
@@ -175,7 +176,7 @@ class KhronosStructToJsonBodyGenerator():
                         # If this is a parent class, generate the parent->child conversion info
                         # appropriately
                         if value_type in self.children_structs.keys():
-                            to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
+                            to_json = '{3}ParentChildFieldToJson(args["{0}"], {0}, json_options)'
                         else:
                             to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif not value.is_dynamic:
@@ -204,8 +205,9 @@ class KhronosStructToJsonBodyGenerator():
                         'unsigned short', 'unsigned int', 'unsigned long', 'unsigned long long'):
                         to_json = 'jdata["{0}"] = decoded_value.{0}'
 
+            api_data = self.get_api_data()
             to_json = to_json.format(
-                value.name, value_type, flagsEnumType
+                value.name, value_type, flagsEnumType, api_data.api_class_prefix
             )
             body += '        {0};\n'.format(to_json)
 

@@ -11060,9 +11060,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pKeysAndDataInfo = wrapper->pKeysAndDataInfo->GetPointer();
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pipeline));
     value->pipeline = VK_NULL_HANDLE;
-    wrapper->pPipelineCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>>();
-    bytes_read += wrapper->pPipelineCreateInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pPipelineCreateInfo = wrapper->pPipelineCreateInfo->GetPointer();
+    bytes_read += wrapper->pPipelineCreateInfo->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
 
     return bytes_read;
 }

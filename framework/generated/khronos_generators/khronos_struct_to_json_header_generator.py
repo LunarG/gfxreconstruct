@@ -33,10 +33,13 @@ class KhronosStructToJsonHeaderGenerator():
         return True
 
     def write_parent_child_to_json_func(self):
+        api_data = self.get_api_data()
         struct_type = self.get_struct_type_enum_name()
         body = '\n'
         body += 'template <typename T>\n'
-        body += 'void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())\n'
+        body += 'void {}ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())\n'.format(
+            api_data.api_class_prefix
+        )
         body += '{\n'
         body += '    // First read in the type to know which child we need to handle\n'
         body += f'    {struct_type} struct_type;\n'
@@ -46,7 +49,9 @@ class KhronosStructToJsonHeaderGenerator():
         body += '    {\n'
         body += '        default:\n'
         body += '        {\n'
-        body += '            GFXRECON_LOG_WARNING("ParentChildFieldToJson: unrecognized child structure type %d", struct_type);\n'
+        body += '            GFXRECON_LOG_WARNING("{}ParentChildFieldToJson: unrecognized child structure type %d", struct_type);\n'.format(
+            api_data.api_class_prefix
+        )
         body += '            break;\n'
         body += '        }\n'
         for child_list in self.children_structs:

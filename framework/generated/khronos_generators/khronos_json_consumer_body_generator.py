@@ -133,7 +133,7 @@ class KhronosExportJsonConsumerBodyGenerator():
                 elif not (value.is_pointer or value.is_array) and self.is_struct(value.base_type):
                     to_json = 'FieldToJson(args["{0}"], &{0}, json_options)'
                 elif value.is_array and value.base_type in self.children_structs:
-                    to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
+                    to_json = '{3}ParentChildFieldToJson(args["{0}"], {0}, json_options)'
                 elif self.is_boolean_type(value.base_type):
                     to_json = 'Bool32ToJson(args["{0}"], {0}, json_options)'
                 elif value.name == 'ppData' or self.decode_as_hex(value):
@@ -156,8 +156,9 @@ class KhronosExportJsonConsumerBodyGenerator():
                             file=sys.stderr
                         )
 
+                api_data = self.get_api_data()
                 to_json = to_json.format(
-                    value.name, value.base_type, flagsEnumType
+                    value.name, value.base_type, flagsEnumType, api_data.api_class_prefix
                 )
                 body += '        {0};\n'.format(to_json)
         return body

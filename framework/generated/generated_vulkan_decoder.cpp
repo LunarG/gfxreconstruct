@@ -8087,18 +8087,55 @@ size_t VulkanDecoder::Decode_vkGetPipelineKeyKHR(const ApiCallInfo& call_info, c
     size_t bytes_read = 0;
 
     format::HandleId device;
-    StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR> pPipelineCreateInfo;
+    StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>* pPipelineCreateInfo;
+    StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR> pipeline_create_info_khr;
+    StructPointerDecoder<Decoded_VkComputePipelineCreateInfo> compute_pipeline_create_info;
+    StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo> graphics_pipeline_create_info;
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR> ray_tracing_pipeline_create_info_khr;
     StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR> pPipelineKey;
     VkResult return_value;
 
+    bool     peak_is_null    = false;
+    bool     peak_is_struct  = false;
+    bool     peak_has_length = false;
+    size_t   peak_length{};
+    uint32_t peak_structure_type = 0;
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pPipelineCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                   (buffer_size - bytes_read),
+                                                   peak_is_null,
+                                                   peak_is_struct,
+                                                   peak_has_length,
+                                                   peak_length,
+                                                   peak_structure_type))
+     {
+         VkStructureType xr_type = static_cast<VkStructureType>(peak_structure_type);
+         switch (xr_type)
+         {
+             case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+                 bytes_read += compute_pipeline_create_info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 pPipelineCreateInfo = reinterpret_cast<StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>*>(&compute_pipeline_create_info);
+                 break;
+             case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+                 bytes_read += graphics_pipeline_create_info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 pPipelineCreateInfo = reinterpret_cast<StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>*>(&graphics_pipeline_create_info);
+                 break;
+             case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+                 bytes_read += ray_tracing_pipeline_create_info_khr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 pPipelineCreateInfo = reinterpret_cast<StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>*>(&ray_tracing_pipeline_create_info_khr);
+                 break;
+             default:
+                 bytes_read += pipeline_create_info_khr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 pPipelineCreateInfo = &pipeline_create_info_khr;
+                 break;
+         }
+     }
     bytes_read += pPipelineKey.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkGetPipelineKeyKHR(call_info, return_value, device, &pPipelineCreateInfo, &pPipelineKey);
+        consumer->Process_vkGetPipelineKeyKHR(call_info, return_value, device, pPipelineCreateInfo, &pPipelineKey);
     }
 
     return bytes_read;
