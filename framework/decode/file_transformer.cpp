@@ -22,6 +22,7 @@
 
 #include "file_transformer.h"
 
+#include "decode/block_buffer.h"
 #include "format/format_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
@@ -163,7 +164,7 @@ bool FileTransformer::Process()
             // Track bytes read by the parser, since we aren't using ReadBytes here
             bytes_read_ += block_buffer.Size();
             block_parser_->SetBlockIndex(block_index_);
-            ParsedBlock parsed_block = block_parser_->ParseBlock(block_buffer);
+            ParsedBlock& parsed_block = block_parser_->ParseBlock(block_buffer);
 
             // There are four states for a parsed block
             //    kReady and kDeferredDecompress are "Visitable"
@@ -337,7 +338,7 @@ bool FileTransformer::WriteBytes(const void* buffer, size_t buffer_size)
 
 bool FileTransformer::WriteBytes(const ParsedBlock& parsed_block)
 {
-    const util::DataSpan& block_span = parsed_block.GetBlockData();
+    const ParsedBlock::BlockSpan block_span = parsed_block.GetBlockSpan();
     if (!WriteBytes(block_span.data(), block_span.size()))
     {
         HandleBlockWriteError(kErrorWritingBlockData, "Failed to write passthrough block data");

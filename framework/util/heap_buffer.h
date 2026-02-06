@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class HeapBuffer
 {
   public:
-    using DataType = std::byte;
+    using DataType = std::uint8_t;
     using Store    = std::unique_ptr<DataType[]>;
 
     using value_type = DataType;
