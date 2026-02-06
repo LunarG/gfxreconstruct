@@ -40,6 +40,11 @@ FileOptimizer::FileOptimizer(std::unordered_set<format::HandleId>&& unreferenced
     unreferenced_ids_(std::move(unreferenced_ids))
 {}
 
+void FileOptimizer::SetUnreferencedIds(const std::unordered_set<format::HandleId>& unreferenced_ids)
+{
+    unreferenced_ids_ = unreferenced_ids;
+}
+
 void FileOptimizer::SetUnreferencedBlocks(const std::unordered_set<uint64_t>& unreferenced_blocks)
 {
     unreferenced_blocks_ = unreferenced_blocks;
@@ -76,6 +81,28 @@ bool FileOptimizer::ProcessMethodCall(decode::ParsedBlock& parsed_block)
     return true; // Successful filtering no passthrough write.
 }
 
+bool FileOptimizer::AddRemovedResourceAnnotation(const std::string& data)
+{
+    const char*  label        = format::kAnnotationLabelRemovedResource;
+    const size_t label_length = util::platform::StringLength(label);
+    const size_t data_length  = data.length();
+
+    format::AnnotationHeader annotation;
+    annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+    annotation.block_header.type = format::BlockType::kAnnotation;
+    annotation.annotation_type   = format::kText;
+    annotation.label_length      = static_cast<uint32_t>(label_length);
+    annotation.data_length       = static_cast<uint64_t>(data.length());
+
+    if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
+        !WriteBytes(data.c_str(), data_length))
+    {
+        HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write annotation meta-data block");
+        return false;
+    }
+    return true;
+}
+
 decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode::InitBufferArgs& args)
 {
     GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitBufferCommand);
@@ -86,26 +113,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         // In its place insert a dummy annotation meta command. This should keep the block index when
         // replaying an optimized trimmed capture in in alignment with the block index calculated
         // at capture time
-        const char*       label = format::kAnnotationLabelRemovedResource;
-        const std::string data  = "Removed buffer " + std::to_string(args.buffer_id);
-
-        const size_t label_length = util::platform::StringLength(label);
-        const size_t data_length  = data.length();
-
-        format::AnnotationHeader annotation;
-        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-        annotation.block_header.type = format::BlockType::kAnnotation;
-        annotation.annotation_type   = format::kText;
-        annotation.label_length      = static_cast<uint32_t>(label_length);
-        annotation.data_length       = static_cast<uint64_t>(data.length());
-
-        if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
-            !WriteBytes(data.c_str(), data_length))
-        {
-            HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write annotation meta-data block");
-            return kError;
-        }
-        return kSuccess;
+        return AddRemovedResourceAnnotation("Removed buffer " + std::to_string(args.buffer_id)) ? kSuccess : kError;
     }
 
     return kNeedsPassthrough;
@@ -121,27 +129,9 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         // In its place insert a dummy annotation meta command. This should keep the block index when
         // replaying an optimized trimmed capture in in alignment with the block index calculated
         // at capture time
-        const char*       label = format::kAnnotationLabelRemovedResource;
-        const std::string data  = "Removed subresource from image " + std::to_string(args.image_id);
-
-        const size_t label_length = util::platform::StringLength(label);
-        const size_t data_length  = data.length();
-
-        format::AnnotationHeader annotation;
-        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-        annotation.block_header.type = format::BlockType::kAnnotation;
-        annotation.annotation_type   = format::kText;
-        annotation.label_length      = static_cast<uint32_t>(label_length);
-        annotation.data_length       = static_cast<uint64_t>(data.length());
-
-        if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
-            !WriteBytes(data.c_str(), data_length))
-        {
-            HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write annotation meta-data block");
-            return kError;
-        }
-
-        return kSuccess;
+        return AddRemovedResourceAnnotation("Removed subresource from image " + std::to_string(args.image_id))
+                   ? kSuccess
+                   : kError;
     }
 
     return kNeedsPassthrough;
