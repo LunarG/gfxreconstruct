@@ -34,8 +34,12 @@ pipeline {
                             'Windows AMD Dbg32': runJob.gfxrTestWindows('Win AMD Dbg32', runJob.ReleaseMode, runJob.WinAMDLabel, runJob.Bit32, "commit-suite.json"),
                             'Windows Nvidia Rel64': runJob.gfxrTestWindows('Win Nvidia Rel64', runJob.ReleaseMode, runJob.WinNvidiaLabel, runJob.Bit64, "commit-suite.json"),
                             'Windows Nvidia Dbg32': runJob.gfxrTestWindows('Win Nvidia Dbg32', runJob.ReleaseMode, runJob.WinNvidiaLabel, runJob.Bit32, "commit-suite.json"),
+                            'Windows Nvidia50XX Rel64': runJob.gfxrTestWindows('Win Nvidia50XX Rel64', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit64, "commit-suite.json"),
+                            'Windows Nvidia50XX Dbg32': runJob.gfxrTestWindows('Win Nvidia50XX Dbg32', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit32, "commit-suite.json"),
                             'Windows11 AMD Rel64': runJob.gfxrTestWindows('Win11 AMD Rel64', runJob.ReleaseMode, runJob.Win11AMDLabel, runJob.Bit64, "commit-suite.json"),
                             'Windows11 AMD Dbg32': runJob.gfxrTestWindows('Win11 AMD Dbg32', runJob.ReleaseMode, runJob.Win11AMDLabel, runJob.Bit32, "commit-suite.json"),
+                            'Windows11 AMD9070 Rel64': runJob.gfxrTestWindows('Win11 AMD9070 Rel64', runJob.ReleaseMode, runJob.Win11AMD9070Label, runJob.Bit64, "commit-suite.json"),
+                            'Windows11 AMD9070 Dbg32': runJob.gfxrTestWindows('Win11 AMD9070 Dbg32', runJob.ReleaseMode, runJob.Win11AMD9070Label, runJob.Bit32, "commit-suite.json"),
                             'Windows11 ARM Rel64': runJob.gfxrTestWindows('Win11 ARM Rel64', runJob.ReleaseMode, runJob.Win11ARMLabel, runJob.Bit64, "commit-suite.json"),
                             'Windows11 ARM Dbg64': runJob.gfxrTestWindows('Win11 ARM Dbg64', runJob.ReleaseMode, runJob.Win11ARMLabel, runJob.Bit64, "commit-suite.json")
                         ]
