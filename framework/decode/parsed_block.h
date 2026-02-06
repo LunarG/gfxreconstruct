@@ -104,15 +104,19 @@ class ParsedBlock
     using PoolEntry         = util::HeapBufferPool::Entry; // Placeholder for buffer pool
     using UncompressedStore = PoolEntry;
 
-    bool IsValid() const { return state_ != BlockState::kInvalid; }
-    bool IsReady() const { return state_ == BlockState::kReady; }
-    bool IsVisitable() const { return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress); }
-    bool IsUnknown() const { return state_ == BlockState::kUnknown; }
+    bool IsValid() const noexcept { return state_ != BlockState::kInvalid; }
+    bool IsReady() const noexcept { return state_ == BlockState::kReady; }
+    bool IsVisitable() const noexcept
+    {
+        return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress);
+    }
+    bool                  IsUnknown() const noexcept { return state_ == BlockState::kUnknown; }
     bool NeedsDecompression() const { return state_ == BlockState::kDeferredDecompress; }
-    BlockState            GetState() const { return state_; }
-    const util::DataSpan& GetBlockData() const { return block_data_; }
-    const DispatchArgs&   GetArgs() const { return dispatch_args_; }
-    explicit              operator bool() const { return IsValid(); }
+    BlockState            GetState() const noexcept { return state_; }
+    uint64_t              GetBlockIndex() const noexcept { return block_index_; }
+    const util::DataSpan& GetBlockData() const noexcept { return block_data_; }
+    const DispatchArgs&   GetArgs() const noexcept { return dispatch_args_; }
+    explicit              operator bool() const noexcept { return IsValid(); }
 
     template <typename T>
     bool Holds() const
@@ -155,14 +159,17 @@ class ParsedBlock
     // Create an empty block with no valid data
     struct InvalidBlockTag
     {};
-    ParsedBlock(const InvalidBlockTag) : block_data_(), uncompressed_store_(), state_(BlockState::kInvalid) {}
+    ParsedBlock(const InvalidBlockTag, uint64_t block_index) :
+        block_index_(block_index), block_data_(), uncompressed_store_(), state_(BlockState::kInvalid)
+    {}
 
     // Create an unparsed block, either because the block type is unknown, or that is known, but has no
     // matching Args struct
     struct UnknownBlockTag
     {};
-    ParsedBlock(const UnknownBlockTag, util::DataSpan&& block_data) :
-        block_data_(std::move(block_data)), uncompressed_store_(), state_(BlockState::kUnknown)
+    ParsedBlock(const UnknownBlockTag, uint64_t block_index, util::DataSpan&& block_data) :
+        block_index_(block_index), block_data_(std::move(block_data)), uncompressed_store_(),
+        state_(BlockState::kUnknown)
     {}
 
     //  Create a block that must not be compressed with asserts on tag construction
@@ -179,12 +186,14 @@ class ParsedBlock
                                                       bool                 references_block_buffer) noexcept;
     template <typename ArgPayload>
     ParsedBlock(IncompressibleBlockTag,
+                uint64_t             block_index,
                 BlockBuffer&         block_buffer,
                 BlockReferencePolicy policy,
                 bool                 references_block_buffer,
                 ArgPayload&&         args) :
-        block_data_(MakeIncompressibleBlockData(block_buffer, policy, references_block_buffer)),
-        uncompressed_store_(), dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
+        block_index_(block_index),
+        block_data_(MakeIncompressibleBlockData(block_buffer, policy, references_block_buffer)), uncompressed_store_(),
+        dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
     {}
 
     // Create a non-compressed block of a compressible block base type
@@ -193,7 +202,12 @@ class ParsedBlock
     {};
     static util::DataSpan MakeUncompressedBlockData(BlockBuffer& block_buffer, BlockReferencePolicy policy) noexcept;
     template <typename ArgPayload>
-    ParsedBlock(UncompressedBlockTag, BlockBuffer& block_buffer, BlockReferencePolicy policy, ArgPayload&& args) :
+    ParsedBlock(UncompressedBlockTag,
+                uint64_t             block_index,
+                BlockBuffer&         block_buffer,
+                BlockReferencePolicy policy,
+                ArgPayload&&         args) :
+        block_index_(block_index),
         block_data_(MakeUncompressedBlockData(block_buffer, policy)), uncompressed_store_(),
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
     {}
@@ -206,10 +220,12 @@ class ParsedBlock
     // For owned uncompressed store
     template <typename ArgPayload>
     ParsedBlock(DecompressedBlockTag,
+                uint64_t             block_index,
                 BlockBuffer&         block_buffer,
                 BlockReferencePolicy policy,
                 UncompressedStore&&  uncompressed_store,
                 ArgPayload&&         args) :
+        block_index_(block_index),
         block_data_(MakeDecompressedBlockData(block_buffer, policy)),
         uncompressed_store_(std::move(uncompressed_store)),
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
@@ -217,8 +233,8 @@ class ParsedBlock
 
     // For unowned uncompressed store
     template <typename ArgPayload>
-    ParsedBlock(DecompressedBlockTag, const BlockBuffer& block_buffer, ArgPayload&& args) :
-        block_data_(block_buffer.MakeNonOwnedData()), uncompressed_store_(),
+    ParsedBlock(DecompressedBlockTag, uint64_t block_index, const BlockBuffer& block_buffer, ArgPayload&& args) :
+        block_index_(block_index), block_data_(block_buffer.MakeNonOwnedData()), uncompressed_store_(),
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kReady)
     {}
 
@@ -228,7 +244,12 @@ class ParsedBlock
     static util::DataSpan MakeDeferredDecompressBlockData(BlockBuffer&         block_buffer,
                                                           BlockReferencePolicy policy) noexcept;
     template <typename ArgPayload>
-    ParsedBlock(DeferredDecompressBlockTag, BlockBuffer& block_buffer, BlockReferencePolicy policy, ArgPayload&& args) :
+    ParsedBlock(DeferredDecompressBlockTag,
+                uint64_t             block_index,
+                BlockBuffer&         block_buffer,
+                BlockReferencePolicy policy,
+                ArgPayload&&         args) :
+        block_index_(block_index),
         block_data_(MakeDeferredDecompressBlockData(block_buffer, policy)), uncompressed_store_(),
         dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args))), state_(kDeferredDecompress)
     {}
@@ -248,6 +269,9 @@ class ParsedBlock
         // Get is valid on empty (returns nullptr)
         Get<Args>().data = uncompressed_store_.template GetAs<const uint8_t>();
     }
+
+    // Needed for replay index based block skipping
+    uint64_t block_index_{ 0 };
 
     // The original contents of the read block (also backing store for uncompressed parameter views)
     util::DataSpan block_data_;

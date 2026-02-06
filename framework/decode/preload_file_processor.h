@@ -38,19 +38,49 @@ class PreloadFileProcessor : public FileProcessor
     using Base = FileProcessor;
     PreloadFileProcessor();
 
+    // Returns true if there are more frames to process, false if all frames have been processed or an error has occured
+    bool ProcessNextFrame() override;
+
     // Preloads *count* frames to continuous, expandable memory buffer
     void PreloadNextFrames(size_t count);
-    // Replaces ProcessBlocksOneFrame() to just read blocks into memory buffer
-    bool PreloadBlocksOneFrame();
 
   private:
-    bool GetBlockBuffer(BlockParser& block_parser, BlockBuffer& block_buffer) override;
+    // Read and parse all blocks for one frame
+    using ParsedBlockQueue  = std::deque<ParsedBlock>;
+    using ParsedBlockReplay = std::vector<ParsedBlockQueue::value_type>;
 
-    // NOTE: We only need to store the block image, we can reconstitute the block header on replay.
-    //       Given the number (sometimes 1,000's) of blocks/frame, not storing BlockBuffer's here is
-    //       the compact choice
-    std::deque<util::DataSpan> pending_block_data_;
-    std::deque<util::DataSpan> preload_block_data_;
+    // This structure is optimized for most efficient replay, even at the expense
+    // of some preload overhead
+    struct PreloadedFrame
+    {
+        uint64_t          frame_number;
+        ParsedBlockReplay blocks;
+
+        PreloadedFrame()                                 = default;
+        PreloadedFrame(PreloadedFrame&&) noexcept        = default;
+        PreloadedFrame(const PreloadedFrame&)            = delete;
+        PreloadedFrame& operator=(const PreloadedFrame&) = delete;
+        PreloadedFrame(uint64_t frame_number_) : frame_number(frame_number_), blocks() {}
+
+        // Blocks must be iterable container of ParsedBlock, with a size() method
+        template <typename Blocks>
+        void AppendMovedBlocks(Blocks& from_blocks)
+        {
+            blocks.reserve(blocks.size() + from_blocks.size());
+            blocks.insert(
+                blocks.end(), std::make_move_iterator(from_blocks.begin()), std::make_move_iterator(from_blocks.end()));
+        }
+    };
+    using PreloadedFramePtr = std::unique_ptr<PreloadedFrame>;
+    using PreloadedFrames   = std::vector<PreloadedFramePtr>;
+    using PreloadedFramesIt = PreloadedFrames::iterator;
+
+    ProcessBlockState PreloadBlocksOneFrame(ParsedBlockQueue& frame_queue);
+    ProcessBlockState ReplayOneFrame(PreloadedFrame& frame);
+
+    PreloadedFrames   preloaded_frames_;
+    PreloadedFramesIt current_preloaded_frame_; // Only valid when preloaded_frames_ is not empty
+    ProcessBlockState final_process_state_{ ProcessBlockState::kError }; // How the last frame preload ended
 };
 
 GFXRECON_END_NAMESPACE(decode)
