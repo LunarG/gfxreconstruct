@@ -199,7 +199,7 @@ bool FStreamFileInputStream::HasReadAhead() const noexcept
 
 int64_t FStreamFileInputStream::Tell() const
 {
-    if (fd_)
+    if (IsOpen())
     {
         int64_t pos = util::platform::FileTell(fd_);
         if (pos >= 0)

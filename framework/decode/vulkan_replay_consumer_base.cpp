@@ -53,7 +53,6 @@
 #include "util/platform.h"
 #include "util/logging.h"
 #include "util/callbacks.h"
-#include "decode/mark_injected_commands.h"
 #include "graphics/vulkan_resources_util.h"
 
 #include "spirv_reflect.h"
