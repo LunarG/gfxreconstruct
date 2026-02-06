@@ -77,6 +77,13 @@ class Span
     [[nodiscard]] constexpr size_type size() const noexcept { return size_; }
     [[nodiscard]] constexpr bool      empty() const noexcept { return size_ == 0U; }
 
+    // NOTE: No bounds checking, nor "dynamic extent" support
+    Span subspan(size_type offset, size_type size) const noexcept
+    {
+        GFXRECON_ASSERT((offset + size) <= size_);
+        return Span(data_ + offset, size);
+    }
+
   private:
     pointer   data_;
     size_type size_;
@@ -99,7 +106,7 @@ class Span
 class DataSpan
 {
   public:
-    using DataType = std::byte;
+    using DataType = std::uint8_t;
     using SizeType = size_t;
 
     // STL style types

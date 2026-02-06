@@ -22,8 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/block_buffer.h"
 #include "decode/file_processor.h"
-
 #include "format/format_util.h"
 #include "util/logging.h"
 
@@ -106,9 +106,15 @@ bool FileProcessor::ProcessNextFrame()
 
     DispatchVisitor  dispatch_visitor(decoders_, annotation_handler_);
     DispatchFunction dispatch = [this, &dispatch_visitor](uint64_t block_index, ParsedBlock& block) {
-        dispatch_visitor.SetBlockIndex(block_index);
-        std::visit(dispatch_visitor, block.GetArgs());
-        return ProcessBlockState::kRunning;
+        // Deferred decompress failure implies a late uncovering of an invalid block.
+        bool success = block.Decompress(*block_parser_); // Safe without testing block state.
+        if (success)
+        {
+            dispatch_visitor.SetBlockIndex(block_index);
+            std::visit(dispatch_visitor, block.GetArgs());
+            return ProcessBlockState::kRunning;
+        }
+        return ProcessBlockState::kError;
     };
 
     SetDecoderFrameNumber(current_frame_number_);
@@ -281,14 +287,12 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
                     block_parser.SetFrameNumber(current_frame_number_);
                     // NOTE: upon successful parsing, the block_buffer block data has been moved to the
                     // parsed_block, though the block header is still valid.
-                    ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
+                    ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
 
                     // NOTE: Visitable is either Ready or DeferredDecompression,
                     //       Invalid, Unknown, and Skip are not Visitable
                     if (parsed_block.IsVisitable())
                     {
-                        // Deferred decompress failure implies a late uncovering of an invalid block.
-                        success = parsed_block.Decompress(block_parser); // Safe without testing block state.
                         if (success)
                         {
                             std::visit(process_visitor, parsed_block.GetArgs());
@@ -300,6 +304,7 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
                                     process_visitor.IsFrameDelimiter())
                                 {
                                     process_state = ProcessBlockState::kFrameBoundary;
+                                    parsed_block.SetFrameBoundaryFlag(true);
                                 }
                             }
                             else

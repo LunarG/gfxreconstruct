@@ -36,7 +36,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// Define threshold for "by value" vs "heap" storage in the variant
+// Define attributes for controlling command storage
 struct CommandStoragePolicy
 {
     // This size is picked to match FunctionCallArgs and MethodCallArgs which constitute more than 95% of total blocks
@@ -45,6 +45,13 @@ struct CommandStoragePolicy
     static constexpr bool IsLarge()
     {
         return sizeof(T) > kInlineThreshold;
+    }
+
+    // Determine if T is trivially constructable
+    template <typename T>
+    static constexpr bool NonTrivial()
+    {
+        return !std::is_trivially_destructible_v<T>;
     }
 };
 
@@ -101,6 +108,7 @@ template <typename Command>
 struct DispatchFlagTraits
 {
     static constexpr bool kIsLarge          = CommandStoragePolicy::IsLarge<Command>();
+    static constexpr bool kNonTrivial       = CommandStoragePolicy::NonTrivial<Command>();
     static constexpr bool kHasCallId        = DispatchHasCallId<Command>::value;
     static constexpr bool kHasMetaDataId    = DispatchHasMetaDataId<Command>::value;
     static constexpr bool kHasAllocGuard    = DispatchHasAllocGuard<Command>::value;
@@ -802,29 +810,72 @@ struct DispatchTraits<AnnotationArgs> : DispatchFlagTraits<AnnotationArgs>
     // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
 };
 
-// Store large payloads on heap; small ones by value
+// Store large, nontrivial payloads on heap; small ones by value
 template <class T>
 class DispatchStore
 {
   public:
-    using ValueType                = T;
-    constexpr static bool kIsLarge = DispatchTraits<T>::kIsLarge;
-    using StoreType                = std::conditional_t<kIsLarge, std::unique_ptr<T>, T>;
+    using ValueType                   = T;
+    constexpr static bool kIsIndirect = DispatchTraits<T>::kIsLarge || DispatchTraits<T>::kNonTrivial;
+    using StoreType                   = std::conditional_t<kIsIndirect, T*, T>;
 
     // Forwarding constructor handling l-values and r-values
     // The enable_if_t restricts the constructor to only accept types compatible with T
     // and to prevent hijacking copy or move constructors with this general constructor
     template <
         typename U,
+        typename Allocator,
         typename = std::enable_if_t<std::is_constructible_v<T, U&&> && !std::is_same_v<std::decay_t<U>, DispatchStore>,
                                     DispatchStore>>
-    explicit DispatchStore(U&& args) : store_(MakeStore(std::forward<U>(args)))
+    explicit DispatchStore(U&& args, Allocator& allocator) : store_(MakeStore(std::forward<U>(args), allocator))
     {}
-    DispatchStore() = default;
+    DispatchStore()
+    {
+        if constexpr (kIsIndirect)
+        {
+            store_ = nullptr;
+        }
+    }
+
+    DispatchStore(DispatchStore&& other)
+    {
+        if constexpr (kIsIndirect)
+        {
+            store_       = other.store_;
+            other.store_ = nullptr;
+        }
+        else
+        {
+            new (&store_) T(std::move(other.store_));
+        }
+    }
+
+    ~DispatchStore() = default;
+
+    DispatchStore& operator=(DispatchStore&& other)
+    {
+        if (this != &other)
+        {
+            if constexpr (kIsIndirect)
+            {
+                if (store_ != nullptr)
+                {
+                    store_->~T();
+                }
+                store_       = other.store_;
+                other.store_ = nullptr;
+            }
+            else
+            {
+                store_ = std::move(other.store_);
+            }
+        }
+        return *this;
+    }
 
     const T& operator*() const
     {
-        if constexpr (kIsLarge)
+        if constexpr (kIsIndirect)
         {
             return *store_;
         }
@@ -836,7 +887,7 @@ class DispatchStore
 
     T& operator*()
     {
-        if constexpr (kIsLarge)
+        if constexpr (kIsIndirect)
         {
             return *store_;
         }
@@ -848,7 +899,7 @@ class DispatchStore
 
     const T* operator->() const
     {
-        if constexpr (kIsLarge)
+        if constexpr (kIsIndirect)
         {
             return store_.get();
         }
@@ -860,7 +911,7 @@ class DispatchStore
 
     T* operator->()
     {
-        if constexpr (kIsLarge)
+        if constexpr (kIsIndirect)
         {
             return store_.get();
         }
@@ -871,12 +922,12 @@ class DispatchStore
     }
 
   private:
-    template <typename U>
-    StoreType MakeStore(U&& input)
+    template <typename U, typename Allocator>
+    StoreType MakeStore(U&& input, Allocator& allocator)
     {
-        if constexpr (kIsLarge)
+        if constexpr (kIsIndirect)
         {
-            return std::make_unique<T>(std::forward<U>(input));
+            return allocator.emplace<T>(std::forward<U>(input));
         }
         else
         {
@@ -928,8 +979,8 @@ using DispatchArgs = std::variant<DispatchStore<FunctionCallArgs>,
                                   DispatchStore<SetOpaqueDescriptorDataArgs>>;
 
 // Helper to create DispatchArgs variant from arbitrary ArgPayload type, with sanity checks
-template <typename ArgPayload>
-inline DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
+template <typename ArgPayload, typename Allocator>
+inline DispatchArgs MakeDispatchArgs(ArgPayload&& payload, Allocator& allocator)
 {
     using Args     = util::RemoveCvRef_t<ArgPayload>;
     using ArgStore = DispatchStore<Args>;
@@ -939,7 +990,7 @@ inline DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
     static_assert(std::is_constructible_v<Args, ArgPayload&&>,
                   "DispatchArgs alternative not constructible from supplied payload");
 
-    return DispatchArgs{ std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload) };
+    return DispatchArgs{ std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload), allocator };
 }
 
 template <typename Args>
