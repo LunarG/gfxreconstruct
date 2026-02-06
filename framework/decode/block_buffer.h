@@ -35,7 +35,7 @@ class FileProcessor;
 class BlockBuffer
 {
   public:
-    using BlockSpan = util::DataSpan::OutputSpan;
+    using BlockSpan = util::Span<const uint8_t>;
     // Validity means that it has a payload and the payload size is consistent with the block header
     bool IsValid() const
     {
@@ -83,24 +83,9 @@ class BlockBuffer
     }
 
     BlockBuffer() = default;
-    BlockBuffer(util::DataSpan&& block_span);
 
     // TODO: Remove this when preload_file_processor is converted to the common BlockParser/ParsedBlock approach
     bool IsFrameDelimiter(const FileProcessor& file_processor) const;
-
-    void Reset()
-    {
-        read_pos_ = 0;
-        block_span_.Reset();
-    };
-
-    const util::DataSpan&          GetData() const noexcept { return block_span_; }
-    [[nodiscard]] util::DataSpan&& ReleaseData() noexcept { return std::move(block_span_); }
-
-    [[nodiscard]] util::DataSpan MakeNonOwnedData() const noexcept
-    {
-        return util::DataSpan(block_span_, util::DataSpan::NonOwnedSpanTag{});
-    }
 
     bool SeekForward(size_t size);
     bool SeekTo(size_t size);
@@ -108,14 +93,20 @@ class BlockBuffer
     bool IsAvailable(size_t size) const noexcept { return IsAvailableAt(size, read_pos_); }
     bool IsAvailableAt(size_t size, size_t at) const noexcept { return Size() >= (at + size); }
 
-    util::DataSpan& GetBlockStore() { return block_span_; }
-    void            InitBlockHeaderFromSpan();
+    const BlockSpan&         GetBlockSpan() const { return block_span_; }
+    BlockSpan::const_pointer GetData() const { return block_span_.data(); }
+    void                     Reset(uint8_t* data, size_t size);
+
+    void Clear()
+    {
+        read_pos_   = 0;
+        block_span_ = BlockSpan();
+    };
 
   private:
     size_t              read_pos_{ 0 };
-    uint64_t            block_index_{ 0U };
-    util::DataSpan      block_span_;
-    format::BlockHeader header_;
+    BlockSpan           block_span_;
+    format::BlockHeader header_ = { 0, format::BlockType::kUnknownBlock };
 };
 
 GFXRECON_END_NAMESPACE(decode)

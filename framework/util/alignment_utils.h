@@ -75,6 +75,14 @@ inline constexpr uint64_t aligned_value(uint64_t value, uint64_t alignment)
     assert(is_pow_2(alignment));
     return alignment ? (value + alignment - 1) & ~(alignment - 1) : value;
 }
+template <size_t kAlignment, typename T>
+inline constexpr T aligned_value(T value)
+{
+    static_assert(is_pow_2(kAlignment) && (kAlignment != 0), "Alignment must be non-zero power of 2");
+    static_assert(std::is_integral<T>::value, "T must be integral type");
+    static_assert(static_cast<size_t>(std::numeric_limits<T>::max()) >= kAlignment, "Alignment must fit within type T");
+    return (value + kAlignment - 1) & ~(kAlignment - 1);
+}
 
 /**
  * @brief   Perform an integer-division, round up to the next value.
