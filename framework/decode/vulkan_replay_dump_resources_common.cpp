@@ -427,16 +427,16 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                              : image_info->extent;
 
         image_resource.resource_size =
-            resource_util.GetImageResourceSizesOptimal(dst_format,
-                                                       image_info->type,
-                                                       scaling_supported ? scaled_extent : image_info->extent,
-                                                       image_info->level_count,
-                                                       image_info->layer_count,
-                                                       image_info->tiling,
-                                                       aspect,
-                                                       &subresource_offsets,
-                                                       &subresource_sizes,
-                                                       false);
+            resource_util.GetImageResourceSizesLinear(dst_format,
+                                                      image_info->type,
+                                                      scaling_supported ? scaled_extent : image_info->extent,
+                                                      image_info->level_count,
+                                                      image_info->layer_count,
+                                                      image_info->tiling,
+                                                      aspect,
+                                                      &subresource_offsets,
+                                                      &subresource_sizes,
+                                                      false);
 
         if (!image_resource.resource_size)
         {

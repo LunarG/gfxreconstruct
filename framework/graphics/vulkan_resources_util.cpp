@@ -999,6 +999,78 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
     return resource_size;
 }
 
+uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkFormat               format,
+                                                          VkImageType            type,
+                                                          const VkExtent3D&      extent,
+                                                          uint32_t               mip_levels,
+                                                          uint32_t               array_layers,
+                                                          VkImageTiling          tiling,
+                                                          VkImageAspectFlagBits  aspect,
+                                                          std::vector<uint64_t>* subresource_offsets,
+                                                          std::vector<uint64_t>* subresource_sizes,
+                                                          bool                   all_layers_per_level)
+{
+    // Calculate linear size for CmdCopyImageToBuffer output (bufferRowLength=0).
+    // GetImageMemoryRequirements returns optimal size which can differ on mobile GPUs.
+    VkFormat     aspect_format = GetImageAspectFormat(format, aspect);
+    VkDeviceSize texel_size    = 0;
+    bool         is_texel_block_size;
+    uint16_t     block_width, block_height;
+
+    if (!GetImageTexelSize(aspect_format, &texel_size, &is_texel_block_size, &block_width, &block_height))
+    {
+        GFXRECON_LOG_ERROR("Format %s is not supported", util::ToString<VkFormat>(aspect_format).c_str());
+        return 0;
+    }
+
+    if (subresource_sizes != nullptr)
+    {
+        subresource_sizes->clear();
+    }
+
+    if (subresource_offsets != nullptr)
+    {
+        subresource_offsets->clear();
+    }
+
+    uint64_t resource_size = 0;
+
+    for (uint32_t m = 0; m < mip_levels; ++m)
+    {
+        VkExtent3D mip_extent = graphics::ScaleToMipLevel(extent, m);
+
+        if (is_texel_block_size)
+        {
+            mip_extent.width  = (mip_extent.width + block_width - 1) / block_width;
+            mip_extent.height = (mip_extent.height + block_height - 1) / block_height;
+        }
+
+        const VkDeviceSize mip_size = texel_size * mip_extent.width * mip_extent.height * mip_extent.depth;
+
+        for (uint32_t l = 0; l < array_layers; ++l)
+        {
+            if (subresource_offsets != nullptr)
+            {
+                subresource_offsets->push_back(resource_size);
+            }
+
+            if (subresource_sizes != nullptr)
+            {
+                subresource_sizes->push_back(mip_size);
+            }
+
+            resource_size += mip_size;
+
+            if (all_layers_per_level)
+            {
+                break;
+            }
+        }
+    }
+
+    return resource_size;
+}
+
 VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
 {
     GFXRECON_ASSERT(size > 0);
