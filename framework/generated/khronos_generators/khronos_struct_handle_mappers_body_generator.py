@@ -49,6 +49,7 @@ class KhronosStructHandleMappersBodyGenerator():
 
             child_has_handles = self.child_struct_has_handles(struct)
             if ( child_has_handles or
+                (struct in self.all_possible_extendable_structs) or
                 (struct in self.structs_with_handles) or
                 (struct in self.GENERIC_HANDLE_STRUCTS)
             ):
@@ -61,6 +62,10 @@ class KhronosStructHandleMappersBodyGenerator():
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
                                                                          ]
+                if struct in self.all_possible_extendable_structs:
+                    for member in self.all_struct_members[struct]:
+                        if self.is_extended_struct_definition(member):
+                            handle_members.append(member)
 
                 # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
                 # and does not need a temporary variable referencing the struct value.
@@ -150,14 +155,8 @@ class KhronosStructHandleMappersBodyGenerator():
         lines.append('            break;')
         write('\n'.join(lines), file=self.outFile)
 
-        extended_list = []
-        for struct in self.all_extended_structs:
-            for ext_struct in self.all_extended_structs[struct]:
-                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
-                    extended_list.append(ext_struct)
-
-        for base_type in sorted(extended_list):
-            if base_type in self.structs_with_handles:
+        for base_type in sorted(self.all_possible_extendable_structs):
+            if base_type not in self.all_struct_aliases:
                 write(
                     '        case {}:'.format(self.struct_type_names[base_type]),
                     file=self.outFile
@@ -230,6 +229,7 @@ class KhronosStructHandleMappersBodyGenerator():
             map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
 
             if self.is_extended_struct_definition(member):
+
                 func_id = self.get_extended_struct_func_prefix()
                 body += f'        if (wrapper->{member.name})\n'
                 body += '        {\n'
@@ -330,11 +330,7 @@ class KhronosStructHandleMappersBodyGenerator():
 
         for member in members:
             if self.is_extended_struct_definition(member):
-                func_id = self.get_extended_struct_func_prefix()
-                body += f'        if (id_wrapper->{member.name})\n'
-                body += '        {\n'
-                body += f'            Add{func_id}StructHandles(parent_id, id_wrapper->{member.name}->GetPointer(), id_wrapper->{member.name}->GetMetaStructPointer(), handle_struct->{member.name}, object_info_table);\n'
-                body += '        }\n'
+                continue
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
@@ -399,11 +395,7 @@ class KhronosStructHandleMappersBodyGenerator():
 
         for member in members:
             if self.is_extended_struct_definition(member):
-                func_id = self.get_extended_struct_func_prefix()
-                body += f'        if (id_wrapper->{member.name})\n'
-                body += '        {\n'
-                body += f'            PushRecapture{func_id}StructHandleIds(id_wrapper->{member.name}->GetPointer(), consumer);\n'
-                body += '        }\n'
+                continue
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:

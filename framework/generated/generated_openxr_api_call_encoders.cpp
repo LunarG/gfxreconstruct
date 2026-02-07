@@ -698,7 +698,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpace(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateSpace>::Succeeded (manager, result);
+
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrLocateSpace>::Succeeded (manager, result))
+    {
+        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SpaceWrapper, openxr_wrappers::SpaceWrapper>(space, baseSpace, location, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSpace);
     if (encoder)

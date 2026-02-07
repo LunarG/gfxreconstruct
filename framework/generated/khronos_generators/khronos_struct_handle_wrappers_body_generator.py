@@ -134,14 +134,8 @@ class KhronosStructHandleWrappersBodyGenerator():
         write('        break;', file=self.outFile)
         self.write_special_case_struct_handling()
 
-        extended_list = []
-        for struct in self.all_extended_structs:
-            for ext_struct in self.all_extended_structs[struct]:
-                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
-                    extended_list.append(ext_struct)
-
-        for base_type in sorted(extended_list):
-            if base_type not in self.struct_type_names:
+        for base_type in sorted(self.all_possible_extendable_structs):
+            if base_type not in self.struct_type_names or base_type in self.all_struct_aliases:
                 continue
 
             stype = self.struct_type_names[base_type]
@@ -200,10 +194,11 @@ class KhronosStructHandleWrappersBodyGenerator():
         write('            }', file=self.outFile)
         write('            return copy;', file=self.outFile)
         write('        }', file=self.outFile)
-        for base_type in sorted(extended_list):
+        for base_type in sorted(self.all_possible_extendable_structs):
             if (
                 base_type in self.structs_with_handles
                 and base_type in self.struct_type_names
+                and base_type not in self.all_struct_aliases
             ):
                 stype = self.struct_type_names[base_type]
                 write('        case {}:'.format(stype), file=self.outFile)

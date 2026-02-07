@@ -53,6 +53,8 @@ void UnwrapStructHandles(XrSessionCreateInfo* value, HandleUnwrapMemory* unwrap_
 
 void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrSpaceLocation* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrSwapchainImageBaseHeader* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory);
@@ -303,6 +305,14 @@ void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typen
     if (value != nullptr)
     {
         openxr_wrappers::CreateWrappedAtom<ParentWrapper, openxr_wrappers::SystemIdWrapper>(parent, &value->systemId, get_id);
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrSpaceLocation* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
     }
 }
 
