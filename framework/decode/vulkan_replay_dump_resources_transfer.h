@@ -567,6 +567,14 @@ class TransferDumpingContext
 
             // Cloned build input buffers
             AccelerationStructureDumpResourcesContext as_context;
+
+            void UpdateAccelerationStructureInfo()
+            {
+                GFXRECON_ASSERT(as != VK_NULL_HANDLE);
+                GFXRECON_ASSERT(buffer != VK_NULL_HANDLE);
+                as_info.handle = as;
+                as_info.buffer = buffer;
+            }
         };
 
         // CmdBuildAccelerationStructuresKHR

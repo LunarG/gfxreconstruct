@@ -1277,9 +1277,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 return res;
             }
 
-            // Update local VulkanAccelerationStructureKHRInfo
-            new_build_info.vk_objects.as_info.handle = new_build_info.vk_objects.as;
-            new_build_info.vk_objects.as_info.buffer = new_build_info.vk_objects.buffer;
+            // Update cloned VulkanAccelerationStructureKHRInfo
+            new_build_info.vk_objects.UpdateAccelerationStructureInfo();
 
             // Wait for original build to complete / flush any pending writes to destination
             VkBufferMemoryBarrier dst_buf_mem_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1424,9 +1423,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
             return res;
         }
 
-        // Update local VulkanAccelerationStructureKHRInfo
-        copy_as_params->vk_objects.as_info.handle = copy_as_params->vk_objects.as;
-        copy_as_params->vk_objects.as_info.buffer = copy_as_params->vk_objects.buffer;
+        // Update cloned VulkanAccelerationStructureKHRInfo
+        copy_as_params->vk_objects.UpdateAccelerationStructureInfo();
 
         // Wait for original build to complete / flush any pending writes to destination
         const VkBufferMemoryBarrier dst_buf_mem_barrier = {
