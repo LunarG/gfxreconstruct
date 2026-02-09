@@ -1329,9 +1329,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
             continue;
         }
 
-        // These should be NULL otherwise we are leaking objects
-        GFXRECON_ASSERT(acceleration_structure->serialized_data.buffer == VK_NULL_HANDLE &&
-                        acceleration_structure->serialized_data.memory == VK_NULL_HANDLE);
+        acceleration_structure->ReleaseSerializedResources();
         res = CreateVkBuffer(serialized_size,
                              device_table,
                              device,
@@ -1533,7 +1531,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
         return res;
     }
 
-    // Fetch serialized data for TLAS
+    // Fetch serialized data for BLAS
     if (as_context->serialized_data.buffer != VK_NULL_HANDLE)
     {
         dumped_as.serialized_buffer.size               = as_context->serialized_data.size;

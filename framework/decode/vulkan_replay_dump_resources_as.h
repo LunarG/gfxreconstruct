@@ -119,6 +119,10 @@ struct AccelerationStructureDumpResourcesContext
 
     void ReleaseResources();
 
+    void ReleaseInputBuffersResources();
+
+    void ReleaseSerializedResources();
+
     const graphics::VulkanDeviceTable&        device_table;
     const CommonObjectInfoTable&              object_info_table;
     const VulkanAccelerationStructureKHRInfo* as_info;

@@ -105,6 +105,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
         return VK_SUCCESS;
     }
 
+    ReleaseInputBuffersResources();
+
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
 
@@ -554,6 +556,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
     const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
 
+    ReleaseInputBuffersResources();
+
     // Clone serialized data
     if (src_context.serialized_data.buffer != VK_NULL_HANDLE)
     {
@@ -741,7 +745,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
     return VK_SUCCESS;
 }
 
-void AccelerationStructureDumpResourcesContext::ReleaseResources()
+void AccelerationStructureDumpResourcesContext::ReleaseSerializedResources()
 {
     if (as_info == nullptr)
     {
@@ -752,8 +756,6 @@ void AccelerationStructureDumpResourcesContext::ReleaseResources()
     GFXRECON_ASSERT(device_info != nullptr);
 
     const VkDevice device = device_info->handle;
-
-    as_info = nullptr;
 
     if (serialized_data.buffer != VK_NULL_HANDLE)
     {
@@ -766,16 +768,30 @@ void AccelerationStructureDumpResourcesContext::ReleaseResources()
         device_table.FreeMemory(device, serialized_data.memory, nullptr);
         serialized_data.memory = VK_NULL_HANDLE;
     }
+}
 
-    serialized_data.size = 0;
+void AccelerationStructureDumpResourcesContext::ReleaseResources()
+{
+    ReleaseInputBuffersResources();
+    ReleaseSerializedResources();
+}
+
+void AccelerationStructureDumpResourcesContext::ReleaseInputBuffersResources()
+{
+    if (as_info == nullptr)
+    {
+        return;
+    }
+
+    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    const VkDevice device = device_info->handle;
 
     for (auto& as_data : as_build_objects)
     {
         if (auto* triangles = std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&as_data))
         {
-            triangles->vertex_format      = VK_FORMAT_UNDEFINED;
-            triangles->vertex_buffer_size = 0;
-
             if (triangles->vertex_buffer != VK_NULL_HANDLE)
             {
                 device_table.DestroyBuffer(device, triangles->vertex_buffer, nullptr);
@@ -787,9 +803,6 @@ void AccelerationStructureDumpResourcesContext::ReleaseResources()
                 device_table.FreeMemory(device, triangles->vertex_buffer_memory, nullptr);
                 triangles->vertex_buffer_memory = VK_NULL_HANDLE;
             }
-
-            triangles->index_type        = VK_INDEX_TYPE_NONE_KHR;
-            triangles->index_buffer_size = 0;
 
             if (triangles->index_buffer != VK_NULL_HANDLE)
             {
@@ -817,9 +830,6 @@ void AccelerationStructureDumpResourcesContext::ReleaseResources()
         }
         else if (auto* instance = std::get_if<AccelerationStructureDumpResourcesContext::Instances>(&as_data))
         {
-            instance->instance_count       = 0;
-            instance->instance_buffer_size = 0;
-
             if (instance->instance_buffer != VK_NULL_HANDLE)
             {
                 device_table.DestroyBuffer(device, instance->instance_buffer, nullptr);
@@ -846,8 +856,6 @@ void AccelerationStructureDumpResourcesContext::ReleaseResources()
         }
         else if (auto* aabb = std::get_if<AccelerationStructureDumpResourcesContext::AABBS>(&as_data))
         {
-            aabb->buffer_size = 0;
-
             if (aabb->buffer != VK_NULL_HANDLE)
             {
                 device_table.DestroyBuffer(device, aabb->buffer, nullptr);
