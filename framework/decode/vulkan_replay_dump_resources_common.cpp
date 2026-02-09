@@ -1748,7 +1748,7 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
         for (uint32_t i = 0; i < instance_build_data->instance_count; ++i)
         {
             // Get all BLASes associated with the referenced device address
-            const auto blases_infos = device_address_tracker.GetAccelerationStructuresByCaptureDeviceAddress(
+            const auto blases_infos = device_address_tracker.GetAccelerationStructuresByReplayDeviceAddress(
                 static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
             if (blases_infos.empty())
             {

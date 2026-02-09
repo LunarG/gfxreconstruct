@@ -146,8 +146,7 @@ decode::VulkanDeviceAddressTracker::GetBufferByCaptureDeviceAddress(VkDeviceAddr
 }
 
 const decode::VulkanBufferInfo*
-decode::VulkanDeviceAddressTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address,
-                                                                    size_t*         offset) const
+decode::VulkanDeviceAddressTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address, size_t* offset) const
 {
     return GetBufferInfo(replay_address, buffer_replay_addresses_, offset);
 }
@@ -216,13 +215,13 @@ VulkanDeviceAddressTracker::GetBufferInfo(VkDeviceAddress                       
 }
 
 const std::unordered_set<const VulkanAccelerationStructureKHRInfo*>&
-VulkanDeviceAddressTracker::GetAccelerationStructuresByCaptureDeviceAddress(VkDeviceAddress capture_address) const
+VulkanDeviceAddressTracker::GetAccelerationStructuresByReplayDeviceAddress(VkDeviceAddress replay_address) const
 {
     // delegate query to buffer
-    const auto* buffer_info = GetBufferByCaptureDeviceAddress(capture_address);
+    const auto* buffer_info = GetBufferByReplayDeviceAddress(replay_address);
     if (buffer_info != nullptr)
     {
-        auto handle_set_it = buffer_info->acceleration_structures.find(capture_address);
+        auto handle_set_it = buffer_info->acceleration_structures.find(replay_address);
         if (handle_set_it != buffer_info->acceleration_structures.end())
         {
             return handle_set_it->second;
