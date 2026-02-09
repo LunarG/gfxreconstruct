@@ -1396,7 +1396,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                       nullptr,
                                       replay_device_phys_mem_props_,
                                       VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
-                                          VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+                                          VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                                          VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                       &copy_as_params->vk_objects.buffer,
                                       &copy_as_params->vk_objects.memory);
         if (res != VK_SUCCESS)
@@ -1405,7 +1406,6 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
             return res;
         }
 
-        // Create acceleration structure
         const VkAccelerationStructureCreateInfoKHR as_ci = { VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
                                                              nullptr,
                                                              VkAccelerationStructureCreateFlagBitsKHR(0),
@@ -1414,7 +1414,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                                              dst_as->size,
                                                              dst_as->type,
                                                              0 };
-        res                                              = device_table_->CreateAccelerationStructureKHR(
+        // Create the cloned AS
+        res = device_table_->CreateAccelerationStructureKHR(
             device_info_->handle, &as_ci, nullptr, &copy_as_params->vk_objects.as);
         if (res != VK_SUCCESS)
         {
