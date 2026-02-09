@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -137,6 +137,7 @@ void Dx12StateTracker::TrackCommandExecution(ID3D12CommandList_Wrapper*      lis
             list_info->draw_call_count                = 0;
             list_info->find_target_draw_call_count    = 0;
             list_info->target_bundle_commandlist_info = nullptr;
+            list_info->is_OMRenderTarget              = false;
 
             for (size_t i = 0; i < D3D12GraphicsCommandObjectType::NumObjectTypes; ++i)
             {
@@ -573,11 +574,13 @@ void Dx12StateTracker::TrackCopyDescriptors(UINT                    num_descript
 
 void Dx12StateTracker::TrackDescriptorResources(SIZE_T          descriptor_cpu_address,
                                                 ID3D12Resource* resource1,
-                                                ID3D12Resource* resource2)
+                                                ID3D12Resource* resource2,
+                                                bool            backbufferview)
 {
-    auto* descriptor_info            = GetDescriptorInfo(descriptor_cpu_address);
-    descriptor_info->resource_ids[0] = GetDx12WrappedId<ID3D12Resource>(resource1);
-    descriptor_info->resource_ids[1] = GetDx12WrappedId<ID3D12Resource>(resource2);
+    auto* descriptor_info                           = GetDescriptorInfo(descriptor_cpu_address);
+    descriptor_info->resource_ids[0]                = GetDx12WrappedId<ID3D12Resource>(resource1);
+    descriptor_info->resource_ids[1]                = GetDx12WrappedId<ID3D12Resource>(resource2);
+    descriptor_info->is_backbuffer_rendertargetview = backbufferview;
 }
 
 void Dx12StateTracker::TrackDescriptorGpuVa(SIZE_T descriptor_cpu_address, D3D12_GPU_VIRTUAL_ADDRESS address)
@@ -921,8 +924,8 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 // Copy the inputs data to the inputs_data_resource.
                 while (curr_entry_iter != end_entry_iter)
                 {
-                    gfxrecon::util::GpuVaRange range       = { *curr_entry_iter->desc_gpu_va,
-                                                               *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
+                    gfxrecon::util::GpuVaRange range = { *curr_entry_iter->desc_gpu_va,
+                                                         *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
                     if (DoesResourceCoverGpuVaRange(src_resource_info.get(), range))
                     {
                         auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;

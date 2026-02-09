@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -130,6 +130,8 @@ struct DxDescriptorInfo
     // Descriptors can be created with up to 2 resource dependencies or a GPU VA.
     std::array<format::HandleId, 2> resource_ids{ format::kNullHandleId, format::kNullHandleId };
     D3D12_GPU_VIRTUAL_ADDRESS       resource_gpu_va{ 0 };
+
+    bool is_backbuffer_rendertargetview{ false };
 };
 
 struct DxTransitionBarrier
@@ -311,7 +313,8 @@ struct AccelerationStructureBuildTrackingObjects
         graphics::dx12::ID3D12ResourceComPtr             _resource,
         graphics::dx12::ID3D12CommandAllocatorComPtr     _post_build_copy_cmd_allocator,
         graphics::dx12::ID3D12GraphicsCommandList4ComPtr _post_build_copy_cmd_list) :
-        resource(_resource), post_build_copy_cmd_allocator(_post_build_copy_cmd_allocator),
+        resource(_resource),
+        post_build_copy_cmd_allocator(_post_build_copy_cmd_allocator),
         post_build_copy_cmd_list(_post_build_copy_cmd_list)
     {}
 
@@ -505,6 +508,7 @@ struct ID3D12CommandListInfo : public DxWrapperInfo
     uint32_t                                     find_target_draw_call_count{ 0 };
     std::shared_ptr<const ID3D12CommandListInfo> target_bundle_commandlist_info;
     bool                                         is_trim_target{ false };
+    bool                                         is_OMRenderTarget{ false };
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo

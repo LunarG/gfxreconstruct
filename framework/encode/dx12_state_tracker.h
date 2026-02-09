@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -181,7 +181,8 @@ class Dx12StateTracker
 
     void TrackDescriptorResources(SIZE_T          descriptor_cpu_address,
                                   ID3D12Resource* resource1,
-                                  ID3D12Resource* resource2 = nullptr);
+                                  ID3D12Resource* resource2      = nullptr,
+                                  bool            backbufferview = false);
 
     void TrackDescriptorGpuVa(SIZE_T descriptor_cpu_address, D3D12_GPU_VIRTUAL_ADDRESS address);
 

@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -271,6 +271,9 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                  DXGI_FORMAT             new_format,
                                                  UINT                    flags);
 
+    void PostProcess_IDXGISwapChain_GetBuffer(
+        IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT Buffer, REFIID riid, void** ppSurface);
+
     void PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,
                                                   HRESULT                 result,
                                                   UINT                    buffer_count,
@@ -489,6 +492,13 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(ID3D12CommandList_Wrapper*    list_wrapper,
                                                                UINT                          num_barriers,
                                                                const D3D12_RESOURCE_BARRIER* barriers);
+
+    void PostProcess_ID3D12GraphicsCommandList_OMSetRenderTargets(
+        ID3D12CommandList_Wrapper*         list_wrapper,
+        UINT                               NumRenderTargetDescriptors,
+        const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
+        BOOL                               RTsSingleHandleToDescriptorRange,
+        const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
 
     void PostProcess_ID3D12GraphicsCommandList_Reset(ID3D12CommandList_Wrapper* list_wrapper,
                                                      HRESULT                    result,
@@ -955,6 +965,10 @@ class D3D12CaptureManager : public ApiCaptureManager
     graphics::dx12::ActiveAdapterMap adapters_;
 
     std::unique_ptr<Dx12ResourceValueAnnotator> resource_value_annotator_{ nullptr };
+
+    std::vector<IUnknown*> backbuffers_;
+
+    UINT RTV_increment_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -38,7 +38,8 @@ Dx12StateWriter::Dx12StateWriter(util::FileOutputStream* output_stream,
                                  util::Compressor*       compressor,
                                  format::ThreadId        thread_id,
                                  util::FileOutputStream* asset_file_stream) :
-    output_stream_(output_stream), compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
+    output_stream_(output_stream),
+    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
 {
     assert(output_stream != nullptr);
 }
@@ -790,7 +791,7 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
         for (auto wrapper : metacommand_wrappers)
         {
             // Write the meta command init call.
-            auto                          wrapper_info = wrapper->GetObjectInfo();
+            auto wrapper_info = wrapper->GetObjectInfo();
             if (wrapper_info->was_initialized == true)
             {
                 format::InitializeMetaCommand init_meta_command;
@@ -846,13 +847,13 @@ void Dx12StateWriter::WriteResourceSnapshots(
             begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                 format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kBeginResourceInitCommand);
-            begin_cmd.thread_id       = thread_id_;
-            begin_cmd.device_id       = device_id;
+            begin_cmd.thread_id = thread_id_;
+            begin_cmd.device_id = device_id;
 
             // TODO: adjust to hold sum of resource-sizes
             begin_cmd.total_copy_size = max_resource_size;
 
-            begin_cmd.max_copy_size   = max_resource_size;
+            begin_cmd.max_copy_size = max_resource_size;
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
 
@@ -1218,6 +1219,10 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
                                                const Dx12StateTable&            state_table)
 {
     auto list_info = list_wrapper->GetObjectInfo();
+    if (list_info->is_OMRenderTarget)
+    {
+        return;
+    }
 
     bool invalid_command_allocator =
         (list_info->reset_command_allocator_id != format::kNullHandleId) &&

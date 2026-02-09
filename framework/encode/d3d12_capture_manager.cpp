@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -671,6 +671,17 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(
     PostPresent(current_lock, wrapper, flags);
 }
 
+void D3D12CaptureManager::PostProcess_IDXGISwapChain_GetBuffer(
+    IDXGISwapChain_Wrapper* wrapper, HRESULT result, UINT Buffer, REFIID riid, void** ppSurface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(result);
+    GFXRECON_UNREFERENCED_PARAMETER(Buffer);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    backbuffers_.push_back(reinterpret_cast<IUnknown*>(*ppSurface));
+}
+
 void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(
     std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
     IDXGISwapChain_Wrapper*                                wrapper,
@@ -781,6 +792,11 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
     {
         auto device    = wrapper->GetWrappedObjectAs<ID3D12Device>();
         auto increment = device->GetDescriptorHandleIncrementSize(desc->Type);
+
+        if (desc->Type == D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
+        {
+            RTV_increment_ = increment;
+        }
 
         if (increment < sizeof(void*))
         {
@@ -2488,6 +2504,43 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ResourceBarrier(
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_OMSetRenderTargets(
+    ID3D12CommandList_Wrapper*         list_wrapper,
+    UINT                               NumRenderTargetDescriptors,
+    const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
+    BOOL                               RTsSingleHandleToDescriptorRange,
+    const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pDepthStencilDescriptor);
+
+    if (IsCaptureModeTrack())
+    {
+        for (UINT i = 0; i < NumRenderTargetDescriptors; ++i)
+        {
+            GFXRECON_ASSERT(pRenderTargetDescriptors != nullptr);
+            SIZE_T handle_ptr = pRenderTargetDescriptors[0].ptr;
+            if (RTsSingleHandleToDescriptorRange)
+            {
+                handle_ptr = handle_ptr + i * RTV_increment_;
+            }
+            else
+            {
+                handle_ptr = pRenderTargetDescriptors[i].ptr;
+            }
+            if (handle_ptr != 0x0)
+            {
+                auto* descriptor_info = GetDescriptorInfo(handle_ptr);
+                if (descriptor_info->is_backbuffer_rendertargetview)
+                {
+                    auto info = list_wrapper->GetObjectInfo();
+                    GFXRECON_ASSERT(info != nullptr);
+                    info->is_OMRenderTarget = true;
+                }
+            }
+        }
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_Reset(ID3D12CommandList_Wrapper* list_wrapper,
                                                                       HRESULT                    result,
                                                                       ID3D12CommandAllocator*    pAllocator,
@@ -2726,7 +2779,14 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateRenderTargetView(ID3D12
 {
     if (IsCaptureModeTrack())
     {
-        state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource);
+        bool backbufferview = false;
+        if (std::find(backbuffers_.begin(), backbuffers_.end(), reinterpret_cast<IUnknown*>(pResource)) !=
+            backbuffers_.end())
+        {
+            backbufferview = true;
+        }
+
+        state_tracker_->TrackDescriptorResources(DestDescriptor.ptr, pResource, nullptr, backbufferview);
     }
 }
 
