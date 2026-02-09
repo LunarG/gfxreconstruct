@@ -2186,7 +2186,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                          *device_table_,
                                                          object_info_table_,
                                                          *instance_table_,
-                                                         address_trackers_);
+                                                         address_trackers_,
+                                                         true);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
@@ -2212,7 +2213,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                              *device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
-                                                             address_trackers_);
+                                                             address_trackers_,
+                                                             true);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",

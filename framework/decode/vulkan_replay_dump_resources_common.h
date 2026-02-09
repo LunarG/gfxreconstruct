@@ -131,7 +131,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    const graphics::VulkanDeviceTable&                device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
-                                   const VulkanPerDeviceAddressTrackers&             address_trackers);
+                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   bool                                              use_capture_addresses = false);
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
 

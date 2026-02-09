@@ -1565,7 +1565,8 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
                          const graphics::VulkanDeviceTable&                device_table,
                          const CommonObjectInfoTable&                      object_info_table,
                          const graphics::VulkanInstanceTable&              instance_table,
-                         const VulkanPerDeviceAddressTrackers&             address_trackers)
+                         const VulkanPerDeviceAddressTrackers&             address_trackers,
+                         bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
     GFXRECON_ASSERT(as_info != nullptr);
@@ -1619,8 +1620,11 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
         for (uint32_t i = 0; i < instance_build_data->instance_count; ++i)
         {
             // Get all BLASes associated with the referenced device address
-            const auto blases_infos = device_address_tracker.GetAccelerationStructuresByReplayDeviceAddress(
-                static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
+            const auto blases_infos =
+                use_capture_addresses ? device_address_tracker.GetAccelerationStructuresByCaptureDeviceAddress(
+                                            static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference))
+                                      : device_address_tracker.GetAccelerationStructuresByReplayDeviceAddress(
+                                            static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
             if (blases_infos.empty())
             {
                 continue;
@@ -1710,7 +1714,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    const graphics::VulkanDeviceTable&                device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
-                                   const VulkanPerDeviceAddressTrackers&             address_trackers)
+                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
     GFXRECON_ASSERT(as_info != nullptr);
@@ -1726,7 +1731,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                        device_table,
                        object_info_table,
                        instance_table,
-                       address_trackers);
+                       address_trackers,
+                       use_capture_addresses);
     }
     else
     {
