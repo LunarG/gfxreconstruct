@@ -6216,7 +6216,7 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
 
     // free potential shadow-resources associated with this buffer
-    GetDeviceAddressReplacer(device_info).DestroyShadowResources(buffer_info);
+    GetDeviceAddressReplacer(device_info).DestroyShadowResources(buffer_info, GetDeviceAddressTracker(device_info));
 
     // remove from device-address tracking
     GetDeviceAddressTracker(device_info).RemoveBuffer(buffer_info);
