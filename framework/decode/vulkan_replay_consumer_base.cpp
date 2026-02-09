@@ -72,7 +72,8 @@
 #include <future>
 #include <span>
 #include <iterator>
-#include <unistd.h>
+#include <chrono>
+#include <thread>
 
 #if defined(__ANDROID__)
 #include <android/trace.h>
@@ -4137,14 +4138,14 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         if (first_time && wait_before_first_frame_min_ms_ > 0)
         {
             ATrace_beginSection("FirstTimeWait");
-            usleep(wait_before_first_frame_min_ms_ * 1000);
+            std::this_thread::sleep_for(std::chrono::milliseconds(wait_before_first_frame_min_ms_));
             ATrace_endSection();
             first_time = false;
         }
         if (sleep_around_gpu_frame_ms_ > 0.0)
         {
             // WaitDevicesIdle(); // Need to implement or check availability
-            usleep(static_cast<useconds_t>(sleep_around_gpu_frame_ms_ * 1000));
+            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int64_t>(sleep_around_gpu_frame_ms_ * 1000.0)));
         }
 
         if (frame_warm_up_gpu_load_ > 0)
@@ -4155,7 +4156,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         ATrace_beginSection("GFXRFrame");
         if (sleep_around_gpu_frame_ms_ > 0.0)
         {
-            usleep(static_cast<useconds_t>(sleep_around_gpu_frame_ms_ * 1000));
+            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int64_t>(sleep_around_gpu_frame_ms_ * 1000.0)));
         }
     }
 
@@ -8420,7 +8421,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 auto device_table = GetDeviceTable(device_info->handle);
                 device_table->DeviceWaitIdle(device_info->handle);
             }
-            usleep(static_cast<useconds_t>(sleep_around_gpu_frame_ms_ * 1000));
+            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int64_t>(sleep_around_gpu_frame_ms_ * 1000.0)));
         }
         ATrace_endSection();
     }
