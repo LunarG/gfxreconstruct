@@ -2584,6 +2584,60 @@ Dx12ReplayConsumerBase::OverrideReadFromSubresource(DxObjectInfo*               
     return E_FAIL;
 }
 
+HRESULT
+Dx12ReplayConsumerBase::OverrideGetApplicationDesc(DxObjectInfo* state_object_database_object_info,
+                                                   HRESULT       original_result,
+                                                   uint64_t      callback_func,
+                                                   uint64_t      context)
+
+{
+    GFXRECON_UNREFERENCED_PARAMETER(state_object_database_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(callback_func);
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+
+    // TODO: Implement function
+    return E_FAIL;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideFindPipelineStateDesc(DxObjectInfo*            state_object_database_object_info,
+                                                      HRESULT                  original_result,
+                                                      PointerDecoder<uint8_t>* key,
+                                                      UINT                     key_size,
+                                                      uint64_t                 callback_func,
+                                                      uint64_t                 context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(state_object_database_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(key);
+    GFXRECON_UNREFERENCED_PARAMETER(key_size);
+    GFXRECON_UNREFERENCED_PARAMETER(callback_func);
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+
+    // TODO: Implement function
+    return E_FAIL;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideFindStateObjectDesc(DxObjectInfo*            state_object_database_object_info,
+                                                    HRESULT                  original_result,
+                                                    PointerDecoder<uint8_t>* key,
+                                                    UINT                     key_size,
+                                                    uint64_t                 callback_func,
+                                                    uint64_t                 context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(state_object_database_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(key);
+    GFXRECON_UNREFERENCED_PARAMETER(key_size);
+    GFXRECON_UNREFERENCED_PARAMETER(callback_func);
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+
+    // TODO: Implement function
+    return E_FAIL;
+}
+
 void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*                             replay_object_info,
                                                          UINT                                      num_command_lists,
                                                          HandlePointerDecoder<ID3D12CommandList*>* command_lists)

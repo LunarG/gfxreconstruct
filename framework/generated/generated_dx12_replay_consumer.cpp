@@ -9788,14 +9788,10 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabase_GetApplicationDesc(
             replay_object,
             CallbackFunc,
             pContext);
-        if(!pContext->IsNull())
-        {
-            pContext->AllocateOutputData(1);
-        }
-        auto out_p_pContext    = pContext->GetPointer();
-        auto out_op_pContext   = pContext->GetOutputPointer();
-        auto replay_result = reinterpret_cast<ID3D12StateObjectDatabase*>(replay_object->object)->GetApplicationDesc(CallbackFunc,
-                                                                                                                     out_op_pContext);
+        auto replay_result = OverrideGetApplicationDesc(replay_object,
+                                                        return_value,
+                                                        CallbackFunc,
+                                                        pContext);
         CheckReplayResult("ID3D12StateObjectDatabase_GetApplicationDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc>::Dispatch(
             this,
@@ -9805,7 +9801,6 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabase_GetApplicationDesc(
             replay_result,
             CallbackFunc,
             pContext);
-        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pContext), out_p_pContext, format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc, "ID3D12StateObjectDatabase_GetApplicationDesc");
     }
 }
 
@@ -9868,16 +9863,12 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabase_FindPipelineStateDesc
             KeySize,
             CallbackFunc,
             pContext);
-        if(!pContext->IsNull())
-        {
-            pContext->AllocateOutputData(1);
-        }
-        auto out_p_pContext    = pContext->GetPointer();
-        auto out_op_pContext   = pContext->GetOutputPointer();
-        auto replay_result = reinterpret_cast<ID3D12StateObjectDatabase*>(replay_object->object)->FindPipelineStateDesc(pKey->GetPointer(),
-                                                                                                                        KeySize,
-                                                                                                                        CallbackFunc,
-                                                                                                                        out_op_pContext);
+        auto replay_result = OverrideFindPipelineStateDesc(replay_object,
+                                                           return_value,
+                                                           pKey,
+                                                           KeySize,
+                                                           CallbackFunc,
+                                                           pContext);
         CheckReplayResult("ID3D12StateObjectDatabase_FindPipelineStateDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc>::Dispatch(
             this,
@@ -9889,7 +9880,6 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabase_FindPipelineStateDesc
             KeySize,
             CallbackFunc,
             pContext);
-        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pContext), out_p_pContext, format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc, "ID3D12StateObjectDatabase_FindPipelineStateDesc");
     }
 }
 
@@ -9960,16 +9950,12 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabase_FindStateObjectDesc(
             KeySize,
             CallbackFunc,
             pContext);
-        if(!pContext->IsNull())
-        {
-            pContext->AllocateOutputData(1);
-        }
-        auto out_p_pContext    = pContext->GetPointer();
-        auto out_op_pContext   = pContext->GetOutputPointer();
-        auto replay_result = reinterpret_cast<ID3D12StateObjectDatabase*>(replay_object->object)->FindStateObjectDesc(pKey->GetPointer(),
-                                                                                                                      KeySize,
-                                                                                                                      CallbackFunc,
-                                                                                                                      out_op_pContext);
+        auto replay_result = OverrideFindStateObjectDesc(replay_object,
+                                                         return_value,
+                                                         pKey,
+                                                         KeySize,
+                                                         CallbackFunc,
+                                                         pContext);
         CheckReplayResult("ID3D12StateObjectDatabase_FindStateObjectDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc>::Dispatch(
             this,
@@ -9981,7 +9967,6 @@ void Dx12ReplayConsumer::Process_ID3D12StateObjectDatabase_FindStateObjectDesc(
             KeySize,
             CallbackFunc,
             pContext);
-        PostProcessExternalObject(replay_result, reinterpret_cast<void**>(out_op_pContext), out_p_pContext, format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc, "ID3D12StateObjectDatabase_FindStateObjectDesc");
     }
 }
 
