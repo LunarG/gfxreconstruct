@@ -34,7 +34,7 @@ If OpenXR support is desired, please pull the source down from the
 GitHub repo and build manually.
 
 Additionally, see the list of
-[Known Limitations](#openxr-capture-known-limitations] below.
+[Known Limitations](#openxr-capture-known-limitations) below.
 
 
 ## Index
@@ -56,7 +56,7 @@ Additionally, see the list of
     4. [Trimmed File Optimization](#trimmed-file-optimization)
     5. [JSON Lines Conversion](#json-lines-conversion)
     6. [Command Launcher](#command-launcher)
-    7. [Options Common To All Tools](#common-options)
+    7. [Options Common To All Tools](#options-common-to-all-tools)
 
 ## Capturing API calls
 
@@ -102,7 +102,7 @@ add the Debug build of the layer to `VK_LAYER_PATH`:
 
 ```bat
 set VK_LAYER_PATH=C:\gfxreconstruct\build\layer\Debug;%VK_LAYER_PATH%
-set XR_LAYER_PATH=C:\gfxreconstruct\build\layer\Debug;%XR_LAYER_PATH%
+set XR_API_LAYER_PATH=C:\gfxreconstruct\build\layer\Debug;%XR_API_LAYER_PATH%
 ```
 
 ##### Setting XR_API_LAYER_PATH for Linux (not supported)
@@ -149,7 +149,7 @@ set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct
 The GFXReconstruct OpenXR layer supports several options, which may be enabled
 through environment variables or a layer settings file. 
 
-These match those described in [GfxReconstruct for Desktop Vulkan,](./USAGE_desktop_Vulkan.md) noting limitations described below.
+These match those described in [GfxReconstruct for Desktop Vulkan](./USAGE_desktop_Vulkan.md) noting limitations described below.
 
 ## Replaying API Calls
 
@@ -182,3 +182,16 @@ OpenXR capture and replay do no support trimming options.
 
 Has been tested and is believed to function correctly for all supported OpenXR commands and datatypes.
 
+### Options Common To all Tools
+
+If the environment variable `GFXRECON_NO_DEBUG_POPUP` has any non-zero
+number or non-empty, non-numeric string value when running any of
+of the file processing tools, the tool will attempt to disable the
+'Abort, Retry, Ignore' message box displayed when `assert()` fails on
+Windows in a Debug build.  This behavior is slightly different than
+`--no-debug-popup` in that the message box is disabled before any other
+variable initialization.  This is probably most useful in headless or
+"Continuous Integration" builds when an on-screen message box that
+can't be automatically dismissed may hang scripts or cause directories
+to be locked.  (Note that "FALSE" and "no", as examples, are non-empty,
+non-numeric string values and will be interpreted as enabling the option.)

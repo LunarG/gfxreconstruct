@@ -41,7 +41,7 @@ to one of these other documents:
     4. [Trimmed File Optimization](#trimmed-file-optimization)
     5. [JSON Lines Conversion](#json-lines-conversion)
     6. [Command Launcher](#command-launcher)
-    7. [Options Common To All Tools](#common-options)
+    7. [Options Common To All Tools](#options-common-to-all-tools)
 
 ## Capturing API calls
 
