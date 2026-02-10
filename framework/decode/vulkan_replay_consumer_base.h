@@ -286,6 +286,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         std::vector<VkPhysicalDevice>             replay_device_group;
         graphics::VulkanDeviceUtil                device_util;
         graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
+        VulkanSwapchain::ExternalSyncType         external_sync_type{ VulkanSwapchain::ExternalSyncType::QueueSubmit };
     };
 
     // create_state passed in by reference to conserve pointers to member variable
