@@ -3470,7 +3470,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_A
         const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& meta_struct = *data;
         FieldToJson(jdata["SerializedSizeInBytes"], decoded_value.SerializedSizeInBytes, options);
-        ; ///< @todo ALERT: Union member 0 of D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC needs special handling.
+        FieldToJson(jdata["NumBottomLevelAccelerationStructurePointers"], decoded_value.NumBottomLevelAccelerationStructurePointers, options);
     }
 }
 
@@ -3510,7 +3510,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SERIALIZED_R
         FieldToJson(jdata["DriverMatchingIdentifier"], meta_struct.DriverMatchingIdentifier, options);
         FieldToJson(jdata["SerializedSizeInBytesIncludingHeader"], decoded_value.SerializedSizeInBytesIncludingHeader, options);
         FieldToJson(jdata["DeserializedSizeInBytes"], decoded_value.DeserializedSizeInBytes, options);
-        ; ///< @todo ALERT: Union member 0 of D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 needs special handling.
+        FieldToJson(jdata["NumBlocks"], decoded_value.NumBlocks, options);
         FieldToJson(jdata["HeaderPostambleType"], decoded_value.HeaderPostambleType, options);
     }
 }
