@@ -281,6 +281,9 @@ class Dx12BaseGenerator():
         [['wchar_t'], 'WString'],
         [['PFN_DESTRUCTION_CALLBACK'], 'Function'],
         [['D3D12MessageFunc'], 'Function'],
+        [['D3D12ApplicationDescFunc'], 'Function'],
+        [['D3D12PipelineStateFunc'], 'Function'],
+        [['D3D12StateObjectFunc'], 'Function']
     ]
 
     BIT_FIELD_LIST = [

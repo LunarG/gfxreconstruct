@@ -6649,7 +6649,7 @@ void Encode_ID3D12StateObjectDatabase_GetApplicationDesc(
         {
             omit_output_data = true;
         }
-        
+        encoder->EncodeFunctionPtr(CallbackFunc);
         encoder->EncodeVoidPtr(pContext);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -6699,7 +6699,7 @@ void Encode_ID3D12StateObjectDatabase_FindPipelineStateDesc(
         }
         encoder->EncodeVoidArray(pKey, KeySize);
         encoder->EncodeUInt32Value(KeySize);
-        
+        encoder->EncodeFunctionPtr(CallbackFunc);
         encoder->EncodeVoidPtr(pContext);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -6753,7 +6753,7 @@ void Encode_ID3D12StateObjectDatabase_FindStateObjectDesc(
         }
         encoder->EncodeVoidArray(pKey, KeySize);
         encoder->EncodeUInt32Value(KeySize);
-        
+        encoder->EncodeFunctionPtr(CallbackFunc);
         encoder->EncodeVoidPtr(pContext);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
