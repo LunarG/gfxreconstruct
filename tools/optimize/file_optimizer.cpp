@@ -45,9 +45,19 @@ void FileOptimizer::SetUnreferencedBlocks(const std::unordered_set<uint64_t>& un
     unreferenced_blocks_ = unreferenced_blocks;
 }
 
-uint64_t FileOptimizer::GetUnreferencedBlocksSize()
+bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 {
-    return unreferenced_blocks_.size();
+    const auto&             args        = parsed_block.Get<decode::FunctionCallArgs>();
+    const format::ApiCallId api_call_id = args.call_id;
+    const uint64_t          block_index = args.call_info.index;
+
+    if (unreferenced_blocks_.erase(block_index) > 0)
+    {
+        // success, call is filtered out
+        return true;
+    }
+
+    return FileTransformer::ProcessFunctionCall(parsed_block);
 }
 
 bool FileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
@@ -65,15 +75,16 @@ bool FileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
 
 bool FileOptimizer::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
-    const auto& args       = parsed_block.Get<decode::MethodCallArgs>();
-    bool        filter_out = FilterMethodCall(args);
+    const auto& args = parsed_block.Get<decode::MethodCallArgs>();
 
-    if (!filter_out)
+    if (FilterMethodCall(args))
     {
-        // Copy the method call block, if it was not filtered.
-        return FileTransformer::ProcessMethodCall(parsed_block);
+        // success, call is filtered out
+        return true;
     }
-    return true; // Successful filtering no passthrough write.
+
+    // Copy the method call block, if it was not filtered.
+    return FileTransformer::ProcessMethodCall(parsed_block);
 }
 
 decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode::InitBufferArgs& args)
@@ -81,7 +92,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitBufferCommand);
 
     // If the buffer is in the unused list, omit its initialization data from the file.
-    if (unreferenced_ids_.find(args.buffer_id) != unreferenced_ids_.end())
+    if (unreferenced_ids_.contains(args.buffer_id))
     {
         // In its place insert a dummy annotation meta command. This should keep the block index when
         // replaying an optimized trimmed capture in in alignment with the block index calculated
@@ -92,7 +103,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         const size_t label_length = util::platform::StringLength(label);
         const size_t data_length  = data.length();
 
-        format::AnnotationHeader annotation;
+        format::AnnotationHeader annotation{};
         annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
         annotation.block_header.type = format::BlockType::kAnnotation;
         annotation.annotation_type   = format::kText;
@@ -107,7 +118,6 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         }
         return kSuccess;
     }
-
     return kNeedsPassthrough;
 }
 
@@ -116,7 +126,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitImageCommand);
 
     // If the image is in the unused list, omit its initialization data from the file.
-    if (unreferenced_ids_.find(args.image_id) != unreferenced_ids_.end())
+    if (unreferenced_ids_.contains(args.image_id))
     {
         // In its place insert a dummy annotation meta command. This should keep the block index when
         // replaying an optimized trimmed capture in in alignment with the block index calculated
@@ -127,7 +137,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         const size_t label_length = util::platform::StringLength(label);
         const size_t data_length  = data.length();
 
-        format::AnnotationHeader annotation;
+        format::AnnotationHeader annotation{};
         annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
         annotation.block_header.type = format::BlockType::kAnnotation;
         annotation.annotation_type   = format::kText;
@@ -162,7 +172,7 @@ bool FileOptimizer::FilterMethodCall(const decode::MethodCallArgs& args)
 
         // If the buffer is in the unused list, omit the call block from the file.
         // NOTE: Erase returns number of items erased, so only > 0 if the block_index is found
-        filter_out = (unreferenced_blocks_.erase(block_index) > 0);
+        filter_out = unreferenced_blocks_.erase(block_index) > 0;
     }
     return filter_out;
 }

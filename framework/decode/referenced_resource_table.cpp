@@ -418,9 +418,9 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 void ReferencedResourceTable::GetReferencedResourceIds(std::unordered_set<format::HandleId>* referenced_ids,
                                                        std::unordered_set<format::HandleId>* unreferenced_ids) const
 {
-    for (const auto& resource_entry : resources_)
+    for (auto& [handle_id, resource_entry] : resources_)
     {
-        auto& resource_info = resource_entry.second;
+        auto& resource_info = resource_entry;
 
         if (!resource_info->is_child)
         {
@@ -428,16 +428,16 @@ void ReferencedResourceTable::GetReferencedResourceIds(std::unordered_set<format
 
             if (used && (referenced_ids != nullptr))
             {
-                referenced_ids->insert(resource_entry.first);
+                referenced_ids->insert(handle_id);
 
-                for (const auto& child : resource_entry.second->child_infos)
+                for (const auto& child : resource_entry->child_infos)
                 {
                     referenced_ids->insert(child.first);
                 }
             }
             else if (!used && (unreferenced_ids != nullptr))
             {
-                unreferenced_ids->insert(resource_entry.first);
+                unreferenced_ids->insert(handle_id);
             }
         }
     }

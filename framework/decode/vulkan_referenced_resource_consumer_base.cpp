@@ -1204,8 +1204,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateGraphicsPipelines(
 {
     for (uint32_t i = 0; i < createInfoCount; ++i)
     {
-        format::HandleId pipeline_id  = pPipelines->GetPointer()[i];
-        table_.AddResource(device, pipeline_id);
+        format::HandleId pipeline_id = pPipelines->GetPointer()[i];
+        table_.AddResource(pipeline_id);
     }
 }
 
@@ -1221,8 +1221,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateComputePipelines(
 {
     for (uint32_t i = 0; i < createInfoCount; ++i)
     {
-        format::HandleId pipeline_id  = pPipelines->GetPointer()[i];
-        table_.AddResource(device, pipeline_id);
+        format::HandleId pipeline_id = pPipelines->GetPointer()[i];
+        table_.AddResource(pipeline_id);
     }
 }
 
@@ -1239,8 +1239,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateRayTracingPipelinesKH
 {
     for (uint32_t i = 0; i < createInfoCount; ++i)
     {
-        format::HandleId pipeline_id  = pPipelines->GetPointer()[i];
-        table_.AddResource(device, pipeline_id);
+        format::HandleId pipeline_id = pPipelines->GetPointer()[i];
+        table_.AddResource(pipeline_id);
     }
 }
 

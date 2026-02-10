@@ -133,9 +133,13 @@ void GetUnreferencedResources(const std::string&                              in
         {
             GFXRECON_WRITE_CONSOLE("File did not contain trim state setup - no optimization was performed");
             gfxrecon::util::Log::Release();
+
+            // TODO: 65 - A failure has occurred in a routine that creates processes ? -> that's not accurate
+            // see https://snowcodes.hashnode.dev/all-the-exit-codes-and-status-in-c
             exit(65);
         }
-        else if ((file_processor.GetCurrentFrameNumber() > 0) &&
+
+        if ((file_processor.GetCurrentFrameNumber() > 0) &&
                  (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone))
         {
             // Get the list of resources that were included in a command buffer submission during replay.
@@ -178,7 +182,7 @@ void FilterUnreferencedResources(const std::string&                             
     }
 }
 
-void VkRemoveRedundantResources(std::string input_filename, std::string output_filename)
+void VkRemoveRedundantResources(const std::string& input_filename, const std::string& output_filename)
 {
     GFXRECON_WRITE_CONSOLE("Scanning Vulkan file %s for unreferenced resources.", input_filename.c_str());
     std::unordered_set<gfxrecon::format::HandleId> unreferenced_ids;

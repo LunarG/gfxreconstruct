@@ -33,23 +33,22 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 class FileOptimizer : public decode::FileTransformer
 {
   public:
-    FileOptimizer(){};
+    FileOptimizer() = default;
 
     FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids);
 
     FileOptimizer(std::unordered_set<format::HandleId>&& unreferenced_ids);
 
+    // TODO: this looks like it was started but never used anywhere?
     void SetUnreferencedBlocks(const std::unordered_set<uint64_t>& unreferenced_blocks);
 
-    uint64_t GetUnreferencedBlocksSize();
-
-  protected:
+  private:
+    bool ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
     bool ProcessMethodCall(decode::ParsedBlock& parsed_block) override;
     bool ProcessMetaData(decode::ParsedBlock& parsed_block) override;
-
-  private:
     VisitResult FilterMetaData(const decode::InitBufferArgs& args);
     VisitResult FilterMetaData(const decode::InitImageArgs& args);
+
     template <typename Args>
     VisitResult FilterMetaData(const Args& args)
     {
