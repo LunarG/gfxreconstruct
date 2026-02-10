@@ -11060,7 +11060,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     value->pKeysAndDataInfo = wrapper->pKeysAndDataInfo->GetPointer();
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pipeline));
     value->pipeline = VK_NULL_HANDLE;
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->pPipelineCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>>();
     bytes_read += wrapper->pPipelineCreateInfo->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pPipelineCreateInfo = wrapper->pPipelineCreateInfo->GetPointer();
 
     return bytes_read;
 }

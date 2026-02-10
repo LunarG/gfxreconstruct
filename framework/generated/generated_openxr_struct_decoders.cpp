@@ -3250,8 +3250,18 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->centerRegion));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->wedgeAngle));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->isSticky));
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->onHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
     bytes_read += wrapper->onHaptic->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->onHaptic = wrapper->onHaptic->GetPointer();
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->offHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
     bytes_read += wrapper->offHaptic->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->offHaptic = wrapper->offHaptic->GetPointer();
 
     return bytes_read;
 }
@@ -3272,8 +3282,18 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     value->binding = XR_NULL_PATH;
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->onThreshold));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offThreshold));
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->onHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
     bytes_read += wrapper->onHaptic->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->onHaptic = wrapper->onHaptic->GetPointer();
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->offHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
     bytes_read += wrapper->offHaptic->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->offHaptic = wrapper->offHaptic->GetPointer();
 
     return bytes_read;
 }
@@ -5249,8 +5269,18 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpaceQu
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->queryAction));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxResultCount));
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->timeout));
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->filter = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>>();
     bytes_read += wrapper->filter->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->filter = wrapper->filter->GetPointer();
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->excludeFilter = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>>();
     bytes_read += wrapper->excludeFilter->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->excludeFilter = wrapper->excludeFilter->GetPointer();
 
     return bytes_read;
 }
@@ -6601,7 +6631,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrRecomme
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->layer = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>>();
     bytes_read += wrapper->layer->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->layer = wrapper->layer->GetPointer();
     bytes_read += ValueDecoder::DecodeXrTimeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->predictedDisplayTime));
 
     return bytes_read;
