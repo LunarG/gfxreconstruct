@@ -182,16 +182,6 @@ OpenXR capture and replay do no support trimming options.
 
 Has been tested and is believed to function correctly for all supported OpenXR commands and datatypes.
 
-### Options Common To all Tools
+### Options Common To All Tools
 
-If the environment variable `GFXRECON_NO_DEBUG_POPUP` has any non-zero
-number or non-empty, non-numeric string value when running any of
-of the file processing tools, the tool will attempt to disable the
-'Abort, Retry, Ignore' message box displayed when `assert()` fails on
-Windows in a Debug build.  This behavior is slightly different than
-`--no-debug-popup` in that the message box is disabled before any other
-variable initialization.  This is probably most useful in headless or
-"Continuous Integration" builds when an on-screen message box that
-can't be automatically dismissed may hang scripts or cause directories
-to be locked.  (Note that "FALSE" and "no", as examples, are non-empty,
-non-numeric string values and will be interpreted as enabling the option.)
+If the environment variable `GFXRECON_NO_DEBUG_POPUP` is set (to any non-zero or non-empty value) when running any GFXReconstruct tool, it will disable Windows debug assertion popups in Debug builds. This is useful for automated/CI environments.
