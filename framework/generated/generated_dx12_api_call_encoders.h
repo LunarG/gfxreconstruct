@@ -2124,10 +2124,6 @@ void Encode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(
     REFIID riid,
     void** ppvRootSignature);
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& value);
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value);
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXISTING_COLLECTION_BY_KEY_DESC& value);
 
 void Encode_ID3D12StateObjectDatabase_SetApplicationDesc(

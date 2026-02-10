@@ -877,10 +877,6 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEX
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUFFER_BARRIER* wrapper);
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* wrapper);
-
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_APPLICATION_DESC* wrapper);
-
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_EXISTING_COLLECTION_BY_KEY_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUBRESOURCE_DATA* wrapper);

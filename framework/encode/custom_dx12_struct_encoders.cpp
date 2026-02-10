@@ -479,6 +479,32 @@ void EncodeStruct(ParameterEncoder*                                             
     encoder->EncodeUInt64Value(value.NumBottomLevelAccelerationStructureHeaderAndPointerListPairs);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& value)
+{
+    encoder->EncodeWString(value.szAdapterFamily);
+    encoder->EncodeUInt64Value(value.MinimumABISupportVersion);
+    encoder->EncodeUInt64Value(value.MaximumABISupportVersion);
+
+    // union
+    encoder->EncodeUInt64Value(value.CompilerVersion.Version);
+    encoder->EncodeUInt64Value(value.ApplicationProfileVersion.Version);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value)
+{
+    encoder->EncodeWString(value.pExeFilename);
+    encoder->EncodeWString(value.pName);
+
+    // union
+    encoder->EncodeUInt64Value(value.Version.Version);
+
+    encoder->EncodeWString(value.pEngineName);
+
+    // union
+    encoder->EncodeUInt64Value(value.EngineVersion.Version);
+}
+
+
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
 {
     encoder->EncodeInt64Value(value.QuadPart);

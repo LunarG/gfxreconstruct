@@ -732,6 +732,47 @@ size_t DecodeStruct(const uint8_t*                                              
     return bytes_read;
 }
 
+size_t
+DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                      bytes_read = 0;
+    D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* value      = wrapper->decoded_value;
+
+    wrapper->szAdapterFamily.SetExternalMemory(value->szAdapterFamily, 128);
+    bytes_read += wrapper->szAdapterFamily.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->MinimumABISupportVersion));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->MaximumABISupportVersion));
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CompilerVersion.Version));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->ApplicationProfileVersion.Version));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_APPLICATION_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                  bytes_read = 0;
+    D3D12_APPLICATION_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += wrapper->pExeFilename.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pExeFilename = wrapper->pExeFilename.GetPointer();
+    bytes_read += wrapper->pName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pName = wrapper->pName.GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Version.Version));
+    bytes_read += wrapper->pEngineName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pEngineName = wrapper->pEngineName.GetPointer();
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->EngineVersion.Version));
+
+    return bytes_read;
+}
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper)
 {

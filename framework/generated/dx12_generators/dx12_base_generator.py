@@ -1481,20 +1481,17 @@ class Dx12BaseGenerator():
         return None
 
     def is_union(self, type):
-        if type[:12] == '<anon-union-':
-            union_dict = self.source_dict['union_dict']
-            return type in union_dict
-        return False
+        union_dict = self.source_dict['union_dict']
+        return type in union_dict
 
     def get_union_members(self, type):
-        if type[:12] == '<anon-union-':
-            union_dict = self.source_dict['union_dict']
-            union_info = union_dict.get(type)
-            if union_info:
-                members = list()
-                for m in union_info['members']:
-                    members.append(self.get_value_info(m))
-                return members
+        union_dict = self.source_dict['union_dict']
+        union_info = union_dict.get(type)
+        if union_info:
+            members = list()
+            for m in union_info['members']:
+                members.append(self.get_value_info(m))
+            return members
         return None
 
     def convert_function(self, type):

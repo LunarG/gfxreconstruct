@@ -391,6 +391,26 @@ struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC
     D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* decoded_value{ nullptr };
 };
 
+struct Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT
+{
+    using struct_type = D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT;
+
+    D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* decoded_value{ nullptr };
+
+    WStringDecoder szAdapterFamily;
+};
+
+struct Decoded_D3D12_APPLICATION_DESC
+{
+    using struct_type = D3D12_APPLICATION_DESC;
+
+    D3D12_APPLICATION_DESC* decoded_value{ nullptr };
+
+    WStringDecoder pExeFilename;
+    WStringDecoder pName;
+    WStringDecoder pEngineName;
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -4471,8 +4471,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         FieldToJson(jdata["szAdapterFamily"], meta_struct.szAdapterFamily, options);
         FieldToJson(jdata["MinimumABISupportVersion"], decoded_value.MinimumABISupportVersion, options);
         FieldToJson(jdata["MaximumABISupportVersion"], decoded_value.MaximumABISupportVersion, options);
-        FieldToJson(jdata["CompilerVersion"], decoded_value.CompilerVersion, options);
-        FieldToJson(jdata["ApplicationProfileVersion"], decoded_value.ApplicationProfileVersion, options);
+        FieldToJson(jdata["CompilerVersion.Version"], decoded_value.CompilerVersion.Version, options);
+        FieldToJson(jdata["ApplicationProfileVersion.Version"], decoded_value.ApplicationProfileVersion.Version, options);
     }
 }
 
@@ -4485,9 +4485,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_APPLICATION_
         const Decoded_D3D12_APPLICATION_DESC& meta_struct = *data;
         FieldToJson(jdata["pExeFilename"], meta_struct.pExeFilename, options);
         FieldToJson(jdata["pName"], meta_struct.pName, options);
-        FieldToJson(jdata["Version"], decoded_value.Version, options);
+        FieldToJson(jdata["Version.Version"], decoded_value.Version.Version, options);
         FieldToJson(jdata["pEngineName"], meta_struct.pEngineName, options);
-        FieldToJson(jdata["EngineVersion"], decoded_value.EngineVersion, options);
+        FieldToJson(jdata["EngineVersion.Version"], decoded_value.EngineVersion.Version, options);
     }
 }
 

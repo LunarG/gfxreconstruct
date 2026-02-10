@@ -171,7 +171,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
 
                 field_to_json = ''
 
-                if "anon-union" in value_info.base_type:
+                if self.is_union(value_info.base_type):
                     field_to_json = self.makeUnionFieldToJson(properties, name, union_index)
                     union_index += 1
                 elif (name, value_info.name) in self.binary_blobs:
@@ -913,6 +913,24 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     }
                 }
                 '''
+            case "D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT":
+                if union_index == 0:
+                    field_to_json = '''
+                    FieldToJson(jdata["CompilerVersion.Version"], decoded_value.CompilerVersion.Version, options);
+                    '''
+                elif union_index == 1:
+                    field_to_json = '''
+                    FieldToJson(jdata["ApplicationProfileVersion.Version"], decoded_value.ApplicationProfileVersion.Version, options);
+                    '''
+            case "D3D12_APPLICATION_DESC":
+                if union_index == 0:
+                    field_to_json = '''
+                    FieldToJson(jdata["Version.Version"], decoded_value.Version.Version, options);
+                    '''
+                elif union_index == 1:
+                    field_to_json = '''
+                    FieldToJson(jdata["EngineVersion.Version"], decoded_value.EngineVersion.Version, options);
+                    '''                
             case _:
                 print(message)
         return format_cpp_code(field_to_json, 2)

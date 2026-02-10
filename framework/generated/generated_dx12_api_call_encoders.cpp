@@ -6608,24 +6608,6 @@ void Encode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(
     }
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& value)
-{
-    encoder->EncodeWString(value.szAdapterFamily);
-    encoder->EncodeUInt64Value(value.MinimumABISupportVersion);
-    encoder->EncodeUInt64Value(value.MaximumABISupportVersion);
-    
-    
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value)
-{
-    encoder->EncodeWString(value.pExeFilename);
-    encoder->EncodeWString(value.pName);
-    
-    encoder->EncodeWString(value.pEngineName);
-    
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_EXISTING_COLLECTION_BY_KEY_DESC& value)
 {
     encoder->EncodeVoidArray(value.pKey, value.KeySize);
