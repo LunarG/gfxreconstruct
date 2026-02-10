@@ -60,7 +60,7 @@ class SpirVParsingUtil
 
     SpirVParsingUtil() = default;
 
-    bool ParseBufferReferences(const uint32_t* spirv_code, size_t spirv_num_bytes);
+    bool ParseBufferReferences(const uint32_t* spirv_code, size_t spirv_num_bytes, uint64_t shader_handle = 0);
 
     [[nodiscard]] std::vector<BufferReferenceInfo> GetBufferReferenceInfos() const;
 

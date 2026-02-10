@@ -485,6 +485,8 @@ TEST_CASE("SpirVParsingUtil", "[buffer_references]")
     REQUIRE(!spirVParsingUtil.ParseBufferReferences(nullptr, 0));
 
     REQUIRE(spirVParsingUtil.ParseBufferReferences(spirv_bda_array, sizeof(spirv_bda_array)));
+    // verify parsing works with an explicit shader handle
+    REQUIRE(spirVParsingUtil.ParseBufferReferences(spirv_bda_array, sizeof(spirv_bda_array), 0xDEADBEEF));
 
     // there are 2 buffer-references in a storage-buffer, pointing at an array of 'geometry-nodes'
     auto buffer_references = spirVParsingUtil.GetBufferReferenceInfos();

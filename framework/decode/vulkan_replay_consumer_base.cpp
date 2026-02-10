@@ -7033,7 +7033,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         if (vk_res == VK_SUCCESS)
         {
             // check for buffer-references, issue warning
-            graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info);
+            graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info, (uint64_t)*pShaderModule->GetHandlePointer());
         }
         return vk_res;
     }
@@ -7066,7 +7066,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     if (vk_res == VK_SUCCESS)
     {
         // check for buffer-references, issue warning
-        graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info);
+        graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info, handle_id);
     }
     return vk_res;
 }
@@ -11849,7 +11849,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
                 graphics::vulkan_check_buffer_references(
                     reinterpret_cast<const uint32_t*>(maybe_replaced_create_infos[i].pCode),
                     maybe_replaced_create_infos[i].codeSize,
-                    shader_ext_info);
+                    shader_ext_info,
+                    static_cast<uint64_t>(pShaders->GetPointer()[i]));
             }
         }
     }
@@ -12347,7 +12348,8 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
                 {
                     graphics::vulkan_check_buffer_references(reinterpret_cast<const uint32_t*>(create_infos[i].pCode),
                                                              create_infos[i].codeSize,
-                                                             shader_ext_infos[i]);
+                                                             shader_ext_infos[i],
+                                                            static_cast<uint64_t>(shaders[i]));
                 }
             }
         }

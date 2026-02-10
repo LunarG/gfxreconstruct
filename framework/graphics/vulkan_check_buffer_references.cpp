@@ -68,7 +68,7 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                             vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(pCreateInfos->GetPointer()->pStages + s))
                     {
                         graphics::vulkan_check_buffer_references(
-                            module_create_info->pCode, module_create_info->codeSize, pipeline_info);
+                            module_create_info->pCode, module_create_info->codeSize, pipeline_info, stages_info_meta[s].module);
                     }
                 }
             }
@@ -121,7 +121,7 @@ void populate_shader_stages(
             if (module_create_info != nullptr)
             {
                 graphics::vulkan_check_buffer_references(
-                    module_create_info->pCode, module_create_info->codeSize, pipeline_info);
+                    module_create_info->pCode, module_create_info->codeSize, pipeline_info, stage_info_meta->module);
             }
 
             if (module_info == nullptr && module_create_info == nullptr)

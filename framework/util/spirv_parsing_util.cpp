@@ -244,7 +244,7 @@ bool SpirVParsingUtil::GetVariableDecorations(const Instruction*   variable_insn
     return true;
 }
 
-bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, size_t spirv_num_bytes)
+bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, size_t spirv_num_bytes, uint64_t shader_handle)
 {
     if (spirv_code == nullptr)
     {
@@ -296,7 +296,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     }
     if (spirv_ptr != spirv_end)
     {
-        GFXRECON_LOG_WARNING("error during SpirV-parsing, mismatching instruction-lengths");
+        GFXRECON_LOG_WARNING("error during SpirV-parsing, mismatching instruction-lengths (shader handle: 0x%" PRIx64 ")", shader_handle);
         return false;
     }
     instructions.shrink_to_fit();
@@ -416,8 +416,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
             check_buffer_references(block->type_description, BufferReferenceLocation::PUSH_CONSTANT_BLOCK, 0, 0);
         }
     } // forward spirv-reflect pass
-
-    auto track_back_instruction = [this, &spv_shader_module](const Instruction* object_insn) {
+    auto track_back_instruction = [this, &spv_shader_module, shader_handle](const Instruction* object_insn) {
         // keep track of access-chain
         std::vector<uint32_t> access_indices;
 
@@ -532,8 +531,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                 }
                                 else
                                 {
-                                    GFXRECON_LOG_WARNING("Access-chain index is out-of-bounds for op: %s",
-                                                         string_SpvOpcode(td->op));
+                                    GFXRECON_LOG_WARNING("Access-chain index is out-of-bounds for op: %s (shader handle: 0x%" PRIx64 ")", string_SpvOpcode(td->op), shader_handle);
                                     return;
                                 }
                             }
@@ -553,9 +551,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                             }
                             else
                             {
-                                GFXRECON_LOG_WARNING(
-                                    "Traced back a potential buffer-reference, but type does not match: %s",
-                                    string_SpvOpcode(td->op));
+                                GFXRECON_LOG_WARNING("Traced back a potential buffer-reference, but type does not match: %s (shader handle: 0x%" PRIx64 ")", string_SpvOpcode(td->op), shader_handle);
                             }
                         }
                         object_insn = nullptr;
@@ -563,8 +559,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                     break;
                 }
                 default:
-                    GFXRECON_LOG_WARNING("Failed to track back the Function Variable OpStore, hit a %s",
-                                         string_SpvOpcode(object_insn->opcode()));
+                    GFXRECON_LOG_WARNING("Failed to track back the Function Variable OpStore, hit a %s (shader handle: 0x%" PRIx64 ")", string_SpvOpcode(object_insn->opcode()), shader_handle);
                     object_insn = nullptr;
                     break;
             }
