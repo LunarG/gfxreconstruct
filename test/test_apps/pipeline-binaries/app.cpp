@@ -195,6 +195,26 @@ void App::create_graphics_pipeline()
     pipeline_info.subpass                      = 0;
     pipeline_info.basePipelineHandle           = VK_NULL_HANDLE;
 
+    VkPipelineBinaryCreateInfoKHR pipeline_binary_create_info;
+    pipeline_binary_create_info.sType               = VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR;
+    pipeline_binary_create_info.pNext               = nullptr;
+    pipeline_binary_create_info.pKeysAndDataInfo    = nullptr;
+    pipeline_binary_create_info.pipeline            = nullptr;
+    pipeline_binary_create_info.pPipelineCreateInfo = reinterpret_cast<const VkPipelineCreateInfoKHR*>(&pipeline_info);
+
+    VkPipelineBinaryHandlesInfoKHR pipeline_binary_handles_info;
+    pipeline_binary_handles_info.sType               = VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR;
+    pipeline_binary_handles_info.pNext               = nullptr;
+    pipeline_binary_handles_info.pipelineBinaryCount = 0u;
+    pipeline_binary_handles_info.pPipelineBinaries   = nullptr;
+    result = init.disp.createPipelineBinariesKHR(&pipeline_binary_create_info, nullptr, &pipeline_binary_handles_info);
+    VERIFY_VK_RESULT("failed to get pipeline binary count", result);
+
+    std::vector<VkPipelineBinaryKHR> pipeline_binaries(pipeline_binary_handles_info.pipelineBinaryCount);
+    pipeline_binary_handles_info.pPipelineBinaries = pipeline_binaries.data();
+    result = init.disp.createPipelineBinariesKHR(&pipeline_binary_create_info, nullptr, &pipeline_binary_handles_info);
+    VERIFY_VK_RESULT("failed to create pipeline binaries", result);
+
     result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &graphics_pipeline_);
     VERIFY_VK_RESULT("failed to create graphics pipeline", result);
 
