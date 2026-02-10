@@ -1192,5 +1192,57 @@ void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddressEXT(
     Process_vkGetBufferDeviceAddress(call_info, returnValue, device, pInfo);
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkCreateGraphicsPipelines(
+    const ApiCallInfo&                                          call_info,
+    VkResult                                                    returnValue,
+    format::HandleId                                            device,
+    format::HandleId                                            pipelineCache,
+    uint32_t                                                    createInfoCount,
+    StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
+    HandlePointerDecoder<VkPipeline>*                           pPipelines)
+{
+    for (uint32_t i = 0; i < createInfoCount; ++i)
+    {
+        format::HandleId pipeline_id  = pPipelines->GetPointer()[i];
+        table_.AddResource(device, pipeline_id);
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateComputePipelines(
+    const ApiCallInfo&                                         call_info,
+    VkResult                                                   returnValue,
+    format::HandleId                                           device,
+    format::HandleId                                           pipelineCache,
+    uint32_t                                                   createInfoCount,
+    StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+    HandlePointerDecoder<VkPipeline>*                          pPipelines)
+{
+    for (uint32_t i = 0; i < createInfoCount; ++i)
+    {
+        format::HandleId pipeline_id  = pPipelines->GetPointer()[i];
+        table_.AddResource(device, pipeline_id);
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
+    const ApiCallInfo&                                               call_info,
+    VkResult                                                         returnValue,
+    format::HandleId                                                 device,
+    format::HandleId                                                 deferredOperation,
+    format::HandleId                                                 pipelineCache,
+    uint32_t                                                         createInfoCount,
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+    HandlePointerDecoder<VkPipeline>*                                pPipelines)
+{
+    for (uint32_t i = 0; i < createInfoCount; ++i)
+    {
+        format::HandleId pipeline_id  = pPipelines->GetPointer()[i];
+        table_.AddResource(device, pipeline_id);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

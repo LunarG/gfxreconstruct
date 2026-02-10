@@ -48,72 +48,71 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         table_.GetReferencedResourceIds(referenced_ids, unreferenced_ids);
     }
 
-    virtual void ProcessStateBeginMarker(uint64_t) override { loading_state_ = true; }
+    void ProcessStateBeginMarker(uint64_t) override { loading_state_ = true; }
 
-    virtual void ProcessStateEndMarker(uint64_t) override
+    void ProcessStateEndMarker(uint64_t) override
     {
         loading_state_ = false;
         loaded_state_  = true;
     }
 
-    virtual void Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
-                                       VkResult                                    returnValue,
-                                       format::HandleId                            queue,
-                                       uint32_t                                    submitCount,
-                                       StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                       format::HandleId                            fence) override;
+    void Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
+                               VkResult                                    returnValue,
+                               format::HandleId                            queue,
+                               uint32_t                                    submitCount,
+                               StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                               format::HandleId                            fence) override;
 
-    virtual void Process_vkQueueSubmit2(const ApiCallInfo&                           call_info,
-                                        VkResult                                     returnValue,
-                                        format::HandleId                             queue,
-                                        uint32_t                                     submitCount,
-                                        StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
-                                        format::HandleId                             fence) override;
+    void Process_vkQueueSubmit2(const ApiCallInfo&                           call_info,
+                                VkResult                                     returnValue,
+                                format::HandleId                             queue,
+                                uint32_t                                     submitCount,
+                                StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits,
+                                format::HandleId                             fence) override;
 
-    virtual void Process_vkCreateBuffer(const ApiCallInfo&                                   call_info,
-                                        VkResult                                             returnValue,
-                                        format::HandleId                                     device,
-                                        StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                        HandlePointerDecoder<VkBuffer>*                      pBuffer) override;
+    void Process_vkCreateBuffer(const ApiCallInfo&                                   call_info,
+                                VkResult                                             returnValue,
+                                format::HandleId                                     device,
+                                StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                HandlePointerDecoder<VkBuffer>*                      pBuffer) override;
 
-    virtual void Process_vkCreateBufferView(const ApiCallInfo&                                    call_info,
-                                            VkResult                                              returnValue,
-                                            format::HandleId                                      device,
-                                            StructPointerDecoder<Decoded_VkBufferViewCreateInfo>* pCreateInfo,
-                                            StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
-                                            HandlePointerDecoder<VkBufferView>*                   pView) override;
+    void Process_vkCreateBufferView(const ApiCallInfo&                                    call_info,
+                                    VkResult                                              returnValue,
+                                    format::HandleId                                      device,
+                                    StructPointerDecoder<Decoded_VkBufferViewCreateInfo>* pCreateInfo,
+                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
+                                    HandlePointerDecoder<VkBufferView>*                   pView) override;
 
-    virtual void Process_vkCreateImage(const ApiCallInfo&                                   call_info,
-                                       VkResult                                             returnValue,
-                                       format::HandleId                                     device,
-                                       StructPointerDecoder<Decoded_VkImageCreateInfo>*     pCreateInfo,
-                                       StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                       HandlePointerDecoder<VkImage>*                       pImage) override;
+    void Process_vkCreateImage(const ApiCallInfo&                                   call_info,
+                               VkResult                                             returnValue,
+                               format::HandleId                                     device,
+                               StructPointerDecoder<Decoded_VkImageCreateInfo>*     pCreateInfo,
+                               StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                               HandlePointerDecoder<VkImage>*                       pImage) override;
 
-    virtual void Process_vkCreateImageView(const ApiCallInfo&                                   call_info,
-                                           VkResult                                             returnValue,
-                                           format::HandleId                                     device,
-                                           StructPointerDecoder<Decoded_VkImageViewCreateInfo>* pCreateInfo,
-                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                           HandlePointerDecoder<VkImageView>*                   pView) override;
+    void Process_vkCreateImageView(const ApiCallInfo&                                   call_info,
+                                   VkResult                                             returnValue,
+                                   format::HandleId                                     device,
+                                   StructPointerDecoder<Decoded_VkImageViewCreateInfo>* pCreateInfo,
+                                   StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                   HandlePointerDecoder<VkImageView>*                   pView) override;
 
-    virtual void Process_vkCreateFramebuffer(const ApiCallInfo&                                     call_info,
-                                             VkResult                                               returnValue,
-                                             format::HandleId                                       device,
-                                             StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
-                                             StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
-                                             HandlePointerDecoder<VkFramebuffer>* pFramebuffer) override;
+    void Process_vkCreateFramebuffer(const ApiCallInfo&                                     call_info,
+                                     VkResult                                               returnValue,
+                                     format::HandleId                                       device,
+                                     StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
+                                     StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                     HandlePointerDecoder<VkFramebuffer>*                   pFramebuffer) override;
 
-    virtual void
-    Process_vkCreateDescriptorSetLayout(const ApiCallInfo&                                             call_info,
-                                        VkResult                                                       returnValue,
-                                        format::HandleId                                               device,
-                                        StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
-                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
-                                        HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout) override;
+    void Process_vkCreateDescriptorSetLayout(const ApiCallInfo&                                             call_info,
+                                             VkResult                                                       returnValue,
+                                             format::HandleId                                               device,
+                                             StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
+                                             StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
+                                             HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout) override;
 
-    virtual void Process_vkCreateDescriptorUpdateTemplate(
+    void Process_vkCreateDescriptorUpdateTemplate(
         const ApiCallInfo&                                                  call_info,
         VkResult                                                            returnValue,
         format::HandleId                                                    device,
@@ -121,7 +120,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate) override;
 
-    virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
+    void Process_vkCreateDescriptorUpdateTemplateKHR(
         const ApiCallInfo&                                                  call_info,
         VkResult                                                            returnValue,
         format::HandleId                                                    device,
@@ -129,7 +128,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate) override;
 
-    virtual void Process_vkCreateAccelerationStructureKHR(
+    void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                                                  call_info,
         VkResult                                                            returnValue,
         format::HandleId                                                    device,
@@ -137,103 +136,98 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkAccelerationStructureKHR>*                   pAccelerationStructure) override;
 
-    virtual void
-    Process_vkDestroyDescriptorPool(const ApiCallInfo&                                   call_info,
-                                    format::HandleId                                     device,
-                                    format::HandleId                                     descriptorPool,
-                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+    void Process_vkDestroyDescriptorPool(const ApiCallInfo&                                   call_info,
+                                         format::HandleId                                     device,
+                                         format::HandleId                                     descriptorPool,
+                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
-    virtual void Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
-                                               VkResult                   returnValue,
-                                               format::HandleId           device,
-                                               format::HandleId           descriptorPool,
-                                               VkDescriptorPoolResetFlags flags) override;
+    void Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
+                                       VkResult                   returnValue,
+                                       format::HandleId           device,
+                                       format::HandleId           descriptorPool,
+                                       VkDescriptorPoolResetFlags flags) override;
 
-    virtual void
-    Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
-                                     VkResult                                                   returnValue,
-                                     format::HandleId                                           device,
-                                     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-                                     HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
+    void Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
+                                          VkResult                                                   returnValue,
+                                          format::HandleId                                           device,
+                                          StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
+                                          HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    virtual void Process_vkFreeDescriptorSets(const ApiCallInfo&                     call_info,
-                                              VkResult                               returnValue,
-                                              format::HandleId                       device,
-                                              format::HandleId                       descriptorPool,
-                                              uint32_t                               descriptorSetCount,
-                                              HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
+    void Process_vkFreeDescriptorSets(const ApiCallInfo&                     call_info,
+                                      VkResult                               returnValue,
+                                      format::HandleId                       device,
+                                      format::HandleId                       descriptorPool,
+                                      uint32_t                               descriptorSetCount,
+                                      HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    virtual void
-    Process_vkUpdateDescriptorSets(const ApiCallInfo&                                  call_info,
-                                   format::HandleId                                    device,
-                                   uint32_t                                            descriptorWriteCount,
-                                   StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites,
-                                   uint32_t                                            descriptorCopyCount,
-                                   StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies) override;
+    void Process_vkUpdateDescriptorSets(const ApiCallInfo&                                  call_info,
+                                        format::HandleId                                    device,
+                                        uint32_t                                            descriptorWriteCount,
+                                        StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites,
+                                        uint32_t                                            descriptorCopyCount,
+                                        StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                           format::HandleId                 device,
-                                                           format::HandleId                 descriptorSet,
-                                                           format::HandleId                 descriptorUpdateTemplate,
-                                                           DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                   format::HandleId                 device,
+                                                   format::HandleId                 descriptorSet,
+                                                   format::HandleId                 descriptorUpdateTemplate,
+                                                   DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                               format::HandleId   commandBuffer,
-                                                               format::HandleId   descriptorUpdateTemplate,
-                                                               format::HandleId   layout,
-                                                               uint32_t           set,
-                                                               DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                       format::HandleId                 commandBuffer,
+                                                       format::HandleId                 descriptorUpdateTemplate,
+                                                       format::HandleId                 layout,
+                                                       uint32_t                         set,
+                                                       DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
         const ApiCallInfo&                                                 call_info,
         format::HandleId                                                   commandBuffer,
         StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                              format::HandleId                 device,
-                                                              format::HandleId                 descriptorSet,
-                                                              format::HandleId                 descriptorUpdateTemplate,
-                                                              DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                      format::HandleId                 device,
+                                                      format::HandleId                 descriptorSet,
+                                                      format::HandleId                 descriptorUpdateTemplate,
+                                                      DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkDestroyCommandPool(const ApiCallInfo&                                   call_info,
-                                              format::HandleId                                     device,
-                                              format::HandleId                                     commandPool,
-                                              StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+    void Process_vkDestroyCommandPool(const ApiCallInfo&                                   call_info,
+                                      format::HandleId                                     device,
+                                      format::HandleId                                     commandPool,
+                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
-    virtual void Process_vkResetCommandPool(const ApiCallInfo&      call_info,
-                                            VkResult                returnValue,
-                                            format::HandleId        device,
-                                            format::HandleId        commandPool,
-                                            VkCommandPoolResetFlags flags) override;
+    void Process_vkResetCommandPool(const ApiCallInfo&      call_info,
+                                    VkResult                returnValue,
+                                    format::HandleId        device,
+                                    format::HandleId        commandPool,
+                                    VkCommandPoolResetFlags flags) override;
 
-    virtual void
-    Process_vkAllocateCommandBuffers(const ApiCallInfo&                                         call_info,
-                                     VkResult                                                   returnValue,
-                                     format::HandleId                                           device,
-                                     StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
-                                     HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
+    void Process_vkAllocateCommandBuffers(const ApiCallInfo&                                         call_info,
+                                          VkResult                                                   returnValue,
+                                          format::HandleId                                           device,
+                                          StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
+                                          HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
 
-    virtual void Process_vkFreeCommandBuffers(const ApiCallInfo&                     call_info,
-                                              format::HandleId                       device,
-                                              format::HandleId                       commandPool,
-                                              uint32_t                               commandBufferCount,
-                                              HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
+    void Process_vkFreeCommandBuffers(const ApiCallInfo&                     call_info,
+                                      format::HandleId                       device,
+                                      format::HandleId                       commandPool,
+                                      uint32_t                               commandBufferCount,
+                                      HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
 
-    virtual void
-    Process_vkBeginCommandBuffer(const ApiCallInfo&                                      call_info,
-                                 VkResult                                                returnValue,
-                                 format::HandleId                                        commandBuffer,
-                                 StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo) override;
+    void Process_vkBeginCommandBuffer(const ApiCallInfo&                                      call_info,
+                                      VkResult                                                returnValue,
+                                      format::HandleId                                        commandBuffer,
+                                      StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo) override;
 
-    virtual void Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
-                                              VkResult                  returnValue,
-                                              format::HandleId          commandBuffer,
-                                              VkCommandBufferResetFlags flags) override;
+    void Process_vkResetCommandBuffer(const ApiCallInfo&        call_info,
+                                      VkResult                  returnValue,
+                                      format::HandleId          commandBuffer,
+                                      VkCommandBufferResetFlags flags) override;
 
-    virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId                     tlas,
-                                                     const std::vector<format::HandleId>& blases) override;
+    void ProcessSetTlasToBlasRelationCommand(format::HandleId                     tlas,
+                                             const std::vector<format::HandleId>& blases) override;
 
-    virtual void Process_vkCmdTraceRaysKHR(
+    void Process_vkCmdTraceRaysKHR(
         const ApiCallInfo&                                             call_info,
         format::HandleId                                               commandBuffer,
         StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
@@ -244,37 +238,63 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         uint32_t                                                       height,
         uint32_t                                                       depth) override;
 
-    virtual void
+    void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address) override;
 
-    virtual void Process_vkBindBufferMemory(const ApiCallInfo& call_info,
-                                            VkResult           returnValue,
-                                            format::HandleId   device,
-                                            format::HandleId   buffer,
-                                            format::HandleId   memory,
-                                            VkDeviceSize       memoryOffset) override;
+    void Process_vkBindBufferMemory(const ApiCallInfo& call_info,
+                                    VkResult           returnValue,
+                                    format::HandleId   device,
+                                    format::HandleId   buffer,
+                                    format::HandleId   memory,
+                                    VkDeviceSize       memoryOffset) override;
 
     bool IsComplete(uint64_t current_block_index) override { return not_optimizable_; }
 
     bool WasNotOptimizable() { return not_optimizable_; }
 
-    virtual void
-    Process_vkGetBufferDeviceAddress(const ApiCallInfo&                                       call_info,
-                                     VkDeviceAddress                                          returnValue,
-                                     format::HandleId                                         device,
-                                     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+    void Process_vkGetBufferDeviceAddress(const ApiCallInfo&                                       call_info,
+                                          VkDeviceAddress                                          returnValue,
+                                          format::HandleId                                         device,
+                                          StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
 
-    virtual void
-    Process_vkGetBufferDeviceAddressKHR(const ApiCallInfo&                                       call_info,
-                                        VkDeviceAddress                                          returnValue,
-                                        format::HandleId                                         device,
-                                        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+    void Process_vkGetBufferDeviceAddressKHR(const ApiCallInfo&                                       call_info,
+                                             VkDeviceAddress                                          returnValue,
+                                             format::HandleId                                         device,
+                                             StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
 
-    virtual void
-    Process_vkGetBufferDeviceAddressEXT(const ApiCallInfo&                                       call_info,
-                                        VkDeviceAddress                                          returnValue,
-                                        format::HandleId                                         device,
-                                        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+    void Process_vkGetBufferDeviceAddressEXT(const ApiCallInfo&                                       call_info,
+                                             VkDeviceAddress                                          returnValue,
+                                             format::HandleId                                         device,
+                                             StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    void Process_vkCreateGraphicsPipelines(const ApiCallInfo&                                          call_info,
+                                           VkResult                                                    returnValue,
+                                           format::HandleId                                            device,
+                                           format::HandleId                                            pipelineCache,
+                                           uint32_t                                                    createInfoCount,
+                                           StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
+                                           HandlePointerDecoder<VkPipeline>* pPipelines) override;
+
+    void Process_vkCreateComputePipelines(const ApiCallInfo&                                         call_info,
+                                          VkResult                                                   returnValue,
+                                          format::HandleId                                           device,
+                                          format::HandleId                                           pipelineCache,
+                                          uint32_t                                                   createInfoCount,
+                                          StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                          HandlePointerDecoder<VkPipeline>* pPipelines) override;
+
+    void Process_vkCreateRayTracingPipelinesKHR(
+        const ApiCallInfo&                                               call_info,
+        VkResult                                                         returnValue,
+        format::HandleId                                                 device,
+        format::HandleId                                                 deferredOperation,
+        format::HandleId                                                 pipelineCache,
+        uint32_t                                                         createInfoCount,
+        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
+        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
   protected:
     bool IsStateLoading() const { return loading_state_; }
@@ -301,17 +321,16 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     };
 
     // Table of descriptor update template info, keyed by VkDescriptorUpdateTemplate ID.
-    typedef std::unordered_map<format::HandleId, UpdateTemplateInfo> UpdateTemplateInfos;
+    using UpdateTemplateInfos = std::unordered_map<format::HandleId, UpdateTemplateInfo>;
 
     // Table of descriptor set layout binding counts, keyed by VkDescriptorSetLayout ID.  Each entry is a table of
     // descriptor counts keyed by binding index.
-    typedef std::unordered_map<format::HandleId, std::unordered_map<uint32_t, uint32_t>> LayoutBindingCounts;
+    using LayoutBindingCounts = std::unordered_map<format::HandleId, std::unordered_map<uint32_t, uint32_t>>;
 
     // Table to associate VkDescriptorSet IDs with the VkDescriptorSetLayout IDs used to create them, keyed by
     // VkDescriptorSet ID.
-    typedef std::unordered_map<format::HandleId, format::HandleId> SetLayouts;
+    using SetLayouts = std::unordered_map<format::HandleId, format::HandleId>;
 
-  private:
     uint32_t GetBindingCount(format::HandleId container_id, uint32_t binding) const;
 
     void AddDescriptorToContainer(format::HandleId                                 container_id,

@@ -140,6 +140,12 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         uint32_t                                    commandBufferCount,
         HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers) override;
 
+    virtual void Process_vkCmdBindPipeline(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            pipeline) override;
+
     virtual void Process_vkCmdBindDescriptorSets(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -640,6 +646,13 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         VkBool32                                    isPreprocessed,
         StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo) override;
 
+    virtual void Process_vkCmdBindPipelineShaderGroupNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            pipeline,
+        uint32_t                                    groupIndex) override;
+
     virtual void Process_vkCmdBindDescriptorBuffersEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -658,11 +671,23 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         format::HandleId                            buffer,
         VkDeviceSize                                offset) override;
 
+    virtual void Process_vkCmdUpdatePipelineIndirectBufferNV(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            pipeline) override;
+
     virtual void Process_vkCmdPreprocessGeneratedCommandsEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
         format::HandleId                            stateCommandBuffer) override;
+
+    virtual void Process_vkCmdExecuteGeneratedCommandsEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkBool32                                    isPreprocessed,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo) override;
 
     virtual void Process_vkCmdBuildAccelerationStructuresKHR(
         const ApiCallInfo&                          call_info,

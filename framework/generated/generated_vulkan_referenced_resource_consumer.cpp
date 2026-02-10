@@ -239,6 +239,17 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteCommands(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdBindPipeline(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+
+    GetTable().AddResourceToUser(commandBuffer, pipeline);
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -1986,6 +1997,8 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsN
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
         auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->pipeline);
+
         if (!pGeneratedCommandsInfo_ptr->pStreams->IsNull() && (pGeneratedCommandsInfo_ptr->pStreams->HasData()))
         {
             auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
@@ -2014,6 +2027,8 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
         auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->pipeline);
+
         if (!pGeneratedCommandsInfo_ptr->pStreams->IsNull() && (pGeneratedCommandsInfo_ptr->pStreams->HasData()))
         {
             auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
@@ -2027,6 +2042,19 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesCountBuffer);
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesIndexBuffer);
     }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindPipelineShaderGroupNV(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline,
+    uint32_t                                    groupIndex)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+    GFXRECON_UNREFERENCED_PARAMETER(groupIndex);
+
+    GetTable().AddResourceToUser(commandBuffer, pipeline);
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorBuffersEXT(
@@ -2078,15 +2106,60 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     GetTable().AddResourceToUser(commandBuffer, buffer);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+
+    GetTable().AddResourceToUser(commandBuffer, pipeline);
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
     format::HandleId                            stateCommandBuffer)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pGeneratedCommandsInfo);
+    assert(pGeneratedCommandsInfo != nullptr);
 
+    if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
+    {
+        auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        {
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkGeneratedCommandsPipelineInfoEXT>(pGeneratedCommandsInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
+            {
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->pipeline);
+            }
+        }
+    }
     GetTable().AddUserToUser(commandBuffer, stateCommandBuffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkBool32                                    isPreprocessed,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
+
+    assert(pGeneratedCommandsInfo != nullptr);
+
+    if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
+    {
+        auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        {
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkGeneratedCommandsPipelineInfoEXT>(pGeneratedCommandsInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
+            {
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->pipeline);
+            }
+        }
+    }
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresKHR(

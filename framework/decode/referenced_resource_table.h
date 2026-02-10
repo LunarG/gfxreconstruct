@@ -92,6 +92,7 @@ class ReferencedResourceTable
     void MarkResourceAsUsed(format::HandleId resource);
 
   private:
+
     // Track the referenced/used state of a resource (buffer, image, view, framebuffer).
     struct ResourceInfo
     {
@@ -119,12 +120,10 @@ class ReferencedResourceTable
         std::unordered_map<format::HandleId, std::weak_ptr<ResourceContainerInfo>> container_infos;
     };
 
-    typedef std::unordered_set<format::HandleId> PoolHandles;
+    using PoolHandles =  std::unordered_set<format::HandleId>;
 
-  private:
     bool IsUsed(const ResourceInfo* resource_info) const;
 
-  private:
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceInfo>>          resources_;
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceContainerInfo>> containers_;
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceUserInfo>>      users_;

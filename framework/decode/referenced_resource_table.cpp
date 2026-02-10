@@ -37,7 +37,7 @@ void ReferencedResourceTable::AddResource(format::HandleId resource_id)
 
 void ReferencedResourceTable::AddResource(format::HandleId parent_id, format::HandleId resource_id, bool add_children)
 {
-    if ((parent_id != format::kNullHandleId) && (resource_id != format::kNullHandleId))
+    if (parent_id != format::kNullHandleId && resource_id != format::kNullHandleId)
     {
         auto parent_entry = resources_.find(parent_id);
 
@@ -53,23 +53,20 @@ void ReferencedResourceTable::AddResource(format::HandleId parent_id, format::Ha
                 auto resource_info      = std::make_shared<ResourceInfo>();
                 resource_info->is_child = true;
 
-                parent_info->child_infos.emplace(
-                    std::make_pair(resource_id, std::weak_ptr<ResourceInfo>{ resource_info }));
+                parent_info->child_infos.emplace(resource_id, std::weak_ptr<ResourceInfo>{ resource_info });
                 resources_.emplace(resource_id, resource_info);
             }
             else
             {
                 // The resource has already been added to the table, but has multiple parent objects (e.g. a framebuffer
                 // is created from multiple image views), so we add it to the parent's child list.
-                parent_info->child_infos.emplace(
-                    std::make_pair(resource_id, std::weak_ptr<ResourceInfo>{ resource_entry->second }));
+                parent_info->child_infos.emplace(resource_id, std::weak_ptr<ResourceInfo>{ resource_entry->second });
 
                 if (add_children)
                 {
                     for (const auto& child : resource_entry->second->child_infos)
                     {
-                        parent_info->child_infos.emplace(
-                            std::make_pair(child.first, std::weak_ptr<ResourceInfo>{ child.second }));
+                        parent_info->child_infos.emplace(child.first, std::weak_ptr<ResourceInfo>{ child.second });
                     }
                 }
             }
@@ -421,7 +418,7 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 void ReferencedResourceTable::GetReferencedResourceIds(std::unordered_set<format::HandleId>* referenced_ids,
                                                        std::unordered_set<format::HandleId>* unreferenced_ids) const
 {
-    for (auto resource_entry : resources_)
+    for (const auto& resource_entry : resources_)
     {
         auto& resource_info = resource_entry.second;
 
