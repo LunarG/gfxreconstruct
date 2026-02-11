@@ -501,7 +501,7 @@ VulkanReplayDumpResourcesBase::FindTransferContext(VkCommandBuffer original_comm
 }
 
 template <typename MapOfContexts>
-void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(MapOfContexts contexts, decode::Index qs_index)
+void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(MapOfContexts& contexts, decode::Index qs_index)
 {
     const auto count = std::erase_if(contexts, [qs_index](const auto& item) {
         const auto& [bcb_qs_pair, context] = item;

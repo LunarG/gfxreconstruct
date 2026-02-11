@@ -697,7 +697,7 @@ class VulkanReplayDumpResourcesBase
     // The context will be erased from its corresponding map and the active_contexts_ counter will be
     // adjusted accordingly.
     template <typename MapOfContexts>
-    void ReleaseDumpingContexts(MapOfContexts contexts, decode::Index qs_index);
+    void ReleaseDumpingContexts(MapOfContexts& contexts, decode::Index qs_index);
 
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,

@@ -241,6 +241,8 @@ class TransferDumpingContext
                 device_table_(dt), parent_device_info_(pdi), has_before_command(hb)
             {}
 
+            virtual ~TransferParamsBase() {}
+
             const graphics::VulkanDeviceTable& device_table_;
             const VulkanDeviceInfo*            parent_device_info_;
             TransferCommandTypes               type;
