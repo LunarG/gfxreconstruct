@@ -35,7 +35,7 @@ uint8_t* BlockAllocator::StartBlock(const BlockAllocationInfo& info)
         // and use the working buffer for raw block data
         GFXRECON_ASSERT(current_batch_.get() != nullptr);
         // This is the quickest way to reset the batch without reallocating
-        current_batch_->clear();
+        current_batch_->reset();
         raw_block_working_buffer_.ReserveDiscarding(info.raw_block_size);
         raw_block_data = raw_block_working_buffer_.get();
     }
@@ -75,7 +75,7 @@ void BlockAllocator::FlushBatch()
     else
     {
         // pipe /dev/null
-        current_batch_->clear();
+        current_batch_->reset();
     }
 }
 

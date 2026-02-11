@@ -132,7 +132,7 @@ class ParsedBlock
                 ArgPayload&&   args) :
         block_index_(block_index),
         block_data_(block_data), dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args), allocator)),
-        state_(initial_state), is_trivial_(DispatchTraits<ArgPayload>::kIsTrivial)
+        state_(initial_state)
     {}
 
     [[nodiscard]] bool Decompress(BlockParser& parser);
@@ -145,8 +145,6 @@ class ParsedBlock
         GFXRECON_ASSERT(next_ == nullptr);
         next_ = next;
     }
-
-    bool IsTriviallyDestructible() const noexcept { return is_trivial_; }
 
     bool IsFrameBoundary() const noexcept { return is_frame_boundary_; }
 
@@ -168,8 +166,7 @@ class ParsedBlock
     // Linked list next pointer for BlockBatch
     ParsedBlock* next_ = nullptr;
 
-    BlockState   state_ = BlockState::kInvalid;
-    bool         is_trivial_ : 1        = true;
+    BlockState   state_                 = BlockState::kInvalid;
     bool         is_frame_boundary_ : 1 = false;
 };
 
