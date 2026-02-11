@@ -57,22 +57,25 @@ class KhronosStructEncodersBodyGenerator():
         body += '{\n'
         if struct in self.children_structs:
             body += self.make_child_struct_cast_switch(
-                struct, value_name, struct_type_var
+                api_data, struct, struct_members, value_ref, value_name, struct_type_var
             )
             array_loop_specialization = self.make_child_loop_cast_switch(
                 struct, struct_type_var
             )
         else:
-            body += self.makeStructBody(api_data, struct, struct_members, value_ref)
+            body += self.makeStructBody(api_data, struct, struct_members, value_ref, '')
         body += '}'
         if (array_loop_specialization):
             body += '\n\n' + array_loop_specialization
         write(body, file=self.outFile)
 
-    def make_child_struct_cast_switch(self, parent_struct, value, struct_type_var):
-        default_case = 'GFXRECON_LOG_WARNING("EncodeStruct({}): unrecognized child structure type %d", {}.{});'.format(
+    def make_child_struct_cast_switch(self, api_data, parent_struct, parent_struct_members, parent_value_ref, value, struct_type_var):
+        default_case = 'GFXRECON_LOG_ERROR("EncodeStruct({}): unrecognized child structure type %d", {}.{});\n'.format(
             parent_struct, value, struct_type_var
         )
+        default_case += "\n            // Still read the known values of the parent struct.  This is still unlikely to work\n"
+        default_case += "            // as the unknown child struct likely has more members.\n"
+        default_case += self.makeStructBody(api_data, parent_struct, parent_struct_members, parent_value_ref, '        ')
         break_string = 'break;'
         switch_expression = 'value.{}'.format(struct_type_var)
         fn_emit_default = lambda parent_struct, value_name: [
@@ -91,9 +94,15 @@ class KhronosStructEncodersBodyGenerator():
         func = 'EncodeStructArrayLoop'
         value = 'value'
         switch_expression = 'value->{}'.format(struct_type_var)
-        default_case = 'GFXRECON_LOG_WARNING("{}: unrecognized child structure type %d", {}->{});'.format(
+        default_case = 'GFXRECON_LOG_ERROR("{}: unrecognized child structure type %d", {}->{});\n'.format(
             func, value, struct_type_var
         )
+        default_case += "\n            // Just loop over normal struct even though this likely will not work since we are not reading\n"
+        default_case += "            // the correct child struct\n"
+        default_case += "            for (size_t i = 0; i < len; ++i)\n"
+        default_case += "            {\n"
+        default_case += "                EncodeStruct(encoder, value[i]);\n"
+        default_case += "            }"
         break_string = 'break;'
         fn_emit_default = lambda parent_struct, value_name: [
             default_case, break_string
@@ -114,7 +123,7 @@ class KhronosStructEncodersBodyGenerator():
         body += '}\n'
         return body
 
-    def makeStructBody(self, api_data, name, values, prefix):
+    def makeStructBody(self, api_data, name, values, prefix, indent):
         """Command definition."""
         # Build array of lines for function body
         body = ''
@@ -123,17 +132,17 @@ class KhronosStructEncodersBodyGenerator():
             # pNext fields require special treatment and are not processed by typename
             if self.is_extended_struct_definition(value):
                 if self.must_extended_struct_be_null(name):
-                    body += '    Encode{}StructIfValid(encoder, {});\n'.format(
+                    body += indent + '    Encode{}StructIfValid(encoder, {});\n'.format(
                         api_data.extended_struct_func_prefix, prefix + value.name
                     )
                 else:
-                    body += '    Encode{}Struct(encoder, {});\n'.format(
+                    body += indent + '    Encode{}Struct(encoder, {});\n'.format(
                         api_data.extended_struct_func_prefix, prefix + value.name
                     )
             else:
                 method_call = self.make_encoder_method_call(
                     name, value, values, prefix
                 )
-                body += '    {};\n'.format(method_call)
+                body += indent + '    {};\n'.format(method_call)
 
         return body

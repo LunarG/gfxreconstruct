@@ -241,11 +241,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainCreateInfo& value)
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageBaseHeader& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrSwapchainImageBaseHeader): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrSwapchainImageBaseHeader): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+
             break;
         }
         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
@@ -285,11 +291,18 @@ template <>
 void EncodeStructArrayLoop<XrSwapchainImageBaseHeader>(ParameterEncoder* encoder, const XrSwapchainImageBaseHeader* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
@@ -371,11 +384,19 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFrameBeginInfo& value)
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrCompositionLayerBaseHeader): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrCompositionLayerBaseHeader): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStruct(encoder, value.next);
+            encoder->EncodeFlags64Value(value.layerFlags);
+            encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
+
             break;
         }
         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
@@ -433,11 +454,18 @@ template <>
 void EncodeStructArrayLoop<XrCompositionLayerBaseHeader>(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
@@ -667,11 +695,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHapticActionInfo& value)
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticBaseHeader& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrHapticBaseHeader): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrHapticBaseHeader): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+
             break;
         }
         case XR_TYPE_HAPTIC_VIBRATION:
@@ -699,11 +733,18 @@ template <>
 void EncodeStructArrayLoop<XrHapticBaseHeader>(ParameterEncoder* encoder, const XrHapticBaseHeader* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_HAPTIC_VIBRATION:
@@ -784,11 +825,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerQuad& value
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataBaseHeader& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrEventDataBaseHeader): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrEventDataBaseHeader): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+
             break;
         }
         case XR_TYPE_EVENT_DATA_EVENTS_LOST:
@@ -930,11 +977,18 @@ template <>
 void EncodeStructArrayLoop<XrEventDataBaseHeader>(ParameterEncoder* encoder, const XrEventDataBaseHeader* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_EVENT_DATA_EVENTS_LOST:
@@ -1507,11 +1561,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerColorScaleB
 void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrLoaderInitInfoBaseHeaderKHR): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrLoaderInitInfoBaseHeaderKHR): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+
             break;
         }
         case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
@@ -1527,11 +1587,18 @@ template <>
 void EncodeStructArrayLoop<XrLoaderInitInfoBaseHeaderKHR>(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
@@ -1577,11 +1644,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirect2KH
 void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHeaderKHR& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrBindingModificationBaseHeaderKHR): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrBindingModificationBaseHeaderKHR): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+
             break;
         }
         case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
@@ -1603,11 +1676,18 @@ template <>
 void EncodeStructArrayLoop<XrBindingModificationBaseHeaderKHR>(ParameterEncoder* encoder, const XrBindingModificationBaseHeaderKHR* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
@@ -2047,11 +2127,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrAndroidSurfaceSwapchainCrea
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateBaseHeaderFB& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrSwapchainStateBaseHeaderFB): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrSwapchainStateBaseHeaderFB): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+
             break;
         }
         case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
@@ -2085,11 +2171,18 @@ template <>
 void EncodeStructArrayLoop<XrSwapchainStateBaseHeaderFB>(ParameterEncoder* encoder, const XrSwapchainStateBaseHeaderFB* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
@@ -3102,11 +3195,17 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSceneMarkerQRCodesMSFT& val
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceQueryInfoBaseHeaderFB& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrSpaceQueryInfoBaseHeaderFB): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrSpaceQueryInfoBaseHeaderFB): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+
             break;
         }
         case XR_TYPE_SPACE_QUERY_INFO_FB:
@@ -3122,11 +3221,18 @@ template <>
 void EncodeStructArrayLoop<XrSpaceQueryInfoBaseHeaderFB>(ParameterEncoder* encoder, const XrSpaceQueryInfoBaseHeaderFB* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_SPACE_QUERY_INFO_FB:
@@ -3141,11 +3247,17 @@ void EncodeStructArrayLoop<XrSpaceQueryInfoBaseHeaderFB>(ParameterEncoder* encod
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceFilterInfoBaseHeaderFB& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrSpaceFilterInfoBaseHeaderFB): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrSpaceFilterInfoBaseHeaderFB): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStruct(encoder, value.next);
+
             break;
         }
         case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
@@ -3167,11 +3279,18 @@ template <>
 void EncodeStructArrayLoop<XrSpaceFilterInfoBaseHeaderFB>(ParameterEncoder* encoder, const XrSpaceFilterInfoBaseHeaderFB* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
@@ -4233,11 +4352,18 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFuturePollInfoEXT& value)
 void EncodeStruct(ParameterEncoder* encoder, const XrFutureCompletionBaseHeaderEXT& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.type)
+    switch (value.type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(XrFutureCompletionBaseHeaderEXT): unrecognized child structure type %d", value.type);
+            GFXRECON_LOG_ERROR("EncodeStruct(XrFutureCompletionBaseHeaderEXT): unrecognized child structure type %d", value.type);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.type);
+            EncodeNextStructIfValid(encoder, value.next);
+            encoder->EncodeEnumValue(value.futureResult);
+
             break;
         }
         case XR_TYPE_FUTURE_COMPLETION_EXT:
@@ -4253,11 +4379,18 @@ template <>
 void EncodeStructArrayLoop<XrFutureCompletionBaseHeaderEXT>(ParameterEncoder* encoder, const XrFutureCompletionBaseHeaderEXT* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->type)
+    switch (value->type)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->type);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case XR_TYPE_FUTURE_COMPLETION_EXT:
