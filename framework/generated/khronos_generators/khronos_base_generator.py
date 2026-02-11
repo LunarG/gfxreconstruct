@@ -1997,7 +1997,7 @@ class KhronosBaseGenerator(OutputGenerator):
         indent3 = indent2 + indent
         body = ''
         body += f'{indent1}// Cast and call the appropriate encoder based on the structure type\n'
-        body += f'{indent1}switch({switch_expression})\n'
+        body += f'{indent1}switch ({switch_expression})\n'
 
         body += f'{indent1}{{\n'
         body += f'{indent2}default:\n'

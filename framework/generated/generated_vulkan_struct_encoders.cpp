@@ -5573,11 +5573,17 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineBinaryKeysAndDataKH
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR& value)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value.sType)
+    switch (value.sType)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStruct(VkPipelineCreateInfoKHR): unrecognized child structure type %d", value.sType);
+            GFXRECON_LOG_ERROR("EncodeStruct(VkPipelineCreateInfoKHR): unrecognized child structure type %d", value.sType);
+
+            // Still read the known values of the parent struct.  This is still unlikely to work
+            // as the unknown child struct likely has more members.
+            encoder->EncodeEnumValue(value.sType);
+            EncodePNextStructIfValid(encoder, value.pNext);
+
             break;
         }
         case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
@@ -5605,11 +5611,18 @@ template <>
 void EncodeStructArrayLoop<VkPipelineCreateInfoKHR>(ParameterEncoder* encoder, const VkPipelineCreateInfoKHR* value, size_t len)
 {
     // Cast and call the appropriate encoder based on the structure type
-    switch(value->sType)
+    switch (value->sType)
     {
         default:
         {
-            GFXRECON_LOG_WARNING("EncodeStructArrayLoop: unrecognized child structure type %d", value->sType);
+            GFXRECON_LOG_ERROR("EncodeStructArrayLoop: unrecognized child structure type %d", value->sType);
+
+            // Just loop over normal struct even though this likely will not work since we are not reading
+            // the correct child struct
+            for (size_t i = 0; i < len; ++i)
+            {
+                EncodeStruct(encoder, value[i]);
+            }
             break;
         }
         case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
