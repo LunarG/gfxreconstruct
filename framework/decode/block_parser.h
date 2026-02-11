@@ -184,7 +184,7 @@ class BlockParser
     template <typename... Args>
     ParsedBlock& EmplaceBlock(Args... args)
     {
-        return block_allocator_.GetCurrentBatch().emplace_back(std::forward<Args>(args)...);
+        return block_allocator_.GetCurrentBatch().emplace_block(std::forward<Args>(args)...);
     }
 
     template <typename ArgPayload>

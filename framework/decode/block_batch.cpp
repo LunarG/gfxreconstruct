@@ -27,88 +27,82 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void* BlockBatch::Allocate(size_t size)
+void BlockBatch::reset()
 {
-    // Large allocations are infrequent, but dominate memory usage if allocated from the linear block.
-    // > 99% of allocations are expected to be less than kJumbo.
-    if (size >= kJumboSize)
-    {
-        return AllocateDynamic(size);
-    }
+    // Reset the allocator, which destroy all blocks in the batch
+    allocator_.reset();
 
-    // Linearly allocate if there is sufficient space remaining in the block batch.
-    // Only allocations from the linear store require alignment padding (for subsequent allocations).
-    const size_t aligned_size = util::aligned_value<kAlignment>(size);
-    if ((alloc_cursor_ + aligned_size) <= alloc_end_)
-    {
-        void* ptr = alloc_cursor_;
-        alloc_cursor_ += aligned_size;
-        return ptr;
-    }
-
-    // We underestimated the required size of the current block, so mark it as full and allocate dynamically.
-    //
-    // Full doesn't prevent allocations, it just tells the BlockAllocator not to start a new Block in this batch.
-    // Given that typically 4K-8K blocks are allocated per batch, this should be a rare occurrence, with minimal
-    // performance impact.
-    //
-    // Also, if a later allocation is smaller than space remaining in the batch, it will still be allocated from the
-    // batch linear store.
-    batch_full_ = true;
-    return AllocateDynamic(size);
-}
-
-void* BlockBatch::AllocateDynamic(size_t size)
-{
-    // Large or overflow allocations are allocated individually.
-    dynamic_allocations_.emplace_back(new DataType[size]);
-    return dynamic_allocations_.back().get();
-}
-
-void BlockBatch::DestroyBlocks()
-{
-    if (!batch_trivial_)
-    {
-        // If any block in the batch had non-trivial dispatch args, we need to destroy all blocks
-        ParsedBlock* current = head_;
-        while (current != nullptr)
-        {
-            // TODO: See if it's more efficient to recheck triviality per-block here, rather than blindly destroying
-            // all blocks
-            ParsedBlock* next = current->GetNext();
-            current->~ParsedBlock();
-            current = next;
-        }
-        batch_trivial_ = true;
-    }
-
-    // Technically not required when called from the Destructor, but it's constructive paranoia, from
-    // being bitten by dangling pointers before.
+    // Empty block list
     head_ = nullptr;
     tail_ = nullptr;
-}
-
-void BlockBatch::clear()
-{
-    // Destroy all blocks in the batch
-    DestroyBlocks();
-
-    // Reset the allocation state
-    alloc_cursor_ = store_.get();
-    alloc_end_    = store_.get() + kCapacity;
-    dynamic_allocations_.clear();
-
-    // Reset the logical state of the batch
-    batch_full_ = false;
 
     // No longer reference next
     next_batch_.reset();
 }
 
+bool BlockBatch::IsBatchFull() const noexcept
+{
+    return allocator_.IsOverflowed();
+}
+
 size_t BlockBatch::BytesRemaining() const noexcept
 {
-    GFXRECON_ASSERT(alloc_cursor_ <= alloc_end_);
-    return static_cast<size_t>(alloc_end_ - alloc_cursor_);
+    return allocator_.BytesRemaining();
+}
+
+void BlockBatch::SetNext(const BatchPtr& batch)
+{
+    // We don't want set to destructively lose a next chain, and we aren't going
+    // catch a return everywhere.  So, just don't do it.
+    GFXRECON_ASSERT(next_batch_.get() == nullptr);
+    GFXRECON_ASSERT(batch.get() != this);
+    next_batch_ = batch;
+}
+
+BlockBatch::BatchPtr& BlockBatch::GetNext()
+{
+    return next_batch_;
+}
+
+BlockBatch::iterator& BlockBatch::iterator::operator++()
+{
+    GFXRECON_ASSERT(batch_.get() != nullptr);
+    GFXRECON_ASSERT(block_ != nullptr);
+    block_ = block_->GetNext();
+    if (block_ == nullptr)
+    {
+        // End of batch find next non-empty batch, or 'end'
+        do
+        {
+            // Make a *copy* of the batch_'s next pointer, in case the iterator is the only owner when we
+            // overwrite batch_ below. With move construction and assignment below we still have only on
+            // atomic assignment operation per loop iteration.
+            BatchPtr next_batch = batch_->GetNext();
+            GFXRECON_ASSERT(next_batch.get() != batch_.get());
+            if (!next_batch)
+            {
+                // No more batches end.
+                *this = iterator();
+                break;
+            }
+            if (!next_batch->empty())
+            {
+                // Found a non-empty batch stop looking
+                *this = iterator(std::move(next_batch));
+                break;
+            }
+            batch_ = std::move(next_batch);
+        } while (true);
+    }
+    return *this;
+}
+
+BlockBatch::iterator BlockBatch::iterator::operator++(int)
+{
+    GFXRECON_ASSERT(block_ != nullptr);
+    iterator temp = *this;
+    ++(*this);
+    return temp;
 }
 
 GFXRECON_END_NAMESPACE(decode)

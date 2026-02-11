@@ -26,6 +26,7 @@
 
 #include "decode/parsed_block.h"
 #include "util/defines.h"
+#include "util/hybrid_linear_allocator.h"
 
 #include <cstddef>
 #include <deque>
@@ -37,32 +38,32 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class BlockBatch
 {
   public:
-    using DataType   = uint8_t;
-    using Store      = std::unique_ptr<DataType[]>;
     using value_type = ParsedBlock;
     using reference  = ParsedBlock&;
     using pointer    = ParsedBlock*;
     using BatchPtr   = std::shared_ptr<BlockBatch>;
 
-    constexpr static size_t kCapacity = 2 * 1024 * 1024; // 2 MB -- the size of the linear allocation for blocks
-    constexpr static size_t kJumboSize =
-        2 * 1024; // Size threshold for low frequency, large allocations, which are dynamically allocated
-    constexpr static size_t kAlignment = alignof(std::max_align_t); // Safe alignment for all types
+    // 2 MB -- the size of the linear allocation
+    constexpr static size_t kCapacity = 2 * 1024 * 1024;
+    // Size threshold for low frequency, large allocations, which are dynamically allocated
+    constexpr static size_t kJumboSize = 2 * 1024;
 
-    BlockBatch() :
-        store_(new DataType[kCapacity]), head_(nullptr), tail_(nullptr), alloc_cursor_(store_.get()),
-        alloc_end_(store_.get() + kCapacity)
-    {}
-    ~BlockBatch() { DestroyBlocks(); }
+    BlockBatch() : allocator_(kCapacity, kJumboSize), head_(nullptr), tail_(nullptr) {}
+    ~BlockBatch() = default;
 
-    void* Allocate(size_t size);
+    void* Allocate(size_t size) { return allocator_.Allocate(size); }
+
+    template <typename T, typename... Args>
+    [[nodiscard]] T* emplace(Args&&... args)
+    {
+        return allocator_.emplace<T>(std::forward<Args>(args)...);
+    }
 
     // Emplace a new ParsedBlock at the end of the batch
     template <typename... Args>
-    reference emplace_back(Args&&... args)
+    reference emplace_block(Args&&... args)
     {
-        void*        block_storage = Allocate(sizeof(ParsedBlock));
-        ParsedBlock* parsed_block  = new (block_storage) ParsedBlock(*this, std::forward<Args>(args)...);
+        ParsedBlock* parsed_block = allocator_.emplace<ParsedBlock>(allocator_, std::forward<Args>(args)...);
 
         if (head_ == nullptr)
         {
@@ -74,9 +75,6 @@ class BlockBatch
             tail_->SetNext(parsed_block);
             tail_ = parsed_block;
         }
-
-        const bool block_is_trivial = parsed_block->IsTriviallyDestructible();
-        batch_trivial_ &= block_is_trivial;
         return *parsed_block;
     }
 
@@ -104,6 +102,9 @@ class BlockBatch
         reference operator*() const { return *block_; }
         pointer   operator->() const { return block_; }
 
+        iterator& operator++();
+        iterator  operator++(int);
+#if 0
         iterator& operator++()
         {
             GFXRECON_ASSERT(batch_.get() != nullptr);
@@ -143,6 +144,7 @@ class BlockBatch
             ++(*this);
             return temp;
         }
+#endif
 
         bool operator==(const iterator& other) const { return (batch_ == other.batch_) && (block_ == other.block_); }
         bool operator!=(const iterator& other) const { return (batch_ != other.batch_) || (block_ != other.block_); }
@@ -158,44 +160,19 @@ class BlockBatch
     pointer front() const noexcept { return head_; }
     pointer back() const noexcept { return tail_; }
     bool    empty() const noexcept { return head_ == nullptr; }
-    void    clear();
+    void    reset();
 
-    bool IsBatchFull() const noexcept { return batch_full_; }
-
-    size_t BytesRemaining() const noexcept;
-    bool   HasJumboAllocations() const noexcept { return !dynamic_allocations_.empty(); }
-
-    // Needed by BlockAllocator for rapid reset in immediate mode, clear is "safer" for general use
-    void DestroyBlocks();
-
-    void SetNext(const BatchPtr& batch)
-    {
-        // We don't want set to destructively lose a next chain, and we aren't going
-        // catch a return everywhere.  So, just don't do it.
-        GFXRECON_ASSERT(next_batch_.get() == nullptr);
-        GFXRECON_ASSERT(batch.get() != this);
-        next_batch_ = batch;
-    }
-    BatchPtr& GetNext() { return next_batch_; }
+    bool      IsBatchFull() const noexcept;
+    size_t    BytesRemaining() const noexcept;
+    void      SetNext(const BatchPtr& batch);
+    BatchPtr& GetNext();
 
   private:
-    void* AllocateDynamic(size_t size);
+    util::HybridLinearAllocator allocator_;
 
-    Store     store_;
     pointer   head_;
     pointer   tail_;
-    DataType* alloc_cursor_;
-    DataType* alloc_end_;
     BatchPtr  next_batch_;
-
-    using DynamicAllocations = std::deque<Store>;
-    DynamicAllocations dynamic_allocations_;
-
-    // Batch full flag -- don't start another Block in this batch
-    bool batch_full_ = false;
-
-    // Batch trivial dispatch args flag -- do all blocks in this batch have trivial dispatch args?
-    bool batch_trivial_ = true;
 };
 
 GFXRECON_END_NAMESPACE(decode)
