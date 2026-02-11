@@ -992,34 +992,6 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
-uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
-{
-    uint32_t index = VK_QUEUE_FAMILY_IGNORED;
-
-    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
-    {
-        if (families.queue_family_index_enabled[i])
-        {
-            const auto& flags_entry = families.queue_family_properties_flags.find(i);
-            if ((flags_entry != families.queue_family_properties_flags.end()))
-            {
-                if ((flags_entry->second & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
-                {
-                    return i;
-                }
-                else if ((flags_entry->second & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)))
-                {
-                    // Apparently some implementations (i.e. Adreno) don't have a transfer queue. According to spec,
-                    // graphics and compute queues also support transfer operations.
-                    index = i;
-                }
-            }
-        }
-    }
-
-    return index;
-}
-
 bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
                     uint32_t                        desc_set,
                     uint32_t                        binding,
@@ -1040,28 +1012,7 @@ bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
 
     return false;
 }
-
-uint32_t FindComputeQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
-{
-    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
-    {
-        if (families.queue_family_index_enabled[i])
-        {
-            const auto& flags_entry = families.queue_family_properties_flags.find(i);
-            if ((flags_entry != families.queue_family_properties_flags.end()))
-            {
-                if ((flags_entry->second & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
-                {
-                    return i;
-                }
-            }
-        }
-    }
-
-    return VK_QUEUE_FAMILY_IGNORED;
-}
-
-VkResult CreateAndBeginCommandBuffer(FindQueueFamilyIndex_fp*           queue_finder_fp,
+VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp           queue_finder_fp,
                                      const VulkanDeviceInfo*            device_info,
                                      const graphics::VulkanDeviceTable& device_table,
                                      TemporaryCommandBuffer&            cmd_buf_objects)

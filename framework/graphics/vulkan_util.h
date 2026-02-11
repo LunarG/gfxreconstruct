@@ -120,7 +120,37 @@ static constexpr VkExtent3D ScaleExtent(const VkExtent3D& extent, float scale)
     return scaled_extent;
 }
 
-GFXRECON_END_NAMESPACE(graphics)
+/**
+ * @brief   Flags and properties for enabled queue families
+ */
+struct VulkanQueueFamilyFlags
+{
+    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+    std::unordered_map<uint32_t, VkQueueFlags>             queue_family_properties_flags;
+    std::vector<bool>                                       queue_family_index_enabled;
+};
+/**
+ * @brief   Function pointer type for queue family index finder functions
+ */
+using FindQueueFamilyIndex_fp = uint32_t (*)(const VulkanQueueFamilyFlags&);
+
+/**
+ * @brief   Find a transfer queue family index from queue families
+ * 
+ * @param[in]   families    The enabled queue family flags
+ * @return  The queue family index, or VK_QUEUE_FAMILY_IGNORED if not found
+ */
+uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
+
+/**
+ * @brief   Find a compute queue family index from queue families
+ * 
+ * @param[in]   families    The enabled queue family flags
+ * @return  The queue family index, or VK_QUEUE_FAMILY_IGNORED if not found
+ */
+uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
+
+GFXRECON_END_NAMESPACE(graphics)  
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_GRAPHICS_VULKAN_UTIL_H

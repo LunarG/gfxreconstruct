@@ -24,6 +24,7 @@
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -113,7 +114,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
     TemporaryCommandBuffer temp_cmd_buff;
     if (original_command_buffer == VK_NULL_HANDLE)
     {
-        CreateAndBeginCommandBuffer(&FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
+        CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
         GFXRECON_ASSERT(temp_cmd_buff.command_buffer != VK_NULL_HANDLE);
     }
 
