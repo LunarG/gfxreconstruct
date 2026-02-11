@@ -12374,6 +12374,7 @@ struct Decoded_VkPipelineCreateInfoKHR
         switch (vk_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(VkPipelineCreateInfoKHR): unrecognized child structure type %d", vk_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:

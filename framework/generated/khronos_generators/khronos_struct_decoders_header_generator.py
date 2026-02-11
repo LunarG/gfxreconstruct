@@ -147,6 +147,9 @@ class KhronosStructDecodersHeaderGenerator():
         body += '        switch ({})\n'.format(var_name)
         body += '        {\n'
         body += '            default:\n'
+        body += '                GFXRECON_LOG_ERROR("DecodeAppropriate({}): unrecognized child structure type %d", {});\n'.format(
+            struct, var_name
+        )
         body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);\n'
         body += '                break;\n'
         for child in self.children_structs[struct]:

@@ -4269,6 +4269,7 @@ struct Decoded_XrSwapchainImageBaseHeader
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrSwapchainImageBaseHeader): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
@@ -4447,6 +4448,7 @@ struct Decoded_XrCompositionLayerBaseHeader
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrCompositionLayerBaseHeader): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
@@ -4654,6 +4656,7 @@ struct Decoded_XrHapticBaseHeader
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrHapticBaseHeader): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_HAPTIC_VIBRATION:
@@ -4856,6 +4859,7 @@ struct Decoded_XrEventDataBaseHeader
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrEventDataBaseHeader): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_EVENT_DATA_EVENTS_LOST:
@@ -5278,6 +5282,7 @@ struct Decoded_XrLoaderInitInfoBaseHeaderKHR
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrLoaderInitInfoBaseHeaderKHR): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
@@ -5368,6 +5373,7 @@ struct Decoded_XrBindingModificationBaseHeaderKHR
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrBindingModificationBaseHeaderKHR): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
@@ -5482,6 +5488,7 @@ struct Decoded_XrSwapchainStateBaseHeaderFB
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrSwapchainStateBaseHeaderFB): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
@@ -5616,6 +5623,7 @@ struct Decoded_XrSpaceQueryInfoBaseHeaderFB
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrSpaceQueryInfoBaseHeaderFB): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_SPACE_QUERY_INFO_FB:
@@ -5706,6 +5714,7 @@ struct Decoded_XrSpaceFilterInfoBaseHeaderFB
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrSpaceFilterInfoBaseHeaderFB): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
@@ -5808,6 +5817,7 @@ struct Decoded_XrFutureCompletionBaseHeaderEXT
         switch (xr_type)
         {
             default:
+                GFXRECON_LOG_ERROR("DecodeAppropriate(XrFutureCompletionBaseHeaderEXT): unrecognized child structure type %d", xr_type);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
             case XR_TYPE_FUTURE_COMPLETION_EXT:
