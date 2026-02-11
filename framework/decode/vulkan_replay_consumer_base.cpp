@@ -205,8 +205,7 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const VulkanReplayOptions&                options) :
-    options_(options),
-    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
+    options_(options), loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
     application_(application), loading_trim_state_(false), replaying_trimmed_capture_(false), fps_info_(nullptr),
     have_imported_semaphores_(false), omitted_pipeline_cache_data_(false)
 {
@@ -7024,7 +7023,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     auto* shader_module_info = reinterpret_cast<VulkanShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
     GFXRECON_ASSERT(shader_module_info != nullptr);
 
-    auto original_info = pCreateInfo->GetPointer();
+    auto     original_info = pCreateInfo->GetPointer();
+    uint64_t handle_id     = *pShaderModule->GetPointer();
+
     if (original_result < 0 || options_.replace_shader_dir.empty())
     {
         VkResult vk_res = func(
@@ -7033,7 +7034,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         if (vk_res == VK_SUCCESS)
         {
             // check for buffer-references, issue warning
-            graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info, (uint64_t)*pShaderModule->GetHandlePointer());
+            graphics::vulkan_check_buffer_references(
+                original_info->pCode, original_info->codeSize, shader_module_info, handle_id);
         }
         return vk_res;
     }
@@ -7042,7 +7044,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
     // Replace shader in 'override_info'
     std::unique_ptr<char[]> file_code;
-    uint64_t                handle_id = *pShaderModule->GetPointer();
     std::string             file_name = "sh" + std::to_string(handle_id);
     std::string             file_path = util::filepath::Join(options_.replace_shader_dir, file_name);
 
@@ -7066,7 +7067,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     if (vk_res == VK_SUCCESS)
     {
         // check for buffer-references, issue warning
-        graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info, handle_id);
+        graphics::vulkan_check_buffer_references(
+            original_info->pCode, original_info->codeSize, shader_module_info, handle_id);
     }
     return vk_res;
 }
@@ -12349,7 +12351,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
                     graphics::vulkan_check_buffer_references(reinterpret_cast<const uint32_t*>(create_infos[i].pCode),
                                                              create_infos[i].codeSize,
                                                              shader_ext_infos[i],
-                                                            static_cast<uint64_t>(shaders[i]));
+                                                             static_cast<uint64_t>(shaders[i]));
                 }
             }
         }

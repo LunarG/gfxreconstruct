@@ -55,7 +55,10 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
  * @param   out_info_struct a wrapper-struct
  */
 template <typename T>
-static void vulkan_check_buffer_references(const uint32_t* const spirv_code, size_t num_bytes, T* out_info_struct, uint64_t shader_handle = 0)
+static void vulkan_check_buffer_references(const uint32_t* const spirv_code,
+                                           size_t                num_bytes,
+                                           T*                    out_info_struct,
+                                           uint64_t              shader_handle = 0)
 {
     static_assert(std::is_same_v<T, decode::VulkanShaderModuleInfo> || std::is_same_v<T, decode::VulkanPipelineInfo> ||
                   std::is_same_v<T, decode::VulkanShaderEXTInfo>);

@@ -67,8 +67,10 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                     if (auto module_create_info =
                             vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(pCreateInfos->GetPointer()->pStages + s))
                     {
-                        graphics::vulkan_check_buffer_references(
-                            module_create_info->pCode, module_create_info->codeSize, pipeline_info, stages_info_meta[s].module);
+                        graphics::vulkan_check_buffer_references(module_create_info->pCode,
+                                                                 module_create_info->codeSize,
+                                                                 pipeline_info,
+                                                                 stages_info_meta[s].module);
                     }
                 }
             }
