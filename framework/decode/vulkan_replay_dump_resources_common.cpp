@@ -1012,7 +1012,7 @@ bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
 
     return false;
 }
-VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp           queue_finder_fp,
+VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp  queue_finder_fp,
                                      const VulkanDeviceInfo*            device_info,
                                      const graphics::VulkanDeviceTable& device_table,
                                      TemporaryCommandBuffer&            cmd_buf_objects)

@@ -38,7 +38,6 @@
 
 #include "vulkan/vulkan.h"
 
-
 #include <cstdint>
 #include <memory>
 #include <map>
@@ -343,8 +342,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
 
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
-  
-    // jun
+
     graphics::VulkanQueueFamilyFlags enabled_queue_family_flags;
 
     std::vector<VkPhysicalDevice> replay_device_group;

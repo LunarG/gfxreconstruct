@@ -159,6 +159,5 @@ uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
     return VK_QUEUE_FAMILY_IGNORED;
 }
 
-
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

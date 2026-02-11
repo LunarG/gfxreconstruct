@@ -177,9 +177,7 @@ struct TemporaryCommandBuffer
     VkQueue         queue          = VK_NULL_HANDLE;
 };
 
-
-
-VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp           queue_finder_fp,
+VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp  queue_finder_fp,
                                      const VulkanDeviceInfo*            device_info,
                                      const graphics::VulkanDeviceTable& device_table,
                                      TemporaryCommandBuffer&            cmd_buf_objects);
