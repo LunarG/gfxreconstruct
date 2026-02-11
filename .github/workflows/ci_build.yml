@@ -56,6 +56,7 @@ jobs:
         if [ "${{ matrix.config.type }}" == "release" ]
         then
           clang-format-14 --version
+          python3 --version
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
           python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
           python3 framework/generated/generate_openxr.py # check generated code isn't out of date
