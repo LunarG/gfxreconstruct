@@ -29,6 +29,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 uint8_t* BlockAllocator::StartBlock(const BlockAllocationInfo& info)
 {
     uint8_t* raw_block_data = nullptr;
+    auto     get_working_buffer = [this](size_t size) {
+        raw_block_working_buffer_.ReserveDiscarding(size);
+        return raw_block_working_buffer_.get();
+    };
+
     if (info.mode == AllocatorMode::kImmediate)
     {
         // In immediate mode, reset the current batch for each block
@@ -36,8 +41,9 @@ uint8_t* BlockAllocator::StartBlock(const BlockAllocationInfo& info)
         GFXRECON_ASSERT(current_batch_.get() != nullptr);
         // This is the quickest way to reset the batch without reallocating
         current_batch_->reset();
-        raw_block_working_buffer_.ReserveDiscarding(info.raw_block_size);
-        raw_block_data = raw_block_working_buffer_.get();
+        // Always use working buffer in immediate mode for raw block data
+        GFXRECON_ASSERT(info.use_working_buffer);
+        raw_block_data = get_working_buffer(info.raw_block_size);
     }
     else
     {
@@ -48,14 +54,22 @@ uint8_t* BlockAllocator::StartBlock(const BlockAllocationInfo& info)
             // flush it and start a new batch.
             FlushBatch();
         }
-        raw_block_data = static_cast<uint8_t*>(current_batch_->Allocate(info.raw_block_size));
+        if (info.use_working_buffer)
+        {
+            raw_block_data = get_working_buffer(info.raw_block_size);
+        }
+        else
+        {
+            raw_block_data =
+                static_cast<uint8_t*>(current_batch_->Allocate(info.raw_block_size, alignof(format::BlockHeader)));
+        }
     }
     return raw_block_data;
 }
-uint8_t* BlockAllocator::Allocate(size_t size)
+uint8_t* BlockAllocator::Allocate(size_t size, size_t alignment)
 {
     GFXRECON_ASSERT(current_batch_.get() != nullptr);
-    return static_cast<uint8_t*>(current_batch_->Allocate(size));
+    return static_cast<uint8_t*>(current_batch_->Allocate(size, alignment));
 }
 
 BlockBatch& BlockAllocator::GetCurrentBatch()

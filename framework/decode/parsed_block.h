@@ -72,24 +72,21 @@ class ParsedBlock
     template <typename T>
     bool Holds() const
     {
-        using Store = DispatchStore<T>;
-        return std::holds_alternative<Store>(dispatch_args_);
+        return std::holds_alternative<T*>(dispatch_args_);
     }
 
     template <typename T>
     const T& Get() const
     {
-        using Store = DispatchStore<T>;
         GFXRECON_ASSERT(Holds<T>());
-        return *(std::get<Store>(dispatch_args_));
+        return *(std::get<T*>(dispatch_args_));
     }
 
     template <typename T>
     T& Get()
     {
-        using Store = DispatchStore<T>;
         GFXRECON_ASSERT(Holds<T>());
-        return *(std::get<Store>(dispatch_args_));
+        return *(std::get<T*>(dispatch_args_));
     }
 
     // Move only (has owning data)
@@ -110,8 +107,7 @@ class ParsedBlock
     // Create an empty block with no valid data
     struct InvalidBlockTag
     {};
-    template <typename Allocator>
-    ParsedBlock(Allocator&, const InvalidBlockTag, uint64_t block_index) :
+    ParsedBlock(const InvalidBlockTag, uint64_t block_index) :
         block_index_(block_index), block_data_(), state_(BlockState::kInvalid)
     {}
 
@@ -119,20 +115,13 @@ class ParsedBlock
     // matching Args struct
     struct UnknownBlockTag
     {};
-    template <typename Allocator>
-    ParsedBlock(Allocator&, const UnknownBlockTag, uint64_t block_index, const uint8_t* block_data) :
+    ParsedBlock(const UnknownBlockTag, uint64_t block_index, const uint8_t* block_data) :
         block_index_(block_index), block_data_(block_data), state_(BlockState::kUnknown)
     {}
 
-    template <typename Allocator, typename ArgPayload>
-    ParsedBlock(Allocator&     allocator,
-                BlockState     initial_state,
-                uint64_t       block_index,
-                const uint8_t* block_data,
-                ArgPayload&&   args) :
-        block_index_(block_index),
-        block_data_(block_data), dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args), allocator)),
-        state_(initial_state)
+    template <typename ArgPayload>
+    ParsedBlock(BlockState initial_state, uint64_t block_index, const uint8_t* block_data, ArgPayload* args) :
+        block_index_(block_index), block_data_(block_data), dispatch_args_(args), state_(initial_state)
     {}
 
     [[nodiscard]] bool Decompress(BlockParser& parser);

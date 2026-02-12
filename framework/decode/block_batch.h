@@ -51,7 +51,7 @@ class BlockBatch
     BlockBatch() : allocator_(kCapacity, kJumboSize), head_(nullptr), tail_(nullptr) {}
     ~BlockBatch() = default;
 
-    void* Allocate(size_t size) { return allocator_.Allocate(size); }
+    void* Allocate(size_t size, size_t alignment) { return allocator_.Allocate(size, alignment); }
 
     template <typename T, typename... Args>
     [[nodiscard]] T* emplace(Args&&... args)
@@ -60,10 +60,11 @@ class BlockBatch
     }
 
     // Emplace a new ParsedBlock at the end of the batch
+    // This isn't marked "nodiscard" as it's saved in the linked list
     template <typename... Args>
     reference emplace_block(Args&&... args)
     {
-        ParsedBlock* parsed_block = allocator_.emplace<ParsedBlock>(allocator_, std::forward<Args>(args)...);
+        ParsedBlock* parsed_block = allocator_.emplace<ParsedBlock>(std::forward<Args>(args)...);
 
         if (head_ == nullptr)
         {
@@ -104,47 +105,6 @@ class BlockBatch
 
         iterator& operator++();
         iterator  operator++(int);
-#if 0
-        iterator& operator++()
-        {
-            GFXRECON_ASSERT(batch_.get() != nullptr);
-            GFXRECON_ASSERT(block_ != nullptr);
-            block_ = block_->GetNext();
-            if (block_ == nullptr)
-            {
-                // End of batch find next non-empty batch, or 'end'
-                do
-                {
-                    // Make a *copy* of the batch_'s next pointer, in case the iterator is the only owner when we
-                    // overwrite batch_ below. With move construction and assignment below we still have only on
-                    // atomic assignment operation per loop iteration.
-                    BatchPtr next_batch = batch_->GetNext();
-                    GFXRECON_ASSERT(next_batch.get() != batch_.get());
-                    if (!next_batch)
-                    {
-                        // No more batches end.
-                        *this = iterator();
-                        break;
-                    }
-                    if (!next_batch->empty())
-                    {
-                        // Found a non-empty batch stop looking
-                        *this = iterator(std::move(next_batch));
-                        break;
-                    }
-                    batch_ = std::move(next_batch);
-                } while (true);
-            }
-            return *this;
-        }
-        iterator operator++(int)
-        {
-            GFXRECON_ASSERT(block_ != nullptr);
-            iterator temp = *this;
-            ++(*this);
-            return temp;
-        }
-#endif
 
         bool operator==(const iterator& other) const { return (batch_ == other.batch_) && (block_ == other.block_); }
         bool operator!=(const iterator& other) const { return (batch_ != other.batch_) || (block_ != other.block_); }
