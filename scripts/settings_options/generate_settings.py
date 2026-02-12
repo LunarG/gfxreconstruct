@@ -1001,21 +1001,21 @@ def GenerateToolIfCheck(tool_list, indent: int = 1):
     for tool in tools:
         if_string += previous
         if tool == "CAPTURE":
-            if_string += "(tool_type == kGfxrToolType_Capture_Library)"
+            if_string += "(tool_type == GfxrToolType::kCapture_Library)"
         elif tool == "REPLAY":
-            if_string += "(tool_type == kGfxrToolType_Replay_Tool)"
+            if_string += "(tool_type == GfxrToolType::kReplay_Tool)"
         elif tool == "INFO":
-            if_string += "(tool_type == kGfxrToolType_Info_Tool)"
+            if_string += "(tool_type == GfxrToolType::kInfo_Tool)"
         elif tool == "COMPRESS":
-            if_string += "(tool_type == kGfxrToolType_Compress_Tool)"
+            if_string += "(tool_type == GfxrToolType::kCompress_Tool)"
         elif tool == "CONVERT":
-            if_string += "(tool_type == kGfxrToolType_Convert_Tool)"
+            if_string += "(tool_type == GfxrToolType::kConvert_Tool)"
         elif tool == "EXTRACT":
-            if_string += "(tool_type == kGfxrToolType_Extract_Tool)"
+            if_string += "(tool_type == GfxrToolType::kExtract_Tool)"
         elif tool == "OPTIMIZE":
-            if_string += "(tool_type == kGfxrToolType_Optimize_Tool)"
+            if_string += "(tool_type == GfxrToolType::kOptimize_Tool)"
         elif tool == "TOCPP":
-            if_string += "(tool_type == kGfxrToolType_ToCpp_Tool)"
+            if_string += "(tool_type == GfxrToolType::kToCpp_Tool)"
         previous = " || "
     if count > 0:
         if_string += ")"
@@ -1083,7 +1083,6 @@ def GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
                 f"{tool_struct_name} {tool_string.lower()}_settings")
             settings_struct_header.write(f"struct {tool_struct_name}\n")
             settings_struct_header.write("{\n")
-            settings_struct_header.write("    // clang-format off\n")
 
             for setting_init_str in settings_per_tool_per_api_per_platform[
                     tool]["ALL"]["ALL"]:
@@ -1118,15 +1117,12 @@ def GenerateSettingsStruct(parsed_settings, settings_tools, settings_apis,
                     if len(end_ifdef) > 0:
                         settings_struct_header.write(end_ifdef + "\n")
 
-            settings_struct_header.write("\n    // clang-format on\n")
             settings_struct_header.write("};\n\n")
 
         settings_struct_header.write("struct GfxrSettingsStruct\n")
         settings_struct_header.write("{\n")
-        settings_struct_header.write("    // clang-format off\n")
         for tool_struct in tool_struct_names:
             settings_struct_header.write(f"    {tool_struct};\n")
-        settings_struct_header.write("    // clang-format on\n")
         settings_struct_header.write("};\n\n")
         settings_struct_header.write(
             "#endif // GFXRECON_SETTINGS_STRUCT_H\n\n")
@@ -1192,7 +1188,6 @@ def GenerateSettingsManagerSource(parsed_settings, settings_tools,
     with open(generated_settings_manager_filename,
               'w') as setting_manager_source:
         setting_manager_source.write(generated_source_copyright)
-        setting_manager_source.write("\n// clang-format off\n\n")
         setting_manager_source.write(
             "\n// This functions takes in a settings key value and a string from the Vulkan settings file\n"
         )

@@ -24,9 +24,6 @@
  ****************** do not edit directly!
  */
 
-// clang-format off
-
-
 // This functions takes in a settings key value and a string from the Vulkan settings file
 // and attempts to update the setting value associated with the key.
 void SettingsManager::AdjustSettingFromFile(const std::string& key,
