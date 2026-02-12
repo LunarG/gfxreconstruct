@@ -24,7 +24,6 @@
 
 #include "util/logging.h"
 #include "util/platform.h"
-#include "util/span.h"
 
 #include <array>
 #include <cstddef>
@@ -41,13 +40,10 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class FStreamFileInputStream
 {
   public:
-    using BufferPool    = HeapBufferPool;
-    using BufferPoolPtr = BufferPool::PoolPtr;
-
 #if FILE_INPUT_STREAM_USE_FREAD
-    FStreamFileInputStream() : filename_(), fd_(nullptr), buffer_pool_(BufferPool::Create()) {}
+    FStreamFileInputStream() : filename_(), fd_(nullptr) {}
 #else
-    FStreamFileInputStream() : filename_(), fd_(-1), buffer_pool_(BufferPool::Create()) {}
+    FStreamFileInputStream() : filename_(), fd_(-1) {}
 #endif
     FStreamFileInputStream(const FStreamFileInputStream&)            = delete;
     FStreamFileInputStream& operator=(const FStreamFileInputStream&) = delete;
@@ -66,8 +62,6 @@ class FStreamFileInputStream
     bool     FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
     bool     ReadBytes(void* buffer, size_t bytes);
     size_t   PeekBytes(void* buffer, size_t bytes);
-    bool     ReadOverwriteSpan(const size_t bytes, DataSpan& span);
-    DataSpan ReadSpan(const size_t bytes);
 
     explicit operator bool() const { return IsOpen(); }
 
@@ -107,7 +101,6 @@ class FStreamFileInputStream
     char*                          read_ahead_buffer_{ nullptr };
 #endif
 
-    BufferPoolPtr buffer_pool_;
     size_t        read_ahead_bytes_  = 0U;
     size_t        read_ahead_offset_ = 0U;
 };
