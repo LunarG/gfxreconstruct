@@ -90,6 +90,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
 {
     VkDevice                 device          = VK_NULL_HANDLE;
     VkPhysicalDevice         physical_device = VK_NULL_HANDLE;
+    bool                     deferred_alloc  = false;
     VkSurfaceCapabilitiesKHR surfCapabilities{};
 
     if (device_info != nullptr)
@@ -115,6 +116,12 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
     {
         modified_create_info.minImageCount = surfCapabilities.maxImageCount;
     }
+
+    if (modified_create_info.flags & VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR)
+    {
+        deferred_alloc = true;
+    }
+
     auto replay_swapchain = swapchain->GetHandlePointer();
 
     result = func(device, &modified_create_info, allocator, replay_swapchain);
@@ -125,7 +132,9 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
 
-        swapchain_resources_[*replay_swapchain]->actual_extent = modified_create_info.imageExtent;
+        swapchain_resources_[*replay_swapchain]->actual_extent    = modified_create_info.imageExtent;
+        swapchain_resources_[*replay_swapchain]->forced_offscreen = false;
+        swapchain_resources_[*replay_swapchain]->deferred_alloc   = deferred_alloc;
     }
     return result;
 }
@@ -220,8 +229,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                                                              const VulkanSwapchainKHRInfo* swapchain_info,
                                                              uint32_t                      capture_image_count,
                                                              uint32_t*                     replay_image_count,
-                                                             VkImage*                      images,
-                                                             bool                          offscreen)
+                                                             VkImage*                      images)
 {
     VkDevice       device    = VK_NULL_HANDLE;
     VkSwapchainKHR swapchain = VK_NULL_HANDLE;
@@ -230,84 +238,95 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
     if (device_info != nullptr)
     {
         device = device_info->handle;
+        GFXRECON_ASSERT(device != VK_NULL_HANDLE);
     }
     if (swapchain_info != nullptr)
     {
         swapchain = swapchain_info->handle;
+        GFXRECON_ASSERT(swapchain != VK_NULL_HANDLE);
     }
 
-    bool     found_copy_queue_family           = false;
-    uint32_t copy_queue_family_index           = VK_QUEUE_FAMILY_IGNORED;
-    bool     found_transfer_queue_family_index = false;
-    uint32_t transfer_queue_family_index       = 0;
-
     // Determine what queue to use for the initial virtual image setup
-    VkQueue                              initial_copy_queue = VK_NULL_HANDLE;
-    uint32_t                             property_count     = 0;
+    uint32_t                             property_count = 0;
     std::vector<VkQueueFamilyProperties> props;
 
     instance_table_->GetPhysicalDeviceQueueFamilyProperties(device_info->parent, &property_count, nullptr);
     props.resize(property_count);
     instance_table_->GetPhysicalDeviceQueueFamilyProperties(device_info->parent, &property_count, props.data());
 
-    for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
+    if (!found_copy_queue_family_.contains(device))
     {
-        // If we're past the point of enabled queues, then stop looking because we really can't enable
-        // a queue that isn't flagged during device creation.
-        if (queue_family_index >=
-            static_cast<uint32_t>(device_info->enabled_queue_family_flags.queue_family_index_enabled.size()))
+        bool     found_copy_queue_family_index     = false;
+        bool     found_transfer_queue_family_index = false;
+        uint32_t copy_queue_family_index           = 0;
+        uint32_t transfer_queue_family_index       = 0;
+        VkQueue  initial_copy_queue                = VK_NULL_HANDLE;
+
+        for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
         {
-            break;
+            // If we're past the point of enabled queues, then stop looking because we really can't enable
+            // a queue that isn't flagged during device creation.
+            if (queue_family_index >=
+                static_cast<uint32_t>(device_info->enabled_queue_family_flags.queue_family_index_enabled.size()))
+            {
+                break;
+            }
+
+            if (!device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_family_index])
+            {
+                continue;
+            }
+
+            // If we find a graphics queue, we're good, so grab it and bail
+            if (props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            {
+                copy_queue_family_index       = queue_family_index;
+                found_copy_queue_family_index = true;
+                break;
+            }
+
+            // Find a transfer queue as an alternative, just in case
+            if (!found_transfer_queue_family_index && props[queue_family_index].queueFlags & VK_QUEUE_TRANSFER_BIT)
+            {
+                transfer_queue_family_index       = queue_family_index;
+                found_transfer_queue_family_index = true;
+            }
         }
 
-        if (!device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_family_index])
+        if (!found_copy_queue_family_index)
         {
-            continue;
+            if (!found_transfer_queue_family_index)
+            {
+                GFXRECON_LOG_ERROR("Virtual swapchain failed finding a queue to create initial virtual swapchain "
+                                   "images for swapchain (ID = %" PRIu64 ")",
+                                   swapchain_info->capture_id);
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+            }
+            copy_queue_family_index = transfer_queue_family_index;
+            GFXRECON_LOG_INFO("Virtual swapchain using transfer queue %d to create initial virtual swapchain "
+                              "images for swapchain (ID = %" PRIu64 ")",
+                              transfer_queue_family_index,
+                              swapchain_info->capture_id);
         }
 
-        // If we find a graphics queue, we're good, so grab it and bail
-        if (props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        initial_copy_queue = GetDeviceQueue(device_table_, device_info, copy_queue_family_index, 0);
+        if (initial_copy_queue == VK_NULL_HANDLE)
         {
-            copy_queue_family_index = queue_family_index;
-            found_copy_queue_family = true;
-            break;
-        }
-
-        // Find a transfer queue as an alternative, just in case
-        if (!found_transfer_queue_family_index && props[queue_family_index].queueFlags & VK_QUEUE_TRANSFER_BIT)
-        {
-            transfer_queue_family_index       = queue_family_index;
-            found_transfer_queue_family_index = true;
-        }
-    }
-    if (!found_copy_queue_family)
-    {
-        if (!found_transfer_queue_family_index)
-        {
-            GFXRECON_LOG_ERROR("Virtual swapchain failed finding a queue to create initial virtual swapchain "
+            GFXRECON_LOG_ERROR("Virtual swapchain failed getting device queue %d to create initial virtual swapchain "
                                "images for swapchain (ID = %" PRIu64 ")",
+                               copy_queue_family_index,
                                swapchain_info->capture_id);
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
+            return VK_ERROR_INITIALIZATION_FAILED;
         }
-        copy_queue_family_index = transfer_queue_family_index;
-        GFXRECON_LOG_INFO("Virtual swapchain using transfer queue %d to create initial virtual swapchain "
-                          "images for swapchain (ID = %" PRIu64 ")",
-                          transfer_queue_family_index,
-                          swapchain_info->capture_id);
-    }
 
-    initial_copy_queue = GetDeviceQueue(device_table_, device_info, copy_queue_family_index, 0);
-    if (initial_copy_queue == VK_NULL_HANDLE)
-    {
-        GFXRECON_LOG_ERROR("Virtual swapchain failed getting device queue %d to create initial virtual swapchain "
-                           "images for swapchain (ID = %" PRIu64 ")",
-                           copy_queue_family_index,
-                           swapchain_info->capture_id);
-        return VK_ERROR_INITIALIZATION_FAILED;
+        found_copy_queue_family_.insert(device);
+
+        copy_queue_family_index_[device] = copy_queue_family_index;
+        initial_copy_queue_[device]      = initial_copy_queue;
     }
 
     auto& swapchain_resources = swapchain_resources_[swapchain];
-    if (!offscreen)
+    if (!swapchain_resources->forced_offscreen)
     {
         for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
         {
@@ -503,118 +522,157 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
             swapchain_resources->virtual_swapchain_images.emplace_back(std::move(image));
         }
 
-        if (!offscreen)
+        if (!swapchain_resources->forced_offscreen && !swapchain_resources->deferred_alloc)
         {
-            VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-            begin_info.pNext                    = nullptr;
-            begin_info.flags                    = 0;
-            begin_info.pInheritanceInfo         = nullptr;
-
-            auto command_buffer = swapchain_resources->copy_cmd_data[copy_queue_family_index].command_buffers[0];
-            auto copy_fence     = swapchain_resources->copy_cmd_data[copy_queue_family_index].fences[0];
-
-            result = device_table_->WaitForFences(device, 1, &copy_fence, VK_TRUE, ~0UL);
-            if (result != VK_SUCCESS)
-            {
-                return result;
-            }
-            result = device_table_->ResetFences(device, 1, &copy_fence);
-            if (result != VK_SUCCESS)
-            {
-                return result;
-            }
-            result = device_table_->ResetCommandBuffer(command_buffer, 0);
-            if (result != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR(
-                    "Virtual swapchain failed resetting internal command buffer %d for swapchain (ID = %" PRIu64 ")",
-                    copy_queue_family_index,
-                    swapchain_info->capture_id);
-                return result;
-            }
-
-            result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);
-            if (result != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR(
-                    "Virtual swapchain failed starting internal command buffer %d for swapchain (ID = %" PRIu64 ")",
-                    copy_queue_family_index,
-                    swapchain_info->capture_id);
-                return result;
-            }
-
-            VkImageMemoryBarrier barrier = {
-                VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, // sType
-                nullptr,                                // pNext
-                VK_ACCESS_NONE,                         // srcAccessMask
-                VK_ACCESS_NONE,                         // dstAccessMask
-                VK_IMAGE_LAYOUT_UNDEFINED,              // oldLayout
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,        // newLayout
-                VK_QUEUE_FAMILY_IGNORED,                // srcQueueFamilyIndex
-                VK_QUEUE_FAMILY_IGNORED,                // dstQueueFamilyIndex
-                VK_NULL_HANDLE,                         // image
-                VkImageSubresourceRange{
-                    graphics::GetFormatAspects(swapchain_info->format),
-                    0,
-                    image_create_info.mipLevels,
-                    0,
-                    image_create_info.arrayLayers,
-                }, // subResourceRange
-            };
-
-            for (uint32_t i = 0; i < *replay_image_count; ++i)
-            {
-                barrier.image = swapchain_resources->replay_swapchain_images[i];
-                device_table_->CmdPipelineBarrier(command_buffer,
-                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                  0,
-                                                  0,
-                                                  nullptr,
-                                                  0,
-                                                  nullptr,
-                                                  1,
-                                                  &barrier);
-            }
-
-            result = device_table_->EndCommandBuffer(command_buffer);
-            if (result != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR(
-                    "Virtual swapchain failed ending internal command buffer %d for swapchain (ID = %" PRIu64 ")",
-                    copy_queue_family_index,
-                    swapchain_info->capture_id);
-                return result;
-            }
-
-            VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-            submit_info.commandBufferCount = 1;
-            submit_info.pCommandBuffers    = &command_buffer;
-
-            result = device_table_->QueueSubmit(initial_copy_queue, 1, &submit_info, copy_fence);
-            if (result != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR(
-                    "Virtual swapchain failed submitting internal command buffer %d for swapchain (ID = %" PRIu64 ")",
-                    copy_queue_family_index,
-                    swapchain_info->capture_id);
-                return result;
-            }
-            result = device_table_->QueueWaitIdle(initial_copy_queue);
-            if (result != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR(
-                    "Virtual swapchain failed waiting for internal command buffer %d for swapchain (ID = %" PRIu64 ")",
-                    copy_queue_family_index,
-                    swapchain_info->capture_id);
-                return result;
-            }
+            result = TransitionSwapchainImage(device, swapchain_info, swapchain_resources, 0, *replay_image_count);
+        }
+        else
+        {
+            GFXRECON_LOG_INFO(
+                "Virtual swapchain enabled with deferred allocation.  Delaying swapchain image transition");
         }
     }
 
     for (uint32_t i = 0; i < capture_image_count; ++i)
     {
         images[i] = swapchain_resources->virtual_swapchain_images[i].image;
+    }
+    return result;
+}
+
+VkResult VulkanVirtualSwapchain::TransitionSwapchainImage(VkDevice                                device,
+                                                          const VulkanSwapchainKHRInfo*           swapchain_info,
+                                                          std::unique_ptr<SwapchainResourceData>& swapchain_resources,
+                                                          uint32_t                                image_index,
+                                                          uint32_t                                image_count)
+{
+    VkResult result = VK_SUCCESS;
+
+    GFXRECON_ASSERT(swapchain_info != nullptr);
+    VkSwapchainKHR swapchain = swapchain_info->handle;
+
+    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    begin_info.pNext                    = nullptr;
+    begin_info.flags                    = 0;
+    begin_info.pInheritanceInfo         = nullptr;
+
+    auto& copy_cmd_data  = swapchain_resources->copy_cmd_data[copy_queue_family_index_[device]];
+    auto  command_buffer = copy_cmd_data.command_buffers[image_index];
+    auto  copy_fence     = copy_cmd_data.fences[image_index];
+
+    result = device_table_->WaitForFences(device, 1, &copy_fence, VK_TRUE, ~0UL);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+    result = device_table_->ResetFences(device, 1, &copy_fence);
+    if (result != VK_SUCCESS)
+    {
+        return result;
+    }
+    result = device_table_->ResetCommandBuffer(command_buffer, 0);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed resetting internal command buffer %d "
+                           "for swapchain (ID = %" PRIu64 ")",
+                           copy_queue_family_index_[device],
+                           swapchain_info->capture_id);
+        return result;
+    }
+
+    result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed starting internal command buffer %d for "
+                           "swapchain (ID = %" PRIu64 ")",
+                           copy_queue_family_index_[device],
+                           swapchain_info->capture_id);
+        return result;
+    }
+
+    VkImageMemoryBarrier barrier = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, // sType
+        nullptr,                                // pNext
+        VK_ACCESS_NONE,                         // srcAccessMask
+        VK_ACCESS_NONE,                         // dstAccessMask
+        VK_IMAGE_LAYOUT_UNDEFINED,              // oldLayout
+        VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,        // newLayout
+        VK_QUEUE_FAMILY_IGNORED,                // srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                // dstQueueFamilyIndex
+        VK_NULL_HANDLE,                         // image
+        VkImageSubresourceRange{
+            graphics::GetFormatAspects(swapchain_info->format),
+            0,
+            1,
+            0,
+            swapchain_info->image_array_layers,
+        }, // subResourceRange
+    };
+
+    for (uint32_t i = image_index; i < image_count + image_index; ++i)
+    {
+        barrier.image = swapchain_resources->replay_swapchain_images[i];
+        device_table_->CmdPipelineBarrier(command_buffer,
+                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                          0,
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr,
+                                          1,
+                                          &barrier);
+    }
+
+    result = device_table_->EndCommandBuffer(command_buffer);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed ending internal command buffer %d for "
+                           "swapchain (ID = %" PRIu64 ")",
+                           copy_queue_family_index_[device],
+                           swapchain_info->capture_id);
+        return result;
+    }
+
+    VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers    = &command_buffer;
+
+    result = device_table_->QueueSubmit(initial_copy_queue_[device], 1, &submit_info, copy_fence);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed submitting internal command buffer %d "
+                           "for swapchain (ID = %" PRIu64 ")",
+                           copy_queue_family_index_[device],
+                           swapchain_info->capture_id);
+        return result;
+    }
+    result = device_table_->QueueWaitIdle(initial_copy_queue_[device]);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("TransitionSwapchainImage: Virtual swapchain failed waiting for internal command buffer %d "
+                           "for swapchain (ID = %" PRIu64 ")",
+                           copy_queue_family_index_[device],
+                           swapchain_info->capture_id);
+        return result;
+    }
+
+    // Save the list of transitioned images
+    if (swapchain_resources->image_index_transitioned.size() < (image_count + image_index))
+    {
+        size_t old_size = swapchain_resources->image_index_transitioned.size();
+        size_t new_size = image_count + image_index;
+        swapchain_resources->image_index_transitioned.resize(image_count + image_index);
+
+        // Any images from the old end to the new start should be labeled as not having been transitioned
+        for (uint32_t i = old_size; i < image_index; ++i)
+        {
+            swapchain_resources->image_index_transitioned[i] = false;
+        }
+    }
+    for (uint32_t i = image_index; i < image_count + image_index; ++i)
+    {
+        swapchain_resources->image_index_transitioned[i] = true;
     }
     return result;
 }
@@ -680,8 +738,8 @@ VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(VkResult                 
         // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
         util::BeginInjectedCommands();
 
-        result = CreateSwapchainResourceData(
-            device_info, swapchain_info, capture_image_count, replay_image_count, images, false);
+        result =
+            CreateSwapchainResourceData(device_info, swapchain_info, capture_image_count, replay_image_count, images);
 
         util::EndInjectedCommands();
     }
@@ -721,6 +779,23 @@ VkResult VulkanVirtualSwapchain::AcquireNextImageKHR(VkResult                  o
                            result,
                            swapchain_info->capture_id);
     }
+
+    if (swapchain_resources_[swapchain]->deferred_alloc &&
+        (swapchain_resources_[swapchain]->image_index_transitioned.size() <= *image_index ||
+         !swapchain_resources_[swapchain]->image_index_transitioned[*image_index]))
+    {
+        GFXRECON_LOG_INFO(
+            "Virtual swapchain with deferred allocation transitioning image index %d during AcquireNextImageKHR",
+            *image_index);
+
+        // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
+        util::BeginInjectedCommands();
+
+        result = TransitionSwapchainImage(device, swapchain_info, swapchain_resources_[swapchain], *image_index, 1);
+
+        util::EndInjectedCommands();
+    }
+
     return result;
 }
 
@@ -732,11 +807,17 @@ VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(VkResult                  
                                                       uint32_t                         capture_image_index,
                                                       uint32_t*                        image_index)
 {
-    VkDevice device = VK_NULL_HANDLE;
+    VkDevice       device    = VK_NULL_HANDLE;
+    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
 
     if (device_info != nullptr)
     {
         device = device_info->handle;
+    }
+
+    if (swapchain_info != nullptr)
+    {
+        swapchain = swapchain_info->handle;
     }
 
     VkResult result = func(device, acquire_info, image_index);
@@ -747,6 +828,23 @@ VkResult VulkanVirtualSwapchain::AcquireNextImage2KHR(VkResult                  
                            result,
                            swapchain_info->capture_id);
     }
+
+    if (swapchain_resources_[swapchain]->deferred_alloc &&
+        (swapchain_resources_[swapchain]->image_index_transitioned.size() <= *image_index ||
+         !swapchain_resources_[swapchain]->image_index_transitioned[*image_index]))
+    {
+        GFXRECON_LOG_INFO(
+            "Virtual swapchain with deferred allocation transitioning image index %d during AcquireNextImage2KHR",
+            *image_index);
+
+        // Notify any layers by calling the provided pointer to their ReportReplayGeneratedVulkanCommands
+        util::BeginInjectedCommands();
+
+        result = TransitionSwapchainImage(device, swapchain_info, swapchain_resources_[swapchain], *image_index, 1);
+
+        util::EndInjectedCommands();
+    }
+
     return result;
 }
 
