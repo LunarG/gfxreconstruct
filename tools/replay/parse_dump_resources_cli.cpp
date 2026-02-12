@@ -570,6 +570,18 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 }
             }
         }
+
+        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRANSFER].size(); idx0++)
+        {
+            vulkan_replay_options.Transfer_Indices.push_back(std::vector<uint64_t>());
+            for (auto it = jargs[decode::DUMP_ARG_TRANSFER][idx0].begin();
+                 it != jargs[decode::DUMP_ARG_TRANSFER][idx0].end();
+                 ++it)
+            {
+                ExtractIndexAndDescriptors(
+                    it, idx0, vulkan_replay_options.Transfer_Indices, vulkan_replay_options.TraceRaysSubresources);
+            }
+        }
     }
 
     bool parse_error = CheckIndicesForErrors(vulkan_replay_options);

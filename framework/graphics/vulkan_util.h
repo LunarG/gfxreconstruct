@@ -87,6 +87,39 @@ std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo2*
 
 [[maybe_unused]] static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 
+/**
+ * @brief   Scales a VkExtent3D to the provided mip map level
+ *
+ * @param[in]   extent    The VkExtent3D to scale
+ * @param[in]   level     The mip map level
+ * @return  The scaled VkExtent3D
+ */
+static constexpr VkExtent3D ScaleToMipLevel(const VkExtent3D& extent, uint32_t level)
+{
+    const VkExtent3D mip_extent = VkExtent3D{ std::max(1u, extent.width >> level),
+                                              std::max(1u, extent.height >> level),
+                                              std::max(1u, extent.depth >> level) };
+
+    return mip_extent;
+}
+
+/**
+ * @brief   Scales a VkExtent3D with the provided scaling factor
+ *
+ * @param[in]   extent    The VkExtent3D to scale
+ * @param[in]   scale     The scaling factor
+ * @return  The scaled VkExtent3D
+ */
+static constexpr VkExtent3D ScaleExtent(const VkExtent3D& extent, float scale)
+{
+    const VkExtent3D scaled_extent =
+        VkExtent3D{ static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.width) * scale)),
+                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.height) * scale)),
+                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.depth) * scale)) };
+
+    return scaled_extent;
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

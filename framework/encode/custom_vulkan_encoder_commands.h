@@ -218,7 +218,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>
     }
 };
 
-// Dispatch custom command to give implementation warning during create wayland surface
+// Dispatch custom command to set wayland keyboard connection during create wayland surface
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>
 {
@@ -226,6 +226,17 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PreProcess_vkCreateWaylandSurfaceKHR(args...);
+    }
+};
+
+// Dispatch custom command to clean up implementation in wayland surface
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkDestroySurfaceKHR(args...);
     }
 };
 

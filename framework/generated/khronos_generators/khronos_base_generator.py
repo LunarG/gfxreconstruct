@@ -475,6 +475,7 @@ class KhronosBaseGenerator(OutputGenerator):
         # will be replaced by the override value.
         self.REPLAY_OVERRIDES = {}
         self.DUMP_RESOURCES_OVERRIDES = {}
+        self.DUMP_RESOURCES_TRANSFER_API_CALLS = {}
         self.REPLAY_ASYNC_OVERRIDES = {}
 
         # Add these structs as chainable even though they aren't chainable in the
@@ -695,6 +696,8 @@ class KhronosBaseGenerator(OutputGenerator):
             )
             self.DUMP_RESOURCES_OVERRIDES = dump_resources_overrides[
                 'functions']
+            self.DUMP_RESOURCES_TRANSFER_API_CALLS = dump_resources_overrides[
+                'transfer']
 
         if replay_async_overrides_filename is not None:
             replay_async_overrides = json.loads(

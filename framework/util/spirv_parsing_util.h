@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <tuple>
 
 #include "util/defines.h"
 #include "encode/vulkan_state_info.h"
@@ -53,6 +54,8 @@ class SpirVParsingUtil
         uint32_t                binding       = 0;
         uint32_t                buffer_offset = 0;
         uint32_t                array_stride  = 0;
+
+        bool operator==(const SpirVParsingUtil::BufferReferenceInfo& other) const = default;
     };
 
     SpirVParsingUtil() = default;
@@ -75,6 +78,14 @@ class SpirVParsingUtil
     std::vector<const Instruction*>                         decorations_instructions_{};
     std::map<BufferReferenceInfo, std::vector<std::string>> buffer_reference_map_{};
 };
+
+// used to enable type as key for std::set/map
+inline bool operator<(const SpirVParsingUtil::BufferReferenceInfo& lhs,
+                      const SpirVParsingUtil::BufferReferenceInfo& rhs)
+{
+    return std::make_tuple(lhs.source, lhs.set, lhs.binding, lhs.buffer_offset, lhs.array_stride) <
+           std::make_tuple(rhs.source, rhs.set, rhs.binding, rhs.buffer_offset, rhs.array_stride);
+}
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

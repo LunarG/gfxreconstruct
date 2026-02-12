@@ -30,6 +30,9 @@
 */
 
 #include "util/heap_buffer.h"
+#include "util/alignment_utils.h"
+
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -39,6 +42,7 @@ void HeapBuffer::ReserveDiscarding(size_t capacity)
 {
     if (capacity && (capacity > capacity_))
     {
+        capacity  = util::next_pow_2(capacity);
         store_    = Store(new DataType[capacity]);
         capacity_ = capacity;
     }
@@ -67,6 +71,11 @@ void HeapBuffer::Reset()
 
 HeapBufferPool::Entry::~Entry() noexcept
 {
+    Reset();
+}
+
+void HeapBufferPool::Entry::Reset() noexcept
+{
     // Return to pool_ if not reset
     if (pool_)
     {
@@ -74,11 +83,9 @@ HeapBufferPool::Entry::~Entry() noexcept
     }
 }
 
-HeapBufferPool::Entry::Entry(Entry&& other) noexcept : Base(std::move(other))
-{
-    pool_       = other.pool_;
-    other.pool_ = nullptr;
-}
+HeapBufferPool::Entry::Entry(Entry&& other) noexcept :
+    Base(std::move(other)), pool_(std::exchange(other.pool_, nullptr))
+{}
 
 HeapBufferPool::Entry& HeapBufferPool::Entry::operator=(Entry&& other) noexcept
 {
@@ -110,7 +117,7 @@ HeapBufferPool::Entry HeapBufferPool::Acquire(size_t size)
         return entry;
     }
     acquired_++;
-    return Entry(this, size);
+    return Entry(Entry::PoolAcquireTag{}, this, size);
 }
 
 void HeapBufferPool::Reset() noexcept

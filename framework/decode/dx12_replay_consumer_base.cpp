@@ -1551,8 +1551,7 @@ void Dx12ReplayConsumerBase::DetectAdapters()
 
 void Dx12ReplayConsumerBase::AddAdapterLuid(const LUID& capture_luid, const LUID& replay_luid)
 {
-    auto key = ((static_cast<uint64_t>(capture_luid.HighPart) << 32) & 0xFFFFFFFF00000000) |
-               (static_cast<uint64_t>(capture_luid.LowPart) & 0xFFFFFFFF);
+    auto key = pack_luid(capture_luid);
 
     if (key != 0)
     {
@@ -1562,8 +1561,7 @@ void Dx12ReplayConsumerBase::AddAdapterLuid(const LUID& capture_luid, const LUID
 
 LUID Dx12ReplayConsumerBase::GetAdapterLuid(const LUID& capture_luid)
 {
-    auto key = ((static_cast<uint64_t>(capture_luid.HighPart) << 32) & 0xFFFFFFFF00000000) |
-               (static_cast<uint64_t>(capture_luid.LowPart) & 0xFFFFFFFF);
+    auto key = pack_luid(capture_luid);
     auto value = adapter_luid_map_.find(key);
 
     if (value != adapter_luid_map_.end())
@@ -2469,7 +2467,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideResourceMap(DxObjectInfo*               
             ++(memory_info.count);
 
             MappedMemoryEntry memory_entry = { *data_pointer, replay_object_info->capture_id, 0 };
-            auto              entry = mapped_memory_.emplace(std::make_pair(*id_pointer, memory_entry));
+            auto              entry        = mapped_memory_.emplace(std::make_pair(*id_pointer, memory_entry));
 
             ++(entry.first->second.ref_count);
         }
@@ -4457,7 +4455,7 @@ Dx12ReplayConsumerBase::OverrideCreateStateObject(DxObjectInfo* device5_object_i
 
         if (resource_value_mapper_ != nullptr)
         {
-            resource_value_mapper_->PostProcessCreateStateObject(state_object_decoder, desc_decoder, {});
+            resource_value_mapper_->PostProcessCreateStateObject(state_object_decoder, desc_decoder, nullptr);
         }
     }
 
@@ -4492,7 +4490,7 @@ Dx12ReplayConsumerBase::OverrideAddToStateObject(
             auto state_object_to_grow_from_extra_info =
                 GetExtraInfo<D3D12StateObjectInfo>(state_object_to_grow_from_object_info);
             resource_value_mapper_->PostProcessCreateStateObject(
-                new_state_object_decoder, addition_decoder, state_object_to_grow_from_extra_info->export_name_lrs_map);
+                new_state_object_decoder, addition_decoder, state_object_to_grow_from_extra_info);
         }
     }
 

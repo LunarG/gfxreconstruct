@@ -150,7 +150,7 @@ class FileProcessor
         return file_stack_.front().active_file->IsEof();
     }
 
-    bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
+    bool                      UsesFrameMarkers() const { return capture_uses_frame_markers_; }
     bool                      FileSupportsFrameMarkers() const { return file_supports_frame_markers_; }
     const format::FileHeader& GetFileHeader() const { return file_header_; }
 
@@ -179,9 +179,6 @@ class FileProcessor
 
     util::DataSpan ReadSpan(size_t buffer_size);
     bool           ReadBytes(void* buffer, size_t buffer_size);
-
-    bool PeekBytes(void* buffer, size_t buffer_size);
-    bool PeekBlockHeader(format::BlockHeader* block_header);
 
     // Reads block header, from input stream.
     bool ReadBlockBuffer(BlockParser& parser, BlockBuffer& buffer);
@@ -237,6 +234,12 @@ class FileProcessor
             return true;
         }
         return file_stack_.back().active_file->IsEof();
+    }
+
+    BlockParser& GetBlockParser()
+    {
+        GFXRECON_ASSERT(block_parser_.get() != nullptr);
+        return *block_parser_;
     }
 
   private:
@@ -418,12 +421,13 @@ class FileProcessor
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    std::string absolute_path_;
+    std::string        absolute_path_;
     format::FileHeader file_header_;
 
   protected:
-    BufferPool        pool_;
+    BufferPool                        pool_;
     std::unique_ptr<util::Compressor> compressor_;
+    std::unique_ptr<BlockParser>      block_parser_;
 
     struct ActiveFileContext
     {
@@ -431,8 +435,8 @@ class FileProcessor
             active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
 
         FileInputStreamPtr active_file;
-        uint32_t    remaining_commands{ 0 };
-        bool        execute_till_eof{ false };
+        uint32_t           remaining_commands{ 0 };
+        bool               execute_till_eof{ false };
     };
 
     std::deque<ActiveFileContext> file_stack_;

@@ -567,6 +567,10 @@ std::runtime_error to_exception(SwapchainError error, VkResult result)
     message.append(string_VkResult(result));
     return std::runtime_error(message);
 }
+std::runtime_error to_exception(const char* message)
+{
+    return std::runtime_error(message);
+}
 
 SystemInfo SystemInfo::get_system_info(PFN_vkGetInstanceProcAddr fp_vkGetInstanceProcAddr = nullptr)
 {

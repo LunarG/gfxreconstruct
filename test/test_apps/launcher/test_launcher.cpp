@@ -40,6 +40,7 @@
 #include <external_memory_fd_export_app.h>
 #include <external_memory_fd_import_app.h>
 #include <wait_for_present_app.h>
+#include <trigger_trimming_app.h>
 #endif
 
 #include <algorithm>
@@ -74,6 +75,7 @@ static const char* kAppNames[] = {
     "external-memory-fd-export",
     "external-memory-fd-import",
     "wait-for-present",
+    "trigger-trimming",
 #endif
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
     "ahb"
@@ -181,6 +183,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "wait-for-present")
     {
         app = std::make_unique<gfxrecon::test_app::wait_for_present::App>();
+    }
+    else if (app_name == "trigger-trimming")
+    {
+        app = std::make_unique<gfxrecon::test_app::trigger_trimming::App>();
     }
 #endif // __linux__
 #ifdef VK_USE_PLATFORM_ANDROID_KHR

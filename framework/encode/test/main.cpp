@@ -45,7 +45,7 @@ gfxrecon::format::HandleId GetHandleId()
 
 TEST_CASE("handles can be wrapped and unwrapped", "[wrapper]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     VkBuffer buffer = kBufferHandle;
     gfxrecon::encode::vulkan_wrappers::CreateWrappedHandle<gfxrecon::encode::vulkan_wrappers::DeviceWrapper,
@@ -447,7 +447,7 @@ const char* const kExampleDeviceExtensionsUpper[]{
 
 TEST_CASE("Unsupported extension screening", "[layer]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     VkExtensionProperties ext_arr[] = {
         { "VK_EXT_4444_formats", 1 },
@@ -752,6 +752,8 @@ TEST_CASE("Unsupported extension screening", "[layer]")
 TEST_CASE("VkLayerSettingsCreateInfoEXT is parsed correctly", "[capture_layer_settings]")
 {
     using namespace gfxrecon::encode;
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
+
     CaptureSettings::TraceSettings layer_settings{};
 
     VkInstanceCreateInfo instance_info{};
@@ -822,4 +824,6 @@ TEST_CASE("VkLayerSettingsCreateInfoEXT is parsed correctly", "[capture_layer_se
     capture_setting.pValues          = capture_file_value;
     layer_settings                   = GetVulkanLayerTraceSettings(&instance_info);
     REQUIRE(layer_settings.capture_file == "my_capture.gfxr");
+
+    gfxrecon::util::Log::Release();
 }

@@ -348,6 +348,20 @@ void MapStructHandles(Decoded_VkGeneratedCommandsInfoNV* wrapper, const CommonOb
 
 void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkDescriptorBufferBindingInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBufferCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkImageCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkImageViewCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSamplerCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkMemoryGetZirconHandleInfoFUCHSIA* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -381,6 +395,20 @@ void MapStructHandles(Decoded_VkPipelineIndirectDeviceAddressInfoNV* wrapper, co
 void MapStructHandles(Decoded_VkShaderCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkLatencySleepInfoNV* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineShaderModuleCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSessionCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSessionBindPointRequirementsInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSessionMemoryRequirementsInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkTileMemoryBindInfoQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
 

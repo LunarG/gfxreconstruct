@@ -33,12 +33,7 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
                                                  VkFlags                              flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>*  surface,
                                                  const graphics::VulkanInstanceTable* instance_table,
-                                                 application::Application*            application,
-                                                 const int32_t                        xpos,
-                                                 const int32_t                        ypos,
-                                                 const uint32_t                       width,
-                                                 const uint32_t                       height,
-                                                 bool                                 force_windowed)
+                                                 application::Application*            application)
 {
     GFXRECON_ASSERT(surface);
 
@@ -289,6 +284,28 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
     }
 
     return original_result;
+}
+
+void VulkanOffscreenSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
+                                                    const VulkanDeviceInfo*              device_info,
+                                                    const VulkanSemaphoreInfo*           semaphore_info,
+                                                    const VulkanImageInfo*               image_info,
+                                                    VulkanInstanceInfo*                  instance_info,
+                                                    const graphics::VulkanInstanceTable* instance_table,
+                                                    const graphics::VulkanDeviceTable*   device_table,
+                                                    application::Application*            application)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    VkSemaphore semaphore = (semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
+    VkImage     image     = (image_info == nullptr ? VK_NULL_HANDLE : image_info->handle);
+
+    func(device_info->handle, semaphore, image);
 }
 
 // queue_info could be nullptr. It means it doesn't specify a VkQueue and use default_queue. Its purpose is to singal

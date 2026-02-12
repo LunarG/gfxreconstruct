@@ -95,6 +95,18 @@ class VulkanAddressReplacer
                           const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores = {});
 
     /**
+     * @brief   'ResolveBufferAddresses' can be used to identify buffers which are referenced
+     *          by buffer-device-addresses.
+     *
+     * This routine allows resolving pointer-chains (to some degree) and identify additional BDA-locations
+     * that require address remapping/replacement.
+     *
+     * @param   command_buffer_info a provided command_buffer_info containing locations to resolve
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
+    void ResolveBufferAddresses(VulkanCommandBufferInfo*                  command_buffer_info,
+                                const decode::VulkanDeviceAddressTracker& address_tracker);
+    /**
      * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',
      *          replacing any used buffer-device-addresses in-place.
      *

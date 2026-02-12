@@ -168,6 +168,7 @@ enum class MetaDataType : uint16_t
     kExecuteBlocksFromFile                              = 34,
     kCreateHardwareBufferCommand                        = 35,
     kInitializeMetaCommand                              = 36,
+    kSetOpaqueCaptureDescriptorDataCommand              = 37,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -588,6 +589,15 @@ struct SetOpaqueAddressCommand
     uint64_t         address;
 };
 
+struct SetOpaqueDescriptorDataCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId object_id;
+    uint32_t         data_size;
+};
+
 struct SetRayTracingShaderGroupHandlesCommandHeader
 {
     MetaDataHeader   meta_header;
@@ -652,6 +662,11 @@ struct DxgiAdapterDesc
     int32_t  LuidHighPart;
     uint32_t extra_info; // 2 bits (LSB) to store Type and 30 bits for object ID
 };
+
+inline int64_t pack_luid(const format::DxgiAdapterDesc& adapter_desc)
+{
+    return static_cast<int64_t>((static_cast<uint64_t>(adapter_desc.LuidHighPart) << 32) | adapter_desc.LuidLowPart);
+}
 
 struct DxgiAdapterInfoCommandHeader
 {

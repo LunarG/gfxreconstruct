@@ -1294,6 +1294,8 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_MAX_ENUM_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_SEQUENCE_INDEX_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_EXT:
             GFXRECON_LOG_ERROR(
                 "GenerateStruct_VkIndirectCommandsLayoutTokenEXT: unhandled case in switch-statement: %d",
                 metaInfo->decoded_type);
@@ -1589,6 +1591,18 @@ std::string GenerateStruct_VkLayerSettingEXT(std::ostream&              out,
     out << "\t\t"
         << "};" << std::endl;
     return variable_name;
+}
+
+std::string GenerateStruct_VkDescriptorGetInfoEXT(std::ostream&                   out,
+                                                  const VkDescriptorGetInfoEXT*   structInfo,
+                                                  Decoded_VkDescriptorGetInfoEXT* metaInfo,
+                                                  VulkanCppConsumerBase&          consumer)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(out);
+    GFXRECON_UNREFERENCED_PARAMETER(structInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(metaInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(consumer);
+    return {};
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

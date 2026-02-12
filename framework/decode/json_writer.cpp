@@ -113,7 +113,10 @@ void JsonWriter::WriteBlockEnd()
     /// while the main thread gets on with building the tree for the next block.
     // Dominates profiling (2/2):
     const std::string block =
-        json_data_.dump(json_options_.format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
+        json_data_.dump(json_options_.format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth,
+                        ' ',
+                        false,
+                        nlohmann::json::error_handler_t::replace);
     Write(*os_, block);
     os_->Flush();
 }

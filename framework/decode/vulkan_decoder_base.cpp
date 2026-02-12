@@ -220,6 +220,20 @@ void VulkanDecoderBase::DispatchSetOpaqueAddressCommand(format::ThreadId thread_
     }
 }
 
+void VulkanDecoderBase::DispatchSetOpaqueDescriptorDataCommand(format::ThreadId thread_id,
+                                                               format::HandleId device_id,
+                                                               format::HandleId object_id,
+                                                               uint32_t         data_size,
+                                                               const uint8_t*   data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetOpaqueDescriptorDataCommand(device_id, object_id, data_size, data);
+    }
+}
+
 void VulkanDecoderBase::DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
                                                                        format::HandleId device_id,
                                                                        format::HandleId pipeline_id,

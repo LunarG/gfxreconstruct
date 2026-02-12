@@ -104,6 +104,21 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateRayTracingPipelinesKHR(VkDevice          
                                                               const VkAllocationCallbacks*             pAllocator,
                                                               VkPipeline*                              pPipelines);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT(
+    VkDevice device, const VkAccelerationStructureCaptureDescriptorDataInfoEXT* pInfo, void* pData);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetBufferOpaqueCaptureDescriptorDataEXT(
+    VkDevice device, const VkBufferCaptureDescriptorDataInfoEXT* pInfo, void* pData);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetImageOpaqueCaptureDescriptorDataEXT(
+    VkDevice device, const VkImageCaptureDescriptorDataInfoEXT* pInfo, void* pData);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetSamplerOpaqueCaptureDescriptorDataEXT(
+    VkDevice device, const VkSamplerCaptureDescriptorDataInfoEXT* pInfo, void* pData);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewOpaqueCaptureDescriptorDataEXT(
+    VkDevice device, const VkImageViewCaptureDescriptorDataInfoEXT* pInfo, void* pData);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

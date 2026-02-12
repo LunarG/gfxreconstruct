@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2026 LunarG, Inc.
 # Copyright (c) 2020-2022 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -40,6 +40,7 @@ target_sources(gfxrecon-replay
                     ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
                     $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
+                    $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
 )
 
 target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})

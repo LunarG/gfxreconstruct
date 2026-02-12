@@ -147,6 +147,7 @@ const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
 const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
+const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -518,8 +519,8 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
                            gfxrecon::util::Log::Settings&        log_settings)
 {
     // Parse log level
-    gfxrecon::util::Log::Severity log_level;
-    const std::string&            value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
+    gfxrecon::util::LoggingSeverity log_level;
+    const std::string&              value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
     if (value_string.empty() || !gfxrecon::util::Log::StringToSeverity(value_string, log_level))
     {
         log_level = gfxrecon::decode::kDefaultLogLevel;
@@ -534,6 +535,10 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     log_settings.output_timestamps         = arg_parser.IsOptionSet(kLogTimestampsOption);
     log_settings.file_name                 = arg_parser.GetArgumentValue(kLogFileArgument);
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
+    if (log_settings.file_name.size() > 0)
+    {
+        log_settings.write_to_file = true;
+    }
 }
 
 static void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_parser, std::string& file_name)
@@ -867,6 +872,25 @@ static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser
         }
     }
     return msgs;
+}
+
+static void GetWaitBeforeFirstSubmit(const gfxrecon::util::ArgumentParser& arg_parser,
+                                     uint32_t&                             wait_before_first_submit)
+{
+    const auto& value = arg_parser.GetArgumentValue(kWaitBeforeFirstSubmit);
+
+    if (!value.empty())
+    {
+        try
+        {
+            wait_before_first_submit = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid wait before first submit option. Expected format is unsigned integer");
+        }
+    }
 }
 
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
@@ -1215,6 +1239,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
     replay_options.add_new_pipeline_caches      = arg_parser.IsOptionSet(kCreateNewPipelineCacheOption);
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
+
+    GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
 
     return replay_options;
 }

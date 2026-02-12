@@ -29,6 +29,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 const std::string DUMP_ARG_BEGIN_COMMAND_BUFFER = "BeginCommandBuffer";
+const std::string DUMP_ARG_TRANSFER             = "Transfer";
 const std::string DUMP_ARG_DRAW                 = "Draw";
 const std::string DUMP_ARG_RENDER_PASS          = "RenderPass";
 const std::string DUMP_ARG_BEGIN_RENDER_PASS    = "BeginRenderPass";

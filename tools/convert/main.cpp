@@ -171,7 +171,7 @@ static bool GetFrameIndices(const gfxrecon::util::ArgumentParser& arg_parser, st
     if (!input_ranges.empty())
     {
         std::vector<gfxrecon::util::UintRange> frame_ranges =
-            gfxrecon::util::GetUintRanges(input_ranges.c_str(), "frames to be converted", true);
+            gfxrecon::util::GetUintRanges(input_ranges.c_str(), "frames to be converted", true, true);
 
         for (uint32_t i = 0; i < frame_ranges.size(); ++i)
         {
@@ -233,11 +233,10 @@ int main(int argc, const char** argv)
     }
 #endif
 
-    // Reinitialize logging with values retrieved from command line arguments
+    // Update logging with values retrieved from command line arguments
     gfxrecon::util::Log::Settings log_settings;
     GetLogSettings(arg_parser, log_settings);
-    gfxrecon::util::Log::Release();
-    gfxrecon::util::Log::Init(log_settings);
+    gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
     std::string filename_stem;
     std::string output_filename;

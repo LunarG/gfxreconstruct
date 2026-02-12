@@ -87,6 +87,88 @@ class KhronosReplayConsumerBodyGenerator():
         """Method may be overriden. """
         return ''
 
+    def make_resource_dumper_call(self, api_data, name, values, is_override, is_dump_resources_transfer, return_type, dispatchfunc, arglist, before_command):
+        is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
+        is_dump_resources = self.is_dump_resources_api_call(name)
+
+        call_expr = ''
+        dump_resource_arglist = ''
+        if is_override:
+            for val in values:
+                if val.is_pointer and self.is_struct(val.base_type):
+                    if is_dr_override:
+                        dump_resource_arglist += val.name
+                    else:
+                        dump_resource_arglist += val.name + '->GetPointer()'
+                elif self.is_handle(val.base_type):
+                    if val.is_pointer:
+                        if is_dr_override and val.base_type != "VkCommandBuffer":
+                            dump_resource_arglist += val.name
+                        else:
+                            dump_resource_arglist += val.name + '->GetHandlePointer()'
+                    elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
+                        dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
+                    else:
+                        if is_dr_override and val.base_type != "VkCommandBuffer":
+                            dump_resource_arglist += 'in_' + val.name
+                        else:
+                            dump_resource_arglist += 'in_' + val.name + '->handle'
+                else:
+                    if val.is_pointer and val.base_type in ["void", "uint32_t"]:
+                        # avoids passing a PointerDecoder* here (which is wrong but compiles fine, yikes)
+                        # -> dump-resource API expects raw void*
+                        dump_resource_arglist += val.name + '->GetPointer()'
+                    else:
+                        dump_resource_arglist += val.name
+                dump_resource_arglist += ', '
+            dump_resource_arglist = dump_resource_arglist[:-2]
+        else:
+            if is_dr_override:
+                for val in values:
+                    if val.is_pointer and not self.is_handle(val.base_type):
+                        if self.is_struct(val.base_type):
+                            dump_resource_arglist += val.name
+                        else:
+                            dump_resource_arglist += 'in_' + val.name
+                    elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
+                        dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
+                    elif self.is_handle(val.base_type) and not val.is_pointer:
+                        dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type + "Info(" + val.name + ")"
+                    else:
+                        dump_resource_arglist += val.name
+                    dump_resource_arglist += ', '
+                dump_resource_arglist = dump_resource_arglist[:-2]
+            else:
+                dump_resource_arglist = arglist
+
+        if is_dump_resources_transfer:
+            if before_command:
+                dump_resource_arglist += ', true'
+            else:
+                dump_resource_arglist += ', false'
+
+        if not before_command:
+            call_expr += '\n'
+
+
+        if not before_command:
+            call_expr += '    if (options_.dumping_resources)\n'
+        else:
+            call_expr += '    if (options_.dumping_resources && options_.dump_resources_before)\n'
+
+        call_expr += '    {\n'
+        if return_type == api_data.return_type_enum:
+            call_expr += '        resource_dumper_->Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+        else:
+            call_expr += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+
+        call_expr += '    }\n'
+
+        if before_command:
+            call_expr += '\n'
+
+        return call_expr
+
     def make_consumer_func_body(self, api_data, return_type, name, values):
         """
         Method override.
@@ -95,6 +177,7 @@ class KhronosReplayConsumerBodyGenerator():
         body = ''
         is_override = name in self.REPLAY_OVERRIDES
         is_dump_resources = self.is_dump_resources_api_call(name)
+        is_dump_resources_transfer = name in self.DUMP_RESOURCES_TRANSFER_API_CALLS
 
         is_skip_offscreen = True
 
@@ -133,6 +216,7 @@ class KhronosReplayConsumerBodyGenerator():
                 dispatchfunc += '({})->{}'.format(object_name, name[2:])
 
         call_expr = ''
+
         if is_override:
             if self.is_core_create_command(name, True):
                 call_expr = '{}(returnValue, {})'.format(
@@ -153,6 +237,12 @@ class KhronosReplayConsumerBodyGenerator():
             )
             body += '\n'
             body += '\n'
+
+            # Dump resources code generation
+            if is_dump_resources and is_dump_resources_transfer:
+                body += self.make_resource_dumper_call(api_data, name, values, is_override, is_dump_resources_transfer,
+                                                       return_type, dispatchfunc, arglist, True)
+
         if return_type == api_data.return_type_enum:
             if is_async:
                 body += '    if (UseAsyncOperations())\n'
@@ -176,63 +266,8 @@ class KhronosReplayConsumerBodyGenerator():
 
         # Dump resources code generation
         if is_dump_resources:
-            is_dr_override = name in self.DUMP_RESOURCES_OVERRIDES
-
-            dump_resource_arglist = ''
-            if is_override:
-                for val in values:
-                    if val.is_pointer and self.is_struct(val.base_type):
-                        if is_dr_override:
-                            dump_resource_arglist += val.name
-                        else:
-                            dump_resource_arglist += val.name + '->GetPointer()'
-                    elif self.is_handle(val.base_type):
-                        if val.is_pointer:
-                            if is_dr_override and val.base_type != "VkCommandBuffer":
-                                dump_resource_arglist += val.name
-                            else:
-                                dump_resource_arglist += val.name + '->GetHandlePointer()'
-                        elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
-                            dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
-                        else:
-                            dump_resource_arglist += 'in_' + val.name + '->handle'
-                    else:
-                        if val.is_pointer and val.base_type in ["void", "uint32_t"]:
-                            # avoids passing a PointerDecoder* here (which is wrong but compiles fine, yikes)
-                            # -> dump-resource API expects raw void*
-                            dump_resource_arglist += val.name + '->GetPointer()'
-                        else:
-                            dump_resource_arglist += val.name
-                    dump_resource_arglist += ', '
-                dump_resource_arglist = dump_resource_arglist[:-2]
-            else:
-                if is_dr_override:
-                    for val in values:
-                        if val.is_pointer and not self.is_handle(val.base_type):
-                            if self.is_struct(val.base_type):
-                                dump_resource_arglist += val.name
-                            else:
-                                dump_resource_arglist += 'in_' + val.name
-                        elif self.is_custom_dump_resource_type(is_dump_resources, is_override, name, val):
-                            dump_resource_arglist += self.handle_custom_dump_resource_type(is_dump_resources, is_override, name, val)
-                        elif self.is_handle(val.base_type) and not val.is_pointer:
-                            dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type + "Info(" + val.name + ")"
-                        else:
-                            dump_resource_arglist += val.name
-                        dump_resource_arglist += ', '
-                    dump_resource_arglist = dump_resource_arglist[:-2]
-                else:
-                    dump_resource_arglist = arglist
-
-            body += '\n'
-            body += '    if (options_.dumping_resources)\n'
-            body += '    {\n'
-            if return_type == api_data.return_type_enum:
-                body += '        resource_dumper_->Process_{}(call_info, {}, returnValue, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
-            else:
-                body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
-
-            body += '    }\n'
+            body += self.make_resource_dumper_call(api_data, name, values, is_override, is_dump_resources_transfer,
+                                                   return_type, dispatchfunc, arglist, False)
 
         if postexpr:
             body += '\n'
@@ -273,7 +308,7 @@ class KhronosReplayConsumerBodyGenerator():
                 cmddef += self.make_dump_resources_func_decl(
                     return_type,
                     '{}ReplayDumpResources::Process_'.format(platform_type)
-                    + cmd, values, cmd in self.DUMP_RESOURCES_OVERRIDES
+                    + cmd, values, cmd in self.DUMP_RESOURCES_OVERRIDES, cmd in self.DUMP_RESOURCES_TRANSFER_API_CALLS
                 ) + '\n'
             else:
                 cmddef += self.make_consumer_func_decl(

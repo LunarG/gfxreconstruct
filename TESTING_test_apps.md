@@ -53,6 +53,7 @@ Required arguments:
                   external-memory-fd-export
                   external-memory-fd-import
                   wait-for-present
+                  trigger-trimming
                   [...]
 ```
 

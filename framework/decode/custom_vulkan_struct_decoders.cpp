@@ -582,31 +582,157 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkLayerSe
         case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
         case VK_LAYER_SETTING_TYPE_UINT32_EXT:
             bytes_read += wrapper->pValues.DecodeUInt32(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_INT32_EXT:
             bytes_read += wrapper->pValues.DecodeInt32(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_INT64_EXT:
             bytes_read += wrapper->pValues.DecodeInt64(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_UINT64_EXT:
             bytes_read += wrapper->pValues.DecodeUInt64(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
             bytes_read += wrapper->pValues.DecodeFloat(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
             bytes_read += wrapper->pValues.DecodeDouble(buffer + bytes_read, buffer_size - bytes_read);
+            value->pValues = static_cast<const void*>(wrapper->pValues.GetPointer());
             break;
         case VK_LAYER_SETTING_TYPE_STRING_EXT:
-            bytes_read += wrapper->string_decoder.Decode(buffer + bytes_read, buffer_size - bytes_read);
+        {
+            uint32_t attrib;
+            ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+            // VkLayerSettingEXT was incorrectly encoded for strings before 23f420bd as void* but also decoded
+            // that way (correctly for the encoding).  Decoding captures from before 23f420bd will potentially
+            // crash, so detect captures encoded the incorrect way and attempt to handle them gracefully.
+
+            bool is_string = (attrib & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString;
+
+            if (is_string)
+            {
+                bytes_read += wrapper->string_decoder.Decode(buffer + bytes_read, buffer_size - bytes_read);
+                value->pValues = static_cast<const void*>(wrapper->string_decoder.GetPointer());
+            }
+            else
+            {
+                GFXRECON_LOG_INFO("Detected and discarding VkLayerSettingEXT string value incorrectly encoded as "
+                                  "void*. Settings will not be passed downstream. See commit 23f420bd.");
+                // XXX Note that it is unlikely the encoded buffer (1 uint8_t) will contain the captured layer settings
+                // settings.  Decode a uint8_t buffer to move past the data and discard the results.
+                bytes_read += wrapper->pValues.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
+                value->valueCount = 0;
+            }
             break;
+        }
         case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
             break;
     }
-    value->pValues = value->type == VK_LAYER_SETTING_TYPE_STRING_EXT
-                         ? static_cast<const void*>(wrapper->string_decoder.GetPointer())
-                         : static_cast<const void*>(wrapper->pValues.GetPointer());
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorDataEXT* wrapper)
+{
+    GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t               bytes_read = 0;
+    VkDescriptorDataEXT* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->accelerationStructure));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorGetInfoEXT* wrapper)
+{
+    GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                  bytes_read = 0;
+    VkDescriptorGetInfoEXT* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->pNext);
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->decoded_type);
+    value->type = wrapper->decoded_type;
+
+    wrapper->data                = DecodeAllocator::Allocate<Decoded_VkDescriptorDataEXT>();
+    wrapper->data->decoded_value = &(value->data);
+
+    switch (wrapper->decoded_type)
+    {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+            bytes_read += wrapper->data->pSampler.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pSampler = wrapper->data->pSampler.GetHandlePointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            wrapper->data->pCombinedImageSampler =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>();
+            bytes_read +=
+                wrapper->data->pCombinedImageSampler->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pCombinedImageSampler = wrapper->data->pCombinedImageSampler->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            wrapper->data->pInputAttachmentImage =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>();
+            bytes_read +=
+                wrapper->data->pInputAttachmentImage->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pInputAttachmentImage = wrapper->data->pInputAttachmentImage->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            wrapper->data->pSampledImage =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>();
+            bytes_read += wrapper->data->pSampledImage->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pSampledImage = wrapper->data->pSampledImage->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            wrapper->data->pStorageImage =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>();
+            bytes_read += wrapper->data->pStorageImage->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pStorageImage = wrapper->data->pStorageImage->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            wrapper->data->pUniformTexelBuffer =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>>();
+            bytes_read += wrapper->data->pUniformTexelBuffer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pUniformTexelBuffer = wrapper->data->pUniformTexelBuffer->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            wrapper->data->pStorageTexelBuffer =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>>();
+            bytes_read += wrapper->data->pStorageTexelBuffer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pStorageTexelBuffer = wrapper->data->pStorageTexelBuffer->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            wrapper->data->pUniformBuffer =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>>();
+            bytes_read += wrapper->data->pUniformBuffer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pUniformBuffer = wrapper->data->pUniformBuffer->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            wrapper->data->pStorageBuffer =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>>();
+            bytes_read += wrapper->data->pStorageBuffer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pStorageBuffer = wrapper->data->pStorageBuffer->GetPointer();
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data);
+            value->data.accelerationStructure = wrapper->data->decoded_value->accelerationStructure;
+            break;
+        default:
+            break;
+    }
+
     return bytes_read;
 }
 

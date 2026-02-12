@@ -87,9 +87,11 @@ class VulkanResourceInitializer
                              uint32_t              layer_count,
                              uint32_t              level_count);
 
-  private:
     VkResult GetCommandExecObjects(uint32_t queue_family_index, VkCommandBuffer* command_buffer);
 
+    VkResult BeginCommandBuffer(uint32_t queue_family_index, VkCommandBuffer* command_buffer_p = nullptr);
+
+  private:
     VkResult GetDrawDescriptorObjects(VkSampler* sampler, VkDescriptorSetLayout* set_layout, VkDescriptorSet* set);
 
     VkResult CreateDrawObjects(VkFormat              format,
@@ -130,8 +132,6 @@ class VulkanResourceInitializer
     void ReleaseStagingBuffer();
 
     void UpdateDrawDescriptorSet(VkDescriptorSet set, VkImageView view, VkSampler sampler);
-
-    VkResult BeginCommandBuffer(uint32_t queue_family_index, VkCommandBuffer* command_buffer_p = nullptr);
 
     VkResult ExecuteCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer);
 

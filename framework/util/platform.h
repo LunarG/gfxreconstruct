@@ -24,6 +24,7 @@
 #ifndef GFXRECON_UTIL_PLATFORM_H
 #define GFXRECON_UTIL_PLATFORM_H
 
+#include "util/alignment_utils.h"
 #include "util/defines.h"
 
 #include <cstdint>
@@ -72,6 +73,36 @@
 #include <sched.h>
 #endif
 
+#include <fcntl.h>
+#if defined(WIN32)
+#include <io.h>
+#define PLATFORM_OPEN_FD _open
+#define PLATFORM_CLOSE_FD _close
+#define PLATFORM_READ_FD _read
+#define PLATFORM_WRITE_FD _write
+using PlatformReadSizeType = unsigned int;
+#else
+#include <unistd.h>
+#define PLATFORM_OPEN_FD open
+#define PLATFORM_CLOSE_FD close
+#define PLATFORM_READ_FD read
+#define PLATFORM_WRITE_FD write
+using PlatformReadSizeType = size_t;
+
+// Define O_BINARY for non-Windows platforms to avoid compilation errors.
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+
+// Apple plaforms lseek support is 64-bit by default.
+#ifdef __APPLE__
+#define lseek64 lseek
+#define off64_t off_t
+#endif
+
+#endif
+using PlatformReadResultType = decltype(PLATFORM_READ_FD(0, nullptr, 0));
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(platform)
@@ -92,6 +123,14 @@ const int32_t kMaxPropertyLength = 255;
 typedef DWORD   pid_t;
 typedef HMODULE LibraryHandle;
 
+inline std::wstring ToWString(const char* str)
+{
+    int          wsize = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+    std::wstring wstr(wsize - 1, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, wstr.data(), wsize);
+    return wstr;
+}
+
 inline pid_t GetCurrentProcessId()
 {
     return ::GetCurrentProcessId();
@@ -109,7 +148,7 @@ inline void TriggerDebugBreak()
 
 inline LibraryHandle OpenLibrary(const char* name)
 {
-    return LoadLibraryA(name);
+    return LoadLibraryW(ToWString(name).c_str());
 }
 
 inline void CloseLibrary(LibraryHandle handle)
@@ -192,7 +231,14 @@ inline int32_t StringCopy(wchar_t* destination, size_t destination_size, const w
 
 inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 {
-    return static_cast<int32_t>(fopen_s(stream, filename, mode));
+    // NB: On NTFS a "component" (between slashes) cannot be more than
+    // 255 characters even if "long paths" are enabled on the system and
+    // the app manifest enables long paths.
+    // (https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation)
+    // strerror will return "Invalid argument" if a component is more
+    // than 255 characters
+
+    return static_cast<int32_t>(_wfopen_s(stream, ToWString(filename).c_str(), ToWString(mode).c_str()));
 }
 
 inline int64_t FileTell(FILE* stream)
@@ -204,6 +250,12 @@ inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 {
     int32_t result = _fseeki64(stream, offset, origin);
     return (result == 0);
+}
+
+inline bool FileSeek(int fd, int64_t offset, FileSeekOrigin origin)
+{
+    __int64 result = _lseeki64(fd, offset, origin);
+    return (result != -1);
 }
 
 inline bool FileWriteNoLock(const void* buffer, size_t bytes, FILE* stream)
@@ -233,7 +285,7 @@ inline int32_t GMTime(tm* gm_time, const time_t* timer)
 
 inline int32_t MakeDirectory(const char* filename)
 {
-    return _mkdir(filename);
+    return _wmkdir(ToWString(filename).c_str());
 }
 
 inline size_t GetSystemPageSize()
@@ -501,6 +553,12 @@ inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
     return (result == 0);
 }
 
+inline bool FileSeek(int fd, int64_t offset, FileSeekOrigin origin)
+{
+    off64_t result = lseek64(fd, offset, origin);
+    return (result != -1);
+}
+
 inline bool FileWriteNoLock(const void* buffer, size_t bytes, FILE* stream)
 {
     size_t write_count = 0;
@@ -634,7 +692,7 @@ inline std::string GetCpuAffinity()
     std::string affinity;
 
 #ifdef __linux__
-    cpu_set_t mask;
+    cpu_set_t   mask;
     if (sched_getaffinity(0, sizeof(mask), &mask))
     {
         return affinity;
@@ -767,16 +825,92 @@ inline bool FilePuts(const char* char_string, FILE* stream)
     return FileWrite(char_string, strlen(char_string), stream);
 }
 
+inline size_t FileReadBytes(void* buffer, size_t bytes, FILE* stream)
+{
+    size_t read_count    = 0;
+    char*  dest_buffer   = static_cast<char*>(buffer);
+    size_t bytes_to_read = bytes;
+    while (read_count < bytes) // Early out for zero byte reads
+    {
+        size_t bytes_read = fread(dest_buffer, 1, bytes_to_read, stream);
+        read_count += bytes_read;
+        if (bytes_read < bytes_to_read)
+        {
+            dest_buffer += bytes_read;
+            bytes_to_read -= bytes_read;
+
+            if (feof(stream))
+            {
+                break;
+            }
+            else if (ferror(stream))
+            {
+                int err = errno;
+                if ((err == EWOULDBLOCK) || (err == EINTR) || (err == EAGAIN))
+                {
+                    clearerr(stream);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    return read_count;
+}
+
+enum class FileReadStatus
+{
+    kSuccess = 0,
+    kEof,
+    kError
+};
+
+inline size_t FileReadBytes(void* buffer, size_t bytes, int fd, FileReadStatus& status)
+{
+    // "read" returns a plaform-dependent signed type (int or ssize_t), so we need to derive that type
+    constexpr PlatformReadResultType kMaxChunkSize = std::numeric_limits<PlatformReadResultType>::max();
+
+    char*  dest_buffer   = static_cast<char*>(buffer);
+    size_t bytes_to_read = bytes;
+    status               = FileReadStatus::kSuccess;
+
+    while (bytes_to_read > 0) // Early out for zero byte reads
+    {
+        size_t                 chunk_bytes_to_read = std::min(bytes_to_read, static_cast<size_t>(kMaxChunkSize));
+        PlatformReadResultType result =
+            PLATFORM_READ_FD(fd, dest_buffer, static_cast<PlatformReadSizeType>(chunk_bytes_to_read));
+        if (result < 0)
+        {
+            int err = errno;
+            if ((err == EWOULDBLOCK) || (err == EINTR) || (err == EAGAIN))
+            {
+                continue;
+            }
+            else
+            {
+                status = FileReadStatus::kError;
+                break;
+            }
+        }
+        else if (result == 0)
+        {
+            // EOF
+            status = FileReadStatus::kEof;
+            break;
+        }
+
+        // NOTE: Result is > 0 and indicates number of bytes read
+        dest_buffer += result;
+        bytes_to_read -= result;
+    }
+    return bytes - bytes_to_read;
+}
+
 inline bool FileRead(void* buffer, size_t bytes, FILE* stream)
 {
-    size_t read_count = 0;
-    int    err        = 0;
-    do
-    {
-        read_count = fread(buffer, bytes, 1, stream);
-        err        = ferror(stream);
-    } while (!feof(stream) && read_count < 1 && (err == EWOULDBLOCK || err == EINTR || err == EAGAIN));
-    return (read_count == 1 || bytes == 0);
+    return FileReadBytes(buffer, bytes, stream) == bytes;
 }
 
 inline int32_t SetFileBufferSize(FILE* stream, size_t buffer_size)
@@ -787,6 +921,16 @@ inline int32_t SetFileBufferSize(FILE* stream, size_t buffer_size)
 inline int32_t FileClose(FILE* stream)
 {
     return fclose(stream);
+}
+
+inline int FileOpenFd(const char* filename, int oflag)
+{
+    return PLATFORM_OPEN_FD(filename, oflag);
+}
+
+inline int32_t FileClose(int fd)
+{
+    return PLATFORM_CLOSE_FD(fd);
 }
 
 // Align an address/offset value to a given number of bytes. Requires static alignment value.
@@ -818,6 +962,37 @@ inline uintptr_t GetPageStartAddress(const void* ptr)
 {
     static size_t page_size = GetSystemPageSize();
     return (reinterpret_cast<uintptr_t>(ptr) / page_size) * page_size;
+}
+
+inline void* AlignedAlloc(size_t size, size_t alignment)
+{
+    alignment = util::next_pow_2(alignment);
+#if defined(WIN32)
+    return _aligned_malloc(size, alignment);
+#elif defined(__ANDROID__)
+    constexpr size_t pointer_size = sizeof(void*);
+    alignment                     = (alignment < pointer_size) ? pointer_size : alignment;
+    void* ptr                     = nullptr;
+    if (posix_memalign(&ptr, alignment, size) != 0)
+    {
+        return nullptr;
+    }
+    return ptr;
+#else
+    size = GetAlignedSize(size, alignment);
+    return std::aligned_alloc(alignment, size);
+#endif
+}
+
+inline void AlignedFree(void* ptr)
+{
+#if defined(WIN32)
+    _aligned_free(ptr);
+#elif defined(__ANDROID__)
+    free(ptr);
+#else
+    std::free(ptr);
+#endif
 }
 
 #if defined(WIN32)

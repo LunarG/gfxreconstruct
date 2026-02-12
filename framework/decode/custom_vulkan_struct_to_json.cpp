@@ -631,5 +631,66 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT*
     }
 }
 
+void FieldToJson(nlohmann::ordered_json&            jdata,
+                 VkDescriptorType                   discriminant,
+                 const Decoded_VkDescriptorDataEXT* data,
+                 const util::JsonOptions&           options)
+{
+    if (data && data->decoded_value)
+    {
+        switch (discriminant)
+        {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+                HandleToJson(jdata["pSampler"], &data->pSampler, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                FieldToJson(jdata["pCombinedImageSampler"], data->pCombinedImageSampler, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                FieldToJson(jdata["pInputAttachmentImage"], data->pInputAttachmentImage, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                FieldToJson(jdata["pSampledImage"], data->pSampledImage, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                FieldToJson(jdata["pStorageImage"], data->pStorageImage, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                FieldToJson(jdata["pUniformTexelBuffer"], data->pUniformTexelBuffer, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                FieldToJson(jdata["pStorageTexelBuffer"], data->pStorageTexelBuffer, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                FieldToJson(jdata["pUniformBuffer"], data->pUniformBuffer, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                FieldToJson(jdata["pStorageBuffer"], data->pStorageBuffer, options);
+                break;
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                FieldToJsonAsHex(jdata["accelerationStructure"], data->decoded_value->accelerationStructure, options);
+                break;
+            default:
+                jdata = "Invalid DescriptorType: " + std::to_string(discriminant);
+                break;
+        }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json&               jdata,
+                 const Decoded_VkDescriptorGetInfoEXT* data,
+                 const util::JsonOptions&              options)
+{
+    if (data && data->decoded_value)
+    {
+        const auto& decoded_value = *data->decoded_value;
+        const auto& meta_struct   = *data;
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["data"], decoded_value.type, meta_struct.data, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

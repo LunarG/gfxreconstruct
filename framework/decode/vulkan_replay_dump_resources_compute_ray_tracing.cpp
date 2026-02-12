@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,18 +20,20 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "graphics/vulkan_resources_util.h"
+#include "graphics/vulkan_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -39,7 +41,6 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <vulkan/vulkan_core.h>
 #if !defined(WIN32)
 #include <dirent.h>
 #endif
@@ -48,24 +49,24 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
-    const CommandIndices*                       dispatch_indices,
-    const CommandImageSubresource&              disp_subresources,
-    const CommandIndices*                       trace_rays_indices,
-    const CommandImageSubresource&              tr_subresources,
-    CommonObjectInfoTable&                      object_info_table,
-    const VulkanReplayOptions&                  options,
-    VulkanDumpResourcesDelegate&                delegate,
-    const util::Compressor*                     compressor,
-    DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
-    const VulkanPerDeviceAddressTrackers&       address_trackers) :
+    const CommandIndices*                             dispatch_indices,
+    const CommandImageSubresource&                    disp_subresources,
+    const CommandIndices*                             trace_rays_indices,
+    const CommandImageSubresource&                    tr_subresources,
+    CommonObjectInfoTable&                            object_info_table,
+    const VulkanReplayOptions&                        options,
+    VulkanDumpResourcesDelegate&                      delegate,
+    const util::Compressor*                           compressor,
+    const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+    const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
     DR_command_buffer_(VK_NULL_HANDLE), disp_subresources_(disp_subresources), tr_subresources_(tr_subresources),
     delegate_(delegate), options_(options), compressor_(compressor), bound_pipeline_compute_(nullptr),
     bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
     device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
     object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
-    current_trace_rays_index_(0), reached_end_command_buffer_(false),
-    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
+    current_trace_rays_index_(0), acceleration_structures_context_(acceleration_structures_context),
+    address_trackers_(address_trackers)
 {
     if (dispatch_indices != nullptr)
     {
@@ -105,8 +106,7 @@ void DispatchTraceRaysDumpingContext::Release()
                 assert(pool_info);
 
                 device_table_->FreeCommandBuffers(device, pool_info->handle, 1, &DR_command_buffer_);
-                DR_command_buffer_          = VK_NULL_HANDLE;
-                reached_end_command_buffer_ = false;
+                DR_command_buffer_ = VK_NULL_HANDLE;
             }
         }
 
@@ -119,6 +119,212 @@ void DispatchTraceRaysDumpingContext::Release()
     bound_descriptor_sets_ray_tracing_.clear();
     dispatch_params_.clear();
     trace_rays_params_.clear();
+}
+
+void DispatchTraceRaysDumpingContext::CmdDispatch(const ApiCallInfo& call_info,
+                                                  PFN_vkCmdDispatch  func,
+                                                  VkCommandBuffer    original_command_buffer,
+                                                  uint32_t           groupCountX,
+                                                  uint32_t           groupCountY,
+                                                  uint32_t           groupCountZ)
+{
+    const uint64_t disp_index = call_info.index;
+    const bool     must_dump  = MustDumpDispatch(disp_index);
+
+    if (must_dump)
+    {
+        InsertNewDispatchParameters(disp_index, groupCountX, groupCountY, groupCountZ);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer, groupCountX, groupCountY, groupCountZ);
+    }
+
+    if (must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, false);
+        FinalizeCommandBuffer(true);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdDispatchIndirect(const ApiCallInfo&        call_info,
+                                                          PFN_vkCmdDispatchIndirect func,
+                                                          VkCommandBuffer           original_command_buffer,
+                                                          const VulkanBufferInfo*   buffer_info,
+                                                          VkDeviceSize              offset)
+{
+    const uint64_t disp_index = call_info.index;
+    const bool     must_dump  = MustDumpDispatch(disp_index);
+
+    if (must_dump)
+    {
+        InsertNewDispatchParameters(disp_index, buffer_info, offset);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    func(dispatch_rays_command_buffer, buffer_info->handle, offset);
+
+    if (must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, false);
+        FinalizeCommandBuffer(true);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdTraceRaysKHR(
+    const ApiCallInfo&                                             call_info,
+    PFN_vkCmdTraceRaysKHR                                          func,
+    VkCommandBuffer                                                original_command_buffer,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    uint32_t                                                       width,
+    uint32_t                                                       height,
+    uint32_t                                                       depth)
+{
+    const uint64_t tr_index  = call_info.index;
+    const bool     must_dump = MustDumpTraceRays(tr_index);
+
+    const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable   = pRaygenShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable     = pMissShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
+
+    if (must_dump)
+    {
+        InsertNewTraceRaysParameters(tr_index,
+                                     in_pRaygenShaderBindingTable,
+                                     in_pMissShaderBindingTable,
+                                     in_pHitShaderBindingTable,
+                                     in_pCallableShaderBindingTable,
+                                     width,
+                                     height,
+                                     depth);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             width,
+             height,
+             depth);
+    }
+
+    if (must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, false);
+        FinalizeCommandBuffer(false);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirectKHR(
+    const ApiCallInfo&                                             call_info,
+    PFN_vkCmdTraceRaysIndirectKHR                                  func,
+    VkCommandBuffer                                                original_command_buffer,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    VkDeviceAddress                                                indirectDeviceAddress)
+{
+    const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable   = pRaygenShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable     = pMissShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
+    const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
+
+    const uint64_t tr_index  = call_info.index;
+    const bool     must_dump = MustDumpTraceRays(tr_index);
+
+    if (must_dump)
+    {
+        InsertNewTraceRaysIndirectParameters(tr_index,
+                                             in_pRaygenShaderBindingTable,
+                                             in_pMissShaderBindingTable,
+                                             in_pHitShaderBindingTable,
+                                             in_pCallableShaderBindingTable,
+                                             indirectDeviceAddress);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             indirectDeviceAddress);
+    }
+
+    if (must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, false);
+        FinalizeCommandBuffer(false);
+    }
+}
+
+void DispatchTraceRaysDumpingContext::CmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
+                                                               PFN_vkCmdTraceRaysIndirect2KHR func,
+                                                               VkCommandBuffer                original_command_buffer,
+                                                               VkDeviceAddress                indirectDeviceAddress)
+{
+    const uint64_t tr_index  = call_info.index;
+    const bool     must_dump = MustDumpTraceRays(tr_index);
+
+    if (must_dump)
+    {
+        InsertNewTraceRaysIndirect2Parameters(tr_index, indirectDeviceAddress);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer, indirectDeviceAddress);
+    }
+
+    if (must_dump)
+    {
+        CloneTraceRaysMutableResources(tr_index, false);
+        FinalizeCommandBuffer(false);
+    }
 }
 
 VkResult DispatchTraceRaysDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
@@ -422,7 +628,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     {
         copy.srcSubresource.mipLevel = i;
         copy.dstSubresource.mipLevel = i;
-        copy.extent                  = ScaleToMipLevel(src_image_info->extent, i);
+        copy.extent                  = graphics::ScaleToMipLevel(src_image_info->extent, i);
 
         copies[i] = copy;
     }
@@ -730,8 +936,6 @@ void DispatchTraceRaysDumpingContext::SnapshotTraceRaysState(TraceRaysParams& tr
 VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescriptorSets&     referenced_descriptors,
                                                                 MutableResourcesBackupContext& resource_backup_context)
 {
-    assert(IsRecording());
-
     for (const auto& [desc_set_index, desc_set_info] : referenced_descriptors)
     {
         for (const auto& [binding_index, desc_info] : desc_set_info)
@@ -761,12 +965,12 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         new_entry.desc_binding   = binding_index;
                         new_entry.array_index    = array_index;
 
-                        VkResult res = CloneImage(object_info_table_,
-                                                  device_table_,
-                                                  replay_device_phys_mem_props_,
-                                                  img_info,
-                                                  &new_entry.new_image_info.handle,
-                                                  &new_entry.image_memory);
+                        VkResult res = CreateVkImage(object_info_table_,
+                                                     device_table_,
+                                                     replay_device_phys_mem_props_,
+                                                     img_info,
+                                                     &new_entry.new_image_info.handle,
+                                                     &new_entry.image_memory);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Cloning image resource %" PRIu64 " failed (%s)",
@@ -800,14 +1004,16 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         new_entry.cloned_size =
                             buf_desc->range == VK_WHOLE_SIZE ? (buf_info->size - buf_desc->offset) : buf_desc->range;
 
-                        VkResult res = CloneBuffer(object_info_table_,
-                                                   device_table_,
-                                                   replay_device_phys_mem_props_,
-                                                   buf_info,
-                                                   &new_entry.new_buffer_info.handle,
-                                                   &new_entry.buffer_memory,
-                                                   new_entry.cloned_size);
-
+                        VkResult res =
+                            CreateVkBuffer(new_entry.cloned_size,
+                                           *device_table_,
+                                           object_info_table_.GetVkDeviceInfo(buf_info->parent_id)->handle,
+                                           nullptr,
+                                           nullptr,
+                                           replay_device_phys_mem_props_,
+                                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                           &new_entry.new_buffer_info.handle,
+                                           &new_entry.buffer_memory);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Cloning buffer resource %" PRIu64 " failed (%s)",
@@ -843,14 +1049,16 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(const BoundDescr
                         new_entry.cloned_size =
                             buf_desc.range == VK_WHOLE_SIZE ? (buf_info->size - buf_desc.offset) : buf_desc.range;
 
-                        VkResult res = CloneBuffer(object_info_table_,
-                                                   device_table_,
-                                                   replay_device_phys_mem_props_,
-                                                   buf_info,
-                                                   &new_entry.new_buffer_info.handle,
-                                                   &new_entry.buffer_memory,
-                                                   new_entry.cloned_size);
-
+                        VkResult res =
+                            CreateVkBuffer(new_entry.cloned_size,
+                                           *device_table_,
+                                           object_info_table_.GetVkDeviceInfo(buf_info->parent_id)->handle,
+                                           nullptr,
+                                           nullptr,
+                                           replay_device_phys_mem_props_,
+                                           VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                           &new_entry.new_buffer_info.handle,
+                                           &new_entry.buffer_memory);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Cloning buffer resource %" PRIu64 " failed (%s)",
@@ -1147,7 +1355,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
         }
 
         const VulkanDelegateDumpDrawCallContext draw_call_info(
-            DumpResourcesCommandType::kCompute, instance_table_, device_table_, disp_params.get());
+            DumpResourcesPipelineStage::kCompute, instance_table_, device_table_, disp_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
@@ -1174,7 +1382,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
         }
 
         const VulkanDelegateDumpDrawCallContext draw_call_info(
-            DumpResourcesCommandType::kRayTracing, instance_table_, device_table_, tr_params.get());
+            DumpResourcesPipelineStage::kRayTracing, instance_table_, device_table_, tr_params.get());
         delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
@@ -1277,7 +1485,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             mutable_resources_clones.images[i].array_index,
             &mutable_resources_clones.images[i].new_image_info,
             can_dump_image,
-            is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing);
+            is_dispatch ? DumpResourcesPipelineStage::kCompute : DumpResourcesPipelineStage::kRayTracing);
 
         if (can_dump_image != ImageDumpResult::kCanDump)
         {
@@ -1376,10 +1584,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             mutable_resources_clones.buffers[i].desc_set,
             mutable_resources_clones.buffers[i].desc_binding,
             mutable_resources_clones.buffers[i].array_index,
-            &mutable_resources_clones.buffers[i].new_buffer_info,
+            mutable_resources_clones.buffers[i].new_buffer_info.handle,
+            mutable_resources_clones.buffers[i].new_buffer_info.capture_id,
             0,
             mutable_resources_clones.buffers[i].cloned_size,
-            is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing);
+            is_dispatch ? DumpResourcesPipelineStage::kCompute : DumpResourcesPipelineStage::kRayTracing);
 
         // Dump the "after" resource
         VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1411,7 +1620,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
             new_dumped_desc.has_before = true;
             new_dumped_desc.dumped_resource_before =
-                DumpedBuffer(&mutable_resources_clones_before.buffers[i].new_buffer_info,
+                DumpedBuffer(mutable_resources_clones_before.buffers[i].new_buffer_info.handle,
+                             mutable_resources_clones_before.buffers[i].new_buffer_info.capture_id,
                              0,
                              mutable_resources_clones_before.buffers[i].cloned_size);
 
@@ -1441,11 +1651,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     return VK_SUCCESS;
 }
 
-bool DispatchTraceRaysDumpingContext::IsRecording() const
-{
-    return !reached_end_command_buffer_;
-}
-
 VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                                                           uint64_t bcb_index,
                                                           uint64_t cmd_index,
@@ -1461,8 +1666,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
     DumpedResourcesInfo& dumped_resources =
         is_dispatch ? dispatch_params_[cmd_index]->dumped_resources : trace_rays_params_[cmd_index]->dumped_resources;
 
-    const DumpResourcesCommandType resource_type =
-        is_dispatch ? DumpResourcesCommandType::kCompute : DumpResourcesCommandType::kRayTracing;
+    const DumpResourcesPipelineStage ppl_stage =
+        is_dispatch ? DumpResourcesPipelineStage::kCompute : DumpResourcesPipelineStage::kRayTracing;
 
     const CommandImageSubresource&  command_subresources = is_dispatch ? disp_subresources_ : tr_subresources_;
     CommandImageSubresourceIterator cmd_subresources_entry;
@@ -1529,7 +1734,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                                 array_index,
                                 img_info,
                                 can_dump_image,
-                                resource_type);
+                                ppl_stage);
 
                             if (can_dump_image != ImageDumpResult::kCanDump)
                             {
@@ -1573,7 +1778,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             }
                             else
                             {
-                                new_dumped_image.CopyDumpedInfo(dumped_descs_entry->second);
+                                new_dumped_image = dumped_descs_entry->second;
                             }
                         }
                     }
@@ -1611,10 +1816,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            resource_type);
+                            ppl_stage);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto&              dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(loc);
@@ -1650,7 +1856,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1688,10 +1894,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             desc_set_index,
                             desc_binding_index,
                             array_index,
-                            buffer_info,
+                            buffer_info->handle,
+                            buffer_info->capture_id,
                             offset,
                             size,
-                            resource_type);
+                            ppl_stage);
 
                         const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
                         const auto               dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(loc);
@@ -1727,7 +1934,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         else
                         {
                             auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
-                            new_dumped_buffer.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_buffer       = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1750,7 +1957,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         desc_binding_info.desc_type,
                         desc_set_index,
                         desc_binding_index,
-                        resource_type);
+                        ppl_stage);
 
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;
@@ -1783,10 +1990,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             array_index,
                             as_info,
                             options_.dump_resources_dump_build_AS_input_buffers,
-                            resource_type);
+                            ppl_stage);
 
-                        auto& new_dumped_as =
-                            std::get<DumpedTopLevelAccelerationStructure>(new_dumped_desc.dumped_resource);
+                        auto& new_dumped_as = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
                         const DescriptorLocation loc  = { desc_set_index, desc_binding_index, array_index };
                         const auto& dumped_desc_entry = dumped_descriptors.acceleration_structures.find(loc);
                         if (dumped_desc_entry == dumped_descriptors.acceleration_structures.end())
@@ -1799,14 +2005,19 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                             auto& dumped_as_data =
                                 std::get<VulkanDelegateAccelerationStructureDumpedData>(res_info.dumped_data);
 
-                            VkResult res = DumpTopLevelAccelerationStructure(new_dumped_as,
-                                                                             dumped_as_data.data,
-                                                                             acceleration_structures_context_,
-                                                                             device_info,
-                                                                             *device_table_,
-                                                                             object_info_table_,
-                                                                             *instance_table_,
-                                                                             address_trackers_);
+                            auto tlas_context_entry = acceleration_structures_context_.find(as_info);
+                            GFXRECON_ASSERT(tlas_context_entry != acceleration_structures_context_.end());
+                            AccelerationStructureDumpResourcesContext* tlas_context = tlas_context_entry->second.get();
+
+                            VkResult res = DumpAccelerationStructure(new_dumped_as,
+                                                                     dumped_as_data.data,
+                                                                     tlas_context,
+                                                                     acceleration_structures_context_,
+                                                                     device_info,
+                                                                     *device_table_,
+                                                                     object_info_table_,
+                                                                     *instance_table_,
+                                                                     address_trackers_);
                             if (res != VK_SUCCESS)
                             {
                                 GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",
@@ -1820,7 +2031,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         }
                         else
                         {
-                            new_dumped_as.CopyDumpedInfo(dumped_desc_entry->second);
+                            new_dumped_as = dumped_desc_entry->second;
                         }
                     }
                 }
@@ -1851,14 +2062,18 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
     GFXRECON_ASSERT(disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info != nullptr);
     GFXRECON_ASSERT(disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->handle != VK_NULL_HANDLE);
 
-    const VkDeviceSize size = sizeof(VkDispatchIndirectCommand);
-    VkResult           res  = CloneBuffer(object_info_table_,
-                               device_table_,
-                               replay_device_phys_mem_props_,
-                               disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info,
-                               &disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
-                               &disp_params.dispatch_params_union.dispatch_indirect.new_params_memory,
-                               size);
+    const VkDeviceSize size               = sizeof(VkDispatchIndirectCommand);
+    const auto*        parent_device_info = object_info_table_.GetVkDeviceInfo(
+        disp_params.dispatch_params_union.dispatch_indirect.params_buffer_info->parent_id);
+    VkResult res = CreateVkBuffer(size,
+                                  *device_table_,
+                                  parent_device_info->handle,
+                                  nullptr,
+                                  nullptr,
+                                  replay_device_phys_mem_props_,
+                                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                  &disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
+                                  &disp_params.dispatch_params_union.dispatch_indirect.new_params_memory);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Cloning buffer resources failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -2171,12 +2386,11 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirect2Parameters(uint
 
 void DispatchTraceRaysDumpingContext::EndCommandBuffer()
 {
-    reached_end_command_buffer_ = true;
     device_table_->EndCommandBuffer(DR_command_buffer_);
 }
 
-void DispatchTraceRaysDumpingContext::AssignSecondary(uint64_t                         execute_commands_index,
-                                                      DispatchTraceRaysDumpingContext* secondary_context)
+void DispatchTraceRaysDumpingContext::AssignSecondary(
+    uint64_t execute_commands_index, std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_context)
 {
     GFXRECON_ASSERT(secondary_context);
 

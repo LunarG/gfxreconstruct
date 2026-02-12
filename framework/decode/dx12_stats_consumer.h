@@ -122,7 +122,7 @@ class Dx12StatsConsumer : public Dx12Consumer
         InsertAdapter(new_adapter, gfxr_cmd_adapters_);
         format::HandleId object_id = graphics::dx12::ExtractAdapterCaptureId(new_adapter.extra_info);
 
-        const int64_t luid = (new_adapter.LuidHighPart << 31) | new_adapter.LuidLowPart;
+        const int64_t luid = pack_luid(new_adapter);
         adapter_submission_mapping_.adapter_to_luid_map[object_id] = luid;
     }
 
@@ -131,6 +131,9 @@ class Dx12StatsConsumer : public Dx12Consumer
                                                 HRESULT                                           return_value,
                                                 StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC3>* pDesc)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
         InsertAdapter(new_adapter, app_get_desc_adapters);
@@ -142,6 +145,9 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    HRESULT                                                             return_value,
                                    gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC2>* pDesc)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
         InsertAdapter(new_adapter, app_get_desc_adapters);
@@ -153,6 +159,9 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    HRESULT                                                             return_value,
                                    gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC1>* pDesc)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
         InsertAdapter(new_adapter, app_get_desc_adapters);
@@ -163,14 +172,22 @@ class Dx12StatsConsumer : public Dx12Consumer
                                               HRESULT                              return_value,
                                               gfxrecon::decode::StructPointerDecoder<Decoded_DXGI_ADAPTER_DESC>* pDesc)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
         format::DxgiAdapterDesc new_adapter = {};
         CopyAdapterDesc(new_adapter, pDesc);
         InsertAdapter(new_adapter, app_get_desc_adapters);
     }
 
-    std::string GetSwapchainDimensions()
+    std::string GetSwapchainDimensionsString()
     {
         return std::to_string(swapchain_width_) + 'x' + std::to_string(swapchain_height_);
+    }
+
+    std::pair<UINT, UINT> GetSwapchainDimensions()
+    {
+        return {swapchain_width_, swapchain_height_};
     }
 
     virtual void Process_IDXGIFactory_CreateSwapChain(const ApiCallInfo&                                  call_info,
@@ -180,6 +197,10 @@ class Dx12StatsConsumer : public Dx12Consumer
                                                       StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pDesc,
                                                       HandlePointerDecoder<IDXGISwapChain*>*              ppSwapChain)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
+        GFXRECON_UNREFERENCED_PARAMETER(pDevice);
         if (!ppSwapChain->IsNull())
         {
             swapchain_id_ = *ppSwapChain->GetPointer();
@@ -206,6 +227,13 @@ class Dx12StatsConsumer : public Dx12Consumer
         format::HandleId                                               pRestrictToOutput,
         HandlePointerDecoder<IDXGISwapChain1*>*                        ppSwapChain)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
+        GFXRECON_UNREFERENCED_PARAMETER(pDevice);
+        GFXRECON_UNREFERENCED_PARAMETER(hWnd);
+        GFXRECON_UNREFERENCED_PARAMETER(pFullscreenDesc);
+        GFXRECON_UNREFERENCED_PARAMETER(pRestrictToOutput);
         if (!ppSwapChain->IsNull())
         {
             swapchain_id_     = *ppSwapChain->GetPointer();
@@ -229,6 +257,11 @@ class Dx12StatsConsumer : public Dx12Consumer
                                                       DXGI_FORMAT        NewFormat,
                                                       UINT               SwapChainFlags)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
+        GFXRECON_UNREFERENCED_PARAMETER(BufferCount);
+        GFXRECON_UNREFERENCED_PARAMETER(NewFormat);
+        GFXRECON_UNREFERENCED_PARAMETER(SwapChainFlags);
         if (swapchain_id_ == object_id)
         {
             swapchain_width_  = Width;
@@ -245,6 +278,11 @@ class Dx12StatsConsumer : public Dx12Consumer
         UINT                                                                              NumPostbuildInfoDescs,
         StructPointerDecoder<Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC>* pPostbuildInfoDescs)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(pDesc);
+        GFXRECON_UNREFERENCED_PARAMETER(NumPostbuildInfoDescs);
+        GFXRECON_UNREFERENCED_PARAMETER(pPostbuildInfoDescs);
         dxr_workload_ = true;
     }
 
@@ -252,6 +290,8 @@ class Dx12StatsConsumer : public Dx12Consumer
     ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
                                           const uint8_t*                                      data)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(command_header);
+        GFXRECON_UNREFERENCED_PARAMETER(data);
         opt_fillmem_ = true;
     }
 
@@ -260,6 +300,9 @@ class Dx12StatsConsumer : public Dx12Consumer
         const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
         const uint8_t*                                                        build_inputs_data)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(command_header);
+        GFXRECON_UNREFERENCED_PARAMETER(geometry_descs);
+        GFXRECON_UNREFERENCED_PARAMETER(build_inputs_data);
         dxr_workload_ = true;
     }
 
@@ -272,19 +315,28 @@ class Dx12StatsConsumer : public Dx12Consumer
                                                            format::HandleId   pCountBuffer,
                                                            UINT64             CountBufferOffset)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(pCommandSignature);
+        GFXRECON_UNREFERENCED_PARAMETER(MaxCommandCount);
+        GFXRECON_UNREFERENCED_PARAMETER(pArgumentBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(ArgumentBufferOffset);
+        GFXRECON_UNREFERENCED_PARAMETER(pCountBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(CountBufferOffset);
         ei_workload_ = true;
     }
 
-    void Process_IDXGISwapChain_Present(const ApiCallInfo& call_info,
-                                        format::HandleId   object_id,
-                                        HRESULT            return_value,
-                                        UINT               SyncInterval,
-                                        UINT               Flags)
+    void Process_IDXGISwapChain_Present(
+        const ApiCallInfo& call_info, format::HandleId object_id, HRESULT return_value, UINT SyncInterval, UINT Flags)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(object_id);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
+        GFXRECON_UNREFERENCED_PARAMETER(SyncInterval);
         if (Flags & DXGI_PRESENT_TEST)
         {
             dxgi_present_test_++;
-        }        
+        }
     }
 
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header)
@@ -295,11 +347,14 @@ class Dx12StatsConsumer : public Dx12Consumer
                                    sizeof(runtime_info_header.runtime_info));
     }
 
-    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
-                                                      format::HandleId                                    swapchain_id,
-                                                      uint32_t                                            current_buffer_index,
+    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
+                                                      format::HandleId swapchain_id,
+                                                      uint32_t         current_buffer_index,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(device_id);
+        GFXRECON_UNREFERENCED_PARAMETER(swapchain_id);
+        GFXRECON_UNREFERENCED_PARAMETER(image_state);
         dummy_trim_frame_count_ = current_buffer_index;
     }
 
@@ -310,6 +365,10 @@ class Dx12StatsConsumer : public Dx12Consumer
                                            Decoded_GUID                 riid,
                                            HandlePointerDecoder<void*>* ppDevice)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
+        GFXRECON_UNREFERENCED_PARAMETER(MinimumFeatureLevel);
+        GFXRECON_UNREFERENCED_PARAMETER(riid);
         GFXRECON_ASSERT(ppDevice != nullptr);
 
         if (ppDevice != nullptr && ppDevice->GetPointer() != nullptr)
@@ -326,6 +385,10 @@ class Dx12StatsConsumer : public Dx12Consumer
                                                          Decoded_GUID                                            riid,
                                                          HandlePointerDecoder<void*>* ppCommandQueue)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(return_value);
+        GFXRECON_UNREFERENCED_PARAMETER(pDesc);
+        GFXRECON_UNREFERENCED_PARAMETER(riid);
         GFXRECON_ASSERT(ppCommandQueue != nullptr);
 
         if (ppCommandQueue != nullptr && ppCommandQueue->GetPointer() != nullptr)
@@ -341,6 +404,9 @@ class Dx12StatsConsumer : public Dx12Consumer
                                                    UINT                                      NumCommandLists,
                                                    HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
     {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        GFXRECON_UNREFERENCED_PARAMETER(NumCommandLists);
+        GFXRECON_UNREFERENCED_PARAMETER(ppCommandLists);
         GFXRECON_ASSERT(object_id != format::kNullHandleId)
         adapter_submission_mapping_.adapter_submit_counts[object_id]++;
     }
@@ -351,7 +417,7 @@ class Dx12StatsConsumer : public Dx12Consumer
         bool valid_adapter = false;
         for (const auto& adapter : adapters)
         {
-            const int64_t adapter_luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
+            const int64_t adapter_luid = pack_luid(adapter);
             if (workload_luid == adapter_luid)
             {
                 valid_adapter = true;
@@ -418,7 +484,7 @@ class Dx12StatsConsumer : public Dx12Consumer
     format::HandleId swapchain_id_;
     bool             swapchain_info_found_;
 
-    UINT             dummy_trim_frame_count_;
+    UINT dummy_trim_frame_count_;
 
     format::Dx12RuntimeInfo runtime_info_;
 

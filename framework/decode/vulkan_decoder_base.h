@@ -145,6 +145,12 @@ class VulkanDecoderBase : public ApiDecoder
                                                  format::HandleId object_id,
                                                  uint64_t         address) override;
 
+    void DispatchSetOpaqueDescriptorDataCommand(format::ThreadId thread_id,
+                                                format::HandleId device_id,
+                                                format::HandleId object_id,
+                                                uint32_t         data_size,
+                                                const uint8_t*   data) override;
+
     virtual void DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
                                                                 format::HandleId device_id,
                                                                 format::HandleId pipeline_id,

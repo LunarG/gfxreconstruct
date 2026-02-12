@@ -2029,6 +2029,33 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorBuffersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    bufferCount,
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(bufferCount);
+
+    assert(pBindingInfos != nullptr);
+
+    if (!pBindingInfos->IsNull() && (pBindingInfos->HasData()))
+    {
+        auto pBindingInfos_ptr = pBindingInfos->GetMetaStructPointer();
+        size_t pBindingInfos_count = pBindingInfos->GetLength();
+        for (size_t pBindingInfos_index = 0; pBindingInfos_index < pBindingInfos_count; ++pBindingInfos_index)
+        {
+            {
+                const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>(pBindingInfos_ptr->pNext);
+                if (ext_struct_info != nullptr)
+                {
+                    GetTable().AddResourceToUser(commandBuffer, ext_struct_info->buffer);
+                }
+            }
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBindInvocationMaskHUAWEI(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

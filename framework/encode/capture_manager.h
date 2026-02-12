@@ -79,6 +79,8 @@ class CommonCaptureManager
     static void             PushUniqueId(const format::HandleId id);
     static void             ClearUniqueIds();
 
+    static CommonCaptureManager* Get() { return singleton_; }
+
     // Set to true to force capture manager to generate new, default IDs instead of using the unique ID stack.
     static void SetForceDefaultUniqueId(bool force) { force_default_unique_id_ = force; }
 
@@ -240,6 +242,10 @@ class CommonCaptureManager
     bool RuntimeTriggerDisabled();
 
     bool RuntimeWriteAssetsEnabled();
+
+    bool ExternalTriggerEnabled();
+
+    bool ExternalTriggerDisabled();
 
     void WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message);
 

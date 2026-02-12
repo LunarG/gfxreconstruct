@@ -47,6 +47,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::BufferViewWrapper* wrapper) { return InsertEntry(id, wrapper, vk_bufferView_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::CommandBufferWrapper* wrapper) { return InsertEntry(id, wrapper, vk_commandBuffer_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::CommandPoolWrapper* wrapper) { return InsertEntry(id, wrapper, vk_commandPool_map_); }
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper) { return InsertEntry(id, wrapper, vk_dataGraphPipelineSessionARM_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::DebugReportCallbackEXTWrapper* wrapper) { return InsertEntry(id, wrapper, vk_debugReportCallbackEXT_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { return InsertEntry(id, wrapper, vk_debugUtilsMessengerEXT_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::DeferredOperationKHRWrapper* wrapper) { return InsertEntry(id, wrapper, vk_deferredOperationKHR_map_); }
@@ -96,6 +97,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::BufferViewWrapper* wrapper) { return RemoveEntry(wrapper, vk_bufferView_map_); }
     bool RemoveWrapper(const vulkan_wrappers::CommandBufferWrapper* wrapper) { return RemoveEntry(wrapper, vk_commandBuffer_map_); }
     bool RemoveWrapper(const vulkan_wrappers::CommandPoolWrapper* wrapper) { return RemoveEntry(wrapper, vk_commandPool_map_); }
+    bool RemoveWrapper(const vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper) { return RemoveEntry(wrapper, vk_dataGraphPipelineSessionARM_map_); }
     bool RemoveWrapper(const vulkan_wrappers::DebugReportCallbackEXTWrapper* wrapper) { return RemoveEntry(wrapper, vk_debugReportCallbackEXT_map_); }
     bool RemoveWrapper(const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { return RemoveEntry(wrapper, vk_debugUtilsMessengerEXT_map_); }
     bool RemoveWrapper(const vulkan_wrappers::DeferredOperationKHRWrapper* wrapper) { return RemoveEntry(wrapper, vk_deferredOperationKHR_map_); }
@@ -145,6 +147,7 @@ class VulkanStateTable : VulkanStateTableBase
     const vulkan_wrappers::BufferViewWrapper* GetVulkanBufferViewWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::BufferViewWrapper>(id, vk_bufferView_map_); }
     const vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, vk_commandBuffer_map_); }
     const vulkan_wrappers::CommandPoolWrapper* GetVulkanCommandPoolWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandPoolWrapper>(id, vk_commandPool_map_); }
+    const vulkan_wrappers::DataGraphPipelineSessionARMWrapper* GetVulkanDataGraphPipelineSessionARMWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(id, vk_dataGraphPipelineSessionARM_map_); }
     const vulkan_wrappers::DebugReportCallbackEXTWrapper* GetVulkanDebugReportCallbackEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(id, vk_debugReportCallbackEXT_map_); }
     const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* GetVulkanDebugUtilsMessengerEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(id, vk_debugUtilsMessengerEXT_map_); }
     const vulkan_wrappers::DeferredOperationKHRWrapper* GetVulkanDeferredOperationKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(id, vk_deferredOperationKHR_map_); }
@@ -194,6 +197,7 @@ class VulkanStateTable : VulkanStateTableBase
     vulkan_wrappers::BufferViewWrapper* GetVulkanBufferViewWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::BufferViewWrapper>(id, vk_bufferView_map_); }
     vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, vk_commandBuffer_map_); }
     vulkan_wrappers::CommandPoolWrapper* GetVulkanCommandPoolWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandPoolWrapper>(id, vk_commandPool_map_); }
+    vulkan_wrappers::DataGraphPipelineSessionARMWrapper* GetVulkanDataGraphPipelineSessionARMWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(id, vk_dataGraphPipelineSessionARM_map_); }
     vulkan_wrappers::DebugReportCallbackEXTWrapper* GetVulkanDebugReportCallbackEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(id, vk_debugReportCallbackEXT_map_); }
     vulkan_wrappers::DebugUtilsMessengerEXTWrapper* GetVulkanDebugUtilsMessengerEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(id, vk_debugUtilsMessengerEXT_map_); }
     vulkan_wrappers::DeferredOperationKHRWrapper* GetVulkanDeferredOperationKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(id, vk_deferredOperationKHR_map_); }
@@ -243,6 +247,7 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(vulkan_wrappers::BufferViewWrapper*)> visitor) const { for (auto entry : vk_bufferView_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::CommandBufferWrapper*)> visitor) const { for (auto entry : vk_commandBuffer_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::CommandPoolWrapper*)> visitor) const { for (auto entry : vk_commandPool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::DataGraphPipelineSessionARMWrapper*)> visitor) const { for (auto entry : vk_dataGraphPipelineSessionARM_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::DebugReportCallbackEXTWrapper*)> visitor) const { for (auto entry : vk_debugReportCallbackEXT_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::DebugUtilsMessengerEXTWrapper*)> visitor) const { for (auto entry : vk_debugUtilsMessengerEXT_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::DeferredOperationKHRWrapper*)> visitor) const { for (auto entry : vk_deferredOperationKHR_map_) { visitor(entry.second); } }
@@ -293,6 +298,7 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, vulkan_wrappers::BufferViewWrapper*> vk_bufferView_map_;
     std::map<format::HandleId, vulkan_wrappers::CommandBufferWrapper*> vk_commandBuffer_map_;
     std::map<format::HandleId, vulkan_wrappers::CommandPoolWrapper*> vk_commandPool_map_;
+    std::map<format::HandleId, vulkan_wrappers::DataGraphPipelineSessionARMWrapper*> vk_dataGraphPipelineSessionARM_map_;
     std::map<format::HandleId, vulkan_wrappers::DebugReportCallbackEXTWrapper*> vk_debugReportCallbackEXT_map_;
     std::map<format::HandleId, vulkan_wrappers::DebugUtilsMessengerEXTWrapper*> vk_debugUtilsMessengerEXT_map_;
     std::map<format::HandleId, vulkan_wrappers::DeferredOperationKHRWrapper*> vk_deferredOperationKHR_map_;
@@ -349,6 +355,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     bool InsertWrapper(vulkan_wrappers::BufferViewWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_bufferView_map_); }
     bool InsertWrapper(vulkan_wrappers::CommandBufferWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_commandBuffer_map_); }
     bool InsertWrapper(vulkan_wrappers::CommandPoolWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_commandPool_map_); }
+    bool InsertWrapper(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_dataGraphPipelineSessionARM_map_); }
     bool InsertWrapper(vulkan_wrappers::DebugReportCallbackEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_debugReportCallbackEXT_map_); }
     bool InsertWrapper(vulkan_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_debugUtilsMessengerEXT_map_); }
     bool InsertWrapper(vulkan_wrappers::DeferredOperationKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, vk_deferredOperationKHR_map_); }
@@ -415,6 +422,10 @@ class VulkanStateHandleTable : VulkanStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::CommandPoolWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, vk_commandPool_map_);
+    }
+    bool RemoveWrapper(const vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, vk_dataGraphPipelineSessionARM_map_);
     }
     bool RemoveWrapper(const vulkan_wrappers::DebugReportCallbackEXTWrapper* wrapper) {
          if (wrapper == nullptr) return false;
@@ -596,6 +607,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     std::unordered_map<VkBufferView, vulkan_wrappers::BufferViewWrapper*> vk_bufferView_map_;
     std::unordered_map<VkCommandBuffer, vulkan_wrappers::CommandBufferWrapper*> vk_commandBuffer_map_;
     std::unordered_map<VkCommandPool, vulkan_wrappers::CommandPoolWrapper*> vk_commandPool_map_;
+    std::unordered_map<VkDataGraphPipelineSessionARM, vulkan_wrappers::DataGraphPipelineSessionARMWrapper*> vk_dataGraphPipelineSessionARM_map_;
     std::unordered_map<VkDebugReportCallbackEXT, vulkan_wrappers::DebugReportCallbackEXTWrapper*> vk_debugReportCallbackEXT_map_;
     std::unordered_map<VkDebugUtilsMessengerEXT, vulkan_wrappers::DebugUtilsMessengerEXTWrapper*> vk_debugUtilsMessengerEXT_map_;
     std::unordered_map<VkDeferredOperationKHR, vulkan_wrappers::DeferredOperationKHRWrapper*> vk_deferredOperationKHR_map_;
@@ -646,6 +658,7 @@ template<> inline const vulkan_wrappers::BufferWrapper* VulkanStateHandleTable::
 template<> inline const vulkan_wrappers::BufferViewWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::BufferViewWrapper>(VkBufferView handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_bufferView_map_); }
 template<> inline const vulkan_wrappers::CommandBufferWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(VkCommandBuffer handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_commandBuffer_map_); }
 template<> inline const vulkan_wrappers::CommandPoolWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(VkCommandPool handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_commandPool_map_); }
+template<> inline const vulkan_wrappers::DataGraphPipelineSessionARMWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(VkDataGraphPipelineSessionARM handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_dataGraphPipelineSessionARM_map_); }
 template<> inline const vulkan_wrappers::DebugReportCallbackEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(VkDebugReportCallbackEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_debugReportCallbackEXT_map_); }
 template<> inline const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(VkDebugUtilsMessengerEXT handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_debugUtilsMessengerEXT_map_); }
 template<> inline const vulkan_wrappers::DeferredOperationKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(VkDeferredOperationKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, vk_deferredOperationKHR_map_); }
@@ -695,6 +708,7 @@ template<> inline vulkan_wrappers::BufferWrapper* VulkanStateHandleTable::GetWra
 template<> inline vulkan_wrappers::BufferViewWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::BufferViewWrapper>(VkBufferView handle) { return VulkanStateTableBase::GetWrapper(handle, vk_bufferView_map_); }
 template<> inline vulkan_wrappers::CommandBufferWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(VkCommandBuffer handle) { return VulkanStateTableBase::GetWrapper(handle, vk_commandBuffer_map_); }
 template<> inline vulkan_wrappers::CommandPoolWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::CommandPoolWrapper>(VkCommandPool handle) { return VulkanStateTableBase::GetWrapper(handle, vk_commandPool_map_); }
+template<> inline vulkan_wrappers::DataGraphPipelineSessionARMWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(VkDataGraphPipelineSessionARM handle) { return VulkanStateTableBase::GetWrapper(handle, vk_dataGraphPipelineSessionARM_map_); }
 template<> inline vulkan_wrappers::DebugReportCallbackEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(VkDebugReportCallbackEXT handle) { return VulkanStateTableBase::GetWrapper(handle, vk_debugReportCallbackEXT_map_); }
 template<> inline vulkan_wrappers::DebugUtilsMessengerEXTWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(VkDebugUtilsMessengerEXT handle) { return VulkanStateTableBase::GetWrapper(handle, vk_debugUtilsMessengerEXT_map_); }
 template<> inline vulkan_wrappers::DeferredOperationKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(VkDeferredOperationKHR handle) { return VulkanStateTableBase::GetWrapper(handle, vk_deferredOperationKHR_map_); }

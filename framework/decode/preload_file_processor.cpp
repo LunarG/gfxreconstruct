@@ -40,11 +40,13 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
 
 bool PreloadFileProcessor::PreloadBlocksOneFrame()
 {
-    BlockBuffer         block_buffer;
-    bool                success = true;
+    BlockBuffer block_buffer;
+    bool        success = true;
 
-    auto        err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
-    BlockParser block_parser(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
+    BlockParser block_parser([this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); },
+                             pool_,
+                             compressor_.get());
+
     while (success)
     {
         PrintBlockInfo();
