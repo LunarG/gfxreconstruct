@@ -170,8 +170,7 @@ class BlockParser
     BlockAllocator& GetBlockAllocator() noexcept { return block_allocator_; }
 
   private:
-    using AllocationInfo = BlockAllocator::BlockAllocationInfo;
-    AllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
+    BlockAllocator::BlockAllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
 
     struct ParameterReadResult
     {
@@ -187,14 +186,19 @@ class BlockParser
         return block_allocator_.GetCurrentBatch().emplace_block(std::forward<Args>(args)...);
     }
 
+    template <typename T, typename... Args>
+    T* Emplace(Args... args)
+    {
+        return block_allocator_.GetCurrentBatch().emplace<T>(std::forward<Args>(args)...);
+    }
+
     template <typename ArgPayload>
     [[nodiscard]] ParsedBlock& MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
                                                            const BlockParser::ParameterReadResult& result,
-                                                           ArgPayload&&                            args);
+                                                           ArgPayload*                             args);
 
     template <typename ArgPayload>
-    ParsedBlock&
-    MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload&& args, bool references_block_buffer = false);
+    ParsedBlock& MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload* args);
 
     constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
     ParameterReadResult

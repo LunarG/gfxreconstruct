@@ -265,39 +265,32 @@ class FileProcessor
     {
       public:
         template <typename Args>
-        void operator()(const Args& args)
+        void operator()(const Args* args)
         {
             constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
             for (auto decoder : decoders_)
             {
-                if (DecoderSupportsDispatch(*decoder, args))
+                if (DecoderSupportsDispatch(*decoder, *args))
                 {
                     [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
-                    SetDecoderApiCallId(*decoder, args);
+                    SetDecoderApiCallId(*decoder, *args);
                     decoder->SetCurrentBlockIndex(block_index_);
                     auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
                         (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
                     };
-                    std::apply(dispatch_call, args.GetTuple());
+                    std::apply(dispatch_call, args->GetTuple());
                 }
             }
         }
-        void operator()(const AnnotationArgs& annotation)
+        void operator()(const AnnotationArgs* annotation)
         {
             if (annotation_handler_)
             {
                 auto annotation_call = [this](auto&&... expanded_args) {
                     annotation_handler_->ProcessAnnotation(std::forward<decltype(expanded_args)>(expanded_args)...);
                 };
-                std::apply(annotation_call, annotation.GetTuple());
+                std::apply(annotation_call, annotation->GetTuple());
             }
-        }
-
-        // Avoid unpacking the Arg from it's store in the Arg specific overloads
-        template <typename Args>
-        void operator()(const DispatchStore<Args>& store)
-        {
-            this->operator()(*store);
         }
 
         DispatchVisitor(const std::vector<ApiDecoder*>& decoders, AnnotationHandler* annotation_handler) :
@@ -320,69 +313,62 @@ class FileProcessor
         //       std::visit calls
 
         // Frame boundary control
-        void operator()(const FunctionCallArgs& function_call)
+        void operator()(const FunctionCallArgs* function_call)
         {
-            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call.call_id);
+            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call->call_id);
             success            = true;
         }
 
-        void operator()(const MethodCallArgs& method_call)
+        void operator()(const MethodCallArgs* method_call)
         {
-            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call.call_id);
+            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call->call_id);
             success            = true;
         }
 
-        void operator()(const FrameEndMarkerArgs& end_frame)
+        void operator()(const FrameEndMarkerArgs* end_frame)
         {
             // The block and marker type are implied by the Args type
-            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(end_frame);
+            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(*end_frame);
             success            = true;
         }
 
         // I/O Control
-        void operator()(const ExecuteBlocksFromFileArgs& execute_blocks)
+        void operator()(const ExecuteBlocksFromFileArgs* execute_blocks)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
-            success            = file_processor_.ProcessExecuteBlocksFromFile(execute_blocks);
+            success            = file_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
         }
 
         // State Marker control
-        void operator()(const StateBeginMarkerArgs& state_begin)
+        void operator()(const StateBeginMarkerArgs* state_begin)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
             success            = true;
-            file_processor_.ProcessStateBeginMarker(state_begin);
+            file_processor_.ProcessStateBeginMarker(*state_begin);
         }
 
-        void operator()(const StateEndMarkerArgs& state_end)
+        void operator()(const StateEndMarkerArgs* state_end)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
             success            = true;
-            file_processor_.ProcessStateEndMarker(state_end);
+            file_processor_.ProcessStateEndMarker(*state_end);
         }
 
-        void operator()(const AnnotationArgs& annotation)
+        void operator()(const AnnotationArgs* annotation)
         {
             // The block and marker type are implied by the Command type
             is_frame_delimiter = false;
             success            = true;
-            file_processor_.ProcessAnnotation(annotation);
+            file_processor_.ProcessAnnotation(*annotation);
         }
 
         template <typename Args>
-        void operator()(const Args&)
+        void operator()(const Args*)
         {
             Reset();
-        }
-
-        // Avoid unpacking the Arg from it's store in the Arg specific overloads
-        template <typename Args>
-        void operator()(const DispatchStore<Args>& store)
-        {
-            this->operator()(*store);
         }
 
         bool IsSuccess() const { return success; }
