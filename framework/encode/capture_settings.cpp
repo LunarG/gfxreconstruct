@@ -55,8 +55,6 @@ CaptureSettings::CaptureSettings(format::ApiFamilyId api_family)
     log_settings_   = {};
 }
 
-CaptureSettings::~CaptureSettings() {}
-
 void CaptureSettings::LoadAllSettings(CaptureSettings* settings, bool load_log_settings)
 {
     if (settings != nullptr)

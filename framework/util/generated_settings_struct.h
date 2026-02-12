@@ -32,7 +32,6 @@
 
 struct GfxrCaptureSettingsStruct
 {
-    // clang-format off
     std::string capture_compression_type{"lz4"};
 #if defined(__ANDROID__)
     std::string capture_file{"/sdcard/gfxrecon_capture.gfxr"};
@@ -120,15 +119,11 @@ struct GfxrCaptureSettingsStruct
 
     // OpenXR-Specific
     bool        skip_threads_with_invalid_data{false};
-
-    // clang-format on
 };
 
 struct GfxrSettingsStruct
 {
-    // clang-format off
     GfxrCaptureSettingsStruct capture_settings;
-    // clang-format on
 };
 
 #endif // GFXRECON_SETTINGS_STRUCT_H

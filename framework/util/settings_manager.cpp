@@ -60,8 +60,6 @@ SettingsManager::SettingsManager(format::ApiFamilyId api_family)
     ReadEnvironmentVariables();
 }
 
-SettingsManager::~SettingsManager() {}
-
 // Convert a setting value (received either through a settings file or an environment/property string)
 // into a boolean value.
 // In this case, any non-zero integer is considered true, and any string value of "true" is considered true.
