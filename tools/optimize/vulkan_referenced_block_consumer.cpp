@@ -25,24 +25,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanReferencedBlockConsumer::VulkanReferencedBlockConsumer(std::unordered_set<format::HandleId> unreferenced_ids) :
-    unreferenced_ids_(std::move(unreferenced_ids))
+VulkanReferencedBlockConsumerBase::VulkanReferencedBlockConsumerBase(
+    const std::unordered_set<format::HandleId>& unreferenced_ids) : unreferenced_ids_(std::move(unreferenced_ids))
 {}
 
-void VulkanReferencedBlockConsumer::process_handle_ids(const format::HandleId* handle_ids,
-                                                       uint32_t                num_handle_ids,
-                                                       uint64_t                block_index)
-{
-    // skip this block if all VkPipelines created here are unused
-    if (std::all_of(handle_ids, handle_ids + num_handle_ids, [this](const format::HandleId handle_id) {
-            return unreferenced_ids_.contains(handle_id);
-        }))
-    {
-        unreferenced_blocks_.insert(block_index);
-    }
-}
-
-void VulkanReferencedBlockConsumer::Process_vkCmdBindPipeline(const ApiCallInfo&  call_info,
+void VulkanReferencedBlockConsumerBase::Process_vkCmdBindPipeline(const ApiCallInfo&  call_info,
                                                               format::HandleId    commandBuffer,
                                                               VkPipelineBindPoint pipelineBindPoint,
                                                               format::HandleId    pipeline)
@@ -52,11 +39,14 @@ void VulkanReferencedBlockConsumer::Process_vkCmdBindPipeline(const ApiCallInfo&
     {
         return;
     }
-    process_handle_id(commandBuffer, call_info.index);
-    process_handle_id(pipeline, call_info.index);
+
+    if (check_handle_id_unused(commandBuffer) && check_handle_id_unused(pipeline))
+    {
+        set_block_index_unused(call_info.index);
+    }
 }
 
-void VulkanReferencedBlockConsumer::Process_vkCreateGraphicsPipelines(
+void VulkanReferencedBlockConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                                          call_info,
     VkResult                                                    returnValue,
     format::HandleId                                            device,
@@ -66,10 +56,13 @@ void VulkanReferencedBlockConsumer::Process_vkCreateGraphicsPipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
     HandlePointerDecoder<VkPipeline>*                           pPipelines)
 {
-    // process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
+    if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
+    {
+        // set_block_index_unused(call_info.index);
+    }
 }
 
-void VulkanReferencedBlockConsumer::Process_vkCreateComputePipelines(
+void VulkanReferencedBlockConsumerBase::Process_vkCreateComputePipelines(
     const ApiCallInfo&                                         call_info,
     VkResult                                                   returnValue,
     format::HandleId                                           device,
@@ -79,10 +72,13 @@ void VulkanReferencedBlockConsumer::Process_vkCreateComputePipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkPipeline>*                          pPipelines)
 {
-    // process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
+    if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
+    {
+        // set_block_index_unused(call_info.index);
+    }
 }
 
-void VulkanReferencedBlockConsumer::Process_vkCreateRayTracingPipelinesKHR(
+void VulkanReferencedBlockConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     const ApiCallInfo&                                               call_info,
     VkResult                                                         returnValue,
     format::HandleId                                                 device,
@@ -93,10 +89,13 @@ void VulkanReferencedBlockConsumer::Process_vkCreateRayTracingPipelinesKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
-    process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
+    if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
+    {
+        set_block_index_unused(call_info.index);
+    }
 }
 
-void VulkanReferencedBlockConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&       call_info,
+void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&       call_info,
                                                                                  VkResult                 returnValue,
                                                                                  format::HandleId         device,
                                                                                  format::HandleId         pipeline,
@@ -105,10 +104,13 @@ void VulkanReferencedBlockConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR
                                                                                  size_t                   dataSize,
                                                                                  PointerDecoder<uint8_t>* pData)
 {
-    process_handle_id(pipeline, call_info.index);
+    if (check_handle_id_unused(pipeline))
+    {
+        set_block_index_unused(call_info.index);
+    }
 }
 
-void VulkanReferencedBlockConsumer::Process_vkCmdTraceRaysKHR(
+void VulkanReferencedBlockConsumerBase::Process_vkCmdTraceRaysKHR(
     const ApiCallInfo&                                             call_info,
     format::HandleId                                               commandBuffer,
     StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
@@ -119,7 +121,10 @@ void VulkanReferencedBlockConsumer::Process_vkCmdTraceRaysKHR(
     uint32_t                                                       height,
     uint32_t                                                       depth)
 {
-    process_handle_id(commandBuffer, call_info.index);
+    if (check_handle_id_unused(commandBuffer))
+    {
+        set_block_index_unused(call_info.index);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

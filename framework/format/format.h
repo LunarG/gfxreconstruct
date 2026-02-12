@@ -76,16 +76,17 @@ const int8_t   kNoneIndex                 = -1;
 
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
-const char* const kAnnotationLabelOperation          = "operation";
-const char* const kAnnotationLabelReplayOptions      = "replayopts";
-const char* const kAnnotationLabelRemovedResource    = "removed-resource";
-const char* const kAnnotationLabelTransformer        = "transformer";
-const char* const kAnnotationPipelineCreationAttempt = "pipelinecreationattempt";
+constexpr char kAnnotationLabelOperation[]           = "operation";
+constexpr char kAnnotationLabelReplayOptions[]       = "replayopts";
+constexpr char kAnnotationLabelRemovedResource[]     = "removed-resource";
+constexpr char kAnnotationLabelRemovedFunctionCall[] = "removed-function-call";
+constexpr char kAnnotationLabelTransformer[]         = "transformer";
+constexpr char kAnnotationPipelineCreationAttempt[]  = "pipelinecreationattempt";
 
-const char* const kOperationAnnotationGfxreconstructVersion = "gfxrecon-version";
-const char* const kOperationAnnotationVulkanVersion         = "vulkan-version";
-const char* const kOperationAnnotationTimestamp             = "timestamp";
-const char* const kOperationAnnotationCaptureParameters     = "capture-parameters";
+constexpr char kOperationAnnotationGfxreconstructVersion[] = "gfxrecon-version";
+constexpr char kOperationAnnotationVulkanVersion[]         = "vulkan-version";
+constexpr char kOperationAnnotationTimestamp[]             = "timestamp";
+constexpr char kOperationAnnotationCaptureParameters[]     = "capture-parameters";
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {

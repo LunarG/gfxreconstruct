@@ -33,14 +33,14 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /**
- * @brief   VulkanReferencedBlockConsumer can be used to generate a list of unused blocks in a capture-file.
+ * @brief   VulkanReferencedBlockConsumerBase can be used to generate a list of unused blocks in a capture-file.
  *          This is done by comparing all referenced handle-ids inside a block
  *          against a provided list of unused handle-ids.
  */
-class VulkanReferencedBlockConsumer : public VulkanConsumer
+class VulkanReferencedBlockConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReferencedBlockConsumer(std::unordered_set<format::HandleId> unreferenced_ids);
+    VulkanReferencedBlockConsumerBase(const std::unordered_set<format::HandleId>& unreferenced_ids);
 
     const std::unordered_set<uint64_t>& GetUnreferencedBlocks() const { return unreferenced_blocks_; }
 
@@ -98,19 +98,23 @@ class VulkanReferencedBlockConsumer : public VulkanConsumer
         uint32_t                                                       height,
         uint32_t                                                       depth) override;
 
-  private:
-    void process_handle_id(format::HandleId handle_id, uint64_t block_index)
+  protected:
+    // check if a handle_id is not used throughout the entire capture
+    bool check_handle_id_unused(format::HandleId handle_id) const { return unreferenced_ids_.contains(handle_id); }
+
+    // check for an array of handle_ids, if all of them are not used throughout the entire capture
+    bool check_handle_ids_unused(const format::HandleId* handle_ids, uint32_t num_handle_ids) const
     {
-        if (unreferenced_ids_.contains(handle_id))
-        {
-            unreferenced_blocks_.insert(block_index);
-        }
+        return std::all_of(handle_ids, handle_ids + num_handle_ids, [this](const format::HandleId handle_id) {
+            return unreferenced_ids_.contains(handle_id);
+        });
     }
 
-    void process_handle_ids(const format::HandleId* handle_ids, uint32_t num_handle_ids, uint64_t block_index);
+    void set_block_index_unused(uint64_t block_index) { unreferenced_blocks_.insert(block_index); }
 
-    std::unordered_set<format::HandleId> unreferenced_ids_;
-    std::unordered_set<uint64_t>         unreferenced_blocks_;
+  private:
+    const std::unordered_set<format::HandleId>& unreferenced_ids_;
+    std::unordered_set<uint64_t>                unreferenced_blocks_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

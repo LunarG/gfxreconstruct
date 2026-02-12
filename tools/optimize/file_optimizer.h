@@ -51,6 +51,8 @@ class FileOptimizer : public decode::FileTransformer
 
     bool FilterMethodCall(const decode::MethodCallArgs& args);
 
+    bool WriteAnnotation(std::string_view label, std::string_view message);
+
     const std::unordered_set<format::HandleId>& unreferenced_ids_;
     const std::unordered_set<uint64_t>&         unreferenced_blocks_;
 };

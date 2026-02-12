@@ -169,7 +169,7 @@ GetUnreferencedBlocks(const std::string&                                    inpu
     if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::VulkanDecoder                 decoder;
-        gfxrecon::decode::VulkanReferencedBlockConsumer block_ref_consumer(unreferenced_ids);
+        gfxrecon::decode::VulkanReferencedBlockConsumerBase block_ref_consumer(unreferenced_ids);
 
         decoder.AddConsumer(&block_ref_consumer);
 

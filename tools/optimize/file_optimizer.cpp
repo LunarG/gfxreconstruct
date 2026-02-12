@@ -25,10 +25,10 @@
 #include "format/format.h"
 #include "format/format_util.h"
 #include "util/logging.h"
-#include "util/platform.h"
 
 #include <cassert>
 #include <string>
+#include <format>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -39,16 +39,17 @@ FileOptimizer::FileOptimizer(const std::unordered_set<format::HandleId>& unrefer
 
 bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 {
-    const auto&             args        = parsed_block.Get<decode::FunctionCallArgs>();
-    const format::ApiCallId api_call_id = args.call_id;
-    const uint64_t          block_index = args.call_info.index;
+    const auto&    args        = parsed_block.Get<decode::FunctionCallArgs>();
+    const uint64_t block_index = args.call_info.index;
 
     if (unreferenced_blocks_.contains(block_index))
     {
+        WriteAnnotation(format::kAnnotationLabelRemovedFunctionCall,
+                        std::format("Removed API call: {}", static_cast<uint32_t>(args.call_id)));
+
         // success, call is filtered out
         return true;
     }
-
     return FileTransformer::ProcessFunctionCall(parsed_block);
 }
 
@@ -67,9 +68,7 @@ bool FileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
 
 bool FileOptimizer::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
-    const auto& args = parsed_block.Get<decode::MethodCallArgs>();
-
-    if (FilterMethodCall(args))
+    if (FilterMethodCall(parsed_block.Get<decode::MethodCallArgs>()))
     {
         // success, call is filtered out
         return true;
@@ -86,29 +85,10 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     // If the buffer is in the unused list, omit its initialization data from the file.
     if (unreferenced_ids_.contains(args.buffer_id))
     {
-        // In its place insert a dummy annotation meta command. This should keep the block index when
-        // replaying an optimized trimmed capture in in alignment with the block index calculated
-        // at capture time
-        const char*       label = format::kAnnotationLabelRemovedResource;
-        const std::string data  = "Removed buffer " + std::to_string(args.buffer_id);
-
-        const size_t label_length = util::platform::StringLength(label);
-        const size_t data_length  = data.length();
-
-        format::AnnotationHeader annotation{};
-        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-        annotation.block_header.type = format::BlockType::kAnnotation;
-        annotation.annotation_type   = format::kText;
-        annotation.label_length      = static_cast<uint32_t>(label_length);
-        annotation.data_length       = static_cast<uint64_t>(data.length());
-
-        if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
-            !WriteBytes(data.c_str(), data_length))
-        {
-            HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write annotation meta-data block");
-            return kError;
-        }
-        return kSuccess;
+        return WriteAnnotation(format::kAnnotationLabelRemovedResource,
+                               std::format("Removed buffer {}", args.buffer_id))
+                   ? kSuccess
+                   : kError;
     }
     return kNeedsPassthrough;
 }
@@ -123,29 +103,11 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         // In its place insert a dummy annotation meta command. This should keep the block index when
         // replaying an optimized trimmed capture in in alignment with the block index calculated
         // at capture time
-        const char*       label = format::kAnnotationLabelRemovedResource;
-        const std::string data  = "Removed subresource from image " + std::to_string(args.image_id);
-
-        const size_t label_length = util::platform::StringLength(label);
-        const size_t data_length  = data.length();
-
-        format::AnnotationHeader annotation{};
-        annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
-        annotation.block_header.type = format::BlockType::kAnnotation;
-        annotation.annotation_type   = format::kText;
-        annotation.label_length      = static_cast<uint32_t>(label_length);
-        annotation.data_length       = static_cast<uint64_t>(data.length());
-
-        if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
-            !WriteBytes(data.c_str(), data_length))
-        {
-            HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write annotation meta-data block");
-            return kError;
-        }
-
-        return kSuccess;
+        return WriteAnnotation(format::kAnnotationLabelRemovedResource,
+                               std::format("Removed subresource from image {}", args.image_id))
+                   ? kSuccess
+                   : kError;
     }
-
     return kNeedsPassthrough;
 }
 
@@ -165,6 +127,27 @@ bool FileOptimizer::FilterMethodCall(const decode::MethodCallArgs& args)
         filter_out = unreferenced_blocks_.contains(block_index);
     }
     return filter_out;
+}
+
+bool FileOptimizer::WriteAnnotation(std::string_view label, std::string_view message)
+{
+    const size_t label_length = label.length();
+    const size_t data_length  = message.length();
+
+    format::AnnotationHeader annotation{};
+    annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+    annotation.block_header.type = format::BlockType::kAnnotation;
+    annotation.annotation_type   = format::kText;
+    annotation.label_length      = static_cast<uint32_t>(label.length());
+    annotation.data_length       = static_cast<uint64_t>(message.length());
+
+    if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label.data(), label_length) ||
+        !WriteBytes(message.data(), data_length))
+    {
+        HandleBlockWriteError(decode::kErrorWritingBlockData, "Failed to write annotation meta-data block");
+        return false;
+    }
+    return true;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
