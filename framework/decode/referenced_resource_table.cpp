@@ -366,11 +366,13 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 {
     if (user_id != format::kNullHandleId)
     {
-        auto user_entry = users_.find(user_id);
-        if (user_entry != users_.end())
+        if (auto user_entry = users_.find(user_id); user_entry != users_.end())
         {
             auto& user_info = user_entry->second;
             assert(user_info != nullptr);
+
+            // set command-buffer as submitted
+            user_info->used = true;
 
             auto& resource_infos  = user_info->resource_infos;
             auto& container_infos = user_info->container_infos;
@@ -415,9 +417,17 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
     }
 }
 
-void ReferencedResourceTable::GetReferencedResourceIds(std::unordered_set<format::HandleId>* referenced_ids,
-                                                       std::unordered_set<format::HandleId>* unreferenced_ids) const
+void ReferencedResourceTable::GetReferencedHandleIds(std::unordered_set<format::HandleId>* referenced_ids,
+                                                     std::unordered_set<format::HandleId>* unreferenced_ids) const
 {
+    for (auto& [handle_id, user_entry] : users_)
+    {
+        if (!user_entry->used && unreferenced_ids != nullptr)
+        {
+            unreferenced_ids->insert(handle_id);
+        }
+    }
+
     for (auto& [handle_id, resource_entry] : resources_)
     {
         auto& resource_info = resource_entry;
@@ -426,7 +436,7 @@ void ReferencedResourceTable::GetReferencedResourceIds(std::unordered_set<format
         {
             bool used = IsUsed(resource_info.get());
 
-            if (used && (referenced_ids != nullptr))
+            if (used && referenced_ids != nullptr)
             {
                 referenced_ids->insert(handle_id);
 
@@ -435,7 +445,7 @@ void ReferencedResourceTable::GetReferencedResourceIds(std::unordered_set<format
                     referenced_ids->insert(child.first);
                 }
             }
-            else if (!used && (unreferenced_ids != nullptr))
+            else if (!used && unreferenced_ids != nullptr)
             {
                 unreferenced_ids->insert(handle_id);
             }

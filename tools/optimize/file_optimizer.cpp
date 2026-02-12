@@ -32,18 +32,10 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-FileOptimizer::FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids) :
-    unreferenced_ids_(unreferenced_ids)
+FileOptimizer::FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids,
+                             const std::unordered_set<uint64_t>&         unreferenced_blocks) :
+    unreferenced_ids_(unreferenced_ids), unreferenced_blocks_(unreferenced_blocks)
 {}
-
-FileOptimizer::FileOptimizer(std::unordered_set<format::HandleId>&& unreferenced_ids) :
-    unreferenced_ids_(std::move(unreferenced_ids))
-{}
-
-void FileOptimizer::SetUnreferencedBlocks(const std::unordered_set<uint64_t>& unreferenced_blocks)
-{
-    unreferenced_blocks_ = unreferenced_blocks;
-}
 
 bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 {
@@ -51,7 +43,7 @@ bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
     const format::ApiCallId api_call_id = args.call_id;
     const uint64_t          block_index = args.call_info.index;
 
-    if (unreferenced_blocks_.erase(block_index) > 0)
+    if (unreferenced_blocks_.contains(block_index))
     {
         // success, call is filtered out
         return true;
@@ -169,10 +161,8 @@ bool FileOptimizer::FilterMethodCall(const decode::MethodCallArgs& args)
         api_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateComputePipelineState ||
         api_call_id == format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline)
     {
-
         // If the buffer is in the unused list, omit the call block from the file.
-        // NOTE: Erase returns number of items erased, so only > 0 if the block_index is found
-        filter_out = unreferenced_blocks_.erase(block_index) > 0;
+        filter_out = unreferenced_blocks_.contains(block_index);
     }
     return filter_out;
 }

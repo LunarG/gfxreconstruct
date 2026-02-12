@@ -23,6 +23,7 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 #include "file_optimizer.h"
+#include "vulkan_referenced_block_consumer.h"
 
 #include "../tool_settings.h"
 
@@ -139,11 +140,11 @@ void GetUnreferencedResources(const std::string&                              in
             exit(65);
         }
 
-        if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                 (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone))
+        if (file_processor.GetCurrentFrameNumber() > 0 &&
+            file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
             // Get the list of resources that were included in a command buffer submission during replay.
-            resref_consumer.GetReferencedResourceIds(nullptr, unreferenced_ids);
+            resref_consumer.GetReferencedHandleIds(nullptr, unreferenced_ids);
         }
         else if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
         {
@@ -160,11 +161,40 @@ void GetUnreferencedResources(const std::string&                              in
     }
 }
 
-void FilterUnreferencedResources(const std::string&                               input_filename,
-                                 const std::string&                               output_filename,
-                                 std::unordered_set<gfxrecon::format::HandleId>&& unreferenced_ids)
+std::unordered_set<uint64_t>
+GetUnreferencedBlocks(const std::string&                                    input_filename,
+                      const std::unordered_set<gfxrecon::format::HandleId>& unreferenced_ids)
 {
-    gfxrecon::FileOptimizer file_processor(std::move(unreferenced_ids));
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        gfxrecon::decode::VulkanDecoder                 decoder;
+        gfxrecon::decode::VulkanReferencedBlockConsumer block_ref_consumer(unreferenced_ids);
+
+        decoder.AddConsumer(&block_ref_consumer);
+
+        file_processor.AddDecoder(&decoder);
+        file_processor.ProcessAllFrames();
+
+        if (file_processor.GetCurrentFrameNumber() > 0 &&
+            file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
+        {
+            // Get the list of resources that were included in a command buffer submission during replay.
+            return block_ref_consumer.GetUnreferencedBlocks();
+        }
+
+        GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
+    }
+    return {};
+}
+
+void FilterUnreferencedResources(const std::string&                              input_filename,
+                                 const std::string&                              output_filename,
+                                 std::unordered_set<gfxrecon::format::HandleId>& unreferenced_ids)
+{
+    auto                    unreferenced_blocks = GetUnreferencedBlocks(input_filename, unreferenced_ids);
+    gfxrecon::FileOptimizer file_processor(unreferenced_ids, unreferenced_blocks);
+
     if (file_processor.Initialize(input_filename, output_filename))
     {
         file_processor.Process();
@@ -193,7 +223,7 @@ void VkRemoveRedundantResources(const std::string& input_filename, const std::st
         // Filter unreferenced ids.
         GFXRECON_WRITE_CONSOLE("Writing optimized file, removing initialization data for %" PRIu64 " unused resources.",
                                unreferenced_ids.size());
-        FilterUnreferencedResources(input_filename, output_filename, std::move(unreferenced_ids));
+        FilterUnreferencedResources(input_filename, output_filename, unreferenced_ids);
     }
     else
     {

@@ -42,10 +42,10 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
   public:
     VulkanReferencedResourceConsumerBase();
 
-    void GetReferencedResourceIds(std::unordered_set<format::HandleId>* referenced_ids,
-                                  std::unordered_set<format::HandleId>* unreferenced_ids) const
+    void GetReferencedHandleIds(std::unordered_set<format::HandleId>* referenced_ids,
+                                std::unordered_set<format::HandleId>* unreferenced_ids) const
     {
-        table_.GetReferencedResourceIds(referenced_ids, unreferenced_ids);
+        table_.GetReferencedHandleIds(referenced_ids, unreferenced_ids);
     }
 
     void ProcessStateBeginMarker(uint64_t) override { loading_state_ = true; }

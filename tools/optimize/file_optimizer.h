@@ -33,14 +33,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 class FileOptimizer : public decode::FileTransformer
 {
   public:
-    FileOptimizer() = default;
-
-    FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids);
-
-    FileOptimizer(std::unordered_set<format::HandleId>&& unreferenced_ids);
-
-    // TODO: this looks like it was started but never used anywhere?
-    void SetUnreferencedBlocks(const std::unordered_set<uint64_t>& unreferenced_blocks);
+    FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids,
+                  const std::unordered_set<uint64_t>&         unreferenced_blocks);
 
   private:
     bool        ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
@@ -57,8 +51,8 @@ class FileOptimizer : public decode::FileTransformer
 
     bool FilterMethodCall(const decode::MethodCallArgs& args);
 
-    std::unordered_set<format::HandleId> unreferenced_ids_;
-    std::unordered_set<uint64_t>         unreferenced_blocks_;
+    const std::unordered_set<format::HandleId>& unreferenced_ids_;
+    const std::unordered_set<uint64_t>&         unreferenced_blocks_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

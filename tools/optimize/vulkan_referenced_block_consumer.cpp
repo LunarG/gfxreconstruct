@@ -42,6 +42,20 @@ void VulkanReferencedBlockConsumer::process_handle_ids(const format::HandleId* h
     }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkCmdBindPipeline(const ApiCallInfo&  call_info,
+                                                              format::HandleId    commandBuffer,
+                                                              VkPipelineBindPoint pipelineBindPoint,
+                                                              format::HandleId    pipeline)
+{
+    // tmp
+    if (pipelineBindPoint != VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR)
+    {
+        return;
+    }
+    process_handle_id(commandBuffer, call_info.index);
+    process_handle_id(pipeline, call_info.index);
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                                          call_info,
     VkResult                                                    returnValue,
@@ -52,7 +66,7 @@ void VulkanReferencedBlockConsumer::Process_vkCreateGraphicsPipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
     HandlePointerDecoder<VkPipeline>*                           pPipelines)
 {
-    process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
+    // process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCreateComputePipelines(
@@ -65,7 +79,7 @@ void VulkanReferencedBlockConsumer::Process_vkCreateComputePipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkPipeline>*                          pPipelines)
 {
-    process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
+    // process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
 }
 
 void VulkanReferencedBlockConsumer::Process_vkCreateRayTracingPipelinesKHR(
@@ -80,6 +94,32 @@ void VulkanReferencedBlockConsumer::Process_vkCreateRayTracingPipelinesKHR(
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
     process_handle_ids(pPipelines->GetPointer(), createInfoCount, call_info.index);
+}
+
+void VulkanReferencedBlockConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&       call_info,
+                                                                                 VkResult                 returnValue,
+                                                                                 format::HandleId         device,
+                                                                                 format::HandleId         pipeline,
+                                                                                 uint32_t                 firstGroup,
+                                                                                 uint32_t                 groupCount,
+                                                                                 size_t                   dataSize,
+                                                                                 PointerDecoder<uint8_t>* pData)
+{
+    process_handle_id(pipeline, call_info.index);
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdTraceRaysKHR(
+    const ApiCallInfo&                                             call_info,
+    format::HandleId                                               commandBuffer,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    uint32_t                                                       width,
+    uint32_t                                                       height,
+    uint32_t                                                       depth)
+{
+    process_handle_id(commandBuffer, call_info.index);
 }
 
 GFXRECON_END_NAMESPACE(decode)

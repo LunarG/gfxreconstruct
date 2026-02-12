@@ -86,8 +86,8 @@ class ReferencedResourceTable
 
     void ProcessUserSubmission(format::HandleId user_id);
 
-    void GetReferencedResourceIds(std::unordered_set<format::HandleId>* referenced_ids,
-                                  std::unordered_set<format::HandleId>* unreferenced_ids) const;
+    void GetReferencedHandleIds(std::unordered_set<format::HandleId>* referenced_ids,
+                                std::unordered_set<format::HandleId>* unreferenced_ids) const;
 
     void MarkResourceAsUsed(format::HandleId resource);
 
@@ -118,6 +118,9 @@ class ReferencedResourceTable
         format::HandleId                                                           pool_id{ format::kNullHandleId };
         std::unordered_map<format::HandleId, std::weak_ptr<ResourceInfo>>          resource_infos;
         std::unordered_map<format::HandleId, std::weak_ptr<ResourceContainerInfo>> container_infos;
+
+        // keep track if this command-buffer was submitted
+        bool used{ false };
     };
 
     using PoolHandles =  std::unordered_set<format::HandleId>;

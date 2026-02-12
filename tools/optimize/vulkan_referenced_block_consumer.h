@@ -44,6 +44,11 @@ class VulkanReferencedBlockConsumer : public VulkanConsumer
 
     const std::unordered_set<uint64_t>& GetUnreferencedBlocks() const { return unreferenced_blocks_; }
 
+    void Process_vkCmdBindPipeline(const ApiCallInfo&  call_info,
+                                   format::HandleId    commandBuffer,
+                                   VkPipelineBindPoint pipelineBindPoint,
+                                   format::HandleId    pipeline) override;
+
     void Process_vkCreateGraphicsPipelines(const ApiCallInfo&                                          call_info,
                                            VkResult                                                    returnValue,
                                            format::HandleId                                            device,
@@ -73,7 +78,35 @@ class VulkanReferencedBlockConsumer : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
+    void Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&       call_info,
+                                                      VkResult                 returnValue,
+                                                      format::HandleId         device,
+                                                      format::HandleId         pipeline,
+                                                      uint32_t                 firstGroup,
+                                                      uint32_t                 groupCount,
+                                                      size_t                   dataSize,
+                                                      PointerDecoder<uint8_t>* pData) override;
+
+    void Process_vkCmdTraceRaysKHR(
+        const ApiCallInfo&                                             call_info,
+        format::HandleId                                               commandBuffer,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+        uint32_t                                                       width,
+        uint32_t                                                       height,
+        uint32_t                                                       depth) override;
+
   private:
+    void process_handle_id(format::HandleId handle_id, uint64_t block_index)
+    {
+        if (unreferenced_ids_.contains(handle_id))
+        {
+            unreferenced_blocks_.insert(block_index);
+        }
+    }
+
     void process_handle_ids(const format::HandleId* handle_ids, uint32_t num_handle_ids, uint64_t block_index);
 
     std::unordered_set<format::HandleId> unreferenced_ids_;
