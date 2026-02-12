@@ -43,9 +43,9 @@ class FileOptimizer : public decode::FileTransformer
     void SetUnreferencedBlocks(const std::unordered_set<uint64_t>& unreferenced_blocks);
 
   private:
-    bool ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
-    bool ProcessMethodCall(decode::ParsedBlock& parsed_block) override;
-    bool ProcessMetaData(decode::ParsedBlock& parsed_block) override;
+    bool        ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
+    bool        ProcessMethodCall(decode::ParsedBlock& parsed_block) override;
+    bool        ProcessMetaData(decode::ParsedBlock& parsed_block) override;
     VisitResult FilterMetaData(const decode::InitBufferArgs& args);
     VisitResult FilterMetaData(const decode::InitImageArgs& args);
 
@@ -57,7 +57,6 @@ class FileOptimizer : public decode::FileTransformer
 
     bool FilterMethodCall(const decode::MethodCallArgs& args);
 
-  private:
     std::unordered_set<format::HandleId> unreferenced_ids_;
     std::unordered_set<uint64_t>         unreferenced_blocks_;
 };
