@@ -144,16 +144,14 @@ target_sources(gfxrecon_util
 #       should not be pointed to directly by CMake because it is "#include"
 #       directly into the source file.
 if (GENERATE_SETTINGS_OPTIONS)
-    add_custom_command(
-        OUTPUT
-            ${CMAKE_CURRENT_LIST_DIR}/generated_settings_struct.h
-        DEPENDS
-            ${PROJECT_SOURCE_DIR}/scripts/settings_options/settings.json
-            ${PROJECT_SOURCE_DIR}/scripts/settings_options/generate_settings.py
-        COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/settings_options/generate_settings.py
-    )
     add_custom_target(generated_settings ALL DEPENDS
-                        ${PROJECT_SOURCE_DIR}/framework/util/generated_settings_struct.h)
+                          COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/settings_options/generate_settings.py
+                          DEPENDS
+                              ${PROJECT_SOURCE_DIR}/scripts/settings_options/settings.json
+                              ${PROJECT_SOURCE_DIR}/scripts/settings_options/generate_settings.py
+                          BYPRODUCTS
+                              ${PROJECT_SOURCE_DIR}/framework/util/generated_settings_struct.h
+                              ${PROJECT_SOURCE_DIR}/framework/util/generated_settings_manager.cpp)
     add_dependencies(gfxrecon_util generated_settings)
 endif ()
 

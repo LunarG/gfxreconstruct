@@ -151,7 +151,7 @@ class CaptureSettings
 
   public:
     CaptureSettings(format::ApiFamilyId api_family);
-    ~CaptureSettings();
+    ~CaptureSettings() = default;
 
     const TraceSettings& GetTraceSettings() const { return trace_settings_; }
     TraceSettings*       GetAdjustableTraceSettings() { return &trace_settings_; }

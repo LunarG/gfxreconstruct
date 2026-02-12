@@ -157,9 +157,12 @@ Supported Primitive types include:
 - FLOAT : Standard float type
 - GROUP : This is really a group container type with one or more children
 - INT : Standard int type
-- LIST : A list of items (usually a string)
+- LIST : A comma-delimited list of items
+   - Currently handled as a string containing multiple items
 - SAVE_FILE : the type is a file that is used to save results somewhere
+   - This is used by VkConfig to identify the type of dialog box to trigger to populate the value
 - SAVE_FOLDER : the type is a folder that will be used to generate data to
+   - This is used by VkConfig to identify the type of dialog box to trigger to populate the value
 - STRING : Standard string type
 
 #### Group
@@ -189,7 +192,7 @@ For example:
                 "flags": [
                     {
                         "key": "BMP",
-                        "label": "BMP",787acc6470f35f520a0bc25a0efff0469102a2fe
+                        "label": "BMP",
                         "description": "Bitmap File Format."
                     },
                     {

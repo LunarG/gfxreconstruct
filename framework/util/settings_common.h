@@ -29,27 +29,19 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(settings)
 
-enum GfxrToolType
+enum class GfxrToolType
 {
-    kGfxrToolType_Undefined = 0,
-    kGfxrToolType_Capture_Library,
-    kGfxrToolType_Replay_Tool,
-    kGfxrToolType_Info_Tool,
-    kGfxrToolType_Compress_Tool,
-    kGfxrToolType_Convert_Tool,
-    kGfxrToolType_Extract_Tool,
-    kGfxrToolType_Optimize_Tool,
-    kGfxrToolType_ToCpp_Tool,
+    kUndefined = 0,
+    kCapture_Library,
+    kReplay_Tool,
+    kInfo_Tool,
+    kCompress_Tool,
+    kConvert_Tool,
+    kExtract_Tool,
+    kOptimize_Tool,
+    kToCpp_Tool,
 
-    kGfxrToolType_Test = 0XFFFF
-};
-
-enum GfxrSettingPrimitiveType
-{
-    GfxrSettingPrimitiveType_Bool = 1,
-    GfxrSettingPrimitiveType_Int,
-    GfxrSettingPrimitiveType_Float,
-    GfxrSettingPrimitiveType_String,
+    kTest = 0XFFFF
 };
 
 GFXRECON_END_NAMESPACE(settings)

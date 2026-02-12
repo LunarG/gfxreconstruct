@@ -47,7 +47,7 @@ class SettingsManager
   public:
     static SettingsManager& InitSingleton(format::ApiFamilyId api_family);
     static SettingsManager& GetSingleton() { return *singleton_; }
-    ~SettingsManager();
+    ~SettingsManager() = default;
 
     const GfxrSettingsStruct* GetSettingsStruct() const { return &settings_struct_; };
 
