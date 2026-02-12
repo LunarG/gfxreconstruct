@@ -32,12 +32,20 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
+#ifdef HLA_INSTRUMENT
+size_t HybridLinearAllocator::kResets      = 0;
+size_t HybridLinearAllocator::kK           = 0;
+size_t HybridLinearAllocator::kDestructors = 0;
+size_t HybridLinearAllocator::kDynamic     = 0;
+size_t HybridLinearAllocator::kNonTrivial  = 0;
+size_t HybridLinearAllocator::kTotalLinear = 0;
+#endif
 
 HybridLinearAllocator::HybridLinearAllocator(size_t capacity, size_t jumbo) :
     capacity_(capacity), jumbo_(jumbo), store_(MakeDynamicAllocation(capacity, kAlignment))
 {
     GFXRECON_ASSERT((capacity_ > 0) && (jumbo > 0) && (capacity_ > jumbo));
-    ResetCursor();
+    SetStorePointers();
 }
 
 HybridLinearAllocator::~HybridLinearAllocator()
@@ -46,50 +54,39 @@ HybridLinearAllocator::~HybridLinearAllocator()
     destructors_.clear();
 }
 
-void* HybridLinearAllocator::Allocate(size_t size, size_t alignment)
-{
-    const uintptr_t cursor = reinterpret_cast<uintptr_t>(alloc_cursor_);
-    if (alignment == 0)
-    {
-        alignment = alignof(std::max_align_t);
-    }
-
-    uintptr_t       start     = aligned_value_nz(cursor, alignment);
-    const uintptr_t align_pad = start - cursor;
-    const uintptr_t total_use = size + align_pad;
-
-    // Large allocations are infrequent, but dominate memory usage if allocated from the linear block.
-    // > 99% of allocations are expected to be less than kJumbo.
-    if (total_use >= jumbo_)
-    {
-        return AllocateDynamic(size, alignment);
-    }
-
-    // Linearly allocate if there is sufficient space remaining in the linear store
-    if ((alloc_cursor_ + total_use) <= alloc_end_)
-    {
-        alloc_cursor_ += total_use;
-        return reinterpret_cast<void*>(start);
-    }
-
-    // Non-jumbo allocation will not fit.  Don't fail, just allocate and mark overflow, such that callers will know
-    //
-    // Also, if a later allocation is smaller than space remaining in the store, it will still be allocated from the
-    // linear store.
-    overflowed_ = true;
-    return AllocateDynamic(size, alignment);
-}
-
-void HybridLinearAllocator::reset()
+void HybridLinearAllocator::reset_non_trivial()
 {
     // Clean up non-trivial emplaced objects and dynamic allocations
+#ifdef HLA_INSTRUMENT
+    kDestructors += destructors_.size();
+    kDynamic += dynamic_allocations_.size();
+    kNonTrivial++;
+#endif
     destructors_.clear();
     dynamic_allocations_.clear();
-
-    // Reset the logical state of the allocator
-    ResetCursor();
-    overflowed_ = false;
+    trivial_ = true;
 }
+
+#ifdef HLA_INSTRUMENT
+void HybridLinearAllocator::InstrumentReset()
+{
+    ptrdiff_t zzz_alloc = alloc_cursor_ - reset_cursor_;
+    kTotalLinear += static_cast<size_t>(zzz_alloc);
+    constexpr size_t kBound = 1000000;
+    kResets++;
+    if (kResets >= kBound)
+    {
+        kK += kBound;
+        std::cout << "Resets       : " << kK << std::endl;
+        std::cout << "NonTrivial   : " << kNonTrivial << std::endl;
+        std::cout << "Destructors  : " << kDestructors << std::endl;
+        std::cout << "Dynamics     : " << kDynamic << std::endl;
+        std::cout << "Total Linear : " << kTotalLinear << std::endl;
+        std::cout << "Avg Linear   : " << size_t(.5 + double(kTotalLinear) / double(kK)) << std::endl;
+        kResets = 0;
+    }
+}
+#endif
 
 size_t HybridLinearAllocator::BytesRemaining() const noexcept
 {
@@ -97,10 +94,11 @@ size_t HybridLinearAllocator::BytesRemaining() const noexcept
     return static_cast<size_t>(alloc_end_ - alloc_cursor_);
 }
 
-void HybridLinearAllocator::ResetCursor()
+void HybridLinearAllocator::SetStorePointers()
 {
-    alloc_cursor_ = static_cast<DataType*>(store_.get());
-    alloc_end_    = alloc_cursor_ + capacity_;
+    reset_cursor_ = static_cast<DataType*>(store_.get());
+    alloc_cursor_ = reset_cursor_;
+    alloc_end_    = reset_cursor_ + capacity_;
 }
 
 HybridLinearAllocator::DynamicAllocation HybridLinearAllocator::MakeDynamicAllocation(size_t size, size_t alignment)
@@ -113,6 +111,7 @@ HybridLinearAllocator::DynamicAllocation HybridLinearAllocator::MakeDynamicAlloc
 
 void* HybridLinearAllocator::AllocateDynamic(size_t size, size_t alignment)
 {
+    trivial_ = false;
     // Aligned alloc requires kAlignment (alignof(std::max_align_t))) as minimum
     alignment = std::max(alignment, kAlignment);
 

@@ -68,9 +68,6 @@ enum BlockIOError : int32_t
 
 };
 
-// TODO: Find a better allocator (or improve this one), and share with FileInputStream
-using BufferPool = util::HeapBufferPool::PoolPtr;
-
 class BlockParser
 {
   public:
@@ -114,8 +111,8 @@ class BlockParser
         kEnqueueRetained // Always store raw block data in BlockBatch
     };
 
-    // The threshold is based on a trade off, maximize the number blocks with no decompression at replay
-    // but minimizing the memory overhead of the non-deferred compressions.
+    // The threshold is based on a trade off: maximize the number blocks with no decompression at replay
+    // while minimizing the memory overhead of the non-deferred compressions.
     //
     // Threshhold data came from a histogram of numerous large traces and is chosen as a trade-off
     // that allows the majority of blocks to be decompressed when parsed and enqueued (for preloaded replay), while
@@ -148,16 +145,11 @@ class BlockParser
     bool ShouldDeferDecompression(size_t block_size) const;
 
     // Control use of parser local storage for decompression
-    struct UseParserLocalStorageTag
-    {};
     const uint8_t*
     DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, uint8_t* uncompressed_buffer) const;
-    const uint8_t* DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size);
-    const uint8_t* DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, UseParserLocalStorageTag);
 
     using ErrorHandler = std::function<void(BlockIOError, const char*)>;
-    BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
-        err_handler_(std::move(err)), compressor_(compressor)
+    BlockParser(ErrorHandler err, util::Compressor* compressor) : err_handler_(std::move(err)), compressor_(compressor)
     {}
     BlockParser() = delete;
 
@@ -170,8 +162,7 @@ class BlockParser
     BlockAllocator& GetBlockAllocator() noexcept { return block_allocator_; }
 
   private:
-    using AllocationInfo = BlockAllocator::BlockAllocationInfo;
-    AllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
+    BlockAllocator::BlockAllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
 
     struct ParameterReadResult
     {
@@ -184,17 +175,23 @@ class BlockParser
     template <typename... Args>
     ParsedBlock& EmplaceBlock(Args... args)
     {
-        return block_allocator_.GetCurrentBatch().emplace_block(std::forward<Args>(args)...);
+        const bool add_to_list = operation_mode_ != OperationMode::kImmediate;
+        return block_allocator_.GetCurrentBatch().emplace_block(add_to_list, std::forward<Args>(args)...);
+    }
+
+    template <typename T, typename... Args>
+    T* Emplace(Args... args)
+    {
+        return block_allocator_.GetCurrentBatch().emplace<T>(std::forward<Args>(args)...);
     }
 
     template <typename ArgPayload>
     [[nodiscard]] ParsedBlock& MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
                                                            const BlockParser::ParameterReadResult& result,
-                                                           ArgPayload&&                            args);
+                                                           ArgPayload*                             args);
 
     template <typename ArgPayload>
-    ParsedBlock&
-    MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload&& args, bool references_block_buffer = false);
+    ParsedBlock& MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload* args);
 
     constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
     ParameterReadResult
