@@ -56,7 +56,8 @@ class ParsedBlock
     bool IsReady() const noexcept { return state_ == BlockState::kReady; }
     bool IsVisitable() const noexcept
     {
-        return (state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress);
+        return !Holds<std::monostate>() &&
+               ((state_ == BlockState::kReady) || (state_ == BlockState::kDeferredDecompress));
     }
     bool                  IsUnknown() const noexcept { return state_ == BlockState::kUnknown; }
     bool NeedsDecompression() const { return state_ == BlockState::kDeferredDecompress; }
@@ -72,24 +73,29 @@ class ParsedBlock
     template <typename T>
     bool Holds() const
     {
-        using Store = DispatchStore<T>;
-        return std::holds_alternative<Store>(dispatch_args_);
+        if constexpr (std::is_same_v<T, std::monostate>)
+        {
+            // monostate variant isn't a pointer like all the rest, so special case it
+            return std::holds_alternative<std::monostate>(dispatch_args_);
+        }
+        else
+        {
+            return std::holds_alternative<T*>(dispatch_args_);
+        }
     }
 
     template <typename T>
     const T& Get() const
     {
-        using Store = DispatchStore<T>;
         GFXRECON_ASSERT(Holds<T>());
-        return *(std::get<Store>(dispatch_args_));
+        return *(std::get<T*>(dispatch_args_));
     }
 
     template <typename T>
     T& Get()
     {
-        using Store = DispatchStore<T>;
         GFXRECON_ASSERT(Holds<T>());
-        return *(std::get<Store>(dispatch_args_));
+        return *(std::get<T*>(dispatch_args_));
     }
 
     // Move only (has owning data)
@@ -110,32 +116,24 @@ class ParsedBlock
     // Create an empty block with no valid data
     struct InvalidBlockTag
     {};
-    template <typename Allocator>
-    ParsedBlock(Allocator&, const InvalidBlockTag, uint64_t block_index) :
-        block_index_(block_index), block_data_(), state_(BlockState::kInvalid)
+    ParsedBlock(const InvalidBlockTag, uint64_t block_index) :
+        block_index_(block_index), block_data_(), dispatch_args_(std::monostate{}), state_(BlockState::kInvalid)
     {}
 
-    // Create an unparsed block, either because the block type is unknown, or that is known, but has no
-    // matching Args struct
+    // Create an unparsed block: either because the block type is unknown or has no matching Args struct
     struct UnknownBlockTag
     {};
-    template <typename Allocator>
-    ParsedBlock(Allocator&, const UnknownBlockTag, uint64_t block_index, const uint8_t* block_data) :
-        block_index_(block_index), block_data_(block_data), state_(BlockState::kUnknown)
+    ParsedBlock(const UnknownBlockTag, uint64_t block_index, const uint8_t* block_data) :
+        block_index_(block_index), block_data_(block_data), dispatch_args_(std::monostate{}),
+        state_(BlockState::kUnknown)
     {}
 
-    template <typename Allocator, typename ArgPayload>
-    ParsedBlock(Allocator&     allocator,
-                BlockState     initial_state,
-                uint64_t       block_index,
-                const uint8_t* block_data,
-                ArgPayload&&   args) :
-        block_index_(block_index),
-        block_data_(block_data), dispatch_args_(MakeDispatchArgs(std::forward<ArgPayload>(args), allocator)),
-        state_(initial_state)
+    template <typename ArgPayload>
+    ParsedBlock(BlockState initial_state, uint64_t block_index, const uint8_t* block_data, ArgPayload* args) :
+        block_index_(block_index), block_data_(block_data), dispatch_args_(args), state_(initial_state)
     {}
 
-    [[nodiscard]] bool Decompress(BlockParser& parser);
+    [[nodiscard]] bool Decompress(BlockParser& parser, util::HeapBuffer& uncompresser_store);
 
     ParsedBlock* GetNext() { return next_; }
     void         SetNext(ParsedBlock* next)
@@ -166,8 +164,9 @@ class ParsedBlock
     // Linked list next pointer for BlockBatch
     ParsedBlock* next_ = nullptr;
 
-    BlockState   state_                 = BlockState::kInvalid;
-    bool         is_frame_boundary_ : 1 = false;
+    // ParsedBlock state
+    BlockState state_                 = BlockState::kInvalid;
+    bool       is_frame_boundary_ : 1 = false;
 };
 
 GFXRECON_END_NAMESPACE(decode)

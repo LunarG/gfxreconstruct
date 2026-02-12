@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2023-2026 LunarG, Inc.
 ** Copyright (c) 2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-PreloadFileProcessor::PreloadFileProcessor() {}
+PreloadFileProcessor::PreloadFileProcessor() : working_uncompressed_store_(kWorkingStoreInitialSize) {}
 
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {
@@ -66,9 +66,9 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
     block_parser_->GetBlockAllocator().SetBatchSinkProc(
         [this](BlockBatch::BatchPtr&& completed_batch) { this->EnqueueBatch(std::move(completed_batch)); });
 
-    // Use queue-optimized to set early decompression for "small" parsed blocks
+    // Use kAlways decompression policy to move the maximum amount of work outside the measurement loop
     auto save_decompression_policy = block_parser_->GetDecompressionPolicy();
-    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
 
     // Multiple appended preload not supported.
     GFXRECON_ASSERT(!preload_head_);
@@ -215,13 +215,33 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
             break;
         }
 
-        // We assume that only known, vistable blocks were preloaded
+        // We assume that only known, visitable blocks were preloaded
         GFXRECON_ASSERT(queued_block.IsVisitable());
 
         if (queued_block.NeedsDecompression())
         {
-            if (!queued_block.Decompress(block_parser))
+            // Note: This replay path is destructive to preloaded blocks.
+            //
+            // Decompression during replay sets the args data pointer to the working_uncompressed_store_ data.
+            // The block is ready to dispatch; however, it will become invalid as soon as the next block is
+            // decompressed. This is because the working store will be overwritten with the most recently
+            // decompressed data, and since the working store automatically resizes as needed, the data
+            // pointer may become stale.
+            //
+            // For performance reasons, we are neither updating the block state nor deleting the block until
+            // *after* all preloaded blocks have been replayed. This means that replayed blocks are effectively
+            // invalid, yet they are retained and still marked as valid.
+            //
+            // If in the future we need to support the reuse of preloaded blocks, we will need a way to:
+            //  1: restore the args data pointer, or
+            //  2: retain the decompressed data in the block batch (likely as a dynamic allocation in the HLA), or
+            //  3: allocate the decompressed buffer storage at block creation time, but still defer decompression.
+            if (!queued_block.Decompress(block_parser, working_uncompressed_store_))
             {
+                // As is the case with decompression failure during block parsing, decompression failure on replay
+                // is fatal.
+                //
+                // Note: Error message generation is done by the block decompression code
                 process_state = ProcessBlockState::kError;
                 break;
             }
@@ -243,7 +263,7 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
             }
         }
 
-        // Advanced
+        // Advance
         ++replay_cursor_;
 
         if ((process_state == ProcessBlockState::kRunning) && !replay_cursor_)
@@ -263,14 +283,23 @@ void PreloadFileProcessor::EnqueueBatch(BlockBatch::BatchPtr&& batch)
     if (preload_tail_)
     {
         GFXRECON_ASSERT(preload_head_ && replay_cursor_);
-        preload_tail_->SetNext(std::move(batch));
-        preload_tail_ = preload_tail_->GetNext().get();
+        batch = BlockBatch::NonEmptyBatch(std::move(batch));
+        if (batch.get() != nullptr)
+        {
+            // The batch was non-empty, so add it to the end of the queue.
+            preload_tail_->SetNext(std::move(batch));
+            preload_tail_ = preload_tail_->GetTail();
+        }
     }
     else
     {
-        preload_tail_  = batch.get();
-        preload_head_  = BlockBatch::iterator(std::move(batch));
-        replay_cursor_ = preload_head_;
+        preload_head_ = BlockBatch::MakeIteratorFromBatch(std::move(batch));
+        if (preload_head_ != BlockBatch::iterator())
+        {
+            // We aren't expecting chains of batches, but preload_tail_ will be wrong if we don't get the tail.
+            preload_tail_  = preload_head_.GetBatch()->GetTail();
+            replay_cursor_ = preload_head_;
+        }
     }
 }
 
