@@ -841,9 +841,19 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
         case D3D12_FEATURE_D3D12_OPTIONS21:
             EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS21*>(feature_data));
             break;
+        case D3D12_FEATURE_D3D12_TIGHT_ALIGNMENT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_TIGHT_ALIGNMENT*>(feature_data));
+            break;
+        case D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE*>(feature_data));
+            break;
         case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
             EncodeStructPtr(encoder,
                             reinterpret_cast<D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED*>(feature_data));
+            break;
+        case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT:
+            // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
             break;
         default:
             GFXRECON_LOG_WARNING("Failed to encode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
