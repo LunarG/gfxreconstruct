@@ -66,7 +66,11 @@ class BlockAllocator
     // Estimated block size is used to determine if the current batch can accommodate the block
     uint8_t* StartBlock(const BlockAllocationInfo& info);
 
-    uint8_t*    Allocate(size_t size, size_t alignment);
+    template <size_t kAlignment>
+    uint8_t* Allocate(size_t size)
+    {
+        return static_cast<uint8_t*>(current_batch_->Allocate<kAlignment>(size));
+    }
     BlockBatch& GetCurrentBatch();
     void        FlushBatch();
 

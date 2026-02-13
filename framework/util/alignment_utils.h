@@ -27,6 +27,7 @@
 
 #include <bit>
 #include <concepts>
+#include <cstddef>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -102,6 +103,13 @@ inline constexpr T aligned_value(T value)
     static_assert(std::is_unsigned<T>::value, "T must be unsigned integral type");
     static_assert(static_cast<size_t>(std::numeric_limits<T>::max()) >= kAlignment, "Alignment must fit within type T");
     return (value + kAlignment - 1) & ~(kAlignment - 1);
+}
+
+template <typename T, typename U>
+inline bool is_aligned_for(U* pointer)
+{
+    uintptr_t address = reinterpret_cast<uintptr_t>(pointer);
+    return address == aligned_value<alignof(T)>(address);
 }
 
 /**

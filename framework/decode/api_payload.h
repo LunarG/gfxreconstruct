@@ -784,7 +784,8 @@ struct DispatchTraits<AnnotationArgs> : DispatchFlagTraits<AnnotationArgs>
 };
 
 // --- Variant of all payloads by reference, storage in allocator
-using DispatchArgs = std::variant<FunctionCallArgs*,
+using DispatchArgs = std::variant<std::monostate,
+                                  FunctionCallArgs*,
                                   MethodCallArgs*,
                                   StateBeginMarkerArgs*,
                                   StateEndMarkerArgs*,

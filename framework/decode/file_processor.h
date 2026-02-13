@@ -177,9 +177,7 @@ class FileProcessor
     using BlockProcessor = std::function<bool()>;
 
     bool ContinueDecoding(uint64_t block_index, bool check_decoders);
-
-    util::DataSpan ReadSpan(size_t buffer_size);
-    bool           ReadBytes(void* buffer, size_t buffer_size);
+    bool ReadBytes(void* buffer, size_t buffer_size);
 
     // Reads block header, from input stream.
     bool ReadBlockBuffer(BlockParser& parser, BlockBuffer& buffer);
@@ -264,6 +262,11 @@ class FileProcessor
     class DispatchVisitor
     {
       public:
+        // No valid dispatch args, nothing to do, possible to modify in future passing down raw block to some raw block
+        // handler if needed
+        void operator()(const std::monostate&) {}
+
+        // Dispatch based on the Args traits.
         template <typename Args>
         void operator()(const Args* args)
         {
@@ -365,6 +368,8 @@ class FileProcessor
             file_processor_.ProcessAnnotation(*annotation);
         }
 
+        void operator()(const std::monostate&) { Reset(); }
+
         template <typename Args>
         void operator()(const Args*)
         {
@@ -422,7 +427,6 @@ class FileProcessor
     format::FileHeader file_header_;
 
   protected:
-    BufferPool                        pool_;
     std::unique_ptr<util::Compressor> compressor_;
     std::unique_ptr<BlockParser>      block_parser_;
 
