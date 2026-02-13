@@ -30,7 +30,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-PreloadFileProcessor::PreloadFileProcessor() {}
+PreloadFileProcessor::PreloadFileProcessor() : working_uncompressed_store_(kWorkingStoreInitialSize) {}
 
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {
@@ -66,9 +66,9 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
     block_parser_->GetBlockAllocator().SetBatchSinkProc(
         [this](BlockBatch::BatchPtr&& completed_batch) { this->EnqueueBatch(std::move(completed_batch)); });
 
-    // Use queue-optimized to set early decompression for "small" parsed blocks
+    // Use kAlways decompression policy to move the maximum amount of work outside the measurement loop
     auto save_decompression_policy = block_parser_->GetDecompressionPolicy();
-    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
 
     // Multiple appended preload not supported.
     GFXRECON_ASSERT(!preload_head_);
@@ -220,7 +220,7 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
 
         if (queued_block.NeedsDecompression())
         {
-            if (!queued_block.Decompress(block_parser))
+            if (!queued_block.Decompress(block_parser, working_uncompressed_store_))
             {
                 process_state = ProcessBlockState::kError;
                 break;
@@ -263,14 +263,23 @@ void PreloadFileProcessor::EnqueueBatch(BlockBatch::BatchPtr&& batch)
     if (preload_tail_)
     {
         GFXRECON_ASSERT(preload_head_ && replay_cursor_);
-        preload_tail_->SetNext(std::move(batch));
-        preload_tail_ = preload_tail_->GetNext().get();
+        batch = BlockBatch::NonEmptyBatch(std::move(batch));
+        if (batch.get() != nullptr)
+        {
+            // The batch was non-empty, so add it to the end of the queue.
+            preload_tail_->SetNext(std::move(batch));
+            preload_tail_ = preload_tail_->GetTail();
+        }
     }
     else
     {
-        preload_tail_  = batch.get();
-        preload_head_  = BlockBatch::iterator(std::move(batch));
-        replay_cursor_ = preload_head_;
+        preload_head_ = BlockBatch::MakeIteratorFromBatch(std::move(batch));
+        if (preload_head_ != BlockBatch::iterator())
+        {
+            // We aren't expecting chains of batches, but preload_tail_ will be wrong if we don't get the tail.
+            preload_tail_  = preload_head_.GetBatch()->GetTail();
+            replay_cursor_ = preload_head_;
+        }
     }
 }
 

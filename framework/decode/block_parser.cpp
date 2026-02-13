@@ -86,7 +86,7 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
             // Also, depending on operation mode, decompression policy and block type, we may use working storage
             // or block allocator storage for the raw block data
             BlockAllocator::BlockAllocationInfo alloc_info  = GetAllocationInfo(block_header.type, actual_block_size);
-            uint8_t*       block_store = block_allocator_.StartBlock(alloc_info);
+            uint8_t*                            block_store = block_allocator_.StartBlock(alloc_info);
 
             // Note this leave the BlockBuffer read position at the first byte following the header.
             bool success = input_stream->ReadBytes(block_store, actual_block_size);
@@ -152,20 +152,6 @@ const uint8_t* BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compres
     return uncompressed_buffer;
 }
 
-const uint8_t* BlockParser::DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size)
-{
-    auto uncompressed_buffer = static_cast<uint8_t*>(block_allocator_.Allocate(expanded_size, alignof(uint8_t)));
-    return DecompressSpan(compressed_span, expanded_size, uncompressed_buffer);
-}
-
-const uint8_t*
-BlockParser::DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, UseParserLocalStorageTag)
-{
-    uncompressed_working_buffer_.ReserveDiscarding(expanded_size);
-    auto uncompressed_buffer = uncompressed_working_buffer_.GetAs<uint8_t>();
-    return DecompressSpan(compressed_span, expanded_size, uncompressed_buffer);
-}
-
 void BlockParser::WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label, uint32_t sub_type)
 {
     const format::BlockHeader& block_header = block_buffer.Header();
@@ -213,8 +199,7 @@ template <typename ArgPayload>
             else
             {
                 // Allocate uncompressed storage from the block allocator for enqueued/retained modes
-                uncompressed_buffer =
-                    static_cast<uint8_t*>(block_allocator_.Allocate(read_result.uncompressed_size, alignof(uint8_t)));
+                uncompressed_buffer = block_allocator_.Allocate<alignof(uint8_t)>(read_result.uncompressed_size);
             }
 
             const uint8_t* decompressed_data =

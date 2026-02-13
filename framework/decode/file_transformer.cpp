@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileTransformer::FileTransformer() :
     input_file_(std::make_shared<FileInputStream>()), output_file_(nullptr), bytes_read_(0), bytes_written_(0),
-    error_state_(kErrorInvalidFileDescriptor), loading_state_(false), pool_(util::HeapBufferPool::Create())
+    error_state_(kErrorInvalidFileDescriptor), loading_state_(false)
 {}
 
 FileTransformer::~FileTransformer()
@@ -83,8 +83,7 @@ bool FileTransformer::Initialize(const std::string& input_filename,
     {
         // We wait until after "ProcessFileHeader" as that is where compressor_ is initialized
         auto err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
-        block_parser_ =
-            std::make_unique<BlockParser>(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
+        block_parser_    = std::make_unique<BlockParser>(BlockParser::ErrorHandler{ err_handler }, compressor_.get());
         success = block_parser_ != nullptr;
         if (success)
         {
@@ -176,7 +175,14 @@ bool FileTransformer::Process()
                 if (parsed_block.IsVisitable())
                 {
                     auto visit_call = [this, &parsed_block](auto&& args) {
-                        return this->ProcessNextBlock(parsed_block, *args);
+                        if constexpr (std::is_same_v<std::decay_t<decltype(args)>, std::monostate>)
+                        {
+                            return true; // Skipping unknown and invalid blocks.
+                        }
+                        else
+                        {
+                            return this->ProcessNextBlock(parsed_block, *args);
+                        }
                     };
                     success = std::visit(visit_call, parsed_block.GetArgs());
                 }

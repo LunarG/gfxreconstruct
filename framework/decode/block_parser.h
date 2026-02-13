@@ -68,9 +68,6 @@ enum BlockIOError : int32_t
 
 };
 
-// TODO: Find a better allocator (or improve this one), and share with FileInputStream
-using BufferPool = util::HeapBufferPool::PoolPtr;
-
 class BlockParser
 {
   public:
@@ -148,16 +145,11 @@ class BlockParser
     bool ShouldDeferDecompression(size_t block_size) const;
 
     // Control use of parser local storage for decompression
-    struct UseParserLocalStorageTag
-    {};
     const uint8_t*
     DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, uint8_t* uncompressed_buffer) const;
-    const uint8_t* DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size);
-    const uint8_t* DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, UseParserLocalStorageTag);
 
     using ErrorHandler = std::function<void(BlockIOError, const char*)>;
-    BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
-        err_handler_(std::move(err)), compressor_(compressor)
+    BlockParser(ErrorHandler err, util::Compressor* compressor) : err_handler_(std::move(err)), compressor_(compressor)
     {}
     BlockParser() = delete;
 
@@ -183,7 +175,8 @@ class BlockParser
     template <typename... Args>
     ParsedBlock& EmplaceBlock(Args... args)
     {
-        return block_allocator_.GetCurrentBatch().emplace_block(std::forward<Args>(args)...);
+        const bool add_to_list = operation_mode_ != OperationMode::kImmediate;
+        return block_allocator_.GetCurrentBatch().emplace_block(add_to_list, std::forward<Args>(args)...);
     }
 
     template <typename T, typename... Args>

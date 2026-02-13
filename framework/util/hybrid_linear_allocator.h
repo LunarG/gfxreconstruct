@@ -32,6 +32,11 @@
 #include <deque>
 #include <memory>
 
+// #define ZZZ_INSTRUMENT
+#ifdef ZZZ_INSTRUMENT
+#include <iostream>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -51,29 +56,79 @@ class HybridLinearAllocator
     HybridLinearAllocator(size_t capacity, size_t jumbo);
     ~HybridLinearAllocator();
 
-    void* Allocate(size_t size, size_t alignment = 0);
+    template <size_t kAlignment>
+    void* Allocate(size_t size)
+    {
+        assert(std::has_single_bit(kAlignment));
+        const uintptr_t cursor        = reinterpret_cast<uintptr_t>(alloc_cursor_);
+        uintptr_t       start         = aligned_value<kAlignment>(cursor);
+        const size_t    align_pad     = static_cast<size_t>(start - cursor);
+        const size_t    total_size    = size + align_pad;
+        DataType* const update_cursor = alloc_cursor_ + total_size;
+
+        const bool has_linear_space = update_cursor <= alloc_end_;
+        const bool is_jumbo         = total_size >= jumbo_;
+        if (is_jumbo || !has_linear_space)
+        {
+            return AllocateDynamic(size, kAlignment);
+        }
+
+        alloc_cursor_ = update_cursor;
+        return reinterpret_cast<void*>(start);
+    }
 
     // Emplace a new ParsedBlock at the end of the batch
     template <typename T, typename... Args>
     [[nodiscard]] T* emplace(Args&&... args)
     {
-        void* storage = Allocate(sizeof(T), alignof(T));
+        void* storage = Allocate<alignof(T)>(sizeof(T));
         T*    obj     = new (storage) T(std::forward<Args>(args)...);
         if constexpr (!std::is_trivially_destructible_v<T>)
         {
+            trivial_ = false;
             destructors_.emplace_back(obj);
         }
         return obj;
     }
 
-    void   reset();
+    void reset()
+    {
+        if (!trivial_) [[unlikely]]
+        {
+            reset_non_trivial();
+        }
+
+#ifdef ZZZ_INSTRUMENT
+        InstrumentReset();
+#endif
+
+        // Reset the logical state of the allocator
+        alloc_cursor_ = reset_cursor_;
+    }
+
     size_t BytesRemaining() const noexcept;
-    bool   HasDynamicAllocations() const noexcept { return !dynamic_allocations_.empty(); }
-    bool   HasNonTrivialAllocations() const noexcept { return !destructors_.empty(); }
-    bool   IsOverflowed() const noexcept { return overflowed_; }
+    bool   HasDynamicAllocations() const noexcept
+    {
+        return !dynamic_allocations_.empty();
+    }
+    bool HasNonTrivialAllocations() const noexcept
+    {
+        return !destructors_.empty();
+    }
 
   private:
-    void ResetCursor();
+#ifdef ZZZ_INSTRUMENT
+    size_t kResets      = 0;
+    size_t kK           = 0;
+    size_t kDestructors = 0;
+    size_t kDynamic     = 0;
+    size_t kNonTrivial  = 0;
+    size_t kTotalLinear = 0;
+    void   InstrumentReset();
+#endif
+    void reset_non_trivial();
+
+    void SetStorePointers();
 
     // All dynamic allocations are aligned to at least kAlignment, but support stricter pow2 alignments
     struct DynamicDeleter
@@ -94,9 +149,10 @@ class HybridLinearAllocator
     DynamicAllocation  store_;
     DynamicAllocations dynamic_allocations_;
 
+    DataType* reset_cursor_ = nullptr;
     DataType* alloc_cursor_ = nullptr;
     DataType* alloc_end_    = nullptr;
-    bool      overflowed_   = false;
+    bool      trivial_      = true;
 
     // Type erasure for destructors of non-trivially destructible emplaced objects in the arena:
     // Background reading: https://herbsutter.com/2016/09/25/to-store-a-destructor/

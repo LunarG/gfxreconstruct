@@ -33,7 +33,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 CompressionConverter::CompressionConverter() :
-    decompressing_(true), target_compression_type_(format::CompressionType::kNone)
+    decompressing_(true), target_compression_type_(format::CompressionType::kNone),
+    working_uncompressed_store_(kWorkingStoreInitialSize)
 {}
 
 CompressionConverter::~CompressionConverter() {}
@@ -75,7 +76,7 @@ bool CompressionConverter::WriteFileHeader(const format::FileHeader&            
 bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 {
     // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser());
+    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
 
     if (success)
     {
@@ -89,7 +90,7 @@ bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block
 bool CompressionConverter::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
     // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser());
+    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
 
     if (success)
     {
@@ -110,10 +111,19 @@ bool CompressionConverter::ProcessMetaData(decode::ParsedBlock& parsed_block)
 
     // Unconditional decompress the metadata block wastes no time as all compressible meta_data_id have non-trivial
     // overrides, and decompress fast returns on uncompressed blocks.
-    bool success = parsed_block.Decompress(block_parser);
+    bool success = parsed_block.Decompress(block_parser, working_uncompressed_store_);
     if (success)
     {
-        auto        visit_meta = [this](auto&& store) { return WriteMetaData(*store); };
+        auto visit_meta = [this](auto&& store) {
+            if constexpr (std::is_same_v<std::decay_t<decltype(store)>, std::monostate>)
+            {
+                return VisitResult::kNeedsPassthrough; // Passthrough unknown blocks.
+            }
+            else
+            {
+                return WriteMetaData(*store);
+            }
+        };
         VisitResult result     = std::visit(visit_meta, parsed_block.GetArgs());
 
         if (result == kNeedsPassthrough)

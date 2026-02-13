@@ -40,11 +40,6 @@ void BlockBatch::reset()
     next_batch_.reset();
 }
 
-bool BlockBatch::IsBatchFull() const noexcept
-{
-    return allocator_.IsOverflowed();
-}
-
 size_t BlockBatch::BytesRemaining() const noexcept
 {
     return allocator_.BytesRemaining();
@@ -59,42 +54,63 @@ void BlockBatch::SetNext(const BatchPtr& batch)
     next_batch_ = batch;
 }
 
-BlockBatch::BatchPtr& BlockBatch::GetNext()
+// This gets the next non-empty batch in the chain, including the passed batch,
+// nullptr is returned if there are no more batches or all remaining batches are
+BlockBatch::BatchPtr BlockBatch::NonEmptyBatch(BatchPtr&& batch)
 {
+    // Short circuit if batch is a null or non-empty batch.
+    if ((batch.get() == nullptr) || !batch->empty())
+    {
+        return std::move(batch);
+    }
+
+    return NextNonEmptyBatch(batch);
+}
+
+BlockBatch::BatchPtr BlockBatch::NextNonEmptyBatch(const BatchPtr& batch)
+{
+    GFXRECON_ASSERT(batch.get() != nullptr);
+    const BatchPtr* last = &batch;
+    do
+    {
+        const BatchPtr& candidate = (*last)->GetNext();
+        // Same termination condition: batch is a null or non-empty.
+        if ((candidate.get() == nullptr) || !candidate->empty())
+        {
+            return candidate;
+        }
+        last = &candidate;
+    } while (true);
+}
+
+const BlockBatch::BatchPtr& BlockBatch::GetNext() const
+{
+    GFXRECON_ASSERT(next_batch_.get() != this);
     return next_batch_;
 }
 
-BlockBatch::iterator& BlockBatch::iterator::operator++()
+// Linear walk to the end.  Don't call this repeatedly, it's O(n) for batch list length.
+// Current use case is appending batch lists.
+BlockBatch* BlockBatch::GetTail()
 {
-    GFXRECON_ASSERT(batch_.get() != nullptr);
-    GFXRECON_ASSERT(block_ != nullptr);
-    block_ = block_->GetNext();
-    if (block_ == nullptr)
+    BlockBatch* tail = this;
+    BlockBatch* next = tail->next_batch_.get();
+    while (next != nullptr)
     {
-        // End of batch find next non-empty batch, or 'end'
-        do
-        {
-            // Make a *copy* of the batch_'s next pointer, in case the iterator is the only owner when we
-            // overwrite batch_ below. With move construction and assignment below we still have only on
-            // atomic assignment operation per loop iteration.
-            BatchPtr next_batch = batch_->GetNext();
-            GFXRECON_ASSERT(next_batch.get() != batch_.get());
-            if (!next_batch)
-            {
-                // No more batches end.
-                *this = iterator();
-                break;
-            }
-            if (!next_batch->empty())
-            {
-                // Found a non-empty batch stop looking
-                *this = iterator(std::move(next_batch));
-                break;
-            }
-            batch_ = std::move(next_batch);
-        } while (true);
+        GFXRECON_ASSERT(next != tail);
+        tail = next;
+        next = tail->next_batch_.get();
     }
-    return *this;
+    return tail;
+}
+
+BlockBatch::iterator BlockBatch::MakeIteratorFromBatch(BatchPtr&& batch)
+{
+    // Get the first non-empty batch (or nullptr) (including the passed batch)
+    batch = NonEmptyBatch(std::move(batch));
+
+    // If batch is nullptr, the iterator will be at end(), otherwise at the front of the first non-empty // batch.
+    return iterator(std::move(batch));
 }
 
 BlockBatch::iterator BlockBatch::iterator::operator++(int)
@@ -103,6 +119,22 @@ BlockBatch::iterator BlockBatch::iterator::operator++(int)
     iterator temp = *this;
     ++(*this);
     return temp;
+}
+
+void BlockBatch::iterator::IncrementToNextNonEmpty()
+{
+    // NonEmptyBatch should be zero cost if next_batch is non-empty
+    // This is a slow path, but should only be hit if there are empty batches, which should be rare and transient.
+    GFXRECON_ASSERT(batch_.get() != nullptr);
+    GFXRECON_ASSERT(batch_->empty());
+    GFXRECON_ASSERT(block_ == nullptr);
+    batch_ = NextNonEmptyBatch(batch_);
+    if (batch_.get() != nullptr)
+    {
+        // We found a non-empty batch, thus the "next" block is the front of that batch`
+        block_ = batch_->front();
+        GFXRECON_ASSERT(block_ != nullptr); // Verifies NonEmpty is doing its job
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

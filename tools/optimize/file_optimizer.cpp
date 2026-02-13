@@ -55,7 +55,16 @@ bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 
 bool FileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
 {
-    auto filter_visitor = [this](const auto& store) { return FilterMetaData(*store); };
+    auto filter_visitor = [this](const auto& store) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(store)>, std::monostate>)
+        {
+            return VisitResult::kNeedsPassthrough; // Passthrough unknown blocks.
+        }
+        else
+        {
+            return FilterMetaData(*store);
+        }
+    };
 
     VisitResult result = std::visit(filter_visitor, parsed_block.GetArgs());
 

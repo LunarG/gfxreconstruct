@@ -37,7 +37,7 @@ HybridLinearAllocator::HybridLinearAllocator(size_t capacity, size_t jumbo) :
     capacity_(capacity), jumbo_(jumbo), store_(MakeDynamicAllocation(capacity, kAlignment))
 {
     GFXRECON_ASSERT((capacity_ > 0) && (jumbo > 0) && (capacity_ > jumbo));
-    ResetCursor();
+    SetStorePointers();
 }
 
 HybridLinearAllocator::~HybridLinearAllocator()
@@ -46,6 +46,28 @@ HybridLinearAllocator::~HybridLinearAllocator()
     destructors_.clear();
 }
 
+#if 0
+template <size_t kAlignment>
+void* Allocate(size_t size)
+{
+    assert(std::has_single_bit(kAlignment));
+    const uintptr_t cursor = reinterpret_cast<uintptr_t>(alloc_cursor_);
+    uintptr_t       start  = aligned_value<kAlignment>(cursor);
+    const uintptr_t align_pad = start - cursor;
+    const uintptr_t total_use = size + align_pad;
+
+    const bool has_linear_space = (alloc_cursor_ + total_use) <= alloc_end_;
+    const bool is_jumbo         = total_size >= jumbo;
+    if (is_jumbo || !has_linear_space )
+    {
+        overflow_ |= !has_linear_space && !is_jumbo;
+        return AllocateDynamic(size, kAlignment);
+    }
+
+    alloc_cursor_ += total_use;
+    return reinterpret_cast<void*>(start);
+
+}
 void* HybridLinearAllocator::Allocate(size_t size, size_t alignment)
 {
     const uintptr_t cursor = reinterpret_cast<uintptr_t>(alloc_cursor_);
@@ -79,17 +101,41 @@ void* HybridLinearAllocator::Allocate(size_t size, size_t alignment)
     overflowed_ = true;
     return AllocateDynamic(size, alignment);
 }
+#endif
 
-void HybridLinearAllocator::reset()
+void HybridLinearAllocator::reset_non_trivial()
 {
     // Clean up non-trival emplaced objects and dynamic allocations
+#ifdef ZZZ_INSTRUMENT
+    kDestructors += destructors_.size();
+    kDynamic += dynamic_allocations_.size();
+    kNonTrivial++;
+#endif
     destructors_.clear();
     dynamic_allocations_.clear();
-
-    // Reset the logical state of the allocator
-    ResetCursor();
-    overflowed_ = false;
+    trivial_ = true;
 }
+
+#ifdef ZZZ_INSTRUMENT
+void HybridLinearAllocator::InstrumentReset()
+{
+    ptrdiff_t zzz_alloc = alloc_cursor_ - reset_cursor_;
+    kTotalLinear += static_cast<size_t>(zzz_alloc);
+    constexpr size_t kBound = 1000000;
+    kResets++;
+    if (kResets >= kBound)
+    {
+        kK += kBound;
+        std::cout << "Resets       : " << kK << std::endl;
+        std::cout << "NonTrivial   : " << kNonTrivial << std::endl;
+        std::cout << "Destructors  : " << kDestructors << std::endl;
+        std::cout << "Dynamics     : " << kDynamic << std::endl;
+        std::cout << "Total Linear : " << kTotalLinear << std::endl;
+        std::cout << "Avg Linear   : " << size_t(.5 + double(kTotalLinear) / double(kK)) << std::endl;
+        kResets = 0;
+    }
+}
+#endif
 
 size_t HybridLinearAllocator::BytesRemaining() const noexcept
 {
@@ -97,10 +143,11 @@ size_t HybridLinearAllocator::BytesRemaining() const noexcept
     return static_cast<size_t>(alloc_end_ - alloc_cursor_);
 }
 
-void HybridLinearAllocator::ResetCursor()
+void HybridLinearAllocator::SetStorePointers()
 {
-    alloc_cursor_ = static_cast<DataType*>(store_.get());
-    alloc_end_    = alloc_cursor_ + capacity_;
+    reset_cursor_ = static_cast<DataType*>(store_.get());
+    alloc_cursor_ = reset_cursor_;
+    alloc_end_    = reset_cursor_ + capacity_;
 }
 
 HybridLinearAllocator::DynamicAllocation HybridLinearAllocator::MakeDynamicAllocation(size_t size, size_t alignment)
@@ -113,6 +160,7 @@ HybridLinearAllocator::DynamicAllocation HybridLinearAllocator::MakeDynamicAlloc
 
 void* HybridLinearAllocator::AllocateDynamic(size_t size, size_t alignment)
 {
+    trivial_ = false;
     // Aligned alloc requires kAlignment (alignof(std::max_align_t))) as minimum
     alignment = std::max(alignment, kAlignment);
 

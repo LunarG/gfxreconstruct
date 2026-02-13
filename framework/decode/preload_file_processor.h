@@ -45,11 +45,14 @@ class PreloadFileProcessor : public FileProcessor
     void PreloadNextFrames(size_t count);
 
   private:
+    constexpr static size_t kWorkingStoreInitialSize = 4096;
+
     void              ResetPreload();
     ProcessBlockState PreloadBlocksOneFrame();
     ProcessBlockState ReplayOneFrame();
     void              EnqueueBatch(BlockBatch::BatchPtr&& batch);
 
+    util::HeapBuffer     working_uncompressed_store_;
     BlockBatch::iterator preload_head_;
     BlockBatch*          preload_tail_ = nullptr;
     BlockBatch::iterator replay_cursor_;
