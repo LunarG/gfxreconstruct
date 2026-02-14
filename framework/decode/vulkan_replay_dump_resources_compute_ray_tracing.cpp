@@ -2341,6 +2341,54 @@ void DispatchTraceRaysDumpingContext::InsertNewDispatchParameters(uint64_t      
 
     SnapshotDispatchState(*new_entry.first->second);
 }
+void DispatchTraceRaysDumpingContext::InsertNewDispatchParameters(
+    uint64_t index, VkBool32 isPreprocessed, const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo)
+{
+    auto new_entry =
+        dispatch_params_.insert({ index,
+                                  std::make_unique<DispatchParams>(DispatchTypes::kExecuteGeneratedCommands,
+                                                                   isPreprocessed,
+                                                                   pGeneratedCommandsInfo->shaderStages,
+                                                                   pGeneratedCommandsInfo->maxSequenceCount,
+                                                                   pGeneratedCommandsInfo->maxDrawCount) });
+    GFXRECON_ASSERT(new_entry.second);
+
+    SnapshotDispatchState(*new_entry.first->second);
+}
+
+void DispatchTraceRaysDumpingContext::CmdExecuteGeneratedCommandsEXT(
+    const ApiCallInfo&                   call_info,
+    PFN_vkCmdExecuteGeneratedCommandsEXT func,
+    VkCommandBuffer                      original_command_buffer,
+    VkBool32                             isPreprocessed,
+    const VkGeneratedCommandsInfoEXT*    pGeneratedCommandsInfo)
+{
+    const uint64_t disp_index = call_info.index;
+    const bool     must_dump  = MustDumpDispatch(disp_index);
+
+    if (must_dump)
+    {
+        InsertNewDispatchParameters(disp_index, isPreprocessed, pGeneratedCommandsInfo);
+    }
+
+    if (options_.dump_resources_before && must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, true);
+        FinalizeCommandBuffer(true);
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer();
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer, isPreprocessed, pGeneratedCommandsInfo);
+    }
+
+    if (must_dump)
+    {
+        CloneDispatchMutableResources(disp_index, false);
+        FinalizeCommandBuffer(true);
+    }
+}
 
 void DispatchTraceRaysDumpingContext::InsertNewTraceRaysParameters(
     uint64_t                               index,

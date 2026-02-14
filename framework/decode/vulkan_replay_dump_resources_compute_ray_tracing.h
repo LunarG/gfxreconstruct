@@ -66,6 +66,15 @@ class DispatchTraceRaysDumpingContext
                                 const VkCommandBufferBeginInfo*      begin_info);
 
     VkCommandBuffer GetDispatchRaysCommandBuffer() const { return DR_command_buffer_; }
+    void            CmdExecuteGeneratedCommandsEXT(const ApiCallInfo&                   call_info,
+                                                   PFN_vkCmdExecuteGeneratedCommandsEXT func,
+                                                   VkCommandBuffer                      original_command_buffer,
+                                                   VkBool32                             isPreprocessed,
+                                                   const VkGeneratedCommandsInfoEXT*    pGeneratedCommandsInfo);
+
+    void InsertNewDispatchParameters(uint64_t                          index,
+                                     VkBool32                          isPreprocessed,
+                                     const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo);
 
     void CmdDispatch(const ApiCallInfo& call_info,
                      PFN_vkCmdDispatch  func,
@@ -238,7 +247,8 @@ class DispatchTraceRaysDumpingContext
     {
         kDispatch,
         kDispatchIndirect,
-        kDispatchBase
+        kDispatchBase,
+        kExecuteGeneratedCommands
     };
 
     static bool IsDispatchIndirect(DispatchTypes type)
@@ -300,6 +310,16 @@ class DispatchTraceRaysDumpingContext
 
             DispatchBaseParams dispatch_base;
 
+            struct ExecuteGeneratedCommandsParams
+            {
+                VkBool32           isPreprocessed;
+                VkShaderStageFlags shaderStages;
+                uint32_t           maxSequenceCount;
+                uint32_t           maxDrawCount;
+            };
+
+            ExecuteGeneratedCommandsParams execute_generated_commands;
+
             struct DispatchIndirect
             {
                 const VulkanBufferInfo* params_buffer_info;
@@ -329,6 +349,14 @@ class DispatchTraceRaysDumpingContext
                                 uint32_t groupCountZ) :
                 dispatch_base{ baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ }
             {}
+
+            DispatchParamsUnion(VkBool32           isPreprocessed,
+                                VkShaderStageFlags shaderStages,
+                                uint32_t           maxSequenceCount,
+                                uint32_t           maxDrawCount) :
+                execute_generated_commands{ isPreprocessed, shaderStages, maxSequenceCount, maxDrawCount }
+            {}
+
         } dispatch_params_union;
 
         DispatchParams(DispatchTypes type, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) :
@@ -355,6 +383,17 @@ class DispatchTraceRaysDumpingContext
             type(type), updated_referenced_descriptors(false)
         {
             assert(type == kDispatchBase);
+        }
+
+        DispatchParams(DispatchTypes      type,
+                       VkBool32           isPreprocessed,
+                       VkShaderStageFlags shaderStages,
+                       uint32_t           maxSequenceCount,
+                       uint32_t           maxDrawCount) :
+            dispatch_params_union{ isPreprocessed, shaderStages, maxSequenceCount, maxDrawCount },
+            type(type), updated_referenced_descriptors(false)
+        {
+            assert(type == kExecuteGeneratedCommands);
         }
 
         DispatchTypes type;

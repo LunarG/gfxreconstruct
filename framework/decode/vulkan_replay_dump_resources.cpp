@@ -1510,6 +1510,35 @@ void VulkanReplayDumpResourcesBase::HandleCmdBindVertexBuffers2(const ApiCallInf
         }
     }
 }
+void VulkanReplayDumpResourcesBase::OverrideCmdExecuteGeneratedCommandsEXT(
+    const ApiCallInfo&                   call_info,
+    PFN_vkCmdExecuteGeneratedCommandsEXT func,
+    VkCommandBuffer                      original_command_buffer,
+    VkBool32                             isPreprocessed,
+    const VkGeneratedCommandsInfoEXT*    pGeneratedCommandsInfo)
+{
+    GFXRECON_ASSERT(IsRecording());
+
+    // Route to dispatch/trace rays context for resource capture
+    const auto dr_contexts = FindDispatchTraceRaysContexts(original_command_buffer);
+    for (auto dr_context : dr_contexts)
+    {
+        dr_context->CmdExecuteGeneratedCommandsEXT(
+            call_info, func, original_command_buffer, isPreprocessed, pGeneratedCommandsInfo);
+    }
+
+    // Replay on draw call command buffers so side effects are visible
+    const auto dc_contexts = FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
+    {
+        CommandBufferIterator first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (CommandBufferIterator it = first; it < last; ++it)
+        {
+            func(*it, isPreprocessed, pGeneratedCommandsInfo);
+        }
+    }
+}
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDispatch(const ApiCallInfo& call_info,
                                                         PFN_vkCmdDispatch  func,

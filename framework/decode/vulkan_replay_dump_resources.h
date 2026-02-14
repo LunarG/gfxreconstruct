@@ -270,6 +270,11 @@ class VulkanReplayDumpResourcesBase
                                  VkCommandBuffer           original_command_buffer,
                                  VkPipelineBindPoint       pipelineBindPoint,
                                  const VulkanPipelineInfo* pipeline);
+    void OverrideCmdExecuteGeneratedCommandsEXT(const ApiCallInfo&                   call_info,
+                                                PFN_vkCmdExecuteGeneratedCommandsEXT func,
+                                                VkCommandBuffer                      original_command_buffer,
+                                                VkBool32                             isPreprocessed,
+                                                const VkGeneratedCommandsInfoEXT*    pGeneratedCommandsInfo);
 
     void OverrideCmdDispatch(const ApiCallInfo& call_info,
                              PFN_vkCmdDispatch  func,
