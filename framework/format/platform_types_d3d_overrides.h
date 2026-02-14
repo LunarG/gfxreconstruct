@@ -2428,7 +2428,7 @@ enum D3D12_FEATURE
     D3D12_FEATURE_D3D12_OPTIONS19                       = 48,
     D3D12_FEATURE_D3D12_OPTIONS20                       = 49,
     D3D12_FEATURE_PREDICATION                           = 50,
-    D3D12_FEATURE_PLACED_RESOURCE_SUPPORT_INFO          = 51
+    D3D12_FEATURE_PLACED_RESOURCE_SUPPORT_INFO          = 51,
     D3D12_FEATURE_HARDWARE_COPY                         = 52,
     D3D12_FEATURE_D3D12_OPTIONS21                       = 53,
     D3D12_FEATURE_D3D12_TIGHT_ALIGNMENT                 = 54,
