@@ -78,33 +78,16 @@ void VulkanReferencedBlockConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     }
 }
 
-void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&       call_info,
-                                                                                 VkResult                 returnValue,
-                                                                                 format::HandleId         device,
-                                                                                 format::HandleId         pipeline,
-                                                                                 uint32_t                 firstGroup,
-                                                                                 uint32_t                 groupCount,
-                                                                                 size_t                   dataSize,
-                                                                                 PointerDecoder<uint8_t>* pData)
+void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo& call_info,
+                                                                                     VkResult           returnValue,
+                                                                                     format::HandleId   device,
+                                                                                     format::HandleId   pipeline,
+                                                                                     uint32_t           firstGroup,
+                                                                                     uint32_t           groupCount,
+                                                                                     size_t             dataSize,
+                                                                                     PointerDecoder<uint8_t>* pData)
 {
     if (check_handle_id_unused(pipeline))
-    {
-        set_block_index_unused(call_info.index);
-    }
-}
-
-void VulkanReferencedBlockConsumerBase::Process_vkCmdTraceRaysKHR(
-    const ApiCallInfo&                                             call_info,
-    format::HandleId                                               commandBuffer,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-    uint32_t                                                       width,
-    uint32_t                                                       height,
-    uint32_t                                                       depth)
-{
-    if (check_handle_id_unused(commandBuffer))
     {
         set_block_index_unused(call_info.index);
     }

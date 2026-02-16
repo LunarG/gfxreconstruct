@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReferencedBlockConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReferencedBlockConsumerBase(const std::unordered_set<format::HandleId>& unreferenced_ids);
+    explicit VulkanReferencedBlockConsumerBase(const std::unordered_set<format::HandleId>& unreferenced_ids);
 
     const std::unordered_set<uint64_t>& GetUnreferencedBlocks() const { return unreferenced_blocks_; }
 
@@ -81,17 +81,6 @@ class VulkanReferencedBlockConsumerBase : public VulkanConsumer
                                                       uint32_t                 groupCount,
                                                       size_t                   dataSize,
                                                       PointerDecoder<uint8_t>* pData) override;
-
-    void Process_vkCmdTraceRaysKHR(
-        const ApiCallInfo&                                             call_info,
-        format::HandleId                                               commandBuffer,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
-        uint32_t                                                       width,
-        uint32_t                                                       height,
-        uint32_t                                                       depth) override;
 
   protected:
     // check if a handle_id is not used throughout the entire capture

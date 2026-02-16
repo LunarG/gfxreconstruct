@@ -55,7 +55,7 @@ class ReferencedResourceTable
 
     void AddContainerToUser(format::HandleId user_id, format::HandleId container_id);
 
-    void AddUserToUser(format::HandleId user_id, format::HandleId source_user_id);
+    void AddUserToUser(format::HandleId user_id, format::HandleId child_user_id);
 
     void AddContainer(format::HandleId pool_id, format::HandleId container_id);
 
@@ -121,6 +121,9 @@ class ReferencedResourceTable
 
         // keep track if this command-buffer was submitted
         bool used{ false };
+
+        // child user-infos, a.k.a secondary command-buffer
+        std::unordered_map<format::HandleId, std::weak_ptr<ResourceUserInfo>> users_infos;
     };
 
     using PoolHandles =  std::unordered_set<format::HandleId>;

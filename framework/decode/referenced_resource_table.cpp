@@ -23,6 +23,7 @@
 #include "decode/referenced_resource_table.h"
 
 #include <cassert>
+#include <ranges>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -155,40 +156,35 @@ void ReferencedResourceTable::AddContainerToUser(format::HandleId user_id, forma
     }
 }
 
-void ReferencedResourceTable::AddUserToUser(format::HandleId user_id, format::HandleId source_user_id)
+void ReferencedResourceTable::AddUserToUser(format::HandleId user_id, format::HandleId child_user_id)
 {
-    if ((user_id != format::kNullHandleId) && (source_user_id != format::kNullHandleId))
+    if (user_id != format::kNullHandleId && child_user_id != format::kNullHandleId)
     {
-        auto user_entry = users_.find(user_id);
-        if (user_entry != users_.end())
+        if (auto user_entry = users_.find(user_id); user_entry != users_.end())
         {
-            auto& user_info         = user_entry->second;
-            auto  source_user_entry = users_.find(source_user_id);
+            auto& user_info = user_entry->second;
 
-            if (source_user_entry != users_.end())
+            if (auto child_user_entry = users_.find(child_user_id); child_user_entry != users_.end())
             {
-                auto& source_user_info = source_user_entry->second;
-                assert((user_info != nullptr) && (source_user_info != nullptr));
+                const auto& child_user_info = child_user_entry->second;
+                assert(user_info != nullptr && child_user_info != nullptr);
+
+                user_info->users_infos.emplace(child_user_id, child_user_info);
 
                 // Copy resource and container info from source user to destination user.
-                auto&       resource_infos         = user_info->resource_infos;
-                auto&       container_infos        = user_info->container_infos;
-                const auto& source_resource_infos  = source_user_info->resource_infos;
-                const auto& source_container_infos = source_user_info->container_infos;
-
-                for (auto& source_resource_info : source_resource_infos)
+                for (auto& source_resource_info : child_user_info->resource_infos)
                 {
                     if (!source_resource_info.second.expired())
                     {
-                        resource_infos.insert(source_resource_info);
+                        user_info->resource_infos.insert(source_resource_info);
                     }
                 }
 
-                for (auto& source_container_info : source_container_infos)
+                for (auto& source_container_info : child_user_info->container_infos)
                 {
                     if (!source_container_info.second.expired())
                     {
-                        container_infos.insert(source_container_info);
+                        user_info->container_infos.insert(source_container_info);
                     }
                 }
             }
@@ -374,14 +370,10 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
             // set command-buffer as submitted
             user_info->used = true;
 
-            auto& resource_infos  = user_info->resource_infos;
-            auto& container_infos = user_info->container_infos;
-
-            for (auto& resource_info : resource_infos)
+            for (auto& resource_info : user_info->resource_infos)
             {
-                if (!resource_info.second.expired())
+                if (auto resource_info_ptr = resource_info.second.lock())
                 {
-                    auto resource_info_ptr  = resource_info.second.lock();
                     resource_info_ptr->used = true;
 
                     for (auto& child : resource_info_ptr->child_infos)
@@ -392,11 +384,10 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                 }
             }
 
-            for (auto& container_info : container_infos)
+            for (auto& container_info : user_info->container_infos)
             {
-                if (!container_info.second.expired())
+                if (auto container_info_ptr = container_info.second.lock())
                 {
-                    auto container_info_ptr = container_info.second.lock();
                     for (auto& resource_info : container_info_ptr->resource_infos)
                     {
                         if (!resource_info.second.expired())
@@ -411,6 +402,14 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                             }
                         }
                     }
+                }
+            }
+
+            for (auto& child_user_info : user_info->users_infos | std::views::values)
+            {
+                if (auto child_user_ptr = child_user_info.lock())
+                {
+                    child_user_ptr->used = true;
                 }
             }
         }
@@ -461,22 +460,19 @@ bool ReferencedResourceTable::IsUsed(const ResourceInfo* resource_info) const
     {
         return true;
     }
-    else
+
+    // If the resource was not used directly, check to see if it was used indirectly through a child.
+    for (const auto& [handle_id, child_info] : resource_info->child_infos)
     {
-        // If the resource was not used directly, check to see if it was used indirectly through a child.
-        for (const auto& child_info : resource_info->child_infos)
+        if (!child_info.expired())
         {
-            if (!child_info.second.expired())
+            const auto child_info_ptr = child_info.lock();
+            if (IsUsed(child_info_ptr.get()))
             {
-                const auto child_info_ptr = child_info.second.lock();
-                if (IsUsed(child_info_ptr.get()))
-                {
-                    return true;
-                }
+                return true;
             }
         }
     }
-
     return false;
 }
 
