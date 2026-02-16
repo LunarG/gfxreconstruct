@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "vulkan_referenced_block_consumer.h"
+#include "vulkan_referenced_block_consumer_base.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -28,23 +28,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 VulkanReferencedBlockConsumerBase::VulkanReferencedBlockConsumerBase(
     const std::unordered_set<format::HandleId>& unreferenced_ids) : unreferenced_ids_(std::move(unreferenced_ids))
 {}
-
-void VulkanReferencedBlockConsumerBase::Process_vkCmdBindPipeline(const ApiCallInfo&  call_info,
-                                                              format::HandleId    commandBuffer,
-                                                              VkPipelineBindPoint pipelineBindPoint,
-                                                              format::HandleId    pipeline)
-{
-    // tmp
-    if (pipelineBindPoint != VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR)
-    {
-        return;
-    }
-
-    if (check_handle_id_unused(commandBuffer) && check_handle_id_unused(pipeline))
-    {
-        set_block_index_unused(call_info.index);
-    }
-}
 
 void VulkanReferencedBlockConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                                          call_info,
@@ -58,7 +41,7 @@ void VulkanReferencedBlockConsumerBase::Process_vkCreateGraphicsPipelines(
 {
     if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
     {
-        // set_block_index_unused(call_info.index);
+        set_block_index_unused(call_info.index);
     }
 }
 
@@ -74,7 +57,7 @@ void VulkanReferencedBlockConsumerBase::Process_vkCreateComputePipelines(
 {
     if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
     {
-        // set_block_index_unused(call_info.index);
+        set_block_index_unused(call_info.index);
     }
 }
 

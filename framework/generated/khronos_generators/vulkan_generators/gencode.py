@@ -68,6 +68,8 @@ from vulkan_replay_dump_resources_body_generator import VulkanReplayDumpResource
 from vulkan_replay_dump_resources_header_generator import VulkanReplayDumpResourcesHeaderGenerator, VulkanReplayDumpResourcesHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator, VulkanReferencedResourceHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator, VulkanReferencedResourceBodyGeneratorOptions
+from vulkan_referenced_block_consumer_header_generator import VulkanReferencedBlockConsumerHeaderGenerator, VulkanReferencedBlockConsumerHeaderGeneratorOptions
+from vulkan_referenced_block_consumer_body_generator import VulkanReferencedBlockConsumerBodyGenerator, VulkanReferencedBlockConsumerBodyGeneratorOptions
 from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator, VulkanStructHandleMappersHeaderGeneratorOptions
 from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator, VulkanStructHandleMappersBodyGeneratorOptions
 from vulkan_feature_util_body_generator import VulkanFeatureUtilBodyGenerator, VulkanFeatureUtilBodyGeneratorOptions
@@ -370,6 +372,19 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_vulkan_referenced_block_consumer.h'] = [
+        VulkanReferencedBlockConsumerHeaderGenerator,
+        VulkanReferencedBlockConsumerHeaderGeneratorOptions(
+            filename='generated_vulkan_referenced_block_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
     gen_opts['generated_vulkan_replay_consumer.h'] = [
         VulkanConsumerHeaderGenerator,
         VulkanConsumerHeaderGeneratorOptions(
@@ -524,6 +539,20 @@ def make_gen_opts(args):
         VulkanReferencedResourceBodyGenerator,
         VulkanReferencedResourceBodyGeneratorOptions(
             filename='generated_vulkan_referenced_resource_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extra_headers=extra_headers
+        )
+    ]
+
+    gen_opts['generated_vulkan_referenced_block_consumer.cpp'] = [
+        VulkanReferencedBlockConsumerBodyGenerator,
+        VulkanReferencedBlockConsumerBodyGeneratorOptions(
+            filename='generated_vulkan_referenced_block_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,

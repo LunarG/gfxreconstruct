@@ -23,7 +23,6 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 #include "file_optimizer.h"
-#include "vulkan_referenced_block_consumer.h"
 
 #include "../tool_settings.h"
 
@@ -38,6 +37,7 @@
 #include "format/format_util.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_referenced_resource_consumer.h"
+#include "generated/generated_vulkan_referenced_block_consumer.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/date_time.h"
@@ -166,10 +166,11 @@ GetUnreferencedBlocks(const std::string&                                    inpu
                       const std::unordered_set<gfxrecon::format::HandleId>& unreferenced_ids)
 {
     gfxrecon::decode::FileProcessor file_processor;
+
     if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::VulkanDecoder                 decoder;
-        gfxrecon::decode::VulkanReferencedBlockConsumerBase block_ref_consumer(unreferenced_ids);
+        gfxrecon::decode::VulkanReferencedBlockConsumer block_ref_consumer(unreferenced_ids);
 
         decoder.AddConsumer(&block_ref_consumer);
 
@@ -193,13 +194,13 @@ void FilterUnreferencedResources(const std::string&                             
                                  std::unordered_set<gfxrecon::format::HandleId>& unreferenced_ids)
 {
     auto                    unreferenced_blocks = GetUnreferencedBlocks(input_filename, unreferenced_ids);
-    gfxrecon::FileOptimizer file_processor(unreferenced_ids, unreferenced_blocks);
+    gfxrecon::FileOptimizer file_optimizer(unreferenced_ids, unreferenced_blocks);
 
-    if (file_processor.Initialize(input_filename, output_filename))
+    if (file_optimizer.Initialize(input_filename, output_filename))
     {
-        file_processor.Process();
+        file_optimizer.Process();
 
-        if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
+        if (file_optimizer.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
             gfxrecon::util::Log::Release();
@@ -207,8 +208,8 @@ void FilterUnreferencedResources(const std::string&                             
         }
 
         GFXRECON_WRITE_CONSOLE("Resource filtering complete.");
-        GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_processor.GetNumBytesRead());
-        GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_processor.GetNumBytesWritten());
+        GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
+        GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
     }
 }
 

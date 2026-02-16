@@ -21,11 +21,11 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, ValueInfo, write
 
 
-class VulkanReferencedResourceHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
-    """Options for generating the header to a C++ class for detecting unreferenced resource handles in a capture file."""
+class VulkanReferencedBlockConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
+    """Options for generating a C++ class for detecting unreferenced resource handles in a capture file."""
 
     def __init__(
         self,
@@ -50,18 +50,17 @@ class VulkanReferencedResourceHeaderGeneratorOptions(VulkanBaseGeneratorOptions)
             extra_headers=extra_headers
         )
 
-        self.begin_end_file_data.specific_headers.extend((
-            'decode/vulkan_referenced_resource_consumer_base.h',
-            'util/defines.h',
-        ))
+        self.begin_end_file_data.specific_headers.append('generated/generated_vulkan_referenced_block_consumer.h')
+        # self.begin_end_file_data.system_headers.append('cassert')
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
+        self.begin_end_file_data.common_api_headers = []
 
 
-class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
-    """VulkanReferencedResourceHeaderGenerator - subclass of VulkanBaseGenerator.
-    Generates C++ member definitions for the VulkanReferencedResource class responsible for
-    determining which resource handles are used or unused in a capture file.
-    Generate the header to a C++ class for detecting unreferenced resource handles in a capture file.
+class VulkanReferencedBlockConsumerBodyGenerator(VulkanBaseGenerator):
+    """VulkanReferencedBlockConsumerBodyGenerator - subclass of VulkanBaseGenerator.
+    Generates C++ member definitions for the VulkanReferencedBlockConsumer class responsible for
+    determining which blocks are used or unused in a capture file and allows removing unused blocks.
+    Generate a C++ class for detecting unreferenced resource handles in a capture file.
     """
 
     # All resource and resource associated handle types to be processed.
@@ -69,6 +68,12 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
         'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
         'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline'
     ]
+
+    # Handle types that contain resource and child resource handle types.
+    CONTAINER_HANDLE_TYPES = ['VkDescriptorSet']
+
+    # Handle types that use resource and child resource handle types.
+    USER_HANDLE_TYPES = ['VkCommandBuffer']
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -81,26 +86,6 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
         )
         self.restrict_handles = True  # Determines if the 'is_handle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
 
-    def beginFile(self, gen_opts):
-        """Method override."""
-        VulkanBaseGenerator.beginFile(self, gen_opts)
-
-        class_name = 'VulkanReferencedResourceConsumer'
-
-
-        self.newline()
-        write(
-            'class {name} : public {name}Base'.format(name=class_name),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('  public:', file=self.outFile)
-        write('    {}() {{ }}\n'.format(class_name), file=self.outFile)
-        write(
-            '    ~{}() override {{ }}'.format(class_name),
-            file=self.outFile
-        )
-
     def endFile(self):
         """Method override."""
         for cmd, info in self.all_cmd_params.items():
@@ -109,32 +94,48 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
 
             return_type = info[0]
             params = info[2]
+
             if params and params[0].base_type == 'VkCommandBuffer':
+
                 # Check for parameters with resource handle types.
                 handles = self.get_param_list_handles(params[1:])
 
-                if (handles):
-                    # Generate a function to build a list of handle types and values.
-                    cmddef = '\n'
+                # if (handles):
+                # Generate a function to add handles to the command buffer's referenced handle list.
+                cmddef = '\n'
 
-                    # Temporarily remove resource only matching restriction from is_handle() when generating the function signature.
-                    self.restrict_handles = False
-                    decl = self.make_consumer_func_decl(
-                        return_type, 'Process_' + cmd, params
-                    )
-                    cmddef += self.indent(
-                        decl + ' override;', self.INDENT_SIZE
-                    )
-                    self.restrict_handles = True
+                # Temporarily remove resource only matching restriction from is_handle() when generating the function signature.
+                self.restrict_handles = False
+                cmddef += self.make_consumer_func_decl(
+                    return_type,
+                    'VulkanReferencedBlockConsumer::Process_' + cmd,
+                    params
+                ) + '\n'
+                self.restrict_handles = True
 
-                    write(cmddef, file=self.outFile)
+                cmddef += '{\n'
+                indent = self.INDENT_SIZE * ' '
 
-        write('};', file=self.outFile)
+                for param in params[1:]:
+                    if param not in handles:
+                        cmddef += indent + 'GFXRECON_UNREFERENCED_PARAMETER({});\n'.format(
+                            param.name
+                        )
+
+                cmddef += '\n'
+                for index, handle in enumerate(handles):
+                    pass
+
+                cmddef += '    if (check_handle_id_unused({})){{ set_block_index_unused(call_info.index); }}\n'.format(params[0].name)
+
+                cmddef += '}'
+
+                write(cmddef, file=self.outFile)
+
         self.newline()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
-
 
     def is_handle(self, base_type):
         """Override method to check for handle type, only matching resource handle types."""

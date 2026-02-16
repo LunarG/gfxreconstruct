@@ -44,11 +44,6 @@ class VulkanReferencedBlockConsumerBase : public VulkanConsumer
 
     const std::unordered_set<uint64_t>& GetUnreferencedBlocks() const { return unreferenced_blocks_; }
 
-    void Process_vkCmdBindPipeline(const ApiCallInfo&  call_info,
-                                   format::HandleId    commandBuffer,
-                                   VkPipelineBindPoint pipelineBindPoint,
-                                   format::HandleId    pipeline) override;
-
     void Process_vkCreateGraphicsPipelines(const ApiCallInfo&                                          call_info,
                                            VkResult                                                    returnValue,
                                            format::HandleId                                            device,
