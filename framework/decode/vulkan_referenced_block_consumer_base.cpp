@@ -39,6 +39,12 @@ void VulkanReferencedBlockConsumerBase::Process_vkCreateGraphicsPipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
     HandlePointerDecoder<VkPipeline>*                           pPipelines)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfos);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
     if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
     {
         set_block_index_unused(call_info.index);
@@ -55,6 +61,12 @@ void VulkanReferencedBlockConsumerBase::Process_vkCreateComputePipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkPipeline>*                          pPipelines)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfos);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
     if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
     {
         set_block_index_unused(call_info.index);
@@ -72,6 +84,12 @@ void VulkanReferencedBlockConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineCache);
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfos);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
     if (check_handle_ids_unused(pPipelines->GetPointer(), createInfoCount))
     {
         set_block_index_unused(call_info.index);
@@ -87,6 +105,13 @@ void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandle
                                                                                      size_t             dataSize,
                                                                                      PointerDecoder<uint8_t>* pData)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(firstGroup);
+    GFXRECON_UNREFERENCED_PARAMETER(groupCount);
+    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
+    GFXRECON_UNREFERENCED_PARAMETER(pData);
+
     if (check_handle_id_unused(pipeline))
     {
         set_block_index_unused(call_info.index);
