@@ -221,5 +221,24 @@ void MapStructHandles(Decoded_VkDescriptorGetInfoEXT* wrapper, const CommonObjec
     }
 }
 
+void MapStructHandles(Decoded_VkIndirectExecutionSetCreateInfoEXT* wrapper,
+                      const CommonObjectInfoTable&                 object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->info != nullptr))
+    {
+        switch (wrapper->decoded_type)
+        {
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+                MapStructHandles(wrapper->info->pPipelineInfo->GetMetaStructPointer(), object_info_table);
+                break;
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+                MapStructHandles(wrapper->info->pShaderInfo->GetMetaStructPointer(), object_info_table);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

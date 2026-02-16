@@ -27417,7 +27417,10 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateIndirectExecutionSetEXT(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectExecutionSetEXT>::Dispatch(manager, device, pCreateInfo, pAllocator, pIndirectExecutionSet);
 
-    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateIndirectExecutionSetEXT(device, pCreateInfo, pAllocator, pIndirectExecutionSet);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkIndirectExecutionSetCreateInfoEXT* pCreateInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateIndirectExecutionSetEXT(device, pCreateInfo_unwrapped, pAllocator, pIndirectExecutionSet);
 
     if (result >= 0)
     {
