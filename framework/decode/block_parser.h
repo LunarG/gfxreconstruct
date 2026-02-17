@@ -75,7 +75,7 @@ class BlockParser
     // Always: non-preloaded replay
     // Never:  file transforming tools that pass through most blocks without decoding
     // Queue Optimized: pre-loaded replay of ParsedBlocks
-    enum DecompressionPolicy
+    enum class DecompressionPolicy
     {
         kAlways = 0,     // Always decompress parameter data when parsing blocks
         kNever,          // Never decompress parameter data when parsing blocks
