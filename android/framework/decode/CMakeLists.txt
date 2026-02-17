@@ -194,10 +194,10 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_mappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_object_info_table_base2.h
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/vulkan_referenced_resource_consumer.h
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/vulkan_referenced_resource_consumer.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/vulkan_referenced_block_consumer.h
-                   ${GFXRECON_SOURCE_DIR}/framework/generated/vulkan_referenced_block_consumer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.cpp
               )
 
 if (OPENXR_SUPPORT_ENABLED)

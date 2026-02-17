@@ -26,7 +26,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReferencedBlockConsumerBase::VulkanReferencedBlockConsumerBase(
-    const std::unordered_set<format::HandleId>& unreferenced_ids) : unreferenced_ids_(std::move(unreferenced_ids))
+    const std::unordered_set<format::HandleId>& unreferenced_ids) :
+    unreferenced_ids_(std::move(unreferenced_ids))
 {}
 
 void VulkanReferencedBlockConsumerBase::Process_vkCreateGraphicsPipelines(

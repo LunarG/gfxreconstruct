@@ -24,15 +24,12 @@
 #define GFXRECON_DECODE_REFERENCED_RESOURCE_TABLE_H
 
 #include "format/format.h"
-#include "util/defines.h"
-#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -92,7 +89,6 @@ class ReferencedResourceTable
     void MarkResourceAsUsed(format::HandleId resource);
 
   private:
-
     // Track the referenced/used state of a resource (buffer, image, view, framebuffer).
     struct ResourceInfo
     {
@@ -126,7 +122,7 @@ class ReferencedResourceTable
         std::unordered_map<format::HandleId, std::weak_ptr<ResourceUserInfo>> users_infos;
     };
 
-    using PoolHandles =  std::unordered_set<format::HandleId>;
+    using PoolHandles = std::unordered_set<format::HandleId>;
 
     bool IsUsed(const ResourceInfo* resource_info) const;
 

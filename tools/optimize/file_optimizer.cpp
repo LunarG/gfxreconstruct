@@ -34,7 +34,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 FileOptimizer::FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids,
                              const std::unordered_set<uint64_t>&         unreferenced_blocks) :
-    unreferenced_ids_(unreferenced_ids), unreferenced_blocks_(unreferenced_blocks)
+    unreferenced_ids_(unreferenced_ids),
+    unreferenced_blocks_(unreferenced_blocks)
 {}
 
 bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
