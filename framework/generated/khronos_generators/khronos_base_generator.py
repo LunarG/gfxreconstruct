@@ -1561,12 +1561,18 @@ class KhronosBaseGenerator(OutputGenerator):
         self.all_extended_structs.setdefault(name,[]).append(extended)
 
     def add_struct_alias(self, name, alias):
-        self.all_struct_aliases[name] = alias
-        self.feature_struct_aliases[name] = alias
+        if name not in self.all_struct_aliases:
+            self.all_struct_aliases[name] = alias
+
+        if name not in self.feature_struct_aliases:
+            self.feature_struct_aliases[name] = alias
 
     def add_struct_members(self, name, value_info):
-        self.all_struct_members[name] = value_info
-        self.feature_struct_members[name] = value_info
+        if name not in self.all_struct_members:
+            self.all_struct_members[name] = value_info
+
+        if name not in self.feature_struct_members:
+            self.feature_struct_members[name] = value_info
 
     def get_or_create_structs_with_null_pnexts(self):
         """Returns the list of structs that must have null pNext pointers."""

@@ -12966,5 +12966,29 @@ void VulkanReplayConsumerBase::OverrideGetDeviceMemoryOpaqueCaptureAddress(
     allocator->GetDeviceMemoryOpaqueCaptureAddress(info, allocator_data);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreatePipelineBinariesKHR(
+    PFN_vkCreatePipelineBinariesKHR                               func,
+    VkResult                                                      original_result,
+    VulkanDeviceInfo*                                             device_info,
+    StructPointerDecoder<Decoded_VkPipelineBinaryCreateInfoKHR>*  pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
+    StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries)
+{
+    const VkPipelineBinaryCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
+    const VkAllocationCallbacks*         in_pAllocator  = GetAllocationCallbacks(pAllocator);
+
+    VkPipelineBinaryHandlesInfoKHR* out_pBinaries = pBinaries->GetOutputPointer();
+    if (out_pBinaries != nullptr && pBinaries->GetLength() > 0)
+    {
+        out_pBinaries->pipelineBinaryCount = pBinaries->GetLength();
+        out_pBinaries->pPipelineBinaries =
+            DecodeAllocator::Allocate<VkPipelineBinaryKHR>(out_pBinaries->pipelineBinaryCount);
+    }
+
+    VkResult replay_result = func(device_info->handle, in_pCreateInfo, in_pAllocator, out_pBinaries);
+
+    return replay_result;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -86,7 +86,8 @@ class KhronosStructHandleWrappersBodyGenerator():
                                                                          ]
                 if struct in self.all_possible_extendable_structs:
                     for member in self.all_struct_members[struct]:
-                        if self.is_extended_struct_definition(member) and (member not in handle_members):
+                        if ((self.is_extended_struct_definition(member) or member.base_type in self.all_possible_extendable_structs)
+                            and (member not in handle_members)):
                             handle_members.append(member)
 
                 body = '\n'
@@ -237,9 +238,30 @@ class KhronosStructHandleWrappersBodyGenerator():
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
+                    array_length_str = f"value->{member.array_length}"
+                    static_array_len = False
+                    if member.array_length.isnumeric() or member.array_length.isupper():
+                        array_length_str = member.array_length
+                        static_array_len = True
+
+                    # We need to remove the "const" from the return if the parent isn't const
+                    cast_prefix = ''
+                    cast_suffix = ''
+                    if not static_array_len and 'const' not in member.full_type:
+                        cast_prefix = f'const_cast<{member.base_type}{"*" * member.pointer_count}>('
+                        cast_suffix = ')'
+
                     if api_data.return_const_ptr_on_extended:
-                        body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
-                            member.array_length, name=member.name
+                        variable_name = f"value->{member.name}"
+                        unwrap_function = 'UnwrapStructArrayHandles'
+                        left_side = f"value->{member.name} = "
+                        if static_array_len:
+                            unwrap_function = 'UnwrapStructStaticArrayHandles'
+                            variable_name = f'&{variable_name}[0]'
+                            left_side = ''
+                        body += '        {left_side}{prefix}{unwrap_function}({variable_name}, {length}, unwrap_memory){suffix};\n'.format(
+                            prefix=cast_prefix, suffix=cast_suffix, unwrap_function=unwrap_function, variable_name=variable_name,
+                            length=array_length_str, left_side=left_side
                         )
                     else:
                         if 'const' in member.full_type:
@@ -258,12 +280,19 @@ class KhronosStructHandleWrappersBodyGenerator():
                         length_exprs = member.array_length.split(',')
                         length_count = len(length_exprs)
 
+                        left_side = f"value->{member.name} = "
                         if member.pointer_count > 1 and length_count < member.pointer_count:
                             unwrap_function = 'UnwrapStructPtrArrayHandles'
+                            cast_prefix = ''
+                            cast_suffix = ''
+                        elif static_array_len:
+                            unwrap_function = 'UnwrapStructStaticArrayHandles'
+                            variable_name = f'&{variable_name}[0]'
+                            left_side = ''
                         else:
                             unwrap_function = 'UnwrapStructArrayHandles'
 
-                        body += f'        value->{member.name} = {unwrap_function}({variable_name}, value->{member.array_length}, unwrap_memory);\n'
+                        body += f'        {left_side}{cast_prefix}{unwrap_function}({variable_name}, {array_length_str}, unwrap_memory){cast_suffix};\n'
                 elif member.is_pointer:
                     body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
                         name=member.name

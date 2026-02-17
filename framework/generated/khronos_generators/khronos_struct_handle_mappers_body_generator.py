@@ -60,7 +60,8 @@ class KhronosStructHandleMappersBodyGenerator():
                                                                          ]
                 if struct in self.all_possible_extendable_structs:
                     for member in self.all_struct_members[struct]:
-                        if self.is_extended_struct_definition(member) and (member not in handle_members):
+                        if ((self.is_extended_struct_definition(member) or member.base_type in self.all_possible_extendable_structs)
+                            and (member not in handle_members)):
                             handle_members.append(member)
 
                 # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
@@ -175,10 +176,14 @@ class KhronosStructHandleMappersBodyGenerator():
         # Look for output structs that contain handles and add to list
         for cmd in self.get_all_filtered_cmd_names():
             for value_info in self.all_cmd_params[cmd][2]:
-                if self.is_output_parameter(value_info) and self.is_struct(
-                    value_info.base_type
-                ) and (value_info.base_type in self.structs_with_handles
-                       ) and (value_info.base_type not in self.output_structs):
+                if (
+                    self.is_output_parameter(value_info)
+                    and self.is_struct(value_info.base_type)
+                    and not self.is_struct_black_listed(value_info.base_type)
+                    and (value_info.base_type not in self.all_struct_aliases)
+                    and (value_info.base_type in self.structs_with_handles)
+                    and (value_info.base_type not in self.output_structs)
+                ):
                     self.output_structs.append(value_info.base_type)
                     self.process_struct_members_to_output_struct(value_info)
 

@@ -1251,6 +1251,8 @@ void UnwrapStructHandles(XrDebugUtilsMessengerCallbackDataEXT* value, HandleUnwr
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        value->objects = const_cast<XrDebugUtilsObjectNameInfoEXT*>(UnwrapStructArrayHandles(value->objects, value->objectCount, unwrap_memory));
+        value->sessionLabels = const_cast<XrDebugUtilsLabelEXT*>(UnwrapStructArrayHandles(value->sessionLabels, value->sessionLabelCount, unwrap_memory));
     }
 }
 
@@ -1559,6 +1561,7 @@ void UnwrapStructHandles(XrSecondaryViewConfigurationFrameStateMSFT* value, Hand
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        value->viewConfigurationStates = const_cast<XrSecondaryViewConfigurationStateMSFT*>(UnwrapStructArrayHandles(value->viewConfigurationStates, value->viewConfigurationCount, unwrap_memory));
     }
 }
 
@@ -1627,6 +1630,7 @@ void UnwrapStructHandles(XrControllerModelPropertiesMSFT* value, HandleUnwrapMem
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        value->nodeProperties = const_cast<XrControllerModelNodePropertiesMSFT*>(UnwrapStructArrayHandles(value->nodeProperties, value->nodeCapacityInput, unwrap_memory));
     }
 }
 
@@ -1649,6 +1653,7 @@ void UnwrapStructHandles(XrControllerModelStateMSFT* value, HandleUnwrapMemory* 
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        value->nodeStates = const_cast<XrControllerModelNodeStateMSFT*>(UnwrapStructArrayHandles(value->nodeStates, value->nodeCapacityInput, unwrap_memory));
     }
 }
 
@@ -2764,6 +2769,7 @@ void UnwrapStructHandles(XrEventDataLocalizationChangedML* value, HandleUnwrapMe
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        UnwrapStructHandles(&value->map, unwrap_memory);
     }
 }
 
@@ -2907,7 +2913,7 @@ void UnwrapStructHandles(XrSpaceQueryResultsFB* value, HandleUnwrapMemory* unwra
 {
     if (value != nullptr)
     {
-        value->results = UnwrapStructArrayHandles(value->results, value->resultCapacityInput, unwrap_memory);
+        value->results = const_cast<XrSpaceQueryResultFB*>(UnwrapStructArrayHandles(value->results, value->resultCapacityInput, unwrap_memory));
         if (value->next != nullptr)
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
@@ -3442,6 +3448,7 @@ void UnwrapStructHandles(XrVirtualKeyboardModelAnimationStatesMETA* value, Handl
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        value->states = const_cast<XrVirtualKeyboardAnimationStateMETA*>(UnwrapStructArrayHandles(value->states, value->stateCapacityInput, unwrap_memory));
     }
 }
 
@@ -3828,6 +3835,7 @@ void UnwrapStructHandles(XrEnvironmentDepthImageMETA* value, HandleUnwrapMemory*
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        UnwrapStructStaticArrayHandles(&value->views[0], 2, unwrap_memory);
     }
 }
 
@@ -3894,6 +3902,7 @@ void UnwrapStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMe
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        UnwrapStructHandles(&value->color, unwrap_memory);
     }
 }
 
@@ -3901,7 +3910,7 @@ void UnwrapStructHandles(XrFoveationApplyInfoHTC* value, HandleUnwrapMemory* unw
 {
     if (value != nullptr)
     {
-        value->subImages = UnwrapStructArrayHandles(value->subImages, value->subImageCount, unwrap_memory);
+        value->subImages = const_cast<XrSwapchainSubImage*>(UnwrapStructArrayHandles(value->subImages, value->subImageCount, unwrap_memory));
         if (value->next != nullptr)
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
@@ -4076,6 +4085,7 @@ void UnwrapStructHandles(XrPlaneDetectorLocationsEXT* value, HandleUnwrapMemory*
         {
             value->next = const_cast<void*>(UnwrapNextStructHandles(value->next, unwrap_memory));
         }
+        value->planeLocations = const_cast<XrPlaneDetectorLocationEXT*>(UnwrapStructArrayHandles(value->planeLocations, value->planeLocationCapacityInput, unwrap_memory));
     }
 }
 

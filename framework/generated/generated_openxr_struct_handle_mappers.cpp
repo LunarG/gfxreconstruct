@@ -1417,6 +1417,10 @@ void MapStructHandles(Decoded_XrDebugUtilsMessengerCallbackDataEXT* wrapper, con
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructArrayHandles<Decoded_XrDebugUtilsObjectNameInfoEXT>(wrapper->objects->GetMetaStructPointer(), wrapper->objects->GetLength(), object_info_table);
+
+        MapStructArrayHandles<Decoded_XrDebugUtilsLabelEXT>(wrapper->sessionLabels->GetMetaStructPointer(), wrapper->sessionLabels->GetLength(), object_info_table);
     }
 }
 
@@ -1741,6 +1745,8 @@ void MapStructHandles(Decoded_XrSecondaryViewConfigurationFrameStateMSFT* wrappe
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructArrayHandles<Decoded_XrSecondaryViewConfigurationStateMSFT>(wrapper->viewConfigurationStates->GetMetaStructPointer(), wrapper->viewConfigurationStates->GetLength(), object_info_table);
     }
 }
 
@@ -1815,6 +1821,8 @@ void MapStructHandles(Decoded_XrControllerModelPropertiesMSFT* wrapper, const Co
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructArrayHandles<Decoded_XrControllerModelNodePropertiesMSFT>(wrapper->nodeProperties->GetMetaStructPointer(), wrapper->nodeProperties->GetLength(), object_info_table);
     }
 }
 
@@ -1837,6 +1845,8 @@ void MapStructHandles(Decoded_XrControllerModelStateMSFT* wrapper, const CommonO
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructArrayHandles<Decoded_XrControllerModelNodeStateMSFT>(wrapper->nodeStates->GetMetaStructPointer(), wrapper->nodeStates->GetLength(), object_info_table);
     }
 }
 
@@ -3051,6 +3061,8 @@ void MapStructHandles(Decoded_XrEventDataLocalizationChangedML* wrapper, const C
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructHandles(wrapper->map, object_info_table);
     }
 }
 
@@ -3804,6 +3816,8 @@ void MapStructHandles(Decoded_XrVirtualKeyboardModelAnimationStatesMETA* wrapper
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructArrayHandles<Decoded_XrVirtualKeyboardAnimationStateMETA>(wrapper->states->GetMetaStructPointer(), wrapper->states->GetLength(), object_info_table);
     }
 }
 
@@ -4237,6 +4251,8 @@ void MapStructHandles(Decoded_XrEnvironmentDepthImageMETA* wrapper, const Common
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructArrayHandles<Decoded_XrEnvironmentDepthImageViewMETA>(wrapper->views->GetMetaStructPointer(), wrapper->views->GetLength(), object_info_table);
     }
 }
 
@@ -4313,6 +4329,8 @@ void MapStructHandles(Decoded_XrCompositionLayerPassthroughHTC* wrapper, const C
         value->space = handle_mapping::MapHandle<OpenXrSpaceInfo>(wrapper->space, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
 
         value->passthrough = handle_mapping::MapHandle<OpenXrPassthroughHTCInfo>(wrapper->passthrough, object_info_table, &CommonObjectInfoTable::GetXrPassthroughHTCInfo);
+
+        MapStructHandles(wrapper->color, object_info_table);
     }
 }
 
@@ -4515,6 +4533,8 @@ void MapStructHandles(Decoded_XrPlaneDetectorLocationsEXT* wrapper, const Common
         {
             MapNextStructHandles(wrapper->next, object_info_table);
         }
+
+        MapStructArrayHandles<Decoded_XrPlaneDetectorLocationEXT>(wrapper->planeLocations->GetMetaStructPointer(), wrapper->planeLocations->GetLength(), object_info_table);
     }
 }
 

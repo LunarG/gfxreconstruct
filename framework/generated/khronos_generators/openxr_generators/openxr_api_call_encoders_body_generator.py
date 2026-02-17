@@ -583,7 +583,6 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
     def make_handle_unwrapping(self, name, values):
         args = []
         unwraps = []
-        need_unwrap_memory = False
         for value in values:
             arg_name = value.name
             if value.is_pointer or value.is_array:
@@ -601,6 +600,7 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                         }
                         if value.is_array:
                             unwrap['length'] = value.array_length
+                            print(f"{name} {unwrap['length']}")
                             unwrap[
                                 'call'
                             ] = '{prefix}UnwrapStructArrayHandles({name}, {length}, handle_unwrap_memory)'.format(
