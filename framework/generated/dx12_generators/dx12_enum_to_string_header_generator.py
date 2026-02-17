@@ -65,7 +65,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
         enum_dict = self.source_dict['enum_dict']
         for k, v in enum_dict.items():
             # Generate enum handler for all enums
-            body = 'std::string ToString({0} value);'
+            body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
 
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:

@@ -59,7 +59,7 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         for k, v in self.source_dict['enum_dict'].items():
             # Generate enum handler for all enums
-            body = 'std::string ToString(const {0} value)\n'
+            body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)\n'
             body += '{{\n'
             body += '    const char* ret = "Unhandled {0}";\n'
             body += '    switch (value) {{\n'

@@ -27,6 +27,7 @@
 #include "decode/dx12_enum_util.h"
 #include "decode/custom_dx12_struct_object_mappers.h"
 #include "generated/generated_dx12_call_id_to_string.h"
+#include "generated/generated_dx12_enum_to_string.h"
 #include "graphics/dx12_util.h"
 #include "graphics/dx12_image_renderer.h"
 #include "util/gpu_va_range.h"
