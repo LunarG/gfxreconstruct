@@ -374,8 +374,34 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     void PushDescriptorSetWithTemplate(format::HandleId                       user_id,
                                        format::HandleId                       template_id,
                                        const DescriptorUpdateTemplateDecoder* decoder);
+    template <typename T>
+    void Process_vkCreatePipelines(uint32_t                                createInfoCount,
+                                   StructPointerDecoder<T>*                pCreateInfos,
+                                   const HandlePointerDecoder<VkPipeline>* pPipelines)
+    {
+        static_assert(std::is_same_v<T, Decoded_VkGraphicsPipelineCreateInfo> ||
+                      std::is_same_v<T, Decoded_VkComputePipelineCreateInfo> ||
+                      std::is_same_v<T, Decoded_VkRayTracingPipelineCreateInfoKHR>);
 
-  private:
+        for (uint32_t i = 0; i < createInfoCount; ++i)
+        {
+            const format::HandleId pipeline_id = pPipelines->GetPointer()[i];
+            table_.AddResource(pipeline_id);
+
+            const auto* meta_create_info = pCreateInfos->GetMetaStructPointer() + i;
+
+            if (auto* meta_pipeline_info =
+                    GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(meta_create_info->pNext))
+            {
+                for (uint32_t l = 0; l < meta_pipeline_info->pLibraries.GetLength(); ++l)
+                {
+                    const format::HandleId library_id = meta_pipeline_info->pLibraries.GetPointer()[l];
+                    table_.AddResource(pipeline_id, library_id, true);
+                }
+            }
+        }
+    }
+
     bool                    loading_state_;
     bool                    loaded_state_;
     ReferencedResourceTable table_;

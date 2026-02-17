@@ -54,20 +54,21 @@ void ReferencedResourceTable::AddResource(format::HandleId parent_id, format::Ha
                 auto resource_info      = std::make_shared<ResourceInfo>();
                 resource_info->is_child = true;
 
-                parent_info->child_infos.emplace(resource_id, std::weak_ptr<ResourceInfo>{ resource_info });
+                parent_info->child_infos.emplace(resource_id, resource_info);
                 resources_.emplace(resource_id, resource_info);
             }
             else
             {
                 // The resource has already been added to the table, but has multiple parent objects (e.g. a framebuffer
                 // is created from multiple image views), so we add it to the parent's child list.
-                parent_info->child_infos.emplace(resource_id, std::weak_ptr<ResourceInfo>{ resource_entry->second });
+                resource_entry->second->is_child = true;
+                parent_info->child_infos.emplace(resource_id, resource_entry->second);
 
                 if (add_children)
                 {
-                    for (const auto& child : resource_entry->second->child_infos)
+                    for (const auto& [child_id, child_info] : resource_entry->second->child_infos)
                     {
-                        parent_info->child_infos.emplace(child.first, std::weak_ptr<ResourceInfo>{ child.second });
+                        parent_info->child_infos.emplace(child_id, child_info);
                     }
                 }
             }
@@ -106,7 +107,7 @@ void ReferencedResourceTable::AddResourceToContainer(format::HandleId container_
                 auto& resource_info = resource_entry->second;
                 assert((container_info != nullptr) && (resource_info != nullptr));
 
-                container_info->resource_infos.emplace(resource_id, std::weak_ptr<ResourceInfo>{ resource_info });
+                container_info->resource_infos.emplace(resource_id, resource_info);
                 container_info->resource_bindings[binding].insert(std::make_pair(element, resource_id));
             }
         }
@@ -117,8 +118,7 @@ void ReferencedResourceTable::AddResourceToUser(format::HandleId user_id, format
 {
     if ((user_id != format::kNullHandleId) && (resource_id != format::kNullHandleId))
     {
-        auto user_entry = users_.find(user_id);
-        if (user_entry != users_.end())
+        if (auto user_entry = users_.find(user_id); user_entry != users_.end())
         {
             auto& user_info      = user_entry->second;
             auto  resource_entry = resources_.find(resource_id);
@@ -126,9 +126,16 @@ void ReferencedResourceTable::AddResourceToUser(format::HandleId user_id, format
             if (resource_entry != resources_.end())
             {
                 auto& resource_info = resource_entry->second;
-                assert((user_info != nullptr) && (resource_info != nullptr));
+                GFXRECON_ASSERT(user_info != nullptr && resource_info != nullptr);
 
-                user_info->resource_infos.emplace(resource_id, std::weak_ptr<ResourceInfo>{ resource_info });
+                // add actual resource
+                user_info->resource_infos.emplace(resource_id, resource_info);
+
+                // add potential child resources
+                for (const auto& [child_resource_id, child_resource_info] : resource_info->child_infos)
+                {
+                    user_info->resource_infos.emplace(child_resource_id, child_resource_info);
+                }
             }
         }
     }
@@ -149,8 +156,7 @@ void ReferencedResourceTable::AddContainerToUser(format::HandleId user_id, forma
                 auto& container_info = container_entry->second;
                 assert((user_info != nullptr) && (container_info != nullptr));
 
-                user_info->container_infos.emplace(container_id,
-                                                   std::weak_ptr<ResourceContainerInfo>{ container_info });
+                user_info->container_infos.emplace(container_id, container_info);
             }
         }
     }
@@ -376,10 +382,12 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                 {
                     resource_info_ptr->used = true;
 
-                    for (auto& child : resource_info_ptr->child_infos)
+                    for (auto& [child_id, child_info] : resource_info_ptr->child_infos)
                     {
-                        auto child_info_ptr  = child.second.lock();
-                        child_info_ptr->used = true;
+                        if (auto child_info_ptr  = child_info.lock())
+                        {
+                            child_info_ptr->used = true;
+                        }
                     }
                 }
             }
@@ -390,15 +398,16 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                 {
                     for (auto& resource_info : container_info_ptr->resource_infos)
                     {
-                        if (!resource_info.second.expired())
+                        if (auto resource_info_ptr  = resource_info.second.lock())
                         {
-                            auto resource_info_ptr  = resource_info.second.lock();
                             resource_info_ptr->used = true;
 
                             for (auto& child : resource_info_ptr->child_infos)
                             {
-                                auto child_info_ptr  = child.second.lock();
-                                child_info_ptr->used = true;
+                                if (auto child_info_ptr = child.second.lock())
+                                {
+                                    child_info_ptr->used = true;
+                                }
                             }
                         }
                     }
@@ -439,9 +448,9 @@ void ReferencedResourceTable::GetReferencedHandleIds(std::unordered_set<format::
             {
                 referenced_ids->insert(handle_id);
 
-                for (const auto& child : resource_entry->child_infos)
+                for (const auto& [child_id, child_info] : resource_entry->child_infos)
                 {
-                    referenced_ids->insert(child.first);
+                    referenced_ids->insert(child_id);
                 }
             }
             else if (!used && unreferenced_ids != nullptr)
@@ -454,7 +463,7 @@ void ReferencedResourceTable::GetReferencedHandleIds(std::unordered_set<format::
 
 bool ReferencedResourceTable::IsUsed(const ResourceInfo* resource_info) const
 {
-    assert(resource_info != nullptr);
+    GFXRECON_ASSERT(resource_info != nullptr);
 
     if (resource_info->used)
     {
@@ -462,11 +471,10 @@ bool ReferencedResourceTable::IsUsed(const ResourceInfo* resource_info) const
     }
 
     // If the resource was not used directly, check to see if it was used indirectly through a child.
-    for (const auto& [handle_id, child_info] : resource_info->child_infos)
+    for (const auto& child_info : resource_info->child_infos | std::views::values)
     {
-        if (!child_info.expired())
+        if (const auto child_info_ptr = child_info.lock())
         {
-            const auto child_info_ptr = child_info.lock();
             if (IsUsed(child_info_ptr.get()))
             {
                 return true;

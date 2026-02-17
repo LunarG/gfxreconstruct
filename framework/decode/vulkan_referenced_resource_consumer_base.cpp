@@ -1202,11 +1202,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateGraphicsPipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
     HandlePointerDecoder<VkPipeline>*                           pPipelines)
 {
-    for (uint32_t i = 0; i < createInfoCount; ++i)
-    {
-        format::HandleId pipeline_id = pPipelines->GetPointer()[i];
-        table_.AddResource(pipeline_id);
-    }
+    Process_vkCreatePipelines(createInfoCount, pCreateInfos, pPipelines);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateComputePipelines(
@@ -1219,11 +1215,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateComputePipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkPipeline>*                          pPipelines)
 {
-    for (uint32_t i = 0; i < createInfoCount; ++i)
-    {
-        format::HandleId pipeline_id = pPipelines->GetPointer()[i];
-        table_.AddResource(pipeline_id);
-    }
+    Process_vkCreatePipelines(createInfoCount, pCreateInfos, pPipelines);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
@@ -1237,11 +1229,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateRayTracingPipelinesKH
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
-    for (uint32_t i = 0; i < createInfoCount; ++i)
-    {
-        format::HandleId pipeline_id = pPipelines->GetPointer()[i];
-        table_.AddResource(pipeline_id);
-    }
+    Process_vkCreatePipelines(createInfoCount, pCreateInfos, pPipelines);
 }
 
 GFXRECON_END_NAMESPACE(decode)
