@@ -371,7 +371,7 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
         if (auto user_entry = users_.find(user_id); user_entry != users_.end())
         {
             auto& user_info = user_entry->second;
-            assert(user_info != nullptr);
+            GFXRECON_ASSERT(user_info != nullptr);
 
             // set command-buffer as submitted
             user_info->used = true;
@@ -384,7 +384,7 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 
                     for (auto& [child_id, child_info] : resource_info_ptr->child_infos)
                     {
-                        if (auto child_info_ptr  = child_info.lock())
+                        if (auto child_info_ptr = child_info.lock())
                         {
                             child_info_ptr->used = true;
                         }
@@ -398,7 +398,7 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                 {
                     for (auto& resource_info : container_info_ptr->resource_infos)
                     {
-                        if (auto resource_info_ptr  = resource_info.second.lock())
+                        if (auto resource_info_ptr = resource_info.second.lock())
                         {
                             resource_info_ptr->used = true;
 

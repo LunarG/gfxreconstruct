@@ -396,7 +396,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                 for (uint32_t l = 0; l < meta_pipeline_info->pLibraries.GetLength(); ++l)
                 {
                     const format::HandleId library_id = meta_pipeline_info->pLibraries.GetPointer()[l];
-                    table_.AddResource(pipeline_id, library_id, true);
+                    table_.AddResource(pipeline_id, library_id);
                 }
             }
         }
