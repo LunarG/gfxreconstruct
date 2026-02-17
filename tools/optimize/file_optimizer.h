@@ -36,10 +36,14 @@ class FileOptimizer : public decode::FileTransformer
     FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids,
                   const std::unordered_set<uint64_t>&         unreferenced_blocks);
 
+    [[nodiscard]] uint32_t GetNumRemovedBlocks() const { return num_removed_blocks_; }
+
+  protected:
+    bool ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
+    bool ProcessMethodCall(decode::ParsedBlock& parsed_block) override;
+    bool ProcessMetaData(decode::ParsedBlock& parsed_block) override;
+
   private:
-    bool        ProcessFunctionCall(decode::ParsedBlock& parsed_block) override;
-    bool        ProcessMethodCall(decode::ParsedBlock& parsed_block) override;
-    bool        ProcessMetaData(decode::ParsedBlock& parsed_block) override;
     VisitResult FilterMetaData(const decode::InitBufferArgs& args);
     VisitResult FilterMetaData(const decode::InitImageArgs& args);
 
@@ -49,12 +53,13 @@ class FileOptimizer : public decode::FileTransformer
         return kNeedsPassthrough;
     }
 
-    bool FilterMethodCall(const decode::MethodCallArgs& args);
+    [[nodiscard]] bool FilterMethodCall(const decode::MethodCallArgs& args) const;
 
     bool WriteAnnotation(std::string_view label, std::string_view message);
 
     const std::unordered_set<format::HandleId>& unreferenced_ids_;
     const std::unordered_set<uint64_t>&         unreferenced_blocks_;
+    uint32_t                                    num_removed_blocks_ = 0;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

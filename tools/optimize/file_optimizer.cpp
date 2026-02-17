@@ -48,7 +48,8 @@ bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
         WriteAnnotation(format::kAnnotationLabelRemovedFunctionCall,
                         std::format("Removed API call: {}", static_cast<uint32_t>(args.call_id)));
 
-        // success, call is filtered out
+        // success, block is filtered out
+        ++num_removed_blocks_;
         return true;
     }
     return FileTransformer::ProcessFunctionCall(parsed_block);
@@ -71,7 +72,8 @@ bool FileOptimizer::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
     if (FilterMethodCall(parsed_block.Get<decode::MethodCallArgs>()))
     {
-        // success, call is filtered out
+        // success, block is filtered out
+        ++num_removed_blocks_;
         return true;
     }
 
@@ -112,12 +114,11 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     return kNeedsPassthrough;
 }
 
-// Returns whether or not to filter this MethodCall block or not
-bool FileOptimizer::FilterMethodCall(const decode::MethodCallArgs& args)
+// Returns whether to filter this MethodCall block or not
+bool FileOptimizer::FilterMethodCall(const decode::MethodCallArgs& args) const
 {
     const format::ApiCallId api_call_id = args.call_id;
     const uint64_t          block_index = args.call_info.index;
-    bool                    filter_out  = false;
 
     // Only a subset of blocks can be filtered out...
     if (api_call_id == format::ApiCallId::ApiCall_ID3D12Device_CreateGraphicsPipelineState ||
@@ -125,9 +126,9 @@ bool FileOptimizer::FilterMethodCall(const decode::MethodCallArgs& args)
         api_call_id == format::ApiCallId::ApiCall_ID3D12PipelineLibrary_StorePipeline)
     {
         // If the buffer is in the unused list, omit the call block from the file.
-        filter_out = unreferenced_blocks_.contains(block_index);
+        return unreferenced_blocks_.contains(block_index);
     }
-    return filter_out;
+    return false;
 }
 
 bool FileOptimizer::WriteAnnotation(std::string_view label, std::string_view message)
