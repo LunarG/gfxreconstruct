@@ -25,11 +25,9 @@
 
 #include "generated/generated_vulkan_consumer.h"
 #include <unordered_set>
+#include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-
-// Although this class lives in the optimize tool project, it is derived from decode::VulkanConsumer so put it in
-// the decode namespace.
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /**
