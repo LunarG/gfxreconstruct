@@ -3277,14 +3277,12 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         // Fake VK_EXT_frame_boundary if requested, but not supported
         if (sanitize_faked_extension(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
         {
-            VulkanSwapchainOptions options             = swapchain_->GetOptions();
+            VulkanSwapchainOptions options = swapchain_->GetOptions();
             if (options.offscreen_swapchain_frame_boundary)
             {
-                GFXRECON_LOG_ERROR(
-                    "--offscreen-swapchain-frame-boundary was enabled but %s "
-                    "is not available on the replay device. Quitting replay.",
-                    VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME
-                );
+                GFXRECON_LOG_ERROR("--offscreen-swapchain-frame-boundary was enabled but %s "
+                                   "is not available on the replay device. Quitting replay.",
+                                   VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
                 std::abort();
             }
 
