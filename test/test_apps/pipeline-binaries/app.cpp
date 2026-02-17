@@ -178,24 +178,44 @@ void App::create_graphics_pipeline()
     pipeline_rendering_create_info.colorAttachmentCount          = 1u;
     pipeline_rendering_create_info.pColorAttachmentFormats       = &color_format;
 
-    VkGraphicsPipelineCreateInfo pipeline_info = {};
-    pipeline_info.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipeline_info.pNext                        = &pipeline_rendering_create_info;
-    pipeline_info.stageCount                   = 2;
-    pipeline_info.pStages                      = shader_stages;
-    pipeline_info.pVertexInputState            = &vertex_input_info;
-    pipeline_info.pInputAssemblyState          = &input_assembly;
-    pipeline_info.pViewportState               = &viewport_state;
-    pipeline_info.pRasterizationState          = &rasterizer;
-    pipeline_info.pMultisampleState            = &multisampling;
-    pipeline_info.pColorBlendState             = &color_blending;
-    pipeline_info.pDynamicState                = &dynamic_info;
-    pipeline_info.layout                       = pipeline_layout_;
-    pipeline_info.renderPass                   = VK_NULL_HANDLE;
-    pipeline_info.subpass                      = 0;
-    pipeline_info.basePipelineHandle           = VK_NULL_HANDLE;
+    VkGraphicsPipelineCreateInfo graphics_pipeline_info = {};
+    graphics_pipeline_info.sType                        = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    graphics_pipeline_info.pNext                        = &pipeline_rendering_create_info;
+    graphics_pipeline_info.stageCount                   = 2;
+    graphics_pipeline_info.pStages                      = shader_stages;
+    graphics_pipeline_info.pVertexInputState            = &vertex_input_info;
+    graphics_pipeline_info.pInputAssemblyState          = &input_assembly;
+    graphics_pipeline_info.pViewportState               = &viewport_state;
+    graphics_pipeline_info.pRasterizationState          = &rasterizer;
+    graphics_pipeline_info.pMultisampleState            = &multisampling;
+    graphics_pipeline_info.pColorBlendState             = &color_blending;
+    graphics_pipeline_info.pDynamicState                = &dynamic_info;
+    graphics_pipeline_info.layout                       = pipeline_layout_;
+    graphics_pipeline_info.renderPass                   = VK_NULL_HANDLE;
+    graphics_pipeline_info.subpass                      = 0;
+    graphics_pipeline_info.basePipelineHandle           = VK_NULL_HANDLE;
 
-    result = init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &graphics_pipeline_);
+    VkPipelineCreateInfoKHR pipeline_create_info = {};
+    pipeline_create_info.sType                   = VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR;
+    pipeline_create_info.pNext                   = &graphics_pipeline_info;
+
+    VkPipelineBinaryCreateInfoKHR pipeline_binary_create_info;
+    pipeline_binary_create_info.sType               = VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR;
+    pipeline_binary_create_info.pNext               = nullptr;
+    pipeline_binary_create_info.pKeysAndDataInfo    = nullptr;
+    pipeline_binary_create_info.pipeline            = nullptr;
+    pipeline_binary_create_info.pPipelineCreateInfo = &pipeline_create_info;
+
+    VkPipelineBinaryHandlesInfoKHR pipeline_binary_handles_info;
+    pipeline_binary_handles_info.sType               = VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR;
+    pipeline_binary_handles_info.pNext               = nullptr;
+    pipeline_binary_handles_info.pipelineBinaryCount = 0u;
+    pipeline_binary_handles_info.pPipelineBinaries   = nullptr;
+    result = init.disp.createPipelineBinariesKHR(&pipeline_binary_create_info, nullptr, &pipeline_binary_handles_info);
+    VERIFY_VK_RESULT("failed to get pipeline binary count", result);
+
+    result =
+        init.disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &graphics_pipeline_info, nullptr, &graphics_pipeline_);
     VERIFY_VK_RESULT("failed to create graphics pipeline", result);
 
     init.disp.destroyShaderModule(frag_module, nullptr);

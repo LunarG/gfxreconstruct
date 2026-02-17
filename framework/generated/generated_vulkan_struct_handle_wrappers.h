@@ -2247,6 +2247,16 @@ const T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemor
 }
 
 template <typename T>
+void UnwrapStructStaticArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+{
+    // Fill directly in (no need to alloc)
+    for (size_t i = 0; i < len; ++i)
+    {
+        UnwrapStructHandles(&values[i], unwrap_memory);
+    }
+}
+
+template <typename T>
 T* UnwrapStructPtrArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((values != nullptr) && (len > 0))

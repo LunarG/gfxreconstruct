@@ -140,6 +140,24 @@ class KhronosStructHandleWrappersHeaderGenerator():
         write('    return values;', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write(
+            f'void UnwrapStructStaticArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    // Fill directly in (no need to alloc)', file=self.outFile)
+        write('    for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write(
+            '        UnwrapStructHandles(&values[i], unwrap_memory);',
+            file=self.outFile
+        )
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
         write('template <typename T>', file=self.outFile)
         write(
             'T* UnwrapStructPtrArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',

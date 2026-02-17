@@ -239,6 +239,8 @@ class KhronosStructDecodersBodyGenerator():
                         main_body += '            break;\n'
                     main_body += '        }\n'
                 else:
+                    if value.name == 'pPipelineBinaries':
+                        print(f"  In !struct else for {value.name}")
                     main_body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
                         value.name, self.make_decoded_param_type(value)
                     )
