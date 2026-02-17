@@ -34,15 +34,12 @@
 #include "decode/dx12_optimize_options.h"
 #include "decode/file_processor.h"
 #include "format/format.h"
-#include "format/format_util.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_referenced_resource_consumer.h"
 #include "generated/generated_vulkan_referenced_block_consumer.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/date_time.h"
-
-#include "vulkan/vulkan.h"
 
 #include <cassert>
 #include <stdexcept>
@@ -61,12 +58,12 @@ extern "C"
 }
 #endif
 
-const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr,--dxr-experimental";
-const char kArguments[] = "--gpu";
+constexpr char kOptions[]   = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--dxr,--dxr-experimental";
+constexpr char kArguments[] = "--gpu";
 
-const char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
-const char kDx12OptimizeDxr[]             = "--dxr";
-const char kDx12OptimizeDxrExperimental[] = "--dxr-experimental";
+constexpr char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
+constexpr char kDx12OptimizeDxr[]             = "--dxr";
+constexpr char kDx12OptimizeDxrExperimental[] = "--dxr-experimental";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -134,9 +131,6 @@ void GetUnreferencedResources(const std::string&                              in
         {
             GFXRECON_WRITE_CONSOLE("File did not contain trim state setup - no optimization was performed");
             gfxrecon::util::Log::Release();
-
-            // TODO: 65 - A failure has occurred in a routine that creates processes ? -> that's not accurate
-            // see https://snowcodes.hashnode.dev/all-the-exit-codes-and-status-in-c
             exit(65);
         }
 
@@ -161,7 +155,14 @@ void GetUnreferencedResources(const std::string&                              in
     }
 }
 
-std::unordered_set<uint64_t>
+// GetUnreferencedBlocksResult defines a simple aggregate return-type
+struct GetUnreferencedBlocksResult
+{
+    uint64_t                     num_blocks = 0;
+    std::unordered_set<uint64_t> unreferenced_blocks;
+};
+
+GetUnreferencedBlocksResult
 GetUnreferencedBlocks(const std::string&                                    input_filename,
                       const std::unordered_set<gfxrecon::format::HandleId>& unreferenced_ids)
 {
@@ -180,8 +181,9 @@ GetUnreferencedBlocks(const std::string&                                    inpu
         if (file_processor.GetCurrentFrameNumber() > 0 &&
             file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
-            // Get the list of resources that were included in a command buffer submission during replay.
-            return block_ref_consumer.GetUnreferencedBlocks();
+            // return the set of unused block-indices
+            return { .num_blocks          = file_processor.GetCurrentBlockIndex(),
+                     .unreferenced_blocks = block_ref_consumer.GetUnreferencedBlocks() };
         }
 
         GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
@@ -189,12 +191,12 @@ GetUnreferencedBlocks(const std::string&                                    inpu
     return {};
 }
 
-void FilterUnreferencedResources(const std::string&                              input_filename,
-                                 const std::string&                              output_filename,
-                                 std::unordered_set<gfxrecon::format::HandleId>& unreferenced_ids)
+void FilterUnreferencedResources(const std::string&                                    input_filename,
+                                 const std::string&                                    output_filename,
+                                 const std::unordered_set<gfxrecon::format::HandleId>& unreferenced_ids)
 {
-    auto                    unreferenced_blocks = GetUnreferencedBlocks(input_filename, unreferenced_ids);
-    gfxrecon::FileOptimizer file_optimizer(unreferenced_ids, unreferenced_blocks);
+    auto                    result = GetUnreferencedBlocks(input_filename, unreferenced_ids);
+    gfxrecon::FileOptimizer file_optimizer(unreferenced_ids, result.unreferenced_blocks);
 
     if (file_optimizer.Initialize(input_filename, output_filename))
     {
@@ -207,8 +209,10 @@ void FilterUnreferencedResources(const std::string&                             
             exit(-1);
         }
 
-        GFXRECON_WRITE_CONSOLE(
-            std::format("Resource filtering complete - Removed {} blocks", unreferenced_blocks.size()).c_str());
+        GFXRECON_WRITE_CONSOLE(std::format("Resource filtering complete - Removed {} / {} blocks",
+                                           result.unreferenced_blocks.size(),
+                                           result.num_blocks)
+                                   .c_str());
         GFXRECON_WRITE_CONSOLE("\tOriginal file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesRead());
         GFXRECON_WRITE_CONSOLE("\tOptimized file size: %" PRIu64 " bytes", file_optimizer.GetNumBytesWritten());
     }
