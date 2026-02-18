@@ -1,6 +1,3 @@
-git submodule update --init --recursive
-git describe --tags --always
-
 if not defined TEST_SUITE_BRANCH (
     if exist test_suite.ref (
         set /p TEST_SUITE_BRANCH=<test_suite.ref
