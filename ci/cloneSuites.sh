@@ -10,11 +10,9 @@ if [ -z "${TEST_SUITE_BRANCH:-}" ]; then
   export TEST_SUITE_BRANCH
 fi
 
-git init ci-gfxr-suites
+git clone --verbose $TEST_SUITE_REPO ci-gfxr-suites
 cd ci-gfxr-suites
-git remote add origin $TEST_SUITE_REPO
-git fetch --depth 1 --verbose origin $TEST_SUITE_BRANCH
-git checkout FETCH_HEAD
-git submodule update --init --recursive --depth 1
+git checkout $TEST_SUITE_BRANCH
+git submodule update --init --recursive
 git describe --tags --always
 cd ..
