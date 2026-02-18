@@ -38,7 +38,9 @@
 #endif
 
 #if defined(VK_USE_PLATFORM_METAL_EXT)
+GFXRECON_BEGIN_SUPPRESS_APPLE_SDK_WARNINGS
 #include <Carbon/Carbon.h>
+GFXRECON_END_SUPPRESS_APPLE_SDK_WARNINGS
 #endif
 
 #include <unordered_map>

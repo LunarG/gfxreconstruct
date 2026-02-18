@@ -105,7 +105,7 @@ bool CompressionConverter::ProcessMetaData(decode::ParsedBlock& parsed_block)
     // We can infer format::IsBlockCompressed from NeedsDecompression as long
     // as the DecompressionPolicy is "never".
     auto& block_parser = GetBlockParser();
-    GFXRECON_ASSERT(block_parser.GetDecompressionPolicy() == decode::BlockParser::kNever);
+    GFXRECON_ASSERT(block_parser.GetDecompressionPolicy() == decode::BlockParser::DecompressionPolicy::kNever);
     const bool compressed_block = parsed_block.NeedsDecompression();
 
     // Unconditional decompress the metadata block wastes no time as all compressible meta_data_id have non-trivial
