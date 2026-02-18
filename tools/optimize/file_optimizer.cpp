@@ -26,7 +26,6 @@
 #include "format/format_util.h"
 #include "util/logging.h"
 
-#include <cassert>
 #include <string>
 #include <format>
 
@@ -48,7 +47,7 @@ bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
         WriteAnnotation(format::kAnnotationLabelRemovedFunctionCall,
                         std::format("Removed API call: {}", static_cast<uint32_t>(args.call_id)));
 
-        // success, block is filtered out
+        // block is filtered out
         ++num_removed_blocks_;
         return true;
     }
@@ -65,6 +64,9 @@ bool FileOptimizer::ProcessMetaData(decode::ParsedBlock& parsed_block)
     {
         return FileTransformer::ProcessMetaData(parsed_block);
     }
+
+    // block is filtered out
+    ++num_removed_blocks_;
     return result == kSuccess;
 }
 
@@ -72,7 +74,7 @@ bool FileOptimizer::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
     if (FilterMethodCall(parsed_block.Get<decode::MethodCallArgs>()))
     {
-        // success, block is filtered out
+        // block is filtered out
         ++num_removed_blocks_;
         return true;
     }

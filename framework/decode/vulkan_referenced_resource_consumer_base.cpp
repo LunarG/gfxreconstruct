@@ -21,18 +21,10 @@
 */
 
 #include "decode/vulkan_referenced_resource_consumer_base.h"
-
 #include "util/logging.h"
-
-#include <cassert>
-#include <stdexcept>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-VulkanReferencedResourceConsumerBase::VulkanReferencedResourceConsumerBase() :
-    loading_state_(false), loaded_state_(false), not_optimizable_(false)
-{}
 
 void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallInfo& call_info,
                                                                  VkResult           returnValue,
@@ -46,7 +38,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(const ApiCallIn
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
-    assert(pSubmits != nullptr);
+    GFXRECON_ASSERT(pSubmits != nullptr);
 
     if (!pSubmits->IsNull() && pSubmits->HasData())
     {
@@ -78,7 +70,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit2(const ApiCallI
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
-    assert(pSubmits != nullptr);
+    GFXRECON_ASSERT(pSubmits != nullptr);
 
     if (!pSubmits->IsNull() && pSubmits->HasData())
     {
@@ -111,24 +103,11 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    assert(pBuffer != nullptr);
+    GFXRECON_ASSERT(pBuffer != nullptr);
 
-    // Only track buffers that were created by the trimmed file state snapshot.
-    if (IsStateLoading())
+    if (!pBuffer->IsNull() && pBuffer->HasData())
     {
-        if (!pBuffer->IsNull() && pBuffer->HasData())
-        {
-            table_.AddResource(*pBuffer->GetPointer());
-        }
-    }
-    else
-    {
-        // Stop processing if file did not start with a state block.
-        if (!loaded_state_)
-        {
-            GFXRECON_LOG_INFO("File does not contain a state block to optimize");
-            not_optimizable_ = true;
-        }
+        table_.AddResource(*pBuffer->GetPointer());
     }
 }
 
@@ -144,7 +123,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateBufferView(
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    assert((pCreateInfo != nullptr) && (pView != nullptr));
+    GFXRECON_ASSERT(pCreateInfo != nullptr && pView != nullptr);
 
     if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pView->IsNull() && pView->HasData())
     {
@@ -166,24 +145,11 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateImage(
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    assert(pImage != nullptr);
+    GFXRECON_ASSERT(pImage != nullptr);
 
-    // Only track images that were created by the trimmed file state snapshot.
-    if (IsStateLoading())
+    if (!pImage->IsNull() && pImage->HasData())
     {
-        if (!pImage->IsNull() && pImage->HasData())
-        {
-            table_.AddResource(*pImage->GetPointer());
-        }
-    }
-    else
-    {
-        // Stop processing the file if it did not start with a state block.
-        if (!loaded_state_)
-        {
-            GFXRECON_LOG_INFO("File does not contain a state block to optimize");
-            not_optimizable_ = true;
-        }
+        table_.AddResource(*pImage->GetPointer());
     }
 }
 
@@ -199,7 +165,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateImageView(
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    assert((pCreateInfo != nullptr) && (pView != nullptr));
+    GFXRECON_ASSERT(pCreateInfo != nullptr && pView != nullptr);
 
     if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pView->IsNull() && pView->HasData())
     {
@@ -220,7 +186,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateFramebuffer(
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    assert((pCreateInfo != nullptr) && (pFramebuffer != nullptr));
+    GFXRECON_ASSERT(pCreateInfo != nullptr && pFramebuffer != nullptr);
 
     if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pFramebuffer->IsNull() && pFramebuffer->HasData())
     {
@@ -244,7 +210,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    assert((pCreateInfo != nullptr) && (pSetLayout != nullptr));
+    GFXRECON_ASSERT(pCreateInfo != nullptr && pSetLayout != nullptr);
 
     if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pSetLayout->IsNull() && pSetLayout->HasData())
     {
@@ -317,7 +283,7 @@ void VulkanReferencedResourceConsumerBase::ProcessSetOpaqueAddressCommand(format
 {
     GFXRECON_UNREFERENCED_PARAMETER(device_id);
 
-    dev_address_to_resource_map[object_id] = address;
+    dev_address_to_resource_map_[object_id] = address;
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkBindBufferMemory(const ApiCallInfo& call_info,
@@ -331,11 +297,11 @@ void VulkanReferencedResourceConsumerBase::Process_vkBindBufferMemory(const ApiC
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);
     GFXRECON_UNREFERENCED_PARAMETER(device);
 
-    const auto dev_mem_dev_addr = dev_address_to_resource_map.find(memory);
-    if (dev_mem_dev_addr != dev_address_to_resource_map.end())
+    const auto dev_mem_dev_addr = dev_address_to_resource_map_.find(memory);
+    if (dev_mem_dev_addr != dev_address_to_resource_map_.end())
     {
-        const VkDeviceAddress address       = dev_mem_dev_addr->second + memoryOffset;
-        dev_address_to_buffers_map[address] = buffer;
+        const VkDeviceAddress address        = dev_mem_dev_addr->second + memoryOffset;
+        dev_address_to_buffers_map_[address] = buffer;
     }
 }
 
@@ -358,8 +324,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdTraceRaysKHR(
     if (!pRaygenShaderBindingTable->IsNull() && pRaygenShaderBindingTable->HasData())
     {
         const Decoded_VkStridedDeviceAddressRegionKHR* meta = pRaygenShaderBindingTable->GetMetaStructPointer();
-        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
-        if (buffer != dev_address_to_buffers_map.end())
+        const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map_.end())
         {
             table_.AddResourceToUser(commandBuffer, buffer->second);
         }
@@ -368,8 +334,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdTraceRaysKHR(
     if (!pMissShaderBindingTable->IsNull() && pMissShaderBindingTable->HasData())
     {
         const Decoded_VkStridedDeviceAddressRegionKHR* meta = pMissShaderBindingTable->GetMetaStructPointer();
-        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
-        if (buffer != dev_address_to_buffers_map.end())
+        const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map_.end())
         {
             table_.AddResourceToUser(commandBuffer, buffer->second);
         }
@@ -378,8 +344,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdTraceRaysKHR(
     if (!pHitShaderBindingTable->IsNull() && pHitShaderBindingTable->HasData())
     {
         const Decoded_VkStridedDeviceAddressRegionKHR* meta = pHitShaderBindingTable->GetMetaStructPointer();
-        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
-        if (buffer != dev_address_to_buffers_map.end())
+        const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map_.end())
         {
             table_.AddResourceToUser(commandBuffer, buffer->second);
         }
@@ -388,8 +354,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdTraceRaysKHR(
     if (!pCallableShaderBindingTable->IsNull() && pCallableShaderBindingTable->HasData())
     {
         const Decoded_VkStridedDeviceAddressRegionKHR* meta = pCallableShaderBindingTable->GetMetaStructPointer();
-        const auto buffer = dev_address_to_buffers_map.find(meta->decoded_value->deviceAddress);
-        if (buffer != dev_address_to_buffers_map.end())
+        const auto buffer = dev_address_to_buffers_map_.find(meta->decoded_value->deviceAddress);
+        if (buffer != dev_address_to_buffers_map_.end())
         {
             table_.AddResourceToUser(commandBuffer, buffer->second);
         }
@@ -431,7 +397,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);
     GFXRECON_UNREFERENCED_PARAMETER(device);
 
-    assert((pAllocateInfo != nullptr) && (pDescriptorSets != nullptr));
+    GFXRECON_ASSERT(pAllocateInfo != nullptr && pDescriptorSets != nullptr);
 
     if (!pAllocateInfo->IsNull() && pAllocateInfo->HasData() && !pDescriptorSets->IsNull() &&
         pDescriptorSets->HasData())
@@ -443,7 +409,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(
         auto       pool            = alloc_meta_info->descriptorPool;
         auto       count           = alloc_info->descriptorSetCount;
 
-        assert((pDescriptorSets->GetLength() == count) && (alloc_meta_info->pSetLayouts.GetLength() == count));
+        GFXRECON_ASSERT(pDescriptorSets->GetLength() == count && alloc_meta_info->pSetLayouts.GetLength() == count);
 
         for (uint32_t i = 0; i < count; ++i)
         {
@@ -466,7 +432,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkFreeDescriptorSets(
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorPool);
 
-    assert(pDescriptorSets != nullptr);
+    GFXRECON_ASSERT(pDescriptorSets != nullptr);
 
     if (!pDescriptorSets->IsNull() && pDescriptorSets->HasData())
     {
@@ -489,7 +455,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
 
-    assert((pDescriptorWrites != nullptr) && (pDescriptorCopies != nullptr));
+    GFXRECON_ASSERT(pDescriptorWrites != nullptr && pDescriptorCopies != nullptr);
 
     if (!pDescriptorWrites->IsNull() && pDescriptorWrites->HasData())
     {
@@ -510,7 +476,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 {
                     const auto image_info = meta_writes[i].pImageInfo;
-                    assert(image_info != nullptr);
+                    GFXRECON_ASSERT(image_info != nullptr);
 
                     if (!image_info->IsNull() && image_info->HasData())
                     {
@@ -529,7 +495,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 {
                     const auto buffer_info = meta_writes[i].pBufferInfo;
-                    assert(buffer_info != nullptr);
+                    GFXRECON_ASSERT(buffer_info != nullptr);
 
                     if (!buffer_info->IsNull() && buffer_info->HasData())
                     {
@@ -600,7 +566,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
             auto dst_binding       = copy.dstBinding;
             auto src_binding_count = GetBindingCount(meta_copy.srcSet, copy.srcBinding);
             auto dst_binding_count = GetBindingCount(meta_copy.dstSet, copy.dstBinding);
-            assert((src_element < src_binding_count) && (dst_element < dst_binding_count));
+            GFXRECON_ASSERT((src_element < src_binding_count) && (dst_element < dst_binding_count));
 
             for (uint32_t j = 0; j < copy.descriptorCount; ++j)
             {
@@ -718,7 +684,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateCommandBuffers(
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);
     GFXRECON_UNREFERENCED_PARAMETER(device);
 
-    assert((pAllocateInfo != nullptr) && (pCommandBuffers != nullptr));
+    GFXRECON_ASSERT((pAllocateInfo != nullptr) && (pCommandBuffers != nullptr));
 
     if (!pAllocateInfo->IsNull() && pAllocateInfo->HasData() && !pCommandBuffers->IsNull() &&
         pCommandBuffers->HasData())
@@ -746,7 +712,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkFreeCommandBuffers(
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(commandPool);
 
-    assert(pCommandBuffers != nullptr);
+    GFXRECON_ASSERT(pCommandBuffers != nullptr);
 
     if (!pCommandBuffers->IsNull() && pCommandBuffers->HasData())
     {
@@ -823,7 +789,7 @@ void VulkanReferencedResourceConsumerBase::AddDescriptorToContainer(
     std::function<void(uint32_t, int32_t, uint32_t)> add_descriptor)
 {
     auto binding_count = GetBindingCount(container_id, binding);
-    assert(element < binding_count);
+    GFXRECON_ASSERT(element < binding_count);
 
     for (uint32_t i = 0; i < count; ++i)
     {
@@ -849,7 +815,7 @@ void VulkanReferencedResourceConsumerBase::AddImagesToContainer(format::HandleId
                                                                 uint32_t                             count,
                                                                 const Decoded_VkDescriptorImageInfo* image_infos)
 {
-    assert(image_infos != nullptr);
+    GFXRECON_ASSERT(image_infos != nullptr);
 
     AddDescriptorToContainer(
         container_id, binding, element, count, [&](uint32_t index, int32_t current_binding, uint32_t current_element) {
@@ -863,7 +829,7 @@ void VulkanReferencedResourceConsumerBase::AddBuffersToContainer(format::HandleI
                                                                  uint32_t                              count,
                                                                  const Decoded_VkDescriptorBufferInfo* buffer_infos)
 {
-    assert(buffer_infos != nullptr);
+    GFXRECON_ASSERT(buffer_infos != nullptr);
 
     AddDescriptorToContainer(
         container_id, binding, element, count, [&](uint32_t index, int32_t current_binding, uint32_t current_element) {
@@ -877,7 +843,7 @@ void VulkanReferencedResourceConsumerBase::AddResourcesToContainer(format::Handl
                                                                    uint32_t                count,
                                                                    const format::HandleId* resource_ids)
 {
-    assert(resource_ids != nullptr);
+    GFXRECON_ASSERT(resource_ids != nullptr);
 
     AddDescriptorToContainer(
         container_id, binding, element, count, [&](uint32_t index, int32_t current_binding, uint32_t current_element) {
@@ -889,7 +855,7 @@ void VulkanReferencedResourceConsumerBase::AddImagesToUser(format::HandleId     
                                                            size_t                               count,
                                                            const Decoded_VkDescriptorImageInfo* image_info)
 {
-    assert(image_info != nullptr);
+    GFXRECON_ASSERT(image_info != nullptr);
 
     for (size_t i = 0; i < count; ++i)
     {
@@ -901,7 +867,7 @@ void VulkanReferencedResourceConsumerBase::AddBuffersToUser(format::HandleId    
                                                             size_t                                count,
                                                             const Decoded_VkDescriptorBufferInfo* buffer_info)
 {
-    assert(buffer_info != nullptr);
+    GFXRECON_ASSERT(buffer_info != nullptr);
 
     for (size_t i = 0; i < count; ++i)
     {
@@ -913,7 +879,7 @@ void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToUser(format::Han
                                                                      size_t                  count,
                                                                      const format::HandleId* view_ids)
 {
-    assert(view_ids != nullptr);
+    GFXRECON_ASSERT(view_ids != nullptr);
 
     for (size_t i = 0; i < count; ++i)
     {
@@ -925,7 +891,7 @@ void VulkanReferencedResourceConsumerBase::CreateDescriptorUpdateTemplate(
     const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* create_info,
     const HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   descriptor_update_template)
 {
-    assert((create_info != nullptr) && (descriptor_update_template != nullptr));
+    GFXRECON_ASSERT((create_info != nullptr) && (descriptor_update_template != nullptr));
 
     if (!create_info->IsNull() && create_info->HasData() && !descriptor_update_template->IsNull() &&
         descriptor_update_template->HasData())
@@ -981,7 +947,7 @@ void VulkanReferencedResourceConsumerBase::CreateDescriptorUpdateTemplate(
 void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
     format::HandleId container_id, format::HandleId template_id, const DescriptorUpdateTemplateDecoder* decoder)
 {
-    assert(decoder != nullptr);
+    GFXRECON_ASSERT(decoder != nullptr);
 
     auto image_info_count             = static_cast<uint32_t>(decoder->GetImageInfoCount());
     auto buffer_info_count            = static_cast<uint32_t>(decoder->GetBufferInfoCount());
@@ -1000,11 +966,11 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
         {
             uint32_t   offset     = 0;
             const auto image_info = decoder->GetImageInfoMetaStructPointer();
-            assert(image_info != nullptr);
+            GFXRECON_ASSERT(image_info != nullptr);
 
             for (const auto& info : template_info.image_infos)
             {
-                assert((offset + info.count) <= image_info_count);
+                GFXRECON_ASSERT((offset + info.count) <= image_info_count);
 
                 if ((offset + info.count) > image_info_count)
                 {
@@ -1028,11 +994,11 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
         {
             uint32_t   offset      = 0;
             const auto buffer_info = decoder->GetBufferInfoMetaStructPointer();
-            assert(buffer_info != nullptr);
+            GFXRECON_ASSERT(buffer_info != nullptr);
 
             for (const auto& info : template_info.buffer_infos)
             {
-                assert((offset + info.count) <= buffer_info_count);
+                GFXRECON_ASSERT((offset + info.count) <= buffer_info_count);
 
                 if ((offset + info.count) > buffer_info_count)
                 {
@@ -1051,11 +1017,11 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
         {
             uint32_t offset   = 0;
             auto     view_ids = decoder->GetTexelBufferViewHandleIdsPointer();
-            assert(view_ids != nullptr);
+            GFXRECON_ASSERT(view_ids != nullptr);
 
             for (const auto& info : template_info.texel_buffer_view_infos)
             {
-                assert((offset + info.count) <= texel_buffer_view_count);
+                GFXRECON_ASSERT((offset + info.count) <= texel_buffer_view_count);
 
                 if ((offset + info.count) > texel_buffer_view_count)
                 {
@@ -1074,11 +1040,11 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
         {
             uint32_t offset = 0;
             auto     as_ids = decoder->GetAccelerationStructureKHRHandleIdsPointer();
-            assert(as_ids != nullptr);
+            GFXRECON_ASSERT(as_ids != nullptr);
 
             for (const auto& info : template_info.acceleration_structure_infos)
             {
-                assert((offset + info.count) <= acceleration_structure_count);
+                GFXRECON_ASSERT((offset + info.count) <= acceleration_structure_count);
 
                 if ((offset + info.count) > acceleration_structure_count)
                 {
@@ -1099,7 +1065,7 @@ void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format:
                                                                          format::HandleId template_id,
                                                                          const DescriptorUpdateTemplateDecoder* decoder)
 {
-    assert(decoder != nullptr);
+    GFXRECON_ASSERT(decoder != nullptr);
 
     size_t image_info_count        = decoder->GetImageInfoCount();
     size_t buffer_info_count       = decoder->GetBufferInfoCount();
@@ -1117,11 +1083,11 @@ void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format:
             const auto& template_info = template_info_entry->second;
             const auto  image_info    = decoder->GetImageInfoMetaStructPointer();
             size_t      offset        = 0;
-            assert(image_info != nullptr);
+            GFXRECON_ASSERT(image_info != nullptr);
 
             for (const auto& info : template_info.image_infos)
             {
-                assert((offset + info.count) <= image_info_count);
+                GFXRECON_ASSERT((offset + info.count) <= image_info_count);
 
                 if ((offset + info.count) > image_info_count)
                 {
@@ -1144,7 +1110,7 @@ void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format:
     if (buffer_info_count > 0)
     {
         const auto buffer_info = decoder->GetBufferInfoMetaStructPointer();
-        assert(buffer_info != nullptr);
+        GFXRECON_ASSERT(buffer_info != nullptr);
 
         AddBuffersToUser(user_id, buffer_info_count, buffer_info);
     }
@@ -1152,7 +1118,7 @@ void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format:
     if (texel_buffer_view_count > 0)
     {
         auto view_ids = decoder->GetTexelBufferViewHandleIdsPointer();
-        assert(view_ids != nullptr);
+        GFXRECON_ASSERT(view_ids != nullptr);
 
         AddTexelBufferViewsToUser(user_id, texel_buffer_view_count, view_ids);
     }
@@ -1166,8 +1132,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkGetBufferDeviceAddress(
 {
     if (pInfo != nullptr && pInfo->GetMetaStructPointer() != nullptr)
     {
-        const auto* buffer_device_address = pInfo->GetMetaStructPointer();
-        if (buffer_device_address != nullptr)
+        if (const auto* buffer_device_address = pInfo->GetMetaStructPointer())
         {
             table_.MarkResourceAsUsed(buffer_device_address->buffer);
         }

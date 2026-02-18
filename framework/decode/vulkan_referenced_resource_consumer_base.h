@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReferencedResourceConsumerBase();
+    VulkanReferencedResourceConsumerBase() = default;
 
     void GetReferencedHandleIds(std::unordered_set<format::HandleId>* referenced_ids,
                                 std::unordered_set<format::HandleId>* unreferenced_ids) const
@@ -248,10 +248,6 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                     format::HandleId   memory,
                                     VkDeviceSize       memoryOffset) override;
 
-    bool IsComplete(uint64_t current_block_index) override { return not_optimizable_; }
-
-    bool WasNotOptimizable() { return not_optimizable_; }
-
     void Process_vkGetBufferDeviceAddress(const ApiCallInfo&                                       call_info,
                                           VkDeviceAddress                                          returnValue,
                                           format::HandleId                                         device,
@@ -402,16 +398,15 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         }
     }
 
-    bool                    loading_state_;
-    bool                    loaded_state_;
+    bool                    loading_state_ = false;
+    bool                    loaded_state_  = false;
     ReferencedResourceTable table_;
     LayoutBindingCounts     layout_binding_counts_;
     SetLayouts              set_layouts_;
     UpdateTemplateInfos     template_infos_;
-    bool                    not_optimizable_;
 
-    std::unordered_map<format::HandleId, VkDeviceAddress> dev_address_to_resource_map;
-    std::unordered_map<VkDeviceAddress, format::HandleId> dev_address_to_buffers_map;
+    std::unordered_map<format::HandleId, VkDeviceAddress> dev_address_to_resource_map_;
+    std::unordered_map<VkDeviceAddress, format::HandleId> dev_address_to_buffers_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
