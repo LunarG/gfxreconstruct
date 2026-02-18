@@ -9,21 +9,22 @@ if not defined TEST_SUITE_BRANCH (
     )
 )
 
+git init ci-gfxr-suites
+cd ci-gfxr-suites
+git remote add origin %TEST_SUITE_REPO%
 set /a clonetestloop=0
-:clone_suites
-git clone --verbose %TEST_SUITE_REPO% ci-gfxr-suites 
-if %errorlevel% equ 0 goto :clone_suites_done
-if exist ci-gfxr-suites/ rmdir /s /q ci-gfxr-suites
+:fetch_suites
+git fetch --depth 1 --verbose origin %TEST_SUITE_BRANCH%
+if %errorlevel% equ 0 goto :fetch_suites_done
 set /a clonetestloop+=1
 if %clonetestloop% gtr 3 (
-    echo tried to clone %TEST_SUITE_REPO% too many times, giving up
+    echo tried to fetch %TEST_SUITE_REPO% too many times, giving up
     exit 1
 )
 waitfor forever /t 60 2>nul
-goto :clone_suites
-:clone_suites_done
-cd ci-gfxr-suites
-git checkout %TEST_SUITE_BRANCH% || exit /b
-git submodule update --init --recursive
+goto :fetch_suites
+:fetch_suites_done
+git checkout FETCH_HEAD || exit /b
+git submodule update --init --recursive --depth 1
 git describe --tags --always
 cd ..
