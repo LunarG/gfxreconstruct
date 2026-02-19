@@ -9,6 +9,10 @@ if not defined TEST_SUITE_BRANCH (
 git init ci-gfxr-suites
 cd ci-gfxr-suites
 git remote add origin %TEST_SUITE_REPO%
+
+git config remote.origin.promisor true
+git config remote.origin.partialclonefilter "blob:none"
+
 set /a clonetestloop=0
 :fetch_suites
 git fetch --depth 1 --verbose origin %TEST_SUITE_BRANCH%
@@ -21,6 +25,10 @@ if %clonetestloop% gtr 3 (
 waitfor forever /t 60 2>nul
 goto :fetch_suites
 :fetch_suites_done
+
+git sparse-checkout init --cone
+git sparse-checkout set %GFXRECON_TRACE_SUBDIR%
+
 git checkout FETCH_HEAD || exit /b
 git submodule update --init --recursive --depth 1
 git describe --tags --always
