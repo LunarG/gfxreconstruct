@@ -113,6 +113,51 @@ std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo2*
 {
     return StripWaitSemaphoresUtil(submit_info);
 }
+uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+{
+    uint32_t index = VK_QUEUE_FAMILY_IGNORED;
+
+    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
+    {
+        if (families.queue_family_index_enabled[i])
+        {
+            const auto& flags_entry = families.queue_family_properties_flags.find(i);
+            if ((flags_entry != families.queue_family_properties_flags.end()))
+            {
+                if ((flags_entry->second & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
+                {
+                    return i;
+                }
+                else if ((flags_entry->second & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)))
+                {
+                    index = i;
+                }
+            }
+        }
+    }
+
+    return index;
+}
+
+uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+{
+    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
+    {
+        if (families.queue_family_index_enabled[i])
+        {
+            const auto& flags_entry = families.queue_family_properties_flags.find(i);
+            if ((flags_entry != families.queue_family_properties_flags.end()))
+            {
+                if ((flags_entry->second & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
+                {
+                    return i;
+                }
+            }
+        }
+    }
+
+    return VK_QUEUE_FAMILY_IGNORED;
+}
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
