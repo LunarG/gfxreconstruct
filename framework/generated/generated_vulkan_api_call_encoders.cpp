@@ -27265,7 +27265,6 @@ VKAPI_ATTR void VKAPI_CALL vkCmdExecuteGeneratedCommandsEXT(
     VkBool32                                    isPreprocessed,
     const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo)
 {
-    GFXRECON_LOG_INFO(">>> vkCmdExecuteGeneratedCommandsEXT ENCODER CALLED <<<");
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
