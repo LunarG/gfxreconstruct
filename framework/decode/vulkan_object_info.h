@@ -32,6 +32,7 @@
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_instance_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
+#include "graphics/vulkan_util.h"
 #include "util/defines.h"
 #include "util/spirv_parsing_util.h"
 
@@ -342,13 +343,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
-    struct EnabledQueueFamilyFlags
-    {
-        std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
-        std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_properties_flags;
-
-        std::vector<bool> queue_family_index_enabled;
-    } enabled_queue_family_flags;
+    graphics::VulkanQueueFamilyFlags enabled_queue_family_flags;
 
     std::vector<VkPhysicalDevice> replay_device_group;
 

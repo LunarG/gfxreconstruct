@@ -33,6 +33,7 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/platform.h"
 #include "util/to_string.h"
+#include "graphics/vulkan_util.h"
 
 #include <cstdint>
 #include <tuple>
@@ -147,7 +148,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         if (command_buffer == VK_NULL_HANDLE)
         {
             VkResult res = CreateAndBeginCommandBuffer(
-                &FindComputeQueueFamilyIndex, dev_info, *device_table_, temp_command_buffer);
+                graphics::FindComputeQueueFamilyIndex, dev_info, *device_table_, temp_command_buffer);
             if (res != VK_SUCCESS)
             {
                 return res;
@@ -1189,7 +1190,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
             // NULL command buffer means that this is coming from the state setup section
             if (commandBuffer == VK_NULL_HANDLE)
             {
-                res = CreateAndBeginCommandBuffer(&FindComputeQueueFamilyIndex,
+                res = CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex,
                                                   object_info_table_.GetVkDeviceInfo(dst_as->parent_id),
                                                   *device_table_,
                                                   temp_command_buffer);
