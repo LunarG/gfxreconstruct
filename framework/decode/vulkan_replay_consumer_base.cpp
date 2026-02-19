@@ -11765,6 +11765,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
         return original_result;
     }
 
+    // remove potential VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT during replay
     RemoveFailOnCompileRequiredFlags(const_cast<VkGraphicsPipelineCreateInfo*>(in_p_create_infos), create_info_count);
 
     // If there is no pipeline cache and we want to create a new one
@@ -12181,14 +12182,23 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     HandlePointerDecoder<VkPipeline>*                           pPipelines)
 {
     // avoid async operations if an externally synchronized pipeline-cache is used
-    if (pipeline_cache_info != nullptr && pipeline_cache_info->requires_external_synchronization)
+    bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE;
+
+    // avoid async operations when VK_PIPELINE_COMPILE_REQUIRED was returned during capture
+    avoid_async_op = avoid_async_op || SkipPipelineCreationForCompileRequired(returnValue, pPipelines);
+
+    if (avoid_async_op)
     {
         return {};
     }
+
     const VkGraphicsPipelineCreateInfo* in_pCreateInfos = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*        in_pAllocator   = GetAllocationCallbacks(pAllocator);
     VkDevice                            device_handle   = device_info->handle;
     VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    // remove potential VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT during replay
+    RemoveFailOnCompileRequiredFlags(pCreateInfos->GetPointer(), createInfoCount);
 
     // If there is no pipeline cache and we want to create a new one
     format::HandleId cache_pipeline_id = format::kNullHandleId;
@@ -12292,7 +12302,12 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
     // avoid async operations if an externally synchronized pipeline-cache is used
-    if (pipeline_cache_info != nullptr && pipeline_cache_info->requires_external_synchronization)
+    bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE;
+
+    // avoid async operations when VK_PIPELINE_COMPILE_REQUIRED was returned during capture
+    avoid_async_op = avoid_async_op || SkipPipelineCreationForCompileRequired(returnValue, pPipelines);
+
+    if (avoid_async_op)
     {
         return {};
     }
@@ -12301,6 +12316,9 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     const VkAllocationCallbacks*       in_pAllocator   = GetAllocationCallbacks(pAllocator);
     VkDevice                           device_handle   = device_info->handle;
     VkPipelineCache pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    // remove potential VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT during replay
+    RemoveFailOnCompileRequiredFlags(const_cast<VkComputePipelineCreateInfo*>(in_pCreateInfos), createInfoCount);
 
     // If there is no pipeline cache and we want to create a new one
     format::HandleId cache_pipeline_id = format::kNullHandleId;
