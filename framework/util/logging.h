@@ -25,44 +25,71 @@
 #define GFXRECON_UTIL_LOGGING_H
 
 #include "util/defines.h"
+#include "util/logging_targets.h"
 #include "util/platform.h"
+
+#include <array>
+#include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+GFXRECON_BEGIN_NAMESPACE(logging)
+
+class LoggingManager
+{
+  public:
+    static LoggingManager& GetSingleton();
+    ~LoggingManager();
+
+    void EnableIndentSupport() { indent_supported_ = true; }
+    void SetMinimumSeverity(LoggingSeverity severity);
+
+    void UpdateStdOutTarget(bool write_to_console, bool write_to_stderr, bool flush_after_write);
+    void UpdateStdErrTarget(bool write_to_stderr, bool flush_after_write);
+    bool UpdateFileTarget(
+        bool write_to_file, const std::string& file_name, bool create_new, bool leave_open, bool flush_after_write);
+    void UpdateDebugViewTarget(bool enabled);
+
+    // Logging functions
+    void LogMessage(LoggingSeverity severity, const std::string& message);
+    void
+    LogMessage(LoggingSeverity severity, const std::string& indented_message, const std::string& non_indented_message);
+
+  private:
+    LoggingManager();
+
+    static std::unique_ptr<LoggingManager> singleton_;
+    static std::once_flag                  singleton_flag_;
+    inline static std::mutex               target_mut_;
+
+    bool                                                          indent_supported_{ false };
+    std::array<std::unique_ptr<LoggingTargetBase>, kTarget_Count> logging_targets_;
+    LoggingSeverity                                               minimum_severity_{ LoggingSeverity::kError };
+};
+
+GFXRECON_END_NAMESPACE(logging)
+
 class Log
 {
   public:
-    // Logging types
-    enum Severity : uint32_t
-    {
-        kCommandSeverity = 0,
-        kDebugSeverity,
-        kInfoSeverity,
-        kWarningSeverity,
-        kErrorSeverity,
-        kFatalSeverity,
-        kAlwaysOutputSeverity = 0xFFFFFFFF
-    };
-
     struct Settings
     {
         // General settings
-        Severity    min_severity{ kInfoSeverity };     // Any severity >= to this value will print
-        bool        output_detailed_log_info{ false }; // Output detailed log messages
-        bool        output_timestamps{ false };        // Output a timestamp in front of each log message
-        bool        flush_after_write{ false };        // Flush the file/console after every log write
-        bool        use_indent{ false };               // Write out messages using indenting
-        uint32_t    indent{ 0 };                       // Number of indents to shift this message
-        std::string indent_spaces{ "    " };           // String of spaces used for each indent
-        bool        break_on_error{ false };           // If an error occurs, force a break
+        LoggingSeverity min_severity{ LoggingSeverity::kInfo }; // Any severity >= to this value will print
+        bool            output_detailed_log_info{ false };      // Output detailed log messages
+        bool            output_timestamps{ false };             // Output a timestamp in front of each log message
+        bool            flush_after_write{ false };             // Flush the file/console after every log write
+        bool            use_indent{ false };                    // Write out messages using indenting
+        uint32_t        indent{ 0 };                            // Number of indents to shift this message
+        std::string     indent_spaces{ "    " };                // String of spaces used for each indent
+        bool            break_on_error{ false };                // If an error occurs, force a break
 
         // File settings
         bool        write_to_file{ false };  // Write info to a file
         bool        create_new{ true };      // Overwrite any previous version of the file every Init call.
         bool        leave_file_open{ true }; // When we write, keep the file open for more efficient writing
         std::string file_name;               // Name of the file (including path)
-        FILE*       file_pointer{ nullptr }; // Pointer to opened file
 
         // Console settings
         bool write_to_console{ true };           // Write info out to the console
@@ -70,25 +97,14 @@ class Log
         bool output_to_os_debug_string{ false }; // Windows-specific output messages to OutputDebugString
     };
 
-    static void Init(Severity    min_severity              = kInfoSeverity,
-                     const char* log_file_name             = nullptr,
-                     bool        leave_file_open           = true,
-                     bool        create_new_file_on_open   = true,
-                     bool        flush_after_write         = false,
-                     bool        break_on_error            = false,
-                     bool        output_detailed_log_info  = false,
-                     bool        output_timestamps         = false,
-                     bool        write_to_console          = true,
-                     bool        errors_to_stderr          = true,
-                     bool        output_to_os_debug_string = false,
-                     bool        use_indent                = false);
+    static void Init(LoggingSeverity min_severity = LoggingSeverity::kInfo);
 
-    static void Init(const Settings& settings);
+    static void UpdateWithSettings(const Settings& settings);
 
-    static void Release();
+    static void Release() {}
 
-    static void
-    LogMessage(Severity severity, const char* file, const char* function, const char* line, const char* message, ...);
+    static void LogMessage(
+        LoggingSeverity severity, const char* file, const char* function, const char* line, const char* message, ...);
 
     static void IncreaseIndent()
     {
@@ -106,16 +122,17 @@ class Log
         }
     }
 
-    static bool WillOutputMessage(Severity severity)
+    static bool WillOutputMessage(LoggingSeverity severity)
     {
         // We're always going to output something at "kAlwaysOutputSeverity", so check other cases.
-        if (severity < kAlwaysOutputSeverity)
+        if (severity < LoggingSeverity::kAlwaysOutput)
         {
-            Severity min_acceptable = settings_.min_severity;
+            LoggingSeverity min_acceptable = settings_.min_severity;
             // If we're to output errors to the console, we'll also accept errors
-            if (settings_.output_errors_to_stderr && settings_.write_to_console && min_acceptable > kErrorSeverity)
+            if (settings_.output_errors_to_stderr && settings_.write_to_console &&
+                min_acceptable > LoggingSeverity::kError)
             {
-                min_acceptable = kErrorSeverity;
+                min_acceptable = LoggingSeverity::kError;
             }
             if (severity < min_acceptable)
             {
@@ -125,23 +142,23 @@ class Log
         return true;
     }
 
-    static std::string SeverityToString(Severity severity)
+    static std::string SeverityToString(LoggingSeverity severity)
     {
         switch (severity)
         {
-            case kCommandSeverity:
-                return "COMMAND";
-            case kDebugSeverity:
+            case LoggingSeverity::kVerbose:
+                return "VERBOSE";
+            case LoggingSeverity::kDebug:
                 return "DEBUG";
-            case kInfoSeverity:
+            case LoggingSeverity::kInfo:
                 return "INFO";
-            case kWarningSeverity:
+            case LoggingSeverity::kWarning:
                 return "WARNING";
-            case kErrorSeverity:
+            case LoggingSeverity::kError:
                 return "ERROR";
-            case kFatalSeverity:
+            case LoggingSeverity::kFatal:
                 return "FATAL";
-            case kAlwaysOutputSeverity:
+            case LoggingSeverity::kAlwaysOutput:
                 // Don't write any severity string for "Always"
                 return "";
             default:
@@ -151,29 +168,29 @@ class Log
 
     // Returns true if Severity was successfully parsed into parsed_severity. Returns false if the string could not be
     // parsed as a Severity and parsed_severity is not modified.
-    static bool StringToSeverity(const std::string& value_string, Severity& parsed_severity)
+    static bool StringToSeverity(const std::string& value_string, LoggingSeverity& parsed_severity)
     {
         bool parse_success = true;
 
         if (platform::StringCompareNoCase("debug", value_string.c_str()) == 0)
         {
-            parsed_severity = Severity::kDebugSeverity;
+            parsed_severity = LoggingSeverity::kDebug;
         }
         else if (platform::StringCompareNoCase("info", value_string.c_str()) == 0)
         {
-            parsed_severity = Severity::kInfoSeverity;
+            parsed_severity = LoggingSeverity::kInfo;
         }
         else if (platform::StringCompareNoCase("warning", value_string.c_str()) == 0)
         {
-            parsed_severity = Severity::kWarningSeverity;
+            parsed_severity = LoggingSeverity::kWarning;
         }
         else if (platform::StringCompareNoCase("error", value_string.c_str()) == 0)
         {
-            parsed_severity = Severity::kErrorSeverity;
+            parsed_severity = LoggingSeverity::kError;
         }
         else if (util::platform::StringCompareNoCase("fatal", value_string.c_str()) == 0)
         {
-            parsed_severity = Severity::kFatalSeverity;
+            parsed_severity = LoggingSeverity::kFatal;
         }
         else
         {
@@ -183,9 +200,10 @@ class Log
         return parse_success;
     }
 
-    static Severity GetSeverity() { return settings_.min_severity; }
+    static LoggingSeverity GetSeverity() { return settings_.min_severity; }
 
   private:
+    static void        UpdateLogManagerComponents(gfxrecon::util::logging::LoggingManager& log_mgr);
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);
 
     static Settings settings_;
@@ -201,7 +219,7 @@ class CommandTrace
         _file     = file;
         _function = function;
         Log::LogMessage(
-            Log::Severity::kCommandSeverity, _file.c_str(), _function.c_str(), "", "Entering %s", _function.c_str());
+            LoggingSeverity::kVerbose, _file.c_str(), _function.c_str(), "", "Entering %s", _function.c_str());
         Log::IncreaseIndent();
     }
 
@@ -209,7 +227,7 @@ class CommandTrace
     {
         Log::DecreaseIndent();
         Log::LogMessage(
-            Log::Severity::kCommandSeverity, _file.c_str(), _function.c_str(), "", "Exiting %s", _function.c_str());
+            LoggingSeverity::kVerbose, _file.c_str(), _function.c_str(), "", "Exiting %s", _function.c_str());
     }
 
   private:
@@ -223,65 +241,65 @@ GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 // Functions defined outside of the namespace for easier use
-#define GFXRECON_WRITE_CONSOLE(message, ...)                                                \
-    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::Log::kAlwaysOutputSeverity)) \
-    {                                                                                       \
-        gfxrecon::util::Log::LogMessage(gfxrecon::util::Log::kAlwaysOutputSeverity,         \
-                                        __FILE__,                                           \
-                                        __FUNCTION__,                                       \
-                                        GFXRECON_STR(__LINE__),                             \
-                                        message,                                            \
-                                        ##__VA_ARGS__);                                     \
+#define GFXRECON_WRITE_CONSOLE(message, ...)                                                    \
+    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::LoggingSeverity::kAlwaysOutput)) \
+    {                                                                                           \
+        gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kAlwaysOutput,         \
+                                        __FILE__,                                               \
+                                        __FUNCTION__,                                           \
+                                        GFXRECON_STR(__LINE__),                                 \
+                                        message,                                                \
+                                        ##__VA_ARGS__);                                         \
     }
-#define GFXRECON_LOG_FATAL(message, ...)                                             \
-    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::Log::kFatalSeverity)) \
-    {                                                                                \
-        gfxrecon::util::Log::LogMessage(gfxrecon::util::Log::kFatalSeverity,         \
-                                        __FILE__,                                    \
-                                        __FUNCTION__,                                \
-                                        GFXRECON_STR(__LINE__),                      \
-                                        message,                                     \
-                                        ##__VA_ARGS__);                              \
+#define GFXRECON_LOG_FATAL(message, ...)                                                 \
+    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::LoggingSeverity::kFatal)) \
+    {                                                                                    \
+        gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kFatal,         \
+                                        __FILE__,                                        \
+                                        __FUNCTION__,                                    \
+                                        GFXRECON_STR(__LINE__),                          \
+                                        message,                                         \
+                                        ##__VA_ARGS__);                                  \
     }
-#define GFXRECON_LOG_ERROR(message, ...)                                             \
-    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::Log::kErrorSeverity)) \
-    {                                                                                \
-        gfxrecon::util::Log::LogMessage(gfxrecon::util::Log::kErrorSeverity,         \
-                                        __FILE__,                                    \
-                                        __FUNCTION__,                                \
-                                        GFXRECON_STR(__LINE__),                      \
-                                        message,                                     \
-                                        ##__VA_ARGS__);                              \
+#define GFXRECON_LOG_ERROR(message, ...)                                                 \
+    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::LoggingSeverity::kError)) \
+    {                                                                                    \
+        gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kError,         \
+                                        __FILE__,                                        \
+                                        __FUNCTION__,                                    \
+                                        GFXRECON_STR(__LINE__),                          \
+                                        message,                                         \
+                                        ##__VA_ARGS__);                                  \
     }
-#define GFXRECON_LOG_WARNING(message, ...)                                             \
-    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::Log::kWarningSeverity)) \
-    {                                                                                  \
-        gfxrecon::util::Log::LogMessage(gfxrecon::util::Log::kWarningSeverity,         \
-                                        __FILE__,                                      \
-                                        __FUNCTION__,                                  \
-                                        GFXRECON_STR(__LINE__),                        \
-                                        message,                                       \
-                                        ##__VA_ARGS__);                                \
+#define GFXRECON_LOG_WARNING(message, ...)                                                 \
+    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::LoggingSeverity::kWarning)) \
+    {                                                                                      \
+        gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kWarning,         \
+                                        __FILE__,                                          \
+                                        __FUNCTION__,                                      \
+                                        GFXRECON_STR(__LINE__),                            \
+                                        message,                                           \
+                                        ##__VA_ARGS__);                                    \
     }
-#define GFXRECON_LOG_INFO(message, ...)                                             \
-    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::Log::kInfoSeverity)) \
-    {                                                                               \
-        gfxrecon::util::Log::LogMessage(gfxrecon::util::Log::kInfoSeverity,         \
-                                        __FILE__,                                   \
-                                        __FUNCTION__,                               \
-                                        GFXRECON_STR(__LINE__),                     \
-                                        message,                                    \
-                                        ##__VA_ARGS__);                             \
+#define GFXRECON_LOG_INFO(message, ...)                                                 \
+    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::LoggingSeverity::kInfo)) \
+    {                                                                                   \
+        gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kInfo,         \
+                                        __FILE__,                                       \
+                                        __FUNCTION__,                                   \
+                                        GFXRECON_STR(__LINE__),                         \
+                                        message,                                        \
+                                        ##__VA_ARGS__);                                 \
     }
-#define GFXRECON_LOG_DEBUG(message, ...)                                             \
-    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::Log::kDebugSeverity)) \
-    {                                                                                \
-        gfxrecon::util::Log::LogMessage(gfxrecon::util::Log::kDebugSeverity,         \
-                                        __FILE__,                                    \
-                                        __FUNCTION__,                                \
-                                        GFXRECON_STR(__LINE__),                      \
-                                        message,                                     \
-                                        ##__VA_ARGS__);                              \
+#define GFXRECON_LOG_DEBUG(message, ...)                                                 \
+    if (gfxrecon::util::Log::WillOutputMessage(gfxrecon::util::LoggingSeverity::kDebug)) \
+    {                                                                                    \
+        gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kDebug,         \
+                                        __FILE__,                                        \
+                                        __FUNCTION__,                                    \
+                                        GFXRECON_STR(__LINE__),                          \
+                                        message,                                         \
+                                        ##__VA_ARGS__);                                  \
     }
 
 #define GFXRECON_LOG_ONCE(X)         \

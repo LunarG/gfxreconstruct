@@ -477,8 +477,7 @@ const uint32_t spirv_bda_pointer_chaining[] = {
 
 TEST_CASE("SpirVParsingUtil", "[buffer_references]")
 {
-    // setting this to kDebugSeverity yields debug-output from parser
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     gfxrecon::util::SpirVParsingUtil spirVParsingUtil;
 
@@ -507,8 +506,7 @@ TEST_CASE("SpirVParsingUtil", "[buffer_references]")
 
 TEST_CASE("SpirVParsingUtil_offsets", "[buffer_references_with_offset]")
 {
-    // setting this to kDebugSeverity yields debug-output from parser
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     gfxrecon::util::SpirVParsingUtil spirVParsingUtil;
 
@@ -533,8 +531,7 @@ TEST_CASE("SpirVParsingUtil_offsets", "[buffer_references_with_offset]")
 
 TEST_CASE("SpirVParsingUtil_pointer_chaining", "[buffer_references_pointer_chaining]")
 {
-    // setting this to kDebugSeverity yields debug-output from parser
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     gfxrecon::util::SpirVParsingUtil spirVParsingUtil;
 

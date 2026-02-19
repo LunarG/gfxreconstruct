@@ -44,7 +44,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
 
 // Default log level to use prior to loading settings.
-const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
+const util::LoggingSeverity kDefaultLogLevel = util::LoggingSeverity::kInfo;
 
 enum class SkipGetFenceStatus
 {

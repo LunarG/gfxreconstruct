@@ -38,6 +38,7 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/callbacks.h
                     ${CMAKE_CURRENT_LIST_DIR}/callbacks.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/clock_cache.h
+                    ${CMAKE_CURRENT_LIST_DIR}/compiler_diagnostics.h
                     ${CMAKE_CURRENT_LIST_DIR}/compressor.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.h
                     ${CMAKE_CURRENT_LIST_DIR}/date_time.cpp
@@ -62,6 +63,9 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/linear_hashmap.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging.h
                     ${CMAKE_CURRENT_LIST_DIR}/logging.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/logging_common.h
+                    ${CMAKE_CURRENT_LIST_DIR}/logging_targets.h
+                    ${CMAKE_CURRENT_LIST_DIR}/logging_targets.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.h
                     ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.h

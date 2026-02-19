@@ -87,7 +87,7 @@ bool FileTransformer::Initialize(const std::string& input_filename,
         success = block_parser_ != nullptr;
         if (success)
         {
-            block_parser_->SetDecompressionPolicy(BlockParser::kNever);
+            block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
         }
         else
         {

@@ -1620,14 +1620,15 @@ void VulkanRebindAllocator::WriteBoundResourceDirect(ResourceAllocInfo* resource
                 else
                 {
                     // TODO: multi-plane image format support when strides do not match.
-                    GFXRECON_LOG_ERROR("Skipping mapped memory write for image with multiple subresources: support "
-                                       "not yet implemented");
+                    GFXRECON_LOG_ERROR_ONCE(
+                        "Skipping mapped memory write for image with multiple subresources: support "
+                        "not yet implemented");
                 }
             }
             else
             {
-                GFXRECON_LOG_WARNING("Image subresource layout info is not available for mapped memory write; "
-                                     "capture/replay memory alignment differences will not be handled properly");
+                GFXRECON_LOG_WARNING_ONCE("Image subresource layout info is not available for mapped memory write; "
+                                          "capture/replay memory alignment differences will not be handled properly");
 
                 util::platform::MemoryCopy(static_cast<uint8_t*>(bound_memory_info->mapped_pointer) + dst_offset,
                                            data_size,
@@ -1639,13 +1640,14 @@ void VulkanRebindAllocator::WriteBoundResourceDirect(ResourceAllocInfo* resource
         case VK_OBJECT_TYPE_VIDEO_SESSION_KHR:
         {
             // TODO: implement direct video session copy
-            GFXRECON_LOG_WARNING("Skipping video session in direct write: support not yet implemented");
+            GFXRECON_LOG_WARNING_ONCE("Skipping video session in direct write: support not yet implemented");
             break;
         }
         case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:
         {
             // TODO: Implement it when it's necessary.
-            GFXRECON_LOG_WARNING("Skipping acceleration structure NV in direct write: support not yet implemented");
+            GFXRECON_LOG_WARNING_ONCE(
+                "Skipping acceleration structure NV in direct write: support not yet implemented");
             break;
         }
         default:

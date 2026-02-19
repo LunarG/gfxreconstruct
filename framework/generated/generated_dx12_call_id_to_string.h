@@ -134,6 +134,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12PipelineState_GetCachedBlob:
         out = L"ID3D12PipelineState_GetCachedBlob";
         break;
+    case format::ApiCallId::ApiCall_ID3D12PipelineState1_GetRootSignature:
+        out = L"ID3D12PipelineState1_GetRootSignature";
+        break;
     case format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc:
         out = L"ID3D12DescriptorHeap_GetDesc";
         break;
@@ -353,6 +356,18 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc:
         out = L"ID3D12CommandQueue_GetDesc";
         break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetProcessPriority:
+        out = L"ID3D12CommandQueue1_SetProcessPriority";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetProcessPriority:
+        out = L"ID3D12CommandQueue1_GetProcessPriority";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetGlobalPriority:
+        out = L"ID3D12CommandQueue1_SetGlobalPriority";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetGlobalPriority:
+        out = L"ID3D12CommandQueue1_GetGlobalPriority";
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount:
         out = L"ID3D12Device_GetNodeCount";
         break;
@@ -563,6 +578,12 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12StateObjectProperties1_GetProgramIdentifier:
         out = L"ID3D12StateObjectProperties1_GetProgramIdentifier";
         break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram:
+        out = L"ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader:
+        out = L"ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader";
+        break;
     case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumWorkGraphs:
         out = L"ID3D12WorkGraphProperties_GetNumWorkGraphs";
         break;
@@ -770,6 +791,27 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary:
         out = L"ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary";
         break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc:
+        out = L"ID3D12StateObjectDatabase_SetApplicationDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc:
+        out = L"ID3D12StateObjectDatabase_GetApplicationDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StorePipelineStateDesc:
+        out = L"ID3D12StateObjectDatabase_StorePipelineStateDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc:
+        out = L"ID3D12StateObjectDatabase_FindPipelineStateDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StoreStateObjectDesc:
+        out = L"ID3D12StateObjectDatabase_StoreStateObjectDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc:
+        out = L"ID3D12StateObjectDatabase_FindStateObjectDesc";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindObjectVersion:
+        out = L"ID3D12StateObjectDatabase_FindObjectVersion";
+        break;
     case format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost:
         out = L"ID3D12VirtualizationGuestDevice_ShareWithHost";
         break;
@@ -847,6 +889,9 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
         break;
     case format::ApiCallId::ApiCall_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary:
         out = L"ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary";
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile:
+        out = L"ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile";
         break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
         out = L"ID3D12GraphicsCommandList5_RSSetShadingRate";

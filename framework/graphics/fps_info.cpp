@@ -80,7 +80,7 @@ bool FpsInfo::ShouldWaitIdleBeforeFrame(uint64_t frame)
 
 bool FpsInfo::ShouldQuit(uint64_t frame)
 {
-    return (quit_after_range_ && (frame > measurement_end_frame_)) || (quit_after_frame_ && frame > quit_frame_);
+    return (quit_after_range_ && (frame >= measurement_end_frame_)) || (quit_after_frame_ && frame > quit_frame_);
 }
 
 void FpsInfo::BeginFrame(uint64_t frame)

@@ -250,6 +250,13 @@ class Dx12Consumer : public Dx12ConsumerBase
         HRESULT return_value,
         HandlePointerDecoder<ID3D10Blob*>* ppBlob){}
 
+    virtual void Process_ID3D12PipelineState1_GetRootSignature(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature){}
+
     virtual void Process_ID3D12DescriptorHeap_GetDesc(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -761,6 +768,30 @@ class Dx12Consumer : public Dx12ConsumerBase
         const ApiCallInfo& call_info,
         format::HandleId object_id,
         Decoded_D3D12_COMMAND_QUEUE_DESC return_value){}
+
+    virtual void Process_ID3D12CommandQueue1_SetProcessPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D12_COMMAND_QUEUE_PROCESS_PRIORITY Priority){}
+
+    virtual void Process_ID3D12CommandQueue1_GetProcessPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<D3D12_COMMAND_QUEUE_PROCESS_PRIORITY>* pOutValue){}
+
+    virtual void Process_ID3D12CommandQueue1_SetGlobalPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY Priority){}
+
+    virtual void Process_ID3D12CommandQueue1_GetGlobalPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY>* pOutValue){}
 
     virtual void Process_ID3D12Device_GetNodeCount(
         const ApiCallInfo& call_info,
@@ -1305,6 +1336,22 @@ class Dx12Consumer : public Dx12ConsumerBase
         Decoded_D3D12_PROGRAM_IDENTIFIER return_value,
         WStringDecoder* pProgramName){}
 
+    virtual void Process_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        WStringDecoder* pProgramName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature){}
+
+    virtual void Process_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        WStringDecoder* pExportName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature){}
+
     virtual void Process_ID3D12WorkGraphProperties_GetNumWorkGraphs(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -1812,6 +1859,65 @@ class Dx12Consumer : public Dx12ConsumerBase
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvRootSignature){}
 
+    virtual void Process_ID3D12StateObjectDatabase_SetApplicationDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_APPLICATION_DESC>* pApplicationDesc){}
+
+    virtual void Process_ID3D12StateObjectDatabase_GetApplicationDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t CallbackFunc,
+        uint64_t pContext){}
+
+    virtual void Process_ID3D12StateObjectDatabase_StorePipelineStateDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        UINT Version,
+        StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc){}
+
+    virtual void Process_ID3D12StateObjectDatabase_FindPipelineStateDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        uint64_t CallbackFunc,
+        uint64_t pContext){}
+
+    virtual void Process_ID3D12StateObjectDatabase_StoreStateObjectDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        UINT Version,
+        StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pDesc,
+        PointerDecoder<uint8_t>* pStateObjectToGrowFromKey,
+        UINT StateObjectToGrowFromKeySize){}
+
+    virtual void Process_ID3D12StateObjectDatabase_FindStateObjectDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        uint64_t CallbackFunc,
+        uint64_t pContext){}
+
+    virtual void Process_ID3D12StateObjectDatabase_FindObjectVersion(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        PointerDecoder<UINT>* pVersion){}
+
     virtual void Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -1982,6 +2088,15 @@ class Dx12Consumer : public Dx12ConsumerBase
         WStringDecoder* RootSignatureSubobjectName,
         Decoded_GUID riid,
         HandlePointerDecoder<void*>* ppvDeserializer){}
+
+    virtual void Process_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        WStringDecoder* pDatabaseFile,
+        D3D12_STATE_OBJECT_DATABASE_FLAGS flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvStateObjectDatabase){}
 
     virtual void Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
         const ApiCallInfo& call_info,

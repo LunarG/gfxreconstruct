@@ -171,7 +171,7 @@ if __name__ == '__main__':
                  os.path.abspath(args.headers_dir)]
             )
         gencode_args.append(target)
-        subprocess.call(
+        subprocess.check_call(
             gencode_args,
             shell=False,
             env=env,

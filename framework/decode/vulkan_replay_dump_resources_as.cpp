@@ -24,6 +24,7 @@
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -113,7 +114,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
     TemporaryCommandBuffer temp_cmd_buff;
     if (original_command_buffer == VK_NULL_HANDLE)
     {
-        CreateAndBeginCommandBuffer(&FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
+        CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
         GFXRECON_ASSERT(temp_cmd_buff.command_buffer != VK_NULL_HANDLE);
     }
 
@@ -144,6 +145,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
         const VkAccelerationStructureGeometryKHR* const geometry =
             p_infos->pGeometries != nullptr ? &p_infos->pGeometries[g] : p_infos->ppGeometries[g];
 
+        const VkAccelerationStructureBuildRangeInfoKHR& range = range_infos[g];
+        if (!range.primitiveCount)
+        {
+            continue;
+        }
+
         switch (geometry->geometryType)
         {
             case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
@@ -159,7 +166,6 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                     std::in_place_type<AccelerationStructureDumpResourcesContext::Triangles>);
                 auto& new_triangles = std::get<AccelerationStructureDumpResourcesContext::Triangles>(new_variant);
 
-                const VkAccelerationStructureBuildRangeInfoKHR&        range     = range_infos[g];
                 const VkAccelerationStructureGeometryTrianglesDataKHR& triangles = geometry->geometry.triangles;
 
                 size_t                  buffer_device_address_offset;
@@ -322,7 +328,6 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                     as_build_objects.emplace_back(std::in_place_type<AccelerationStructureDumpResourcesContext::AABBS>);
                 auto& new_aabbs = std::get<AccelerationStructureDumpResourcesContext::AABBS>(new_variant);
 
-                const VkAccelerationStructureBuildRangeInfoKHR& range = range_infos[g];
                 new_aabbs.buffer_size = range.primitiveCount * sizeof(VkAabbPositionsKHR);
                 new_aabbs.range       = range;
 
@@ -386,7 +391,6 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
             case VK_GEOMETRY_TYPE_INSTANCES_KHR:
             {
-                const VkAccelerationStructureBuildRangeInfoKHR&        range     = range_infos[g];
                 const VkAccelerationStructureGeometryInstancesDataKHR& instances = geometry->geometry.instances;
 
                 auto& new_variant = as_build_objects.emplace_back(

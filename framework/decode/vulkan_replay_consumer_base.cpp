@@ -71,7 +71,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const size_t kMaxEventStatusRetries = 16;
+const size_t kMaxEventStatusRetries      = 16;
+const size_t kMaxQueryPoolResultsRetries = 16;
 
 const char kUnknownDeviceLabel[]  = "<Unknown>";
 const char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
@@ -1504,7 +1505,8 @@ void VulkanReplayConsumerBase::PostProcessExternalObject(
     GFXRECON_UNREFERENCED_PARAMETER(object_id);
     GFXRECON_UNREFERENCED_PARAMETER(object);
 
-    if (call_id == format::ApiCallId::ApiCall_vkMapMemory)
+    if (call_id == format::ApiCallId::ApiCall_vkMapMemory || call_id == format::ApiCallId::ApiCall_vkMapMemory2 ||
+        call_id == format::ApiCallId::ApiCall_vkMapMemory2KHR)
     {
         // Mapped memory tracking is handled by mapping the VkDeviceMemory handle to the mapped pointer, rather than
         // mapping the captured pointer address to the pointer mapped on replay.  The memory needs to be tracked by
@@ -2334,8 +2336,16 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     functions.destroy_video_session                 = device_table->DestroyVideoSessionKHR;
     functions.bind_video_session_memory             = device_table->BindVideoSessionMemoryKHR;
     functions.get_video_session_memory_requirements = device_table->GetVideoSessionMemoryRequirementsKHR;
-    functions.map_memory2                           = device_table->MapMemory2KHR;
-    functions.unmap_memory2                         = device_table->UnmapMemory2KHR;
+    if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 4, 0))
+    {
+        functions.map_memory2   = device_table->MapMemory2;
+        functions.unmap_memory2 = device_table->UnmapMemory2;
+    }
+    else
+    {
+        functions.map_memory2   = device_table->MapMemory2KHR;
+        functions.unmap_memory2 = device_table->UnmapMemory2KHR;
+    }
     functions.set_device_memory_priority            = device_table->SetDeviceMemoryPriorityEXT;
     functions.get_memory_remote_address_nv          = device_table->GetMemoryRemoteAddressNV;
     functions.create_acceleration_structure_nv      = device_table->CreateAccelerationStructureNV;
@@ -3267,6 +3277,15 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         // Fake VK_EXT_frame_boundary if requested, but not supported
         if (sanitize_faked_extension(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
         {
+            VulkanSwapchainOptions options = swapchain_->GetOptions();
+            if (options.offscreen_swapchain_frame_boundary)
+            {
+                GFXRECON_LOG_ERROR("--offscreen-swapchain-frame-boundary was enabled but %s "
+                                   "is not available on the replay device. Quitting replay.",
+                                   VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+                std::abort();
+            }
+
             // also remove related feature-struct from pnext-chain
             if (graphics::vulkan_struct_remove_pnext<VkPhysicalDeviceFrameBoundaryFeaturesEXT>(&modified_create_info))
             {
@@ -4069,17 +4088,15 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     GFXRECON_ASSERT((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
                     (pData->GetOutputPointer() != nullptr));
 
+    VkResult    result;
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
+    size_t      retries    = 0;
 
-    if (original_result == VK_SUCCESS)
+    do
     {
-        // instead of polling (busy-waiting) vkGetQueryPoolResults, we just wait
-        flags |= VK_QUERY_RESULT_WAIT_BIT;
-    }
-
-    VkResult result =
-        func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+        result = func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+    } while (original_result == VK_SUCCESS && result == VK_NOT_READY && ++retries <= kMaxQueryPoolResultsRetries);
 
     if (result == VK_SUCCESS)
     {
@@ -7988,7 +8005,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
         result = swapchain_->GetSwapchainImagesKHR(
             original_result, func, device_info, swapchain_info, capture_image_count, replay_image_count, replay_images);
 
-        if ((result == VK_SUCCESS) && (replay_images != nullptr) && (replay_image_count != nullptr))
+        // If replay_image_count isn't full image count, it will return VK_INCOMPLETE.
+        // Their image infos should also be initialized, even if it's VK_INCOMPLETE.
+        if ((result == VK_SUCCESS || result == VK_INCOMPLETE) && (replay_images != nullptr) &&
+            (replay_image_count != nullptr))
         {
             uint32_t count = (*replay_image_count);
 
@@ -10466,18 +10486,37 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
         util::EndInjectedCommands();
     }
 
-    CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
+    // TODO: merged in PR #2623 but causing issues in extended CI -> debug remaining issues and enable this again
+    // related issue: https://github.com/LunarG/gfxreconstruct/issues/2660
+    if constexpr (false)
+    {
+        CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
 
-    VulkanPhysicalDeviceInfo* physical_device_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
-    GFXRECON_ASSERT(physical_device_info != nullptr);
+        VulkanPhysicalDeviceInfo* physical_device_info =
+            object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
+        GFXRECON_ASSERT(physical_device_info != nullptr);
 
-    VulkanInstanceInfo* instance_info = object_info_table.GetVkInstanceInfo(physical_device_info->parent_id);
-    GFXRECON_ASSERT(instance_info != nullptr);
+        VulkanInstanceInfo* instance_info = object_info_table.GetVkInstanceInfo(physical_device_info->parent_id);
+        GFXRECON_ASSERT(instance_info != nullptr);
 
-    const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
+        const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
-    swapchain_->FrameBoundaryANDROID(
-        func, device_info, semaphore_info, image_info, instance_info, instance_table, device_table, application_.get());
+        swapchain_->FrameBoundaryANDROID(func,
+                                         device_info,
+                                         semaphore_info,
+                                         image_info,
+                                         instance_info,
+                                         instance_table,
+                                         device_table,
+                                         application_.get());
+    }
+    else
+    {
+        VkDevice    device    = device_info->handle;
+        VkSemaphore semaphore = semaphore_info ? semaphore_info->handle : VK_NULL_HANDLE;
+        VkImage     image     = image_info ? image_info->handle : VK_NULL_HANDLE;
+        func(device, semaphore, image);
+    }
 }
 
 // We want to allow skipping the query for tool properties because the capture layer actually adds this extension

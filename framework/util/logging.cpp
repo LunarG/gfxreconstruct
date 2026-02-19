@@ -36,6 +36,198 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+constexpr char g_process_tag[] = "gfxrecon";
+
+GFXRECON_BEGIN_NAMESPACE(logging)
+
+std::unique_ptr<LoggingManager> LoggingManager::singleton_;
+std::once_flag                  LoggingManager::singleton_flag_;
+
+LoggingManager& LoggingManager::GetSingleton()
+{
+    std::call_once(singleton_flag_, [&]() { singleton_.reset(new LoggingManager()); });
+    return *singleton_;
+}
+
+LoggingManager::LoggingManager()
+{
+    const std::lock_guard<std::mutex> lock(target_mut_);
+
+    // Initialize the unique pointers to be empty
+    for (auto& tgt : logging_targets_)
+    {
+        tgt.reset(nullptr);
+    }
+}
+
+LoggingManager::~LoggingManager() {}
+
+void LoggingManager::LogMessage(LoggingSeverity severity, const std::string& message)
+{
+    const std::lock_guard<std::mutex> lock(target_mut_);
+
+    for (auto& tgt : logging_targets_)
+    {
+        if (tgt)
+        {
+            tgt->LogMessage(severity, message);
+        }
+    }
+}
+
+void LoggingManager::SetMinimumSeverity(LoggingSeverity severity)
+{
+    const std::lock_guard<std::mutex> lock(target_mut_);
+
+    for (auto& tgt : logging_targets_)
+    {
+        if (tgt)
+        {
+            tgt->SetSeverity(severity);
+        }
+    }
+}
+
+void LoggingManager::LogMessage(LoggingSeverity    severity,
+                                const std::string& indented_message,
+                                const std::string& non_indented_message)
+{
+    bool use_indent = indent_supported_ && indented_message.length() != non_indented_message.length();
+    if (!use_indent)
+    {
+        LogMessage(severity, non_indented_message);
+    }
+    else
+    {
+        const std::lock_guard<std::mutex> lock(target_mut_);
+
+        for (auto& tgt : logging_targets_)
+        {
+            if (tgt)
+            {
+                if (tgt->SupportsIndent())
+                {
+                    tgt->LogMessage(severity, indented_message);
+                }
+                else
+                {
+                    tgt->LogMessage(severity, non_indented_message);
+                }
+            }
+        }
+    }
+}
+
+void LoggingManager::UpdateStdOutTarget(bool write_to_console, bool write_to_stderr, bool flush_after_write)
+{
+    const std::lock_guard<std::mutex> lock(target_mut_);
+
+    if (write_to_console)
+    {
+        if (!logging_targets_[kTarget_StdOut])
+        {
+            logging_targets_[kTarget_StdOut] = std::make_unique<logging::LoggingTargetStdout>();
+            GFXRECON_ASSERT(logging_targets_[kTarget_StdOut]);
+        }
+
+        logging_targets_[kTarget_StdOut]->SetEnable(true);
+        logging_targets_[kTarget_StdOut]->SetFlushAfterWrite(flush_after_write);
+
+#if !defined(__ANDROID__)
+        logging_targets_[kTarget_StdOut]->SetBoolExtendedOption(kOption_WriteErrors, !write_to_stderr);
+#endif
+    }
+    else if (logging_targets_[kTarget_StdOut])
+    {
+        // Just disable it
+        logging_targets_[kTarget_StdOut]->SetEnable(false);
+    }
+}
+
+void LoggingManager::UpdateStdErrTarget(bool write_to_stderr, bool flush_after_write)
+{
+    // Android doesn't easily support separate stdout/stderr
+#if !defined(__ANDROID__)
+    const std::lock_guard<std::mutex> lock(target_mut_);
+
+    if (write_to_stderr)
+    {
+        if (!logging_targets_[kTarget_StdErr])
+        {
+            logging_targets_[kTarget_StdErr] = std::make_unique<logging::LoggingTargetStderr>();
+            GFXRECON_ASSERT(logging_targets_[kTarget_StdErr]);
+        }
+
+        logging_targets_[kTarget_StdErr]->SetEnable(true);
+        logging_targets_[kTarget_StdErr]->SetFlushAfterWrite(flush_after_write);
+    }
+    else if (logging_targets_[kTarget_StdErr])
+    {
+        // Just disable it
+        logging_targets_[kTarget_StdErr]->SetEnable(false);
+    }
+#endif // !defined(__ANDROID__)
+}
+
+bool LoggingManager::UpdateFileTarget(
+    bool write_to_file, const std::string& file_name, bool create_new, bool leave_open, bool flush_after_write)
+{
+    const std::lock_guard<std::mutex> lock(target_mut_);
+
+    bool succeeded = true;
+    if (write_to_file)
+    {
+        if (!logging_targets_[kTarget_FileOut])
+        {
+            logging_targets_[kTarget_FileOut] = std::make_unique<logging::LoggingTargetFile>();
+        }
+
+        if (logging_targets_[kTarget_FileOut])
+        {
+            logging_targets_[kTarget_FileOut]->SetBoolExtendedOption(kOption_FileCreateNew, create_new);
+            logging_targets_[kTarget_FileOut]->SetBoolExtendedOption(kOption_FileLeaveOpen, leave_open);
+            logging_targets_[kTarget_FileOut]->SetStringExtendedOption(kOption_FileName, file_name);
+            logging_targets_[kTarget_FileOut]->SetFlushAfterWrite(flush_after_write);
+        }
+    }
+    else if (logging_targets_[kTarget_FileOut])
+    {
+        // Just disable it
+        logging_targets_[kTarget_FileOut]->SetEnable(false);
+    }
+    return succeeded;
+}
+
+void LoggingManager::UpdateDebugViewTarget(bool enabled)
+{
+#if defined(WIN32)
+    const std::lock_guard<std::mutex> lock(target_mut_);
+
+    if (enabled)
+    {
+        if (!logging_targets_[kTarget_DebugView])
+        {
+            logging_targets_[kTarget_DebugView] = std::make_unique<logging::LoggingTargetDebugView>();
+            GFXRECON_ASSERT(logging_targets_[kTarget_DebugView]);
+        }
+
+        logging_targets_[kTarget_DebugView]->SetEnable(true);
+    }
+    else if (logging_targets_[kTarget_DebugView])
+    {
+        // Just disable it
+        logging_targets_[kTarget_DebugView]->SetEnable(false);
+    }
+#else
+    if (enabled)
+    {
+        GFXRECON_LOG_ERROR("DebugView Logging target not supported on this platform");
+    }
+#endif // defined(WIN32)
+}
+
+GFXRECON_END_NAMESPACE(logging)
+
 Log::Settings Log::settings_;
 
 std::string Log::ConvertFormatVaListToString(const std::string& format_string, va_list& var_args)
@@ -61,113 +253,109 @@ std::string Log::ConvertFormatVaListToString(const std::string& format_string, v
     }
 }
 
-void Log::Init(Severity    min_severity,
-               const char* log_file_name,
-               bool        leave_file_open,
-               bool        create_new_file_on_open,
-               bool        flush_after_write,
-               bool        break_on_error,
-               bool        output_detailed_log_info,
-               bool        output_timestamps,
-               bool        write_to_console,
-               bool        errors_to_stderr,
-               bool        output_to_os_debug_string,
-               bool        use_indent)
+void Log::UpdateLogManagerComponents(gfxrecon::util::logging::LoggingManager& log_mgr)
+{
+    log_mgr.UpdateStdOutTarget(
+        settings_.write_to_console, settings_.output_errors_to_stderr, settings_.flush_after_write);
+    log_mgr.UpdateStdErrTarget(settings_.output_errors_to_stderr, settings_.flush_after_write);
+    if (!log_mgr.UpdateFileTarget(settings_.write_to_file,
+                                  settings_.file_name,
+                                  settings_.create_new,
+                                  settings_.leave_file_open,
+                                  settings_.flush_after_write))
+    {
+        GFXRECON_LOG_ERROR("Failed to create LoggingTargetFile");
+        settings_.write_to_file   = false;
+        settings_.leave_file_open = false;
+        settings_.file_name       = "";
+    }
+    log_mgr.UpdateDebugViewTarget(settings_.output_to_os_debug_string);
+    log_mgr.SetMinimumSeverity(settings_.min_severity);
+
+    // If using indent is enabled, tell the log manager
+    if (settings_.use_indent)
+    {
+        log_mgr.EnableIndentSupport();
+    }
+}
+
+void Log::Init(LoggingSeverity min_severity)
 {
     settings_.min_severity = min_severity;
-    if ((log_file_name != nullptr) && (strlen(log_file_name) > 0))
-    {
-        // Erase any previous contents
-        std::string file_modifiers = "w";
-        if (!create_new_file_on_open)
-        {
-            file_modifiers = "a";
-        }
-
-        int32_t result = platform::FileOpen(&settings_.file_pointer, log_file_name, file_modifiers.c_str());
-        if (result == 0)
-        {
-            settings_.write_to_file   = true;
-            settings_.leave_file_open = leave_file_open;
-            settings_.file_name       = log_file_name;
-            if (!settings_.leave_file_open)
-            {
-                platform::FileClose(settings_.file_pointer);
-                settings_.file_pointer = nullptr;
-            }
-        }
-    }
-    settings_.create_new                = create_new_file_on_open;
-    settings_.flush_after_write         = flush_after_write;
-    settings_.break_on_error            = break_on_error;
-    settings_.output_detailed_log_info  = output_detailed_log_info;
-    settings_.output_timestamps         = output_timestamps;
-    settings_.write_to_console          = write_to_console;
-    settings_.output_errors_to_stderr   = errors_to_stderr;
-    settings_.output_to_os_debug_string = output_to_os_debug_string;
-    settings_.use_indent                = use_indent;
+    UpdateLogManagerComponents(logging::LoggingManager::GetSingleton());
 }
 
-void Log::Init(const util::Log::Settings& settings)
+void Log::UpdateWithSettings(const util::Log::Settings& settings)
 {
-    settings_ = settings;
-    if (!settings.file_name.empty())
-    {
-        // Erase any previous contents
-        std::string file_modifiers = "w";
-        if (!settings.create_new)
-        {
-            file_modifiers = "a";
-        }
+    auto& log_mgr = logging::LoggingManager::GetSingleton();
 
-        int32_t result =
-            platform::FileOpen(&settings_.file_pointer, settings.file_name.c_str(), file_modifiers.c_str());
-        if (result == 0)
-        {
-            settings_.write_to_file = true;
-            if (!settings_.leave_file_open)
-            {
-                platform::FileClose(settings_.file_pointer);
-                settings_.file_pointer = nullptr;
-            }
-        }
-    }
-}
-
-void Log::Release()
-{
-    if (settings_.write_to_file && settings_.leave_file_open)
+    // Update only the settings that have changed from the default.
+    // This will override everything else since it comes from the command-line.
+    Settings default_settings{};
+    if (default_settings.min_severity != settings.min_severity)
     {
-        platform::FileClose(settings_.file_pointer);
-        settings_.file_pointer  = nullptr;
-        settings_.write_to_file = false;
+        settings_.min_severity = settings.min_severity;
+        log_mgr.SetMinimumSeverity(settings_.min_severity);
     }
+    if (default_settings.output_detailed_log_info != settings.output_detailed_log_info)
+    {
+        settings_.output_detailed_log_info = settings.output_detailed_log_info;
+    }
+    if (default_settings.output_timestamps != settings.output_timestamps)
+    {
+        settings_.output_timestamps = settings.output_timestamps;
+    }
+    if (default_settings.flush_after_write != settings.flush_after_write)
+    {
+        settings_.flush_after_write = settings.flush_after_write;
+    }
+    if (default_settings.use_indent != settings.use_indent)
+    {
+        settings_.use_indent    = settings.use_indent;
+        settings_.indent        = settings.indent;
+        settings_.indent_spaces = settings.indent_spaces;
+    }
+    if (default_settings.break_on_error != settings.break_on_error)
+    {
+        settings_.break_on_error = settings.break_on_error;
+    }
+    if (default_settings.write_to_file != settings.write_to_file)
+    {
+        settings_.write_to_file   = settings.write_to_file;
+        settings_.create_new      = settings.create_new;
+        settings_.leave_file_open = settings.leave_file_open;
+        settings_.file_name       = settings.file_name;
+    }
+    if (default_settings.write_to_console != settings.write_to_console)
+    {
+        settings_.write_to_console = settings.write_to_console;
+    }
+    if (default_settings.output_errors_to_stderr != settings.output_errors_to_stderr)
+    {
+        settings_.output_errors_to_stderr = settings.output_errors_to_stderr;
+    }
+    if (default_settings.output_to_os_debug_string != settings.output_to_os_debug_string)
+    {
+        settings_.output_to_os_debug_string = settings.output_to_os_debug_string;
+    }
+
+    // Update the log targets as necessary
+    UpdateLogManagerComponents(log_mgr);
 }
 
 void Log::LogMessage(
-    Log::Severity severity, const char* file, const char* function, const char* line, const char* message, ...)
+    LoggingSeverity severity, const char* file, const char* function, const char* line, const char* message, ...)
 {
-    bool  opened_file      = false;
-    bool  write_indent     = settings_.use_indent && (settings_.indent > 0);
-    bool  output_to_stderr = false;
-    FILE* log_file_ptr     = nullptr;
+    bool        write_indent = settings_.use_indent && (settings_.indent > 0);
+    std::string indented_version;
+    std::string non_indented_version;
 
-    // Log message prefix
-    const char  process_tag[] = "gfxrecon";
+    // Only add a string prefix if this isn't a string that always outputs.
     std::string prefix;
-
-    if (severity != kAlwaysOutputSeverity)
+    if (LoggingSeverity::kAlwaysOutput != severity)
     {
-        // If the severity is an error (or worse) we always want to output it to stderr at least if the
-        // user has enabled that in the settings.
-        if ((severity >= kErrorSeverity) && settings_.write_to_console && settings_.output_errors_to_stderr)
-        {
-            output_to_stderr = true;
-        }
-
-        // Only add a string prefix if this isn't a string that always outputs.
         prefix += "[";
-        prefix += process_tag;
+        prefix += g_process_tag;
         if (settings_.output_timestamps)
         {
             prefix += "]";
@@ -189,137 +377,35 @@ void Log::LogMessage(
         prefix += " - ";
     }
 
+    // Generate the complete string from the incoming variable parameter list
     va_list valist;
     va_start(valist, message);
     std::string generated_string = ConvertFormatVaListToString(message, valist);
     va_end(valist);
 
-    for (uint32_t output_target = 0; output_target < 2; ++output_target)
+    non_indented_version = prefix + generated_string;
+    if (write_indent)
     {
-        bool write_prefix_and_indents = (severity != kAlwaysOutputSeverity);
-        switch (output_target)
+        indented_version = prefix;
+        if (settings_.use_indent)
         {
-            case 0: // Output to console
-#if defined(WIN32)
-                    // On Windows, pass 0 should output to console or debug string if enabled.
-                if (!settings_.write_to_console && !settings_.output_to_os_debug_string)
-#else
-                if (!settings_.write_to_console)
-#endif
-                {
-                    continue;
-                }
-
-#if defined(__ANDROID__)
-                // Never add prefixes or indents for the Android console logging.
-                write_prefix_and_indents = false;
-#else  // !__ANDROID__
-                if (output_to_stderr)
-                {
-                    log_file_ptr = stderr;
-                }
-                else
-                {
-                    log_file_ptr = stdout;
-                }
-#endif // !__ANDROID__
-                break;
-
-            case 1: // Output to file
-                // Only continue if we're writing to a file and the severity is one we've
-                // enabled.
-                if (!settings_.write_to_file || (severity < settings_.min_severity))
-                {
-                    continue;
-                }
-                if (settings_.leave_file_open)
-                {
-                    log_file_ptr = settings_.file_pointer;
-                }
-                else if (severity >= settings_.min_severity)
-                {
-                    int32_t result = platform::FileOpen(&log_file_ptr, settings_.file_name.c_str(), "a");
-                    if (result == 0)
-                    {
-                        opened_file = true;
-                    }
-                }
-                break;
-        }
-
-        std::string output_message;
-        if (write_prefix_and_indents)
-        {
-            output_message = prefix;
-            if (write_indent)
+            for (uint32_t iii = 0; iii < settings_.indent; ++iii)
             {
-                for (uint32_t iii = 0; iii < settings_.indent; ++iii)
-                {
-                    output_message += settings_.indent_spaces;
-                }
+                indented_version += settings_.indent_spaces;
             }
         }
-        output_message += generated_string;
-
-#if defined(WIN32)
-        // Console output on Windows should be sent to OutputDebugString
-        // whenever the user requests it.
-        if (output_target == 0 && settings_.output_to_os_debug_string)
-        {
-            OutputDebugStringA(output_message.c_str());
-        }
-        else
-#elif defined(__ANDROID__)
-        // Console output for Android always needs to be sent to Logcat.
-        // So, ignore the "output_to_os_debug_string" flag and just always do it.
-        if (output_target == 0)
-        {
-            switch (severity)
-            {
-                case kDebugSeverity:
-                    __android_log_print(ANDROID_LOG_DEBUG, process_tag, "%s", output_message.c_str());
-                    break;
-                case kInfoSeverity:
-                    __android_log_print(ANDROID_LOG_INFO, process_tag, "%s", output_message.c_str());
-                    break;
-                case kWarningSeverity:
-                    __android_log_print(ANDROID_LOG_WARN, process_tag, "%s", output_message.c_str());
-                    break;
-                case kErrorSeverity:
-                    __android_log_print(ANDROID_LOG_ERROR, process_tag, "%s", output_message.c_str());
-                    break;
-                case kFatalSeverity:
-                    __android_log_assert(nullptr, process_tag, "%s", output_message.c_str());
-                    break;
-                default:
-                    __android_log_print(ANDROID_LOG_VERBOSE, process_tag, "%s", output_message.c_str());
-                    break;
-            }
-        }
-        else
-#endif // __ANDROID__
-        {
-            platform::FilePuts(output_message.c_str(), log_file_ptr);
-
-            // Write the newline since we want to separate each log-line but don't
-            // want the messages themselves to have to add it.
-            output_message = "\n";
-            platform::FileWrite(output_message.c_str(), 1, log_file_ptr);
-
-            if (settings_.flush_after_write || settings_.leave_file_open)
-            {
-                platform::FileFlush(log_file_ptr);
-            }
-            if ((output_target == 1) && opened_file && !settings_.leave_file_open)
-            {
-                platform::FileClose(log_file_ptr);
-            }
-        }
+        indented_version += generated_string;
+        logging::LoggingManager::GetSingleton().LogMessage(severity, indented_version, non_indented_version);
+    }
+    else
+    {
+        logging::LoggingManager::GetSingleton().LogMessage(severity, non_indented_version);
     }
 
     // Break on error if necessary, failing message should be this one
     // (also the last one written).
-    if ((kAlwaysOutputSeverity > severity) && (kErrorSeverity <= severity) && settings_.break_on_error)
+    if ((LoggingSeverity::kAlwaysOutput != severity) && (LoggingSeverity::kError <= severity) &&
+        settings_.break_on_error)
     {
         platform::TriggerDebugBreak();
     }

@@ -479,6 +479,32 @@ void EncodeStruct(ParameterEncoder*                                             
     encoder->EncodeUInt64Value(value.NumBottomLevelAccelerationStructureHeaderAndPointerListPairs);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& value)
+{
+    encoder->EncodeWString(value.szAdapterFamily);
+    encoder->EncodeUInt64Value(value.MinimumABISupportVersion);
+    encoder->EncodeUInt64Value(value.MaximumABISupportVersion);
+
+    // union
+    encoder->EncodeUInt64Value(value.CompilerVersion.Version);
+    encoder->EncodeUInt64Value(value.ApplicationProfileVersion.Version);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value)
+{
+    encoder->EncodeWString(value.pExeFilename);
+    encoder->EncodeWString(value.pName);
+
+    // union
+    encoder->EncodeUInt64Value(value.Version.Version);
+
+    encoder->EncodeWString(value.pEngineName);
+
+    // union
+    encoder->EncodeUInt64Value(value.EngineVersion.Version);
+}
+
+
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
 {
     encoder->EncodeInt64Value(value.QuadPart);
@@ -815,9 +841,19 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
         case D3D12_FEATURE_D3D12_OPTIONS21:
             EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS21*>(feature_data));
             break;
+        case D3D12_FEATURE_D3D12_TIGHT_ALIGNMENT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_TIGHT_ALIGNMENT*>(feature_data));
+            break;
+        case D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE*>(feature_data));
+            break;
         case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
             EncodeStructPtr(encoder,
                             reinterpret_cast<D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED*>(feature_data));
+            break;
+        case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT:
+            // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
             break;
         default:
             GFXRECON_LOG_WARNING("Failed to encode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
