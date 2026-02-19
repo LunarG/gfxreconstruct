@@ -751,6 +751,25 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     src_subresource,
                                 StructPointerDecoder<Decoded_D3D12_BOX>* src_box);
 
+    HRESULT OverrideGetApplicationDesc(DxObjectInfo* state_object_database_object_info,
+                                       HRESULT       original_result,
+                                       uint64_t      callback_func,
+                                       uint64_t      context);
+
+    HRESULT OverrideFindPipelineStateDesc(DxObjectInfo*            state_object_database_object_info,
+                                          HRESULT                  original_result,
+                                          PointerDecoder<uint8_t>* key,
+                                          UINT                     key_size,
+                                          uint64_t                 callback_func,
+                                          uint64_t                 context);
+
+    HRESULT OverrideFindStateObjectDesc(DxObjectInfo*            state_object_database_object_info,
+                                        HRESULT                  original_result,
+                                        PointerDecoder<uint8_t>* key,
+                                        UINT                     key_size,
+                                        uint64_t                 callback_func,
+                                        uint64_t                 context);
+
     void OverrideExecuteCommandLists(DxObjectInfo*                             replay_object_info,
                                      UINT                                      num_command_lists,
                                      HandlePointerDecoder<ID3D12CommandList*>* command_lists);

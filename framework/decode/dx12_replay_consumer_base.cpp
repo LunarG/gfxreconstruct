@@ -2581,7 +2581,65 @@ Dx12ReplayConsumerBase::OverrideReadFromSubresource(DxObjectInfo*               
     GFXRECON_UNREFERENCED_PARAMETER(src_box);
 
     // TODO: Implement function
-    return E_FAIL;
+    GFXRECON_LOG_WARNING("Calling unsupported function ID3D12Resource::ReadFromSubresource");
+    return E_NOTIMPL;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideGetApplicationDesc(DxObjectInfo* state_object_database_object_info,
+                                                   HRESULT       original_result,
+                                                   uint64_t      callback_func,
+                                                   uint64_t      context)
+
+{
+    GFXRECON_UNREFERENCED_PARAMETER(state_object_database_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(callback_func);
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+
+    // TODO: Implement function
+    GFXRECON_LOG_WARNING("Calling unsupported function ID3D12StateObjectDatabase::GetApplicationDesc");
+    return E_NOTIMPL;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideFindPipelineStateDesc(DxObjectInfo*            state_object_database_object_info,
+                                                      HRESULT                  original_result,
+                                                      PointerDecoder<uint8_t>* key,
+                                                      UINT                     key_size,
+                                                      uint64_t                 callback_func,
+                                                      uint64_t                 context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(state_object_database_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(key);
+    GFXRECON_UNREFERENCED_PARAMETER(key_size);
+    GFXRECON_UNREFERENCED_PARAMETER(callback_func);
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+
+    // TODO: Implement function
+    GFXRECON_LOG_WARNING("Calling unsupported function ID3D12StateObjectDatabase::FindPipelineStateDesc");
+    return E_NOTIMPL;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideFindStateObjectDesc(DxObjectInfo*            state_object_database_object_info,
+                                                    HRESULT                  original_result,
+                                                    PointerDecoder<uint8_t>* key,
+                                                    UINT                     key_size,
+                                                    uint64_t                 callback_func,
+                                                    uint64_t                 context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(state_object_database_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(key);
+    GFXRECON_UNREFERENCED_PARAMETER(key_size);
+    GFXRECON_UNREFERENCED_PARAMETER(callback_func);
+    GFXRECON_UNREFERENCED_PARAMETER(context);
+
+    // TODO: Implement function
+    GFXRECON_LOG_WARNING("Calling unsupported function ID3D12StateObjectDatabase::FindStateObjectDesc");
+    return E_NOTIMPL;
 }
 
 void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*                             replay_object_info,

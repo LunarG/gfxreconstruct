@@ -570,6 +570,12 @@ struct ID3D12DeviceToolsInfo : public DxWrapperInfo
 struct ID3D12GBVDiagnosticsInfo : public DxWrapperInfo
 {};
 
+struct ID3D12StateObjectDatabaseInfo : public DxWrapperInfo
+{};
+
+struct ID3D12StateObjectDatabaseFactoryInfo : public DxWrapperInfo
+{};
+
 struct AgsContextInfo : public DxWrapperInfo
 {};
 

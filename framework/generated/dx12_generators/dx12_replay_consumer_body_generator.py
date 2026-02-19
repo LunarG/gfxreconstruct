@@ -422,9 +422,11 @@ class Dx12ReplayConsumerBodyGenerator(
                             length = value.array_length + '->GetPointer()'
                         else:
                             length = value.array_length
-                    code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
-                        value.name, value.name, length
-                    )
+
+                    if value.pointer_count > 1:
+                        code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
+                            value.name, value.name, length
+                        )
 
                     if is_override:
                         arg_list.append(value.name)
