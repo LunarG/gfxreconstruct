@@ -1,0 +1,392 @@
+_______________
+Vulkan Version:
+ - available:  1.4.309
+ - requesting: 1.3.0
+___________________________
+Available Instance Layers :
+VK_LAYER_NV_optimus (v. 1.4.312 1) : NVIDIA Optimus layer
+VK_LAYER_NV_present (v. 1.4.312 1) : NVIDIA GR2608 layer
+GalaxyOverlayVkLayer (v. 1.1.73 1) : Galaxy Overlay Vulkan Layer
+GalaxyOverlayVkLayer_VERBOSE (v. 1.1.73 1) : Galaxy Overlay Vulkan Layer
+GalaxyOverlayVkLayer_DEBUG (v. 1.1.73 1) : Galaxy Overlay Vulkan Layer
+VK_LAYER_RENDERDOC_Capture (v. 1.4.324 28) : Debugging capture layer for RenderDoc
+VK_LAYER_VALVE_steam_overlay (v. 1.3.207 1) : Steam Overlay Layer
+VK_LAYER_VALVE_steam_fossilize (v. 1.4.303 1) : Steam Pipeline Caching Layer
+VK_LAYER_EOS_Overlay (v. 1.2.136 1) : Vulkan overlay layer for Epic Online Services
+VK_LAYER_EOS_Overlay (v. 1.2.136 1) : Vulkan overlay layer for Epic Online Services
+VK_LAYER_LUNARG_gfxreconstruct (v. 1.4.341 400005) : GFXReconstruct Capture Layer Version 1.0.5-dev
+
+Available Instance Extensions :
+VK_KHR_surface (v. 25)
+VK_KHR_win32_surface (v. 5)
+VK_KHR_external_memory_capabilities (v. 1)
+VK_KHR_external_semaphore_capabilities (v. 1)
+VK_KHR_external_fence_capabilities (v. 1)
+VK_KHR_get_physical_device_properties2 (v. 2)
+VK_KHR_get_surface_capabilities2 (v. 1)
+VK_KHR_device_group_creation (v. 1)
+VK_EXT_swapchain_colorspace (v. 4)
+VK_EXT_debug_utils (v. 2)
+VK_KHR_display (v. 23)
+VK_KHR_get_display_properties2 (v. 1)
+VK_KHR_surface_protected_capabilities (v. 1)
+VK_EXT_debug_report (v. 10)
+VK_EXT_direct_mode_display (v. 1)
+VK_EXT_surface_maintenance1 (v. 1)
+VK_NV_external_memory_capabilities (v. 1)
+VK_KHR_portability_enumeration (v. 1)
+VK_LUNARG_direct_driver_loading (v. 1)
+______________________
+Used Instance Layers :
+
+Used Instance Extensions :
+VK_EXT_debug_utils
+VK_KHR_surface
+VK_KHR_win32_surface
+____________________
+Devices : 2
+0: NVIDIA GeForce RTX 4080 Laptop GPU
+  - Compatible 
+1: Intel(R) RaptorLake-S Mobile Graphics Controller
+  - Compatible 
+Compatible physical devices found : 2
+Using Device:
+ - Device Name    : NVIDIA GeForce RTX 4080 Laptop GPU
+ - Vendor         : NVIDIA
+ - Driver Version : 581.228.0
+ - API Version    : 1.4.312
+ - Device Type    : Discrete GPU
+_____________________________
+Available Device Extensions :
+VK_KHR_16bit_storage (v. 1)
+VK_KHR_8bit_storage (v. 1)
+VK_KHR_acceleration_structure (v. 13)
+VK_KHR_bind_memory2 (v. 1)
+VK_KHR_buffer_device_address (v. 1)
+VK_KHR_calibrated_timestamps (v. 1)
+VK_KHR_compute_shader_derivatives (v. 1)
+VK_KHR_cooperative_matrix (v. 2)
+VK_KHR_copy_commands2 (v. 1)
+VK_KHR_create_renderpass2 (v. 1)
+VK_KHR_dedicated_allocation (v. 3)
+VK_KHR_deferred_host_operations (v. 4)
+VK_KHR_depth_clamp_zero_one (v. 1)
+VK_KHR_depth_stencil_resolve (v. 1)
+VK_KHR_descriptor_update_template (v. 1)
+VK_KHR_device_group (v. 4)
+VK_KHR_draw_indirect_count (v. 1)
+VK_KHR_driver_properties (v. 1)
+VK_KHR_dynamic_rendering (v. 1)
+VK_KHR_dynamic_rendering_local_read (v. 1)
+VK_KHR_external_fence (v. 1)
+VK_KHR_external_fence_win32 (v. 1)
+VK_KHR_external_memory (v. 1)
+VK_KHR_external_memory_win32 (v. 1)
+VK_KHR_external_semaphore (v. 1)
+VK_KHR_external_semaphore_win32 (v. 1)
+VK_KHR_format_feature_flags2 (v. 2)
+VK_KHR_fragment_shader_barycentric (v. 1)
+VK_KHR_fragment_shading_rate (v. 2)
+VK_KHR_get_memory_requirements2 (v. 1)
+VK_KHR_global_priority (v. 1)
+VK_KHR_image_format_list (v. 1)
+VK_KHR_imageless_framebuffer (v. 1)
+VK_KHR_index_type_uint8 (v. 1)
+VK_KHR_line_rasterization (v. 1)
+VK_KHR_load_store_op_none (v. 1)
+VK_KHR_maintenance1 (v. 2)
+VK_KHR_maintenance2 (v. 1)
+VK_KHR_maintenance3 (v. 1)
+VK_KHR_maintenance4 (v. 2)
+VK_KHR_maintenance5 (v. 1)
+VK_KHR_maintenance6 (v. 1)
+VK_KHR_maintenance7 (v. 1)
+VK_KHR_maintenance8 (v. 1)
+VK_KHR_map_memory2 (v. 1)
+VK_KHR_multiview (v. 1)
+VK_KHR_pipeline_binary (v. 1)
+VK_KHR_pipeline_executable_properties (v. 1)
+VK_KHR_pipeline_library (v. 1)
+VK_KHR_present_id (v. 1)
+VK_KHR_present_wait (v. 1)
+VK_KHR_push_descriptor (v. 2)
+VK_KHR_ray_query (v. 1)
+VK_KHR_ray_tracing_maintenance1 (v. 1)
+VK_KHR_ray_tracing_pipeline (v. 1)
+VK_KHR_ray_tracing_position_fetch (v. 1)
+VK_KHR_relaxed_block_layout (v. 1)
+VK_KHR_sampler_mirror_clamp_to_edge (v. 3)
+VK_KHR_sampler_ycbcr_conversion (v. 14)
+VK_KHR_separate_depth_stencil_layouts (v. 1)
+VK_KHR_shader_atomic_int64 (v. 1)
+VK_KHR_shader_bfloat16 (v. 1)
+VK_KHR_shader_clock (v. 1)
+VK_KHR_shader_draw_parameters (v. 1)
+VK_KHR_shader_expect_assume (v. 1)
+VK_KHR_shader_float16_int8 (v. 1)
+VK_KHR_shader_float_controls (v. 4)
+VK_KHR_shader_float_controls2 (v. 1)
+VK_KHR_shader_integer_dot_product (v. 1)
+VK_KHR_shader_maximal_reconvergence (v. 1)
+VK_KHR_shader_non_semantic_info (v. 1)
+VK_KHR_shader_quad_control (v. 1)
+VK_KHR_shader_relaxed_extended_instruction (v. 1)
+VK_KHR_shader_subgroup_extended_types (v. 1)
+VK_KHR_shader_subgroup_rotate (v. 2)
+VK_KHR_shader_subgroup_uniform_control_flow (v. 1)
+VK_KHR_shader_terminate_invocation (v. 1)
+VK_KHR_spirv_1_4 (v. 1)
+VK_KHR_storage_buffer_storage_class (v. 1)
+VK_KHR_swapchain (v. 70)
+VK_KHR_swapchain_mutable_format (v. 1)
+VK_KHR_synchronization2 (v. 1)
+VK_KHR_timeline_semaphore (v. 2)
+VK_KHR_uniform_buffer_standard_layout (v. 1)
+VK_KHR_variable_pointers (v. 1)
+VK_KHR_vertex_attribute_divisor (v. 1)
+VK_KHR_video_decode_av1 (v. 1)
+VK_KHR_video_decode_queue (v. 8)
+VK_KHR_video_decode_vp9 (v. 1)
+VK_KHR_video_encode_av1 (v. 1)
+VK_KHR_video_encode_quantization_map (v. 2)
+VK_KHR_video_encode_queue (v. 12)
+VK_KHR_video_maintenance1 (v. 1)
+VK_KHR_video_maintenance2 (v. 1)
+VK_KHR_video_queue (v. 8)
+VK_KHR_vulkan_memory_model (v. 3)
+VK_KHR_win32_keyed_mutex (v. 1)
+VK_KHR_workgroup_memory_explicit_layout (v. 1)
+VK_KHR_zero_initialize_workgroup_memory (v. 1)
+VK_EXT_4444_formats (v. 1)
+VK_EXT_attachment_feedback_loop_dynamic_state (v. 1)
+VK_EXT_attachment_feedback_loop_layout (v. 2)
+VK_EXT_blend_operation_advanced (v. 2)
+VK_EXT_border_color_swizzle (v. 1)
+VK_EXT_buffer_device_address (v. 2)
+VK_EXT_calibrated_timestamps (v. 2)
+VK_EXT_color_write_enable (v. 1)
+VK_EXT_conditional_rendering (v. 2)
+VK_EXT_conservative_rasterization (v. 1)
+VK_EXT_custom_border_color (v. 12)
+VK_EXT_depth_bias_control (v. 1)
+VK_EXT_depth_clamp_control (v. 1)
+VK_EXT_depth_clamp_zero_one (v. 1)
+VK_EXT_depth_clip_control (v. 1)
+VK_EXT_depth_clip_enable (v. 1)
+VK_EXT_depth_range_unrestricted (v. 1)
+VK_EXT_descriptor_buffer (v. 1)
+VK_EXT_descriptor_indexing (v. 2)
+VK_EXT_device_address_binding_report (v. 1)
+VK_EXT_device_fault (v. 2)
+VK_EXT_device_generated_commands (v. 1)
+VK_EXT_discard_rectangles (v. 2)
+VK_EXT_dynamic_rendering_unused_attachments (v. 1)
+VK_EXT_extended_dynamic_state (v. 1)
+VK_EXT_extended_dynamic_state2 (v. 1)
+VK_EXT_extended_dynamic_state3 (v. 2)
+VK_EXT_external_memory_host (v. 1)
+VK_EXT_fragment_shader_interlock (v. 1)
+VK_EXT_full_screen_exclusive (v. 4)
+VK_EXT_graphics_pipeline_library (v. 1)
+VK_EXT_hdr_metadata (v. 3)
+VK_EXT_host_image_copy (v. 1)
+VK_EXT_host_query_reset (v. 1)
+VK_EXT_image_2d_view_of_3d (v. 1)
+VK_EXT_image_robustness (v. 1)
+VK_EXT_image_sliced_view_of_3d (v. 1)
+VK_EXT_image_view_min_lod (v. 1)
+VK_EXT_index_type_uint8 (v. 1)
+VK_EXT_inline_uniform_block (v. 1)
+VK_EXT_legacy_vertex_attributes (v. 1)
+VK_EXT_line_rasterization (v. 1)
+VK_EXT_load_store_op_none (v. 1)
+VK_EXT_memory_budget (v. 1)
+VK_EXT_memory_priority (v. 1)
+VK_EXT_mesh_shader (v. 1)
+VK_EXT_multi_draw (v. 1)
+VK_EXT_mutable_descriptor_type (v. 1)
+VK_EXT_nested_command_buffer (v. 1)
+VK_EXT_non_seamless_cube_map (v. 1)
+VK_EXT_opacity_micromap (v. 2)
+VK_EXT_pageable_device_local_memory (v. 1)
+VK_EXT_pci_bus_info (v. 2)
+VK_EXT_pipeline_creation_cache_control (v. 3)
+VK_EXT_pipeline_creation_feedback (v. 1)
+VK_EXT_pipeline_library_group_handles (v. 1)
+VK_EXT_pipeline_robustness (v. 1)
+VK_EXT_post_depth_coverage (v. 1)
+VK_EXT_present_mode_fifo_latest_ready (v. 1)
+VK_EXT_primitive_topology_list_restart (v. 1)
+VK_EXT_primitives_generated_query (v. 1)
+VK_EXT_private_data (v. 1)
+VK_EXT_provoking_vertex (v. 1)
+VK_EXT_queue_family_foreign (v. 1)
+VK_EXT_robustness2 (v. 1)
+VK_EXT_sample_locations (v. 1)
+VK_EXT_sampler_filter_minmax (v. 2)
+VK_EXT_scalar_block_layout (v. 1)
+VK_EXT_separate_stencil_usage (v. 1)
+VK_EXT_shader_atomic_float (v. 1)
+VK_EXT_shader_demote_to_helper_invocation (v. 1)
+VK_EXT_shader_image_atomic_int64 (v. 1)
+VK_EXT_shader_object (v. 1)
+VK_EXT_shader_replicated_composites (v. 1)
+VK_EXT_shader_subgroup_ballot (v. 1)
+VK_EXT_shader_subgroup_vote (v. 1)
+VK_EXT_shader_viewport_index_layer (v. 1)
+VK_EXT_subgroup_size_control (v. 2)
+VK_EXT_swapchain_maintenance1 (v. 1)
+VK_EXT_texel_buffer_alignment (v. 1)
+VK_EXT_tooling_info (v. 1)
+VK_EXT_transform_feedback (v. 1)
+VK_EXT_vertex_attribute_divisor (v. 3)
+VK_EXT_vertex_attribute_robustness (v. 1)
+VK_EXT_vertex_input_dynamic_state (v. 2)
+VK_EXT_ycbcr_2plane_444_formats (v. 1)
+VK_EXT_ycbcr_image_arrays (v. 1)
+VK_NV_acquire_winrt_display (v. 1)
+VK_NV_clip_space_w_scaling (v. 1)
+VK_NV_compute_shader_derivatives (v. 1)
+VK_NV_cooperative_matrix (v. 1)
+VK_NV_cooperative_matrix2 (v. 1)
+VK_NV_cooperative_vector (v. 4)
+VK_NV_corner_sampled_image (v. 2)
+VK_NV_coverage_reduction_mode (v. 1)
+VK_NV_dedicated_allocation (v. 1)
+VK_NV_dedicated_allocation_image_aliasing (v. 1)
+VK_NV_descriptor_pool_overallocation (v. 1)
+VK_NV_device_diagnostic_checkpoints (v. 2)
+VK_NV_device_diagnostics_config (v. 2)
+VK_NV_device_generated_commands (v. 3)
+VK_NV_device_generated_commands_compute (v. 2)
+VK_NV_disk_cache_utils (v. 1)
+VK_NV_external_memory (v. 1)
+VK_NV_external_memory_win32 (v. 1)
+VK_NV_fill_rectangle (v. 1)
+VK_NV_fragment_coverage_to_color (v. 1)
+VK_NV_fragment_shader_barycentric (v. 1)
+VK_NV_fragment_shading_rate_enums (v. 1)
+VK_NV_framebuffer_mixed_samples (v. 1)
+VK_NV_geometry_shader_passthrough (v. 1)
+VK_NV_inherited_viewport_scissor (v. 1)
+VK_NV_internal_nvpresent (v. 1)
+VK_NV_linear_color_attachment (v. 1)
+VK_NV_low_latency (v. 1)
+VK_NV_mesh_shader (v. 1)
+VK_NV_optical_flow (v. 1)
+VK_NV_partitioned_acceleration_structure (v. 1)
+VK_NV_present_metering (v. 1)
+VK_NV_raw_access_chains (v. 1)
+VK_NV_ray_tracing (v. 3)
+VK_NV_ray_tracing_invocation_reorder (v. 1)
+VK_NV_ray_tracing_motion_blur (v. 1)
+VK_NV_representative_fragment_test (v. 2)
+VK_NV_sample_mask_override_coverage (v. 1)
+VK_NV_scissor_exclusive (v. 2)
+VK_NV_shader_atomic_float16_vector (v. 1)
+VK_NV_shader_image_footprint (v. 2)
+VK_NV_shader_sm_builtins (v. 1)
+VK_NV_shader_subgroup_partitioned (v. 1)
+VK_NV_shading_rate_image (v. 3)
+VK_NV_viewport_array2 (v. 1)
+VK_NV_viewport_swizzle (v. 1)
+VK_NV_win32_keyed_mutex (v. 2)
+VK_NVX_image_view_handle (v. 3)
+VK_NVX_multiview_per_view_attributes (v. 1)
+VK_AMD_buffer_marker (v. 1)
+VK_GOOGLE_hlsl_functionality1 (v. 1)
+VK_GOOGLE_user_type (v. 1)
+VK_EXT_debug_marker (v. 4)
+VK_ANDROID_frame_boundary (v. 1)
+VK_EXT_frame_boundary (v. 1)
+________________________
+Used Device Extensions :
+VK_EXT_shader_object
+VK_NV_device_generated_commands
+VK_EXT_device_generated_commands
+VK_KHR_swapchain
+
+DEVICE: NVIDIA_GeForce_RTX_4080_Laptop_GPU
+vsync: on
+
+scene C:/Users/junta/OneDrive/Desktop/bin_x64/Debug/../../downloaded_resources//geforce.csf.gz
+geometries:    440
+materials:      66
+nodes:       20016
+objects:      9988
+
+renderers found: 0 re-used cmds
+renderers found: 1 threaded cmds
+renderers found: 2 generated cmds ext
+renderers found: 3 preprocess,generated cmds ext
+renderers found: 4 generated cmds nv
+renderers found: 5 preprocess,generated cmds nv
+framebuffer: 1024 x 960 (4 msaa)
+Size of vertex data:    13990656
+Size of index data:     18596928
+Size of data:           32587584
+Chunks:                        1
+renderer: re-used cmds
+drawCalls:        44412
+drawTris:       2618388
+shaderBinds:      25921
+prep.Buffer:          0 KB
+
+ Timer Render;	 VK    4251; CPU    137; (microseconds, avg 82)
+  Timer Draw;	 VK    4249; CPU    122; (microseconds, avg 82)
+ Timer BltUI;	 VK      59; CPU   2408; (microseconds, avg 82)
+
+ Timer Render;	 VK    4149; CPU    139; (microseconds, avg 128)
+  Timer Draw;	 VK    4147; CPU    125; (microseconds, avg 128)
+ Timer BltUI;	 VK      58; CPU   2473; (microseconds, avg 128)
+
+ Timer Render;	 VK    4092; CPU    139; (microseconds, avg 128)
+  Timer Draw;	 VK    4089; CPU    124; (microseconds, avg 128)
+ Timer BltUI;	 VK      57; CPU   2467; (microseconds, avg 128)
+
+ Timer Render;	 VK    4001; CPU    143; (microseconds, avg 103)
+  Timer Draw;	 VK    3998; CPU    128; (microseconds, avg 103)
+ Timer BltUI;	 VK      58; CPU   2892; (microseconds, avg 103)
+
+ Timer Render;	 VK    3979; CPU    148; (microseconds, avg 9)
+  Timer Draw;	 VK    3976; CPU    132; (microseconds, avg 9)
+ Timer BltUI;	 VK      58; CPU   2980; (microseconds, avg 9)
+
+renderer: generated cmds ext
+drawCalls:        44412
+drawTris:       2618388
+shaderBinds:      25921
+prep.Buffer:      57769 KB
+
+ Timer Render;	 VK    3244; CPU    202; (microseconds, avg 98)
+  Timer Draw;	 VK    3241; CPU    187; (microseconds, avg 98)
+ Timer BltUI;	 VK      54; CPU   2468; (microseconds, avg 98)
+
+ Timer Render;	 VK    3252; CPU    202; (microseconds, avg 128)
+  Timer Draw;	 VK    3249; CPU    187; (microseconds, avg 128)
+ Timer BltUI;	 VK      55; CPU   2538; (microseconds, avg 128)
+
+ Timer Render;	 VK    3259; CPU    200; (microseconds, avg 128)
+  Timer Draw;	 VK    3256; CPU    185; (microseconds, avg 128)
+ Timer BltUI;	 VK      54; CPU   2480; (microseconds, avg 128)
+
+ Timer Render;	 VK    3256; CPU    204; (microseconds, avg 128)
+  Timer Draw;	 VK    3253; CPU    188; (microseconds, avg 128)
+ Timer BltUI;	 VK      55; CPU   2511; (microseconds, avg 128)
+
+ Timer Render;	 VK    3272; CPU    217; (microseconds, avg 128)
+  Timer Draw;	 VK    3269; CPU    201; (microseconds, avg 128)
+ Timer BltUI;	 VK      54; CPU   2675; (microseconds, avg 128)
+
+ Timer Render;	 VK    3266; CPU    215; (microseconds, avg 128)
+  Timer Draw;	 VK    3264; CPU    199; (microseconds, avg 128)
+ Timer BltUI;	 VK      54; CPU   2639; (microseconds, avg 128)
+
+ Timer Render;	 VK    3310; CPU    216; (microseconds, avg 7)
+  Timer Draw;	 VK    3307; CPU    193; (microseconds, avg 7)
+ Timer BltUI;	 VK      54; CPU   2744; (microseconds, avg 7)
+
+ Timer Render;	 VK    3282; CPU    236; (microseconds, avg 110)
+  Timer Draw;	 VK    3279; CPU    218; (microseconds, avg 110)
+ Timer BltUI;	 VK      58; CPU   2680; (microseconds, avg 110)
+

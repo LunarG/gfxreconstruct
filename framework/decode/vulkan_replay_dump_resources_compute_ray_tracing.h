@@ -257,6 +257,7 @@ class DispatchTraceRaysDumpingContext
         {
             case kDispatch:
             case kDispatchBase:
+            case kExecuteGeneratedCommands:
                 return false;
 
             case kDispatchIndirect:
@@ -279,6 +280,8 @@ class DispatchTraceRaysDumpingContext
                 return "vkCmdDispatchIndirect";
             case kDispatchBase:
                 return "vkCmdDispatchBase";
+            case kExecuteGeneratedCommands:
+                return "vkCmdExecuteGeneratedCommandsEXT";
             default:
                 assert(0);
                 return "UnrecognizedDispatchCommand";

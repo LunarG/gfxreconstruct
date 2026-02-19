@@ -1781,6 +1781,18 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
         }
         break;
 
+        case DispatchTraceRaysDumpingContext::DispatchTypes::kExecuteGeneratedCommands:  
+        {
+            const auto& ds_params = disp_params->dispatch_params_union.execute_generated_commands;
+
+            params_json_entries["isPreprocessed"]  = static_cast<bool>(ds_params.isPreprocessed);
+            params_json_entries["shaderStages"]    = ds_params.shaderStages;
+            params_json_entries["maxSequenceCount"] = ds_params.maxSequenceCount;
+            params_json_entries["maxDrawCount"]     = ds_params.maxDrawCount;
+        }
+        break;
+        
+
         default:
             assert(0);
     }
