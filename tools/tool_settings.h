@@ -148,6 +148,11 @@ const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
+const char kRepeatFrameNTimesArgument[]           = "--frame-repeats";
+const char kWaitBeforeFirstFrameMsArgument[]      = "--wait-before-first-frame-ms";
+const char kSleepAroundGpuFrameMsArgument[]       = "--sleep-around-gpu-frame-ms";
+const char kFrameWarmUpGpuLoadArgument[]          = "--frame-warm-up-gpu-load";
+const char kRenderPassBarrierArgument[]           = "--render-pass-barrier";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 

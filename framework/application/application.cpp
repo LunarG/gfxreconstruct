@@ -65,8 +65,7 @@ Application::Application(const std::string&     name,
                          decode::FileProcessor* file_processor,
                          const std::string&     cli_wsi_extension,
                          void*                  platform_specific_wsi_data) :
-    name_(name),
-    file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0),
+    name_(name), file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0),
     cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
 {
     if (!cli_wsi_extension_.empty())
@@ -198,6 +197,14 @@ void Application::SetPaused(bool paused)
     paused_ = paused;
 }
 
+void Application::SetRepeatFrameNTimes(uint32_t repeat_frame_n_times)
+{
+    if (file_processor_)
+    {
+        file_processor_->SetRepeatFrameNTimes(repeat_frame_n_times);
+    }
+}
+
 bool Application::PlaySingleFrame()
 {
     bool success = false;
@@ -238,7 +245,7 @@ void Application::ProcessEvents(bool wait_for_input)
         bool        activeWsiContext  = wsi_context && !wsi_context->GetWindows().empty();
         auto        pWindowFactory    = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
         bool        androidWsiContext = pWindowFactory && (strcmp(pWindowFactory->GetSurfaceExtensionName(),
-                                                           VK_KHR_ANDROID_SURFACE_EXTENSION_NAME) == 0);
+                                                                  VK_KHR_ANDROID_SURFACE_EXTENSION_NAME) == 0);
         if (activeWsiContext || androidWsiContext)
         {
             wsi_context->ProcessEvents(wait_for_input);

@@ -246,6 +246,11 @@ inline int64_t FileTell(FILE* stream)
     return _ftelli64(stream);
 }
 
+inline int64_t FileTell(int fd)
+{
+    return _lseeki64(fd, 0, FileSeekCurrent);
+}
+
 inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 {
     int32_t result = _fseeki64(stream, offset, origin);
@@ -545,6 +550,11 @@ inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 inline int64_t FileTell(FILE* stream)
 {
     return ftello(stream);
+}
+
+inline int64_t FileTell(int fd)
+{
+    return lseek64(fd, 0, SEEK_CUR);
 }
 
 inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)

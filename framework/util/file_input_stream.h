@@ -64,6 +64,7 @@ class FStreamFileInputStream
     bool     Open(const std::string& filename);
     void     Close();
     bool     FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+    int64_t  Tell() const;
     bool     ReadBytes(void* buffer, size_t bytes);
     size_t   PeekBytes(void* buffer, size_t bytes);
     bool     ReadOverwriteSpan(const size_t bytes, DataSpan& span);
@@ -78,8 +79,8 @@ class FStreamFileInputStream
 #if FILE_INPUT_STREAM_USE_FREAD
     constexpr static size_t kReadAheadBufferSize = 1024U;
 #else
-    constexpr static size_t        kReadAheadAlignment  = 4096U;
-    constexpr static size_t        kReadAheadBufferSize = 2U * kReadAheadAlignment;
+    constexpr static size_t kReadAheadAlignment  = 4096U;
+    constexpr static size_t kReadAheadBufferSize = 2U * kReadAheadAlignment;
 #endif
 
     // Design assumes kMaxPeekBytes << kReadAheadBufferSize, as we move data when peeking would
@@ -96,7 +97,7 @@ class FStreamFileInputStream
     size_t ReadFromReadAheadBuffer(void* buffer, size_t bytes);
     size_t ReadBytesImpl(void* buffer, size_t bytes);
 
-    std::string   filename_;
+    std::string filename_;
 
 #if FILE_INPUT_STREAM_USE_FREAD
     FILE*                                  fd_{ nullptr };

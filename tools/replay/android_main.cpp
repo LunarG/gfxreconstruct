@@ -68,8 +68,8 @@ const char kLayerProperty[]      = "debug.vulkan.layers";
 
 const int32_t kSwipeDistance = 200;
 
-void        ProcessAppCmd(struct android_app* app, int32_t cmd);
-int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
+void    ProcessAppCmd(struct android_app* app, int32_t cmd);
+int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event);
 
 static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
@@ -160,6 +160,7 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+                replay_options.render_pass_barrier = GetRenderPassBarrier(arg_parser);
 
                 gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        vulkan_decoder;
@@ -226,6 +227,10 @@ void android_main(struct android_app* app)
                                                       replay_options.block_index_to);
 
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
+                application->SetRepeatFrameNTimes(GetRepeatFrameNTimes(arg_parser));
+                vulkan_replay_consumer.SetWaitBeforeFirstFrameMinMs(GetWaitBeforeFirstFrameMs(arg_parser));
+                vulkan_replay_consumer.SetSleepAroundGpuFrameMs(GetSleepAroundGpuFrameMs(arg_parser));
+                vulkan_replay_consumer.SetFrameWarmUpGpuLoad(GetFrameWarmUpGpuLoad(arg_parser));
 
 #if ENABLE_OPENXR_SUPPORT
                 gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
