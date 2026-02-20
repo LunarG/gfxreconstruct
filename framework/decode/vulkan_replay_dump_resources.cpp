@@ -2355,6 +2355,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
 
 void VulkanReplayDumpResourcesBase::HandleCmdCopyAccelerationStructureKHR(
     const graphics::VulkanDeviceTable&        device_table,
+    const VulkanCommandBufferInfo*            original_command_buffer,
     const VulkanAccelerationStructureKHRInfo* src,
     const VulkanAccelerationStructureKHRInfo* dst)
 {
@@ -2373,7 +2374,14 @@ void VulkanReplayDumpResourcesBase::HandleCmdCopyAccelerationStructureKHR(
         acceleration_structures_context_.erase(dst_context_entry);
     }
 
-    acceleration_structures_context_.emplace(dst, src_context_entry->second);
+    auto new_entry =
+        acceleration_structures_context_.emplace(dst,
+                                                 std::make_shared<AccelerationStructureDumpResourcesContext>(
+                                                     dst, device_table, *object_info_table_, address_trackers_));
+    new_entry.first->second->CloneBuildAccelerationStructuresInputBuffers(
+        (original_command_buffer != nullptr) ? original_command_buffer->handle : VK_NULL_HANDLE,
+        *src_context_entry->second,
+        dump_as_build_input_buffers_);
 }
 
 void VulkanReplayDumpResourcesBase::HandleDestroyAccelerationStructureKHR(

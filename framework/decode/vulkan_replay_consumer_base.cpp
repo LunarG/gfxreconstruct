@@ -9272,7 +9272,8 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
         const auto* info_meta = pInfo->GetMetaStructPointer();
         const auto* src       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
         const auto* dst       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
-        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
+        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
+            *GetDeviceTable(device_info->handle), command_buffer_info, src, dst);
     }
 
     VkCommandBuffer                     command_buffer = command_buffer_info->handle;
@@ -11396,7 +11397,8 @@ void VulkanReplayConsumerBase::ProcessVulkanCopyAccelerationStructuresCommand(
             {
                 const auto* src = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
                 const auto* dst = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
-                resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
+                resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
+                    *GetDeviceTable(device_info->handle), nullptr, src, dst);
             }
         }
 

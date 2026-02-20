@@ -546,13 +546,23 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
     const AccelerationStructureDumpResourcesContext& src_context,
     bool                                             dump_as_build_input_buffers)
 {
-    GFXRECON_ASSERT(original_command_buffer != VK_NULL_HANDLE);
-
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     GFXRECON_ASSERT(phys_dev_info != nullptr);
+
+    // kVulkanCopyAccelerationStructuresCommand will not have a command buffer like
+    // vkCmdCopyAccelerationStructure. We create one so we can submit our commands.
+    TemporaryCommandBuffer temp_cmd_buff;
+    if (original_command_buffer == VK_NULL_HANDLE)
+    {
+        CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
+        GFXRECON_ASSERT(temp_cmd_buff.command_buffer != VK_NULL_HANDLE);
+    }
+
+    const VkCommandBuffer command_buffer =
+        original_command_buffer == VK_NULL_HANDLE ? temp_cmd_buff.command_buffer : original_command_buffer;
 
     const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
 
@@ -580,11 +590,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
         // Clone buffer's content
         const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, serialized_data.size } };
-        CopyBufferAndBarrier(original_command_buffer,
-                             device_table,
-                             src_context.serialized_data.buffer,
-                             serialized_data.buffer,
-                             copy_region);
+        CopyBufferAndBarrier(
+            command_buffer, device_table, src_context.serialized_data.buffer, serialized_data.buffer, copy_region);
     }
 
     for (const auto& build_object : src_context.as_build_objects)
@@ -640,11 +647,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.index_buffer_size = triangles->index_buffer_size;
 
                 const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, triangles->index_buffer_size } };
-                CopyBufferAndBarrier(original_command_buffer,
-                                     device_table,
-                                     triangles->index_buffer,
-                                     new_triangles.index_buffer,
-                                     copy_region);
+                CopyBufferAndBarrier(
+                    command_buffer, device_table, triangles->index_buffer, new_triangles.index_buffer, copy_region);
             }
 
             if (triangles->transform_buffer != VK_NULL_HANDLE)
@@ -668,7 +672,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.transform_buffer_size = triangles->transform_buffer_size;
 
                 const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, triangles->transform_buffer_size } };
-                CopyBufferAndBarrier(original_command_buffer,
+                CopyBufferAndBarrier(command_buffer,
                                      device_table,
                                      triangles->transform_buffer,
                                      new_triangles.transform_buffer,
@@ -700,7 +704,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             new_aabbs.buffer_size = aabbs->buffer_size;
 
             const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, aabbs->buffer_size } };
-            CopyBufferAndBarrier(original_command_buffer, device_table, aabbs->buffer, new_aabbs.buffer, copy_region);
+            CopyBufferAndBarrier(command_buffer, device_table, aabbs->buffer, new_aabbs.buffer, copy_region);
         }
         else if (const auto* instance = std::get_if<Instances>(&build_object))
         {
@@ -728,11 +732,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             new_instance.instance_count       = instance->instance_count;
 
             const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, instance->instance_buffer_size } };
-            CopyBufferAndBarrier(original_command_buffer,
-                                 device_table,
-                                 instance->instance_buffer,
-                                 new_instance.instance_buffer,
-                                 copy_region);
+            CopyBufferAndBarrier(
+                command_buffer, device_table, instance->instance_buffer, new_instance.instance_buffer, copy_region);
         }
         else
         {
@@ -740,6 +741,11 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             GFXRECON_ASSERT(0);
             return VK_ERROR_UNKNOWN;
         }
+    }
+
+    if (original_command_buffer == nullptr)
+    {
+        SubmitAndDestroyCommandBuffer(temp_cmd_buff);
     }
 
     return VK_SUCCESS;
