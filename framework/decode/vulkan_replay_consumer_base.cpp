@@ -12478,9 +12478,9 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
     }
 }
 
-void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
+void VulkanReplayConsumerBase::BeginProcessBlock(const ParsedBlock* parsed_block)
 {
-    VulkanConsumer::SetCurrentBlockIndex(block_index);
+    VulkanConsumer::BeginProcessBlock(parsed_block);
 
     // poll main-dispatch-queue at beginning of new blocks
     main_thread_queue_.poll();
