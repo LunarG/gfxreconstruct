@@ -73,10 +73,8 @@
 
 #include <nlohmann/json.hpp>
 
-const char kHelpShortOption[]      = "-h";
-const char kHelpLongOption[]       = "--help";
-const char kVersionOption[]        = "--version";
-const char kNoDebugPopup[]         = "--no-debug-popup";
+#include "tool_settings.h"
+
 const char kExeInfoOnlyOption[]    = "--exe-info-only";
 const char kEnvVarsOnlyOption[]    = "--env-vars-only";
 const char kFileFormatOnlyOption[] = "--file-format-only";
@@ -86,7 +84,7 @@ const char kOutputFileArgument[]   = "--output";
 
 const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--"
                           "enum-gpu-indices,--verbose";
-const char kArguments[] = "--output";
+const char kArguments[] = "--output,--log-level";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -244,42 +242,8 @@ static void PrintUsage(const char* exe_name)
     WriteOutput("  --verbose\t\tOutput more information in JSON format");
     WriteOutput(
         "  --output\t\tOutput generated information to the provided file. If not defined output goes to std::out");
-}
-
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
-        {
-            app_name.replace(0, dir_location + 1, "");
-        }
-
-        WriteOutput("%s version info:", app_name.c_str());
-        WriteOutput("  GFXReconstruct Version %s", GetProjectVersionString());
-        WriteOutput("  Vulkan Header Version %u.%u.%u",
-                    VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                    VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                    VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-        return true;
-    }
-
-    return false;
+    WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
+    WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 }
 
 static std::string GetVkVersionString(uint32_t api_version)
@@ -1519,6 +1483,11 @@ int main(int argc, const char** argv)
         }
 #endif
     }
+
+    // Update logging with values retrieved from command line arguments
+    gfxrecon::util::Log::Settings log_settings;
+    GetLogSettings(arg_parser, log_settings);
+    gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
     const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
     std::string                     input_filename       = positional_arguments[0];
