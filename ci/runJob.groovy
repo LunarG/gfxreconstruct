@@ -38,7 +38,11 @@ def gfxrTestWindows(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                bat(script: 'ci/runJob.bat')
+                                bat(script: 'git submodule update --init --recursive --depth 1')
+                                bat(script: 'git describe --tags --always')
+                                bat(script: 'ci/cloneSuites.bat')
+                                bat(script: 'ci/cloneTests.bat')
+                                bat(script: 'ci/runTest.bat')
                             }
                         }
                     }
@@ -100,7 +104,11 @@ def gfxrTestLinux(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                sh(script: 'ci/runJob.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'ci/runTest.sh')
                             }
                         }
                     }
@@ -162,7 +170,11 @@ def gfxrTestAndroid(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                sh(script: 'ci/runJobAndroid.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'ci/runTestAndroid.sh')
                             }
                         }
                     }
@@ -253,7 +265,11 @@ def gfxrTestWindowsManual(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
-                                bat(script: 'ci/runJob.bat')
+                                bat(script: 'git submodule update --init --recursive --depth 1')
+                                bat(script: 'git describe --tags --always')
+                                bat(script: 'ci/cloneSuites.bat')
+                                bat(script: 'ci/cloneTests.bat')
+                                bat(script: 'ci/runTest.bat')
                             }
                         }
                     }
@@ -329,7 +345,11 @@ def gfxrTestLinuxManual(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
-                                sh(script: 'ci/runJob.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'ci/runTest.sh')
                             }
                         }
                     }
@@ -405,7 +425,11 @@ def gfxrTestAndroidManual(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
-                                sh(script: 'ci/runJobAndroid.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'ci/runTestAndroid.sh')
                             }
                         }
                     }
