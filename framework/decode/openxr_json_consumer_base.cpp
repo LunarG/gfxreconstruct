@@ -330,7 +330,7 @@ void OpenXrExportJsonConsumerBase::ProcessViewRelativeLocation(format::ThreadId 
 {
     const util::JsonOptions& json_options = writer_->GetOptions();
     // TODO: Fold this into a override for WriteMetaCommandStart if we add many more meta data blocks
-    writer_->SetCurrentBlockIndex(this->block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(this->GetCurrentBlockIndex());
     auto& jdata = writer_->WriteMetaCommandStart("ViewRelativeLocation");
 
     FieldToJson(jdata["session"], location.session_id, json_options);

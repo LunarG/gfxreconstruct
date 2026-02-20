@@ -105,9 +105,10 @@ bool FileProcessor::ProcessNextFrame()
     }
 
     DispatchVisitor  dispatch_visitor(decoders_, annotation_handler_);
-    DispatchFunction dispatch = [this, &dispatch_visitor](uint64_t block_index, ParsedBlock& block) {
-        dispatch_visitor.SetBlockIndex(block_index);
+    DispatchFunction dispatch = [this, &dispatch_visitor](ParsedBlock& block) {
+        dispatch_visitor.SetCurrentBlock(&block);
         std::visit(dispatch_visitor, block.GetArgs());
+        dispatch_visitor.SetCurrentBlock(nullptr);
         return ProcessBlockState::kRunning;
     };
 
@@ -277,11 +278,10 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
                 }
                 else
                 {
-                    block_parser.SetBlockIndex(block_index_);
                     block_parser.SetFrameNumber(current_frame_number_);
                     // NOTE: upon successful parsing, the block_buffer block data has been moved to the
                     // parsed_block, though the block header is still valid.
-                    ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
+                    ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer, block_index_);
 
                     // NOTE: Visitable is either Ready or DeferredDecompression,
                     //       Invalid, Unknown, and Skip are not Visitable
@@ -295,7 +295,7 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
                             success = process_visitor.IsSuccess();
                             if (success)
                             {
-                                process_state = dispatch(block_index_, parsed_block);
+                                process_state = dispatch(parsed_block);
                                 if ((ProcessBlockState::kRunning == process_state) &&
                                     process_visitor.IsFrameDelimiter())
                                 {

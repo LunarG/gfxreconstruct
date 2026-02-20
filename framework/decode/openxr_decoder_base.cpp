@@ -74,11 +74,19 @@ void OpenXrDecoderBase::DispatchDisplayMessageCommand(format::ThreadId thread_id
     }
 }
 
-void OpenXrDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
+void OpenXrDecoderBase::BeginDispatchBlock(const ParsedBlock* parsed_block)
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index);
+        consumer->BeginProcessBlock(parsed_block);
+    }
+}
+
+void OpenXrDecoderBase::EndDispatchBlock()
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->EndProcessBlock();
     }
 }
 
