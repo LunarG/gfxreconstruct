@@ -207,7 +207,7 @@ def make_gen_opts(args):
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
         '/*', '** Copyright (c) 2018-2023 Valve Corporation',
-        '** Copyright (c) 2018-2023 LunarG, Inc.',
+        '** Copyright (c) 2018-2026 LunarG, Inc.',
         '** Copyright (c) 2023 Advanced Micro Devices, Inc.', '**',
         '** Permission is hereby granted, free of charge, to any person obtaining a',
         '** copy of this software and associated documentation files (the "Software"),',
