@@ -27,6 +27,8 @@ pipeline {
                             'Linux Nvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "extended-suite.json"),
                             'Windows AMD Rel64': runJob.gfxrTestWindows('Win AMD Rel64 Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json"),
                             'Windows Nvidia Rel64': runJob.gfxrTestWindows('Win Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json"),
+                            'Windows AMD9070 Rel64': runJob.gfxrTestWindows('Win AMD9070 Rel64 Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json"),
+                            'Windows Nvidia50XX Rel64': runJob.gfxrTestWindows('Win Nvidia50XX Rel64 Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json"),
                         ]
                     }
                     parallel tests
