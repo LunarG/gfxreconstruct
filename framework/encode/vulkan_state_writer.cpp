@@ -194,6 +194,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WritePipelineLayoutState(state_table);
     WritePipelineCacheState(state_table);
     WritePipelineState(state_table);
+    StandardCreateWrite<vulkan_wrappers::PipelineBinaryKHRWrapper>(state_table);
     WriteAccelerationStructureKHRState(state_table);
     WriteTlasToBlasDependenciesMetadata(state_table);
     WriteAccelerationStructureStateMetaCommands(state_table);

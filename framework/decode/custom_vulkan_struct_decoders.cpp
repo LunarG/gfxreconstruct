@@ -25,6 +25,7 @@
 
 #include "decode/decode_allocator.h"
 #include "decode/value_decoder.h"
+#include "decode/vulkan_pnext_typed_node.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/logging.h"
 
@@ -731,6 +732,59 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
             break;
         default:
             break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineCreateInfoKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                   bytes_read = 0;
+    VkPipelineCreateInfoKHR* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+
+    // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.
+    const uint32_t attrib = *(reinterpret_cast<const uint32_t*>(buffer + bytes_read));
+    // According to the Vulkan specification, pNext cannot be NULL for this structure
+    assert((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull);
+
+    // Offset to VkStructureType, after the pointer encoding preamble.
+    size_t stype_offset = sizeof(attrib);
+    if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+    {
+        stype_offset += sizeof(format::AddressEncodeType);
+    }
+
+    const VkStructureType* sType = reinterpret_cast<const VkStructureType*>(buffer + bytes_read + stype_offset);
+    switch (*sType)
+    {
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
+            wrapper->pNext = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkGraphicsPipelineCreateInfo>>();
+            break;
+        case VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR:
+            wrapper->pNext = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkRayTracingPipelineCreateInfoKHR>>();
+            break;
+        case VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO:
+            wrapper->pNext = DecodeAllocator::Allocate<PNextTypedNode<Decoded_VkComputePipelineCreateInfo>>();
+            break;
+        default:
+        {
+            GFXRECON_LOG_ERROR("Unrecognized VkPipelineCreateInfoKHR::pNext structure type: %d", *sType);
+            break;
+        }
+    }
+
+    if (wrapper->pNext != nullptr)
+    {
+        bytes_read += wrapper->pNext->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+        value->pNext = wrapper->pNext->GetPointer();
+    }
+    else
+    {
+        value->pNext = nullptr;
     }
 
     return bytes_read;

@@ -5324,15 +5324,6 @@ struct Decoded_VkPipelineBinaryKeysAndDataKHR
     StructPointerDecoder<Decoded_VkPipelineBinaryDataKHR>* pPipelineBinaryData{ nullptr };
 };
 
-struct Decoded_VkPipelineCreateInfoKHR
-{
-    using struct_type = VkPipelineCreateInfoKHR;
-
-    VkPipelineCreateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkPipelineBinaryCreateInfoKHR
 {
     using struct_type = VkPipelineBinaryCreateInfoKHR;

@@ -53,6 +53,7 @@
     "VkCopyImageToMemoryInfo",
     "VkImageToMemoryCopy",
     "VkLayerSettingEXT",
-    "VkDescriptorGetInfoEXT"
+    "VkDescriptorGetInfoEXT",
+    "VkPipelineCreateInfoKHR"
   ]
 }

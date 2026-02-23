@@ -165,6 +165,11 @@ std::string GenerateStruct_VkDescriptorGetInfoEXT(std::ostream&                 
                                                   Decoded_VkDescriptorGetInfoEXT* metaInfo,
                                                   VulkanCppConsumerBase&          consumer);
 
+std::string GenerateStruct_VkPipelineCreateInfoKHR(std::ostream&                    out,
+                                                   const VkPipelineCreateInfoKHR*   structInfo,
+                                                   Decoded_VkPipelineCreateInfoKHR* metaInfo,
+                                                   VulkanCppConsumerBase&           consumer);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 
