@@ -365,11 +365,11 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
 }
 
 VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
-    const VulkanCommandBufferInfo*                                      command_buffer_info,
-    const VkDeviceAddress*                                              addresses,
-    uint32_t                                                            num_addresses,
-    const decode::VulkanDeviceAddressTracker&                           address_tracker,
-    const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores)
+    const VulkanCommandBufferInfo*                               command_buffer_info,
+    const VkDeviceAddress*                                       addresses,
+    uint32_t                                                     num_addresses,
+    const decode::VulkanDeviceAddressTracker&                    address_tracker,
+    const std::optional<std::vector<graphics::VulkanSemaphore>>& wait_semaphores)
 {
     if (addresses != nullptr && num_addresses > 0)
     {
@@ -426,8 +426,8 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(
 
                 for (uint32_t i = 0; i < wait_semaphores->size(); ++i)
                 {
-                    semaphore_handles[i] = wait_semaphores.value()[i].first;
-                    semaphore_values[i]  = wait_semaphores.value()[i].second;
+                    semaphore_handles[i] = wait_semaphores.value()[i].semaphore;
+                    semaphore_values[i]  = wait_semaphores.value()[i].timeline_value;
                 }
 
                 VkTimelineSemaphoreSubmitInfo timeline_info = {};
