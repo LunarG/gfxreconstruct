@@ -843,7 +843,7 @@ nlohmann::json GetDx12RuntimeInfoJson(gfxrecon::decode::Dx12StatsConsumer& dx12_
     std::string runtime_src = "N/A";
     std::string runtime_ver = "N/A";
 
-    if (runtime_src.empty() == false)
+    if (runtime_info.src.empty() == false)
     {
         runtime_src = runtime_info.src;
         runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
@@ -863,7 +863,7 @@ void PrintDx12RuntimeInfoText(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer
     std::string runtime_src = "N/A";
     std::string runtime_ver = "N/A";
 
-    if (runtime_src.empty() == false)
+    if (runtime_info.src.empty() == false)
     {
         runtime_src = runtime_info.src;
         runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
