@@ -23,9 +23,10 @@
 #ifndef GFXRECON_INFO_CONTAINER_H
 #define GFXRECON_INFO_CONTAINER_H
 
-#include "util/defines.h"
-
 #include "info_api_interface.h"
+
+#include <memory>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
@@ -36,24 +37,34 @@ class InfoContainer
     InfoContainer();
     ~InfoContainer();
 
-    bool RegisterApiInterface(InfoApiInterface* api_interface);
+    bool CheckOptionPrintUsage(const gfxrecon::util::ArgumentParser& arg_parser);
+    void PrintUsage();
+    bool CheckOptionPrintVersion(const gfxrecon::util::ArgumentParser& arg_parser);
+    void PrintVersion();
 
-    bool ProcessCommandLine((int argc, const char** argv));
+    bool RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_interface);
+
+    bool ProcessCommandLine(int32_t argc, const char** argv);
 
     bool ProcessCapture();
 
     bool OutputContent();
 
-  protected:
-    void PrintUsage();
-    void PrintVersion();
+    // Temporary - only for transition (will be removed)
+    std::shared_ptr<gfxrecon::util::ArgumentParser> GetArgParser() { return argument_parser_; }
 
-    void WriteOutput(const char* format_string, ...);
+  protected:
+    void WriteOutput(const std::string& message);
 
   private:
     std::string                                    app_name_;
-    InfoOutputLevel                                output_level_{ InfoOutputLevel::kBasic };
+    InfoApiInterface::InfoOutputLevel              output_level_{ InfoApiInterface::InfoOutputLevel::kBasic };
+    std::ofstream                                  output_file_;
     std::vector<std::unique_ptr<InfoApiInterface>> api_interfaces_;
+    bool                                           api_restricted_output_{ false };
+
+    // Temporary - only for transition (will be removed)
+    std::shared_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
 };
 
 GFXRECON_END_NAMESPACE(info)
