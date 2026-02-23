@@ -377,12 +377,14 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 
             for (auto& resource_info : user_info->resource_infos)
             {
+                // attempt to lock a std::weak_ptr
                 if (auto resource_info_ptr = resource_info.second.lock())
                 {
                     resource_info_ptr->used = true;
 
                     for (auto& [child_id, child_info] : resource_info_ptr->child_infos)
                     {
+                        // attempt to lock a std::weak_ptr
                         if (auto child_info_ptr = child_info.lock())
                         {
                             child_info_ptr->used = true;
@@ -393,16 +395,19 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 
             for (auto& container_info : user_info->container_infos)
             {
+                // attempt to lock a std::weak_ptr
                 if (auto container_info_ptr = container_info.second.lock())
                 {
                     for (auto& resource_info : container_info_ptr->resource_infos)
                     {
+                        // attempt to lock a std::weak_ptr
                         if (auto resource_info_ptr = resource_info.second.lock())
                         {
                             resource_info_ptr->used = true;
 
                             for (auto& child : resource_info_ptr->child_infos)
                             {
+                                // attempt to lock a std::weak_ptr
                                 if (auto child_info_ptr = child.second.lock())
                                 {
                                     child_info_ptr->used = true;
@@ -415,6 +420,7 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
 
             for (auto& child_user_info : user_info->users_infos | std::views::values)
             {
+                // attempt to lock a std::weak_ptr
                 if (auto child_user_ptr = child_user_info.lock())
                 {
                     child_user_ptr->used = true;
@@ -472,6 +478,7 @@ bool ReferencedResourceTable::IsUsed(const ResourceInfo* resource_info) const
     // If the resource was not used directly, check to see if it was used indirectly through a child.
     for (const auto& child_info : resource_info->child_infos | std::views::values)
     {
+        // attempt to lock a std::weak_ptr
         if (const auto child_info_ptr = child_info.lock())
         {
             if (IsUsed(child_info_ptr.get()))
