@@ -361,8 +361,7 @@ template <> std::string ToString<DXGI_COLOR_SPACE_TYPE>(const DXGI_COLOR_SPACE_T
 template <> std::string ToString<DXGI_MODE_SCANLINE_ORDER>(const DXGI_MODE_SCANLINE_ORDER& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<DXGI_MODE_SCALING>(const DXGI_MODE_SCALING& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<DXGI_MODE_ROTATION>(const DXGI_MODE_ROTATION& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string ToString(const IID& riid);
-inline std::string ToString(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize){ return ToString(obj); }
+template <> std::string ToString<GUID>(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

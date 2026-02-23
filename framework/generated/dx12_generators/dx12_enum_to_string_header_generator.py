@@ -74,8 +74,7 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
             write(body.format(k), file=self.outFile)
 
         # Generate REFIID handler
-        body = 'std::string ToString(const IID& riid);'
-        body += '\ninline std::string ToString(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize){ return ToString(obj); }'
+        body = 'template <> std::string ToString<GUID>(const GUID& obj, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
         write(body, file=self.outFile)
 
     def write_include(self):
