@@ -29,8 +29,6 @@
 
 #include "generated/generated_vulkan_referenced_resource_consumer.h"
 
-#include <cassert>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -40,7 +38,7 @@ void VulkanReferencedResourceConsumer::Process_vkBeginCommandBuffer(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
 {
-    assert(pBeginInfo != nullptr);
+    GFXRECON_ASSERT(pBeginInfo != nullptr);
 
     if (!pBeginInfo->IsNull() && (pBeginInfo->HasData()))
     {
@@ -172,7 +170,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier(
     GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
     GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
 
-    assert(pBufferMemoryBarriers != nullptr);
+    GFXRECON_ASSERT(pBufferMemoryBarriers != nullptr);
 
     if (!pBufferMemoryBarriers->IsNull() && (pBufferMemoryBarriers->HasData()))
     {
@@ -184,7 +182,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier(
         }
     }
 
-    assert(pImageMemoryBarriers != nullptr);
+    GFXRECON_ASSERT(pImageMemoryBarriers != nullptr);
 
     if (!pImageMemoryBarriers->IsNull() && (pImageMemoryBarriers->HasData()))
     {
@@ -226,7 +224,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteCommands(
 {
     GFXRECON_UNREFERENCED_PARAMETER(commandBufferCount);
 
-    assert(pCommandBuffers != nullptr);
+    GFXRECON_ASSERT(pCommandBuffers != nullptr);
 
     if (!pCommandBuffers->IsNull() && (pCommandBuffers->HasData()))
     {
@@ -268,7 +266,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets(
     GFXRECON_UNREFERENCED_PARAMETER(dynamicOffsetCount);
     GFXRECON_UNREFERENCED_PARAMETER(pDynamicOffsets);
 
-    assert(pDescriptorSets != nullptr);
+    GFXRECON_ASSERT(pDescriptorSets != nullptr);
 
     if (!pDescriptorSets->IsNull() && (pDescriptorSets->HasData()))
     {
@@ -332,7 +330,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents(
     GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
     GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
 
-    assert(pBufferMemoryBarriers != nullptr);
+    GFXRECON_ASSERT(pBufferMemoryBarriers != nullptr);
 
     if (!pBufferMemoryBarriers->IsNull() && (pBufferMemoryBarriers->HasData()))
     {
@@ -344,7 +342,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents(
         }
     }
 
-    assert(pImageMemoryBarriers != nullptr);
+    GFXRECON_ASSERT(pImageMemoryBarriers != nullptr);
 
     if (!pImageMemoryBarriers->IsNull() && (pImageMemoryBarriers->HasData()))
     {
@@ -382,7 +380,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers(
     GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
     GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
 
-    assert(pBuffers != nullptr);
+    GFXRECON_ASSERT(pBuffers != nullptr);
 
     if (!pBuffers->IsNull() && (pBuffers->HasData()))
     {
@@ -490,7 +488,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
 {
     GFXRECON_UNREFERENCED_PARAMETER(contents);
 
-    assert(pRenderPassBegin != nullptr);
+    GFXRECON_ASSERT(pRenderPassBegin != nullptr);
 
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
@@ -560,7 +558,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
 
-    assert(pRenderPassBegin != nullptr);
+    GFXRECON_ASSERT(pRenderPassBegin != nullptr);
 
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
@@ -589,7 +587,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
-    assert(pDependencyInfo != nullptr);
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
 
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
@@ -621,7 +619,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
-    assert(pCopyBufferInfo != nullptr);
+    GFXRECON_ASSERT(pCopyBufferInfo != nullptr);
 
     if (!pCopyBufferInfo->IsNull() && (pCopyBufferInfo->HasData()))
     {
@@ -636,7 +634,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
-    assert(pCopyImageInfo != nullptr);
+    GFXRECON_ASSERT(pCopyImageInfo != nullptr);
 
     if (!pCopyImageInfo->IsNull() && (pCopyImageInfo->HasData()))
     {
@@ -651,7 +649,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
-    assert(pCopyBufferToImageInfo != nullptr);
+    GFXRECON_ASSERT(pCopyBufferToImageInfo != nullptr);
 
     if (!pCopyBufferToImageInfo->IsNull() && (pCopyBufferToImageInfo->HasData()))
     {
@@ -666,7 +664,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
-    assert(pCopyImageToBufferInfo != nullptr);
+    GFXRECON_ASSERT(pCopyImageToBufferInfo != nullptr);
 
     if (!pCopyImageToBufferInfo->IsNull() && (pCopyImageToBufferInfo->HasData()))
     {
@@ -684,7 +682,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(event);
 
-    assert(pDependencyInfo != nullptr);
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
 
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
@@ -721,7 +719,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2(
     GFXRECON_UNREFERENCED_PARAMETER(eventCount);
     GFXRECON_UNREFERENCED_PARAMETER(pEvents);
 
-    assert(pDependencyInfos != nullptr);
+    GFXRECON_ASSERT(pDependencyInfos != nullptr);
 
     if (!pDependencyInfos->IsNull() && (pDependencyInfos->HasData()))
     {
@@ -757,7 +755,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
-    assert(pBlitImageInfo != nullptr);
+    GFXRECON_ASSERT(pBlitImageInfo != nullptr);
 
     if (!pBlitImageInfo->IsNull() && (pBlitImageInfo->HasData()))
     {
@@ -772,7 +770,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
-    assert(pResolveImageInfo != nullptr);
+    GFXRECON_ASSERT(pResolveImageInfo != nullptr);
 
     if (!pResolveImageInfo->IsNull() && (pResolveImageInfo->HasData()))
     {
@@ -787,7 +785,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRendering(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    assert(pRenderingInfo != nullptr);
+    GFXRECON_ASSERT(pRenderingInfo != nullptr);
 
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
@@ -850,7 +848,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2(
     GFXRECON_UNREFERENCED_PARAMETER(pSizes);
     GFXRECON_UNREFERENCED_PARAMETER(pStrides);
 
-    assert(pBuffers != nullptr);
+    GFXRECON_ASSERT(pBuffers != nullptr);
 
     if (!pBuffers->IsNull() && (pBuffers->HasData()))
     {
@@ -877,7 +875,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet(
     GFXRECON_UNREFERENCED_PARAMETER(set);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
 
-    assert(pDescriptorWrites != nullptr);
+    GFXRECON_ASSERT(pDescriptorWrites != nullptr);
 
     if (!pDescriptorWrites->IsNull() && (pDescriptorWrites->HasData()))
     {
@@ -940,7 +938,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
-    assert(pBindDescriptorSetsInfo != nullptr);
+    GFXRECON_ASSERT(pBindDescriptorSetsInfo != nullptr);
 
     if (!pBindDescriptorSetsInfo->IsNull() && (pBindDescriptorSetsInfo->HasData()))
     {
@@ -962,7 +960,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
-    assert(pPushDescriptorSetInfo != nullptr);
+    GFXRECON_ASSERT(pPushDescriptorSetInfo != nullptr);
 
     if (!pPushDescriptorSetInfo->IsNull() && (pPushDescriptorSetInfo->HasData()))
     {
@@ -1044,7 +1042,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginVideoCodingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
 {
-    assert(pBeginInfo != nullptr);
+    GFXRECON_ASSERT(pBeginInfo != nullptr);
 
     if (!pBeginInfo->IsNull() && (pBeginInfo->HasData()))
     {
@@ -1070,7 +1068,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDecodeVideoKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo)
 {
-    assert(pDecodeInfo != nullptr);
+    GFXRECON_ASSERT(pDecodeInfo != nullptr);
 
     if (!pDecodeInfo->IsNull() && (pDecodeInfo->HasData()))
     {
@@ -1109,7 +1107,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    assert(pRenderingInfo != nullptr);
+    GFXRECON_ASSERT(pRenderingInfo != nullptr);
 
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
@@ -1170,7 +1168,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
     GFXRECON_UNREFERENCED_PARAMETER(set);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
 
-    assert(pDescriptorWrites != nullptr);
+    GFXRECON_ASSERT(pDescriptorWrites != nullptr);
 
     if (!pDescriptorWrites->IsNull() && (pDescriptorWrites->HasData()))
     {
@@ -1236,7 +1234,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
 {
     GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
 
-    assert(pRenderPassBegin != nullptr);
+    GFXRECON_ASSERT(pRenderPassBegin != nullptr);
 
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
@@ -1303,7 +1301,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEncodeVideoKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo)
 {
-    assert(pEncodeInfo != nullptr);
+    GFXRECON_ASSERT(pEncodeInfo != nullptr);
 
     if (!pEncodeInfo->IsNull() && (pEncodeInfo->HasData()))
     {
@@ -1352,7 +1350,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2KHR(
 {
     GFXRECON_UNREFERENCED_PARAMETER(event);
 
-    assert(pDependencyInfo != nullptr);
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
 
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
@@ -1389,7 +1387,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2KHR(
     GFXRECON_UNREFERENCED_PARAMETER(eventCount);
     GFXRECON_UNREFERENCED_PARAMETER(pEvents);
 
-    assert(pDependencyInfos != nullptr);
+    GFXRECON_ASSERT(pDependencyInfos != nullptr);
 
     if (!pDependencyInfos->IsNull() && (pDependencyInfos->HasData()))
     {
@@ -1425,7 +1423,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
-    assert(pDependencyInfo != nullptr);
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
 
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
@@ -1457,7 +1455,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
-    assert(pCopyBufferInfo != nullptr);
+    GFXRECON_ASSERT(pCopyBufferInfo != nullptr);
 
     if (!pCopyBufferInfo->IsNull() && (pCopyBufferInfo->HasData()))
     {
@@ -1472,7 +1470,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
-    assert(pCopyImageInfo != nullptr);
+    GFXRECON_ASSERT(pCopyImageInfo != nullptr);
 
     if (!pCopyImageInfo->IsNull() && (pCopyImageInfo->HasData()))
     {
@@ -1487,7 +1485,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
-    assert(pCopyBufferToImageInfo != nullptr);
+    GFXRECON_ASSERT(pCopyBufferToImageInfo != nullptr);
 
     if (!pCopyBufferToImageInfo->IsNull() && (pCopyBufferToImageInfo->HasData()))
     {
@@ -1502,7 +1500,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
-    assert(pCopyImageToBufferInfo != nullptr);
+    GFXRECON_ASSERT(pCopyImageToBufferInfo != nullptr);
 
     if (!pCopyImageToBufferInfo->IsNull() && (pCopyImageToBufferInfo->HasData()))
     {
@@ -1517,7 +1515,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
-    assert(pBlitImageInfo != nullptr);
+    GFXRECON_ASSERT(pBlitImageInfo != nullptr);
 
     if (!pBlitImageInfo->IsNull() && (pBlitImageInfo->HasData()))
     {
@@ -1532,7 +1530,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
-    assert(pResolveImageInfo != nullptr);
+    GFXRECON_ASSERT(pResolveImageInfo != nullptr);
 
     if (!pResolveImageInfo->IsNull() && (pResolveImageInfo->HasData()))
     {
@@ -1562,7 +1560,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
-    assert(pBindDescriptorSetsInfo != nullptr);
+    GFXRECON_ASSERT(pBindDescriptorSetsInfo != nullptr);
 
     if (!pBindDescriptorSetsInfo->IsNull() && (pBindDescriptorSetsInfo->HasData()))
     {
@@ -1584,7 +1582,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
-    assert(pPushDescriptorSetInfo != nullptr);
+    GFXRECON_ASSERT(pPushDescriptorSetInfo != nullptr);
 
     if (!pPushDescriptorSetInfo->IsNull() && (pPushDescriptorSetInfo->HasData()))
     {
@@ -1651,7 +1649,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo)
 {
-    assert(pCopyMemoryToImageIndirectInfo != nullptr);
+    GFXRECON_ASSERT(pCopyMemoryToImageIndirectInfo != nullptr);
 
     if (!pCopyMemoryToImageIndirectInfo->IsNull() && (pCopyMemoryToImageIndirectInfo->HasData()))
     {
@@ -1674,7 +1672,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffers
     GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
     GFXRECON_UNREFERENCED_PARAMETER(pSizes);
 
-    assert(pBuffers != nullptr);
+    GFXRECON_ASSERT(pBuffers != nullptr);
 
     if (!pBuffers->IsNull() && (pBuffers->HasData()))
     {
@@ -1699,7 +1697,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     GFXRECON_UNREFERENCED_PARAMETER(counterBufferCount);
     GFXRECON_UNREFERENCED_PARAMETER(pCounterBufferOffsets);
 
-    assert(pCounterBuffers != nullptr);
+    GFXRECON_ASSERT(pCounterBuffers != nullptr);
 
     if (!pCounterBuffers->IsNull() && (pCounterBuffers->HasData()))
     {
@@ -1724,7 +1722,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEndTransformFeedbackEXT(
     GFXRECON_UNREFERENCED_PARAMETER(counterBufferCount);
     GFXRECON_UNREFERENCED_PARAMETER(pCounterBufferOffsets);
 
-    assert(pCounterBuffers != nullptr);
+    GFXRECON_ASSERT(pCounterBuffers != nullptr);
 
     if (!pCounterBuffers->IsNull() && (pCounterBuffers->HasData()))
     {
@@ -1799,7 +1797,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginConditionalRenderingEXT
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin)
 {
-    assert(pConditionalRenderingBegin != nullptr);
+    GFXRECON_ASSERT(pConditionalRenderingBegin != nullptr);
 
     if (!pConditionalRenderingBegin->IsNull() && (pConditionalRenderingBegin->HasData()))
     {
@@ -1837,7 +1835,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructureNV
     GFXRECON_UNREFERENCED_PARAMETER(src);
     GFXRECON_UNREFERENCED_PARAMETER(scratchOffset);
 
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -1974,7 +1972,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2EXT(
     GFXRECON_UNREFERENCED_PARAMETER(pSizes);
     GFXRECON_UNREFERENCED_PARAMETER(pStrides);
 
-    assert(pBuffers != nullptr);
+    GFXRECON_ASSERT(pBuffers != nullptr);
 
     if (!pBuffers->IsNull() && (pBuffers->HasData()))
     {
@@ -1992,7 +1990,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsN
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
-    assert(pGeneratedCommandsInfo != nullptr);
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
 
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
@@ -2022,7 +2020,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
 {
     GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
 
-    assert(pGeneratedCommandsInfo != nullptr);
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
 
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
@@ -2065,7 +2063,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorBuffersEXT(
 {
     GFXRECON_UNREFERENCED_PARAMETER(bufferCount);
 
-    assert(pBindingInfos != nullptr);
+    GFXRECON_ASSERT(pBindingInfos != nullptr);
 
     if (!pBindingInfos->IsNull() && (pBindingInfos->HasData()))
     {
@@ -2123,7 +2121,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsE
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
     format::HandleId                            stateCommandBuffer)
 {
-    assert(pGeneratedCommandsInfo != nullptr);
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
 
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
@@ -2147,7 +2145,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
 {
     GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
 
-    assert(pGeneratedCommandsInfo != nullptr);
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
 
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
@@ -2172,7 +2170,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresK
     GFXRECON_UNREFERENCED_PARAMETER(infoCount);
     GFXRECON_UNREFERENCED_PARAMETER(ppBuildRangeInfos);
 
-    assert(pInfos != nullptr);
+    GFXRECON_ASSERT(pInfos != nullptr);
 
     if (!pInfos->IsNull() && (pInfos->HasData()))
     {
@@ -2200,7 +2198,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresI
     GFXRECON_UNREFERENCED_PARAMETER(pIndirectStrides);
     GFXRECON_UNREFERENCED_PARAMETER(ppMaxPrimitiveCounts);
 
-    assert(pInfos != nullptr);
+    GFXRECON_ASSERT(pInfos != nullptr);
 
     if (!pInfos->IsNull() && (pInfos->HasData()))
     {
@@ -2219,7 +2217,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyAccelerationStructureKHR
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -2234,7 +2232,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyAccelerationStructureToM
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -2248,7 +2246,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToAccelerationStru
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -2271,7 +2269,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWriteAccelerationStructuresP
     GFXRECON_UNREFERENCED_PARAMETER(queryPool);
     GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
 
-    assert(pAccelerationStructures != nullptr);
+    GFXRECON_ASSERT(pAccelerationStructures != nullptr);
 
     if (!pAccelerationStructures->IsNull() && (pAccelerationStructures->HasData()))
     {

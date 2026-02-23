@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2020 LunarG, Inc.
+# Copyright (c) 2026 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -51,7 +51,6 @@ class VulkanReferencedBlockConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptio
         )
 
         self.begin_end_file_data.specific_headers.append('generated/generated_vulkan_referenced_block_consumer.h')
-        # self.begin_end_file_data.system_headers.append('cassert')
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
         self.begin_end_file_data.common_api_headers = []
 
@@ -68,12 +67,6 @@ class VulkanReferencedBlockConsumerBodyGenerator(VulkanBaseGenerator):
         'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
         'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline'
     ]
-
-    # Handle types that contain resource and child resource handle types.
-    CONTAINER_HANDLE_TYPES = ['VkDescriptorSet']
-
-    # Handle types that use resource and child resource handle types.
-    USER_HANDLE_TYPES = ['VkCommandBuffer']
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -100,7 +93,6 @@ class VulkanReferencedBlockConsumerBodyGenerator(VulkanBaseGenerator):
                 # Check for parameters with resource handle types.
                 handles = self.get_param_list_handles(params[1:])
 
-                # if (handles):
                 # Generate a function to add handles to the command buffer's referenced handle list.
                 cmddef = '\n'
 
@@ -121,15 +113,9 @@ class VulkanReferencedBlockConsumerBodyGenerator(VulkanBaseGenerator):
                         cmddef += indent + 'GFXRECON_UNREFERENCED_PARAMETER({});\n'.format(
                             param.name
                         )
-
                 cmddef += '\n'
-                for index, handle in enumerate(handles):
-                    pass
-
                 cmddef += '    if (check_handle_id_unused({})){{ set_block_index_unused(call_info.index); }}\n'.format(params[0].name)
-
                 cmddef += '}'
-
                 write(cmddef, file=self.outFile)
 
         self.newline()
