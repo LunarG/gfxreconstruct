@@ -44,9 +44,9 @@ class InfoApiInterface
   public:
     enum class InfoOutputLevel : std::uint32_t
     {
-        kBasic = 0,
+        kInfoVersionOnly = 0,
+        kBasic,
         kExeInfo,
-        kApplicationInfo,
         EnvironmentInfo,
         FileInfo,
 
@@ -87,8 +87,8 @@ class InfoApiInterface
     virtual void OutputInfo() = 0;
 
     // Frame-specific methods
-    virtual uint32_t         GetBlankFrameCount()  { return 0; }
-    virtual uint32_t         GetFrameStart() { return 0; }
+    virtual uint32_t GetBlankFrameCount() { return 0; }
+    virtual uint32_t GetFrameStart() { return 0; }
 
   protected:
     bool            api_output_override_{ false };

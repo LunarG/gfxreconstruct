@@ -30,6 +30,8 @@
 #include "decode/stat_consumer.h"
 #include "decode/stat_decoder_base.h"
 #include "decode/stat_consumer_base.h"
+#include "format/format.h"
+#include "format/format_util.h"
 
 #include "info_api_interface.h"
 
@@ -47,13 +49,9 @@ class InfoContainer
     InfoContainer();
     ~InfoContainer();
 
-    bool CheckOptionPrintUsage(const gfxrecon::util::ArgumentParser& arg_parser);
-    void PrintUsage();
-    bool CheckOptionPrintVersion(const gfxrecon::util::ArgumentParser& arg_parser);
-    void PrintVersion();
-
     bool RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_interface);
 
+    void PrintUsage();
     bool ProcessCommandLine(int32_t argc, const char** argv);
 
     bool ProcessCapture();
@@ -61,9 +59,19 @@ class InfoContainer
     bool OutputContent();
 
     // Temporary - only for transition (will be removed)
-    std::shared_ptr<gfxrecon::util::ArgumentParser> GetArgParser() { return argument_parser_; }
+    std::string GetInputFilename()
+    {
+        return argument_parser_->GetPositionalArguments().size() > 0 ? argument_parser_->GetPositionalArguments()[0]
+                                                                     : "";
+    }
+    InfoApiInterface::InfoOutputLevel GetOutputLevel() { return output_level_; }
 
   protected:
+    bool CheckOptionPrintUsage(const gfxrecon::util::ArgumentParser& arg_parser);
+    bool CheckOptionPrintVersion(const gfxrecon::util::ArgumentParser& arg_parser);
+
+    void PrintVersion();
+
     void WriteOutput(const std::string& message);
 
   private:
@@ -97,19 +105,49 @@ class InfoContainer
         }
     };
 
-    std::string                                    app_name_;
-    InfoApiInterface::InfoOutputLevel              output_level_{ InfoApiInterface::InfoOutputLevel::kBasic };
-    std::ofstream                                  output_file_;
-    std::vector<std::unique_ptr<InfoApiInterface>> api_interfaces_;
-    bool                                           api_restricted_output_{ false };
-    gfxrecon::decode::FileProcessor                file_processor_;
-    gfxrecon::decode::StatDecoderBase              stat_decoder_;
-    gfxrecon::decode::StatConsumer                 stat_consumer_;
-    gfxrecon::decode::InfoConsumer                 info_consumer_;
-    gfxrecon::decode::InfoDecoder                  info_decoder_;
-    AnnotationRecorder                             annotation_recorder_;
+    struct ApiAgnosticStats
+    {
+        gfxrecon::format::CompressionType compression_type;
+        uint32_t                          trim_start_frame;
+        uint32_t                          frame_count;
+        gfxrecon::decode::BlockIOError    error_state;
+        uint32_t                          blank_frame_count;
+        bool                              uses_frame_markers;
+    };
 
-    // Temporary - only for transition (will be removed)
+    struct FileFormatInfo
+    {
+        uint32_t major_version               = 0;
+        uint32_t minor_version               = 0;
+        bool     uses_frame_markers          = false;
+        bool     file_supports_frame_markers = false;
+
+        FileFormatInfo(const gfxrecon::decode::FileProcessor& file_processor)
+        {
+            const gfxrecon::format::FileHeader& file_header = file_processor.GetFileHeader();
+            major_version                                   = file_header.major_version;
+            minor_version                                   = file_header.minor_version;
+            uses_frame_markers                              = file_processor.UsesFrameMarkers();
+            file_supports_frame_markers                     = file_processor.FileSupportsFrameMarkers();
+        }
+
+        bool NeedsUpdate() const
+        {
+            return major_version == 0 && minor_version == 0 && uses_frame_markers && !file_supports_frame_markers;
+        }
+    };
+
+    std::string                                     app_name_;
+    InfoApiInterface::InfoOutputLevel               output_level_{ InfoApiInterface::InfoOutputLevel::kBasic };
+    std::ofstream                                   output_file_;
+    std::vector<std::unique_ptr<InfoApiInterface>>  api_interfaces_;
+    bool                                            api_restricted_output_{ false };
+    gfxrecon::decode::FileProcessor                 file_processor_;
+    gfxrecon::decode::StatDecoderBase               stat_decoder_;
+    gfxrecon::decode::StatConsumer                  stat_consumer_;
+    gfxrecon::decode::InfoConsumer                  info_consumer_;
+    gfxrecon::decode::InfoDecoder                   info_decoder_;
+    AnnotationRecorder                              annotation_recorder_;
     std::shared_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
 };
 
