@@ -87,11 +87,8 @@ class InfoApiInterface
     virtual void OutputInfo() = 0;
 
     // Frame-specific methods
-    virtual FrameMarkerTypes GetFrameMarkerType()  = 0;
-    virtual uint32_t         GetActualFrameCount() = 0;
     virtual uint32_t         GetBlankFrameCount()  { return 0; }
     virtual uint32_t         GetFrameStart() { return 0; }
-    uint32_t                 GetTotalFrameCount() { return GetActualFrameCount() + GetBlankFrameCount(); }
 
   protected:
     bool            api_output_override_{ false };

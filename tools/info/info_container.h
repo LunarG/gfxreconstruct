@@ -23,10 +23,20 @@
 #ifndef GFXRECON_INFO_CONTAINER_H
 #define GFXRECON_INFO_CONTAINER_H
 
+#include "decode/decode_api_detection.h"
+#include "decode/file_processor.h"
+#include "decode/info_consumer.h"
+#include "decode/info_decoder.h"
+#include "decode/stat_consumer.h"
+#include "decode/stat_decoder_base.h"
+#include "decode/stat_consumer_base.h"
+
 #include "info_api_interface.h"
 
 #include <memory>
 #include <vector>
+
+#include <nlohmann/json.hpp>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
@@ -57,11 +67,47 @@ class InfoContainer
     void WriteOutput(const std::string& message);
 
   private:
+    class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
+    {
+      public:
+        std::vector<std::string> operation_annotations_;
+
+        virtual void ProcessAnnotation(uint64_t                         block_index,
+                                       gfxrecon::format::AnnotationType type,
+                                       const std::string&               label,
+                                       const std::string&               data) override
+        {
+            if (type == gfxrecon::format::AnnotationType::kJson &&
+                label.compare(gfxrecon::format::kAnnotationLabelOperation) == 0)
+            {
+                if (data.size() > 0)
+                {
+                    // Inspect annotations spotted in the capture file
+                    nlohmann::json json_obj = nlohmann::json::parse(data);
+                    if (json_obj.is_discarded())
+                    {
+                        GFXRECON_LOG_WARNING("Invalid JSON in annotation: \"%s\"", data.c_str());
+                    }
+                    else
+                    {
+                        operation_annotations_.push_back(data);
+                    }
+                }
+            }
+        }
+    };
+
     std::string                                    app_name_;
     InfoApiInterface::InfoOutputLevel              output_level_{ InfoApiInterface::InfoOutputLevel::kBasic };
     std::ofstream                                  output_file_;
     std::vector<std::unique_ptr<InfoApiInterface>> api_interfaces_;
     bool                                           api_restricted_output_{ false };
+    gfxrecon::decode::FileProcessor                file_processor_;
+    gfxrecon::decode::StatDecoderBase              stat_decoder_;
+    gfxrecon::decode::StatConsumer                 stat_consumer_;
+    gfxrecon::decode::InfoConsumer                 info_consumer_;
+    gfxrecon::decode::InfoDecoder                  info_decoder_;
+    AnnotationRecorder                             annotation_recorder_;
 
     // Temporary - only for transition (will be removed)
     std::shared_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
