@@ -11,13 +11,11 @@ if [ -z "${TEST_SUITE_BRANCH:-}" ]; then
 fi
 
 git clone --verbose $TEST_SUITE_REPO ci-gfxr-suites
-cd ci-gfxr-suites
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
-git fetch origin
-git checkout $TEST_SUITE_BRANCH
-git submodule update --init --recursive
-git describe --tags --always
-cd ..
+git -C ci-gfxr-suites config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C ci-gfxr-suites fetch origin
+git -C ci-gfxr-suites checkout $TEST_SUITE_BRANCH
+git -C ci-gfxr-suites submodule update --init --recursive
+git -C ci-gfxr-suites describe --tags --always
 
 if [ -z "${TEST_COMMIT:-}" ]; then
   if [ -f "test.ref" ]; then
@@ -29,13 +27,16 @@ if [ -z "${TEST_COMMIT:-}" ]; then
 fi
 
 git clone --verbose $TEST_REPO VulkanTests
-cd VulkanTests
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
-git fetch origin
-git checkout $TEST_COMMIT
-git submodule update --init --recursive
-git describe --tags --always
-cd ..
+git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C VulkanTests fetch origin
+git -C VulkanTests checkout $TEST_COMMIT
+git -C VulkanTests submodule update --init --recursive
+git -C VulkanTests describe --tags --always
+
 cmake --version
 python3 --version
-python3 VulkanTests/gfxrecontest.py --os AndroidTestOS --build-mode $BUILD_MODE $ANDROID_TEST_ARGS --suite "ci-gfxr-suites/$GFXRECON_TRACE_SUBDIR/$TEST_SUITE" --trace-dir "$GFXRECON_TRACE_DIR" --result-dir "$RESULTS_DIR"
+
+python3 -m venv $WORKSPACE/python-venv
+$WORKSPACE/python-venv/bin/python3 -m pip install --no-cache-dir -r VulkanTests/requirements.txt > $WORKSPACE/python-venv.txt 2>&1
+
+$WORKSPACE/python-venv/bin/python3 VulkanTests/gfxrecontest.py --os AndroidTestOS --build-mode $BUILD_MODE $ANDROID_TEST_ARGS --suite "ci-gfxr-suites/$GFXRECON_TRACE_SUBDIR/$TEST_SUITE" --trace-dir "$GFXRECON_TRACE_DIR" --result-dir "$RESULTS_DIR"
