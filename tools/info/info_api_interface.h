@@ -63,10 +63,10 @@ class InfoApiInterface
     virtual ~InfoApiInterface() = default;
 
     // Simple "getter" style methods
-    virtual format::ApiFamilyId ApiFamilyId()            = 0;
-    virtual std::string         ApiLabel()               = 0;
-    virtual std::string         ApiHeaderVersionString() = 0;
-    virtual bool                ApiWasDetected()         = 0;
+    virtual format::ApiFamilyId ApiFamilyId()    = 0;
+    virtual std::string         ApiLabel()       = 0;
+    virtual bool                ApiWasDetected() = 0;
+    virtual std::string         ApiCompiledHeaderVersionString() { return ""; }
 
     // This indicates that the API has output that should be executed WITHOUT any
     // other API outputing.  This is usually the case where the user asked to
@@ -87,10 +87,10 @@ class InfoApiInterface
     virtual void OutputInfo() = 0;
 
     // Frame-specific methods
-    virtual void             GetFrameStart()       = 0;
     virtual FrameMarkerTypes GetFrameMarkerType()  = 0;
     virtual uint32_t         GetActualFrameCount() = 0;
-    virtual uint32_t         GetBlankFrameCount()  = 0;
+    virtual uint32_t         GetBlankFrameCount()  { return 0; }
+    virtual uint32_t         GetFrameStart() { return 0; }
     uint32_t                 GetTotalFrameCount() { return GetActualFrameCount() + GetBlankFrameCount(); }
 
   protected:
