@@ -27,7 +27,6 @@ if [ -z "${TEST_COMMIT:-}" ]; then
 fi
 
 git clone --verbose $TEST_REPO VulkanTests
-cd VulkanTests
 git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
 git -C VulkanTests fetch origin
 git -C VulkanTests checkout $TEST_COMMIT
