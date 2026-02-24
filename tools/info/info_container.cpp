@@ -60,34 +60,6 @@ InfoContainer::~InfoContainer()
     gfxrecon::util::Log::Release();
 }
 
-bool InfoContainer::CheckOptionPrintUsage(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage();
-        return true;
-    }
-
-    return false;
-}
-
-bool InfoContainer::CheckOptionPrintVersion(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        WriteOutput(std::format("{} version info:", app_name_));
-        WriteOutput(std::format("  GFXReconstruct Version {}", GetProjectVersionString()));
-        WriteOutput(std::format("  Vulkan Header Version {}.{}.{}",
-                                VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                                VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                                VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)));
-
-        return true;
-    }
-
-    return false;
-}
-
 bool InfoContainer::RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_interface)
 {
     for (auto& api_if : api_interfaces_)
