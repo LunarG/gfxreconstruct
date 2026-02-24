@@ -243,7 +243,7 @@ void InfoContainer::PrintVersion()
     WriteOutput(std::format("{} version info:\n  GFXReconstruct Version {}", app_name_, GetProjectVersionString()));
     for (auto& api_if : api_interfaces_)
     {
-        WriteOutput(std::format("   {} Header Version {}", api_if->ApiLabel(), api_if->ApiHeaderVersionString()));
+        WriteOutput(api_if->ApiCompiledHeaderVersionString());
     }
 }
 
