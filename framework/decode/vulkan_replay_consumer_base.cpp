@@ -71,9 +71,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const size_t kMaxEventStatusRetries      = 16;
-const size_t kMaxQueryPoolResultsRetries = 16;
-
 const char kUnknownDeviceLabel[]  = "<Unknown>";
 const char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
 
@@ -90,7 +87,7 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
 const std::unordered_set<std::string> kFunctionsAllowedToReturnDifferentCodeThanCapture = {
-    "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT"
+    "vkSetDebugUtilsObjectNameEXT", "vkSetDebugUtilsObjectTagEXT", "vkGetQueryPoolResults", "vkGetEventStatus"
 };
 
 // LUT containing an allow-list of differing Vulkan return-types (mapping: capture -> replay)
@@ -4060,17 +4057,18 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
                                                           const VulkanDeviceInfo* device_info,
                                                           const VulkanEventInfo*  event_info)
 {
-    assert((device_info != nullptr) && (event_info != nullptr));
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
 
-    VkResult result;
-    VkDevice device  = device_info->handle;
-    VkEvent  event   = event_info->handle;
-    size_t   retries = 0;
+    VkDevice device = device_info->handle;
+    VkEvent  event  = event_info->handle;
 
-    do
+    const VkResult result = func(device, event);
+
+    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET)
     {
-        result = func(device, event);
-    } while (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && ++retries <= kMaxEventStatusRetries);
+        GFXRECON_LOG_DEBUG("%s: skipping over mismatching return-type: 'VK_EVENT_RESET' (expected 'VK_EVENT_SET')",
+                           __func__);
+    }
     return result;
 }
 
@@ -4085,18 +4083,20 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
                                                                VkDeviceSize               stride,
                                                                VkQueryResultFlags         flags)
 {
-    GFXRECON_ASSERT((device_info != nullptr) && (query_pool_info != nullptr) && (pData != nullptr) &&
-                    (pData->GetOutputPointer() != nullptr));
+    GFXRECON_ASSERT(device_info != nullptr && query_pool_info != nullptr && pData != nullptr &&
+                    pData->GetOutputPointer() != nullptr);
 
-    VkResult    result;
     VkDevice    device     = device_info->handle;
     VkQueryPool query_pool = query_pool_info->handle;
-    size_t      retries    = 0;
 
-    do
+    const VkResult result =
+        func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
+
+    if (original_result == VK_SUCCESS && result == VK_NOT_READY)
     {
-        result = func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
-    } while (original_result == VK_SUCCESS && result == VK_NOT_READY && ++retries <= kMaxQueryPoolResultsRetries);
+        GFXRECON_LOG_DEBUG("%s: skipping over mismatching return-type: 'VK_NOT_READY' (expected 'VK_SUCCESS')",
+                           __func__);
+    }
 
     if (result == VK_SUCCESS)
     {
