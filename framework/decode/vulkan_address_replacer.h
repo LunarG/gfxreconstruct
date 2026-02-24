@@ -23,6 +23,8 @@
 #ifndef GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 #define GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 
+#include <span>
+
 #include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_device_address_tracker.h"
@@ -81,19 +83,16 @@ class VulkanAddressReplacer
      * 3) lastly, if command_buffer_info' is a nullptr:
      * - submit the dispatch locally, sync via internal fence
      *
-     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr
-     * @param   addresses           array of device-addresses
-     * @param   num_addresses       number of addresses
-     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
-     * @param   wait_semaphores     optional array of (timeline) wait-semaphores, along with their wait-values
+     * @param   command_buffer_info  optional VulkanCommandBufferInfo* or nullptr
+     * @param   addresses_to_replace span of device-addresses
+     * @param   address_tracker      const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param   wait_semaphores      optional span of (timeline) wait-semaphores, along with their wait-values
      * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
-    VkSemaphore
-    UpdateBufferAddresses(const VulkanCommandBufferInfo*                               command_buffer_info,
-                          const VkDeviceAddress*                                       addresses,
-                          uint32_t                                                     num_addresses,
-                          const decode::VulkanDeviceAddressTracker&                    address_tracker,
-                          const std::optional<std::vector<graphics::VulkanSemaphore>>& wait_semaphores = {});
+    VkSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
+                                      const std::span<VkDeviceAddress>           addresses_to_replace,
+                                      const decode::VulkanDeviceAddressTracker&  address_tracker,
+                                      const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
     /**
      * @brief   'ResolveBufferAddresses' can be used to identify buffers which are referenced
@@ -424,11 +423,10 @@ class VulkanAddressReplacer
 
     void update_global_hashmap(VkCommandBuffer command_buffer);
 
-    void run_compute_replace(const VulkanCommandBufferInfo*            command_buffer_info,
-                             const VkDeviceAddress*                    addresses,
-                             uint32_t                                  num_addresses,
-                             const decode::VulkanDeviceAddressTracker& address_tracker,
-                             VkPipelineStageFlags                      sync_stage);
+    void run_compute_replace(const VulkanCommandBufferInfo*    command_buffer_info,
+                             const std::span<VkDeviceAddress>  addresses,
+                             const VulkanDeviceAddressTracker& address_tracker,
+                             VkPipelineStageFlags              sync_stage);
 
     [[nodiscard]] bool create_buffer(buffer_context_t&  buffer_context,
                                      size_t             num_bytes,

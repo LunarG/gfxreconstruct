@@ -4179,11 +4179,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             {
                 VkSubmitInfo& submit_info_mut = pSubmits->GetPointer()[i];
                 auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
-                semaphores[i]                 = address_replacer.UpdateBufferAddresses(cmd_buf_info,
-                                                                       addresses_to_replace.data(),
-                                                                       addresses_to_replace.size(),
-                                                                       GetDeviceAddressTracker(device_info),
-                                                                       wait_semaphores);
+                semaphores[i]                 = address_replacer.UpdateBufferAddresses(
+                    cmd_buf_info, addresses_to_replace, address_tracker, wait_semaphores);
                 GFXRECON_ASSERT(semaphores[i] != VK_NULL_HANDLE);
 
                 // inject wait-semaphore into submit-info
@@ -4442,11 +4439,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 semaphore_info.stageMask              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
                 // runs replacer, sync via semaphore
-                semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(cmd_buf_info,
-                                                                                  addresses_to_replace.data(),
-                                                                                  addresses_to_replace.size(),
-                                                                                  GetDeviceAddressTracker(device_info),
-                                                                                  wait_semaphores);
+                semaphore_info.semaphore = address_replacer.UpdateBufferAddresses(
+                    cmd_buf_info, addresses_to_replace, address_tracker, wait_semaphores);
                 GFXRECON_ASSERT(semaphore_info.semaphore != VK_NULL_HANDLE);
 
                 // inject wait-semaphores into submit-info
