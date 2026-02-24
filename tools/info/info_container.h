@@ -51,7 +51,6 @@ class InfoContainer
 
     bool RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_interface);
 
-    void PrintUsage();
     bool ProcessCommandLine(int32_t argc, const char** argv);
 
     bool ProcessCapture();
@@ -67,9 +66,7 @@ class InfoContainer
     InfoApiInterface::InfoOutputLevel GetOutputLevel() { return output_level_; }
 
   protected:
-    bool CheckOptionPrintUsage(const gfxrecon::util::ArgumentParser& arg_parser);
-    bool CheckOptionPrintVersion(const gfxrecon::util::ArgumentParser& arg_parser);
-
+    void PrintUsage();
     void PrintVersion();
 
     void WriteOutput(const std::string& message);
