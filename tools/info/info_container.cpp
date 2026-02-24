@@ -27,6 +27,9 @@
 
 #include "info_container.h"
 
+#define GFXR_HIDE_PRINT_USAGE_DEFINE
+#include "tool_settings.h"
+
 #include <format>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -45,7 +48,7 @@ const char kOutputFileArgument[]   = "--output";
 
 const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--"
                           "enum-gpu-indices,--verbose";
-const char kArguments[] = "--output";
+const char kArguments[] = "--output,--log-level";
 
 InfoContainer::InfoContainer()
 {
@@ -91,8 +94,9 @@ bool InfoContainer::RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_i
     {
         if (api_if->ApiFamilyId() == api_interface->ApiFamilyId())
         {
-            WriteOutput(std::format("ERROR: Duplicate Api Interface for API {} found!\n",
-                                    static_cast<uint32_t>(api_interface->ApiFamilyId())));
+            GFXRECON_LOG_ERROR(std::format("Duplicate Api Interface for API {} found!\n",
+                                           static_cast<uint32_t>(api_interface->ApiFamilyId()))
+                                   .c_str());
             return false;
         }
     }
@@ -119,45 +123,63 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
         api_if->UpdatePossibleCommandLineOptionsArgs(options, arguments);
     }
 
-    // Temporary: We need to have the argument parser work with main.cpp for now while we
-    // transition.  Long run this should only be a local definition.
+    // Create a shared argument parser so we can share it with the API-specific interfaces
     argument_parser_ = std::make_shared<gfxrecon::util::ArgumentParser>(argc, argv, options, arguments);
 
     if (argument_parser_->IsOptionSet(kHelpShortOption) || argument_parser_->IsOptionSet(kHelpLongOption))
     {
         PrintUsage();
+        output_level_ = InfoApiInterface::InfoOutputLevel::kInfoVersionOnly;
     }
     else if (argument_parser_->IsOptionSet(kVersionOption))
     {
         PrintVersion();
+        output_level_ = InfoApiInterface::InfoOutputLevel::kInfoVersionOnly;
     }
     else if (argument_parser_->IsInvalid() || (argument_parser_->GetPositionalArgumentsCount() != 1))
     {
+        GFXRECON_LOG_ERROR("Missing required capture file name");
+
         PrintUsage();
+        output_level_ = InfoApiInterface::InfoOutputLevel::kInfoVersionOnly;
         return false;
     }
-
-    // Check for API-specific items
-    for (auto& api_if : api_interfaces_)
+#if defined(WIN32) && defined(_DEBUG)
+    if (arg_parser.IsOptionSet(kNoDebugPopup))
     {
-        if (!api_if->CheckCommandLine(argument_parser_))
-        {
-            PrintUsage();
-            return false;
-        }
-        if (api_if->ApiOutputOverrideDetected())
-        {
-            api_restricted_output_ = true;
-        }
-        else
-        {
-            api_if->SetOutputLevel(output_level_);
-        }
+        _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
     }
+#endif
 
-    if (argument_parser_->IsArgumentSet(kOutputFileArgument))
+    // Update logging with values retrieved from command line arguments
+    gfxrecon::util::Log::Settings log_settings;
+    GetLogSettings(*argument_parser_.get(), log_settings);
+    gfxrecon::util::Log::UpdateWithSettings(log_settings);
+
+    if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
     {
-        output_file_.open(argument_parser_->GetArgumentValue(kOutputFileArgument));
+        // Check for API-specific items
+        for (auto& api_if : api_interfaces_)
+        {
+            if (!api_if->CheckCommandLine(argument_parser_))
+            {
+                PrintUsage();
+                return false;
+            }
+            if (api_if->ApiOutputOverrideDetected())
+            {
+                api_restricted_output_ = true;
+            }
+            else
+            {
+                api_if->SetOutputLevel(output_level_);
+            }
+        }
+
+        if (argument_parser_->IsArgumentSet(kOutputFileArgument))
+        {
+            output_file_.open(argument_parser_->GetArgumentValue(kOutputFileArgument));
+        }
     }
 
     return true;
@@ -165,26 +187,29 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
 
 bool InfoContainer::ProcessCapture()
 {
-    const std::vector<std::string>& positional_arguments = argument_parser_->GetPositionalArguments();
-    std::string                     input_filename       = positional_arguments[0];
-
-    if (file_processor_.Initialize(input_filename))
+    if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
     {
-        stat_decoder_.AddConsumer(&stat_consumer_);
-        info_decoder_.AddConsumer(&info_consumer_);
-        file_processor_.AddDecoder(&stat_decoder_);
-        file_processor_.AddDecoder(&info_decoder_);
-        file_processor_.SetAnnotationProcessor(&annotation_recorder_);
+        const std::vector<std::string>& positional_arguments = argument_parser_->GetPositionalArguments();
+        std::string                     input_filename       = positional_arguments[0];
 
-        for (auto& api_if : api_interfaces_)
+        if (file_processor_.Initialize(input_filename))
         {
-            api_if->RegisterApiDecodeComponents(file_processor_);
-        }
-        file_processor_.ProcessAllFrames();
-        if (file_processor_.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
-        {
-            WriteOutput("Encountered error while reading capture, info unavailable.");
-            return false;
+            stat_decoder_.AddConsumer(&stat_consumer_);
+            info_decoder_.AddConsumer(&info_consumer_);
+            file_processor_.AddDecoder(&stat_decoder_);
+            file_processor_.AddDecoder(&info_decoder_);
+            file_processor_.SetAnnotationProcessor(&annotation_recorder_);
+
+            for (auto& api_if : api_interfaces_)
+            {
+                api_if->RegisterApiDecodeComponents(file_processor_);
+            }
+            file_processor_.ProcessAllFrames();
+            if (file_processor_.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
+            {
+                WriteOutput("Encountered error while reading capture, info unavailable.");
+                return false;
+            }
         }
     }
     return true;
@@ -192,15 +217,18 @@ bool InfoContainer::ProcessCapture()
 
 bool InfoContainer::OutputContent()
 {
-    for (auto& api_if : api_interfaces_)
+    if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
     {
-        if (api_if->ApiWasDetected() && (!api_restricted_output_ || api_if->ApiOutputOverrideDetected()))
+        for (auto& api_if : api_interfaces_)
         {
-            api_if->OutputInfo();
-
-            if (api_restricted_output_)
+            if (api_if->ApiWasDetected() && (!api_restricted_output_ || api_if->ApiOutputOverrideDetected()))
             {
-                break;
+                api_if->OutputInfo();
+
+                if (api_restricted_output_)
+                {
+                    break;
+                }
             }
         }
     }
@@ -228,6 +256,8 @@ void InfoContainer::PrintUsage()
     WriteOutput("  --verbose\t\tOutput more information in JSON format");
     WriteOutput(
         "  --output\t\tOutput generated information to the provided file. If not defined output goes to std::out");
+    WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
+    WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 
     std::string api_specific_usage;
     for (auto& api_if : api_interfaces_)

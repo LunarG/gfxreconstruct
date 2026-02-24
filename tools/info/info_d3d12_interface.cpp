@@ -84,7 +84,6 @@ void InfoD3d12Interface::OutputEnumGpuIndices()
                                 adapter.second.adapter_idx,
                                 replay_adapter_str.c_str(),
                                 adapter.second.internal_desc.SubSysId);
-                    adapter.second.adapter->Release();
                     break;
                 }
             }
@@ -104,8 +103,6 @@ void InfoD3d12Interface::OutputInfo()
         case InfoApiInterface::InfoOutputLevel::kBasic:
             break;
         case InfoApiInterface::InfoOutputLevel::kExeInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::kApplicationInfo:
             break;
         case InfoApiInterface::InfoOutputLevel::EnvironmentInfo:
             break;

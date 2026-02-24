@@ -28,7 +28,7 @@ GFXRECON_BEGIN_NAMESPACE(info)
 
 std::string InfoVulkanInterface::ApiCompiledHeaderVersionString()
 {
-    return std::format("   Vulkan Header Version {}.{}.{}",
+    return std::format("  Vulkan Header Version {}.{}.{}",
                        VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
                        VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
                        VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
@@ -65,8 +65,6 @@ void InfoVulkanInterface::OutputInfo()
         case InfoApiInterface::InfoOutputLevel::kBasic:
             break;
         case InfoApiInterface::InfoOutputLevel::kExeInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::kApplicationInfo:
             break;
         case InfoApiInterface::InfoOutputLevel::EnvironmentInfo:
             break;
