@@ -87,9 +87,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     else
     {
         // Use a default delegate if none was provided.
-        default_delegate_ =
-            std::make_unique<DefaultVulkanDumpResourcesDelegate>(options, *object_info_table, capture_filename);
-        active_delegate_ = default_delegate_.get();
+        default_delegate_ = std::make_unique<DefaultVulkanDumpResourcesDelegate>(options, *object_info_table);
+        active_delegate_  = default_delegate_.get();
     }
 
     if (!options.dump_resources_json_per_command)
