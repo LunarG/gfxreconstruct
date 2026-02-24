@@ -165,24 +165,26 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
 
 bool InfoContainer::ProcessCapture()
 {
-    // Print-only API-specific items
-    if (api_restricted_output_)
+    const std::vector<std::string>& positional_arguments = argument_parser_->GetPositionalArguments();
+    std::string                     input_filename       = positional_arguments[0];
+
+    if (file_processor_.Initialize(input_filename))
     {
+        stat_decoder_.AddConsumer(&stat_consumer_);
+        info_decoder_.AddConsumer(&info_consumer_);
+        file_processor_.AddDecoder(&stat_decoder_);
+        file_processor_.AddDecoder(&info_decoder_);
+        file_processor_.SetAnnotationProcessor(&annotation_recorder_);
+
         for (auto& api_if : api_interfaces_)
         {
-            if (!api_if->CheckCommandLine(argument_parser_))
-            {
-                PrintUsage();
-                return false;
-            }
-            if (api_if->ApiOutputOverrideDetected())
-            {
-                api_restricted_output_ = true;
-            }
-            else
-            {
-                api_if->SetOutputLevel(output_level_);
-            }
+            api_if->RegisterApiDecodeComponents(file_processor_);
+        }
+        file_processor_.ProcessAllFrames();
+        if (file_processor_.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
+        {
+            WriteOutput("Encountered error while reading capture, info unavailable.");
+            return false;
         }
     }
     return true;
@@ -190,20 +192,17 @@ bool InfoContainer::ProcessCapture()
 
 bool InfoContainer::OutputContent()
 {
-    // Print-only API-specific items
-    if (api_restricted_output_)
+    for (auto& api_if : api_interfaces_)
     {
-        for (auto& api_if : api_interfaces_)
+        if (api_if->ApiWasDetected() && (!api_restricted_output_ || api_if->ApiOutputOverrideDetected()))
         {
-            if (api_if->ApiOutputOverrideDetected())
+            api_if->OutputInfo();
+
+            if (api_restricted_output_)
             {
-                api_if->OutputInfo();
                 break;
             }
         }
-    }
-    else
-    {
     }
     return false;
 }
