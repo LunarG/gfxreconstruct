@@ -27,6 +27,7 @@
 #include "util/callbacks.h"
 #include "util/alignment_utils.h"
 #include "util/logging.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 
 #include <set>
 
@@ -538,6 +539,83 @@ void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*     
 
     // everything is resolved, clear
     command_buffer_info->addresses_to_resolve.clear();
+}
+
+std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+VulkanAddressReplacer::ResolveBufferAddresses(std::vector<VulkanCommandBufferInfo*> command_buffers,
+                                              const VulkanDeviceAddressTracker&     address_tracker)
+{
+    std::vector<VkDeviceAddress> addresses_to_replace;
+
+    // used to track lifetime of VulkanAddressReplacer internal resources
+    const VulkanCommandBufferInfo* cmd_buf_info = nullptr;
+
+    for (VulkanCommandBufferInfo* command_buffer_info : command_buffers)
+    {
+        GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+        // resolve pointer-chains, discover additional referenced buffers
+        ResolveBufferAddresses(command_buffer_info, address_tracker);
+
+        // collect buffer-device-address from all command-buffers
+        addresses_to_replace.insert(addresses_to_replace.end(),
+                                    command_buffer_info->addresses_to_replace.begin(),
+                                    command_buffer_info->addresses_to_replace.end());
+        if (cmd_buf_info == nullptr)
+        {
+            cmd_buf_info = command_buffer_info;
+        }
+    }
+
+    return { addresses_to_replace, cmd_buf_info };
+}
+
+std::vector<VulkanCommandBufferInfo*>
+VulkanAddressReplacer::GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo& submit_info)
+{
+    uint32_t num_command_buffers = submit_info.pCommandBuffers.GetLength();
+    auto*    cmd_buf_handles     = submit_info.pCommandBuffers.GetPointer();
+
+    std::vector<VulkanCommandBufferInfo*> command_buffer_infos(num_command_buffers);
+
+    for (uint32_t c = 0; c < num_command_buffers; ++c)
+    {
+        command_buffer_infos[c] = object_table_->GetVkCommandBufferInfo(cmd_buf_handles[c]);
+        GFXRECON_ASSERT(command_buffer_infos[c] != nullptr);
+    }
+
+    return command_buffer_infos;
+}
+
+std::vector<VulkanCommandBufferInfo*>
+VulkanAddressReplacer::GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo2& submit_info2)
+{
+    uint32_t num_command_buffers = submit_info2.pCommandBufferInfos->GetLength();
+    auto*    cmd_buf_info_metas  = submit_info2.pCommandBufferInfos->GetMetaStructPointer();
+
+    std::vector<VulkanCommandBufferInfo*> command_buffer_infos(num_command_buffers);
+
+    for (uint32_t c = 0; c < num_command_buffers; ++c)
+    {
+        command_buffer_infos[c] = object_table_->GetVkCommandBufferInfo(cmd_buf_info_metas[c].commandBuffer);
+        GFXRECON_ASSERT(command_buffer_infos[c] != nullptr);
+    }
+
+    return command_buffer_infos;
+}
+
+std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+VulkanAddressReplacer::ResolveBufferAddresses(Decoded_VkSubmitInfo&             submit_info,
+                                              const VulkanDeviceAddressTracker& address_tracker)
+{
+    return ResolveBufferAddresses(GetCommandBufferInfosFromSubmitInfo(submit_info), address_tracker);
+}
+
+std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+VulkanAddressReplacer::ResolveBufferAddresses(Decoded_VkSubmitInfo2&            submit_info2,
+                                              const VulkanDeviceAddressTracker& address_tracker)
+{
+    return ResolveBufferAddresses(GetCommandBufferInfosFromSubmitInfo(submit_info2), address_tracker);
 }
 
 void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInfo*            command_buffer_info,

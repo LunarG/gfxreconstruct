@@ -4147,35 +4147,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
         for (uint32_t i = 0; i < submitCount; i++)
         {
-            std::vector<VkDeviceAddress> addresses_to_replace;
+            auto [addresses_to_replace, cmd_buf_info] =
+                address_replacer.ResolveBufferAddresses(submit_info_data[i], address_tracker);
 
-            uint32_t num_command_buffers  = submit_info_data[i].pCommandBuffers.GetLength();
-            auto*    cmd_buf_handles      = submit_info_data[i].pCommandBuffers.GetPointer();
-            bool     sync_wait_semaphores = false;
-
-            // used to track lifetime of VulkanAddressReplacer internal resources
-            const VulkanCommandBufferInfo* cmd_buf_info = nullptr;
-
-            for (uint32_t c = 0; c < num_command_buffers; ++c)
-            {
-                auto* command_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_handles[c]);
-                GFXRECON_ASSERT(command_buffer_info != nullptr);
-
-                // resolve pointer-chains, discover additional referenced buffers
-                address_replacer.ResolveBufferAddresses(command_buffer_info, address_tracker);
-
-                // collect buffer-device-address from all command-buffers
-                addresses_to_replace.insert(addresses_to_replace.end(),
-                                            command_buffer_info->addresses_to_replace.begin(),
-                                            command_buffer_info->addresses_to_replace.end());
-                sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
-                if (cmd_buf_info == nullptr)
-                {
-                    cmd_buf_info = command_buffer_info;
-                }
-            }
-
-            if (sync_wait_semaphores)
+            if (!addresses_to_replace.empty())
             {
                 VkSubmitInfo& submit_info_mut = pSubmits->GetPointer()[i];
                 auto          wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
@@ -4399,36 +4374,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
         for (uint32_t i = 0; i < submitCount; i++)
         {
-            std::vector<VkDeviceAddress> addresses_to_replace;
+            auto [addresses_to_replace, cmd_buf_info] =
+                address_replacer.ResolveBufferAddresses(submit_info_data[i], address_tracker);
 
-            uint32_t num_command_buffers  = submit_info_data[i].pCommandBufferInfos->GetLength();
-            auto*    cmd_buf_info_metas   = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
-            bool     sync_wait_semaphores = false;
-
-            // used to track lifetime of VulkanAddressReplacer internal resources
-            const VulkanCommandBufferInfo* cmd_buf_info = nullptr;
-
-            for (uint32_t c = 0; c < num_command_buffers; ++c)
-            {
-                auto* command_buffer_info =
-                    GetObjectInfoTable().GetVkCommandBufferInfo(cmd_buf_info_metas[c].commandBuffer);
-                GFXRECON_ASSERT(command_buffer_info != nullptr);
-
-                // resolve pointer-chains, discover additional referenced buffers
-                address_replacer.ResolveBufferAddresses(command_buffer_info, address_tracker);
-
-                // collect buffer-device-address from all command-buffers
-                addresses_to_replace.insert(addresses_to_replace.end(),
-                                            command_buffer_info->addresses_to_replace.begin(),
-                                            command_buffer_info->addresses_to_replace.end());
-                sync_wait_semaphores |= !command_buffer_info->addresses_to_replace.empty();
-                if (cmd_buf_info == nullptr)
-                {
-                    cmd_buf_info = command_buffer_info;
-                }
-            }
-
-            if (sync_wait_semaphores)
+            if (!addresses_to_replace.empty())
             {
                 VkSubmitInfo2& submit_info_mut = pSubmits->GetPointer()[i];
                 auto           wait_semaphores = graphics::StripWaitSemaphores(&submit_info_mut);
