@@ -94,6 +94,7 @@ class VulkanAddressReplacer
                                       const decode::VulkanDeviceAddressTracker&  address_tracker,
                                       const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
+  private:
     /**
      * @brief   'ResolveBufferAddresses' can be used to identify buffers which are referenced
      *          by buffer-device-addresses.
@@ -106,6 +107,30 @@ class VulkanAddressReplacer
      */
     void ResolveBufferAddresses(VulkanCommandBufferInfo*                  command_buffer_info,
                                 const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   `ResolveBufferAddresses` can be used to identify buffers which are referenced
+     *          by buffer-device-addresses.
+     *
+     * @param   command_buffers     a provided vector of VulkanCommandBufferInfo* containing locations to resolve
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker
+     * @return  a pair with a vector, containing all device-addresses that require replacement, and a pointer to the
+     * first command-buffer-info that was used to discover those addresses.
+     */
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(std::vector<VulkanCommandBufferInfo*> command_buffers,
+                           const VulkanDeviceAddressTracker&     address_tracker);
+
+    std::vector<VulkanCommandBufferInfo*> GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo& submit_info);
+    std::vector<VulkanCommandBufferInfo*> GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo2& submit_info2);
+
+  public:
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(Decoded_VkSubmitInfo& submit_info, const VulkanDeviceAddressTracker& address_tracker);
+
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(Decoded_VkSubmitInfo2& submit_info2, const VulkanDeviceAddressTracker& address_tracker);
+
     /**
      * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',
      *          replacing any used buffer-device-addresses in-place.
