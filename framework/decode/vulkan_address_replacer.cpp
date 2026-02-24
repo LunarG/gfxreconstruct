@@ -1922,17 +1922,23 @@ void VulkanAddressReplacer::DestroyShadowResources(VkAccelerationStructureKHR ha
     }
 }
 
-void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo* buffer_info)
+void VulkanAddressReplacer::DestroyShadowResources(const VulkanBufferInfo*           buffer_info,
+                                                   const VulkanDeviceAddressTracker& address_tracker)
 {
     if (buffer_info != nullptr)
     {
-        for (const auto& [replay_address, as_infos] : buffer_info->acceleration_structures)
+        const auto& acceleration_structure_map = address_tracker.GetAccelerationStructureDeviceAddressMap();
+        for (const auto& [capture_address, as_infos] : buffer_info->acceleration_structures_capture_addresses)
         {
-            auto remove_shadow_as_it = shadow_as_map_.find(replay_address);
-            if (remove_shadow_as_it != shadow_as_map_.end())
+            const auto& replay_address_it = acceleration_structure_map.find(capture_address);
+            if (replay_address_it != acceleration_structure_map.end())
             {
-                MarkInjectedCommandsHelper mark_injected_commands_helper;
-                shadow_as_map_.erase(remove_shadow_as_it);
+                auto remove_shadow_as_it = shadow_as_map_.find(replay_address_it->first);
+                if (remove_shadow_as_it != shadow_as_map_.end())
+                {
+                    MarkInjectedCommandsHelper mark_injected_commands_helper;
+                    shadow_as_map_.erase(remove_shadow_as_it);
+                }
             }
         }
     }
