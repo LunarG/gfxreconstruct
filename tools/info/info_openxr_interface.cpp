@@ -30,7 +30,7 @@ GFXRECON_BEGIN_NAMESPACE(info)
 
 std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString()
 {
-    return std::format("   OpenXR Header Version {}.{}.{}",
+    return std::format("  OpenXR Header Version {}.{}.{}",
                        XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
                        XR_VERSION_MINOR(XR_CURRENT_API_VERSION),
                        XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
@@ -67,8 +67,6 @@ void InfoOpenXrInterface::OutputInfo()
         case InfoApiInterface::InfoOutputLevel::kBasic:
             break;
         case InfoApiInterface::InfoOutputLevel::kExeInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::kApplicationInfo:
             break;
         case InfoApiInterface::InfoOutputLevel::EnvironmentInfo:
             break;

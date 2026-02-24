@@ -61,14 +61,15 @@ void InfoD3d12Interface::RegisterApiDecodeComponents(gfxrecon::decode::FileProce
 
 void InfoD3d12Interface::OutputEnumGpuIndices()
 {
-    IDXGIFactory1* factory1 = nullptr;
+    gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1 = nullptr;
 
-    HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+    HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
     if (SUCCEEDED(result))
     {
         gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
-        gfxrecon::graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters);
+        gfxrecon::graphics::dx12::TrackAdapters(
+            result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
 
         WriteOutput("GPU index\tGPU name\tSubSys ID");
         for (size_t index = 0; index < adapters.size(); ++index)
@@ -84,12 +85,10 @@ void InfoD3d12Interface::OutputEnumGpuIndices()
                                 adapter.second.adapter_idx,
                                 replay_adapter_str.c_str(),
                                 adapter.second.internal_desc.SubSysId);
-                    adapter.second.adapter->Release();
                     break;
                 }
             }
         }
-        factory1->Release();
     }
     else
     {
@@ -104,8 +103,6 @@ void InfoD3d12Interface::OutputInfo()
         case InfoApiInterface::InfoOutputLevel::kBasic:
             break;
         case InfoApiInterface::InfoOutputLevel::kExeInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::kApplicationInfo:
             break;
         case InfoApiInterface::InfoOutputLevel::EnvironmentInfo:
             break;
