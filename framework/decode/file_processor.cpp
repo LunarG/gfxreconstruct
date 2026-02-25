@@ -67,7 +67,6 @@ bool FileProcessor::Initialize(const std::string& filename)
     }
     else
     {
-        GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
         error_state_ = kErrorOpeningFile;
     }
 
