@@ -30,10 +30,9 @@ GFXRECON_BEGIN_NAMESPACE(info)
 
 std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString()
 {
-    return std::format("  OpenXR Header Version  {}.{}.{}",
-                       XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
-                       XR_VERSION_MINOR(XR_CURRENT_API_VERSION),
-                       XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
+    return std::string("  OpenXR Header Version  ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
+           std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
+           std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION));
 }
 
 void InfoOpenXrInterface::UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments)
@@ -60,17 +59,73 @@ void InfoOpenXrInterface::RegisterApiDecodeComponents(gfxrecon::decode::FileProc
     file_processor.AddDecoder(&openxr_decoder_);
 }
 
-void InfoOpenXrInterface::OutputInfo()
+std::string InfoOpenXrInterface::GetVersionString(XrVersion api_version)
+{
+    uint32_t major = XR_VERSION_MAJOR(api_version);
+    uint32_t minor = XR_VERSION_MINOR(api_version);
+    uint32_t patch = XR_VERSION_PATCH(api_version);
+
+    return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
+}
+
+void InfoOpenXrInterface::PrintInfo()
 {
     switch (info_output_level_)
     {
         case InfoApiInterface::InfoOutputLevel::kBasic:
+        {
+            auto instance_info = openxr_stats_consumer_.GetInstanceInfo();
+
+            WriteOutput("");
+            WriteOutput("OpenXR info:");
+
+            WriteOutput(std::string("\tHeader Version:             ") + GetVersionString(XR_CURRENT_API_VERSION));
+
+            WriteOutput(std::string("\tNumber of OpenXR Instances: ") + std::to_string(instance_info.size()));
+
+            // For non-verbose standard output, just print first application/instance info
+            WriteOutput("\nOpenXR application info:");
+            WriteOutput(std::string("\tApplication name:    ") + instance_info[0].app_name);
+            WriteOutput(std::string("\tApplication version: ") + std::to_string(instance_info[0].app_version));
+            WriteOutput(std::string("\tEngine name:         ") + instance_info[0].engine_name);
+            WriteOutput(std::string("\tEngine version:      ") + std::to_string(instance_info[0].engine_version));
+            WriteOutput(std::string("\tTarget API version:  ") + std::to_string(instance_info[0].api_version) + " (" +
+                        GetVersionString(instance_info[0].api_version) + ")");
             break;
-        case InfoApiInterface::InfoOutputLevel::kVerbose:
-            break;
+        }
         default:
             break;
     }
+}
+
+nlohmann::json InfoOpenXrInterface::GenerateJson()
+{
+    auto instance_info = openxr_stats_consumer_.GetInstanceInfo();
+
+    nlohmann::json openxr_stats;
+
+    openxr_stats["header-version"] = GetVersionString(XR_CURRENT_API_VERSION);
+    auto& instances_json = openxr_stats["instances"] = nlohmann::json::array();
+
+    uint32_t       inst_index = 0;
+    nlohmann::json instance_array;
+    for (auto& it : instance_info)
+    {
+        nlohmann::json instance_json;
+
+        auto& application_info                     = instance_json["application-info"];
+        application_info["application"]["name"]    = it.second.app_name;
+        application_info["application"]["version"] = it.second.app_version;
+        application_info["engine"]["name"]         = it.second.engine_name;
+        application_info["engine"]["version"]      = it.second.engine_version;
+        application_info["api-version"]            = GetVersionString(it.second.api_version);
+
+        instance_json["extensions"] = it.second.enabled_extensions;
+
+        instances_json.push_back(instance_json);
+    }
+
+    return openxr_stats;
 }
 
 GFXRECON_END_NAMESPACE(info)
