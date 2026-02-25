@@ -273,27 +273,20 @@ ParsedBlock BlockParser::ParseBlock(BlockBuffer& block_buffer, uint64_t block_in
     {
         case format::kFunctionCallBlock:
             return ParseFunctionCall(block_buffer);
-            break;
         case format::kMethodCallBlock:
             return ParseMethodCall(block_buffer);
-            break;
         case format::kMetaDataBlock:
             return ParseMetaData(block_buffer);
-            break;
         case format::kFrameMarkerBlock:
             return ParseFrameMarker(block_buffer);
-            break;
         case format::kStateMarkerBlock:
             return ParseStateMarker(block_buffer);
-            break;
         case format::kAnnotation:
             return ParseAnnotation(block_buffer);
-            break;
         case format::kUnknownBlock:
         default:
             WarnUnknownBlock(block_buffer);
             return ParsedBlock{ ParsedBlock::UnknownBlockTag(), GetBlockIndex(), block_buffer.ReleaseData() };
-            break;
     }
 }
 
