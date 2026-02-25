@@ -41,24 +41,27 @@ class InfoOpenXrInterface : public InfoApiInterface
     virtual ~InfoOpenXrInterface() = default;
 
     // Simple "getter" style methods
-    virtual format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_OpenXR; }
-    virtual std::string         ApiLabel() override { return "OpenXR"; }
-    virtual bool                ApiWasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
-    virtual std::string         ApiCompiledHeaderVersionString() override;
+    format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_OpenXR; }
+    std::string         ApiLabel() override { return "OpenXR"; }
+    bool                ApiWasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
+    std::string         ApiCompiledHeaderVersionString() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
-    virtual void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
-    virtual void UpdateCommandLineUsage(std::string& usage) override;
-    virtual bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
+    void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
+    void UpdateCommandLineUsage(std::string& usage) override;
+    bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor
-    virtual void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
-    // Output methods%s
-    virtual void OutputInfo() override;
+    // Output methods
+    void           PrintInfo() override;
+    nlohmann::json GenerateJson() override;
 
   private:
+    std::string GetVersionString(XrVersion api_version);
+
     gfxrecon::decode::OpenXrDetectionConsumer openxr_detection_consumer_;
     gfxrecon::decode::OpenXrStatsConsumer     openxr_stats_consumer_;
     gfxrecon::decode::OpenXrDecoder           openxr_decoder_;

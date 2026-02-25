@@ -33,6 +33,7 @@
 #include "format/format.h"
 #include "format/format_util.h"
 
+#include "info_writer.h"
 #include "info_api_interface.h"
 
 #include <memory>
@@ -79,7 +80,16 @@ class InfoContainer
     void           PrintFileFormatInfoText();
     nlohmann::json GetFileFormatInfoJson();
 
+    void           GatherApiAgnosticStats();
+    void           PrintApiAgnosticStatsText();
+    nlohmann::json GetApiAgnosticStatsJson();
+
+    void           PrintGfxrOperationsText();
+    nlohmann::json GetGfxrOperationsJson();
+
     void WriteOutput(const std::string& message);
+    void WriteError(const std::string& message);
+    void WriteWarning(const std::string& message);
 
     class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
     {
@@ -145,8 +155,12 @@ class InfoContainer
 
     std::string                                     app_name_;
     InfoApiInterface::InfoOutputLevel               output_level_{ InfoApiInterface::InfoOutputLevel::kBasic };
-    std::ofstream                                   output_file_;
+    std::shared_ptr<InfoWriter>                     info_writer_;
     std::vector<std::unique_ptr<InfoApiInterface>>  api_interfaces_;
+    std::vector<std::string>                        detected_apis_;
+    uint32_t                                        blank_frame_count_{ 0 };
+    uint32_t                                        start_frame_{ 0 };
+    bool                                            use_single_line_frame_output_{ false };
     bool                                            api_restricted_output_{ false };
     bool                                            force_all_api_output_{ false };
     gfxrecon::decode::FileProcessor                 file_processor_;
@@ -155,6 +169,7 @@ class InfoContainer
     gfxrecon::decode::InfoConsumer                  info_consumer_;
     gfxrecon::decode::InfoDecoder                   info_decoder_;
     AnnotationRecorder                              annotation_recorder_;
+    ApiAgnosticStats                                api_agnostic_stats_;
     std::shared_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
     nlohmann::json                                  json_base_;
 };
