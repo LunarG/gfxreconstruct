@@ -45,6 +45,7 @@ class InfoD3d12Interface : public InfoApiInterface
     virtual format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_D3D12; }
     virtual std::string         ApiLabel() override { return "D3D12"; }
     virtual bool                ApiWasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
+    virtual std::string         ApiCompiledHeaderVersionString() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
     virtual void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;

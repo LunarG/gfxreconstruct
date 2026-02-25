@@ -66,12 +66,6 @@ void InfoOpenXrInterface::OutputInfo()
     {
         case InfoApiInterface::InfoOutputLevel::kBasic:
             break;
-        case InfoApiInterface::InfoOutputLevel::kExeInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::EnvironmentInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::FileInfo:
-            break;
         case InfoApiInterface::InfoOutputLevel::kVerbose:
             break;
         default:
