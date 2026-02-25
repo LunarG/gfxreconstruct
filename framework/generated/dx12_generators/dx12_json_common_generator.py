@@ -40,6 +40,12 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
     ## @todo Expand this to include more types.
     HEX_TYPES = {"D3D12_GPU_VIRTUAL_ADDRESS"}
 
+    ## A set of tuples of strings which name class.method.argument, None.function.argument, or None.struct.member
+    ## which should be output as hexadecimal.
+    HEX_ITEMS = {
+        (None, "D3D12_GPU_DESCRIPTOR_HANDLE", "ptr")
+    }
+
     ## @param value_info A ValueInfo object from base_generator.py.
     def is_raw_bitflags(self, value_info):
         if (not ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES)) and value_info.base_type.upper().startswith('UINT') and value_info.name.upper().endswith("MASK"):
@@ -47,9 +53,9 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
         return False
 
     ## @param value_info A ValueInfo object from base_generator.py.
-    def choose_field_to_json_name(self, value_info):
+    def choose_field_to_json_name(self, value_info, parent = None, grandparent = None):
         if value_info != None:
-            if value_info.base_type in self.HEX_TYPES:
+            if value_info.base_type in self.HEX_TYPES or (grandparent, parent, value_info.name) in self.HEX_ITEMS:
                 return "FieldToJsonAsHex"
             if "BOOL" in value_info.base_type:
                 return "Bool32ToJson"
