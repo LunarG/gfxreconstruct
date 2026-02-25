@@ -41,6 +41,7 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
+#include <span>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -82,7 +83,11 @@ class StructPointerDecoder : public PointerDecoderBase
 
     typename T::struct_type* GetPointer() { return struct_memory_; }
 
+    std::span<typename T::struct_type> GetSpan() { return std::span(GetPointer(), GetLength()); }
+
     const typename T::struct_type* GetPointer() const { return struct_memory_; }
+
+    const std::span<typename T::struct_type> GetSpan() const { return std::span(GetPointer(), GetLength()); }
 
     size_t GetOutputLength() const { return output_len_; }
 
