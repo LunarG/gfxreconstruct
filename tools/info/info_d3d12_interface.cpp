@@ -30,6 +30,15 @@ GFXRECON_BEGIN_NAMESPACE(info)
 
 const char kEnumGpuIndices[] = "--enum-gpu-indices";
 
+std::string InfoD3d12Interface::ApiCompiledHeaderVersionString()
+{
+#if defined(D3D12SDKVersion)
+    return std::format("  D3D12 SDK Version      {}", D3D12SDKVersion));
+#else
+    return "";
+#endif
+}
+
 void InfoD3d12Interface::UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments)
 {
     options += " ";
@@ -100,12 +109,6 @@ void InfoD3d12Interface::OutputInfo()
     switch (info_output_level_)
     {
         case InfoApiInterface::InfoOutputLevel::kBasic:
-            break;
-        case InfoApiInterface::InfoOutputLevel::kExeInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::EnvironmentInfo:
-            break;
-        case InfoApiInterface::InfoOutputLevel::FileInfo:
             break;
         case InfoApiInterface::InfoOutputLevel::kD3d12EnumGpuDevices:
             OutputEnumGpuIndices();
