@@ -66,6 +66,8 @@
 #include <numeric>
 #include <unordered_set>
 #include <future>
+
+// NOTE: still unsupported on android, as of NDK 36 (check _LIBCPP_HAS_NO_INCOMPLETE_FORMAT)
 #include <format>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -1537,14 +1539,17 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
         }
 
         // common log-string for fatal/warning/debug severities
-        const std::string log_str =
-            std::format("API call at index: {} thread: {} {} returned error value {} that does not match "
-                        "the result from the capture file: {}",
-                        call_info.index,
-                        call_info.thread_id,
-                        func_name,
-                        util::ToString<VkResult>(replay),
-                        util::ToString<VkResult>(original));
+        constexpr size_t buf_size = 512;
+        char             log_str[buf_size];
+        snprintf(log_str,
+                 buf_size,
+                 "API call at index: %" PRIu64 " thread: %" PRIu64 " %s returned error value %s that does not match "
+                 "the result from the capture file: %s",
+                 call_info.index,
+                 call_info.thread_id,
+                 func_name,
+                 util::ToString<VkResult>(replay).c_str(),
+                 util::ToString<VkResult>(original).c_str());
 
         if (!accept_return_code)
         {
@@ -1554,7 +1559,7 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
                 // supported errors are not treated as fatal, but will be reported as warnings below, allowing the
                 // replay to attempt to continue for the case where an application may have queried for formats that it
                 // did not use.
-                GFXRECON_LOG_FATAL("%s. Replay cannot continue.", log_str.c_str());
+                GFXRECON_LOG_FATAL("%s. Replay cannot continue.", log_str);
                 RaiseFatalError(enumutil::GetResultDescription(replay));
             }
             else
@@ -1562,13 +1567,13 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
                 // Report differences between replay result and capture result, unless the replay results indicates
                 // that a wait operation completed before the original or a WSI function succeeded when the original
                 // failed.
-                GFXRECON_LOG_WARNING("%s.", log_str.c_str());
+                GFXRECON_LOG_WARNING("%s.", log_str);
             }
         }
         else
         {
             // in case we accept a mismatching return-code, just log a debug-message
-            GFXRECON_LOG_DEBUG("%s.", log_str.c_str());
+            GFXRECON_LOG_DEBUG("%s.", log_str);
         }
     }
 }
