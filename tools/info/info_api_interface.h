@@ -44,11 +44,15 @@ class InfoApiInterface
   public:
     enum class InfoOutputLevel : std::uint32_t
     {
+        // Pre-10 value - items that do not need API-specific info
         kInfoVersionOnly = 0,
-        kBasic,
+        kFileInfo,
         kExeInfo,
-        EnvironmentInfo,
-        FileInfo,
+        kEnvironmentInfo,
+
+        // Everything past this requires API-specific info
+        kApiSpecificBegin = 10,
+        kBasic            = kApiSpecificBegin,
 
         // API-specific reserved section
         kApiSpecific_1 = 250,

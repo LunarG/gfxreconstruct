@@ -65,13 +65,22 @@ class InfoContainer
     }
     InfoApiInterface::InfoOutputLevel GetOutputLevel() { return output_level_; }
 
-  protected:
+  private:
     void PrintUsage();
     void PrintVersion();
 
+    void           PrintExeInfo();
+    nlohmann::json GetExeInfoJson();
+
+    void           PrintEnvironmentVariableInfo();
+    nlohmann::json GetEnvironmentVariableInfoJson();
+
+    std::string    GetFrameMarkerString(bool uses_frame_markers, bool needs_update);
+    void           PrintFileFormatInfoText();
+    nlohmann::json GetFileFormatInfoJson();
+
     void WriteOutput(const std::string& message);
 
-  private:
     class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
     {
       public:
@@ -139,6 +148,7 @@ class InfoContainer
     std::ofstream                                   output_file_;
     std::vector<std::unique_ptr<InfoApiInterface>>  api_interfaces_;
     bool                                            api_restricted_output_{ false };
+    bool                                            force_all_api_output_{ false };
     gfxrecon::decode::FileProcessor                 file_processor_;
     gfxrecon::decode::StatDecoderBase               stat_decoder_;
     gfxrecon::decode::StatConsumer                  stat_consumer_;
@@ -146,6 +156,7 @@ class InfoContainer
     gfxrecon::decode::InfoDecoder                   info_decoder_;
     AnnotationRecorder                              annotation_recorder_;
     std::shared_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
+    nlohmann::json                                  json_base_;
 };
 
 GFXRECON_END_NAMESPACE(info)

@@ -133,28 +133,6 @@ struct ApiAgnosticStats
     bool                              uses_frame_markers;
 };
 
-struct FileFormatInfo
-{
-    uint32_t major_version               = 0;
-    uint32_t minor_version               = 0;
-    bool     uses_frame_markers          = false;
-    bool     file_supports_frame_markers = false;
-
-    FileFormatInfo(const gfxrecon::decode::FileProcessor& file_processor)
-    {
-        const gfxrecon::format::FileHeader& file_header = file_processor.GetFileHeader();
-        major_version                                   = file_header.major_version;
-        minor_version                                   = file_header.minor_version;
-        uses_frame_markers                              = file_processor.UsesFrameMarkers();
-        file_supports_frame_markers                     = file_processor.FileSupportsFrameMarkers();
-    }
-
-    bool NeedsUpdate() const
-    {
-        return major_version == 0 && minor_version == 0 && uses_frame_markers && !file_supports_frame_markers;
-    }
-};
-
 class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
 {
   public:
@@ -261,34 +239,6 @@ void PrintAnnotationsText(const AnnotationRecorder& annotation_recorder)
     }
 }
 
-inline std::string GetFrameMarkerString(bool uses_frame_markers, bool needs_update)
-{
-    return uses_frame_markers ? (needs_update ? "explicit (unsupported)" : "explicit") : "implicit";
-}
-
-nlohmann::json GetFileFormatInfoJson(const gfxrecon::decode::FileProcessor& file_processor)
-{
-    FileFormatInfo file_format_info(file_processor);
-
-    std::string file_format_version =
-        std::to_string(file_format_info.major_version) + "." + std::to_string(file_format_info.minor_version);
-    std::string frame_marker_string =
-        GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate());
-
-    return {
-        { "file-version", file_format_version },
-        { "frame-delimiters", frame_marker_string },
-    };
-}
-
-void PrintFileFormatInfoText(const gfxrecon::decode::FileProcessor& file_processor)
-{
-    FileFormatInfo file_format_info(file_processor);
-    WriteOutput("\tFile format version: %u.%u", file_format_info.major_version, file_format_info.minor_version);
-    WriteOutput("\tFrame delimiters: %s",
-                GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate()).c_str());
-}
-
 std::string GetDriverInfoString(const gfxrecon::decode::InfoConsumer& driver_info_consumer)
 {
     if (gfxrecon::util::platform::StringLength(driver_info_consumer.GetDriverDesc()) > 0)
@@ -313,106 +263,6 @@ void PrintDriverInfoText(const gfxrecon::decode::InfoConsumer& driver_info_consu
     {
         WriteOutput("\tDriver info not available.");
         WriteOutput("");
-    }
-}
-
-nlohmann::json GetExeInfoJson(const gfxrecon::decode::InfoConsumer& info_consumer)
-{
-    auto        exe_version  = info_consumer.GetAppVersion();
-    std::string file_desc    = info_consumer.GetFileDescription();
-    std::string product_name = info_consumer.GetProductName();
-    std::string version      = std::to_string(exe_version[0]) + "." + std::to_string(exe_version[1]) + "." +
-                          std::to_string(exe_version[2]) + "." + std::to_string(exe_version[3]);
-
-    return {
-        { "name", info_consumer.GetAppExeName() },
-        { "version", version },
-        { "company", info_consumer.GetCompanyName() },
-        { "product", product_name },
-        { "file-description", file_desc },
-    };
-}
-
-void PrintExeInfoText(const gfxrecon::decode::InfoConsumer& info_consumer)
-{
-    auto        exe_version  = info_consumer.GetAppVersion();
-    std::string file_desc    = info_consumer.GetFileDescription();
-    std::string product_name = info_consumer.GetProductName();
-
-    WriteOutput("Exe info:");
-    WriteOutput("\tApplication exe name: %s", info_consumer.GetAppExeName().c_str());
-
-    WriteOutput("\tApplication version: %d.%d.%d.%d", exe_version[0], exe_version[1], exe_version[2], exe_version[3]);
-    WriteOutput("\tApplication Company name: %s", info_consumer.GetCompanyName());
-
-    // we are combining file description and product name and presenting both only if they are not same
-    std::string app_data = file_desc;
-    if (strcmp(product_name.c_str(), "N/A") != 0)
-    {
-        if (strcmp(product_name.c_str(), file_desc.c_str()) != 0)
-        {
-            app_data += " // ";
-            app_data += info_consumer.GetProductName();
-        }
-    }
-    WriteOutput("\tProduct name: %s", app_data.c_str());
-}
-
-nlohmann::json GetEnvironmentVariableInfoJson(const std::vector<std::string>& environment_variables)
-{
-    nlohmann::json environment;
-
-    static const std::string delimiter = "=";
-    for (const auto& var : environment_variables)
-    {
-        const auto& delimiter_pos = var.find(delimiter);
-        std::string key           = var.substr(0, delimiter_pos);
-        std::string value         = var.substr(delimiter_pos + 1);
-        environment[key]          = value;
-    }
-
-    return environment;
-}
-
-void PrintEnvironmentVariableInfoText(gfxrecon::decode::InfoConsumer& info_consumer)
-{
-    WriteOutput("Environment variables:");
-    for (const auto& var : info_consumer.GetEnvironmentVariables())
-    {
-        WriteOutput("\t%s", var.c_str());
-    }
-}
-
-nlohmann::json GetDetectedApiInfoJson(uint32_t detected_apis)
-{
-    std::vector<std::string> apis;
-    if (detected_apis == 0)
-    {
-        apis.push_back("Unable to detect captured APIs");
-    }
-    else
-    {
-        if (detected_apis & kApisDetected_Vulkan)
-        {
-            apis.push_back("Vulkan");
-        }
-        if (detected_apis & kApisDetected_D3D12)
-        {
-            apis.push_back("D3D12");
-        }
-        if (detected_apis & kApisDetected_OpenXr)
-        {
-            apis.push_back("OpenXR");
-        }
-    }
-    return apis;
-}
-
-void PrintDetectedApiInfoText(uint32_t detected_apis)
-{
-    if (detected_apis == 0)
-    {
-        WriteOutput("Unable to detect capture file API(s). Writing all stats.");
     }
 }
 
@@ -1114,70 +964,6 @@ void PrintOpenXrStatsText(const gfxrecon::decode::FileProcessor&       file_proc
 }
 #endif // ENABLE_OPENXR_SUPPORT
 
-// A short pass to get exe info. Only processes the first blocks of a capture file.
-bool GatherAndPrintExeInfo(const std::string& input_filename)
-{
-    gfxrecon::decode::InfoConsumer  info_consumer(true);
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::InfoDecoder info_decoder;
-        info_decoder.AddConsumer(&info_consumer);
-        file_processor.AddDecoder(&info_decoder);
-        file_processor.ProcessAllFrames();
-
-        PrintExeInfoText(info_consumer);
-    }
-
-    return file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone;
-}
-
-// A short pass to get file format info. Only processes the first two frames of a capture file.
-bool GatherAndPrintFileFormatInfo(const std::string& input_filename)
-{
-    const gfxrecon::decode::InfoConsumer::NoMaxBlockTag no_max_tag;
-    gfxrecon::decode::InfoConsumer                      info_consumer(no_max_tag);
-    gfxrecon::decode::FileProcessor                     file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::InfoDecoder info_decoder;
-        info_decoder.AddConsumer(&info_consumer);
-        file_processor.AddDecoder(&info_decoder);
-        bool success = file_processor.ProcessNextFrame();
-        if (success && !file_processor.UsesFrameMarkers())
-        {
-            file_processor.ProcessNextFrame();
-        }
-        WriteOutput("File format info:");
-        PrintFileFormatInfoText(file_processor);
-    }
-
-    return file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone;
-}
-
-bool GatherAndPrintEnvVars(const std::string& input_filename)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::InfoConsumer info_consumer;
-        gfxrecon::decode::InfoDecoder  info_decoder;
-        info_decoder.AddConsumer(&info_consumer);
-        file_processor.AddDecoder(&info_decoder);
-        file_processor.ProcessAllFrames();
-        if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
-        {
-            PrintEnvironmentVariableInfoText(info_consumer);
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Encountered error while reading capture. Unable to report environment variables.");
-        }
-    }
-
-    return file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone;
-}
-
 bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
 {
     gfxrecon::decode::FileProcessor file_processor;
@@ -1259,16 +1045,8 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             {
                 nlohmann::json json_content;
 
-                json_content["exe"]               = GetExeInfoJson(info_consumer);
-                const auto& environment_variables = info_consumer.GetEnvironmentVariables();
-                if (!environment_variables.empty())
-                {
-                    json_content["environment"] = GetEnvironmentVariableInfoJson(environment_variables);
-                }
-                json_content["file-info"] = GetFileFormatInfoJson(file_processor);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
-                    json_content["detected-apis"] = GetDetectedApiInfoJson(detected_apis);
                     json_content["general-info"]  = GetApiAgnosticStatsJson(file_processor, api_agnostic_stats);
 
                     // If we're missing API info, force printing everything
@@ -1305,16 +1083,8 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             }
             else
             {
-                PrintDetectedApiInfoText(detected_apis);
-                PrintExeInfoText(info_consumer);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
-                    // If we're missing API info, force printing everything
-                    if (detected_apis == 0)
-                    {
-                        detected_apis = kApisDetected_All;
-                    }
-
                     PrintApiAgnosticStatsText(
                         file_processor, api_agnostic_stats, (detected_apis & kApisDetected_Vulkan));
                     if (detected_apis & kApisDetected_Vulkan)
@@ -1384,19 +1154,14 @@ int main(int argc, const char** argv)
             case gfxrecon::info::InfoApiInterface::InfoOutputLevel::kBasic:
                 success = GatherAndPrintAllInfo(input_filename, false);
                 break;
-            case gfxrecon::info::InfoApiInterface::InfoOutputLevel::kExeInfo:
-                success = GatherAndPrintExeInfo(input_filename);
-                break;
-            case gfxrecon::info::InfoApiInterface::InfoOutputLevel::EnvironmentInfo:
-                success = GatherAndPrintEnvVars(input_filename);
-                break;
-            case gfxrecon::info::InfoApiInterface::InfoOutputLevel::FileInfo:
-                success = GatherAndPrintFileFormatInfo(input_filename);
-                break;
             case gfxrecon::info::InfoApiInterface::InfoOutputLevel::kVerbose:
                 success = GatherAndPrintAllInfo(input_filename, true);
                 break;
             default:
+                if (info_container.ProcessCapture() && info_container.OutputContent())
+                {
+                    success = true;
+                }
                 break;
         }
     }

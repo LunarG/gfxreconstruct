@@ -31,6 +31,7 @@
 #include "tool_settings.h"
 
 #include <format>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
@@ -128,6 +129,23 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
     GetLogSettings(*argument_parser_.get(), log_settings);
     gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
+    if (argument_parser_->IsOptionSet(kExeInfoOnlyOption))
+    {
+        output_level_ = InfoApiInterface::InfoOutputLevel::kExeInfo;
+    }
+    else if (argument_parser_->IsOptionSet(kEnvVarsOnlyOption))
+    {
+        output_level_ = InfoApiInterface::InfoOutputLevel::kEnvironmentInfo;
+    }
+    else if (argument_parser_->IsOptionSet(kFileFormatOnlyOption))
+    {
+        output_level_ = InfoApiInterface::InfoOutputLevel::kFileInfo;
+    }
+    else if (argument_parser_->IsOptionSet(kVerboseOption))
+    {
+        output_level_ = InfoApiInterface::InfoOutputLevel::kVerbose;
+    }
+
     if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
     {
         // Check for API-specific items
@@ -172,15 +190,55 @@ bool InfoContainer::ProcessCapture()
             file_processor_.AddDecoder(&info_decoder_);
             file_processor_.SetAnnotationProcessor(&annotation_recorder_);
 
-            for (auto& api_if : api_interfaces_)
+            if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin)
             {
-                api_if->RegisterApiDecodeComponents(file_processor_);
+                for (auto& api_if : api_interfaces_)
+                {
+                    api_if->RegisterApiDecodeComponents(file_processor_);
+                }
             }
-            file_processor_.ProcessAllFrames();
+
+            // For file info, we want to do a simpler pass.
+            // For everything else, we want to parse the file
+            if (output_level_ == InfoApiInterface::InfoOutputLevel::kFileInfo)
+            {
+                if (!file_processor_.ProcessNextFrame())
+                {
+                    return false;
+                }
+                if (!file_processor_.UsesFrameMarkers())
+                {
+                    file_processor_.ProcessNextFrame();
+                }
+            }
+            else if (output_level_ > InfoApiInterface::InfoOutputLevel::kFileInfo)
+            {
+                file_processor_.ProcessAllFrames();
+            }
+
             if (file_processor_.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
             {
                 WriteOutput("Encountered error while reading capture, info unavailable.");
                 return false;
+            }
+
+            if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin)
+            {
+                bool api_found = false;
+                for (auto& api_if : api_interfaces_)
+                {
+                    if (api_if->ApiWasDetected())
+                    {
+                        api_found = true;
+                    }
+                }
+
+                // If no API data found, force each API to try to spit out info
+                if (!api_found)
+                {
+                    WriteOutput("Unable to detect capture file API(s). Writing all stats.");
+                    force_all_api_output_ = true;
+                }
             }
         }
     }
@@ -189,11 +247,56 @@ bool InfoContainer::ProcessCapture()
 
 bool InfoContainer::OutputContent()
 {
-    if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
+    std::vector<std::string> detected_apis;
+    for (auto& api_if : api_interfaces_)
+    {
+        if (api_if->ApiWasDetected())
+        {
+            detected_apis.push_back(api_if->ApiLabel());
+        }
+    }
+
+    switch (output_level_)
+    {
+        case InfoApiInterface::InfoOutputLevel::kExeInfo:
+            PrintExeInfo();
+            break;
+        case InfoApiInterface::InfoOutputLevel::kEnvironmentInfo:
+            PrintEnvironmentVariableInfo();
+            break;
+        case InfoApiInterface::InfoOutputLevel::kFileInfo:
+            PrintFileFormatInfoText();
+            break;
+        case InfoApiInterface::InfoOutputLevel::kBasic:
+            if (!detected_apis.size())
+            {
+                WriteOutput("Unable to detect capture file API(s). Writing all stats.");
+            }
+            PrintExeInfo();
+            break;
+        case InfoApiInterface::InfoOutputLevel::kVerbose:
+            json_base_["exe"]         = GetExeInfoJson();
+            json_base_["environment"] = GetEnvironmentVariableInfoJson();
+            json_base_["file-info"]   = GetFileFormatInfoJson();
+
+            if (!detected_apis.size())
+            {
+                detected_apis.push_back("Unable to detect captured APIs");
+            }
+            json_base_["detected-apis"] = detected_apis;
+
+            WriteOutput(json_base_.dump(4, ' ', true).c_str());
+            break;
+        default:
+            break;
+    }
+
+    if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin)
     {
         for (auto& api_if : api_interfaces_)
         {
-            if (api_if->ApiWasDetected() && (!api_restricted_output_ || api_if->ApiOutputOverrideDetected()))
+            if ((api_if->ApiWasDetected() || force_all_api_output_) &&
+                (!api_restricted_output_ || api_if->ApiOutputOverrideDetected()))
             {
                 api_if->OutputInfo();
 
@@ -204,7 +307,7 @@ bool InfoContainer::OutputContent()
             }
         }
     }
-    return false;
+    return true;
 }
 
 void InfoContainer::PrintUsage()
@@ -246,6 +349,102 @@ void InfoContainer::PrintVersion()
     {
         WriteOutput(api_if->ApiCompiledHeaderVersionString());
     }
+}
+
+void InfoContainer::PrintExeInfo()
+{
+    std::string exe_name     = info_consumer_.GetAppExeName();
+    auto        exe_version  = info_consumer_.GetAppVersion();
+    std::string company_name = info_consumer_.GetCompanyName();
+    std::string file_desc    = info_consumer_.GetFileDescription();
+    std::string product_name = info_consumer_.GetProductName();
+
+    WriteOutput("Exe info:");
+    WriteOutput(std::format("\tApplication exe name: {}", exe_name));
+
+    WriteOutput(std::format(
+        "\tApplication version: {}.{}.{}.{}", exe_version[0], exe_version[1], exe_version[2], exe_version[3]));
+    WriteOutput(std::format("\tApplication Company name: {}", company_name));
+
+    // we are combining file description and product name and presenting both only if they are not same
+    std::string app_data = file_desc;
+    if (strcmp(product_name.c_str(), "N/A") != 0)
+    {
+        if (strcmp(product_name.c_str(), file_desc.c_str()) != 0)
+        {
+            app_data += " // ";
+            app_data += product_name;
+        }
+    }
+    WriteOutput(std::format("\tProduct name: {}", app_data));
+}
+
+nlohmann::json InfoContainer::GetExeInfoJson()
+{
+    std::string exe_name     = info_consumer_.GetAppExeName();
+    auto        exe_version  = info_consumer_.GetAppVersion();
+    std::string company_name = info_consumer_.GetCompanyName();
+    std::string file_desc    = info_consumer_.GetFileDescription();
+    std::string product_name = info_consumer_.GetProductName();
+
+    return {
+        { "name", exe_name },
+        { "version", std::format("{}.{}.{}.{}", exe_version[0], exe_version[1], exe_version[2], exe_version[3]) },
+        { "company", company_name },
+        { "product", product_name },
+        { "file-description", file_desc },
+    };
+}
+
+void InfoContainer::PrintEnvironmentVariableInfo()
+{
+    WriteOutput("Environment variables:");
+    for (const auto& var : info_consumer_.GetEnvironmentVariables())
+    {
+        WriteOutput(std::format("\t{}", var));
+    }
+}
+
+nlohmann::json InfoContainer::GetEnvironmentVariableInfoJson()
+{
+    nlohmann::json           environment;
+    static const std::string delimiter = "=";
+
+    for (const auto& var : info_consumer_.GetEnvironmentVariables())
+    {
+        const auto& delimiter_pos = var.find(delimiter);
+        std::string key           = var.substr(0, delimiter_pos);
+        std::string value         = var.substr(delimiter_pos + 1);
+        environment[key]          = value;
+    }
+
+    return environment;
+}
+
+std::string InfoContainer::GetFrameMarkerString(bool uses_frame_markers, bool needs_update)
+{
+    return uses_frame_markers ? (needs_update ? "explicit (unsupported)" : "explicit") : "implicit";
+}
+
+void InfoContainer::PrintFileFormatInfoText()
+{
+    WriteOutput("File format info:");
+    FileFormatInfo file_format_info(file_processor_);
+    WriteOutput(
+        std::format("\tFile format version: {}.{}", file_format_info.major_version, file_format_info.minor_version));
+    WriteOutput(std::format("\tFrame delimiters: {}",
+                            GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate())));
+}
+
+nlohmann::json InfoContainer::GetFileFormatInfoJson()
+{
+    FileFormatInfo file_format_info(file_processor_);
+
+    return {
+        { "file-version", std::format("{}.{}", file_format_info.major_version, file_format_info.minor_version) },
+        { "frame-delimiters",
+          GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate()) },
+    };
 }
 
 void InfoContainer::WriteOutput(const std::string& message)
