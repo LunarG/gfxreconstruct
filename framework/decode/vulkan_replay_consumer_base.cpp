@@ -96,12 +96,7 @@ const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeTh
     { VK_TIMEOUT, VK_SUCCESS },
     { VK_NOT_READY, VK_SUCCESS },
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
-    { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
-
-    // silences: [gfxrecon] WARNING - API call vkGetEventStatus returned value VK_EVENT_SET that does not match return
-    // value from capture file: VK_EVENT_RESET.
-    // -> considered harmless and 'can' create a lot of noise.
-    { VK_EVENT_RESET, VK_EVENT_SET },
+    { VK_SUBOPTIMAL_KHR, VK_SUCCESS }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
