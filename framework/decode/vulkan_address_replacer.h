@@ -334,7 +334,7 @@ class VulkanAddressReplacer
      *
      * @param   buffer_info  a provided VulkanBufferInfo struct
      */
-    void DestroyShadowResources(const VulkanBufferInfo* buffer_info);
+    void DestroyShadowResources(const VulkanBufferInfo* buffer_info, const VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkCommandBuffer handle,

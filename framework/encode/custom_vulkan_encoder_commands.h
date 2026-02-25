@@ -677,6 +677,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkMapMemory2(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkMapMemory2(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>
 {
     template <typename... Args>
@@ -693,6 +713,26 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PreProcess_vkUnmapMemory(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkUnmapMemory2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkUnmapMemory2(args...);
     }
 };
 

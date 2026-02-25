@@ -6216,7 +6216,7 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
 
     // free potential shadow-resources associated with this buffer
-    GetDeviceAddressReplacer(device_info).DestroyShadowResources(buffer_info);
+    GetDeviceAddressReplacer(device_info).DestroyShadowResources(buffer_info, GetDeviceAddressTracker(device_info));
 
     // remove from device-address tracking
     GetDeviceAddressTracker(device_info).RemoveBuffer(buffer_info);
@@ -9272,7 +9272,8 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
         const auto* info_meta = pInfo->GetMetaStructPointer();
         const auto* src       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
         const auto* dst       = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
-        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
+        resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
+            *GetDeviceTable(device_info->handle), command_buffer_info, src, dst);
     }
 
     VkCommandBuffer                     command_buffer = command_buffer_info->handle;
@@ -11396,7 +11397,8 @@ void VulkanReplayConsumerBase::ProcessVulkanCopyAccelerationStructuresCommand(
             {
                 const auto* src = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->src);
                 const auto* dst = object_info_table_->GetVkAccelerationStructureKHRInfo(info_meta->dst);
-                resource_dumper_->HandleCmdCopyAccelerationStructureKHR(*GetDeviceTable(device_info->handle), src, dst);
+                resource_dumper_->HandleCmdCopyAccelerationStructureKHR(
+                    *GetDeviceTable(device_info->handle), nullptr, src, dst);
             }
         }
 
@@ -12962,6 +12964,30 @@ void VulkanReplayConsumerBase::OverrideGetDeviceMemoryOpaqueCaptureAddress(
     }
 
     allocator->GetDeviceMemoryOpaqueCaptureAddress(info, allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreatePipelineBinariesKHR(
+    PFN_vkCreatePipelineBinariesKHR                               func,
+    VkResult                                                      original_result,
+    VulkanDeviceInfo*                                             device_info,
+    StructPointerDecoder<Decoded_VkPipelineBinaryCreateInfoKHR>*  pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
+    StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries)
+{
+    const VkPipelineBinaryCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
+    const VkAllocationCallbacks*         in_pAllocator  = GetAllocationCallbacks(pAllocator);
+
+    VkPipelineBinaryHandlesInfoKHR* out_pBinaries = pBinaries->GetOutputPointer();
+    if (out_pBinaries != nullptr && pBinaries->GetLength() > 0)
+    {
+        out_pBinaries->pipelineBinaryCount = pBinaries->GetLength();
+        out_pBinaries->pPipelineBinaries =
+            DecodeAllocator::Allocate<VkPipelineBinaryKHR>(out_pBinaries->pipelineBinaryCount);
+    }
+
+    VkResult replay_result = func(device_info->handle, in_pCreateInfo, in_pAllocator, out_pBinaries);
+
+    return replay_result;
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -420,6 +420,20 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                 ->DestroyShaderModule(parent_info->handle, object_info->handle, nullptr);
         });
 
+    FreeChildObjects<VulkanDeviceInfo, VulkanShaderEXTInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkShaderEXT),
+        remove_entries,
+        report_leaks,
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkShaderEXTInfo,
+        &CommonObjectInfoTable::RemoveVkShaderEXTInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanShaderEXTInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+            get_device_table(parent_info->handle)->DestroyShaderEXT(parent_info->handle, object_info->handle, nullptr);
+        });
+
     FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorSetLayoutInfo>(
         table,
         GFXRECON_STR(VkDevice),

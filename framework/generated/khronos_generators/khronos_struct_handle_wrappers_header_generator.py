@@ -34,10 +34,8 @@ class KhronosStructHandleWrappersHeaderGenerator():
     def write_struct_handle_wrapper_content(self):
         # Generate unwrap and rewrap code for input structures.
         for struct in self.get_all_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles) or
-                self.child_struct_has_handles(struct) or
-                (struct in self.GENERIC_HANDLE_STRUCTS)
+            if (self.struct_might_have_handles(struct)
+                or self.child_struct_has_handles(struct)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
@@ -87,7 +85,7 @@ class KhronosStructHandleWrappersHeaderGenerator():
         lines.append('')
         write('\n'.join(lines), file=self.outFile)
 
-        self.generate_create_wrapper_funcs()
+        self.generate_create_wrapper_funcs(api_data)
 
         write(
             'template <typename ParentWrapper, typename CoParentWrapper, typename T>',
@@ -142,6 +140,24 @@ class KhronosStructHandleWrappersHeaderGenerator():
         write('    return values;', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write(
+            f'void UnwrapStructStaticArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    // Fill directly in (no need to alloc)', file=self.outFile)
+        write('    for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write(
+            '        UnwrapStructHandles(&values[i], unwrap_memory);',
+            file=self.outFile
+        )
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
         write('template <typename T>', file=self.outFile)
         write(
             'T* UnwrapStructPtrArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
@@ -187,7 +203,7 @@ class KhronosStructHandleWrappersHeaderGenerator():
                 self.output_structs.append(member.base_type)
                 self.process_struct_members_to_output_struct(member)
 
-    def generate_create_wrapper_funcs(self):
+    def generate_create_wrapper_funcs(self, api_data):
         # Map of Vulkan structs containing handles to a list values for handle members or struct members
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
@@ -227,6 +243,8 @@ class KhronosStructHandleWrappersHeaderGenerator():
                     'dref_value': '&',
                 }
             for member in self.structs_with_handles[struct]:
+                if self.is_extended_struct_definition(member):
+                    continue
                 # Set up the information needed to generation the createwrapper call
                 info = { **default_info }
                 info['prefix'] = self.get_wrapper_prefix_from_type(member.base_type)

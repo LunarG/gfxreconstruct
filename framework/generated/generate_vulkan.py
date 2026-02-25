@@ -70,6 +70,8 @@ generate_targets = [
     'generated_vulkan_replay_dump_resources.cpp',
     'generated_vulkan_referenced_resource_consumer.h',
     'generated_vulkan_referenced_resource_consumer.cpp',
+    'generated_vulkan_referenced_block_consumer.h',
+    'generated_vulkan_referenced_block_consumer.cpp',
     'generated_vulkan_struct_handle_mappers.h',
     'generated_vulkan_struct_handle_mappers.cpp',
     'generated_vulkan_feature_util.cpp',

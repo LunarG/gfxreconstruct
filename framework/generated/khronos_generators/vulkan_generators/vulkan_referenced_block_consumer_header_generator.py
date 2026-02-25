@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2020-2026 LunarG, Inc.
+# Copyright (c) 2026 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,7 +24,7 @@ import sys
 from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
 
 
-class VulkanReferencedResourceHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
+class VulkanReferencedBlockConsumerHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating the header to a C++ class for detecting unreferenced resource handles in a capture file."""
 
     def __init__(
@@ -51,17 +51,17 @@ class VulkanReferencedResourceHeaderGeneratorOptions(VulkanBaseGeneratorOptions)
         )
 
         self.begin_end_file_data.specific_headers.extend((
-            'decode/vulkan_referenced_resource_consumer_base.h',
+            'decode/vulkan_referenced_block_consumer_base.h',
             'util/defines.h',
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
 
 
-class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
-    """VulkanReferencedResourceHeaderGenerator - subclass of VulkanBaseGenerator.
-    Generates C++ member definitions for the VulkanReferencedResource class responsible for
-    determining which resource handles are used or unused in a capture file.
-    Generate the header to a C++ class for detecting unreferenced resource handles in a capture file.
+class VulkanReferencedBlockConsumerHeaderGenerator(VulkanBaseGenerator):
+    """VulkanReferencedBlockConsumerHeaderGenerator - subclass of VulkanBaseGenerator.
+    Generates C++ member definitions for the VulkanReferencedBlockConsumer class responsible for
+    determining which blocks are used or unused in a capture file and allows removing unused blocks.
+    Generate the header to a C++ class for detecting unreferenced blocks in a capture file.
     """
 
     # All resource and resource associated handle types to be processed.
@@ -85,7 +85,7 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
         """Method override."""
         VulkanBaseGenerator.beginFile(self, gen_opts)
 
-        class_name = 'VulkanReferencedResourceConsumer'
+        class_name = 'VulkanReferencedBlockConsumer'
 
 
         self.newline()
@@ -95,11 +95,8 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
         )
         write('{', file=self.outFile)
         write('  public:', file=self.outFile)
-        write('    {}() {{ }}\n'.format(class_name), file=self.outFile)
-        write(
-            '    ~{}() override {{ }}'.format(class_name),
-            file=self.outFile
-        )
+        write('    {name}(const std::unordered_set<format::HandleId>& unreferenced_ids):'.format(name=class_name), file=self.outFile)
+        write('        {name}Base(unreferenced_ids) {{ }}\n'.format(name=class_name), file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -113,21 +110,21 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
                 # Check for parameters with resource handle types.
                 handles = self.get_param_list_handles(params[1:])
 
-                if (handles):
-                    # Generate a function to build a list of handle types and values.
-                    cmddef = '\n'
+                # if (handles):
+                # Generate a function to build a list of handle types and values.
+                cmddef = '\n'
 
-                    # Temporarily remove resource only matching restriction from is_handle() when generating the function signature.
-                    self.restrict_handles = False
-                    decl = self.make_consumer_func_decl(
-                        return_type, 'Process_' + cmd, params
-                    )
-                    cmddef += self.indent(
-                        decl + ' override;', self.INDENT_SIZE
-                    )
-                    self.restrict_handles = True
+                # Temporarily remove resource only matching restriction from is_handle() when generating the function signature.
+                self.restrict_handles = False
+                decl = self.make_consumer_func_decl(
+                    return_type, 'Process_' + cmd, params
+                )
+                cmddef += self.indent(
+                    decl + ' override;', self.INDENT_SIZE
+                )
+                self.restrict_handles = True
 
-                    write(cmddef, file=self.outFile)
+                write(cmddef, file=self.outFile)
 
         write('};', file=self.outFile)
         self.newline()

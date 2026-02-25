@@ -75,12 +75,8 @@ class KhronosStructHandleWrappersBodyGenerator():
             const_prefix = 'const '
 
         for struct in self.get_all_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles) or
-                self.child_struct_has_handles(struct) or
-                (struct in self.GENERIC_HANDLE_STRUCTS)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
-                handle_members = dict()
+            if ((self.child_struct_has_handles(struct) or self.struct_might_have_handles(struct))) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+                handle_members = []
                 generic_handle_members = dict()
 
                 if struct in self.structs_with_handles:
@@ -88,6 +84,11 @@ class KhronosStructHandleWrappersBodyGenerator():
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
                                                                          ]
+                if struct in self.all_possible_extendable_structs:
+                    for member in self.all_struct_members[struct]:
+                        if ((self.is_extended_struct_definition(member) or member.base_type in self.all_possible_extendable_structs)
+                            and (member not in handle_members)):
+                            handle_members.append(member)
 
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
@@ -134,14 +135,8 @@ class KhronosStructHandleWrappersBodyGenerator():
         write('        break;', file=self.outFile)
         self.write_special_case_struct_handling()
 
-        extended_list = []
-        for struct in self.all_extended_structs:
-            for ext_struct in self.all_extended_structs[struct]:
-                if ext_struct not in extended_list and ext_struct not in self.all_struct_aliases:
-                    extended_list.append(ext_struct)
-
-        for base_type in sorted(extended_list):
-            if base_type not in self.struct_type_names:
+        for base_type in sorted(self.all_possible_extendable_structs):
+            if base_type not in self.struct_type_names or base_type in self.all_struct_aliases:
                 continue
 
             stype = self.struct_type_names[base_type]
@@ -200,10 +195,11 @@ class KhronosStructHandleWrappersBodyGenerator():
         write('            }', file=self.outFile)
         write('            return copy;', file=self.outFile)
         write('        }', file=self.outFile)
-        for base_type in sorted(extended_list):
+        for base_type in sorted(self.all_possible_extendable_structs):
             if (
                 base_type in self.structs_with_handles
                 and base_type in self.struct_type_names
+                and base_type not in self.all_struct_aliases
             ):
                 stype = self.struct_type_names[base_type]
                 write('        case {}:'.format(stype), file=self.outFile)
@@ -218,14 +214,6 @@ class KhronosStructHandleWrappersBodyGenerator():
         write('    return nullptr;', file=self.outFile)
         write('}', file=self.outFile)
 
-    def has_special_case_handle_unwrapping(self, name):
-        """Method may be overridden."""
-        return False
-
-    def get_special_case_handle_wrapping(self, name):
-        """Method may be overridden."""
-        return
-
     def make_struct_handle_unwrappings(
         self, api_data, name, handle_members, generic_handle_members
     ):
@@ -238,8 +226,10 @@ class KhronosStructHandleWrappersBodyGenerator():
                     member.name
                 )
                 body += '        {\n'
-                if self.has_special_case_handle_unwrapping(name):
-                    body += self.get_special_case_handle_wrapping(name)
+                if not member.is_const:
+                    body += '            value->{0} = const_cast<void*>(Unwrap{1}StructHandles(value->{0}, unwrap_memory));\n'.format(
+                        member.name, api_data.extended_struct_func_prefix
+                    )
                 else:
                     body += '            value->{0} = Unwrap{1}StructHandles(value->{0}, unwrap_memory);\n'.format(
                         member.name, api_data.extended_struct_func_prefix
@@ -248,9 +238,30 @@ class KhronosStructHandleWrappersBodyGenerator():
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
+                    array_length_str = f"value->{member.array_length}"
+                    static_array_len = False
+                    if member.array_length.isnumeric() or member.array_length.isupper():
+                        array_length_str = member.array_length
+                        static_array_len = True
+
+                    # We need to remove the "const" from the return if the parent isn't const
+                    cast_prefix = ''
+                    cast_suffix = ''
+                    if not static_array_len and 'const' not in member.full_type:
+                        cast_prefix = f'const_cast<{member.base_type}{"*" * member.pointer_count}>('
+                        cast_suffix = ')'
+
                     if api_data.return_const_ptr_on_extended:
-                        body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
-                            member.array_length, name=member.name
+                        variable_name = f"value->{member.name}"
+                        unwrap_function = 'UnwrapStructArrayHandles'
+                        left_side = f"value->{member.name} = "
+                        if static_array_len:
+                            unwrap_function = 'UnwrapStructStaticArrayHandles'
+                            variable_name = f'&{variable_name}[0]'
+                            left_side = ''
+                        body += '        {left_side}{prefix}{unwrap_function}({variable_name}, {length}, unwrap_memory){suffix};\n'.format(
+                            prefix=cast_prefix, suffix=cast_suffix, unwrap_function=unwrap_function, variable_name=variable_name,
+                            length=array_length_str, left_side=left_side
                         )
                     else:
                         if 'const' in member.full_type:
@@ -269,12 +280,19 @@ class KhronosStructHandleWrappersBodyGenerator():
                         length_exprs = member.array_length.split(',')
                         length_count = len(length_exprs)
 
+                        left_side = f"value->{member.name} = "
                         if member.pointer_count > 1 and length_count < member.pointer_count:
                             unwrap_function = 'UnwrapStructPtrArrayHandles'
+                            cast_prefix = ''
+                            cast_suffix = ''
+                        elif static_array_len:
+                            unwrap_function = 'UnwrapStructStaticArrayHandles'
+                            variable_name = f'&{variable_name}[0]'
+                            left_side = ''
                         else:
                             unwrap_function = 'UnwrapStructArrayHandles'
 
-                        body += f'        value->{member.name} = {unwrap_function}({variable_name}, value->{member.array_length}, unwrap_memory);\n'
+                        body += f'        {left_side}{cast_prefix}{unwrap_function}({variable_name}, {array_length_str}, unwrap_memory){cast_suffix};\n'
                 elif member.is_pointer:
                     body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
                         name=member.name
