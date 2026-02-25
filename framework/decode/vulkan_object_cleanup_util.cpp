@@ -434,6 +434,21 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
             get_device_table(parent_info->handle)->DestroyShaderEXT(parent_info->handle, object_info->handle, nullptr);
         });
 
+    FreeChildObjects<VulkanDeviceInfo, VulkanPipelineBinaryKHRInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkPipelineBinaryKHR),
+        remove_entries,
+        report_leaks,
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkPipelineBinaryKHRInfo,
+        &CommonObjectInfoTable::RemoveVkPipelineBinaryKHRInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineBinaryKHRInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+            get_device_table(parent_info->handle)
+                ->DestroyPipelineBinaryKHR(parent_info->handle, object_info->handle, nullptr);
+        });
+
     FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorSetLayoutInfo>(
         table,
         GFXRECON_STR(VkDevice),
