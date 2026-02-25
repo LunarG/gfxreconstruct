@@ -152,6 +152,10 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     // Offscreen only need virtual_swapchain_images.
     struct SwapchainResourceData
     {
+        bool              forced_offscreen{ false };
+        bool              deferred_alloc{ false };
+        std::vector<bool> image_index_transitioned;
+
         // Create a map that correlates copy command data with a queue family index.
         std::unordered_map<uint32_t, CopyCmdData> copy_cmd_data;
 
@@ -170,14 +174,18 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                          const VulkanSwapchainKHRInfo* swapchain_info,
                                          uint32_t                      capture_image_count,
                                          uint32_t*                     replay_image_count,
-                                         VkImage*                      images,
-                                         bool                          offscreen);
+                                         VkImage*                      images);
 
     void CleanSwapchainResourceData(const VulkanDeviceInfo* device_info, const VulkanSwapchainKHRInfo* swapchain_info);
 
     VkResult CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
                                          const VkImageCreateInfo& image_create_info,
                                          VirtualImage&            image);
+    VkResult TransitionSwapchainImage(VkDevice                                device,
+                                      const VulkanSwapchainKHRInfo*           swapchain_info,
+                                      std::unique_ptr<SwapchainResourceData>& swapchain_resources,
+                                      uint32_t                                image_index,
+                                      uint32_t                                image_count);
 
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
@@ -207,6 +215,10 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     };
 
     std::unordered_map<VkDevice, OFBData> ofb_data_;
+
+    std::unordered_set<VkDevice>           found_copy_queue_family_;
+    std::unordered_map<VkDevice, uint32_t> copy_queue_family_index_;
+    std::unordered_map<VkDevice, VkQueue>  initial_copy_queue_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
