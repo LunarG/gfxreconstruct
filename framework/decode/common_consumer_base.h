@@ -63,6 +63,8 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
     virtual void ClearRecaptureHandleIds() {}
     virtual bool IsRecapture() { return false; }
 
+    virtual void Terminate() {}
+
   protected:
     uint64_t frame_number_{ 0 };
 };

@@ -26,17 +26,11 @@
 
 #include "application/wsi_context.h"
 #include "decode/file_processor.h"
-#include "decode/window.h"
+#include "decode/common_consumer_base.h"
 #include "util/defines.h"
-#include "util/date_time.h"
 #include "graphics/fps_info.h"
 
-#include <memory>
 #include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-#include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -81,6 +75,16 @@ class Application final
 
     void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
+    void SetConsumer(decode::CommonConsumerBase* consumer) { consumer_ = consumer; }
+
+    void Terminate()
+    {
+        if (consumer_ != nullptr)
+        {
+            consumer_->Terminate();
+        }
+    }
+
 #if defined(WIN32)
     void InitializeDx12WsiContext();
 #endif
@@ -103,6 +107,7 @@ class Application final
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection
     graphics::FpsInfo*                                           fps_info_;          ///< A optional FPS info object that logs the FPS across a configured framerange.
                                                                                      ///< capture file data.
+    decode::CommonConsumerBase*                                  consumer_;
     // clang-format on
 };
 
