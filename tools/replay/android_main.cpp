@@ -170,9 +170,11 @@ void android_main(struct android_app* app)
                     // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
                     // calls into the capture layer instead of directly into the loader and Vulkan runtime.
                     // Also sets the capture manager's instance and device creation callbacks.
-                    vulkan_replay_consumer.SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
-                                                             gfxrecon::vulkan_recapture::dispatch_CreateInstance,
-                                                             gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+                    vulkan_replay_consumer.SetupForRecaptureInReplay(
+                        gfxrecon::vulkan_recapture::GetInstanceProcAddr,
+                        gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                        gfxrecon::vulkan_recapture::dispatch_CreateDevice,
+                        file_processor.get());
                 }
 
                 ApiReplayOptions  api_replay_options;

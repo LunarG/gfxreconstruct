@@ -83,6 +83,7 @@ const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
 const char kCaptureOption[]                      = "--capture";
+const char kCaptureCopyDataOption[]              = "--capture-copy-data";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
 const char kDiscardCachedPsosShortOption[]       = "--dcp";
@@ -1241,6 +1242,36 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
+
+    // Validate argument compatibility with `--capture-copy-data`
+    if (arg_parser.IsOptionSet(kCaptureCopyDataOption))
+    {
+        replay_options.capture_copy_data = false;
+
+        const auto& mem_translation_value = arg_parser.GetArgumentValue(kMemoryPortabilityShortOption);
+        if (!mem_translation_value.empty() &&
+            gfxrecon::util::platform::StringCompareNoCase(kMemoryTranslationNone, mem_translation_value.c_str()) != 0)
+        {
+            GFXRECON_LOG_ERROR("`%s` is not compatible with memory translation mode `%s %s`. Exiting.",
+                               kCaptureCopyDataOption,
+                               kMemoryPortabilityShortOption,
+                               mem_translation_value.c_str());
+            exit(-1);
+        }
+        else
+        {
+            if (replay_options.swapchain_option != gfxrecon::util::SwapchainOption::kCaptured)
+            {
+                GFXRECON_LOG_INFO("`%s` requires option `%s %s`. It has been forced on.",
+                                  kCaptureCopyDataOption,
+                                  kSwapchainOption,
+                                  kSwapchainCaptured);
+                replay_options.swapchain_option = gfxrecon::util::SwapchainOption::kCaptured;
+            }
+            replay_options.capture           = true;
+            replay_options.capture_copy_data = true;
+        }
+    }
 
     return replay_options;
 }

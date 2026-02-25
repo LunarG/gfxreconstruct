@@ -370,7 +370,6 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(frame_number);
     loading_trim_state_ = false;
     if (fps_info_ != nullptr)
     {
@@ -380,6 +379,13 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     if (options_.dumping_resources)
     {
         resource_dumper_->ProcessStateEndMarker();
+    }
+
+    if (options_.capture_copy_data)
+    {
+        auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+        GFXRECON_ASSERT(vulkan_capture_manager != nullptr);
+        vulkan_capture_manager->SetRecaptureTrimStartFrame(frame_number);
     }
 }
 
@@ -1319,23 +1325,62 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
     }
 }
 
-void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
-                                                 PFN_vkCreateInstance      create_instance,
-                                                 PFN_vkCreateDevice        create_device)
+void VulkanReplayConsumerBase::WriteTrimBlockForRecapture(const ParsedBlock* parsed_block)
+{
+    GFXRECON_ASSERT(options_.capture_copy_data);
+
+    auto data = parsed_block->GetBlockData().data();
+    auto size = parsed_block->GetBlockData().size();
+    GFXRECON_ASSERT(data != nullptr && size > 0);
+
+    auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+    if (vulkan_capture_manager && vulkan_capture_manager->IsCaptureModeTrim())
+    {
+        vulkan_capture_manager->WriteToFile(data, size);
+    }
+}
+
+void VulkanReplayConsumerBase::SetOriginalMappedMemoryPointer(VkResult                         replay_result,
+                                                              VkDeviceMemory                   memory_handle,
+                                                              PointerDecoder<uint64_t, void*>* data_ptr_decoder)
+{
+    if (options_.capture_copy_data)
+    {
+        auto capture_manager = encode::VulkanCaptureManager::Get();
+        if (replay_result == VK_SUCCESS && capture_manager != nullptr)
+        {
+            void* original_data_ptr =
+                data_ptr_decoder->IsNull() ? nullptr : reinterpret_cast<void*>(*data_ptr_decoder->GetPointer());
+            capture_manager->SetOriginalMappedMemoryPointer(memory_handle, original_data_ptr);
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::SetupForRecaptureInReplay(PFN_vkGetInstanceProcAddr get_instance_proc_addr,
+                                                         PFN_vkCreateInstance      create_instance,
+                                                         PFN_vkCreateDevice        create_device,
+                                                         FileProcessor*            file_processor)
 {
     GFXRECON_ASSERT(options_.capture);
+
+    if (options_.capture_copy_data)
+    {
+        GFXRECON_LOG_INFO("Capture in replay is enabled. Data from the trim frame range will be copied from source to "
+                          "destination capture.");
+    }
+    else
+    {
+        GFXRECON_LOG_INFO("Capture in replay is enabled. The commands from the source capture file will be replayed "
+                          "and recaptured into the destination capture.");
+    }
 
     GFXRECON_ASSERT((get_instance_proc_addr_ == nullptr) &&
                     "SetupForRecapture should be called before InitializeLoader().")
     get_instance_proc_addr_ = get_instance_proc_addr;
 
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(create_instance, create_device);
-
-    // Logger is already initialized by replay, so inform capture manager not to initialize it again.
-    gfxrecon::encode::CommonCaptureManager::SetInitializeLog(false);
-
-    gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
-    gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
+    gfxrecon::encode::CommonCaptureManager::SetupForRecaptureInReplay(kRecaptureHandleIdOffset,
+                                                                      options_.capture_copy_data);
 }
 
 void VulkanReplayConsumerBase::PushRecaptureHandleId(const format::HandleId* id)
@@ -1394,7 +1439,7 @@ void VulkanReplayConsumerBase::InitializeLoader()
 {
     loader_handle_ = graphics::InitializeLoader();
 
-    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetupForRecapture()
+    // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetupForRecaptureInReplay
     if ((loader_handle_ != nullptr) && (get_instance_proc_addr_ == nullptr))
     {
         get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
@@ -3110,6 +3155,18 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
     if ((*replay_instance != VK_NULL_HANDLE) && (result == VK_SUCCESS))
     {
+        if (options_.capture_copy_data)
+        {
+            auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+            GFXRECON_ASSERT(vulkan_capture_manager != nullptr);
+            if (vulkan_capture_manager->GetTrimBoundary() != encode::CaptureSettings::TrimBoundary::kFrames)
+            {
+                GFXRECON_LOG_ERROR(
+                    "The --capture-copy-data option is only valid when frame-based trimming is enabled. Exiting.");
+                exit(-1);
+            }
+        }
+
         auto instance_info = reinterpret_cast<VulkanInstanceInfo*>(pInstance->GetConsumerData(0));
         assert(instance_info);
         PostCreateInstanceUpdateState(*replay_instance, create_state.modified_create_info, *instance_info);
@@ -5562,14 +5619,14 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory         func,
-                                                     VkResult                original_result,
-                                                     const VulkanDeviceInfo* device_info,
-                                                     VulkanDeviceMemoryInfo* memory_info,
-                                                     VkDeviceSize            offset,
-                                                     VkDeviceSize            size,
-                                                     VkMemoryMapFlags        flags,
-                                                     void**                  ppData)
+VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory                  func,
+                                                     VkResult                         original_result,
+                                                     const VulkanDeviceInfo*          device_info,
+                                                     VulkanDeviceMemoryInfo*          memory_info,
+                                                     VkDeviceSize                     offset,
+                                                     VkDeviceSize                     size,
+                                                     VkMemoryMapFlags                 flags,
+                                                     PointerDecoder<uint64_t, void*>* ppData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
@@ -5579,7 +5636,12 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory         fun
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    return allocator->MapMemory(memory_info->handle, offset, size, flags, ppData, memory_info->allocator_data);
+    auto replay_result = allocator->MapMemory(
+        memory_info->handle, offset, size, flags, ppData->GetOutputPointer(), memory_info->allocator_data);
+
+    SetOriginalMappedMemoryPointer(replay_result, memory_info->handle, ppData);
+
+    return replay_result;
 }
 
 void VulkanReplayConsumerBase::OverrideUnmapMemory(PFN_vkUnmapMemory       func,
@@ -12440,17 +12502,34 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
     }
 }
 
-void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
+void VulkanReplayConsumerBase::BeginProcessBlock(const ParsedBlock* parsed_block)
 {
-    VulkanConsumer::SetCurrentBlockIndex(block_index);
+    VulkanConsumer::BeginProcessBlock(parsed_block);
 
     // poll main-dispatch-queue at beginning of new blocks
     main_thread_queue_.poll();
 }
 
+void VulkanReplayConsumerBase::EndProcessBlock()
+{
+    if (options_.capture_copy_data)
+    {
+        WriteTrimBlockForRecapture(GetCurrentBlock());
+    }
+
+    VulkanConsumer::EndProcessBlock();
+}
+
 void VulkanReplayConsumerBase::SetCurrentFrameNumber(uint64_t frame_number)
 {
     VulkanConsumer::SetCurrentFrameNumber(frame_number);
+
+    if (options_.capture_copy_data && frame_number > 0)
+    {
+        auto vulkan_capture_manager = encode::VulkanCaptureManager::Get();
+        GFXRECON_ASSERT(vulkan_capture_manager != nullptr);
+        vulkan_capture_manager->EndFrameForRecapture();
+    }
 }
 
 bool VulkanReplayConsumerBase::CheckPipelineCacheUUID(const VulkanDeviceInfo*          device_info,
@@ -12702,7 +12781,7 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory2(PFN_vkMapMemory2          
                                                       VkResult                                       original_result,
                                                       const VulkanDeviceInfo*                        device_info,
                                                       StructPointerDecoder<Decoded_VkMemoryMapInfo>* pMemoryMapInfo,
-                                                      void**                                         ppData)
+                                                      PointerDecoder<uint64_t, void*>*               ppData)
 {
     const auto* meta_memory_map_info = pMemoryMapInfo->GetMetaStructPointer();
     const auto* memory_map_info      = pMemoryMapInfo->GetPointer();
@@ -12712,7 +12791,12 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory2(PFN_vkMapMemory2          
 
     const auto* memory_info = object_info_table_->GetVkDeviceMemoryInfo(meta_memory_map_info->memory);
 
-    return allocator->MapMemory2(memory_map_info, ppData, memory_info->allocator_data);
+    auto replay_result =
+        allocator->MapMemory2(memory_map_info, ppData->GetOutputPointer(), memory_info->allocator_data);
+
+    SetOriginalMappedMemoryPointer(replay_result, memory_info->handle, ppData);
+
+    return replay_result;
 }
 
 VkResult

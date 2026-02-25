@@ -77,7 +77,7 @@ void VulkanExportJsonConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
 {
     const JsonOptions& json_options = GetJsonOptions();
 
-    writer_->SetCurrentBlockIndex(block_index_);
+    writer_->SetCurrentMetaCommandBlockIndex(GetCurrentBlockIndex());
     auto& jdata = writer_->WriteMetaCommandStart("SetDeviceMemoryPropertiesCommand");
 
     HandleToJson(jdata["physical_device_id"], physical_device_id, json_options);

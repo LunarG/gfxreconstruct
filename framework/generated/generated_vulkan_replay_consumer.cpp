@@ -313,9 +313,9 @@ void VulkanReplayConsumer::Process_vkMapMemory(
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
     auto in_memory = GetObjectInfoTable().GetVkDeviceMemoryInfo(memory);
-    void** out_ppData = ppData->IsNull() ? nullptr : ppData->AllocateOutputData(1);
+    ppData->IsNull() ? nullptr : ppData->AllocateOutputData(1);
 
-    VkResult replay_result = OverrideMapMemory(GetDeviceTable(in_device->handle)->MapMemory, returnValue, in_device, in_memory, offset, size, flags, out_ppData);
+    VkResult replay_result = OverrideMapMemory(GetDeviceTable(in_device->handle)->MapMemory, returnValue, in_device, in_memory, offset, size, flags, ppData);
     CheckResult("vkMapMemory", returnValue, replay_result, call_info);
 
     PostProcessExternalObject(replay_result, (*ppData->GetPointer()), *ppData->GetOutputPointer(), format::ApiCallId::ApiCall_vkMapMemory, "vkMapMemory");
@@ -3676,9 +3676,9 @@ void VulkanReplayConsumer::Process_vkMapMemory2(
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
 
     MapStructHandles(pMemoryMapInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    void** out_ppData = ppData->IsNull() ? nullptr : ppData->AllocateOutputData(1);
+    ppData->IsNull() ? nullptr : ppData->AllocateOutputData(1);
 
-    VkResult replay_result = OverrideMapMemory2(GetDeviceTable(in_device->handle)->MapMemory2, returnValue, in_device, pMemoryMapInfo, out_ppData);
+    VkResult replay_result = OverrideMapMemory2(GetDeviceTable(in_device->handle)->MapMemory2, returnValue, in_device, pMemoryMapInfo, ppData);
     CheckResult("vkMapMemory2", returnValue, replay_result, call_info);
 
     PostProcessExternalObject(replay_result, (*ppData->GetPointer()), *ppData->GetOutputPointer(), format::ApiCallId::ApiCall_vkMapMemory2, "vkMapMemory2");
@@ -6077,9 +6077,9 @@ void VulkanReplayConsumer::Process_vkMapMemory2KHR(
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
 
     MapStructHandles(pMemoryMapInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    void** out_ppData = ppData->IsNull() ? nullptr : ppData->AllocateOutputData(1);
+    ppData->IsNull() ? nullptr : ppData->AllocateOutputData(1);
 
-    VkResult replay_result = OverrideMapMemory2(GetDeviceTable(in_device->handle)->MapMemory2KHR, returnValue, in_device, pMemoryMapInfo, out_ppData);
+    VkResult replay_result = OverrideMapMemory2(GetDeviceTable(in_device->handle)->MapMemory2KHR, returnValue, in_device, pMemoryMapInfo, ppData);
     CheckResult("vkMapMemory2KHR", returnValue, replay_result, call_info);
 
     PostProcessExternalObject(replay_result, (*ppData->GetPointer()), *ppData->GetOutputPointer(), format::ApiCallId::ApiCall_vkMapMemory2KHR, "vkMapMemory2KHR");

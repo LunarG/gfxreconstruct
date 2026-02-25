@@ -3434,7 +3434,13 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
             encoder_.EncodeUInt64Value(wrapper->mapped_offset);
             encoder_.EncodeUInt64Value(wrapper->mapped_size);
             encoder_.EncodeFlagsValue(wrapper->mapped_flags);
-            encoder_.EncodeVoidPtrPtr(&wrapper->mapped_data);
+
+            const void* mapped_data = wrapper->mapped_data;
+            if (wrapper->original_mapped_data != nullptr)
+            {
+                mapped_data = wrapper->original_mapped_data;
+            }
+            encoder_.EncodeVoidPtrPtr(&mapped_data);
             encoder_.EncodeEnumValue(result);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);

@@ -94,16 +94,14 @@ class BlockParser
     using UncompressedStore = ParsedBlock::UncompressedStore;
 
     void SetFrameNumber(uint64_t frame_number) noexcept { frame_number_ = frame_number; }
-    void SetBlockIndex(uint64_t block_index) noexcept { block_index_ = block_index; }
 
     [[nodiscard]] uint64_t GetFrameNumber() const noexcept { return frame_number_; }
-    [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return block_index_; }
 
     // Parse the block header and load a block buffer
     BlockIOError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
 
     // Define parsers for every block and sub-block type
-    ParsedBlock ParseBlock(BlockBuffer& block_buffer);
+    ParsedBlock ParseBlock(BlockBuffer& block_buffer, uint64_t block_index);
     ParsedBlock ParseFunctionCall(BlockBuffer& block_buffer);
     ParsedBlock ParseMethodCall(BlockBuffer& block_buffer);
     ParsedBlock ParseMetaData(BlockBuffer& block_buffer);
@@ -170,10 +168,12 @@ class BlockParser
     DecompressionPolicy               decompression_policy_   = DecompressionPolicy::kAlways;
     ParsedBlock::BlockReferencePolicy block_reference_policy_ = ParsedBlock::BlockReferencePolicy::kNonOwnedReference;
 
-    uint64_t frame_number_ = 0;
-    uint64_t block_index_  = 0;
+    uint64_t frame_number_        = 0;
+    uint64_t current_block_index_ = 0;
 
     ParsedBlock::UncompressedStore uncompressed_working_buffer_;
+
+    [[nodiscard]] uint64_t GetBlockIndex() const noexcept { return current_block_index_; }
 };
 
 GFXRECON_END_NAMESPACE(decode)
