@@ -39,27 +39,44 @@ class InfoVulkanInterface : public InfoApiInterface
     virtual ~InfoVulkanInterface() = default;
 
     // Simple "getter" style methods
-    virtual format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_Vulkan; }
-    virtual std::string         ApiLabel() override { return "Vulkan"; }
-    virtual bool                ApiWasDetected() override { return vulkan_detection_consumer_.WasVulkanAPIDetected(); }
-    virtual std::string         ApiCompiledHeaderVersionString() override;
+    format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_Vulkan; }
+    std::string         ApiLabel() override { return "Vulkan"; }
+    bool                ApiWasDetected() override { return vulkan_detection_consumer_.WasVulkanAPIDetected(); }
+    std::string         ApiCompiledHeaderVersionString() override;
+    bool                ApiDesiresSingleLineFrameOutput() override { return true; }
 
     // API-specific command-line methods (default is do nothing and return true if required)
-    virtual void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
-    virtual void UpdateCommandLineUsage(std::string& usage) override;
-    virtual bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
+    void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
+    void UpdateCommandLineUsage(std::string& usage) override;
+    bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor
-    virtual void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods%s
-    virtual void OutputInfo() override;
+    void           PrintInfo() override;
+    nlohmann::json GenerateJson() override;
 
     // Frame-specific methods
-    virtual uint32_t GetFrameStart() override;
+    uint32_t GetFrameStart() override;
 
   private:
+    nlohmann::json GetDeviceMemoryStatsJson(uint64_t alloc_count,
+                                            uint64_t min_alloc,
+                                            uint64_t max_alloc,
+                                            uint64_t gfx_pipelines,
+                                            uint64_t comp_pipelines,
+                                            uint64_t rt_pipelines);
+    void           PrintDeviceMemoryStatsText(uint64_t alloc_count,
+                                              uint64_t min_alloc,
+                                              uint64_t max_alloc,
+                                              uint64_t gfx_pipelines,
+                                              uint64_t comp_pipelines,
+                                              uint64_t rt_pipelines);
+    std::string    GetDeviceTypeString(VkPhysicalDeviceType device_type);
+    std::string    GetVersionString(uint32_t api_version);
+
     gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer_;
     gfxrecon::decode::VulkanStatsConsumer     vulkan_stats_consumer_;
     gfxrecon::decode::VulkanDecoder           vulkan_decoder_;

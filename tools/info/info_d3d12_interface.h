@@ -42,29 +42,40 @@ class InfoD3d12Interface : public InfoApiInterface
     virtual ~InfoD3d12Interface() = default;
 
     // Simple "getter" style methods
-    virtual format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_D3D12; }
-    virtual std::string         ApiLabel() override { return "D3D12"; }
-    virtual bool                ApiWasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
-    virtual std::string         ApiCompiledHeaderVersionString() override;
+    format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_D3D12; }
+    std::string         ApiLabel() override { return "D3D12"; }
+    bool                ApiWasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
+    std::string         ApiCompiledHeaderVersionString() override;
+    uint32_t            GetFrameStart() override;
+    uint32_t            GetBlankFrameCount() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
-    virtual void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
-    virtual void UpdateCommandLineUsage(std::string& usage) override;
-    virtual bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
+    void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
+    void UpdateCommandLineUsage(std::string& usage) override;
+    bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor
-    virtual void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods%s
-    virtual void OutputInfo() override;
-
-    // Frame-specific methods
-    virtual uint32_t GetFrameStart() override;
-    virtual uint32_t GetBlankFrameCount() override;
+    void           PrintInfo() override;
+    nlohmann::json GenerateJson() override;
 
   private:
-    void OutputEnumGpuIndices();
+    std::string AdapterTypeToString(gfxrecon::format::AdapterType type);
+
+    void PrintEnumGpuIndices();
+    void PrintDriverInfoText();
+    void PrintSwapchainInfoText();
+    void PrintRuntimeInfoText();
+    void PrintAdapterInfoText();
+    void PrintDxrEiInfoText();
+
+    nlohmann::json GetRuntimeInfoJson();
+    nlohmann::json GetAdapterInfoJson();
+    nlohmann::json GetSwapchainInfoJson();
+    nlohmann::json GetDxrEiInfoJson();
 
     constexpr InfoOutputLevel kD3d12EnumGpuDevices = InfoOutputLevel::kApiSpecific_1;
 
