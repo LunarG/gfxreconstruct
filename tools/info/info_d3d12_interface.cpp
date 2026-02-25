@@ -33,7 +33,7 @@ const char kEnumGpuIndices[] = "--enum-gpu-indices";
 std::string InfoD3d12Interface::ApiCompiledHeaderVersionString()
 {
 #if defined(D3D12SDKVersion)
-    return std::format("  D3D12 SDK Version      {}", D3D12SDKVersion));
+    return std::string("  D3D12 SDK Version      ") + D3D12SDKVersion;
 #else
     return "";
 #endif
@@ -48,7 +48,7 @@ void InfoD3d12Interface::UpdatePossibleCommandLineOptionsArgs(std::string& optio
 void InfoD3d12Interface::UpdateCommandLineUsage(std::string& usage)
 {
     usage += "\n// D3D12-specific\n";
-    usage += std::format("  {}\tPrint GPU indices and exit\n", kEnumGpuIndices);
+    usage += std::string("  ") + std::to_string(kEnumGpuIndices) + "\tPrint GPU indices and exit\n";
 }
 
 bool InfoD3d12Interface::CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser)
@@ -68,7 +68,7 @@ void InfoD3d12Interface::RegisterApiDecodeComponents(gfxrecon::decode::FileProce
     file_processor.AddDecoder(&dx12_decoder_);
 }
 
-void InfoD3d12Interface::OutputEnumGpuIndices()
+void InfoD3d12Interface::PrintEnumGpuIndices()
 {
     IDXGIFactory1* factory1 = nullptr;
 
@@ -104,25 +104,300 @@ void InfoD3d12Interface::OutputEnumGpuIndices()
     }
 }
 
-void InfoD3d12Interface::OutputInfo()
+void InfoD3d12Interface::PrintDriverInfoText()
+{
+    WriteOutput("");
+    WriteOutput("Driver info:");
+    if (driver_info_.length())
+    {
+        WriteOutput(std::string("\t") + driver_info_);
+    }
+    else
+    {
+        WriteOutput("\tDriver info not available.");
+        WriteOutput("");
+    }
+}
+
+std::string InfoD3d12Interface::AdapterTypeToString(gfxrecon::format::AdapterType type)
+{
+    switch (type)
+    {
+        case gfxrecon::format::AdapterType::kUnknownAdapter:
+            return "Unknown type (DXGI 1.0)";
+        case gfxrecon::format::AdapterType::kSoftwareAdapter:
+            return "Software";
+        case gfxrecon::format::AdapterType::kHardwareAdapter:
+            return "Hardware";
+        default:
+            return "Unknown";
+    }
+}
+
+void InfoD3d12Interface::PrintRuntimeInfoText()
+{
+    gfxrecon::format::Dx12RuntimeInfo runtime_info = dx12_consumer_.GetDx12RuntimeInfo();
+
+    std::string runtime_src = "N/A";
+    std::string runtime_ver = "N/A";
+
+    if (runtime_info.src.empty() == false)
+    {
+        runtime_src = runtime_info.src;
+        runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
+                      std::to_string(runtime_info.version[2]) + "." + std::to_string(runtime_info.version[3]);
+    }
+
+    WriteOutput("D3D12 runtime info:");
+    WriteOutput(std::string("\tVersion: " + runtime_ver);
+    WriteOutput(std::string("\tSource: ") + runtime_src);
+    WriteOutput("");
+}
+
+nlohmann::json InfoD3d12Interface::GetRuntimeInfoJson()
+{
+    gfxrecon::format::Dx12RuntimeInfo runtime_info = dx12_consumer_.GetDx12RuntimeInfo();
+
+    std::string runtime_src = "N/A";
+    std::string runtime_ver = "N/A";
+
+    if (runtime_info.src.empty() == false)
+    {
+        runtime_src = runtime_info.src;
+        runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
+                      std::to_string(runtime_info.version[2]) + "." + std::to_string(runtime_info.version[3]);
+    }
+
+    return {
+        { "version", runtime_ver },
+        { "source", runtime_src },
+    };
+}
+
+void InfoD3d12Interface::PrintAdapterInfoText()
+{
+    WriteOutput("D3D12 adapter info:");
+
+    const auto& adapters = dx12_consumer_.GetAdapters();
+
+    if (adapters.empty() == false)
+    {
+        std::unordered_map<int64_t, std::string> adapter_workload;
+        dx12_consumer_.CalcAdapterWorkload(adapter_workload, adapters);
+
+        for (const auto& adapter : adapters)
+        {
+            const int64_t luid = pack_luid(adapter);
+
+            std::string adapter_workload_pct = "";
+
+            if (adapter_workload.count(luid) > 0)
+            {
+                if (adapter_workload[luid] != "")
+                {
+                    adapter_workload_pct = "(" + adapter_workload[luid] + "% of GPU submissions)";
+                }
+            }
+            else if (adapter_workload.size() > 0)
+            {
+                adapter_workload_pct = "(0% of GPU submissions)";
+            }
+
+            std::string adapter_type =
+                AdapterTypeToString(gfxrecon::graphics::dx12::ExtractAdapterType(adapter.extra_info));
+
+            WriteOutput(std::string("\tDescription: ") + gfxrecon::util::WCharArrayToString(adapter.Description) + " " +
+                        adapter_workload_pct);
+            WriteOutput(std::string("\tVendor ID: ") + UintToHexString(adapter.VendorId));
+            WriteOutput(std::string("\tDevice ID: ") + UintToHexString(adapter.DeviceId));
+            WriteOutput(std::string("\tSubsys ID: ") + UintToHexString(adapter.SubSysId));
+            WriteOutput(std::string("\tRevision: ") + std::to_string(adapter.Revision));
+            WriteOutput(std::string("\tDedicated Video Memory: ") + std::to_string(adapter.DedicatedVideoMemory));
+            WriteOutput(std::string("\tDedicated System Memory: ") + std::to_string(adapter.DedicatedSystemMemory));
+            WriteOutput(std::string("\tShared System Memory: ") + std::to_string(adapter.SharedSystemMemory));
+            WriteOutput(std::string("\tLUID LowPart: ") + UintToHexString(adapter.LuidLowPart));
+            WriteOutput(std::string("\tLUID HighPart: ") + UintToHexString(adapter.LuidHighPart));
+            WriteOutput(std::string("\tAdapter type: ") + adapter_type);
+            WriteOutput("");
+        }
+    }
+    else
+    {
+        WriteOutput("\tAdapter info not available.");
+        WriteOutput("");
+    }
+}
+
+nlohmann::json InfoD3d12Interface::GetAdapterInfoJson()
+{
+    const auto&    adapters      = dx12_consumer_.GetAdapters();
+    nlohmann::json adapters_json = nlohmann::json::array();
+
+    if (!adapters.empty())
+    {
+        std::unordered_map<int64_t, std::string> adapter_workload;
+        dx12_consumer_.CalcAdapterWorkload(adapter_workload, adapters);
+
+        for (const auto& adapter : adapters)
+        {
+            const int64_t luid = (adapter.LuidHighPart << 31) | adapter.LuidLowPart;
+
+            std::string adapter_workload_pct = "";
+
+            if (adapter_workload.count(luid) > 0)
+            {
+                if (adapter_workload[luid] != "")
+                {
+                    adapter_workload_pct = "(" + adapter_workload[luid] + "% of GPU submissions)";
+                }
+            }
+            else if (adapter_workload.size() > 0)
+            {
+                adapter_workload_pct = "(0% of GPU submissions)";
+            }
+
+            std::string adapter_type =
+                AdapterTypeToString(gfxrecon::graphics::dx12::ExtractAdapterType(adapter.extra_info));
+
+            nlohmann::json json_adapter;
+            json_adapter["description"]["details"]          = gfxrecon::util::WCharArrayToString(adapter.Description);
+            json_adapter["description"]["workload-percent"] = adapter_workload_pct;
+            json_adapter["vendor-id"]                       = adapter.VendorId;
+            json_adapter["device-id"]                       = adapter.DeviceId;
+            json_adapter["subsys-id"]                       = adapter.SubSysId;
+            json_adapter["revision"]                        = adapter.Revision;
+            auto& memory                                    = json_adapter["memory"];
+            memory["dedicated"]["video"]                    = adapter.DedicatedVideoMemory;
+            memory["dedicated"]["system"]                   = adapter.DedicatedSystemMemory;
+            memory["shared"]                                = adapter.SharedSystemMemory;
+            memory["luid"]["low"]                           = adapter.LuidLowPart;
+            memory["luid"]["high"]                          = adapter.LuidHighPart;
+            json_adapter["adapter-type"]                    = adapter_type;
+            adapters_json.push_back(json_adapter);
+        }
+    }
+
+    return adapters_json;
+}
+
+void InfoD3d12Interface::PrintSwapchainInfoText()
+{
+    WriteOutput("D3D12 swapchain info:");
+
+    if (dx12_consumer_.FoundSwapchainInfo())
+    {
+        WriteOutput(std::string("\tDimensions: ") + dx12_consumer_.GetSwapchainDimensionsString());
+    }
+    else
+    {
+        WriteOutput("\tDimensions not available.");
+    }
+
+    WriteOutput("");
+}
+
+nlohmann::json InfoD3d12Interface::GetSwapchainInfoJson()
+{
+    auto [width, height] = dx12_consumer_.GetSwapchainDimensions();
+    return { "dimensions", { { "width", width }, { "height", height } } };
+}
+
+void InfoD3d12Interface::PrintDxrEiInfoText()
+{
+    if (dx12_consumer_.ContainsEiWorkload())
+    {
+        WriteOutput("D3D12 EI workload: yes");
+    }
+    else
+    {
+        WriteOutput("D3D12 EI workload: no");
+    }
+
+    WriteOutput("");
+
+    if (dx12_consumer_.ContainsDxrWorkload())
+    {
+        WriteOutput("D3D12 DXR workload: yes");
+    }
+    else
+    {
+        WriteOutput("D3D12 DXR workload: no");
+    }
+
+    if (dx12_consumer_.ContainsEiWorkload() || dx12_consumer_.ContainsDxrWorkload())
+    {
+        WriteOutput("");
+
+        if (dx12_consumer_.ContainsOptFillMem())
+        {
+            WriteOutput("D3D12 DXR/EI optimized: yes");
+        }
+        else
+        {
+            WriteOutput("D3D12 DXR/EI optimized: no");
+        }
+    }
+}
+
+nlohmann::json InfoD3d12Interface::GetDxrEiInfoJson()
+{
+    return {
+        { "ei-workload", dx12_consumer_.ContainsEiWorkload() ? "yes" : "no" },
+        { "dxr-workload", dx12_consumer_.ContainsDxrWorkload() ? "yes" : "no" },
+        { "dxr/ei-optimized",
+          ((dx12_consumer_.ContainsEiWorkload() || dx12_consumer_.ContainsDxrWorkload()) &&
+           dx12_consumer_.ContainsOptFillMem())
+              ? "yes"
+              : "no" },
+    };
+}
+
+void InfoD3d12Interface::PrintInfo()
 {
     switch (info_output_level_)
     {
         case InfoApiInterface::InfoOutputLevel::kBasic:
+        {
+            if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
+            {
+                WriteOutput(std::string("\tTest present count: ") +
+                            std::to_string(dx12_consumer_.GetDXGITestPresentCount()));
+            }
+
+            PrintDriverInfoText();
+            PrintRuntimeInfoText();
+            PrintAdapterInfoText();
+            PrintSwapchainInfoText();
+            PrintDxrEiInfoText();
             break;
+        }
         case InfoApiInterface::InfoOutputLevel::kD3d12EnumGpuDevices:
-            OutputEnumGpuIndices();
-            break;
-        case InfoApiInterface::InfoOutputLevel::kVerbose:
+            PrintEnumGpuIndices();
             break;
         default:
             break;
     }
 }
 
-uint32_t InfoD3d12Interface::GetFrameStart()
+nlohmann::json InfoD3d12Interface::GenerateJson()
 {
-    return 0; // TODO
+    nlohmann::json d3d12_json;
+
+    if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
+    {
+        d3d12_json["total-present-count"] = dx12_consumer_.GetDXGITestPresentCount();
+    }
+
+    d3d12_json["driver"]   = GetDriverInfoString();
+    d3d12_json["runtime"]  = GetRuntimeInfoJson();
+    d3d12_json["adapters"] = GetAdapterInfoJson();
+    if (dx12_consumer_.FoundSwapchainInfo())
+    {
+        d3d12_json["swapchain"] = GetSwapchainInfoJson();
+    }
+    d3d12_json["dxr-ei"] = GetDxrEiInfoJson();
+
+    return d3d12_json;
 }
 
 uint32_t GetBlankFrameCount()

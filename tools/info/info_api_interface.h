@@ -28,7 +28,13 @@
 #include "util/argument_parser.h"
 #include "util/defines.h"
 
+#include "info_writer.h"
+
+#include <nlohmann/json.hpp>
+
+#include <iomanip>
 #include <memory>
+#include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
@@ -71,6 +77,14 @@ class InfoApiInterface
     virtual std::string         ApiLabel()       = 0;
     virtual bool                ApiWasDetected() = 0;
     virtual std::string         ApiCompiledHeaderVersionString() { return ""; }
+    virtual uint32_t            GetBlankFrameCount() { return 0; }
+    virtual uint32_t            GetFrameStart() { return 0; }
+    virtual bool                ApiDesiresSingleLineFrameOutput() { return false; }
+
+    // A few "setter" style methods
+    void         SetWriter(const std::shared_ptr<InfoWriter>& writer) { info_writer_ = writer; }
+    virtual void SetFrameMarkerUsage(bool uses) { uses_frame_markers_ = uses; }
+    virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
 
     // This indicates that the API has output that should be executed WITHOUT any
     // other API outputing.  This is usually the case where the user asked to
@@ -87,16 +101,32 @@ class InfoApiInterface
     virtual void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) = 0;
 
     // Output methods
-    void         SetOutputLevel(InfoOutputLevel output_level) { info_output_level_ = output_level; }
-    virtual void OutputInfo() = 0;
-
-    // Frame-specific methods
-    virtual uint32_t GetBlankFrameCount() { return 0; }
-    virtual uint32_t GetFrameStart() { return 0; }
+    void                   SetOutputLevel(InfoOutputLevel output_level) { info_output_level_ = output_level; }
+    virtual void           PrintInfo()    = 0;
+    virtual nlohmann::json GenerateJson() = 0;
 
   protected:
-    bool            api_output_override_{ false };
-    InfoOutputLevel info_output_level_{ InfoOutputLevel::kBasic };
+    inline void WriteOutput(const std::string& message) { info_writer_->Print(message); }
+
+    std::string UintToHexString(uint32_t value)
+    {
+        std::stringstream ss;
+        ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << value;
+        return ss.str();
+    }
+
+    std::string UintToHexString(uint64_t value)
+    {
+        std::stringstream ss;
+        ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << value;
+        return ss.str();
+    }
+
+    bool                        api_output_override_{ false };
+    InfoOutputLevel             info_output_level_{ InfoOutputLevel::kBasic };
+    bool                        uses_frame_markers_{ false };
+    std::string                 driver_info_;
+    std::shared_ptr<InfoWriter> info_writer_;
 };
 
 GFXRECON_END_NAMESPACE(info)
