@@ -59,9 +59,9 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
     def generate_feature(self):
         for k, v in self.source_dict['enum_dict'].items():
             # Generate enum handler for all enums
-            body = 'std::string ToString(const {0} value)\n'
+            body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)\n'
             body += '{{\n'
-            body += '    const char* ret = "Unhandled {0}";\n'
+            body += '    std::string ret = "Unhandled {0} (" + std::to_string(value) + ")";\n'
             body += '    switch (value) {{\n'
             processed_values = set()
             for value in v['values']:
@@ -90,12 +90,12 @@ class Dx12EnumToStringBodyGenerator(Dx12BaseGenerator):
                     if 'DEFINE_GUID' in m['type']:
                         index = m['type'].find(',')
                         iids.append(m['type'][len('DEFINE_GUID ( '):index])
-        body = 'std::string ToString(const IID& iid)\n'
+        body = 'template <> std::string ToString<GUID>(const GUID& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize)\n'
         body += '{\n'
         if not "IID_IUnknown" in iids:
             iids.append("IID_IUnknown")
         for iid in iids:
-            body += '    if (iid == {0}) return "{0}";\n'.format(iid)
+            body += '    if (value == {0}) return "{0}";\n'.format(iid)
         body += '    return "Invalid IID";\n'
         body += '}\n'
         write(body, file=self.outFile)
