@@ -689,11 +689,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const VulkanDeviceInfo* device_info,
                                     const VulkanFenceInfo*  fence_info);
 
-    VkResult OverrideGetEventStatus(PFN_vkGetEventStatus    func,
-                                    VkResult                original_result,
-                                    const VulkanDeviceInfo* device_info,
-                                    const VulkanEventInfo*  event_info);
-
     VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
                                          VkResult                   original_result,
                                          const VulkanDeviceInfo*    device_info,
