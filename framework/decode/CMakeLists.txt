@@ -249,6 +249,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_job.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_job.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
