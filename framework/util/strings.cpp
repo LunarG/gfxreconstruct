@@ -116,7 +116,7 @@ bool StringToU32(const std::string& value_string, uint32_t& value)
     bool success = true;
     try
     {
-        value = std::stoul(value_string);
+        GFXRECON_NARROWING_ASSIGN(value, std::stoul(value_string));
     }
     catch (std::exception&)
     {

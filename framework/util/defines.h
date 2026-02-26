@@ -24,6 +24,8 @@
 #include <cassert>
 #include <cstdint>
 #include <limits>
+#include <utility>
+#include <type_traits>
 
 #ifndef GFXRECON_UTIL_DEFINES_H
 #define GFXRECON_UTIL_DEFINES_H
@@ -47,8 +49,55 @@
     (static_cast<uint32_t>(c0) | (static_cast<uint32_t>(c1) << 8) | (static_cast<uint32_t>(c2) << 16) | \
      (static_cast<uint32_t>(c3) << 24))
 
+//  CONVERSION_DATA_LOSS needs this so it can't be in an include, but I can match the include where it *would* be
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+template <typename To, typename From>
+struct IsSafeIntegralAssign
+{
+    using Source = std::remove_cvref_t<From>;
+    using Dest   = std::remove_cvref_t<To>;
+    static_assert(std::is_integral_v<Source> && std::is_integral_v<Dest>);
+
+    static constexpr bool value =
+        std::cmp_less_equal(std::numeric_limits<Dest>::min(), std::numeric_limits<Source>::min()) &&
+        std::cmp_less_equal(std::numeric_limits<Source>::max(), std::numeric_limits<Dest>::max());
+};
+
+template <typename T, typename U>
+inline constexpr bool IsSafeIntegralAssign_v = IsSafeIntegralAssign<T, U>::value;
+
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
+
+#ifdef NDEBUG
+#define GFXRECON_CHECK_CONVERSION_DATA_LOSS(DestType, Value) ((void)0)
+#define GFXRECON_NARROWING_CAST(Type, Value) static_cast<Type>(Value)
+#define GFXRECON_NARROWING_ASSIGN(Dest, Value) (Dest) = static_cast<std::remove_cvref_t<decltype(Dest)>>(Value)
+#else
 // Determine if a type conversion would result in a loss of data.  Intended to check uint64_t to size_t conversions.
-#define GFXRECON_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() >= Value);
+#define GFXRECON_CHECK_CONVERSION_DATA_LOSS(DestType, Value)                            \
+    do                                                                                  \
+    {                                                                                   \
+        using ValueType = std::remove_cvref_t<decltype(Value)>;                         \
+        if constexpr (!gfxrecon::util::IsSafeIntegralAssign_v<DestType, ValueType>)     \
+        {                                                                               \
+            assert(std::cmp_less_equal(std::numeric_limits<DestType>::min(), (Value))); \
+            assert(std::cmp_less_equal((Value), std::numeric_limits<DestType>::max())); \
+        }                                                                               \
+    } while (0)
+
+#define GFXRECON_NARROWING_CAST(Type, Value)                                                                     \
+    (gfxrecon::util::IsSafeIntegralAssign_v<Type, decltype(Value)> ? static_cast<Type>(Value) : ([&]() -> Type { \
+        auto _value = (Value);                                                                                   \
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(Type, _value);                                                       \
+        return static_cast<Type>(_value);                                                                        \
+    })())
+
+#define GFXRECON_NARROWING_ASSIGN(Dest, Value) \
+    (Dest) = GFXRECON_NARROWING_CAST(std::remove_cvref_t<decltype(Dest)>, (Value))
+
+#endif // NDEBUG
 
 // Safely release a dynamic allocation.
 #define GFXRECON_SAFE_DELETE(p)    \

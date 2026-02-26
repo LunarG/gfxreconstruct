@@ -108,8 +108,10 @@ void DrawCallsDumpingContext::Release()
 
         if (!command_buffers_.empty())
         {
-            device_table_->FreeCommandBuffers(
-                device, pool_info->handle, command_buffers_.size(), command_buffers_.data());
+            device_table_->FreeCommandBuffers(device,
+                                              pool_info->handle,
+                                              GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size()),
+                                              command_buffers_.data());
         }
         command_buffers_.clear();
 
@@ -516,7 +518,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             return VK_SUCCESS;
         }
 
-        const VkDeviceSize draw_call_params_size =
+        const uint32_t draw_call_params_size =
             IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
@@ -574,7 +576,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             device_table_->CmdCopyBuffer(cmd_buf,
                                          ic_params.params_buffer_info->handle,
                                          ic_params.new_params_buffer,
-                                         regions.size(),
+                                         GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
                                          regions.data());
 
             VkBufferMemoryBarrier buf_barrier;
@@ -668,8 +670,8 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
-        const uint32_t     param_buffer_stride = draw_count > 1 ? i_params.stride : draw_call_params_size;
-        const uint32_t     param_buffer_offset = i_params.params_buffer_offset;
+        const VkDeviceSize param_buffer_stride = draw_count > 1 ? i_params.stride : draw_call_params_size;
+        const VkDeviceSize param_buffer_offset = i_params.params_buffer_offset;
         const VkDeviceSize copy_buffer_size    = draw_call_params_size * draw_count;
 
         i_params.new_params_buffer_size = copy_buffer_size;
@@ -722,7 +724,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(DrawCallParams& dc_
             device_table_->CmdCopyBuffer(cmd_buf,
                                          i_params.params_buffer_info->handle,
                                          i_params.new_params_buffer,
-                                         regions.size(),
+                                         GFXRECON_NARROWING_CAST(uint32_t, regions.size()),
                                          regions.data());
 
             VkBufferMemoryBarrier buf_barrier;
@@ -1224,7 +1226,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
         return VK_SUCCESS;
     }
 
-    const auto entry = rendering_attachment_layouts_.find(rp);
+    const auto entry = rendering_attachment_layouts_.find(GFXRECON_NARROWING_CAST(uint32_t, rp));
     assert(entry != rendering_attachment_layouts_.end());
 
     if (!entry->second.is_dynamic)
@@ -1296,7 +1298,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
                                           nullptr,
                                           0,
                                           nullptr,
-                                          img_barriers.size(),
+                                          GFXRECON_NARROWING_CAST(uint32_t, img_barriers.size()),
                                           img_barriers.data());
 
         res = device_table_->EndCommandBuffer(aux_command_buffer_);
@@ -2245,14 +2247,14 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
         if (abs_index_count)
         {
-            const VkIndexType index_type = dc_params.referenced_index_buffer.index_type;
-            const uint32_t    index_size = VkIndexTypeToBytes(index_type);
-            const uint32_t    offset     = dc_params.referenced_index_buffer.offset;
+            const VkIndexType  index_type = dc_params.referenced_index_buffer.index_type;
+            const uint32_t     index_size = VkIndexTypeToBytes(index_type);
+            const VkDeviceSize offset     = dc_params.referenced_index_buffer.offset;
 
             // Check if the exact size has been provided by vkCmdBindIndexBuffer2
-            uint32_t total_size = (dc_params.referenced_index_buffer.size != 0)
-                                      ? (dc_params.referenced_index_buffer.size)
-                                      : (abs_index_count * index_size);
+            VkDeviceSize total_size = (dc_params.referenced_index_buffer.size != 0)
+                                          ? (dc_params.referenced_index_buffer.size)
+                                          : (abs_index_count * index_size);
 
             // There is something wrong with the calculations if this is true
             assert(total_size <= dc_params.referenced_index_buffer.buffer_info->size - offset);
@@ -2458,8 +2460,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
                 const uint32_t count =
                     binding_desc.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? vertex_count : instance_count;
-                uint32_t total_size = 0;
-                uint32_t binding_stride;
+                VkDeviceSize total_size = 0;
+                VkDeviceSize binding_stride;
 
                 if (vb_entry.size)
                 {
@@ -2489,8 +2491,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                 continue;
                             }
 
-                            total_size = std::max(
-                                total_size, vkuFormatElementSize(input_attrib_desc.format) + input_attrib_desc.offset);
+                            const VkDeviceSize input_attrib_size =
+                                vkuFormatElementSize(input_attrib_desc.format) + input_attrib_desc.offset;
+                            total_size = std::max(total_size, input_attrib_size);
                         }
 
                         if (!total_size)
@@ -2501,7 +2504,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 }
 
                 // Calculate offset including vertexOffset
-                uint32_t offset = vb_entry.offset;
+                VkDeviceSize offset = vb_entry.offset;
                 offset +=
                     (binding_desc.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? min_max_vertex_indices.min + first_vertex
                                                                            : first_instance) *
@@ -2646,7 +2649,8 @@ void DrawCallsDumpingContext::BindDescriptorSets(
     }
 
     uint32_t dynamic_offset_index = 0;
-    for (size_t i = 0; i < descriptor_sets_infos.size(); ++i)
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(uint32_t, (first_set + descriptor_sets_infos.size()));
+    for (uint32_t i = 0; i < descriptor_sets_infos.size(); ++i)
     {
         const uint32_t set_index = first_set + i;
 
@@ -2798,14 +2802,14 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
         VkRenderPassCreateInfo ci;
         ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         ci.flags           = original_render_pass_ci->flags;
-        ci.attachmentCount = modified_attachments.size();
+        GFXRECON_NARROWING_ASSIGN(ci.attachmentCount, modified_attachments.size());
         ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
 
         assert(subpass_descs.size() == sub + 1);
         ci.subpassCount = sub + 1;
         ci.pSubpasses   = subpass_descs.data();
 
-        ci.dependencyCount = modified_dependencies.size();
+        GFXRECON_NARROWING_ASSIGN(ci.dependencyCount, modified_dependencies.size());
         ci.pDependencies   = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
 
         ci.pNext = original_render_pass_ci->pNext;
@@ -2953,14 +2957,14 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
         // it doesn't matter which one we use
         ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
         ci.flags           = original_render_pass_ci->flags;
-        ci.attachmentCount = modified_attachments.size();
+        GFXRECON_NARROWING_ASSIGN(ci.attachmentCount, modified_attachments.size());
         ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
 
         assert(subpass_descs.size() == sub + 1);
         ci.subpassCount = sub + 1;
         ci.pSubpasses   = subpass_descs.data();
 
-        ci.dependencyCount = modified_dependencies.size();
+        GFXRECON_NARROWING_ASSIGN(ci.dependencyCount, modified_dependencies.size());
         ci.pDependencies   = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
 
         ci.correlatedViewMaskCount = original_render_pass_ci->correlatedViewMaskCount;
@@ -3833,7 +3837,7 @@ uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferI
     GFXRECON_ASSERT(current_cb_index_ <= command_buffers_.size());
     first = command_buffers_.begin() + static_cast<int>(current_cb_index_);
     last  = command_buffers_.end();
-    return current_cb_index_;
+    return GFXRECON_NARROWING_CAST(uint32_t, current_cb_index_);
 }
 
 void DrawCallsDumpingContext::BeginRendering(const std::vector<VulkanImageInfo*>& color_attachments,
@@ -3885,7 +3889,7 @@ void DrawCallsDumpingContext::AssignSecondary(uint64_t                          
 
 uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
 {
-    uint32_t n_command_buffers = command_buffers_.size();
+    auto n_command_buffers = GFXRECON_NARROWING_CAST(uint32_t, command_buffers_.size());
 
     if (secondaries_.empty())
     {

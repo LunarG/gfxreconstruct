@@ -814,7 +814,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
                     pRenderPassBegin->GetMetaStructPointer()->pNext);
                 GFXRECON_ASSERT(attachment_begin_info);
 
-                uint32_t                num_attachments = attachment_begin_info->pAttachments.GetLength();
+                const auto num_attachments =
+                    GFXRECON_NARROWING_CAST(uint32_t, attachment_begin_info->pAttachments.GetLength());
                 const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
 
                 GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
@@ -885,7 +886,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
                     pRenderPassBegin->GetMetaStructPointer()->pNext);
                 GFXRECON_ASSERT(attachment_begin_info);
 
-                uint32_t                num_attachments = attachment_begin_info->pAttachments.GetLength();
+                const auto num_attachments =
+                    GFXRECON_NARROWING_CAST(uint32_t, attachment_begin_info->pAttachments.GetLength());
                 const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
 
                 GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
@@ -1861,7 +1863,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
         if (modified_command_buffer_handles[s].size())
         {
-            modified_submit_infos[s].commandBufferCount = modified_command_buffer_handles[s].size();
+            GFXRECON_NARROWING_ASSIGN(modified_submit_infos[s].commandBufferCount,
+                                      modified_command_buffer_handles[s].size());
             modified_submit_infos[s].pCommandBuffers    = modified_command_buffer_handles[s].data();
         }
         else
@@ -1878,8 +1881,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
     if (pre_submit)
     {
-        VkResult res = device_table.QueueSubmit(
-            queue_info->handle, modified_submit_infos.size(), modified_submit_infos.data(), fence);
+        VkResult res = device_table.QueueSubmit(queue_info->handle,
+                                                GFXRECON_NARROWING_CAST(uint32_t, modified_submit_infos.size()),
+                                                modified_submit_infos.data(),
+                                                fence);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1990,7 +1995,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     // without further modifications
     if (!submitted)
     {
-        VkResult res = device_table.QueueSubmit(queue_info->handle, submit_infos.size(), submit_infos.data(), fence);
+        VkResult res = device_table.QueueSubmit(
+            queue_info->handle, GFXRECON_NARROWING_CAST(uint32_t, submit_infos.size()), submit_infos.data(), fence);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -2119,7 +2125,7 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
             GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
         if (pipeline_library_info != nullptr)
         {
-            const uint32_t          library_count = pipeline_library_info->pLibraries.GetLength();
+            const auto library_count = GFXRECON_NARROWING_CAST(uint32_t, pipeline_library_info->pLibraries.GetLength());
             const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
 
             for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
@@ -2208,7 +2214,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                             // Each primary should execute the command buffer from the previous
                             // secondary contexts as well
                             func(*(primary_first + finalized_primaries),
-                                 accumulated_secondaries_command_buffers.size(),
+                                 GFXRECON_NARROWING_CAST(uint32_t, accumulated_secondaries_command_buffers.size()),
                                  accumulated_secondaries_command_buffers.data());
 
                             func(*(primary_first + finalized_primaries), 1, &secondaries_command_buffers[scb]);

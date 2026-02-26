@@ -409,7 +409,7 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
     uint32_t dynamic_offset_index = 0;
     for (size_t i = 0; i < descriptor_sets_infos.size(); ++i)
     {
-        uint32_t set_index = first_set + i;
+        const auto set_index = GFXRECON_NARROWING_CAST(uint32_t, (first_set + i));
 
         VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo& bound_descriptor_sets =
             pipeline_bind_point == VK_PIPELINE_BIND_POINT_COMPUTE ? bound_descriptor_sets_compute_[set_index]
@@ -638,7 +638,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                 dst_image,
                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                copies.size(),
+                                GFXRECON_NARROWING_CAST(uint32_t, copies.size()),
                                 copies.data());
 
     // Wait for transfer and transition source image back to previous layout
