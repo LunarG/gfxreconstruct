@@ -20,6 +20,9 @@ name: Release Build
 # 3. Push the tag to GitHub.
 #        git push origin v0.9.2
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
