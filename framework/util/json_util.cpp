@@ -291,8 +291,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const format::InitDx12Accelerati
 {
     /// @todo handle enums and so on.
     FieldToJson(jdata["geometry_type"], static_cast<D3D12_RAYTRACING_GEOMETRY_TYPE>(data.geometry_type));
-    FieldToJson_D3D12_RAYTRACING_GEOMETRY_FLAGS(jdata["geometry_flags"],
-                                                static_cast<D3D12_RAYTRACING_GEOMETRY_FLAGS>(data.geometry_flags));
+    FieldToJson(jdata["geometry_flags"], static_cast<D3D12_RAYTRACING_GEOMETRY_FLAGS_t>(data.geometry_flags));
     FieldToJson(jdata["aabbs_count"], data.aabbs_count);
     FieldToJson(jdata["aabbs_stride"], data.aabbs_stride);
     Bool32ToJson(jdata["triangles_has_transform"], data.triangles_has_transform);

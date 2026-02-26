@@ -1310,8 +1310,8 @@ void OpenXrExportJsonConsumer::Process_xrSubmitDebugUtilsMessageEXT(
     FieldToJson(jdata[NameReturn()], returnValue);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t(), args["messageSeverity"], messageSeverity);
-        FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t(), args["messageTypes"], messageTypes);
+        FieldToJson(args["messageSeverity"], XrDebugUtilsMessageSeverityFlagsEXT_t{messageSeverity});
+        FieldToJson(args["messageTypes"], XrDebugUtilsMessageTypeFlagsEXT_t{messageTypes});
         FieldToJson(args["callbackData"], callbackData);
     WriteBlockEnd();
 }

@@ -1299,9 +1299,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits& value)
     }
 }
 
-void FieldToJson(VkAccessFlagBits2_t, nlohmann::ordered_json& jdata, const VkAccessFlagBits2& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits2_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkAccessFlagBits2>(value)) {
         case VK_ACCESS_2_NONE:
             jdata = "VK_ACCESS_2_NONE";
             break;
@@ -1456,19 +1456,19 @@ void FieldToJson(VkAccessFlagBits2_t, nlohmann::ordered_json& jdata, const VkAcc
             jdata = "VK_ACCESS_2_MEMORY_DECOMPRESSION_WRITE_BIT_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkAccessFlagBits2>(value));
             break;
     }
 }
 
-void FieldToJson(VkAccessFlagBits3KHR_t, nlohmann::ordered_json& jdata, const VkAccessFlagBits3KHR& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlagBits3KHR_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkAccessFlagBits3KHR>(value)) {
         case VK_ACCESS_3_NONE_KHR:
             jdata = "VK_ACCESS_3_NONE_KHR";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkAccessFlagBits3KHR>(value));
             break;
     }
 }
@@ -2003,9 +2003,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits& val
     }
 }
 
-void FieldToJson(VkBufferUsageFlagBits2_t, nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits2& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlagBits2_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkBufferUsageFlagBits2>(value)) {
         case VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT:
             jdata = "VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT";
             break;
@@ -2103,7 +2103,7 @@ void FieldToJson(VkBufferUsageFlagBits2_t, nlohmann::ordered_json& jdata, const 
             jdata = "VK_BUFFER_USAGE_2_PREPROCESS_BUFFER_BIT_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkBufferUsageFlagBits2>(value));
             break;
     }
 }
@@ -2711,9 +2711,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphModelCacheTypeQ
     }
 }
 
-void FieldToJson(VkDataGraphPipelineDispatchFlagBitsARM_t, nlohmann::ordered_json& jdata, const VkDataGraphPipelineDispatchFlagBitsARM& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineDispatchFlagBitsARM_t& value)
 {
-    jdata = to_hex_fixed_width(value);
+    jdata = to_hex_fixed_width(static_cast<VkDataGraphPipelineDispatchFlagBitsARM>(value));
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelinePropertyARM& value)
@@ -2755,14 +2755,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSession
     }
 }
 
-void FieldToJson(VkDataGraphPipelineSessionCreateFlagBitsARM_t, nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionCreateFlagBitsARM& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionCreateFlagBitsARM_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkDataGraphPipelineSessionCreateFlagBitsARM>(value)) {
         case VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM:
             jdata = "VK_DATA_GRAPH_PIPELINE_SESSION_CREATE_PROTECTED_BIT_ARM";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkDataGraphPipelineSessionCreateFlagBitsARM>(value));
             break;
     }
 }
@@ -5056,9 +5056,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits& v
     }
 }
 
-void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits2& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlagBits2_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkFormatFeatureFlagBits2>(value)) {
         case VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT:
             jdata = "VK_FORMAT_FEATURE_2_SAMPLED_IMAGE_BIT";
             break;
@@ -5222,7 +5222,7 @@ void FieldToJson(VkFormatFeatureFlagBits2_t, nlohmann::ordered_json& jdata, cons
             jdata = "VK_FORMAT_FEATURE_2_STENCIL_COPY_ON_TRANSFER_QUEUE_BIT_KHR";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkFormatFeatureFlagBits2>(value));
             break;
     }
 }
@@ -6382,14 +6382,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryAllocateFlagBits& 
     }
 }
 
-void FieldToJson(VkMemoryDecompressionMethodFlagBitsEXT_t, nlohmann::ordered_json& jdata, const VkMemoryDecompressionMethodFlagBitsEXT& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryDecompressionMethodFlagBitsEXT_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkMemoryDecompressionMethodFlagBitsEXT>(value)) {
         case VK_MEMORY_DECOMPRESSION_METHOD_GDEFLATE_1_0_BIT_EXT:
             jdata = "VK_MEMORY_DECOMPRESSION_METHOD_GDEFLATE_1_0_BIT_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkMemoryDecompressionMethodFlagBitsEXT>(value));
             break;
     }
 }
@@ -7207,14 +7207,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceLayeredApi
     }
 }
 
-void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagBitsARM_t, nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagBitsARM_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(value)) {
         case VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM:
             jdata = "VK_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_SHADER_CORE_COUNT_ARM";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(value));
             break;
     }
 }
@@ -7419,9 +7419,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits& 
     }
 }
 
-void FieldToJson(VkPipelineCreateFlagBits2_t, nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits2& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlagBits2_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkPipelineCreateFlagBits2>(value)) {
         case VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT:
             jdata = "VK_PIPELINE_CREATE_2_DISABLE_OPTIMIZATION_BIT";
             break;
@@ -7546,7 +7546,7 @@ void FieldToJson(VkPipelineCreateFlagBits2_t, nlohmann::ordered_json& jdata, con
             jdata = "VK_PIPELINE_CREATE_2_64_BIT_INDEXING_BIT_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkPipelineCreateFlagBits2>(value));
             break;
     }
 }
@@ -7764,9 +7764,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits& v
     }
 }
 
-void FieldToJson(VkPipelineStageFlagBits2_t, nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits2& value)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlagBits2_t& value)
 {
-    switch (value) {
+    switch (static_cast<VkPipelineStageFlagBits2>(value)) {
         case VK_PIPELINE_STAGE_2_NONE:
             jdata = "VK_PIPELINE_STAGE_2_NONE";
             break;
@@ -7906,7 +7906,7 @@ void FieldToJson(VkPipelineStageFlagBits2_t, nlohmann::ordered_json& jdata, cons
             jdata = "VK_PIPELINE_STAGE_2_MEMORY_DECOMPRESSION_BIT_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = to_hex_fixed_width(static_cast<VkPipelineStageFlagBits2>(value));
             break;
     }
 }
@@ -13979,14 +13979,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkViewportCoordinateSwizzl
     }
 }
 
-void FieldToJson(VkAccelerationStructureCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureCreateFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkAccelerationStructureCreateFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkAccelerationStructureCreateFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14001,24 +14001,24 @@ void FieldToJson(VkAccelerationStructureCreateFlagsKHR_t, nlohmann::ordered_json
     });
 }
 
-void FieldToJson(VkAccelerationStructureMotionInfoFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMotionInfoFlagsNV_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkAccelerationStructureMotionInfoFlagsNV>(flags));
 }
 
-void FieldToJson(VkAccelerationStructureMotionInstanceFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccelerationStructureMotionInstanceFlagsNV_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkAccelerationStructureMotionInstanceFlagsNV>(flags));
 }
 
-void FieldToJson(VkAccessFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkAccessFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkAccessFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14085,14 +14085,14 @@ void FieldToJson(VkAccessFlags_t, nlohmann::ordered_json& jdata, const VkFlags f
     });
 }
 
-void FieldToJson(VkAccessFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlags2_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkAccessFlags2>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkAccessFlags2>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -14203,14 +14203,14 @@ void FieldToJson(VkAccessFlags2_t, nlohmann::ordered_json& jdata, const VkFlags6
     });
 }
 
-void FieldToJson(VkAccessFlags3KHR_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAccessFlags3KHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkAccessFlags3KHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkAccessFlags3KHR>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -14221,19 +14221,19 @@ void FieldToJson(VkAccessFlags3KHR_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkAcquireProfilingLockFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAcquireProfilingLockFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkAcquireProfilingLockFlagsKHR>(flags));
 }
 
-void FieldToJson(VkAddressCopyFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAddressCopyFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkAddressCopyFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkAddressCopyFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14248,19 +14248,19 @@ void FieldToJson(VkAddressCopyFlagsKHR_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkAndroidSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAndroidSurfaceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkAndroidSurfaceCreateFlagsKHR>(flags));
 }
 
-void FieldToJson(VkAttachmentDescriptionFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkAttachmentDescriptionFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkAttachmentDescriptionFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkAttachmentDescriptionFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14275,14 +14275,14 @@ void FieldToJson(VkAttachmentDescriptionFlags_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkBufferCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkBufferCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkBufferCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14305,14 +14305,14 @@ void FieldToJson(VkBufferCreateFlags_t, nlohmann::ordered_json& jdata, const VkF
     });
 }
 
-void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkBufferUsageFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkBufferUsageFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14377,14 +14377,14 @@ void FieldToJson(VkBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkBufferUsageFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferUsageFlags2_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkBufferUsageFlags2>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkBufferUsageFlags2>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -14457,19 +14457,19 @@ void FieldToJson(VkBufferUsageFlags2_t, nlohmann::ordered_json& jdata, const VkF
     });
 }
 
-void FieldToJson(VkBufferViewCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBufferViewCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkBufferViewCreateFlags>(flags));
 }
 
-void FieldToJson(VkBuildAccelerationStructureFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildAccelerationStructureFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkBuildAccelerationStructureFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkBuildAccelerationStructureFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14502,14 +14502,14 @@ void FieldToJson(VkBuildAccelerationStructureFlagsKHR_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkBuildMicromapFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkBuildMicromapFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkBuildMicromapFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkBuildMicromapFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14524,14 +14524,14 @@ void FieldToJson(VkBuildMicromapFlagsEXT_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkColorComponentFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkColorComponentFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkColorComponentFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkColorComponentFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14548,14 +14548,14 @@ void FieldToJson(VkColorComponentFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkCommandBufferResetFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferResetFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkCommandBufferResetFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkCommandBufferResetFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14566,14 +14566,14 @@ void FieldToJson(VkCommandBufferResetFlags_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkCommandBufferUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandBufferUsageFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkCommandBufferUsageFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkCommandBufferUsageFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14588,14 +14588,14 @@ void FieldToJson(VkCommandBufferUsageFlags_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkCommandPoolCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandPoolCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkCommandPoolCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkCommandPoolCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14610,14 +14610,14 @@ void FieldToJson(VkCommandPoolCreateFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkCommandPoolResetFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandPoolResetFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkCommandPoolResetFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkCommandPoolResetFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14628,19 +14628,19 @@ void FieldToJson(VkCommandPoolResetFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkCommandPoolTrimFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCommandPoolTrimFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkCommandPoolTrimFlags>(flags));
 }
 
-void FieldToJson(VkCompositeAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCompositeAlphaFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkCompositeAlphaFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkCompositeAlphaFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14657,14 +14657,14 @@ void FieldToJson(VkCompositeAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkConditionalRenderingFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkConditionalRenderingFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkConditionalRenderingFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkConditionalRenderingFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14675,14 +14675,14 @@ void FieldToJson(VkConditionalRenderingFlagsEXT_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkCullModeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkCullModeFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkCullModeFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkCullModeFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14699,19 +14699,19 @@ void FieldToJson(VkCullModeFlags_t, nlohmann::ordered_json& jdata, const VkFlags
     });
 }
 
-void FieldToJson(VkDataGraphPipelineDispatchFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineDispatchFlagsARM_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDataGraphPipelineDispatchFlagsARM>(flags));
 }
 
-void FieldToJson(VkDataGraphPipelineSessionCreateFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDataGraphPipelineSessionCreateFlagsARM_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDataGraphPipelineSessionCreateFlagsARM>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkDataGraphPipelineSessionCreateFlagsARM>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -14722,14 +14722,14 @@ void FieldToJson(VkDataGraphPipelineSessionCreateFlagsARM_t, nlohmann::ordered_j
     });
 }
 
-void FieldToJson(VkDebugReportFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugReportFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDebugReportFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDebugReportFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14748,14 +14748,14 @@ void FieldToJson(VkDebugReportFlagsEXT_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageSeverityFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDebugUtilsMessageSeverityFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDebugUtilsMessageSeverityFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14772,14 +14772,14 @@ void FieldToJson(VkDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessageTypeFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDebugUtilsMessageTypeFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDebugUtilsMessageTypeFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14796,24 +14796,24 @@ void FieldToJson(VkDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkDebugUtilsMessengerCallbackDataFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessengerCallbackDataFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDebugUtilsMessengerCallbackDataFlagsEXT>(flags));
 }
 
-void FieldToJson(VkDebugUtilsMessengerCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDebugUtilsMessengerCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDebugUtilsMessengerCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkDependencyFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDependencyFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDependencyFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDependencyFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14834,14 +14834,14 @@ void FieldToJson(VkDependencyFlags_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkDescriptorBindingFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorBindingFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDescriptorBindingFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDescriptorBindingFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14858,14 +14858,14 @@ void FieldToJson(VkDescriptorBindingFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkDescriptorPoolCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorPoolCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDescriptorPoolCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDescriptorPoolCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14884,19 +14884,19 @@ void FieldToJson(VkDescriptorPoolCreateFlags_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkDescriptorPoolResetFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorPoolResetFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDescriptorPoolResetFlags>(flags));
 }
 
-void FieldToJson(VkDescriptorSetLayoutCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorSetLayoutCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDescriptorSetLayoutCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDescriptorSetLayoutCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14919,19 +14919,19 @@ void FieldToJson(VkDescriptorSetLayoutCreateFlags_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkDescriptorUpdateTemplateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDescriptorUpdateTemplateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDescriptorUpdateTemplateCreateFlags>(flags));
 }
 
-void FieldToJson(VkDeviceAddressBindingFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceAddressBindingFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDeviceAddressBindingFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDeviceAddressBindingFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14942,19 +14942,19 @@ void FieldToJson(VkDeviceAddressBindingFlagsEXT_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkDeviceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDeviceCreateFlags>(flags));
 }
 
-void FieldToJson(VkDeviceDiagnosticsConfigFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceDiagnosticsConfigFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDeviceDiagnosticsConfigFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDeviceDiagnosticsConfigFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14971,14 +14971,14 @@ void FieldToJson(VkDeviceDiagnosticsConfigFlagsNV_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkDeviceGroupPresentModeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceGroupPresentModeFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDeviceGroupPresentModeFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDeviceGroupPresentModeFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -14995,19 +14995,19 @@ void FieldToJson(VkDeviceGroupPresentModeFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkDeviceMemoryReportFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceMemoryReportFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDeviceMemoryReportFlagsEXT>(flags));
 }
 
-void FieldToJson(VkDeviceQueueCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDeviceQueueCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDeviceQueueCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDeviceQueueCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15020,29 +15020,29 @@ void FieldToJson(VkDeviceQueueCreateFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkDirectDriverLoadingFlagsLUNARG_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDirectDriverLoadingFlagsLUNARG_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDirectDriverLoadingFlagsLUNARG>(flags));
 }
 
-void FieldToJson(VkDirectFBSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDirectFBSurfaceCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDirectFBSurfaceCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkDisplayModeCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayModeCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDisplayModeCreateFlagsKHR>(flags));
 }
 
-void FieldToJson(VkDisplayPlaneAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplayPlaneAlphaFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkDisplayPlaneAlphaFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkDisplayPlaneAlphaFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15059,19 +15059,19 @@ void FieldToJson(VkDisplayPlaneAlphaFlagsKHR_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkDisplaySurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkDisplaySurfaceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkDisplaySurfaceCreateFlagsKHR>(flags));
 }
 
-void FieldToJson(VkEventCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkEventCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkEventCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkEventCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15082,14 +15082,14 @@ void FieldToJson(VkEventCreateFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkExternalFenceFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalFenceFeatureFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalFenceFeatureFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalFenceFeatureFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15102,14 +15102,14 @@ void FieldToJson(VkExternalFenceFeatureFlags_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkExternalFenceHandleTypeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalFenceHandleTypeFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalFenceHandleTypeFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalFenceHandleTypeFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15126,14 +15126,14 @@ void FieldToJson(VkExternalFenceHandleTypeFlags_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkExternalMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalMemoryFeatureFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalMemoryFeatureFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15148,14 +15148,14 @@ void FieldToJson(VkExternalMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkExternalMemoryFeatureFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryFeatureFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalMemoryFeatureFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalMemoryFeatureFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15170,14 +15170,14 @@ void FieldToJson(VkExternalMemoryFeatureFlagsNV_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(VkExternalMemoryHandleTypeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleTypeFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalMemoryHandleTypeFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalMemoryHandleTypeFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15222,14 +15222,14 @@ void FieldToJson(VkExternalMemoryHandleTypeFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkExternalMemoryHandleTypeFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalMemoryHandleTypeFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalMemoryHandleTypeFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalMemoryHandleTypeFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15246,14 +15246,14 @@ void FieldToJson(VkExternalMemoryHandleTypeFlagsNV_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(VkExternalSemaphoreFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreFeatureFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalSemaphoreFeatureFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalSemaphoreFeatureFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15266,14 +15266,14 @@ void FieldToJson(VkExternalSemaphoreFeatureFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkExternalSemaphoreHandleTypeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkExternalSemaphoreHandleTypeFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkExternalSemaphoreHandleTypeFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkExternalSemaphoreHandleTypeFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15294,14 +15294,14 @@ void FieldToJson(VkExternalSemaphoreHandleTypeFlags_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(VkFenceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFenceCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkFenceCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkFenceCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15312,14 +15312,14 @@ void FieldToJson(VkFenceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkFenceImportFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFenceImportFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkFenceImportFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkFenceImportFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15330,14 +15330,14 @@ void FieldToJson(VkFenceImportFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkFormatFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkFormatFeatureFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkFormatFeatureFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15408,14 +15408,14 @@ void FieldToJson(VkFormatFeatureFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFormatFeatureFlags2_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkFormatFeatureFlags2>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkFormatFeatureFlags2>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -15532,14 +15532,14 @@ void FieldToJson(VkFormatFeatureFlags2_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkFrameBoundaryFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFrameBoundaryFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkFrameBoundaryFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkFrameBoundaryFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15550,14 +15550,14 @@ void FieldToJson(VkFrameBoundaryFlagsEXT_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkFramebufferCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkFramebufferCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkFramebufferCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkFramebufferCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15568,14 +15568,14 @@ void FieldToJson(VkFramebufferCreateFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkGeometryFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkGeometryFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkGeometryFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15588,14 +15588,14 @@ void FieldToJson(VkGeometryFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkGeometryInstanceFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkGeometryInstanceFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkGeometryInstanceFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15616,14 +15616,14 @@ void FieldToJson(VkGeometryInstanceFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkGraphicsPipelineLibraryFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkGraphicsPipelineLibraryFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkGraphicsPipelineLibraryFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15640,19 +15640,19 @@ void FieldToJson(VkGraphicsPipelineLibraryFlagsEXT_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(VkHeadlessSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkHeadlessSurfaceCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkHeadlessSurfaceCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkHostImageCopyFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkHostImageCopyFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkHostImageCopyFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkHostImageCopyFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15663,19 +15663,19 @@ void FieldToJson(VkHostImageCopyFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkIOSSurfaceCreateFlagsMVK_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIOSSurfaceCreateFlagsMVK_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkIOSSurfaceCreateFlagsMVK>(flags));
 }
 
-void FieldToJson(VkImageAspectFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkImageAspectFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkImageAspectFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkImageAspectFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15708,14 +15708,14 @@ void FieldToJson(VkImageAspectFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkImageCompressionFixedRateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFixedRateFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkImageCompressionFixedRateFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkImageCompressionFixedRateFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15774,14 +15774,14 @@ void FieldToJson(VkImageCompressionFixedRateFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkImageCompressionFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCompressionFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkImageCompressionFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkImageCompressionFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15798,14 +15798,14 @@ void FieldToJson(VkImageCompressionFlagsEXT_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkImageCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkImageCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkImageCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkImageCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15854,19 +15854,19 @@ void FieldToJson(VkImageCreateFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkImagePipeSurfaceCreateFlagsFUCHSIA_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkImagePipeSurfaceCreateFlagsFUCHSIA_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkImagePipeSurfaceCreateFlagsFUCHSIA>(flags));
 }
 
-void FieldToJson(VkImageUsageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkImageUsageFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkImageUsageFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkImageUsageFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15925,14 +15925,14 @@ void FieldToJson(VkImageUsageFlags_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkImageViewCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkImageViewCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkImageViewCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkImageViewCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15947,14 +15947,14 @@ void FieldToJson(VkImageViewCreateFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkIndirectCommandsInputModeFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsInputModeFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkIndirectCommandsInputModeFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkIndirectCommandsInputModeFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15967,14 +15967,14 @@ void FieldToJson(VkIndirectCommandsInputModeFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkIndirectCommandsLayoutUsageFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkIndirectCommandsLayoutUsageFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkIndirectCommandsLayoutUsageFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -15987,14 +15987,14 @@ void FieldToJson(VkIndirectCommandsLayoutUsageFlagsEXT_t, nlohmann::ordered_json
     });
 }
 
-void FieldToJson(VkIndirectCommandsLayoutUsageFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectCommandsLayoutUsageFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkIndirectCommandsLayoutUsageFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkIndirectCommandsLayoutUsageFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16009,14 +16009,14 @@ void FieldToJson(VkIndirectCommandsLayoutUsageFlagsNV_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkIndirectStateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkIndirectStateFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkIndirectStateFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkIndirectStateFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16027,14 +16027,14 @@ void FieldToJson(VkIndirectStateFlagsNV_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkInstanceCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkInstanceCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkInstanceCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkInstanceCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16045,19 +16045,19 @@ void FieldToJson(VkInstanceCreateFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkMacOSSurfaceCreateFlagsMVK_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMacOSSurfaceCreateFlagsMVK_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkMacOSSurfaceCreateFlagsMVK>(flags));
 }
 
-void FieldToJson(VkMemoryAllocateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryAllocateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkMemoryAllocateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkMemoryAllocateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16074,14 +16074,14 @@ void FieldToJson(VkMemoryAllocateFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkMemoryDecompressionMethodFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryDecompressionMethodFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkMemoryDecompressionMethodFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkMemoryDecompressionMethodFlagsEXT>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -16092,14 +16092,14 @@ void FieldToJson(VkMemoryDecompressionMethodFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkMemoryHeapFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryHeapFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkMemoryHeapFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkMemoryHeapFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16114,14 +16114,14 @@ void FieldToJson(VkMemoryHeapFlags_t, nlohmann::ordered_json& jdata, const VkFla
     });
 }
 
-void FieldToJson(VkMemoryMapFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryMapFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkMemoryMapFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkMemoryMapFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16132,14 +16132,14 @@ void FieldToJson(VkMemoryMapFlags_t, nlohmann::ordered_json& jdata, const VkFlag
     });
 }
 
-void FieldToJson(VkMemoryPropertyFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryPropertyFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkMemoryPropertyFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkMemoryPropertyFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16166,14 +16166,14 @@ void FieldToJson(VkMemoryPropertyFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkMemoryUnmapFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMemoryUnmapFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkMemoryUnmapFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkMemoryUnmapFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16184,19 +16184,19 @@ void FieldToJson(VkMemoryUnmapFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkMetalSurfaceCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMetalSurfaceCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkMetalSurfaceCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkMicromapCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkMicromapCreateFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkMicromapCreateFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkMicromapCreateFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16207,14 +16207,14 @@ void FieldToJson(VkMicromapCreateFlagsEXT_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkOpticalFlowExecuteFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowExecuteFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkOpticalFlowExecuteFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkOpticalFlowExecuteFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16225,14 +16225,14 @@ void FieldToJson(VkOpticalFlowExecuteFlagsNV_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkOpticalFlowGridSizeFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowGridSizeFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkOpticalFlowGridSizeFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkOpticalFlowGridSizeFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16251,14 +16251,14 @@ void FieldToJson(VkOpticalFlowGridSizeFlagsNV_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkOpticalFlowSessionCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowSessionCreateFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkOpticalFlowSessionCreateFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkOpticalFlowSessionCreateFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16277,14 +16277,14 @@ void FieldToJson(VkOpticalFlowSessionCreateFlagsNV_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(VkOpticalFlowUsageFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowUsageFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkOpticalFlowUsageFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkOpticalFlowUsageFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16305,14 +16305,14 @@ void FieldToJson(VkOpticalFlowUsageFlagsNV_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkPartitionedAccelerationStructureInstanceFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPartitionedAccelerationStructureInstanceFlagsNV_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPartitionedAccelerationStructureInstanceFlagsNV>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPartitionedAccelerationStructureInstanceFlagsNV>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16331,14 +16331,14 @@ void FieldToJson(VkPartitionedAccelerationStructureInstanceFlagsNV_t, nlohmann::
     });
 }
 
-void FieldToJson(VkPastPresentationTimingFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPastPresentationTimingFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPastPresentationTimingFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPastPresentationTimingFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16351,14 +16351,14 @@ void FieldToJson(VkPastPresentationTimingFlagsEXT_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkPeerMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPeerMemoryFeatureFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPeerMemoryFeatureFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPeerMemoryFeatureFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16375,19 +16375,19 @@ void FieldToJson(VkPeerMemoryFeatureFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkPerformanceCounterDescriptionFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescriptionFlagsARM_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPerformanceCounterDescriptionFlagsARM>(flags));
 }
 
-void FieldToJson(VkPerformanceCounterDescriptionFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescriptionFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPerformanceCounterDescriptionFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPerformanceCounterDescriptionFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16400,14 +16400,14 @@ void FieldToJson(VkPerformanceCounterDescriptionFlagsKHR_t, nlohmann::ordered_js
     });
 }
 
-void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagsARM_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagsARM_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPhysicalDeviceSchedulingControlsFlagsARM>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkPhysicalDeviceSchedulingControlsFlagsARM>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -16418,14 +16418,14 @@ void FieldToJson(VkPhysicalDeviceSchedulingControlsFlagsARM_t, nlohmann::ordered
     });
 }
 
-void FieldToJson(VkPipelineCacheCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCacheCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineCacheCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineCacheCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16438,14 +16438,14 @@ void FieldToJson(VkPipelineCacheCreateFlags_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkPipelineColorBlendStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineColorBlendStateCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineColorBlendStateCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineColorBlendStateCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16456,34 +16456,34 @@ void FieldToJson(VkPipelineColorBlendStateCreateFlags_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkPipelineCompilerControlFlagsAMD_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCompilerControlFlagsAMD_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineCompilerControlFlagsAMD>(flags));
 }
 
-void FieldToJson(VkPipelineCoverageModulationStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCoverageModulationStateCreateFlagsNV_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineCoverageModulationStateCreateFlagsNV>(flags));
 }
 
-void FieldToJson(VkPipelineCoverageReductionStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCoverageReductionStateCreateFlagsNV_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineCoverageReductionStateCreateFlagsNV>(flags));
 }
 
-void FieldToJson(VkPipelineCoverageToColorStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCoverageToColorStateCreateFlagsNV_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineCoverageToColorStateCreateFlagsNV>(flags));
 }
 
-void FieldToJson(VkPipelineCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16554,14 +16554,14 @@ void FieldToJson(VkPipelineCreateFlags_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkPipelineCreateFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreateFlags2_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineCreateFlags2>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkPipelineCreateFlags2>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -16652,14 +16652,14 @@ void FieldToJson(VkPipelineCreateFlags2_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkPipelineCreationFeedbackFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineCreationFeedbackFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineCreationFeedbackFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineCreationFeedbackFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16674,14 +16674,14 @@ void FieldToJson(VkPipelineCreationFeedbackFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkPipelineDepthStencilStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineDepthStencilStateCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineDepthStencilStateCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineDepthStencilStateCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16694,29 +16694,29 @@ void FieldToJson(VkPipelineDepthStencilStateCreateFlags_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkPipelineDiscardRectangleStateCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineDiscardRectangleStateCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineDiscardRectangleStateCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkPipelineDynamicStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineDynamicStateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineDynamicStateCreateFlags>(flags));
 }
 
-void FieldToJson(VkPipelineInputAssemblyStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineInputAssemblyStateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineInputAssemblyStateCreateFlags>(flags));
 }
 
-void FieldToJson(VkPipelineLayoutCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineLayoutCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineLayoutCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineLayoutCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16727,39 +16727,39 @@ void FieldToJson(VkPipelineLayoutCreateFlags_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkPipelineMultisampleStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineMultisampleStateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineMultisampleStateCreateFlags>(flags));
 }
 
-void FieldToJson(VkPipelineRasterizationConservativeStateCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRasterizationConservativeStateCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineRasterizationConservativeStateCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkPipelineRasterizationDepthClipStateCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRasterizationDepthClipStateCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineRasterizationDepthClipStateCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkPipelineRasterizationStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRasterizationStateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineRasterizationStateCreateFlags>(flags));
 }
 
-void FieldToJson(VkPipelineRasterizationStateStreamCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineRasterizationStateStreamCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineRasterizationStateStreamCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkPipelineShaderStageCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineShaderStageCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineShaderStageCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineShaderStageCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16772,14 +16772,14 @@ void FieldToJson(VkPipelineShaderStageCreateFlags_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkPipelineStageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineStageFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPipelineStageFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16842,14 +16842,14 @@ void FieldToJson(VkPipelineStageFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkPipelineStageFlags2_t, nlohmann::ordered_json& jdata, const VkFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineStageFlags2_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPipelineStageFlags2>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags64 flags)
+    jdata = ExpandFlags(static_cast<VkPipelineStageFlags2>(flags), [](VkFlags64 flags)
     {
         switch (flags)
         {
@@ -16950,34 +16950,34 @@ void FieldToJson(VkPipelineStageFlags2_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkPipelineTessellationStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineTessellationStateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineTessellationStateCreateFlags>(flags));
 }
 
-void FieldToJson(VkPipelineVertexInputStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineVertexInputStateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineVertexInputStateCreateFlags>(flags));
 }
 
-void FieldToJson(VkPipelineViewportStateCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineViewportStateCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineViewportStateCreateFlags>(flags));
 }
 
-void FieldToJson(VkPipelineViewportSwizzleStateCreateFlagsNV_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPipelineViewportSwizzleStateCreateFlagsNV_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPipelineViewportSwizzleStateCreateFlagsNV>(flags));
 }
 
-void FieldToJson(VkPresentGravityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentGravityFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPresentGravityFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPresentGravityFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -16992,14 +16992,14 @@ void FieldToJson(VkPresentGravityFlagsKHR_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkPresentScalingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentScalingFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPresentScalingFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPresentScalingFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17014,14 +17014,14 @@ void FieldToJson(VkPresentScalingFlagsKHR_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkPresentStageFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentStageFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPresentStageFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPresentStageFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17038,14 +17038,14 @@ void FieldToJson(VkPresentStageFlagsEXT_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkPresentTimingInfoFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPresentTimingInfoFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkPresentTimingInfoFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkPresentTimingInfoFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17058,19 +17058,19 @@ void FieldToJson(VkPresentTimingInfoFlagsEXT_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkPrivateDataSlotCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkPrivateDataSlotCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkPrivateDataSlotCreateFlags>(flags));
 }
 
-void FieldToJson(VkQueryControlFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryControlFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkQueryControlFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkQueryControlFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17081,14 +17081,14 @@ void FieldToJson(VkQueryControlFlags_t, nlohmann::ordered_json& jdata, const VkF
     });
 }
 
-void FieldToJson(VkQueryPipelineStatisticFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPipelineStatisticFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkQueryPipelineStatisticFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkQueryPipelineStatisticFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17125,14 +17125,14 @@ void FieldToJson(VkQueryPipelineStatisticFlags_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkQueryPoolCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryPoolCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkQueryPoolCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkQueryPoolCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17143,14 +17143,14 @@ void FieldToJson(VkQueryPoolCreateFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkQueryResultFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkQueryResultFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkQueryResultFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkQueryResultFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17169,14 +17169,14 @@ void FieldToJson(VkQueryResultFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkQueueFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkQueueFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkQueueFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkQueueFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17203,14 +17203,14 @@ void FieldToJson(VkQueueFlags_t, nlohmann::ordered_json& jdata, const VkFlags fl
     });
 }
 
-void FieldToJson(VkRenderPassCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderPassCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkRenderPassCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkRenderPassCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17223,14 +17223,14 @@ void FieldToJson(VkRenderPassCreateFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkRenderingAttachmentFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingAttachmentFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkRenderingAttachmentFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkRenderingAttachmentFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17245,14 +17245,14 @@ void FieldToJson(VkRenderingAttachmentFlagsKHR_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkRenderingFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkRenderingFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkRenderingFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkRenderingFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17279,14 +17279,14 @@ void FieldToJson(VkRenderingFlags_t, nlohmann::ordered_json& jdata, const VkFlag
     });
 }
 
-void FieldToJson(VkResolveImageFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkResolveImageFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkResolveImageFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkResolveImageFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17299,14 +17299,14 @@ void FieldToJson(VkResolveImageFlagsKHR_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkResolveModeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkResolveModeFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkResolveModeFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkResolveModeFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17329,14 +17329,14 @@ void FieldToJson(VkResolveModeFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkSampleCountFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSampleCountFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSampleCountFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSampleCountFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17359,14 +17359,14 @@ void FieldToJson(VkSampleCountFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkSamplerCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSamplerCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSamplerCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSamplerCreateFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17385,24 +17385,24 @@ void FieldToJson(VkSamplerCreateFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkScreenSurfaceCreateFlagsQNX_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkScreenSurfaceCreateFlagsQNX_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkScreenSurfaceCreateFlagsQNX>(flags));
 }
 
-void FieldToJson(VkSemaphoreCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkSemaphoreCreateFlags>(flags));
 }
 
-void FieldToJson(VkSemaphoreImportFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreImportFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSemaphoreImportFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSemaphoreImportFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17413,14 +17413,14 @@ void FieldToJson(VkSemaphoreImportFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkSemaphoreWaitFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSemaphoreWaitFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSemaphoreWaitFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSemaphoreWaitFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17431,19 +17431,19 @@ void FieldToJson(VkSemaphoreWaitFlags_t, nlohmann::ordered_json& jdata, const Vk
     });
 }
 
-void FieldToJson(VkShaderCorePropertiesFlagsAMD_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCorePropertiesFlagsAMD_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkShaderCorePropertiesFlagsAMD>(flags));
 }
 
-void FieldToJson(VkShaderCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCreateFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkShaderCreateFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkShaderCreateFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17474,19 +17474,19 @@ void FieldToJson(VkShaderCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkShaderModuleCreateFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderModuleCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkShaderModuleCreateFlags>(flags));
 }
 
-void FieldToJson(VkShaderStageFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderStageFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkShaderStageFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkShaderStageFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17531,14 +17531,14 @@ void FieldToJson(VkShaderStageFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkSparseImageFormatFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSparseImageFormatFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSparseImageFormatFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSparseImageFormatFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17553,14 +17553,14 @@ void FieldToJson(VkSparseImageFormatFlags_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkSparseMemoryBindFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSparseMemoryBindFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSparseMemoryBindFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSparseMemoryBindFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17571,14 +17571,14 @@ void FieldToJson(VkSparseMemoryBindFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(VkStencilFaceFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkStencilFaceFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkStencilFaceFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkStencilFaceFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17593,19 +17593,19 @@ void FieldToJson(VkStencilFaceFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkStreamDescriptorSurfaceCreateFlagsGGP_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkStreamDescriptorSurfaceCreateFlagsGGP_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkStreamDescriptorSurfaceCreateFlagsGGP>(flags));
 }
 
-void FieldToJson(VkSubgroupFeatureFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSubgroupFeatureFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSubgroupFeatureFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSubgroupFeatureFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17636,14 +17636,14 @@ void FieldToJson(VkSubgroupFeatureFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(VkSubmitFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSubmitFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSubmitFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSubmitFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17654,14 +17654,14 @@ void FieldToJson(VkSubmitFlags_t, nlohmann::ordered_json& jdata, const VkFlags f
     });
 }
 
-void FieldToJson(VkSubpassDescriptionFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSubpassDescriptionFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSubpassDescriptionFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSubpassDescriptionFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17688,14 +17688,14 @@ void FieldToJson(VkSubpassDescriptionFlags_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkSurfaceCounterFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSurfaceCounterFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSurfaceCounterFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSurfaceCounterFlagsEXT>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17706,14 +17706,14 @@ void FieldToJson(VkSurfaceCounterFlagsEXT_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(VkSurfaceTransformFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSurfaceTransformFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSurfaceTransformFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSurfaceTransformFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17740,14 +17740,14 @@ void FieldToJson(VkSurfaceTransformFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkSwapchainCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkSwapchainCreateFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkSwapchainCreateFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkSwapchainCreateFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17770,14 +17770,14 @@ void FieldToJson(VkSwapchainCreateFlagsKHR_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkTileShadingRenderPassFlagsQCOM_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkTileShadingRenderPassFlagsQCOM_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkTileShadingRenderPassFlagsQCOM>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkTileShadingRenderPassFlagsQCOM>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17790,14 +17790,14 @@ void FieldToJson(VkTileShadingRenderPassFlagsQCOM_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkToolPurposeFlags_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkToolPurposeFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkToolPurposeFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkToolPurposeFlags>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17820,29 +17820,29 @@ void FieldToJson(VkToolPurposeFlags_t, nlohmann::ordered_json& jdata, const VkFl
     });
 }
 
-void FieldToJson(VkValidationCacheCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkValidationCacheCreateFlagsEXT_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkValidationCacheCreateFlagsEXT>(flags));
 }
 
-void FieldToJson(VkViSurfaceCreateFlagsNN_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkViSurfaceCreateFlagsNN_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkViSurfaceCreateFlagsNN>(flags));
 }
 
-void FieldToJson(VkVideoBeginCodingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoBeginCodingFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkVideoBeginCodingFlagsKHR>(flags));
 }
 
-void FieldToJson(VkVideoCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCapabilityFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoCapabilityFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoCapabilityFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17855,14 +17855,14 @@ void FieldToJson(VkVideoCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(VkVideoChromaSubsamplingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoChromaSubsamplingFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoChromaSubsamplingFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoChromaSubsamplingFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17881,14 +17881,14 @@ void FieldToJson(VkVideoChromaSubsamplingFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkVideoCodecOperationFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCodecOperationFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoCodecOperationFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoCodecOperationFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17913,14 +17913,14 @@ void FieldToJson(VkVideoCodecOperationFlagsKHR_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkVideoCodingControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoCodingControlFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoCodingControlFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoCodingControlFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17935,14 +17935,14 @@ void FieldToJson(VkVideoCodingControlFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoComponentBitDepthFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoComponentBitDepthFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoComponentBitDepthFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoComponentBitDepthFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17959,14 +17959,14 @@ void FieldToJson(VkVideoComponentBitDepthFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkVideoDecodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeCapabilityFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoDecodeCapabilityFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoDecodeCapabilityFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -17979,19 +17979,19 @@ void FieldToJson(VkVideoDecodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkVideoDecodeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkVideoDecodeFlagsKHR>(flags));
 }
 
-void FieldToJson(VkVideoDecodeH264PictureLayoutFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeH264PictureLayoutFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoDecodeH264PictureLayoutFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoDecodeH264PictureLayoutFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18006,14 +18006,14 @@ void FieldToJson(VkVideoDecodeH264PictureLayoutFlagsKHR_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkVideoDecodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoDecodeUsageFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoDecodeUsageFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoDecodeUsageFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18030,14 +18030,14 @@ void FieldToJson(VkVideoDecodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1CapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1CapabilityFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeAV1CapabilityFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeAV1CapabilityFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18058,14 +18058,14 @@ void FieldToJson(VkVideoEncodeAV1CapabilityFlagsKHR_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1RateControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1RateControlFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeAV1RateControlFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeAV1RateControlFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18082,14 +18082,14 @@ void FieldToJson(VkVideoEncodeAV1RateControlFlagsKHR_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1StdFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1StdFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeAV1StdFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeAV1StdFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18106,14 +18106,14 @@ void FieldToJson(VkVideoEncodeAV1StdFlagsKHR_t, nlohmann::ordered_json& jdata, c
     });
 }
 
-void FieldToJson(VkVideoEncodeAV1SuperblockSizeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeAV1SuperblockSizeFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeAV1SuperblockSizeFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeAV1SuperblockSizeFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18126,14 +18126,14 @@ void FieldToJson(VkVideoEncodeAV1SuperblockSizeFlagsKHR_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkVideoEncodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeCapabilityFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeCapabilityFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeCapabilityFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18150,14 +18150,14 @@ void FieldToJson(VkVideoEncodeCapabilityFlagsKHR_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(VkVideoEncodeContentFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeContentFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeContentFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeContentFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18174,14 +18174,14 @@ void FieldToJson(VkVideoEncodeContentFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoEncodeFeedbackFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFeedbackFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeFeedbackFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeFeedbackFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18196,14 +18196,14 @@ void FieldToJson(VkVideoEncodeFeedbackFlagsKHR_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(VkVideoEncodeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18218,14 +18218,14 @@ void FieldToJson(VkVideoEncodeFlagsKHR_t, nlohmann::ordered_json& jdata, const V
     });
 }
 
-void FieldToJson(VkVideoEncodeH264CapabilityFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264CapabilityFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeH264CapabilityFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeH264CapabilityFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18256,14 +18256,14 @@ void FieldToJson(VkVideoEncodeH264CapabilityFlagsKHR_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(VkVideoEncodeH264RateControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264RateControlFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeH264RateControlFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeH264RateControlFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18282,14 +18282,14 @@ void FieldToJson(VkVideoEncodeH264RateControlFlagsKHR_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkVideoEncodeH264StdFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH264StdFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeH264StdFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeH264StdFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18338,14 +18338,14 @@ void FieldToJson(VkVideoEncodeH264StdFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoEncodeH265CtbSizeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeH265CtbSizeFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeH265CtbSizeFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeH265CtbSizeFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18360,14 +18360,14 @@ void FieldToJson(VkVideoEncodeH265CtbSizeFlagsKHR_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(VkVideoEncodeIntraRefreshModeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeIntraRefreshModeFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeIntraRefreshModeFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeIntraRefreshModeFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18386,19 +18386,19 @@ void FieldToJson(VkVideoEncodeIntraRefreshModeFlagsKHR_t, nlohmann::ordered_json
     });
 }
 
-void FieldToJson(VkVideoEncodeRateControlFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRateControlFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkVideoEncodeRateControlFlagsKHR>(flags));
 }
 
-void FieldToJson(VkVideoEncodeRateControlModeFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRateControlModeFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeRateControlModeFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeRateControlModeFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18415,14 +18415,14 @@ void FieldToJson(VkVideoEncodeRateControlModeFlagsKHR_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(VkVideoEncodeRgbChromaOffsetFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbChromaOffsetFlagsVALVE_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeRgbChromaOffsetFlagsVALVE>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeRgbChromaOffsetFlagsVALVE>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18435,14 +18435,14 @@ void FieldToJson(VkVideoEncodeRgbChromaOffsetFlagsVALVE_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkVideoEncodeRgbModelConversionFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbModelConversionFlagsVALVE_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeRgbModelConversionFlagsVALVE>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeRgbModelConversionFlagsVALVE>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18461,14 +18461,14 @@ void FieldToJson(VkVideoEncodeRgbModelConversionFlagsVALVE_t, nlohmann::ordered_
     });
 }
 
-void FieldToJson(VkVideoEncodeRgbRangeCompressionFlagsVALVE_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeRgbRangeCompressionFlagsVALVE_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeRgbRangeCompressionFlagsVALVE>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeRgbRangeCompressionFlagsVALVE>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18481,14 +18481,14 @@ void FieldToJson(VkVideoEncodeRgbRangeCompressionFlagsVALVE_t, nlohmann::ordered
     });
 }
 
-void FieldToJson(VkVideoEncodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEncodeUsageFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoEncodeUsageFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoEncodeUsageFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18507,19 +18507,19 @@ void FieldToJson(VkVideoEncodeUsageFlagsKHR_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(VkVideoEndCodingFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoEndCodingFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkVideoEndCodingFlagsKHR>(flags));
 }
 
-void FieldToJson(VkVideoSessionCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoSessionCreateFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoSessionCreateFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoSessionCreateFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18540,14 +18540,14 @@ void FieldToJson(VkVideoSessionCreateFlagsKHR_t, nlohmann::ordered_json& jdata, 
     });
 }
 
-void FieldToJson(VkVideoSessionParametersCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkVideoSessionParametersCreateFlagsKHR_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<VkVideoSessionParametersCreateFlagsKHR>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](VkFlags flags)
+    jdata = ExpandFlags(static_cast<VkVideoSessionParametersCreateFlagsKHR>(flags), [](VkFlags flags)
     {
         switch (flags)
         {
@@ -18558,24 +18558,24 @@ void FieldToJson(VkVideoSessionParametersCreateFlagsKHR_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(VkWaylandSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkWaylandSurfaceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkWaylandSurfaceCreateFlagsKHR>(flags));
 }
 
-void FieldToJson(VkWin32SurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkWin32SurfaceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkWin32SurfaceCreateFlagsKHR>(flags));
 }
 
-void FieldToJson(VkXcbSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkXcbSurfaceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkXcbSurfaceCreateFlagsKHR>(flags));
 }
 
-void FieldToJson(VkXlibSurfaceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const VkFlags flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const VkXlibSurfaceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<VkXlibSurfaceCreateFlagsKHR>(flags));
 }
 
 GFXRECON_END_NAMESPACE(decode)

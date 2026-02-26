@@ -4235,14 +4235,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrWindingOrderFB& value)
     }
 }
 
-void FieldToJson(XrAndroidSurfaceSwapchainFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrAndroidSurfaceSwapchainFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrAndroidSurfaceSwapchainFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrAndroidSurfaceSwapchainFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4255,14 +4255,14 @@ void FieldToJson(XrAndroidSurfaceSwapchainFlagsFB_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(XrCompositionLayerFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrCompositionLayerFlags>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4279,14 +4279,14 @@ void FieldToJson(XrCompositionLayerFlags_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(XrCompositionLayerImageLayoutFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerImageLayoutFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerImageLayoutFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrCompositionLayerImageLayoutFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4297,14 +4297,14 @@ void FieldToJson(XrCompositionLayerImageLayoutFlagsFB_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(XrCompositionLayerSecureContentFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerSecureContentFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSecureContentFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrCompositionLayerSecureContentFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4317,14 +4317,14 @@ void FieldToJson(XrCompositionLayerSecureContentFlagsFB_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(XrCompositionLayerSettingsFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerSettingsFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSettingsFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrCompositionLayerSettingsFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4343,14 +4343,14 @@ void FieldToJson(XrCompositionLayerSettingsFlagsFB_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrCompositionLayerSpaceWarpInfoFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerSpaceWarpInfoFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSpaceWarpInfoFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrCompositionLayerSpaceWarpInfoFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4361,14 +4361,14 @@ void FieldToJson(XrCompositionLayerSpaceWarpInfoFlagsFB_t, nlohmann::ordered_jso
     });
 }
 
-void FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrDebugUtilsMessageSeverityFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrDebugUtilsMessageSeverityFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrDebugUtilsMessageSeverityFlagsEXT>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4385,14 +4385,14 @@ void FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrDebugUtilsMessageTypeFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrDebugUtilsMessageTypeFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrDebugUtilsMessageTypeFlagsEXT>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4409,14 +4409,14 @@ void FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(XrDigitalLensControlFlagsALMALENCE_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrDigitalLensControlFlagsALMALENCE_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrDigitalLensControlFlagsALMALENCE>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrDigitalLensControlFlagsALMALENCE>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4427,24 +4427,24 @@ void FieldToJson(XrDigitalLensControlFlagsALMALENCE_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(XrEnvironmentDepthProviderCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentDepthProviderCreateFlagsMETA_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrEnvironmentDepthProviderCreateFlagsMETA>(flags));
 }
 
-void FieldToJson(XrEnvironmentDepthSwapchainCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentDepthSwapchainCreateFlagsMETA_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrEnvironmentDepthSwapchainCreateFlagsMETA>(flags));
 }
 
-void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrExternalCameraStatusFlagsOCULUS_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrExternalCameraStatusFlagsOCULUS>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrExternalCameraStatusFlagsOCULUS>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4463,14 +4463,14 @@ void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrFoveationDynamicFlagsHTC_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFlagsHTC_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrFoveationDynamicFlagsHTC>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrFoveationDynamicFlagsHTC>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4485,19 +4485,19 @@ void FieldToJson(XrFoveationDynamicFlagsHTC_t, nlohmann::ordered_json& jdata, co
     });
 }
 
-void FieldToJson(XrFoveationEyeTrackedProfileCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationEyeTrackedProfileCreateFlagsMETA_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrFoveationEyeTrackedProfileCreateFlagsMETA>(flags));
 }
 
-void FieldToJson(XrFoveationEyeTrackedStateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationEyeTrackedStateFlagsMETA_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrFoveationEyeTrackedStateFlagsMETA>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrFoveationEyeTrackedStateFlagsMETA>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4508,14 +4508,14 @@ void FieldToJson(XrFoveationEyeTrackedStateFlagsMETA_t, nlohmann::ordered_json& 
     });
 }
 
-void FieldToJson(XrFrameEndInfoFlagsML_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrFrameEndInfoFlagsML_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrFrameEndInfoFlagsML>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrFrameEndInfoFlagsML>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4528,14 +4528,14 @@ void FieldToJson(XrFrameEndInfoFlagsML_t, nlohmann::ordered_json& jdata, const X
     });
 }
 
-void FieldToJson(XrGlobalDimmerFrameEndInfoFlagsML_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrGlobalDimmerFrameEndInfoFlagsML_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrGlobalDimmerFrameEndInfoFlagsML>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrGlobalDimmerFrameEndInfoFlagsML>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4546,14 +4546,14 @@ void FieldToJson(XrGlobalDimmerFrameEndInfoFlagsML_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrHandTrackingAimFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrHandTrackingAimFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrHandTrackingAimFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrHandTrackingAimFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4580,14 +4580,14 @@ void FieldToJson(XrHandTrackingAimFlagsFB_t, nlohmann::ordered_json& jdata, cons
     });
 }
 
-void FieldToJson(XrInputSourceLocalizedNameFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrInputSourceLocalizedNameFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrInputSourceLocalizedNameFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrInputSourceLocalizedNameFlags>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4602,19 +4602,19 @@ void FieldToJson(XrInputSourceLocalizedNameFlags_t, nlohmann::ordered_json& jdat
     });
 }
 
-void FieldToJson(XrInstanceCreateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrInstanceCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrInstanceCreateFlags>(flags));
 }
 
-void FieldToJson(XrKeyboardTrackingFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrKeyboardTrackingFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrKeyboardTrackingFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrKeyboardTrackingFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4631,14 +4631,14 @@ void FieldToJson(XrKeyboardTrackingFlagsFB_t, nlohmann::ordered_json& jdata, con
     });
 }
 
-void FieldToJson(XrKeyboardTrackingQueryFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrKeyboardTrackingQueryFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrKeyboardTrackingQueryFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrKeyboardTrackingQueryFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4651,14 +4651,14 @@ void FieldToJson(XrKeyboardTrackingQueryFlagsFB_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(XrLocalizationMapErrorFlagsML_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapErrorFlagsML_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrLocalizationMapErrorFlagsML>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrLocalizationMapErrorFlagsML>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4679,14 +4679,14 @@ void FieldToJson(XrLocalizationMapErrorFlagsML_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(XrOverlayMainSessionFlagsEXTX_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrOverlayMainSessionFlagsEXTX_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrOverlayMainSessionFlagsEXTX>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrOverlayMainSessionFlagsEXTX>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4697,19 +4697,19 @@ void FieldToJson(XrOverlayMainSessionFlagsEXTX_t, nlohmann::ordered_json& jdata,
     });
 }
 
-void FieldToJson(XrOverlaySessionCreateFlagsEXTX_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrOverlaySessionCreateFlagsEXTX_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrOverlaySessionCreateFlagsEXTX>(flags));
 }
 
-void FieldToJson(XrPassthroughCapabilityFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughCapabilityFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughCapabilityFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrPassthroughCapabilityFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4724,14 +4724,14 @@ void FieldToJson(XrPassthroughCapabilityFlagsFB_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(XrPassthroughFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrPassthroughFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4744,14 +4744,14 @@ void FieldToJson(XrPassthroughFlagsFB_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrPassthroughPreferenceFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughPreferenceFlagsMETA_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughPreferenceFlagsMETA>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrPassthroughPreferenceFlagsMETA>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4762,14 +4762,14 @@ void FieldToJson(XrPassthroughPreferenceFlagsMETA_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(XrPassthroughStateChangedFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughStateChangedFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughStateChangedFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrPassthroughStateChangedFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4786,14 +4786,14 @@ void FieldToJson(XrPassthroughStateChangedFlagsFB_t, nlohmann::ordered_json& jda
     });
 }
 
-void FieldToJson(XrPerformanceMetricsCounterFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounterFlagsMETA_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrPerformanceMetricsCounterFlagsMETA>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrPerformanceMetricsCounterFlagsMETA>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4808,14 +4808,14 @@ void FieldToJson(XrPerformanceMetricsCounterFlagsMETA_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(XrPlaneDetectionCapabilityFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectionCapabilityFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrPlaneDetectionCapabilityFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrPlaneDetectionCapabilityFlagsEXT>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4838,14 +4838,14 @@ void FieldToJson(XrPlaneDetectionCapabilityFlagsEXT_t, nlohmann::ordered_json& j
     });
 }
 
-void FieldToJson(XrPlaneDetectorFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorFlagsEXT_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrPlaneDetectorFlagsEXT>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrPlaneDetectorFlagsEXT>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4856,14 +4856,14 @@ void FieldToJson(XrPlaneDetectorFlagsEXT_t, nlohmann::ordered_json& jdata, const
     });
 }
 
-void FieldToJson(XrRenderModelFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrRenderModelFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrRenderModelFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrRenderModelFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4876,14 +4876,14 @@ void FieldToJson(XrRenderModelFlagsFB_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrSemanticLabelsSupportFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSemanticLabelsSupportFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrSemanticLabelsSupportFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrSemanticLabelsSupportFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4898,19 +4898,19 @@ void FieldToJson(XrSemanticLabelsSupportFlagsFB_t, nlohmann::ordered_json& jdata
     });
 }
 
-void FieldToJson(XrSessionCreateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSessionCreateFlags_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrSessionCreateFlags>(flags));
 }
 
-void FieldToJson(XrSpaceLocationFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceLocationFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrSpaceLocationFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrSpaceLocationFlags>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4927,14 +4927,14 @@ void FieldToJson(XrSpaceLocationFlags_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrSpaceVelocityFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceVelocityFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrSpaceVelocityFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrSpaceVelocityFlags>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4947,14 +4947,14 @@ void FieldToJson(XrSpaceVelocityFlags_t, nlohmann::ordered_json& jdata, const Xr
     });
 }
 
-void FieldToJson(XrSwapchainCreateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainCreateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrSwapchainCreateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrSwapchainCreateFlags>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4967,14 +4967,14 @@ void FieldToJson(XrSwapchainCreateFlags_t, nlohmann::ordered_json& jdata, const 
     });
 }
 
-void FieldToJson(XrSwapchainCreateFoveationFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainCreateFoveationFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrSwapchainCreateFoveationFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrSwapchainCreateFoveationFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -4987,19 +4987,19 @@ void FieldToJson(XrSwapchainCreateFoveationFlagsFB_t, nlohmann::ordered_json& jd
     });
 }
 
-void FieldToJson(XrSwapchainStateFoveationFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainStateFoveationFlagsFB_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrSwapchainStateFoveationFlagsFB>(flags));
 }
 
-void FieldToJson(XrSwapchainUsageFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainUsageFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrSwapchainUsageFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrSwapchainUsageFlags>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -5024,14 +5024,14 @@ void FieldToJson(XrSwapchainUsageFlags_t, nlohmann::ordered_json& jdata, const X
     });
 }
 
-void FieldToJson(XrTriangleMeshFlagsFB_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrTriangleMeshFlagsFB_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrTriangleMeshFlagsFB>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrTriangleMeshFlagsFB>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -5042,14 +5042,14 @@ void FieldToJson(XrTriangleMeshFlagsFB_t, nlohmann::ordered_json& jdata, const X
     });
 }
 
-void FieldToJson(XrViewStateFlags_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrViewStateFlags_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrViewStateFlags>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrViewStateFlags>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -5066,14 +5066,14 @@ void FieldToJson(XrViewStateFlags_t, nlohmann::ordered_json& jdata, const XrFlag
     });
 }
 
-void FieldToJson(XrVirtualKeyboardInputStateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputStateFlagsMETA_t flags)
 {
     if (!JsonOptions::expand_flags)
     {
-        jdata = to_hex_fixed_width(flags);
+        jdata = to_hex_fixed_width(static_cast<XrVirtualKeyboardInputStateFlagsMETA>(flags));
         return;
     }
-    jdata = ExpandFlags(flags, [](XrFlags64 flags)
+    jdata = ExpandFlags(static_cast<XrVirtualKeyboardInputStateFlagsMETA>(flags), [](XrFlags64 flags)
     {
         switch (flags)
         {
@@ -5084,14 +5084,14 @@ void FieldToJson(XrVirtualKeyboardInputStateFlagsMETA_t, nlohmann::ordered_json&
     });
 }
 
-void FieldToJson(XrVulkanDeviceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrVulkanDeviceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrVulkanDeviceCreateFlagsKHR>(flags));
 }
 
-void FieldToJson(XrVulkanInstanceCreateFlagsKHR_t, nlohmann::ordered_json& jdata, const XrFlags64 flags)
+void FieldToJson(nlohmann::ordered_json& jdata, const XrVulkanInstanceCreateFlagsKHR_t flags)
 {
-    jdata = to_hex_fixed_width(flags);
+    jdata = to_hex_fixed_width(static_cast<XrVulkanInstanceCreateFlagsKHR>(flags));
 }
 
 GFXRECON_END_NAMESPACE(decode)

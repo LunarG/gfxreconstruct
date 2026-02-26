@@ -88,16 +88,18 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
             # Generate flags handler for enums identified as bitmasks
             for bits in self.BITS_LIST:
                 if k.find(bits) >= 0:
-                    flag_prototypes += format_cpp_code('''inline void FieldToJson_{0}(nlohmann::ordered_json& jdata, const uint32_t flags)
+                    flag_prototypes += format_cpp_code('''
+                    enum class {0}_t : std::underlying_type<{0}>::type {{}};
+                    inline void FieldToJson(nlohmann::ordered_json& jdata, const {0}_t flags)
                     {{
                         std::string representation;
                         if (!JsonOptions::expand_flags)
                         {{
-                            representation = to_hex_fixed_width(flags);
+                            representation = to_hex_fixed_width(static_cast<uint32_t>(flags));
                         }}
                         else
                         {{
-                            representation = ToString_{0}(flags);
+                            representation = ToString_{0}(static_cast<uint32_t>(flags));
                         }}
                         FieldToJson(jdata, representation);
                     }}

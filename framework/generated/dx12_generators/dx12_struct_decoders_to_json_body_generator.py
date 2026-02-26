@@ -183,11 +183,15 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     function_name = self.choose_field_to_json_name(value_info)
                     if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
                         # Basic data plumbs to raw struct:
-                        field_to_json = '        {0}(jdata["{1}"], decoded_value.{1});'
+                        if self.is_bitflags(value_info):
+                            field_to_json = '        {0}(jdata["{1}"], {2}_t{{ decoded_value.{1} }});'
+                        else:
+                            field_to_json = '        {0}(jdata["{1}"], decoded_value.{1});'
                     else:
                         # Complex types, pointers and handles plumb to the decoded struct:
                         field_to_json = '        {0}(jdata["{1}"], meta_struct.{1});'
-                    field_to_json = field_to_json.format(function_name, value_info.name, value_info.array_length)
+                    field_to_json = field_to_json.format(
+                        function_name, value_info.name, value_info.base_type)
                 body += field_to_json
                 body += '\n'
         return body

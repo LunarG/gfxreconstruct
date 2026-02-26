@@ -82,7 +82,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMMAND_QUEU
         const Decoded_D3D12_COMMAND_QUEUE_DESC& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type);
         FieldToJson(jdata["Priority"], decoded_value.Priority);
-        FieldToJson_D3D12_COMMAND_QUEUE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_COMMAND_QUEUE_FLAGS_t{ decoded_value.Flags });
         FieldToJsonAsFixedWidthBinary(jdata["NodeMask"], decoded_value.NodeMask);
     }
 }
@@ -424,7 +424,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_GRAPHICS_PIP
         FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc);
         FieldToJsonAsFixedWidthBinary(jdata["NodeMask"], decoded_value.NodeMask);
         FieldToJson(jdata["CachedPSO"], meta_struct.CachedPSO);
-        FieldToJson_D3D12_PIPELINE_STATE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_PIPELINE_STATE_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -439,7 +439,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_COMPUTE_PIPE
         FieldToJson(jdata["CS"], meta_struct.CS);
         FieldToJsonAsFixedWidthBinary(jdata["NodeMask"], decoded_value.NodeMask);
         FieldToJson(jdata["CachedPSO"], meta_struct.CachedPSO);
-        FieldToJson_D3D12_PIPELINE_STATE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_PIPELINE_STATE_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -498,7 +498,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS& meta_struct = *data;
         Bool32ToJson(jdata["DoublePrecisionFloatShaderOps"], decoded_value.DoublePrecisionFloatShaderOps);
         Bool32ToJson(jdata["OutputMergerLogicOp"], decoded_value.OutputMergerLogicOp);
-        FieldToJson_D3D12_SHADER_MIN_PRECISION_SUPPORT(jdata["MinPrecisionSupport"], decoded_value.MinPrecisionSupport);
+        FieldToJson(jdata["MinPrecisionSupport"], D3D12_SHADER_MIN_PRECISION_SUPPORT_t{ decoded_value.MinPrecisionSupport });
         FieldToJson(jdata["TiledResourcesTier"], decoded_value.TiledResourcesTier);
         FieldToJson(jdata["ResourceBindingTier"], decoded_value.ResourceBindingTier);
         Bool32ToJson(jdata["PSSpecifiedStencilRefSupported"], decoded_value.PSSpecifiedStencilRefSupported);
@@ -614,8 +614,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const D3D12_FEATURE_DATA_FORMAT_SUPPORT& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_FORMAT_SUPPORT& meta_struct = *data;
         FieldToJson(jdata["Format"], decoded_value.Format);
-        FieldToJson_D3D12_FORMAT_SUPPORT1(jdata["Support1"], decoded_value.Support1);
-        FieldToJson_D3D12_FORMAT_SUPPORT2(jdata["Support2"], decoded_value.Support2);
+        FieldToJson(jdata["Support1"], D3D12_FORMAT_SUPPORT1_t{ decoded_value.Support1 });
+        FieldToJson(jdata["Support2"], D3D12_FORMAT_SUPPORT2_t{ decoded_value.Support2 });
     }
 }
 
@@ -628,7 +628,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const Decoded_D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& meta_struct = *data;
         FieldToJson(jdata["Format"], decoded_value.Format);
         FieldToJson(jdata["SampleCount"], decoded_value.SampleCount);
-        FieldToJson_D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_MULTISAMPLE_QUALITY_LEVEL_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["NumQualityLevels"], decoded_value.NumQualityLevels);
     }
 }
@@ -664,7 +664,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
     {
         const D3D12_FEATURE_DATA_SHADER_CACHE& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_SHADER_CACHE& meta_struct = *data;
-        FieldToJson_D3D12_SHADER_CACHE_SUPPORT_FLAGS(jdata["SupportFlags"], decoded_value.SupportFlags);
+        FieldToJson(jdata["SupportFlags"], D3D12_SHADER_CACHE_SUPPORT_FLAGS_t{ decoded_value.SupportFlags });
     }
 }
 
@@ -690,7 +690,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3& meta_struct = *data;
         Bool32ToJson(jdata["CopyQueueTimestampQueriesSupported"], decoded_value.CopyQueueTimestampQueriesSupported);
         Bool32ToJson(jdata["CastingFullyTypedFormatSupported"], decoded_value.CastingFullyTypedFormatSupported);
-        FieldToJson_D3D12_COMMAND_LIST_SUPPORT_FLAGS(jdata["WriteBufferImmediateSupportFlags"], decoded_value.WriteBufferImmediateSupportFlags);
+        FieldToJson(jdata["WriteBufferImmediateSupportFlags"], D3D12_COMMAND_LIST_SUPPORT_FLAGS_t{ decoded_value.WriteBufferImmediateSupportFlags });
         FieldToJson(jdata["ViewInstancingTier"], decoded_value.ViewInstancingTier);
         Bool32ToJson(jdata["BarycentricsSupported"], decoded_value.BarycentricsSupported);
     }
@@ -1102,7 +1102,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_HEAP_DESC* d
         FieldToJson(jdata["SizeInBytes"], decoded_value.SizeInBytes);
         FieldToJson(jdata["Properties"], meta_struct.Properties);
         FieldToJson(jdata["Alignment"], decoded_value.Alignment);
-        FieldToJson_D3D12_HEAP_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_HEAP_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -1149,7 +1149,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_DES
         FieldToJson(jdata["Format"], decoded_value.Format);
         FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc);
         FieldToJson(jdata["Layout"], decoded_value.Layout);
-        FieldToJson_D3D12_RESOURCE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_RESOURCE_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -1169,7 +1169,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_DES
         FieldToJson(jdata["Format"], decoded_value.Format);
         FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc);
         FieldToJson(jdata["Layout"], decoded_value.Layout);
-        FieldToJson_D3D12_RESOURCE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_RESOURCE_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["SamplerFeedbackMipRegion"], meta_struct.SamplerFeedbackMipRegion);
     }
 }
@@ -1333,8 +1333,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_TRA
         const Decoded_D3D12_RESOURCE_TRANSITION_BARRIER& meta_struct = *data;
         FieldToJson(jdata["pResource"], meta_struct.pResource);
         FieldToJson(jdata["Subresource"], decoded_value.Subresource);
-        FieldToJson_D3D12_RESOURCE_STATES(jdata["StateBefore"], decoded_value.StateBefore);
-        FieldToJson_D3D12_RESOURCE_STATES(jdata["StateAfter"], decoded_value.StateAfter);
+        FieldToJson(jdata["StateBefore"], D3D12_RESOURCE_STATES_t{ decoded_value.StateBefore });
+        FieldToJson(jdata["StateAfter"], D3D12_RESOURCE_STATES_t{ decoded_value.StateAfter });
     }
 }
 
@@ -1369,7 +1369,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RESOURCE_BAR
         const D3D12_RESOURCE_BARRIER& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RESOURCE_BARRIER& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type);
-        FieldToJson_D3D12_RESOURCE_BARRIER_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_RESOURCE_BARRIER_FLAGS_t{ decoded_value.Flags });
         switch(decoded_value.Type)
         {
             case D3D12_RESOURCE_BARRIER_TYPE_TRANSITION:
@@ -1486,7 +1486,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VIEW_INSTANC
         const Decoded_D3D12_VIEW_INSTANCING_DESC& meta_struct = *data;
         FieldToJson(jdata["ViewInstanceCount"], decoded_value.ViewInstanceCount);
         FieldToJson(jdata["pViewInstanceLocations"], meta_struct.pViewInstanceLocations);
-        FieldToJson_D3D12_VIEW_INSTANCING_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_VIEW_INSTANCING_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -1500,7 +1500,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUFFER_SRV* 
         FieldToJson(jdata["FirstElement"], decoded_value.FirstElement);
         FieldToJson(jdata["NumElements"], decoded_value.NumElements);
         FieldToJson(jdata["StructureByteStride"], decoded_value.StructureByteStride);
-        FieldToJson_D3D12_BUFFER_SRV_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_BUFFER_SRV_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -1764,7 +1764,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SAMPLER_DESC
         }
         FieldToJson(jdata["MinLOD"], decoded_value.MinLOD);
         FieldToJson(jdata["MaxLOD"], decoded_value.MaxLOD);
-        FieldToJson_D3D12_SAMPLER_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_SAMPLER_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -1779,7 +1779,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUFFER_UAV* 
         FieldToJson(jdata["NumElements"], decoded_value.NumElements);
         FieldToJson(jdata["StructureByteStride"], decoded_value.StructureByteStride);
         FieldToJson(jdata["CounterOffsetInBytes"], decoded_value.CounterOffsetInBytes);
-        FieldToJson_D3D12_BUFFER_UAV_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_BUFFER_UAV_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -2179,7 +2179,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEPTH_STENCI
         const Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC& meta_struct = *data;
         FieldToJson(jdata["Format"], decoded_value.Format);
         FieldToJson(jdata["ViewDimension"], decoded_value.ViewDimension);
-        FieldToJson_D3D12_DSV_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_DSV_FLAGS_t{ decoded_value.Flags });
         switch(decoded_value.ViewDimension)
         {
             case D3D12_DSV_DIMENSION_UNKNOWN:
@@ -2236,7 +2236,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DESCRIPTOR_H
         const Decoded_D3D12_DESCRIPTOR_HEAP_DESC& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type);
         FieldToJson(jdata["NumDescriptors"], decoded_value.NumDescriptors);
-        FieldToJson_D3D12_DESCRIPTOR_HEAP_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_DESCRIPTOR_HEAP_FLAGS_t{ decoded_value.Flags });
         FieldToJsonAsFixedWidthBinary(jdata["NodeMask"], decoded_value.NodeMask);
     }
 }
@@ -2368,7 +2368,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATIC_SAMPL
         FieldToJson(jdata["ShaderRegister"], decoded_value.ShaderRegister);
         FieldToJson(jdata["RegisterSpace"], decoded_value.RegisterSpace);
         FieldToJson(jdata["ShaderVisibility"], decoded_value.ShaderVisibility);
-        FieldToJson_D3D12_SAMPLER_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_SAMPLER_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -2383,7 +2383,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATU
         FieldToJson(jdata["pParameters"], meta_struct.pParameters);
         FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers);
         FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers);
-        FieldToJson_D3D12_ROOT_SIGNATURE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_ROOT_SIGNATURE_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -2398,7 +2398,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DESCRIPTOR_R
         FieldToJson(jdata["NumDescriptors"], decoded_value.NumDescriptors);
         FieldToJson(jdata["BaseShaderRegister"], decoded_value.BaseShaderRegister);
         FieldToJson(jdata["RegisterSpace"], decoded_value.RegisterSpace);
-        FieldToJson_D3D12_DESCRIPTOR_RANGE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_DESCRIPTOR_RANGE_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["OffsetInDescriptorsFromTableStart"], decoded_value.OffsetInDescriptorsFromTableStart);
     }
 }
@@ -2424,7 +2424,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_DESCRIP
         const Decoded_D3D12_ROOT_DESCRIPTOR1& meta_struct = *data;
         FieldToJson(jdata["ShaderRegister"], decoded_value.ShaderRegister);
         FieldToJson(jdata["RegisterSpace"], decoded_value.RegisterSpace);
-        FieldToJson_D3D12_ROOT_DESCRIPTOR_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_ROOT_DESCRIPTOR_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -2477,7 +2477,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATU
         FieldToJson(jdata["pParameters"], meta_struct.pParameters);
         FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers);
         FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers);
-        FieldToJson_D3D12_ROOT_SIGNATURE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_ROOT_SIGNATURE_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -2492,7 +2492,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_ROOT_SIGNATU
         FieldToJson(jdata["pParameters"], meta_struct.pParameters);
         FieldToJson(jdata["NumStaticSamplers"], decoded_value.NumStaticSamplers);
         FieldToJson(jdata["pStaticSamplers"], meta_struct.pStaticSamplers);
-        FieldToJson_D3D12_ROOT_SIGNATURE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_ROOT_SIGNATURE_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -2822,7 +2822,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_FEATURE_DATA
         const D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT& decoded_value = *data->decoded_value;
         const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT& meta_struct = *data;
         FieldToJson(jdata["NodeIndex"], decoded_value.NodeIndex);
-        FieldToJson_D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS(jdata["Support"], decoded_value.Support);
+        FieldToJson(jdata["Support"], D3D12_PROTECTED_RESOURCE_SESSION_SUPPORT_FLAGS_t{ decoded_value.Support });
     }
 }
 
@@ -2834,7 +2834,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PROTECTED_RE
         const D3D12_PROTECTED_RESOURCE_SESSION_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC& meta_struct = *data;
         FieldToJsonAsFixedWidthBinary(jdata["NodeMask"], decoded_value.NodeMask);
-        FieldToJson_D3D12_PROTECTED_RESOURCE_SESSION_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_PROTECTED_RESOURCE_SESSION_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -2847,8 +2847,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_META_COMMAND
         const Decoded_D3D12_META_COMMAND_PARAMETER_DESC& meta_struct = *data;
         FieldToJson(jdata["Name"], meta_struct.Name);
         FieldToJson(jdata["Type"], decoded_value.Type);
-        FieldToJson_D3D12_META_COMMAND_PARAMETER_FLAGS(jdata["Flags"], decoded_value.Flags);
-        FieldToJson_D3D12_RESOURCE_STATES(jdata["RequiredResourceState"], decoded_value.RequiredResourceState);
+        FieldToJson(jdata["Flags"], D3D12_META_COMMAND_PARAMETER_FLAGS_t{ decoded_value.Flags });
+        FieldToJson(jdata["RequiredResourceState"], D3D12_RESOURCE_STATES_t{ decoded_value.RequiredResourceState });
         FieldToJson(jdata["StructureOffset"], decoded_value.StructureOffset);
     }
 }
@@ -2862,8 +2862,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_META_COMMAND
         const Decoded_D3D12_META_COMMAND_DESC& meta_struct = *data;
         FieldToJson(jdata["Id"], meta_struct.Id);
         FieldToJson(jdata["Name"], meta_struct.Name);
-        FieldToJson_D3D12_GRAPHICS_STATES(jdata["InitializationDirtyState"], decoded_value.InitializationDirtyState);
-        FieldToJson_D3D12_GRAPHICS_STATES(jdata["ExecutionDirtyState"], decoded_value.ExecutionDirtyState);
+        FieldToJson(jdata["InitializationDirtyState"], D3D12_GRAPHICS_STATES_t{ decoded_value.InitializationDirtyState });
+        FieldToJson(jdata["ExecutionDirtyState"], D3D12_GRAPHICS_STATES_t{ decoded_value.ExecutionDirtyState });
     }
 }
 
@@ -2910,7 +2910,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_STATE_OBJECT
     {
         const D3D12_STATE_OBJECT_CONFIG& decoded_value = *data->decoded_value;
         const Decoded_D3D12_STATE_OBJECT_CONFIG& meta_struct = *data;
-        FieldToJson_D3D12_STATE_OBJECT_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_STATE_OBJECT_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -3000,7 +3000,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_EXPORT_DESC*
         const Decoded_D3D12_EXPORT_DESC& meta_struct = *data;
         FieldToJson(jdata["Name"], meta_struct.Name);
         FieldToJson(jdata["ExportToRename"], meta_struct.ExportToRename);
-        FieldToJson_D3D12_EXPORT_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_EXPORT_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -3102,7 +3102,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_P
         const D3D12_RAYTRACING_PIPELINE_CONFIG1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RAYTRACING_PIPELINE_CONFIG1& meta_struct = *data;
         FieldToJson(jdata["MaxTraceRecursionDepth"], decoded_value.MaxTraceRecursionDepth);
-        FieldToJson_D3D12_RAYTRACING_PIPELINE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_RAYTRACING_PIPELINE_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -3259,7 +3259,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_WORK_GRAPH_D
         const D3D12_WORK_GRAPH_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_WORK_GRAPH_DESC& meta_struct = *data;
         FieldToJson(jdata["ProgramName"], meta_struct.ProgramName);
-        FieldToJson_D3D12_WORK_GRAPH_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_WORK_GRAPH_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["NumEntrypoints"], decoded_value.NumEntrypoints);
         FieldToJson(jdata["pEntrypoints"], meta_struct.pEntrypoints);
         FieldToJson(jdata["NumExplicitlyDefinedNodes"], decoded_value.NumExplicitlyDefinedNodes);
@@ -3562,7 +3562,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
         const D3D12_RAYTRACING_GEOMETRY_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_RAYTRACING_GEOMETRY_DESC& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type);
-        FieldToJson_D3D12_RAYTRACING_GEOMETRY_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_RAYTRACING_GEOMETRY_FLAGS_t{ decoded_value.Flags });
         switch(decoded_value.Type)
         {
             case D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES:
@@ -3624,7 +3624,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRA
         const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& decoded_value = *data->decoded_value;
         const Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& meta_struct = *data;
         FieldToJson(jdata["Type"], decoded_value.Type);
-        FieldToJson_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["NumDescs"], decoded_value.NumDescs);
         FieldToJson(jdata["DescsLayout"], decoded_value.DescsLayout);
         switch(decoded_value.Type)
@@ -3787,7 +3787,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEVICE_REMOV
     {
         const D3D12_DEVICE_REMOVED_EXTENDED_DATA& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA& meta_struct = *data;
-        FieldToJson_D3D12_DRED_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_DRED_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["pHeadAutoBreadcrumbNode"], meta_struct.pHeadAutoBreadcrumbNode);
     }
 }
@@ -3879,7 +3879,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DRED_PAGE_FA
         FieldToJsonAsHex(jdata["PageFaultVA"], decoded_value.PageFaultVA);
         FieldToJson(jdata["pHeadExistingAllocationNode"], meta_struct.pHeadExistingAllocationNode);
         FieldToJson(jdata["pHeadRecentFreedAllocationNode"], meta_struct.pHeadRecentFreedAllocationNode);
-        FieldToJson_D3D12_DRED_PAGE_FAULT_FLAGS(jdata["PageFaultFlags"], decoded_value.PageFaultFlags);
+        FieldToJson(jdata["PageFaultFlags"], D3D12_DRED_PAGE_FAULT_FLAGS_t{ decoded_value.PageFaultFlags });
     }
 }
 
@@ -3996,7 +3996,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_PROTECTED_RE
         const D3D12_PROTECTED_RESOURCE_SESSION_DESC1& decoded_value = *data->decoded_value;
         const Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC1& meta_struct = *data;
         FieldToJsonAsFixedWidthBinary(jdata["NodeMask"], decoded_value.NodeMask);
-        FieldToJson_D3D12_PROTECTED_RESOURCE_SESSION_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_PROTECTED_RESOURCE_SESSION_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["ProtectionType"], meta_struct.ProtectionType);
     }
 }
@@ -4200,7 +4200,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SET_WORK_GRA
         const D3D12_SET_WORK_GRAPH_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_SET_WORK_GRAPH_DESC& meta_struct = *data;
         FieldToJson(jdata["ProgramIdentifier"], meta_struct.ProgramIdentifier);
-        FieldToJson_D3D12_SET_WORK_GRAPH_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_SET_WORK_GRAPH_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["BackingMemory"], meta_struct.BackingMemory);
         FieldToJson(jdata["NodeLocalRootArgumentsTable"], meta_struct.NodeLocalRootArgumentsTable);
     }
@@ -4362,7 +4362,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_SHADER_CACHE
         const Decoded_D3D12_SHADER_CACHE_SESSION_DESC& meta_struct = *data;
         FieldToJson(jdata["Identifier"], meta_struct.Identifier);
         FieldToJson(jdata["Mode"], decoded_value.Mode);
-        FieldToJson_D3D12_SHADER_CACHE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_SHADER_CACHE_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["MaximumInMemoryCacheSizeBytes"], decoded_value.MaximumInMemoryCacheSizeBytes);
         FieldToJson(jdata["MaximumInMemoryCacheEntries"], decoded_value.MaximumInMemoryCacheEntries);
         FieldToJson(jdata["MaximumValueFileSizeBytes"], decoded_value.MaximumValueFileSizeBytes);
@@ -4415,7 +4415,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_TEXTURE_BARR
         FieldToJson(jdata["LayoutAfter"], decoded_value.LayoutAfter);
         FieldToJson(jdata["pResource"], meta_struct.pResource);
         FieldToJson(jdata["Subresources"], meta_struct.Subresources);
-        FieldToJson_D3D12_TEXTURE_BARRIER_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_TEXTURE_BARRIER_FLAGS_t{ decoded_value.Flags });
     }
 }
 
@@ -4548,7 +4548,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEVICE_CONFI
     {
         const D3D12_DEVICE_CONFIGURATION_DESC& decoded_value = *data->decoded_value;
         const Decoded_D3D12_DEVICE_CONFIGURATION_DESC& meta_struct = *data;
-        FieldToJson_D3D12_DEVICE_FLAGS(jdata["Flags"], decoded_value.Flags);
+        FieldToJson(jdata["Flags"], D3D12_DEVICE_FLAGS_t{ decoded_value.Flags });
         FieldToJson(jdata["GpuBasedValidationFlags"], decoded_value.GpuBasedValidationFlags);
         FieldToJson(jdata["SDKVersion"], decoded_value.SDKVersion);
         FieldToJson(jdata["NumEnabledExperimentalFeatures"], decoded_value.NumEnabledExperimentalFeatures);
@@ -4589,7 +4589,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_DEBUG_DEVICE
         const Decoded_D3D12_DEBUG_DEVICE_GPU_BASED_VALIDATION_SETTINGS& meta_struct = *data;
         FieldToJson(jdata["MaxMessagesPerCommandList"], decoded_value.MaxMessagesPerCommandList);
         FieldToJson(jdata["DefaultShaderPatchMode"], decoded_value.DefaultShaderPatchMode);
-        FieldToJson_D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS(jdata["PipelineStateCreateFlags"], decoded_value.PipelineStateCreateFlags);
+        FieldToJson(jdata["PipelineStateCreateFlags"], D3D12_GPU_BASED_VALIDATION_PIPELINE_STATE_CREATE_FLAGS_t{ decoded_value.PipelineStateCreateFlags });
     }
 }
 

@@ -135,8 +135,8 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
         FieldToJson(args["format"], format);
         FieldToJson(args["type"], type);
         FieldToJson(args["tiling"], tiling);
-        FieldToJson(VkImageUsageFlags_t(), args["usage"], usage);
-        FieldToJson(VkImageCreateFlags_t(), args["flags"], flags);
+        FieldToJson(args["usage"], VkImageUsageFlags_t{usage});
+        FieldToJson(args["flags"], VkImageCreateFlags_t{flags});
         FieldToJson(args["pImageFormatProperties"], pImageFormatProperties);
     WriteBlockEnd();
 }
@@ -317,7 +317,7 @@ void VulkanExportJsonConsumer::Process_vkMapMemory(
         HandleToJson(args["memory"], memory);
         FieldToJson(args["offset"], offset);
         FieldToJson(args["size"], size);
-        FieldToJson(VkMemoryMapFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkMemoryMapFlags_t{flags});
         FieldToJsonAsHex(args["ppData"], ppData);
     WriteBlockEnd();
 }
@@ -477,7 +477,7 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPrope
         FieldToJson(args["format"], format);
         FieldToJson(args["type"], type);
         FieldToJson(args["samples"], samples);
-        FieldToJson(VkImageUsageFlags_t(), args["usage"], usage);
+        FieldToJson(args["usage"], VkImageUsageFlags_t{usage});
         FieldToJson(args["tiling"], tiling);
         FieldToJson(args["pPropertyCount"], pPropertyCount);
         FieldToJson(args["pProperties"], pProperties);
@@ -670,7 +670,7 @@ void VulkanExportJsonConsumer::Process_vkGetQueryPoolResults(
         FieldToJson(args["dataSize"], dataSize);
         FieldToJson(args["pData"], pData);
         FieldToJson(args["stride"], stride);
-        FieldToJson(VkQueryResultFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkQueryResultFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -830,7 +830,7 @@ void VulkanExportJsonConsumer::Process_vkResetCommandPool(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["device"], device);
         HandleToJson(args["commandPool"], commandPool);
-        FieldToJson(VkCommandPoolResetFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkCommandPoolResetFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -902,7 +902,7 @@ void VulkanExportJsonConsumer::Process_vkResetCommandBuffer(
     FieldToJson(jdata[NameReturn()], returnValue);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkCommandBufferResetFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkCommandBufferResetFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -1045,9 +1045,9 @@ void VulkanExportJsonConsumer::Process_vkCmdPipelineBarrier(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkPipelineStageFlags_t(), args["srcStageMask"], srcStageMask);
-        FieldToJson(VkPipelineStageFlags_t(), args["dstStageMask"], dstStageMask);
-        FieldToJson(VkDependencyFlags_t(), args["dependencyFlags"], dependencyFlags);
+        FieldToJson(args["srcStageMask"], VkPipelineStageFlags_t{srcStageMask});
+        FieldToJson(args["dstStageMask"], VkPipelineStageFlags_t{dstStageMask});
+        FieldToJson(args["dependencyFlags"], VkDependencyFlags_t{dependencyFlags});
         FieldToJson(args["memoryBarrierCount"], memoryBarrierCount);
         FieldToJson(args["pMemoryBarriers"], pMemoryBarriers);
         FieldToJson(args["bufferMemoryBarrierCount"], bufferMemoryBarrierCount);
@@ -1070,7 +1070,7 @@ void VulkanExportJsonConsumer::Process_vkCmdBeginQuery(
         HandleToJson(args["commandBuffer"], commandBuffer);
         HandleToJson(args["queryPool"], queryPool);
         FieldToJson(args["query"], query);
-        FieldToJson(VkQueryControlFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkQueryControlFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -1144,7 +1144,7 @@ void VulkanExportJsonConsumer::Process_vkCmdCopyQueryPoolResults(
         HandleToJson(args["dstBuffer"], dstBuffer);
         FieldToJson(args["dstOffset"], dstOffset);
         FieldToJson(args["stride"], stride);
-        FieldToJson(VkQueryResultFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkQueryResultFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -1491,7 +1491,7 @@ void VulkanExportJsonConsumer::Process_vkResetDescriptorPool(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["device"], device);
         HandleToJson(args["descriptorPool"], descriptorPool);
-        FieldToJson(VkDescriptorPoolResetFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkDescriptorPoolResetFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -1651,7 +1651,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetEvent(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
         HandleToJson(args["event"], event);
-        FieldToJson(VkPipelineStageFlags_t(), args["stageMask"], stageMask);
+        FieldToJson(args["stageMask"], VkPipelineStageFlags_t{stageMask});
     WriteBlockEnd();
 }
 
@@ -1666,7 +1666,7 @@ void VulkanExportJsonConsumer::Process_vkCmdResetEvent(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
         HandleToJson(args["event"], event);
-        FieldToJson(VkPipelineStageFlags_t(), args["stageMask"], stageMask);
+        FieldToJson(args["stageMask"], VkPipelineStageFlags_t{stageMask});
     WriteBlockEnd();
 }
 
@@ -1690,8 +1690,8 @@ void VulkanExportJsonConsumer::Process_vkCmdWaitEvents(
         HandleToJson(args["commandBuffer"], commandBuffer);
         FieldToJson(args["eventCount"], eventCount);
         HandleToJson(args["pEvents"], pEvents);
-        FieldToJson(VkPipelineStageFlags_t(), args["srcStageMask"], srcStageMask);
-        FieldToJson(VkPipelineStageFlags_t(), args["dstStageMask"], dstStageMask);
+        FieldToJson(args["srcStageMask"], VkPipelineStageFlags_t{srcStageMask});
+        FieldToJson(args["dstStageMask"], VkPipelineStageFlags_t{dstStageMask});
         FieldToJson(args["memoryBarrierCount"], memoryBarrierCount);
         FieldToJson(args["pMemoryBarriers"], pMemoryBarriers);
         FieldToJson(args["bufferMemoryBarrierCount"], bufferMemoryBarrierCount);
@@ -1903,7 +1903,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetStencilCompareMask(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkStencilFaceFlags_t(), args["faceMask"], faceMask);
+        FieldToJson(args["faceMask"], VkStencilFaceFlags_t{faceMask});
         FieldToJson(args["compareMask"], compareMask);
     WriteBlockEnd();
 }
@@ -1918,7 +1918,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetStencilWriteMask(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkStencilFaceFlags_t(), args["faceMask"], faceMask);
+        FieldToJson(args["faceMask"], VkStencilFaceFlags_t{faceMask});
         FieldToJson(args["writeMask"], writeMask);
     WriteBlockEnd();
 }
@@ -1933,7 +1933,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetStencilReference(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkStencilFaceFlags_t(), args["faceMask"], faceMask);
+        FieldToJson(args["faceMask"], VkStencilFaceFlags_t{faceMask});
         FieldToJson(args["reference"], reference);
     WriteBlockEnd();
 }
@@ -2408,7 +2408,7 @@ void VulkanExportJsonConsumer::Process_vkTrimCommandPool(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["device"], device);
         HandleToJson(args["commandPool"], commandPool);
-        FieldToJson(VkCommandPoolTrimFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkCommandPoolTrimFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -2890,7 +2890,7 @@ void VulkanExportJsonConsumer::Process_vkCmdWriteTimestamp2(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkPipelineStageFlags2_t(), args["stage"], stage);
+        FieldToJson(args["stage"], VkPipelineStageFlags2_t{stage});
         HandleToJson(args["queryPool"], queryPool);
         FieldToJson(args["query"], query);
     WriteBlockEnd();
@@ -3037,7 +3037,7 @@ void VulkanExportJsonConsumer::Process_vkCmdResetEvent2(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
         HandleToJson(args["event"], event);
-        FieldToJson(VkPipelineStageFlags2_t(), args["stageMask"], stageMask);
+        FieldToJson(args["stageMask"], VkPipelineStageFlags2_t{stageMask});
     WriteBlockEnd();
 }
 
@@ -3117,7 +3117,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetCullMode(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkCullModeFlags_t(), args["cullMode"], cullMode);
+        FieldToJson(args["cullMode"], VkCullModeFlags_t{cullMode});
     WriteBlockEnd();
 }
 
@@ -3278,7 +3278,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetStencilOp(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkStencilFaceFlags_t(), args["faceMask"], faceMask);
+        FieldToJson(args["faceMask"], VkStencilFaceFlags_t{faceMask});
         FieldToJson(args["failOp"], failOp);
         FieldToJson(args["passOp"], passOp);
         FieldToJson(args["depthFailOp"], depthFailOp);
@@ -4498,7 +4498,7 @@ void VulkanExportJsonConsumer::Process_vkTrimCommandPoolKHR(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["device"], device);
         HandleToJson(args["commandPool"], commandPool);
-        FieldToJson(VkCommandPoolTrimFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkCommandPoolTrimFlags_t{flags});
     WriteBlockEnd();
 }
 
@@ -5596,7 +5596,7 @@ void VulkanExportJsonConsumer::Process_vkCmdResetEvent2KHR(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
         HandleToJson(args["event"], event);
-        FieldToJson(VkPipelineStageFlags2_t(), args["stageMask"], stageMask);
+        FieldToJson(args["stageMask"], VkPipelineStageFlags2_t{stageMask});
     WriteBlockEnd();
 }
 
@@ -5641,7 +5641,7 @@ void VulkanExportJsonConsumer::Process_vkCmdWriteTimestamp2KHR(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkPipelineStageFlags2_t(), args["stage"], stage);
+        FieldToJson(args["stage"], VkPipelineStageFlags2_t{stage});
         HandleToJson(args["queryPool"], queryPool);
         FieldToJson(args["query"], query);
     WriteBlockEnd();
@@ -6209,7 +6209,7 @@ void VulkanExportJsonConsumer::Process_vkDebugReportMessageEXT(
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkDebugReportMessageEXT");
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(VkDebugReportFlagsEXT_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkDebugReportFlagsEXT_t{flags});
         FieldToJson(args["objectType"], objectType);
         FieldToJson(args["object"], object);
         FieldToJson(args["location"], location);
@@ -6357,7 +6357,7 @@ void VulkanExportJsonConsumer::Process_vkCmdBeginQueryIndexedEXT(
         HandleToJson(args["commandBuffer"], commandBuffer);
         HandleToJson(args["queryPool"], queryPool);
         FieldToJson(args["query"], query);
-        FieldToJson(VkQueryControlFlags_t(), args["flags"], flags);
+        FieldToJson(args["flags"], VkQueryControlFlags_t{flags});
         FieldToJson(args["index"], index);
     WriteBlockEnd();
 }
@@ -6567,9 +6567,9 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceExternalImageFormatPro
         FieldToJson(args["format"], format);
         FieldToJson(args["type"], type);
         FieldToJson(args["tiling"], tiling);
-        FieldToJson(VkImageUsageFlags_t(), args["usage"], usage);
-        FieldToJson(VkImageCreateFlags_t(), args["flags"], flags);
-        FieldToJson(VkExternalMemoryHandleTypeFlagsNV_t(), args["externalHandleType"], externalHandleType);
+        FieldToJson(args["usage"], VkImageUsageFlags_t{usage});
+        FieldToJson(args["flags"], VkImageCreateFlags_t{flags});
+        FieldToJson(args["externalHandleType"], VkExternalMemoryHandleTypeFlagsNV_t{externalHandleType});
         FieldToJson(args["pExternalImageFormatProperties"], pExternalImageFormatProperties);
     WriteBlockEnd();
 }
@@ -6587,7 +6587,7 @@ void VulkanExportJsonConsumer::Process_vkGetMemoryWin32HandleNV(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["device"], device);
         HandleToJson(args["memory"], memory);
-        FieldToJson(VkExternalMemoryHandleTypeFlagsNV_t(), args["handleType"], handleType);
+        FieldToJson(args["handleType"], VkExternalMemoryHandleTypeFlagsNV_t{handleType});
         FieldToJson(args["pHandle"], pHandle);
     WriteBlockEnd();
 }
@@ -7058,7 +7058,7 @@ void VulkanExportJsonConsumer::Process_vkSubmitDebugUtilsMessageEXT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["messageSeverity"], messageSeverity);
-        FieldToJson(VkDebugUtilsMessageTypeFlagsEXT_t(), args["messageTypes"], messageTypes);
+        FieldToJson(args["messageTypes"], VkDebugUtilsMessageTypeFlagsEXT_t{messageTypes});
         FieldToJson(args["pCallbackData"], pCallbackData);
     WriteBlockEnd();
 }
@@ -7570,7 +7570,7 @@ void VulkanExportJsonConsumer::Process_vkCmdWriteBufferMarker2AMD(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkPipelineStageFlags2_t(), args["stage"], stage);
+        FieldToJson(args["stage"], VkPipelineStageFlags2_t{stage});
         HandleToJson(args["dstBuffer"], dstBuffer);
         FieldToJson(args["dstOffset"], dstOffset);
         FieldToJson(args["marker"], marker);
@@ -8174,7 +8174,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetCullModeEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkCullModeFlags_t(), args["cullMode"], cullMode);
+        FieldToJson(args["cullMode"], VkCullModeFlags_t{cullMode});
     WriteBlockEnd();
 }
 
@@ -8335,7 +8335,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetStencilOpEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkStencilFaceFlags_t(), args["faceMask"], faceMask);
+        FieldToJson(args["faceMask"], VkStencilFaceFlags_t{faceMask});
         FieldToJson(args["failOp"], failOp);
         FieldToJson(args["passOp"], passOp);
         FieldToJson(args["depthFailOp"], depthFailOp);
@@ -10473,7 +10473,7 @@ void VulkanExportJsonConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkImageAspectFlags_t(), args["aspectMask"], aspectMask);
+        FieldToJson(args["aspectMask"], VkImageAspectFlags_t{aspectMask});
     WriteBlockEnd();
 }
 
@@ -10516,7 +10516,7 @@ void VulkanExportJsonConsumer::Process_vkCmdDecompressMemoryIndirectCountEXT(
     FieldToJson(jdata[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(VkMemoryDecompressionMethodFlagsEXT_t(), args["decompressionMethod"], decompressionMethod);
+        FieldToJson(args["decompressionMethod"], VkMemoryDecompressionMethodFlagsEXT_t{decompressionMethod});
         FieldToJsonAsHex(args["indirectCommandsAddress"], indirectCommandsAddress);
         FieldToJsonAsHex(args["indirectCommandsCountAddress"], indirectCommandsCountAddress);
         FieldToJson(args["maxDecompressionCount"], maxDecompressionCount);

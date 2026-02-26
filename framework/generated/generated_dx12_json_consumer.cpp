@@ -499,7 +499,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetHeapProperties(
         FieldToJson(args["pHeapProperties"], pHeapProperties);
         if (!pHeapFlags->IsNull())
         {
-            FieldToJson_D3D12_HEAP_FLAGS(args["pHeapFlags"], *pHeapFlags->GetPointer());
+            FieldToJson(args["pHeapFlags"], D3D12_HEAP_FLAGS_t{ *pHeapFlags->GetPointer() });
         }
         else
         {
@@ -577,7 +577,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence1_GetCreationFlags(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence1", object_id, "GetCreationFlags");
-    FieldToJson_D3D12_FENCE_FLAGS(method[format::kNameReturn], return_value);
+    FieldToJson(method[format::kNameReturn], D3D12_FENCE_FLAGS_t{ return_value });
     writer_->WriteBlockEnd();
 }
 
@@ -859,7 +859,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
         FieldToJson(args["pTileRegionSize"], pTileRegionSize);
         FieldToJson(args["pBuffer"], pBuffer);
         FieldToJson(args["BufferStartOffsetInBytes"], BufferStartOffsetInBytes);
-        FieldToJson_D3D12_TILE_COPY_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_TILE_COPY_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -1366,7 +1366,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["DepthStencilView"], DepthStencilView);
-        FieldToJson_D3D12_CLEAR_FLAGS(args["ClearFlags"], ClearFlags);
+        FieldToJson(args["ClearFlags"], D3D12_CLEAR_FLAGS_t{ ClearFlags });
         FieldToJson(args["Depth"], Depth);
         FieldToJson(args["Stencil"], Stencil);
         FieldToJson(args["NumRects"], NumRects);
@@ -1800,7 +1800,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         FieldToJson(args["NumRanges"], NumRanges);
         if (!pRangeFlags->IsNull())
         {
-            FieldToJson_D3D12_TILE_RANGE_FLAGS(args["pRangeFlags"], *pRangeFlags->GetPointer());
+            FieldToJson(args["pRangeFlags"], D3D12_TILE_RANGE_FLAGS_t{ *pRangeFlags->GetPointer() });
         }
         else
         {
@@ -1808,7 +1808,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
         }
         FieldToJson(args["pHeapRangeStartOffsets"], pHeapRangeStartOffsets);
         FieldToJson(args["pRangeTileCounts"], pRangeTileCounts);
-        FieldToJson_D3D12_TILE_MAPPING_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_TILE_MAPPING_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -1833,7 +1833,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
         FieldToJson(args["pSrcResource"], pSrcResource);
         FieldToJson(args["pSrcRegionStartCoordinate"], pSrcRegionStartCoordinate);
         FieldToJson(args["pRegionSize"], pRegionSize);
-        FieldToJson_D3D12_TILE_MAPPING_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_TILE_MAPPING_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -2462,9 +2462,9 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommittedResource(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pHeapProperties"], pHeapProperties);
-        FieldToJson_D3D12_HEAP_FLAGS(args["HeapFlags"], HeapFlags);
+        FieldToJson(args["HeapFlags"], D3D12_HEAP_FLAGS_t{ HeapFlags });
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson_D3D12_RESOURCE_STATES(args["InitialResourceState"], InitialResourceState);
+        FieldToJson(args["InitialResourceState"], D3D12_RESOURCE_STATES_t{ InitialResourceState });
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riidResource"], riidResource);
         FieldToJson(args["ppvResource"], ppvResource);
@@ -2514,7 +2514,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreatePlacedResource(
         FieldToJson(args["pHeap"], pHeap);
         FieldToJson(args["HeapOffset"], HeapOffset);
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson_D3D12_RESOURCE_STATES(args["InitialState"], InitialState);
+        FieldToJson(args["InitialState"], D3D12_RESOURCE_STATES_t{ InitialState });
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riid"], riid);
         FieldToJson(args["ppvResource"], ppvResource);
@@ -2539,7 +2539,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateReservedResource(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson_D3D12_RESOURCE_STATES(args["InitialState"], InitialState);
+        FieldToJson(args["InitialState"], D3D12_RESOURCE_STATES_t{ InitialState });
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riid"], riid);
         FieldToJson(args["ppvResource"], ppvResource);
@@ -2668,7 +2668,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateFence(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["InitialValue"], InitialValue);
-        FieldToJson_D3D12_FENCE_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_FENCE_FLAGS_t{ Flags });
         FieldToJson(args["riid"], riid);
         FieldToJson(args["ppFence"], ppFence);
     }
@@ -2977,7 +2977,7 @@ void Dx12JsonConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
         FieldToJson(args["ppFences"], ppFences);
         FieldToJson(args["pFenceValues"], pFenceValues);
         FieldToJson(args["NumFences"], NumFences);
-        FieldToJson_D3D12_MULTIPLE_FENCE_WAIT_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_MULTIPLE_FENCE_WAIT_FLAGS_t{ Flags });
         FieldToJson(args["hEvent"], hEvent);
     }
     writer_->WriteBlockEnd();
@@ -3083,7 +3083,7 @@ void Dx12JsonConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_D3D12_RESIDENCY_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_RESIDENCY_FLAGS_t{ Flags });
         FieldToJson(args["NumObjects"], NumObjects);
         FieldToJson(args["ppObjects"], ppObjects);
         FieldToJson(args["pFenceToSignal"], pFenceToSignal);
@@ -3119,7 +3119,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedSession_GetSessionStatus(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ProtectedSession", object_id, "GetSessionStatus");
-    FieldToJson_D3D12_PROTECTED_SESSION_STATUS(method[format::kNameReturn], return_value);
+    FieldToJson(method[format::kNameReturn], D3D12_PROTECTED_SESSION_STATUS_t{ return_value });
     writer_->WriteBlockEnd();
 }
 
@@ -3153,7 +3153,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateCommandList1(
     {
         FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask);
         FieldToJson(args["type"], type);
-        FieldToJson_D3D12_COMMAND_LIST_FLAGS(args["flags"], flags);
+        FieldToJson(args["flags"], D3D12_COMMAND_LIST_FLAGS_t{ flags });
         FieldToJson(args["riid"], riid);
         FieldToJson(args["ppCommandList"], ppCommandList);
     }
@@ -3201,9 +3201,9 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateCommittedResource1(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pHeapProperties"], pHeapProperties);
-        FieldToJson_D3D12_HEAP_FLAGS(args["HeapFlags"], HeapFlags);
+        FieldToJson(args["HeapFlags"], D3D12_HEAP_FLAGS_t{ HeapFlags });
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson_D3D12_RESOURCE_STATES(args["InitialResourceState"], InitialResourceState);
+        FieldToJson(args["InitialResourceState"], D3D12_RESOURCE_STATES_t{ InitialResourceState });
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["pProtectedSession"], pProtectedSession);
         FieldToJson(args["riidResource"], riidResource);
@@ -3253,7 +3253,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateReservedResource1(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson_D3D12_RESOURCE_STATES(args["InitialState"], InitialState);
+        FieldToJson(args["InitialState"], D3D12_RESOURCE_STATES_t{ InitialState });
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["pProtectedSession"], pProtectedSession);
         FieldToJson(args["riid"], riid);
@@ -3883,7 +3883,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CheckDriverMatchingIdentifier(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device5", object_id, "CheckDriverMatchingIdentifier");
-    FieldToJson_D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS(method[format::kNameReturn], return_value);
+    FieldToJson(method[format::kNameReturn], D3D12_DRIVER_MATCHING_IDENTIFIER_STATUS_t{ return_value });
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["SerializedDataType"], SerializedDataType);
@@ -4186,9 +4186,9 @@ void Dx12JsonConsumer::Process_ID3D12Device8_CreateCommittedResource2(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pHeapProperties"], pHeapProperties);
-        FieldToJson_D3D12_HEAP_FLAGS(args["HeapFlags"], HeapFlags);
+        FieldToJson(args["HeapFlags"], D3D12_HEAP_FLAGS_t{ HeapFlags });
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson_D3D12_RESOURCE_STATES(args["InitialResourceState"], InitialResourceState);
+        FieldToJson(args["InitialResourceState"], D3D12_RESOURCE_STATES_t{ InitialResourceState });
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["pProtectedSession"], pProtectedSession);
         FieldToJson(args["riidResource"], riidResource);
@@ -4218,7 +4218,7 @@ void Dx12JsonConsumer::Process_ID3D12Device8_CreatePlacedResource1(
         FieldToJson(args["pHeap"], pHeap);
         FieldToJson(args["HeapOffset"], HeapOffset);
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson_D3D12_RESOURCE_STATES(args["InitialState"], InitialState);
+        FieldToJson(args["InitialState"], D3D12_RESOURCE_STATES_t{ InitialState });
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riid"], riid);
         FieldToJson(args["ppvResource"], ppvResource);
@@ -4374,7 +4374,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
         FieldToJson(args["NumRenderTargets"], NumRenderTargets);
         FieldToJson(args["pRenderTargets"], pRenderTargets);
         FieldToJson(args["pDepthStencil"], pDepthStencil);
-        FieldToJson_D3D12_RENDER_PASS_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_RENDER_PASS_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -4616,8 +4616,8 @@ void Dx12JsonConsumer::Process_ID3D12Device9_ShaderCacheControl(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_D3D12_SHADER_CACHE_KIND_FLAGS(args["Kinds"], Kinds);
-        FieldToJson_D3D12_SHADER_CACHE_CONTROL_FLAGS(args["Control"], Control);
+        FieldToJson(args["Kinds"], D3D12_SHADER_CACHE_KIND_FLAGS_t{ Kinds });
+        FieldToJson(args["Control"], D3D12_SHADER_CACHE_CONTROL_FLAGS_t{ Control });
     }
     writer_->WriteBlockEnd();
 }
@@ -4667,7 +4667,7 @@ void Dx12JsonConsumer::Process_ID3D12Device10_CreateCommittedResource3(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pHeapProperties"], pHeapProperties);
-        FieldToJson_D3D12_HEAP_FLAGS(args["HeapFlags"], HeapFlags);
+        FieldToJson(args["HeapFlags"], D3D12_HEAP_FLAGS_t{ HeapFlags });
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["InitialLayout"], InitialLayout);
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
@@ -5163,7 +5163,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverBl
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceTools1", object_id, "GetApplicationSpecificDriverBlobStatus");
-    FieldToJson_D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS(method[format::kNameReturn], return_value);
+    FieldToJson(method[format::kNameReturn], D3D12_APPLICATION_SPECIFIC_DRIVER_BLOB_STATUS_t{ return_value });
     writer_->WriteBlockEnd();
 }
 
@@ -5255,7 +5255,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_SetFlags(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_D3D12_DEVICE_FACTORY_FLAGS(args["flags"], flags);
+        FieldToJson(args["flags"], D3D12_DEVICE_FACTORY_FLAGS_t{ flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -5268,7 +5268,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_GetFlags(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceFactory", object_id, "GetFlags");
-    FieldToJson_D3D12_DEVICE_FACTORY_FLAGS(method[format::kNameReturn], return_value);
+    FieldToJson(method[format::kNameReturn], D3D12_DEVICE_FACTORY_FLAGS_t{ return_value });
     writer_->WriteBlockEnd();
 }
 
@@ -5455,7 +5455,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabaseFactory_CreateStateObjec
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDatabaseFile"], pDatabaseFile);
-        FieldToJson_D3D12_STATE_OBJECT_DATABASE_FLAGS(args["flags"], flags);
+        FieldToJson(args["flags"], D3D12_STATE_OBJECT_DATABASE_FLAGS_t{ flags });
         FieldToJson(args["riid"], riid);
         FieldToJson(args["ppvStateObjectDatabase"], ppvStateObjectDatabase);
     }
@@ -5868,7 +5868,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug2_SetGPUBasedValidationFlags(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Debug2", object_id, "SetGPUBasedValidationFlags");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_D3D12_GPU_BASED_VALIDATION_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_GPU_BASED_VALIDATION_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -5913,7 +5913,7 @@ void Dx12JsonConsumer::Process_ID3D12Debug3_SetGPUBasedValidationFlags(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Debug3", object_id, "SetGPUBasedValidationFlags");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_D3D12_GPU_BASED_VALIDATION_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_GPU_BASED_VALIDATION_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -6012,7 +6012,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice1_ReportLiveDeviceObjects(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_D3D12_RLDO_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_RLDO_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -6058,7 +6058,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice_ReportLiveDeviceObjects(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_D3D12_RLDO_FLAGS(args["Flags"], Flags);
+        FieldToJson(args["Flags"], D3D12_RLDO_FLAGS_t{ Flags });
     }
     writer_->WriteBlockEnd();
 }
@@ -6971,7 +6971,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["CallbackFunc"], CallbackFunc);
-        FieldToJson_D3D12_MESSAGE_CALLBACK_FLAGS(args["CallbackFilterFlags"], CallbackFilterFlags);
+        FieldToJson(args["CallbackFilterFlags"], D3D12_MESSAGE_CALLBACK_FLAGS_t{ CallbackFilterFlags });
         FieldToJson(args["pContext"], pContext);
         FieldToJson(args["pCallbackCookie"], pCallbackCookie);
     }
@@ -9178,7 +9178,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetColorSpace(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(args["ColorSpace"], ColorSpace);
+        FieldToJson(args["ColorSpace"], DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS_t{ ColorSpace });
     }
     writer_->WriteBlockEnd();
 }
@@ -9191,7 +9191,7 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_GetColorSpace(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIDecodeSwapChain", object_id, "GetColorSpace");
-    FieldToJson_DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS(method[format::kNameReturn], return_value);
+    FieldToJson(method[format::kNameReturn], DXGI_MULTIPLANE_OVERLAY_YCbCr_FLAGS_t{ return_value });
     writer_->WriteBlockEnd();
 }
 

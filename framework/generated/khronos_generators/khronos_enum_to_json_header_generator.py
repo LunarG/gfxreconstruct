@@ -44,7 +44,7 @@ class KhronosEnumToJsonHeaderGenerator():
                 flag
             ):
                 continue
-            body = 'struct {0}_t {{ }};'
+            body = 'enum class {0}_t : {0} {{ }};'
             write(body.format(flag), file=self.outFile)
 
         for enum in sorted(self.enum_names):
@@ -53,7 +53,7 @@ class KhronosEnumToJsonHeaderGenerator():
             ):
                 continue
             if self.is_flags_enum_64bit(enum):
-                body = 'struct {0}_t {{ }};'
+                body = 'enum class {0}_t : {0} {{ }};'
                 write(body.format(enum), file=self.outFile)
 
         self.newline()
@@ -65,7 +65,7 @@ class KhronosEnumToJsonHeaderGenerator():
             processedEnums.add(enum)
             if not enum in self.enumAliases:
                 if self.is_flags_enum_64bit(enum):
-                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value);'
+                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}_t& enum_value);'
                 else:
                     body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value);'
                 write(body.format(enum), file=self.outFile)
@@ -73,5 +73,5 @@ class KhronosEnumToJsonHeaderGenerator():
         for flag in sorted(self.flags_types):
             if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
                 continue
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags);'
-            write(body.format(flag, self.flags_types[flag]), file=self.outFile)
+            body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}_t flags);'
+            write(body.format(flag), file=self.outFile)

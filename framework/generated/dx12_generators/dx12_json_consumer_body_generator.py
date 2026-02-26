@@ -112,12 +112,12 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         if(None == return_value):
             return ""
         function_name = self.choose_field_to_json_name(return_value)
-        ret_line = "{0}({1}[format::kNameReturn], return_value);\n"
-        ## if return_type.startswith("HANDLE "):
-        ## This is a Windows handle, probably to a waitable object so we output it as a JSON number:
-        ## <https://learn.microsoft.com/en-us/windows/win32/sysinfo/handles-and-objects>
-        ## <https://learn.microsoft.com/en-us/windows/win32/sync/wait-functions>
-        ret_line = ret_line.format(function_name, func_type)
+        if self.is_bitflags(return_value):
+            function_arg = f'{return_value.base_type}_t{{{{ return_value }}}}'
+        else:
+            function_arg = 'return_value'
+
+        ret_line = f'{function_name}({func_type}[format::kNameReturn], {function_arg});\n'
         return ret_line
 
     def make_consumer_func_body(self, method_info, return_type, return_value):
@@ -167,7 +167,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
 
                 ## Special case for pointers to flag sets defined by enums:
                 ## (easier than having pointer decoder versions of each flagset type's FieldToString)
-                if value.is_pointer and function_call.startswith("FieldToJson_"):
+                if value.is_pointer and self.is_bitflags(value):
                     code += '    if (!{}->IsNull())\n'.format(value.name)
                     code += '    {{\n'
                     code += '        ' + function_call
@@ -189,10 +189,13 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     def make_field_to_json(self, parent_name, value_info):
         function_name = self.choose_field_to_json_name(value_info)
         src = value_info.name
-        ## Special case for pointers to flag sets defined by enums:
-        ## (easier than having pointer decoder versions of each flagset type's FieldToString)
-        if value_info.is_pointer and function_name.startswith("FieldToJson_"):
-            src = "*" + src + "->GetPointer()"
+        if self.is_bitflags(value_info):
+            # Special case for pointers to flag sets defined by enums:
+            # (easier than having pointer decoder versions of each flagset type's FieldToString)
+            if value_info.is_pointer:
+                src = f'*{src}->GetPointer()'
+            # Flag types get passed as a type-safe enum to help with overlaod resolution
+            src = f'{value_info.base_type}_t{{{{ {src} }}}}'
         field_to_json = '{0}({1}["{2}"], {3});'.format(
             function_name, parent_name, value_info.name, src)
         if "anon-union" in value_info.base_type:

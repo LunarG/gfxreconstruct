@@ -107,9 +107,8 @@ void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
                 static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE>(command_header.copy_mode));
     FieldToJson(jdata["inputs_type"],
                 static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE>(command_header.inputs_type));
-    util::FieldToJson_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(
-        jdata["inputs_flags"],
-        static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS>(command_header.inputs_flags));
+    FieldToJson(jdata["inputs_flags"],
+                static_cast<util::D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS_t>(command_header.inputs_flags));
     FieldToJson(jdata["inputs_num_instance_descs"], command_header.inputs_num_instance_descs);
     FieldToJson(jdata["inputs_num_geometry_descs"], command_header.inputs_num_geometry_descs);
     FieldToJson(jdata["inputs_data_size"], command_header.inputs_data_size);
