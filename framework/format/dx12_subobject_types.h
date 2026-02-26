@@ -59,6 +59,8 @@ using Dx12CachedPsoSubobject           = Dx12SubobjectType<D3D12_CACHED_PIPELINE
 using Dx12TypeFlagsSubobject           = Dx12SubobjectType<D3D12_PIPELINE_STATE_FLAGS>;
 using Dx12DepthStencil1Subobject       = Dx12SubobjectType<D3D12_DEPTH_STENCIL_DESC1>;
 using Dx12ViewInstancingSubobject      = Dx12SubobjectType<D3D12_VIEW_INSTANCING_DESC>;
+using Dx12Rasterizer1Subobject         = Dx12SubobjectType<D3D12_RASTERIZER_DESC1>;
+using Dx12Rasterizer2Subobject         = Dx12SubobjectType<D3D12_RASTERIZER_DESC2>;
 
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)

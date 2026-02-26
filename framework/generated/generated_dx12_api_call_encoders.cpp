@@ -8347,7 +8347,7 @@ void Encode_ID3D12InfoQueue_GetMessage(
             omit_output_data = true;
         }
         encoder->EncodeUInt64Value(MessageIndex);
-        EncodeStructArray(encoder, pMessage, ((pMessageByteLength == nullptr) ? 0 : *pMessageByteLength), omit_output_data);
+        EncodeStructPtr(encoder, pMessage, omit_output_data);
         encoder->EncodeSizeTPtr(pMessageByteLength, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -8459,7 +8459,7 @@ void Encode_ID3D12InfoQueue_GetStorageFilter(
         {
             omit_output_data = true;
         }
-        EncodeStructArray(encoder, pFilter, ((pFilterByteLength == nullptr) ? 0 : *pFilterByteLength), omit_output_data);
+        EncodeStructPtr(encoder, pFilter, omit_output_data);
         encoder->EncodeSizeTPtr(pFilterByteLength, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
@@ -8584,7 +8584,7 @@ void Encode_ID3D12InfoQueue_GetRetrievalFilter(
         {
             omit_output_data = true;
         }
-        EncodeStructArray(encoder, pFilter, ((pFilterByteLength == nullptr) ? 0 : *pFilterByteLength), omit_output_data);
+        EncodeStructPtr(encoder, pFilter, omit_output_data);
         encoder->EncodeSizeTPtr(pFilterByteLength, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
