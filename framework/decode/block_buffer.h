@@ -113,7 +113,6 @@ class BlockBuffer
 
   private:
     size_t              read_pos_{ 0 };
-    uint64_t            block_index_{ 0U };
     util::DataSpan      block_span_;
     format::BlockHeader header_;
 };

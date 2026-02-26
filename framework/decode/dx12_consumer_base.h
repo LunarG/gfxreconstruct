@@ -29,6 +29,7 @@
 #include "decode/marker_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
+#include "decode/parsed_block.h"
 #include "decode/struct_pointer_decoder.h"
 #include "format/api_call_id.h"
 
@@ -90,7 +91,17 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                               const uint8_t*                       parameters_data)
     {}
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
+    virtual void BeginProcessBlock(const ParsedBlock* parsed_block)
+    {
+        GFXRECON_ASSERT(current_parsed_block_ == nullptr);
+        current_parsed_block_ = parsed_block;
+    }
+
+    virtual void EndProcessBlock()
+    {
+        GFXRECON_ASSERT(current_parsed_block_ != nullptr);
+        current_parsed_block_ = nullptr;
+    }
 
     void SetCurrentApiCallId(format::ApiCallId api_call_id) { current_api_call_id_ = api_call_id; }
 
@@ -103,7 +114,12 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
     uint32_t GetDXGITestPresentCount() const { return dxgi_present_test_; }
 
   protected:
-    auto GetCurrentBlockIndex() { return block_index_; }
+    auto GetCurrentBlockIndex() const
+    {
+        GFXRECON_ASSERT(current_parsed_block_ != nullptr);
+        return current_parsed_block_->GetBlockIndex();
+    }
+
     auto GetCurrentApiCallId() { return current_api_call_id_; }
 
     bool     dxr_workload_{ false };
@@ -113,6 +129,9 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
   private:
     format::ApiCallId current_api_call_id_{ format::ApiCall_Unknown };
+
+    // current_parsed_block_ is valid between calls to BeginProcessBlock and EndProcessBlock and is nullptr otherwise.
+    const ParsedBlock* current_parsed_block_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

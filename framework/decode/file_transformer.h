@@ -102,7 +102,7 @@ class FileTransformer
     virtual bool ProcessStateBeginMarker(ParsedBlock& parsed_block);
     virtual bool ProcessStateEndMarker(ParsedBlock& parsed_block);
 
-    uint64_t GetCurrentBlockIndex() { return block_index_; }
+    uint64_t GetCurrentBlockIndex() const { return block_index_; }
 
     BlockParser& GetBlockParser() { return *block_parser_; }
 
