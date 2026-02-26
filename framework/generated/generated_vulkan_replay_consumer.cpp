@@ -1243,10 +1243,10 @@ void VulkanReplayConsumer::Process_vkGetEventStatus(
     format::HandleId                            device,
     format::HandleId                            event)
 {
-    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
-    auto in_event = GetObjectInfoTable().GetVkEventInfo(event);
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkEvent in_event = MapHandle<VulkanEventInfo>(event, &CommonObjectInfoTable::GetVkEventInfo);
 
-    VkResult replay_result = OverrideGetEventStatus(GetDeviceTable(in_device->handle)->GetEventStatus, returnValue, in_device, in_event);
+    VkResult replay_result = GetDeviceTable(in_device)->GetEventStatus(in_device, in_event);
     CheckResult("vkGetEventStatus", returnValue, replay_result, call_info);
 }
 
