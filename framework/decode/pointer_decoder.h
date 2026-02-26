@@ -58,8 +58,11 @@ class PointerDecoder : public PointerDecoderBase
     {
         output_len_ = len;
 
-        // Default initialize output_data_
-        output_data_ = DecodeAllocator::Allocate<OutputT>(len);
+        if (output_len_)
+        {
+            // Default initialize output_data_
+            output_data_ = DecodeAllocator::Allocate<OutputT>(len);
+        }
 
         return output_data_;
     }

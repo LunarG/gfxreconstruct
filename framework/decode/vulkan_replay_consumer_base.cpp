@@ -13012,13 +13012,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineBinariesKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
     StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries)
 {
-    const VkPipelineBinaryCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks*         in_pAllocator  = GetAllocationCallbacks(pAllocator);
+    const VkPipelineBinaryCreateInfoKHR*  in_pCreateInfo = pCreateInfo->GetPointer();
+    const VkAllocationCallbacks*          in_pAllocator  = GetAllocationCallbacks(pAllocator);
+    VkPipelineBinaryHandlesInfoKHR*       out_pBinaries  = pBinaries->GetOutputPointer();
+    const VkPipelineBinaryHandlesInfoKHR* in_pBinaries   = pBinaries->GetMetaStructPointer()->decoded_value;
+    auto in_pPipelineBinaries = pBinaries->GetMetaStructPointer()->pPipelineBinaries.GetPointer();
 
-    VkPipelineBinaryHandlesInfoKHR* out_pBinaries = pBinaries->GetOutputPointer();
-    if (out_pBinaries != nullptr && pBinaries->GetLength() > 0)
+    if (out_pBinaries != nullptr && in_pBinaries->pipelineBinaryCount > 0 && in_pPipelineBinaries != nullptr)
     {
-        GFXRECON_NARROWING_ASSIGN(out_pBinaries->pipelineBinaryCount, pBinaries->GetLength());
+        out_pBinaries->pipelineBinaryCount = in_pBinaries->pipelineBinaryCount;
         out_pBinaries->pPipelineBinaries =
             DecodeAllocator::Allocate<VkPipelineBinaryKHR>(out_pBinaries->pipelineBinaryCount);
     }

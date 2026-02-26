@@ -248,18 +248,21 @@ bool App::frame(const int frame_num)
 
     for (uint32_t i = 0; i < pipeline_binary_handles_info.pipelineBinaryCount; ++i)
     {
-        VkPipelineBinaryKeyKHR pipeline_binary_key;
-        pipeline_binary_key.sType   = VK_STRUCTURE_TYPE_PIPELINE_BINARY_KEY_KHR;
-        pipeline_binary_key.pNext   = nullptr;
-        pipeline_binary_key.keySize = 0u;
+        VkPipelineCreateInfoKHR pipeline_create_info = {};
+        pipeline_create_info.sType                   = VK_STRUCTURE_TYPE_PIPELINE_CREATE_INFO_KHR;
+        pipeline_create_info.pNext                   = nullptr;
+        VkPipelineBinaryKeyKHR pipeline_binary_key   = {};
+        pipeline_binary_key.sType                    = VK_STRUCTURE_TYPE_PIPELINE_BINARY_KEY_KHR;
+        pipeline_binary_key.pNext                    = nullptr;
+        result = init.disp.getPipelineKeyKHR(&pipeline_create_info, &pipeline_binary_key);
 
         VkPipelineBinaryDataInfoKHR pipelineBinaryDataInfo;
         pipelineBinaryDataInfo.sType          = VK_STRUCTURE_TYPE_PIPELINE_BINARY_DATA_INFO_KHR;
         pipelineBinaryDataInfo.pNext          = nullptr;
         pipelineBinaryDataInfo.pipelineBinary = pipeline_binaries[i];
 
-        size_t pipelineBinaryDataSize;
-        result = init.disp.getPipelineBinaryDataKHR(
+        size_t pipelineBinaryDataSize = 0;
+        result                        = init.disp.getPipelineBinaryDataKHR(
             &pipelineBinaryDataInfo, &pipeline_binary_key, &pipelineBinaryDataSize, nullptr);
         VERIFY_VK_RESULT("failed to get pipeline binary data size", result);
 
