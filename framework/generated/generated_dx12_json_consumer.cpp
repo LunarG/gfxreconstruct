@@ -626,6 +626,26 @@ void Dx12JsonConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12PipelineState1_GetRootSignature(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineState1", object_id, "GetRootSignature");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvRootSignature"], ppvRootSignature, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12DescriptorHeap_GetDesc(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -2068,6 +2088,78 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_GetDesc(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "GetDesc");
     const JsonOptions& options = writer_->GetOptions();
     FieldToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12CommandQueue1_SetProcessPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D12_COMMAND_QUEUE_PROCESS_PRIORITY Priority)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue1", object_id, "SetProcessPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Priority"], Priority, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12CommandQueue1_GetProcessPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<D3D12_COMMAND_QUEUE_PROCESS_PRIORITY>* pOutValue)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue1", object_id, "GetProcessPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pOutValue"], pOutValue, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12CommandQueue1_SetGlobalPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY Priority)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue1", object_id, "SetGlobalPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Priority"], Priority, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12CommandQueue1_GetGlobalPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY>* pOutValue)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue1", object_id, "GetGlobalPriority");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pOutValue"], pOutValue, options);
+    }
     writer_->WriteBlockEnd();
 }
 
@@ -3544,6 +3636,50 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties1_GetProgramIdentifier
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        WStringDecoder* pProgramName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties2", object_id, "GetGlobalRootSignatureForProgram");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pProgramName"], pProgramName, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvRootSignature"], ppvRootSignature, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        WStringDecoder* pExportName,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvRootSignature)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties2", object_id, "GetGlobalRootSignatureForShader");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pExportName"], pExportName, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvRootSignature"], ppvRootSignature, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNumWorkGraphs(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -4948,6 +5084,166 @@ void Dx12JsonConsumer::Process_ID3D12Device14_CreateRootSignatureFromSubobjectIn
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_SetApplicationDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D12_APPLICATION_DESC>* pApplicationDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabase", object_id, "SetApplicationDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pApplicationDesc"], pApplicationDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_GetApplicationDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t CallbackFunc,
+        uint64_t pContext)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabase", object_id, "GetApplicationDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["CallbackFunc"], CallbackFunc, options);
+        FieldToJson(args["pContext"], pContext, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_StorePipelineStateDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        UINT Version,
+        StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC>* pDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabase", object_id, "StorePipelineStateDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pKey"], pKey, options);
+        FieldToJson(args["KeySize"], KeySize, options);
+        FieldToJson(args["Version"], Version, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_FindPipelineStateDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        uint64_t CallbackFunc,
+        uint64_t pContext)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabase", object_id, "FindPipelineStateDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pKey"], pKey, options);
+        FieldToJson(args["KeySize"], KeySize, options);
+        FieldToJson(args["CallbackFunc"], CallbackFunc, options);
+        FieldToJson(args["pContext"], pContext, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_StoreStateObjectDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        UINT Version,
+        StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC>* pDesc,
+        PointerDecoder<uint8_t>* pStateObjectToGrowFromKey,
+        UINT StateObjectToGrowFromKeySize)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabase", object_id, "StoreStateObjectDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pKey"], pKey, options);
+        FieldToJson(args["KeySize"], KeySize, options);
+        FieldToJson(args["Version"], Version, options);
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pStateObjectToGrowFromKey"], pStateObjectToGrowFromKey, options);
+        FieldToJson(args["StateObjectToGrowFromKeySize"], StateObjectToGrowFromKeySize, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_FindStateObjectDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        uint64_t CallbackFunc,
+        uint64_t pContext)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabase", object_id, "FindStateObjectDesc");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pKey"], pKey, options);
+        FieldToJson(args["KeySize"], KeySize, options);
+        FieldToJson(args["CallbackFunc"], CallbackFunc, options);
+        FieldToJson(args["pContext"], pContext, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_FindObjectVersion(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pKey,
+        UINT KeySize,
+        PointerDecoder<UINT>* pVersion)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabase", object_id, "FindObjectVersion");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pKey"], pKey, options);
+        FieldToJson(args["KeySize"], KeySize, options);
+        FieldToJson(args["pVersion"], pVersion, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
@@ -5418,6 +5714,30 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration1_CreateVersionedRootSig
         FieldToJson(args["RootSignatureSubobjectName"], RootSignatureSubobjectName, options);
         FieldToJson(args["riid"], riid, options);
         FieldToJson(args["ppvDeserializer"], ppvDeserializer, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        WStringDecoder* pDatabaseFile,
+        D3D12_STATE_OBJECT_DATABASE_FLAGS flags,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvStateObjectDatabase)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectDatabaseFactory", object_id, "CreateStateObjectDatabaseFromFile");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDatabaseFile"], pDatabaseFile, options);
+        FieldToJson_D3D12_STATE_OBJECT_DATABASE_FLAGS(args["flags"], flags, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvStateObjectDatabase"], ppvStateObjectDatabase, options);
     }
     writer_->WriteBlockEnd();
 }

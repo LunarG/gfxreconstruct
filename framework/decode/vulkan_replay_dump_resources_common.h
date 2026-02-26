@@ -30,6 +30,7 @@
 #include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "graphics/vulkan_util.h"
 #include "util/logging.h"
 #include "util/defines.h"
 #include "util/options.h"
@@ -130,7 +131,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    const graphics::VulkanDeviceTable&                device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
-                                   const VulkanPerDeviceAddressTrackers&             address_trackers);
+                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   bool                                              use_capture_addresses = false);
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
 
@@ -156,12 +158,6 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
 
 std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
 
-uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families);
-
-uint32_t FindComputeQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families);
-
-using FindQueueFamilyIndex_fp = uint32_t(const VulkanDeviceInfo::EnabledQueueFamilyFlags&);
-
 struct TemporaryCommandBuffer
 {
     TemporaryCommandBuffer() = default;
@@ -182,7 +178,7 @@ struct TemporaryCommandBuffer
     VkQueue         queue          = VK_NULL_HANDLE;
 };
 
-VkResult CreateAndBeginCommandBuffer(FindQueueFamilyIndex_fp*           queue_finder_fp,
+VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp  queue_finder_fp,
                                      const VulkanDeviceInfo*            device_info,
                                      const graphics::VulkanDeviceTable& device_table,
                                      TemporaryCommandBuffer&            cmd_buf_objects);

@@ -63,6 +63,9 @@ struct Decoded_D3D12_INPUT_LAYOUT_DESC;
 struct Decoded_D3D12_CACHED_PIPELINE_STATE;
 struct Decoded_D3D12_GRAPHICS_PIPELINE_STATE_DESC;
 struct Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC;
+struct Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC;
+struct Decoded_D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE;
+struct Decoded_D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE;
 struct Decoded_D3D12_RT_FORMAT_ARRAY;
 struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS;
@@ -103,6 +106,7 @@ struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS18;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20;
 struct Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21;
+struct Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT;
 struct Decoded_D3D12_FEATURE_DATA_PREDICATION;
 struct Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY;
 struct Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE;
@@ -208,6 +212,7 @@ struct Decoded_D3D12_INDEX_BUFFER_VIEW;
 struct Decoded_D3D12_INDIRECT_ARGUMENT_DESC;
 struct Decoded_D3D12_COMMAND_SIGNATURE_DESC;
 struct Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER;
+struct Decoded_D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS;
 struct Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT;
 struct Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC;
 struct Decoded_D3D12_META_COMMAND_PARAMETER_DESC;
@@ -315,6 +320,9 @@ struct Decoded_D3D12_GLOBAL_BARRIER;
 struct Decoded_D3D12_TEXTURE_BARRIER;
 struct Decoded_D3D12_BUFFER_BARRIER;
 struct Decoded_D3D12_BARRIER_GROUP;
+struct Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT;
+struct Decoded_D3D12_APPLICATION_DESC;
+struct Decoded_D3D12_EXISTING_COLLECTION_BY_KEY_DESC;
 struct Decoded_D3D12_SUBRESOURCE_DATA;
 struct Decoded_D3D12_MEMCPY_DEST;
 struct Decoded_D3D12_DEVICE_CONFIGURATION_DESC;
@@ -417,6 +425,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GRA
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COMPUTE_PIPELINE_STATE_DESC* wrapper);
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE* wrapper);
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RT_FORMAT_ARRAY* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS* wrapper);
@@ -494,6 +508,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_PREDICATION* wrapper);
 
@@ -679,6 +695,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COM
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_WRITEBUFFERIMMEDIATE_PARAMETER* wrapper);
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS* wrapper);
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PROTECTED_RESOURCE_SESSION_DESC* wrapper);
@@ -858,6 +876,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GLO
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_TEXTURE_BARRIER* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUFFER_BARRIER* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_EXISTING_COLLECTION_BY_KEY_DESC* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SUBRESOURCE_DATA* wrapper);
 

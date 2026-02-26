@@ -518,6 +518,7 @@ class VulkanReplayDumpResourcesBase
     // Like OverrideCmdBuildAccelerationStructuresKHR Handles population of acceleration_structures_context_ map.
     // In this case of copying AS it simply makes the new entry in the map to point at the src AS's entry.
     void HandleCmdCopyAccelerationStructureKHR(const graphics::VulkanDeviceTable&        device_table,
+                                               const VulkanCommandBufferInfo*            original_command_buffer,
                                                const VulkanAccelerationStructureKHRInfo* src,
                                                const VulkanAccelerationStructureKHRInfo* dst);
 
@@ -697,7 +698,7 @@ class VulkanReplayDumpResourcesBase
     // The context will be erased from its corresponding map and the active_contexts_ counter will be
     // adjusted accordingly.
     template <typename MapOfContexts>
-    void ReleaseDumpingContexts(MapOfContexts contexts, decode::Index qs_index);
+    void ReleaseDumpingContexts(MapOfContexts& contexts, decode::Index qs_index);
 
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,

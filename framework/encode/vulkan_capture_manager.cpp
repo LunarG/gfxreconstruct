@@ -2844,6 +2844,23 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkMapMemory2(VkResult               result,
+                                                    VkDevice               device,
+                                                    const VkMemoryMapInfo* pMemoryMapInfo,
+                                                    void**                 ppData)
+{
+    if ((result == VK_SUCCESS) && (pMemoryMapInfo != nullptr))
+    {
+        PostProcess_vkMapMemory(result,
+                                device,
+                                pMemoryMapInfo->memory,
+                                pMemoryMapInfo->offset,
+                                pMemoryMapInfo->size,
+                                pMemoryMapInfo->flags,
+                                ppData);
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
                                                                 uint32_t                   memoryRangeCount,
                                                                 const VkMappedMemoryRange* pMemoryRanges)
@@ -2982,6 +2999,15 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
     {
         GFXRECON_LOG_WARNING(
             "Attempting to unmap VkDeviceMemory object with handle = %" PRIx64 " that has not been mapped", memory);
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkUnmapMemory2(VkDevice device, const VkMemoryUnmapInfo* pMemoryUnmapInfo)
+{
+
+    if (pMemoryUnmapInfo != nullptr)
+    {
+        PreProcess_vkUnmapMemory(device, pMemoryUnmapInfo->memory);
     }
 }
 

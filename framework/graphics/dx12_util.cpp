@@ -1329,7 +1329,13 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
 {
     UINT64 total_bytes = 0;
 
-    device->GetCopyableFootprints(pResourceDesc,
+    D3D12_RESOURCE_DESC modified_desc = *pResourceDesc;
+    if ((pResourceDesc->Flags & D3D12_RESOURCE_FLAG_USE_TIGHT_ALIGNMENT) == D3D12_RESOURCE_FLAG_USE_TIGHT_ALIGNMENT)
+    {
+        modified_desc.Alignment = 0;
+    }
+
+    device->GetCopyableFootprints(&modified_desc,
                                   FirstSubresource,
                                   NumSubresources,
                                   BaseOffset,
@@ -1345,8 +1351,7 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
         // it before querying the copyable footprint. This handles the case where a resource is created with castable
         // formats but the format in the resource desc is not compatible with
         // D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS.
-        D3D12_RESOURCE_DESC modified_desc = *pResourceDesc;
-        modified_desc.Flags               = (modified_desc.Flags & ~D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+        modified_desc.Flags = (modified_desc.Flags & ~D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
         device->GetCopyableFootprints(&modified_desc,
                                       FirstSubresource,

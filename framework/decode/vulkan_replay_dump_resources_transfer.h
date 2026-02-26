@@ -241,6 +241,8 @@ class TransferDumpingContext
                 device_table_(dt), parent_device_info_(pdi), has_before_command(hb)
             {}
 
+            virtual ~TransferParamsBase() {}
+
             const graphics::VulkanDeviceTable& device_table_;
             const VulkanDeviceInfo*            parent_device_info_;
             TransferCommandTypes               type;
@@ -567,6 +569,14 @@ class TransferDumpingContext
 
             // Cloned build input buffers
             AccelerationStructureDumpResourcesContext as_context;
+
+            void UpdateAccelerationStructureInfo()
+            {
+                GFXRECON_ASSERT(as != VK_NULL_HANDLE);
+                GFXRECON_ASSERT(buffer != VK_NULL_HANDLE);
+                as_info.handle = as;
+                as_info.buffer = buffer;
+            }
         };
 
         // CmdBuildAccelerationStructuresKHR

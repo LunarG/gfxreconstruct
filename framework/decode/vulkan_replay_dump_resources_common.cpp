@@ -992,34 +992,6 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
-uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
-{
-    uint32_t index = VK_QUEUE_FAMILY_IGNORED;
-
-    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
-    {
-        if (families.queue_family_index_enabled[i])
-        {
-            const auto& flags_entry = families.queue_family_properties_flags.find(i);
-            if ((flags_entry != families.queue_family_properties_flags.end()))
-            {
-                if ((flags_entry->second & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
-                {
-                    return i;
-                }
-                else if ((flags_entry->second & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)))
-                {
-                    // Apparently some implementations (i.e. Adreno) don't have a transfer queue. According to spec,
-                    // graphics and compute queues also support transfer operations.
-                    index = i;
-                }
-            }
-        }
-    }
-
-    return index;
-}
-
 bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
                     uint32_t                        desc_set,
                     uint32_t                        binding,
@@ -1040,28 +1012,7 @@ bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
 
     return false;
 }
-
-uint32_t FindComputeQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
-{
-    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
-    {
-        if (families.queue_family_index_enabled[i])
-        {
-            const auto& flags_entry = families.queue_family_properties_flags.find(i);
-            if ((flags_entry != families.queue_family_properties_flags.end()))
-            {
-                if ((flags_entry->second & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
-                {
-                    return i;
-                }
-            }
-        }
-    }
-
-    return VK_QUEUE_FAMILY_IGNORED;
-}
-
-VkResult CreateAndBeginCommandBuffer(FindQueueFamilyIndex_fp*           queue_finder_fp,
+VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp  queue_finder_fp,
                                      const VulkanDeviceInfo*            device_info,
                                      const graphics::VulkanDeviceTable& device_table,
                                      TemporaryCommandBuffer&            cmd_buf_objects)
@@ -1378,9 +1329,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
             continue;
         }
 
-        // These should be NULL otherwise we are leaking objects
-        GFXRECON_ASSERT(acceleration_structure->serialized_data.buffer == VK_NULL_HANDLE &&
-                        acceleration_structure->serialized_data.memory == VK_NULL_HANDLE);
+        acceleration_structure->ReleaseSerializedResources();
         res = CreateVkBuffer(serialized_size,
                              device_table,
                              device,
@@ -1467,135 +1416,6 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     device_table.DestroyFence(device, fence, nullptr);
 
     return VK_SUCCESS;
-}
-
-void AccelerationStructureDumpResourcesContext::ReleaseResources()
-{
-    if (as_info == nullptr)
-    {
-        return;
-    }
-
-    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
-    GFXRECON_ASSERT(device_info != nullptr);
-
-    const VkDevice device = device_info->handle;
-
-    as_info = nullptr;
-
-    if (serialized_data.buffer != VK_NULL_HANDLE)
-    {
-        device_table.DestroyBuffer(device, serialized_data.buffer, nullptr);
-        serialized_data.buffer = VK_NULL_HANDLE;
-    }
-
-    if (serialized_data.memory != VK_NULL_HANDLE)
-    {
-        device_table.FreeMemory(device, serialized_data.memory, nullptr);
-        serialized_data.memory = VK_NULL_HANDLE;
-    }
-
-    serialized_data.size = 0;
-
-    for (auto& as_data : as_build_objects)
-    {
-        if (auto* triangles = std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&as_data))
-        {
-            triangles->vertex_format      = VK_FORMAT_UNDEFINED;
-            triangles->vertex_buffer_size = 0;
-
-            if (triangles->vertex_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, triangles->vertex_buffer, nullptr);
-                triangles->vertex_buffer = VK_NULL_HANDLE;
-            }
-
-            if (triangles->vertex_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, triangles->vertex_buffer_memory, nullptr);
-                triangles->vertex_buffer_memory = VK_NULL_HANDLE;
-            }
-
-            triangles->index_type        = VK_INDEX_TYPE_NONE_KHR;
-            triangles->index_buffer_size = 0;
-
-            if (triangles->index_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, triangles->index_buffer, nullptr);
-                triangles->index_buffer = VK_NULL_HANDLE;
-            }
-
-            if (triangles->index_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, triangles->index_buffer_memory, nullptr);
-                triangles->index_buffer_memory = VK_NULL_HANDLE;
-            }
-
-            if (triangles->transform_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, triangles->transform_buffer, nullptr);
-                triangles->transform_buffer = VK_NULL_HANDLE;
-            }
-
-            if (triangles->transform_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, triangles->transform_buffer_memory, nullptr);
-                triangles->transform_buffer_memory = VK_NULL_HANDLE;
-            }
-        }
-        else if (auto* instance = std::get_if<AccelerationStructureDumpResourcesContext::Instances>(&as_data))
-        {
-            instance->instance_count       = 0;
-            instance->instance_buffer_size = 0;
-
-            if (instance->instance_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, instance->instance_buffer, nullptr);
-                instance->instance_buffer = VK_NULL_HANDLE;
-            }
-
-            if (instance->instance_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, instance->instance_buffer_memory, nullptr);
-                instance->instance_buffer_memory = VK_NULL_HANDLE;
-            }
-
-            if (instance->compute_ppl != VK_NULL_HANDLE)
-            {
-                device_table.DestroyPipeline(device, instance->compute_ppl, nullptr);
-                instance->compute_ppl = VK_NULL_HANDLE;
-            }
-
-            if (instance->compute_ppl_layout != VK_NULL_HANDLE)
-            {
-                device_table.DestroyPipelineLayout(device, instance->compute_ppl_layout, nullptr);
-                instance->compute_ppl_layout = VK_NULL_HANDLE;
-            }
-        }
-        else if (auto* aabb = std::get_if<AccelerationStructureDumpResourcesContext::AABBS>(&as_data))
-        {
-            aabb->buffer_size = 0;
-
-            if (aabb->buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, aabb->buffer, nullptr);
-                aabb->buffer = VK_NULL_HANDLE;
-            }
-
-            if (aabb->buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, aabb->buffer_memory, nullptr);
-                aabb->buffer_memory = VK_NULL_HANDLE;
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Unexpected as data entry");
-            GFXRECON_ASSERT(0);
-        }
-    }
-
-    as_build_objects.clear();
 }
 
 static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumped_as,
@@ -1711,7 +1531,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
         return res;
     }
 
-    // Fetch serialized data for TLAS
+    // Fetch serialized data for BLAS
     if (as_context->serialized_data.buffer != VK_NULL_HANDLE)
     {
         dumped_as.serialized_buffer.size               = as_context->serialized_data.size;
@@ -1743,7 +1563,8 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
                          const graphics::VulkanDeviceTable&                device_table,
                          const CommonObjectInfoTable&                      object_info_table,
                          const graphics::VulkanInstanceTable&              instance_table,
-                         const VulkanPerDeviceAddressTrackers&             address_trackers)
+                         const VulkanPerDeviceAddressTrackers&             address_trackers,
+                         bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
     GFXRECON_ASSERT(as_info != nullptr);
@@ -1797,8 +1618,11 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
         for (uint32_t i = 0; i < instance_build_data->instance_count; ++i)
         {
             // Get all BLASes associated with the referenced device address
-            const auto blases_infos = device_address_tracker.GetAccelerationStructuresByCaptureDeviceAddress(
-                static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
+            const auto blases_infos =
+                use_capture_addresses ? device_address_tracker.GetAccelerationStructuresByCaptureDeviceAddress(
+                                            static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference))
+                                      : device_address_tracker.GetAccelerationStructuresByReplayDeviceAddress(
+                                            static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
             if (blases_infos.empty())
             {
                 continue;
@@ -1888,7 +1712,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    const graphics::VulkanDeviceTable&                device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
-                                   const VulkanPerDeviceAddressTrackers&             address_trackers)
+                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
     GFXRECON_ASSERT(as_info != nullptr);
@@ -1904,7 +1729,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                        device_table,
                        object_info_table,
                        instance_table,
-                       address_trackers);
+                       address_trackers,
+                       use_capture_addresses);
     }
     else
     {

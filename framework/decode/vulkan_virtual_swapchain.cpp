@@ -902,18 +902,19 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         result = device_table_->WaitForFences(device, 1, &copy_fence, VK_TRUE, ~0UL);
         if (result != VK_SUCCESS)
         {
+            util::EndInjectedCommands();
             return result;
         }
         result = device_table_->ResetFences(device, 1, &copy_fence);
         if (result != VK_SUCCESS)
         {
+            util::EndInjectedCommands();
             return result;
         }
         result = device_table_->ResetCommandBuffer(command_buffer, 0);
         if (result != VK_SUCCESS)
         {
             util::EndInjectedCommands();
-
             return result;
         }
         result = device_table_->BeginCommandBuffer(command_buffer, &begin_info);

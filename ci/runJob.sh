@@ -12,6 +12,8 @@ fi
 
 git clone --verbose $TEST_SUITE_REPO ci-gfxr-suites
 cd ci-gfxr-suites
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git fetch origin
 git checkout $TEST_SUITE_BRANCH
 git submodule update --init --recursive
 git describe --tags --always
@@ -28,6 +30,8 @@ fi
 
 git clone --verbose $TEST_REPO VulkanTests
 cd VulkanTests
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git fetch origin
 git checkout $TEST_COMMIT
 git submodule update --init --recursive
 git describe --tags --always

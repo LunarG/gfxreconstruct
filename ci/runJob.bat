@@ -23,6 +23,8 @@ waitfor forever /t 60 2>nul
 goto :clone_suites
 :clone_suites_done
 cd ci-gfxr-suites
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git fetch origin
 git checkout %TEST_SUITE_BRANCH% || exit /b
 git submodule update --init --recursive
 git describe --tags --always
@@ -50,6 +52,8 @@ waitfor forever /t 60 2>nul
 goto :clone_tests
 :clone_tests_done
 cd VulkanTests
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git fetch origin
 git checkout %TEST_COMMIT% || exit /b
 git submodule update --init --recursive
 git describe --tags --always

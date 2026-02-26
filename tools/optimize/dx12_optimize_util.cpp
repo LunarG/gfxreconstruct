@@ -388,10 +388,9 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
         // Write optimized capture file.
         GFXRECON_WRITE_CONSOLE("Writing optimized file.");
 
-        gfxrecon::Dx12FileOptimizer file_optimizer;
+        gfxrecon::Dx12FileOptimizer file_optimizer(info.unreferenced_blocks);
         if (file_optimizer.Initialize(input_filename, output_filename, "optimize"))
         {
-            file_optimizer.SetUnreferencedBlocks(info.unreferenced_blocks);
             file_optimizer.SetFillCommandResourceValues(&info.fill_command_resource_values,
                                                         info.inject_noop_resource_value_optimization);
 
@@ -405,8 +404,9 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
             }
             else
             {
-                // In a way, "resultant_objects = 0" will prove the two scan passes match.
-                uint64_t resultant_objects = file_optimizer.GetUnreferencedBlocksSize();
+                // we expect "resultant_objects == info.unreferenced_blocks.size()".
+                // this will prove the two scan passes match.
+                uint64_t resultant_objects = file_optimizer.GetNumRemovedBlocks();
 
                 // Check that all fill commands were optimized.
                 uint64_t optimized_fill_commands = file_optimizer.GetNumOptimizedFillCommands();
@@ -416,7 +416,7 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
                     expected_fill_commands = 1;
                 }
 
-                if (resultant_objects > 0)
+                if (resultant_objects < info.unreferenced_blocks.size())
                 {
                     GFXRECON_WRITE_CONSOLE("Failed to remove all blocks for PSO removal optimization (%" PRIu64
                                            " unoptimized blocks). The output file may be invalid.",

@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2020 LunarG, Inc.
+# Copyright (c) 2020-2026 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -51,7 +51,6 @@ class VulkanReferencedResourceBodyGeneratorOptions(VulkanBaseGeneratorOptions):
         )
 
         self.begin_end_file_data.specific_headers.append('generated/generated_vulkan_referenced_resource_consumer.h')
-        self.begin_end_file_data.system_headers.append('cassert')
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
         self.begin_end_file_data.common_api_headers = []
 
@@ -66,7 +65,7 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
     # All resource and resource associated handle types to be processed.
     RESOURCE_HANDLE_TYPES = [
         'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
-        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR'
+        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline'
     ]
 
     # Handle types that contain resource and child resource handle types.
@@ -169,7 +168,7 @@ class VulkanReferencedResourceBodyGenerator(VulkanBaseGenerator):
             access_operator = '->'
             if not value_prefix:
                 # If there is no prefix, this is the pointer parameter received by the function, which should never be null.
-                body += indent + 'assert({} != nullptr);\n'.format(value.name)
+                body += indent + 'GFXRECON_ASSERT({} != nullptr);\n'.format(value.name)
                 body += '\n'
                 # Add IsNull and HasData checks for the pointer decoder, before accessing its data.
                 # Note that this does not handle the decoded struct member cases for static arrays, which would need to use '.' instead of '->'.

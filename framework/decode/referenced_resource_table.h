@@ -24,15 +24,12 @@
 #define GFXRECON_DECODE_REFERENCED_RESOURCE_TABLE_H
 
 #include "format/format.h"
-#include "util/defines.h"
-#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -55,7 +52,7 @@ class ReferencedResourceTable
 
     void AddContainerToUser(format::HandleId user_id, format::HandleId container_id);
 
-    void AddUserToUser(format::HandleId user_id, format::HandleId source_user_id);
+    void AddUserToUser(format::HandleId user_id, format::HandleId child_user_id);
 
     void AddContainer(format::HandleId pool_id, format::HandleId container_id);
 
@@ -86,8 +83,8 @@ class ReferencedResourceTable
 
     void ProcessUserSubmission(format::HandleId user_id);
 
-    void GetReferencedResourceIds(std::unordered_set<format::HandleId>* referenced_ids,
-                                  std::unordered_set<format::HandleId>* unreferenced_ids) const;
+    void GetReferencedHandleIds(std::unordered_set<format::HandleId>* referenced_ids,
+                                std::unordered_set<format::HandleId>* unreferenced_ids) const;
 
     void MarkResourceAsUsed(format::HandleId resource);
 
@@ -117,14 +114,18 @@ class ReferencedResourceTable
         format::HandleId                                                           pool_id{ format::kNullHandleId };
         std::unordered_map<format::HandleId, std::weak_ptr<ResourceInfo>>          resource_infos;
         std::unordered_map<format::HandleId, std::weak_ptr<ResourceContainerInfo>> container_infos;
+
+        // keep track if this command-buffer was submitted
+        bool used{ false };
+
+        // child user-infos, a.k.a secondary command-buffer
+        std::unordered_map<format::HandleId, std::weak_ptr<ResourceUserInfo>> users_infos;
     };
 
-    typedef std::unordered_set<format::HandleId> PoolHandles;
+    using PoolHandles = std::unordered_set<format::HandleId>;
 
-  private:
     bool IsUsed(const ResourceInfo* resource_info) const;
 
-  private:
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceInfo>>          resources_;
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceContainerInfo>> containers_;
     std::unordered_map<format::HandleId, std::shared_ptr<ResourceUserInfo>>      users_;

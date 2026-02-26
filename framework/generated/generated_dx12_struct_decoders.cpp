@@ -478,6 +478,48 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_COM
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_SERIALIZED_ROOT_SIGNATURE_DESC* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->pSerializedBlob.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSerializedBlob = wrapper->pSerializedBlob.GetPointer();
+    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedBlobSizeInBytes));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_GLOBAL_SERIALIZED_ROOT_SIGNATURE* value = wrapper->decoded_value;
+
+    wrapper->Desc = DecodeAllocator::Allocate<Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC>();
+    wrapper->Desc->decoded_value = &(value->Desc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc);
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_LOCAL_SERIALIZED_ROOT_SIGNATURE* value = wrapper->decoded_value;
+
+    wrapper->Desc = DecodeAllocator::Allocate<Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC>();
+    wrapper->Desc->decoded_value = &(value->Desc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc);
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RT_FORMAT_ARRAY* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -1039,6 +1081,18 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEA
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->ExecuteIndirectTier));
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SampleCmpGradientAndBiasSupported));
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ExtendedCommandInfoSupported));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_TIGHT_ALIGNMENT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->SupportTier));
 
     return bytes_read;
 }
@@ -2420,6 +2474,18 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_WRI
 
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Dest));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Value));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_FEATURE_DATA_HARDWARE_SCHEDULING_QUEUE_GROUPINGS* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ComputeQueuesPer3DQueue));
 
     return bytes_read;
 }
@@ -3929,6 +3995,24 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_BUF
     value->pResource = nullptr;
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Offset));
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Size));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_EXISTING_COLLECTION_BY_KEY_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D12_EXISTING_COLLECTION_BY_KEY_DESC* value = wrapper->decoded_value;
+
+    bytes_read += wrapper->pKey.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pKey = wrapper->pKey.GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->KeySize));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumExports));
+    wrapper->pExports = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_EXPORT_DESC>>();
+    bytes_read += wrapper->pExports->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pExports = wrapper->pExports->GetPointer();
 
     return bytes_read;
 }

@@ -64,7 +64,6 @@
 #include <cassert>
 #include <cstdarg>
 #include <cstdlib>
-#include <format>
 #include <limits>
 #include <set>
 #include <string>

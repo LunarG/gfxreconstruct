@@ -33,6 +33,7 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/platform.h"
 #include "util/to_string.h"
+#include "graphics/vulkan_util.h"
 
 #include <cstdint>
 #include <tuple>
@@ -147,7 +148,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         if (command_buffer == VK_NULL_HANDLE)
         {
             VkResult res = CreateAndBeginCommandBuffer(
-                &FindComputeQueueFamilyIndex, dev_info, *device_table_, temp_command_buffer);
+                graphics::FindComputeQueueFamilyIndex, dev_info, *device_table_, temp_command_buffer);
             if (res != VK_SUCCESS)
             {
                 return res;
@@ -1189,7 +1190,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
             // NULL command buffer means that this is coming from the state setup section
             if (commandBuffer == VK_NULL_HANDLE)
             {
-                res = CreateAndBeginCommandBuffer(&FindComputeQueueFamilyIndex,
+                res = CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex,
                                                   object_info_table_.GetVkDeviceInfo(dst_as->parent_id),
                                                   *device_table_,
                                                   temp_command_buffer);
@@ -1211,9 +1212,10 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 // Clone build input buffers
                 res = new_build_info.vk_objects.as_context.CloneBuildAccelerationStructuresInputBuffers(
                     command_buffer,
-                    &p_infos_meta[i],
+                    p_infos[i],
                     p_range_infos[i],
-                    options_.dump_resources_dump_build_AS_input_buffers);
+                    options_.dump_resources_dump_build_AS_input_buffers,
+                    !before_command);
                 if (res != VK_SUCCESS)
                 {
                     return res;
@@ -1275,9 +1277,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 return res;
             }
 
-            // Update local VulkanAccelerationStructureKHRInfo
-            new_build_info.vk_objects.as_info.handle = new_build_info.vk_objects.as;
-            new_build_info.vk_objects.as_info.buffer = new_build_info.vk_objects.buffer;
+            // Update cloned VulkanAccelerationStructureKHRInfo
+            new_build_info.vk_objects.UpdateAccelerationStructureInfo();
 
             // Wait for original build to complete / flush any pending writes to destination
             VkBufferMemoryBarrier dst_buf_mem_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1291,21 +1292,6 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                                           dst_as->buffer,
                                                           0,
                                                           VK_WHOLE_SIZE };
-            device_table_->CmdPipelineBarrier(command_buffer,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
-                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &dst_buf_mem_barrier,
-                                              0,
-                                              nullptr);
-
-            // Flush temporary build
-            dst_buf_mem_barrier.dstAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
-            dst_buf_mem_barrier.buffer        = new_build_info.vk_objects.buffer;
             device_table_->CmdPipelineBarrier(command_buffer,
                                               VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
                                               VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
@@ -1409,7 +1395,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                       nullptr,
                                       replay_device_phys_mem_props_,
                                       VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
-                                          VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+                                          VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                                          VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                                       &copy_as_params->vk_objects.buffer,
                                       &copy_as_params->vk_objects.memory);
         if (res != VK_SUCCESS)
@@ -1418,7 +1405,6 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
             return res;
         }
 
-        // Create acceleration structure
         const VkAccelerationStructureCreateInfoKHR as_ci = { VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
                                                              nullptr,
                                                              VkAccelerationStructureCreateFlagBitsKHR(0),
@@ -1427,7 +1413,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                                              dst_as->size,
                                                              dst_as->type,
                                                              0 };
-        res                                              = device_table_->CreateAccelerationStructureKHR(
+        // Create the cloned AS
+        res = device_table_->CreateAccelerationStructureKHR(
             device_info_->handle, &as_ci, nullptr, &copy_as_params->vk_objects.as);
         if (res != VK_SUCCESS)
         {
@@ -1436,9 +1423,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
             return res;
         }
 
-        // Update local VulkanAccelerationStructureKHRInfo
-        copy_as_params->vk_objects.as_info.handle = copy_as_params->vk_objects.as;
-        copy_as_params->vk_objects.as_info.buffer = copy_as_params->vk_objects.buffer;
+        // Update cloned VulkanAccelerationStructureKHRInfo
+        copy_as_params->vk_objects.UpdateAccelerationStructureInfo();
 
         // Wait for original build to complete / flush any pending writes to destination
         const VkBufferMemoryBarrier dst_buf_mem_barrier = {
@@ -2200,7 +2186,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                          *device_table_,
                                                          object_info_table_,
                                                          *instance_table_,
-                                                         address_trackers_);
+                                                         address_trackers_,
+                                                         true);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
@@ -2226,7 +2213,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                              *device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
-                                                             address_trackers_);
+                                                             address_trackers_,
+                                                             true);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
@@ -2256,8 +2244,6 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
     {
         delegate_.DumpEnd();
     }
-
-    Release();
 
     return VK_SUCCESS;
 }

@@ -2553,7 +2553,11 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
             (((image_wrapper->is_swapchain_image || image_wrapper->is_sparse_image) && memory_wrapper == nullptr) ||
              ((!image_wrapper->is_swapchain_image && !image_wrapper->is_sparse_image) && memory_wrapper != nullptr)));
 
-        GFXRECON_ASSERT(snapshot_entry.resource_size > 0);
+        if (snapshot_entry.resource_size == 0)
+        {
+            GFXRECON_LOG_WARNING("%s: expected snapshot_entry.resource_size > 0 - skipping", __func__);
+            continue;
+        }
 
         ImageResource image_resource        = {};
         image_resource.handle_id            = image_wrapper->handle_id;

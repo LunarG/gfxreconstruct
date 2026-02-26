@@ -698,9 +698,7 @@ class KhronosReplayConsumerBodyGenerator():
                         if need_temp_value:
                             expr += '{}->GetPointer();'.format(value.name)
 
-                        if (value.base_type in self.structs_with_handles) or (
-                            value.base_type in self.GENERIC_HANDLE_STRUCTS
-                        ):
+                        if self.struct_might_have_handles(value.base_type):
                             preexpr.append(expr)
                             if value.is_array:
                                 expr = 'MapStructArrayHandles({name}->GetMetaStructPointer(), {name}->GetLength(), GetObjectInfoTable());'.format(
@@ -1036,15 +1034,15 @@ class KhronosReplayConsumerBodyGenerator():
                                 if value.base_type in self.structs_with_handles:
                                     push_handleid_expr[0] = "    PushRecaptureStructHandleIds({}->GetMetaStructPointer(), this);\n".format(value.name)
                                     push_handleid_expr[1] = "    ClearRecaptureHandleIds();\n"
-                                    if need_temp_value:
-                                        if value.base_type in self.structs_with_handle_ptrs:
-                                            preexpr.append(
-                                                'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
-                                                .format(
-                                                    value.base_type,
-                                                    paramname=value.name
-                                                )
+                                    if value.base_type in self.structs_with_handle_ptrs:
+                                        preexpr.append(
+                                            'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                            .format(
+                                                value.base_type,
+                                                paramname=value.name
                                             )
+                                        )
+                                    if need_temp_value:
                                         postexpr.append(
                                             'AddStructHandles({}, {name}->GetMetaStructPointer(), {}, &GetObjectInfoTable());'
                                             .format(
@@ -1057,16 +1055,8 @@ class KhronosReplayConsumerBodyGenerator():
                                             )
                                         )
                                     else:
-                                        if value.base_type in self.structs_with_handle_ptrs:
-                                            preexpr.append(
-                                                'SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
-                                                .format(
-                                                    value.base_type,
-                                                    paramname=value.name
-                                                )
-                                            )
                                         postexpr.append(
-                                            'AddStructHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetOutputPointer(), &GetObjectInfoTable());'
+                                            'AddStructHandles({}, {name}->GetMetaStructPointer(), {name}->GetOutputPointer(), &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
                                                     api_data, value, values

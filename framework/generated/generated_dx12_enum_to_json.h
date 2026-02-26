@@ -223,6 +223,15 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_PIPELINE_STAT
     FieldToJson(jdata, *pEnum, options);
 }
 
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D_ROOT_SIGNATURE_VERSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D_ROOT_SIGNATURE_VERSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
@@ -349,15 +358,6 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_WORK_GRAPHS_T
     FieldToJson(jdata, *pEnum, options);
 }
 
-inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D_ROOT_SIGNATURE_VERSION value, const JsonOptions& options = JsonOptions())
-{
-    FieldToJson(jdata, ToString(value), options);
-}
-inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D_ROOT_SIGNATURE_VERSION* pEnum, const JsonOptions& options = JsonOptions())
-{
-    FieldToJson(jdata, *pEnum, options);
-}
-
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D_SHADER_MODEL value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
@@ -480,6 +480,15 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_EXECUTE_INDIR
     FieldToJson(jdata, ToString(value), options);
 }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_EXECUTE_INDIRECT_TIER* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_TIGHT_ALIGNMENT_TIER value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_TIGHT_ALIGNMENT_TIER* pEnum, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, *pEnum, options);
 }
@@ -889,6 +898,24 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_WRITEBUFFERIM
     FieldToJson(jdata, *pEnum, options);
 }
 
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_COMMAND_QUEUE_PROCESS_PRIORITY value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_COMMAND_QUEUE_PROCESS_PRIORITY* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_MULTIPLE_FENCE_WAIT_FLAGS value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
@@ -1258,6 +1285,15 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_HIT_KIND* pEn
     FieldToJson(jdata, *pEnum, options);
 }
 
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_MARKER_API value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_MARKER_API* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_AUTO_BREADCRUMB_OP value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
@@ -1497,6 +1533,15 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEVICE_FLAGS 
     FieldToJson(jdata, ToString(value), options);
 }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEVICE_FLAGS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_STATE_OBJECT_DATABASE_FLAGS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_STATE_OBJECT_DATABASE_FLAGS* pEnum, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, *pEnum, options);
 }
@@ -2848,6 +2893,19 @@ inline void FieldToJson_D3D12_DEVICE_FLAGS(nlohmann::ordered_json& jdata, const 
     else
     {
         representation = ToString_D3D12_DEVICE_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D12_STATE_OBJECT_DATABASE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D12_STATE_OBJECT_DATABASE_FLAGS(flags);
     }
     FieldToJson(jdata, representation, options);
 }
