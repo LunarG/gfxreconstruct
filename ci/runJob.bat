@@ -11,7 +11,7 @@ if not defined TEST_SUITE_BRANCH (
 
 set /a clonetestloop=0
 :clone_suites
-git clone --verbose %TEST_SUITE_REPO% ci-gfxr-suites
+powershell -Command "Measure-Command { git clone --verbose %TEST_SUITE_REPO% ci-gfxr-suites } | Select-Object -Property TotalSeconds"
 if %errorlevel% equ 0 goto :clone_suites_done
 if exist ci-gfxr-suites/ rmdir /s /q ci-gfxr-suites
 set /a clonetestloop+=1
