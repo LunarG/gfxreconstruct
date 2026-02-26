@@ -715,8 +715,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const Dump
                                      : "_depth_att";
 
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-
     if (output_image_format != KFormatRaw)
     {
         if (options_.dump_resources_before)
@@ -774,7 +772,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename(cons
     const VulkanImageInfo* image_info = dumped_image->image_info;
     std::string            aspect_str = ImageAspectToStr(aspect);
     std::stringstream      base_filename;
-    base_filename << capture_filename_ << "_";
 
     if (output_image_format != KFormatRaw)
     {
@@ -812,11 +809,9 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsBufferDescriptorFilename(con
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
     std::stringstream filename;
-
-    filename << capture_filename_ << "_"
-             << "buffer_" << dumped_buffer->buffer_info.capture_id << "_qs_" << dumped_desc.qs_index << "_bcb_"
-             << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_" << dumped_desc.set << "_binding_"
-             << dumped_desc.binding << "_ai_" << dumped_desc.array_index << ".bin";
+    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_dc_" << dumped_desc.cmd_index << "_qs_"
+             << dumped_desc.qs_index << "_bcb_" << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_"
+             << dumped_desc.set << "_binding_" << dumped_desc.binding << "_ai_" << dumped_desc.array_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -831,10 +826,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateGraphicsInlineUniformBuf
     const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_"
-             << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
-             << buffer_desc_info.bcb_index << ".bin";
+    filename << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
+             << buffer_desc_info.array_index << "_dc_" << buffer_desc_info.cmd_index << "_qs_"
+             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -849,8 +843,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(con
     const DumpedVertexIndexBuffer& vertex_buffer = static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_"
-             << "vertexBuffers_"
+    filename << "vertexBuffers_"
              << "qs_" << vertex_buffer.qs_index << "_bcb_" << vertex_buffer.bcb_index << "_dc_"
              << vertex_buffer.cmd_index << "_binding_" << vertex_buffer.binding << ".bin";
 
@@ -867,8 +860,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(cons
     const DumpedVertexIndexBuffer& index_buffer = static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-    std::string index_type_name = IndexTypeToStr(index_buffer.index_type);
+    std::string       index_type_name = IndexTypeToStr(index_buffer.index_type);
     filename << "indexBuffer_"
              << "qs_" << dumped_resource.qs_index << "_bcb_" << dumped_resource.bcb_index << "_dc_"
              << dumped_resource.cmd_index << index_type_name << ".bin";
@@ -884,8 +876,6 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateTransferToBufferRegionFi
     const auto& dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-
     switch (dumped_resource.type)
     {
         case DumpResourceType::kInitBufferMetaCommand:
@@ -921,7 +911,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateTransferToBufferRegionFi
         filename << "_region_index_" << region_index;
     }
 
-    filename << "_qs_" << dumped_cmd.qs_index << ".bin";
+    filename << "_qs_" << dumped_cmd.qs_index << "_bcb_" << dumped_cmd.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -937,8 +927,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const 
                                                                           bool before_command) const
 {
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-
     switch (dumped_resource.type)
     {
         case DumpResourceType::kInitImageMetaCommand:
@@ -999,7 +987,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
-        filename << capture_filename_ << "_";
         filename << "DrawCall_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
                  << dumped_resources.bcb_index << "_dr.json";
 
@@ -1310,8 +1297,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
     const std::string aspect_str = ImageAspectToStr(aspect);
 
     std::stringstream filename;
-    filename << capture_filename_ << '_';
-
     if (before_command)
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_image_desc.cmd_index << "_qs_"
@@ -1361,9 +1346,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferFilename(cons
     const bool is_dispatch = dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kCompute;
 
     std::stringstream filename;
-
-    filename << capture_filename_ << '_';
-
     if (before_command)
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_buffer_desc.cmd_index << "_qs_"
@@ -1404,18 +1386,17 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDe
     std::string       aspect_str = ImageAspectToStr(aspect);
     std::stringstream base_filename;
 
-    base_filename << capture_filename_ << '_';
-
     if (output_image_format != KFormatRaw)
     {
-        base_filename << "image_" << image_info->capture_id << "_qs_" << image_desc_info.qs_index << "_bcb_"
-                      << image_desc_info.bcb_index << "_aspect_" << aspect_str;
+        base_filename << "image_" << image_info->capture_id << "_cmd_" << image_desc_info.cmd_index << "_qs_"
+                      << image_desc_info.qs_index << "_bcb_" << image_desc_info.bcb_index << "_aspect_" << aspect_str;
     }
     else
     {
         std::string format_name = FormatToStr(image_info->format);
-        base_filename << "image_" << image_info->capture_id << "_qs_" << image_desc_info.qs_index << "_bcb_"
-                      << image_desc_info.bcb_index << "_" << format_name << "_aspect_" << aspect_str;
+        base_filename << "image_" << image_info->capture_id << "_cmd_" << image_desc_info.cmd_index << "_qs_"
+                      << image_desc_info.qs_index << "_bcb_" << image_desc_info.bcb_index << "_" << format_name
+                      << "_aspect_" << aspect_str;
     }
 
     std::stringstream sub_resources_str;
@@ -1436,10 +1417,10 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferD
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_buffer_" << dumped_buffer->buffer_info.capture_id << "_set_"
-             << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
-             << buffer_desc_info.bcb_index << ".bin";
+    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_set_" << buffer_desc_info.set << "_binding_"
+             << buffer_desc_info.binding << "_ai_"
+             << "_cmd_" << buffer_desc_info.cmd_index << buffer_desc_info.array_index << "_qs_"
+             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1454,8 +1435,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
     const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << '_' << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_"
-             << buffer_desc_info.binding << "_ai_" << buffer_desc_info.array_index << "_qs_"
+    filename << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
+             << buffer_desc_info.array_index << "_cmd_" << buffer_desc_info.cmd_index << "_qs_"
              << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -1897,9 +1878,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedR
                                                                    uint32_t                   buffer_index)
 {
     std::stringstream filename;
-
-    filename << capture_filename_ << "_";
-
     switch (dumped_command_type)
     {
         case DumpResourcesPipelineStage::kGraphics:
@@ -2628,7 +2606,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
-        filename << capture_filename_ << "_";
         filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_cmd_"
                  << dumped_resources.cmd_index << "_dr.json";
 
