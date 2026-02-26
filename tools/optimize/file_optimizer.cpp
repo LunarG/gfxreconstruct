@@ -27,7 +27,6 @@
 #include "util/logging.h"
 
 #include <string>
-#include <format>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -45,7 +44,7 @@ bool FileOptimizer::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
     if (unreferenced_blocks_.contains(block_index))
     {
         WriteAnnotation(format::kAnnotationLabelRemovedFunctionCall,
-                        std::format("Removed API call: {}", static_cast<uint32_t>(args.call_id)));
+                        std::string("Removed API call: ") + std::to_string(static_cast<uint32_t>(args.call_id)));
 
         // block is filtered out
         ++num_removed_blocks_;
@@ -91,7 +90,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     if (unreferenced_ids_.contains(args.buffer_id))
     {
         return WriteAnnotation(format::kAnnotationLabelRemovedResource,
-                               std::format("Removed buffer {}", args.buffer_id))
+                               std::string("Removed buffer {}") + std::to_string(args.buffer_id))
                    ? kSuccess
                    : kError;
     }
@@ -109,7 +108,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         // replaying an optimized trimmed capture in in alignment with the block index calculated
         // at capture time
         return WriteAnnotation(format::kAnnotationLabelRemovedResource,
-                               std::format("Removed subresource from image {}", args.image_id))
+                               std::string("Removed subresource from image {}") + std::to_string(args.image_id))
                    ? kSuccess
                    : kError;
     }
