@@ -204,8 +204,8 @@ struct Decoded_VkIndirectExecutionSetInfoEXT
 {
     using struct_type = VkIndirectExecutionSetEXT;
 
-    Decoded_VkIndirectExecutionSetPipelineInfoEXT* pPipelineInfo;
-    Decoded_VkIndirectExecutionSetShaderInfoEXT*   pShaderInfo;
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetPipelineInfoEXT>* pPipelineInfo;
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetShaderInfoEXT>*   pShaderInfo;
 };
 
 struct Decoded_VkIndirectExecutionSetCreateInfoEXT
