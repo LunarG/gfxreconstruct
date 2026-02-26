@@ -8,7 +8,7 @@ INSTALLDIR="${INSTALLDIR:-"$HOME/deps"}"
 NPROCS="${NPROCS:-$(getconf _NPROCESSORS_ONLN)}"
 ZSTD=1.5.5
 LZ4=1.10.0
-ZLIB=1.3.1
+ZLIB=1.3.2
 
 mkdir deps-build
 cd deps-build
@@ -20,7 +20,7 @@ export CXXFLAGS="-I$INSTALLDIR/include -Os $CXXFLAGS"
 cat > SHASUMS <<EOF
 9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4  zstd-$ZSTD.tar.gz
 537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b  lz4-$LZ4.tar.gz
-9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23  zlib-$ZLIB.tar.gz
+bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16  zlib-$ZLIB.tar.gz
 EOF
 
 curl -L \
