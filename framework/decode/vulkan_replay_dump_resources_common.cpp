@@ -389,8 +389,8 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
 
-    const uint32_t total_subresources =
-        aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount);
+    const uint32_t total_subresources = GFXRECON_NARROWING_CAST(
+        uint32_t, (aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount)));
 
     data.resize(total_subresources);
 
@@ -1758,7 +1758,8 @@ void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
                           VkPipelineStageFlags               src_stage_mask,
                           VkPipelineStageFlags               dst_stage_mask)
 {
-    device_table.CmdCopyBuffer(command_buffer, src, dst, regions.size(), regions.data());
+    device_table.CmdCopyBuffer(
+        command_buffer, src, dst, GFXRECON_NARROWING_CAST(uint32_t, regions.size()), regions.data());
 
     const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
                                                    nullptr,

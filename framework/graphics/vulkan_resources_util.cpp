@@ -1336,7 +1336,7 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
 void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_buffer,
                                           VkImage                      image,
                                           VkBuffer                     buffer,
-                                          uint32_t                     buffer_offset,
+                                          VkDeviceSize                 buffer_offset,
                                           const VkExtent3D&            extent,
                                           uint32_t                     mip_levels,
                                           uint32_t                     array_layers,
@@ -2263,21 +2263,21 @@ void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>&
     }
 }
 
-bool GetIntersectForSparseMemoryBind(uint32_t               new_bind_resource_offset,
-                                     uint32_t               new_bind_resource_size,
-                                     uint32_t               existing_bind_resource_offset,
-                                     uint32_t               existing_bind_resource_size,
-                                     uint32_t&              intersection_resource_offset,
-                                     uint32_t&              intersection_resource_size,
-                                     std::vector<uint32_t>& remaining_resource_offsets,
-                                     std::vector<uint32_t>& remaining_resource_sizes,
-                                     bool&                  new_bind_range_include_existing_bind_tange,
-                                     bool&                  existing_bind_range_include_new_bind_tange)
+bool GetIntersectForSparseMemoryBind(VkDeviceSize               new_bind_resource_offset,
+                                     VkDeviceSize               new_bind_resource_size,
+                                     VkDeviceSize               existing_bind_resource_offset,
+                                     VkDeviceSize               existing_bind_resource_size,
+                                     VkDeviceSize&              intersection_resource_offset,
+                                     VkDeviceSize&              intersection_resource_size,
+                                     std::vector<VkDeviceSize>& remaining_resource_offsets,
+                                     std::vector<VkDeviceSize>& remaining_resource_sizes,
+                                     bool&                      new_bind_range_include_existing_bind_tange,
+                                     bool&                      existing_bind_range_include_new_bind_tange)
 {
     bool     intersection_exist = false;
-    uint32_t intersection_start = std::max(new_bind_resource_offset, existing_bind_resource_offset);
-    uint32_t intersection_end   = std::min(new_bind_resource_offset + new_bind_resource_size,
-                                         existing_bind_resource_offset + existing_bind_resource_size);
+    VkDeviceSize intersection_start = std::max(new_bind_resource_offset, existing_bind_resource_offset);
+    VkDeviceSize intersection_end   = std::min(new_bind_resource_offset + new_bind_resource_size,
+                                             existing_bind_resource_offset + existing_bind_resource_size);
 
     existing_bind_range_include_new_bind_tange = false;
     new_bind_range_include_existing_bind_tange = false;
@@ -2334,8 +2334,8 @@ void UpdateSparseMemoryBindMap(std::map<VkDeviceSize, VkSparseMemoryBind>& spars
     {
         for (auto item = sparse_memory_bind_map.begin(); item != iterator; item++)
         {
-            uint32_t              intersection_resource_offset, intersection_resource_size;
-            std::vector<uint32_t> remaining_resource_offsets, remaining_resource_sizes;
+            VkDeviceSize              intersection_resource_offset, intersection_resource_size;
+            std::vector<VkDeviceSize> remaining_resource_offsets, remaining_resource_sizes;
             bool new_bind_range_include_existing_bind_tange, existing_bind_range_include_new_bind_tange;
 
             bool is_intersected = GetIntersectForSparseMemoryBind(new_sparse_memory_bind.resourceOffset,

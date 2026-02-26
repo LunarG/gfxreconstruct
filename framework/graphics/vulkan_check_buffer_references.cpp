@@ -34,9 +34,9 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                             decode::HandlePointerDecoder<VkPipeline>* pPipelines,
                             const decode::CommonObjectInfoTable&      object_info_table)
 {
-    uint32_t pipeline_count = pPipelines->GetLength();
+    size_t pipeline_count = pPipelines->GetLength();
 
-    for (uint32_t i = 0; i < pipeline_count; ++i)
+    for (size_t i = 0; i < pipeline_count; ++i)
     {
         auto* pipeline_info = reinterpret_cast<decode::VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
         GFXRECON_ASSERT(pipeline_info);
@@ -92,9 +92,9 @@ void populate_shader_stages(
     decode::HandlePointerDecoder<VkPipeline>*                                        pPipelines,
     const decode::CommonObjectInfoTable&                                             object_info_table)
 {
-    uint32_t pipeline_count = pPipelines->GetLength();
+    size_t pipeline_count = pPipelines->GetLength();
 
-    for (uint32_t i = 0; i < pipeline_count; ++i)
+    for (size_t i = 0; i < pipeline_count; ++i)
     {
         auto* pipeline_info = reinterpret_cast<decode::VulkanPipelineInfo*>(pPipelines->GetConsumerData(i));
 

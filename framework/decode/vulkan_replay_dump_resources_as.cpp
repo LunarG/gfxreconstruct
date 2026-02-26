@@ -415,7 +415,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 const size_t instance_buffer_stride = sizeof(VkAccelerationStructureInstanceKHR);
                 const size_t instance_buffer_size   = range.primitiveCount * instance_buffer_stride;
                 new_instances.instance_count        = range.primitiveCount;
-                new_instances.instance_buffer_size  = instance_buffer_size;
+                GFXRECON_NARROWING_ASSIGN(new_instances.instance_buffer_size, instance_buffer_size);
 
                 size_t                  buffer_device_address_offset;
                 const VulkanBufferInfo* instances_buffer_info =

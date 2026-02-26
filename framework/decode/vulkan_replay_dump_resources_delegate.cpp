@@ -2044,7 +2044,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             GFXRECON_ASSERT(dumped_copy_buffer != nullptr);
 
             GFXRECON_ASSERT(buffer_copy_host_data->regions_data.size() == dumped_copy_buffer->regions.size());
-            for (size_t i = 0; i < buffer_copy_host_data->regions_data.size(); ++i)
+            const auto region_count = GFXRECON_NARROWING_CAST(uint32_t, buffer_copy_host_data->regions_data.size());
+            for (uint32_t i = 0; i < region_count; ++i)
             {
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
                 const std::string filename         = GenerateTransferToBufferRegionFilename(
@@ -2065,7 +2066,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             GFXRECON_ASSERT(dumped_copy_image_to_buffer != nullptr);
 
             GFXRECON_ASSERT(buffer_copy_host_data->regions_data.size() == dumped_copy_image_to_buffer->regions.size());
-            for (size_t i = 0; i < buffer_copy_host_data->regions_data.size(); ++i)
+            const auto region_count = GFXRECON_NARROWING_CAST(uint32_t, buffer_copy_host_data->regions_data.size());
+            for (uint32_t i = 0; i < region_count; ++i)
             {
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
                 const std::string filename         = GenerateTransferToBufferRegionFilename(

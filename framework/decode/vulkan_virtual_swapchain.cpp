@@ -1377,7 +1377,7 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
         VkSubmitInfo submit_info;
         submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submit_info.pNext                = nullptr;
-        submit_info.waitSemaphoreCount   = submit_wait_semaphores.size();
+        GFXRECON_NARROWING_ASSIGN(submit_info.waitSemaphoreCount, submit_wait_semaphores.size());
         submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
         submit_info.pWaitDstStageMask    = submit_wait_stages.data();
         submit_info.commandBufferCount   = 1;
@@ -1401,7 +1401,7 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
 
     if (swapchain_options_.virtual_swapchain_skip_blit)
     {
-        present_info.waitSemaphoreCount = submit_wait_semaphores.size();
+        GFXRECON_NARROWING_ASSIGN(present_info.waitSemaphoreCount, submit_wait_semaphores.size());
         present_info.pWaitSemaphores    = submit_wait_semaphores.data();
     }
     else

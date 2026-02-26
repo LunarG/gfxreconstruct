@@ -291,7 +291,7 @@ static std::string GetVkVersionString(uint32_t api_version)
 }
 
 #if ENABLE_OPENXR_SUPPORT
-static std::string GetXrVersionString(uint32_t api_version)
+static std::string GetXrVersionString(XrVersion api_version)
 {
     uint32_t major = XR_VERSION_MAJOR(api_version);
     uint32_t minor = XR_VERSION_MINOR(api_version);
@@ -321,7 +321,7 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     }
     api_agnostic_stats.compression_type   = compression_type;
     api_agnostic_stats.trim_start_frame   = stat_consumer.GetTrimmedStartFrame();
-    api_agnostic_stats.frame_count        = file_processor.GetCurrentFrameNumber();
+    GFXRECON_NARROWING_ASSIGN(api_agnostic_stats.frame_count, file_processor.GetCurrentFrameNumber());
     api_agnostic_stats.uses_frame_markers = file_processor.UsesFrameMarkers();
     api_agnostic_stats.blank_frame_count  = blank_frame_count;
 }
@@ -642,9 +642,9 @@ nlohmann::json GetVulkanDeviceMemoryStatsJson(uint64_t alloc_count,
 void PrintVulkanDeviceMemoryStatsText(uint64_t alloc_count,
                                       uint64_t min_alloc,
                                       uint64_t max_alloc,
-                                      uint32_t gfx_pipelines,
-                                      uint32_t comp_pipelines,
-                                      uint32_t rt_pipelines)
+                                      uint64_t gfx_pipelines,
+                                      uint64_t comp_pipelines,
+                                      uint64_t rt_pipelines)
 {
     WriteOutput("\nVulkan device memory allocation info:");
     WriteOutput("\tTotal allocations:   %" PRIu64, alloc_count);
@@ -748,12 +748,13 @@ nlohmann::json GetVulkanStatsJson(const gfxrecon::decode::FileProcessor&       f
                     dev_json["extensions"] = dev_info[dev].enabled_extensions;
 
                     // For Verbose, we write out each devices alloc info.
-                    dev_json["memory"] = GetVulkanDeviceMemoryStatsJson(dev_info[dev].allocation_count,
-                                                                        dev_info[dev].min_allocation_size,
-                                                                        dev_info[dev].max_allocation_size,
-                                                                        dev_info[dev].graphics_pipelines,
-                                                                        dev_info[dev].compute_pipelines,
-                                                                        dev_info[dev].raytracing_pipelines);
+                    dev_json["memory"] = GetVulkanDeviceMemoryStatsJson(
+                        dev_info[dev].allocation_count,
+                        dev_info[dev].min_allocation_size,
+                        dev_info[dev].max_allocation_size,
+                        GFXRECON_NARROWING_CAST(uint32_t, dev_info[dev].graphics_pipelines),
+                        GFXRECON_NARROWING_CAST(uint32_t, dev_info[dev].compute_pipelines),
+                        GFXRECON_NARROWING_CAST(uint32_t, dev_info[dev].raytracing_pipelines));
 
                     vulkan_devices.push_back(dev_json);
                 }

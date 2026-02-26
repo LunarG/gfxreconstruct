@@ -89,7 +89,7 @@ class Application final
 
     uint32_t GetCurrentFrameNumber() const
     {
-        return file_processor_->GetCurrentFrameNumber();
+        return GFXRECON_NARROWING_CAST(uint32_t, file_processor_->GetCurrentFrameNumber());
     }
 
   private:
