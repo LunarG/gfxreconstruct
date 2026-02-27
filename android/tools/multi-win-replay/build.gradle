@@ -11,13 +11,13 @@ android {
         versionCode 1
         versionName "1.0"
         ndk {
-            if (project.hasProperty("armeabi-v7a")) {
+            if (providers.gradleProperty("armeabi-v7a").present) {
                 abiFilters 'armeabi-v7a'
-            } else if (project.hasProperty("arm64-v8a")) {
+            } else if (providers.gradleProperty("arm64-v8a").present) {
                 abiFilters 'arm64-v8a'
-            } else if (project.hasProperty("x86")) {
+            } else if (providers.gradleProperty("x86").present) {
                 abiFilters 'x86'
-            } else if (project.hasProperty("x86_64")) {
+            } else if (providers.gradleProperty("x86_64").present) {
                 abiFilters 'x86_64'
             } else {
                 abiFilters 'arm64-v8a', 'x86_64'
