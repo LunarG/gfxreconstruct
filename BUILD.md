@@ -18,6 +18,7 @@ Copyright &copy; 2018-2023 LunarG, Inc.
 4. [Windows Build](#building-for-windows)
 5. [Linux Build](#building-for-linux)
 6. [Android Build](#building-for-android)
+7. [Generating Settings/Options](#generating-settings-options)
 
 ## Introduction
 
@@ -530,3 +531,21 @@ The [Android Vulkan Validation Guide](https://developer.android.com/ndk/guides/g
 
 For more information and detailed examples on building and using GFXReconstruct
 on Android can be found in the [HOWTO_android.md](./HOWTO_android.md) document.
+
+
+## Generating Settings/Options
+
+Because of the many places that settings/options appear throughout the GFXReconstruct
+code base, the settings are all defined in a single JSON and that file is used to
+generate the appropriate usage of those settings throughout the code.
+The relevant files are all located in the `scripts/settingss_options` directory
+and a [README](./scripts/settings_options/README.md) is provided for more information.
+
+Generating settings can be enabled by setting the CMake project option `GENERATE_SETTINGS_OPTIONS` to
+`ON` for desktop builds of GFXReconstruct.
+This will cause CMake to automatically generate any files based on changes to either
+the settings `generate_settings.py` script or the `settings.json` file.
+
+**NOTE:** Generating settings has additional dependencies beyond the base GFXReconstruct
+dependencies.
+Please refer to the [README](./scripts/settings_options/README.md) for more info.

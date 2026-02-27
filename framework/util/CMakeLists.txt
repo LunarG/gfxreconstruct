@@ -76,17 +76,21 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/memory_output_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/monotonic_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/monotonic_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/options.h
+                    ${CMAKE_CURRENT_LIST_DIR}/options.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/output_stream.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager_uffd.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/page_status_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/platform.h
+                    ${CMAKE_CURRENT_LIST_DIR}/settings_common.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/settings_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/settings_manager.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/generated_settings_struct.h
                     ${CMAKE_CURRENT_LIST_DIR}/span.h
-                    ${CMAKE_CURRENT_LIST_DIR}/options.h
-                    ${CMAKE_CURRENT_LIST_DIR}/options.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/spirv_helper.h
                     ${CMAKE_CURRENT_LIST_DIR}/spirv_parsing_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/spirv_parsing_util.cpp
@@ -135,6 +139,22 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
 )
 
+# NOTE: This actually generates many files, but the easiest way to get
+#       CMake to automatically trigger this automatically is to associate
+#       it with these source files.  Also `generated_settings_manager.cpp`
+#       should not be pointed to directly by CMake because it is "#include"
+#       directly into the source file.
+if (GENERATE_SETTINGS_OPTIONS)
+    add_custom_target(generated_settings ALL DEPENDS
+                          COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/scripts/settings_options/generate_settings.py
+                          DEPENDS
+                              ${PROJECT_SOURCE_DIR}/scripts/settings_options/settings.json
+                              ${PROJECT_SOURCE_DIR}/scripts/settings_options/generate_settings.py
+                          BYPRODUCTS
+                              ${PROJECT_SOURCE_DIR}/framework/util/generated_settings_struct.h
+                              ${PROJECT_SOURCE_DIR}/framework/util/generated_settings_manager.cpp)
+    add_dependencies(gfxrecon_util generated_settings)
+endif ()
 
 target_include_directories(gfxrecon_util
                            PUBLIC

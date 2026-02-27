@@ -768,8 +768,6 @@ class D3D12CaptureManager : public ApiCaptureManager
     void OverrideID3D12GraphicsCommandList10_DispatchGraph(ID3D12GraphicsCommandList10_Wrapper* wrapper,
                                                            const D3D12_DISPATCH_GRAPH_DESC*     pDesc);
 
-    virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
-
     inline format::HandleId GetEnableDebugLayerObjectId() { return track_enable_debug_layer_object_id_; }
 
     inline const EnableDREDInfo& GetEnableDREDInfo() { return track_enable_dred_info_; }

@@ -358,6 +358,8 @@ if (UNIX AND NOT APPLE)
     endif ()
 endif (UNIX AND NOT APPLE)
 
+option(GENERATE_SETTINGS_OPTIONS "Generate Settings using the Settings.json input file" OFF)
+
 add_library(windows_specific INTERFACE)
 
 target_compile_definitions(windows_specific INTERFACE
