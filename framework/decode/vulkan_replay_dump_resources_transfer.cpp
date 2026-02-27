@@ -1162,7 +1162,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                          std::forward_as_tuple(*device_table_,
                                                                device_info_,
                                                                before_command,
-                                                               TransferCommandTypes::kCmdBuildAccelerationStructures));
+                                                               TransferCommandTypes::kCmdBuildAccelerationStructures,
+                                                               infoCount));
             GFXRECON_ASSERT(success);
             build_params = static_cast<TransferParams::BuildAccelerationStructure*>(
                 before_command ? new_entry->second.before_params.get() : new_entry->second.params.get());
