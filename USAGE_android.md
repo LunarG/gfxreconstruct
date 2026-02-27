@@ -1001,6 +1001,9 @@ options:
   --screenshot-ignore-FrameBoundaryANDROID
                         If set, frames switced with vkFrameBoundANDROID will
                         be ignored from the screenshot handler.
+  --frame-warm-up-load <load>
+                        Specify workload scale factor for a compute dispatch warm-up pass
+                        run before each frame replay. Default is 0 (disabled).
 ```
 
 The command will force-stop an active replay process before starting the replay

@@ -42,7 +42,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit";
+    "present-mode,--wait-before-first-submit,--frame-warm-up-load";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -81,6 +81,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--wait-before-first-submit <milliseconds>] [--frame-warm-up-load <load>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>]");
 #if !defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <filename>.json]");
@@ -351,6 +352,9 @@ static void PrintUsage(const char* exe_name)
                            "RenderDoc and DXVK case.");
     GFXRECON_WRITE_CONSOLE("  --wait-before-first-submit <milliseconds>");
     GFXRECON_WRITE_CONSOLE("          \t\tWait specified milliseconds before submitting the first command buffer.");
+    GFXRECON_WRITE_CONSOLE("  --frame-warm-up-load <load>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify workload scale factor for a compute dispatch warm-up pass");
+    GFXRECON_WRITE_CONSOLE("          \t\trun before each frame replay. Default is 0 (disabled).");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")

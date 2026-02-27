@@ -4108,6 +4108,30 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     return result;
 }
 
+void VulkanReplayConsumerBase::MaybeWarmUp(const VulkanQueueInfo* queue_info)
+{
+    if (options_.frame_warm_up_load == 0)
+    {
+        return;
+    }
+
+    if (!frame_warm_up_)
+    {
+        frame_warm_up_ = std::make_unique<graphics::VulkanFrameWarmUp>(options_.frame_warm_up_load);
+    }
+
+    VkDevice device = queue_info->parent;
+
+    VulkanDeviceInfo*         device_info = GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id);
+    VulkanPhysicalDeviceInfo* physical_device_info =
+        object_info_table_->GetVkPhysicalDeviceInfo(device_info->parent_id);
+    const VkPhysicalDeviceMemoryProperties& memory_properties = physical_device_info->capture_memory_properties;
+
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info);
+
+    frame_warm_up_->WarmUp(device, memory_properties, queue_info->family_index, queue_info->handle, device_table);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit                           func,
                                                        uint64_t                                    index,
                                                        VkResult                                    original_result,
@@ -4117,6 +4141,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                                                        const VulkanFenceInfo*                      fence_info)
 {
     options_.MaybeWaitBeforeFirstSubmit();
+    MaybeWarmUp(queue_info);
 
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
@@ -4333,6 +4358,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                                                         const VulkanFenceInfo*                       fence_info)
 {
     options_.MaybeWaitBeforeFirstSubmit();
+    MaybeWarmUp(queue_info);
 
     GFXRECON_ASSERT((queue_info != nullptr) && (pSubmits != nullptr));
 

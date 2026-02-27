@@ -162,6 +162,7 @@ const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 
 const char kDumpResourcesArgument[]    = "--dump-resources";
 const char kDumpResourcesDirArgument[] = "--dump-resources-dir";
+const char kFrameWarmUpLoad[]          = "--frame-warm-up-load";
 
 enum class WsiPlatform
 {
@@ -893,6 +894,23 @@ static void GetWaitBeforeFirstSubmit(const gfxrecon::util::ArgumentParser& arg_p
     }
 }
 
+static void GetFrameWarmUpLoad(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_warm_up_load)
+{
+    const auto& value = arg_parser.GetArgumentValue(kFrameWarmUpLoad);
+
+    if (!value.empty())
+    {
+        try
+        {
+            frame_warm_up_load = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid frame warm up load option. Expected format is unsigned integer");
+        }
+    }
+}
+
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
                              const gfxrecon::util::ArgumentParser& arg_parser,
                              const std::string&                    filename)
@@ -1241,6 +1259,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
+    GetFrameWarmUpLoad(arg_parser, replay_options.frame_warm_up_load);
 
     return replay_options;
 }

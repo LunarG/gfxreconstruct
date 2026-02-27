@@ -142,6 +142,7 @@ def CreateReplayParser():
     parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
     parser.add_argument('--quit-after-frame', metavar='FRAME', help='Specify a frame after which replay will terminate.')
     parser.add_argument('--screenshot-ignore-FrameBoundaryANDROID', action='store_true', default=False, help='If set, frames switced with vkFrameBoundANDROID will be ignored from the screenshot handler.')
+    parser.add_argument('--frame-warm-up-load', metavar='LOAD', default=0, help='Specify workload scale factor for a compute dispatch warm-up pass run before each frame replay. Default is 0 (disabled). (forwarded to replay tool)')
 
     return parser
 
@@ -320,6 +321,10 @@ def MakeExtrasString(args):
 
     if args.screenshot_ignore_FrameBoundaryANDROID:
         arg_list.append('--screenshot-ignore-FrameBoundaryANDROID')
+
+    if args.frame_warm_up_load:
+        arg_list.append('--frame-warm-up-load')
+        arg_list.append('{}'.format(args.frame_warm_up_load))
 
     if args.file:
         arg_list.append(args.file)
