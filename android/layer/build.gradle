@@ -2,11 +2,10 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 34
-    namespace 'com.lunarg.gfxreconstruct.layer'
-    ndkVersion '26.3.11579264'
+    namespace = 'com.lunarg.gfxreconstruct.layer'
+    ndkVersion = '26.3.11579264'
     defaultConfig {
         minSdkVersion 26
-        targetSdkVersion 33
         ndk {
             if (project.hasProperty("armeabi-v7a")) {
                 abiFilters 'armeabi-v7a'
@@ -38,7 +37,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     externalNativeBuild {
