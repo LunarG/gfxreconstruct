@@ -1177,6 +1177,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
         }
         GFXRECON_ASSERT(build_params != nullptr);
 
+        build_params->build_infos.reserve(infoCount);
+
         for (uint32_t i = 0; i < infoCount; ++i)
         {
             const auto* dst_as =
