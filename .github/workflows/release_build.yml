@@ -297,9 +297,17 @@ jobs:
         - {
             name: "Upload Android Release Artifact",
             os: ubuntu-latest,
-            artifact: "gfxreconstruct-android",
+            artifact: "gfxreconstruct-android-release",
             command: "zip -r",
             suffix: "android.zip",
+            type: "application/zip"
+          }
+        - {
+            name: "Upload Android Debug Artifact",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-android-debug",
+            command: "zip -r",
+            suffix: "android-debug.zip",
             type: "application/zip"
           }
     steps:
