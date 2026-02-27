@@ -120,6 +120,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define PAGE_GUARD_SIGNAL_HANDLER_WATCHER_UPPER              "PAGE_GUARD_SIGNAL_HANDLER_WATCHER"
 #define PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER "page_guard_signal_handler_watcher_max_restores"
 #define PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_UPPER "PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES"
+#define PAGE_GUARD_USE_LIBSIGCHAIN_LOWER                     "page_guard_use_libsigchain"
+#define PAGE_GUARD_USE_LIBSIGCHAIN_UPPER                     "PAGE_GUARD_USE_LIBSIGCHAIN"
 #define DEBUG_LAYER_LOWER                                    "debug_layer"
 #define DEBUG_LAYER_UPPER                                    "DEBUG_LAYER"
 #define DEBUG_DEVICE_LOST_LOWER                              "debug_device_lost"
@@ -235,6 +237,7 @@ class CaptureSettings
         std::string                  capture_process_name{ "" };
         bool                         runtime_write_assets{ false };
         int                          page_guard_signal_handler_watcher_max_restores{ 1 };
+        bool                         page_guard_use_libsigchain{ true };
         bool                         page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                         page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
         bool                         page_guard_persistent_memory{ false };

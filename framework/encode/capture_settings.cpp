@@ -25,6 +25,7 @@
 #include "encode/capture_settings.h"
 
 #include "util/file_path.h"
+#include "util/logging.h"
 #include "util/strings.h"
 #include "util/options.h"
 #include "util/platform.h"
@@ -94,6 +95,7 @@ const char kPageGuardExternalMemoryEnvVar[]                  = GFXRECON_OPTION_S
 const char kPageGuardUnblockSIGSEGVEnvVar[]                  = GFXRECON_OPTION_STR(PAGE_GUARD_UNBLOCK_SIGSEGV);
 const char kPageGuardSignalHandlerWatcherEnvVar[]            = GFXRECON_OPTION_STR(PAGE_GUARD_SIGNAL_HANDLER_WATCHER);
 const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_OPTION_STR(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES);
+const char kPageGuardUseLibsigchain[]                        = GFXRECON_OPTION_STR(PAGE_GUARD_USE_LIBSIGCHAIN);
 const char kCaptureTriggerEnvVar[]                           = GFXRECON_OPTION_STR(CAPTURE_TRIGGER);
 const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_OPTION_STR(CAPTURE_TRIGGER_FRAMES);
 const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_OPTION_STR(CAPTURE_IUNKNOWN_WRAPPING);
@@ -163,6 +165,7 @@ const std::string kOptionKeyPageGuardExternalMemory                  = std::stri
 const std::string kOptionKeyPageGuardUnblockSigSegV                  = std::string(kSettingsFilter) + std::string(PAGE_GUARD_UNBLOCK_SIGSEGV_LOWER);
 const std::string kOptionKeyPageGuardSignalHandlerWatcher            = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_LOWER);
 const std::string kOptionKeyPageGuardSignalHandlerWatcherMaxRestores = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SIGNAL_HANDLER_WATCHER_MAX_RESTORES_LOWER);
+const std::string kOptionKeyPageGuardUseLibsigchain                  = std::string(kSettingsFilter) + std::string(PAGE_GUARD_USE_LIBSIGCHAIN_LOWER);
 const std::string kDebugLayer                                        = std::string(kSettingsFilter) + std::string(DEBUG_LAYER_LOWER);
 const std::string kDebugDeviceLost                                   = std::string(kSettingsFilter) + std::string(DEBUG_DEVICE_LOST_LOWER);
 const std::string kOptionDisableDxr                                  = std::string(kSettingsFilter) + std::string(DISABLE_DXR_LOWER);
@@ -326,6 +329,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_setti
     LoadSingleOptionEnvVar(options, kPageGuardSignalHandlerWatcherEnvVar, kOptionKeyPageGuardSignalHandlerWatcher);
     LoadSingleOptionEnvVar(
         options, kPageGuardSignalHandlerWatcherMaxRestoresEnvVar, kOptionKeyPageGuardSignalHandlerWatcherMaxRestores);
+    LoadSingleOptionEnvVar(options, kPageGuardUseLibsigchain, kOptionKeyPageGuardUseLibsigchain);
 
     // Debug environment variables
     LoadSingleOptionEnvVar(options, kDebugLayerEnvVar, kDebugLayer);
@@ -524,6 +528,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.page_guard_signal_handler_watcher_max_restores =
         ParseIntegerString(FindOption(options, kOptionKeyPageGuardSignalHandlerWatcherMaxRestores),
                            settings->trace_settings_.page_guard_signal_handler_watcher_max_restores);
+    settings->trace_settings_.page_guard_use_libsigchain = ParseBoolString(
+        FindOption(options, kOptionKeyPageGuardUseLibsigchain), settings->trace_settings_.page_guard_use_libsigchain);
 
     // Debug options
     settings->trace_settings_.debug_layer =

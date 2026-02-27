@@ -85,6 +85,7 @@ class PageGuardManager
     static const bool                 kDefaultUnblockSIGSEGV                  = false;
     static const bool                 kDefaultEnableSignalHandlerWatcher      = false;
     static const int                  kDefaultSignalHandlerWatcherMaxRestores = 1;
+    static const bool                 kDefaultUseLibsigchain                  = true;
     static const MemoryProtectionMode kDefaultMemoryProtMode                  = kMProtectMode;
 
     static const uintptr_t kNullShadowHandle = 0;
@@ -102,6 +103,7 @@ class PageGuardManager
                        bool                 unblock_SIGSEGV,
                        bool                 enable_signal_handler_watcher,
                        int                  signal_handler_watcher_max_restores,
+                       bool                 page_guard_use_libsigchain,
                        MemoryProtectionMode protection_mode);
 
     static void Destroy();
@@ -221,6 +223,7 @@ class PageGuardManager
                      bool                 unblock_SIGSEGV,
                      bool                 enable_signal_handler_watcher,
                      int                  signal_handler_watcher_max_restores,
+                     bool                 page_guard_use_libsigchain,
                      MemoryProtectionMode protection_mode);
 
     ~PageGuardManager();
@@ -243,7 +246,7 @@ class PageGuardManager
 
   private:
     size_t GetSystemPagePotShift() const;
-    void   InitializeSystemExceptionContext();
+    void   InitializeSystemExceptionContext(bool use_libsigchain);
     void   ReleaseTrackedMemory(const MemoryInfo* memory_info);
 
     void AddExceptionHandler();
@@ -285,6 +288,7 @@ class PageGuardManager
     const bool               enable_separate_read_;
     const bool               unblock_sigsegv_;
     bool                     enable_signal_handler_watcher_;
+    bool                     handler_watcher_running_;
     int                      signal_handler_watcher_max_restores_;
 
     // Only applies to WIN32 builds and Linux/Android builds with PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION defined.
@@ -294,6 +298,7 @@ class PageGuardManager
     pthread_t       signal_handler_watcher_thread_;
     static uint32_t signal_handler_watcher_restores_;
 
+    static void  InstallSignalHandlerWatcher();
     static void* SignalHandlerWatcher(void*);
     static bool  CheckSignalHandler();
     void         MarkAllTrackedMemoryAsDirty();

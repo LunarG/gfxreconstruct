@@ -210,7 +210,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 
 PageGuardManager* PageGuardManager::instance_ = nullptr;
 
-void PageGuardManager::InitializeSystemExceptionContext(void)
+void PageGuardManager::InitializeSystemExceptionContext(bool use_libsigchain)
 {
 #if defined(__linux__)
     if (s_alt_stack == nullptr)
@@ -220,15 +220,18 @@ void PageGuardManager::InitializeSystemExceptionContext(void)
     }
 #endif
 #if defined(__ANDROID__)
-    AddSpecialSignalHandlerFn =
-        reinterpret_cast<PFN_AddSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "AddSpecialSignalHandlerFn"));
-    RemoveSpecialSignalHandlerFn =
-        reinterpret_cast<PFN_RemoveSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "RemoveSpecialSignalHandlerFn"));
-    if (!AddSpecialSignalHandlerFn || !RemoveSpecialSignalHandlerFn)
+    if (use_libsigchain)
     {
-        AddSpecialSignalHandlerFn    = nullptr;
-        RemoveSpecialSignalHandlerFn = nullptr;
-        GFXRECON_LOG_WARNING("PageGuardManager could not find libsigchain symbols. Falling back to sigaction.")
+        AddSpecialSignalHandlerFn =
+            reinterpret_cast<PFN_AddSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "AddSpecialSignalHandlerFn"));
+        RemoveSpecialSignalHandlerFn =
+            reinterpret_cast<PFN_RemoveSpecialSignalHandlerFn>(dlsym(RTLD_DEFAULT, "RemoveSpecialSignalHandlerFn"));
+        if (!AddSpecialSignalHandlerFn || !RemoveSpecialSignalHandlerFn)
+        {
+            AddSpecialSignalHandlerFn    = nullptr;
+            RemoveSpecialSignalHandlerFn = nullptr;
+            GFXRECON_LOG_WARNING("PageGuardManager could not find libsigchain symbols. Falling back to sigaction.")
+        }
     }
 #endif
 }
@@ -240,6 +243,7 @@ PageGuardManager::PageGuardManager() :
                      kDefaultEnableSignalHandlerWatcher,
                      kDefaultSignalHandlerWatcherMaxRestores,
                      kDefaultEnableReadWriteSamePage,
+                     kDefaultUseLibsigchain,
                      kDefaultMemoryProtMode)
 {}
 
@@ -249,12 +253,13 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
                                    bool                 unblock_SIGSEGV,
                                    bool                 enable_signal_handler_watcher,
                                    int                  signal_handler_watcher_max_restores,
+                                   bool                 use_libsigchain,
                                    MemoryProtectionMode protection_mode) :
     exception_handler_(nullptr),
     exception_handler_count_(0), system_page_size_(util::platform::GetSystemPageSize()),
     system_page_pot_shift_(GetSystemPagePotShift()), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
-    enable_signal_handler_watcher_(enable_signal_handler_watcher),
+    enable_signal_handler_watcher_(enable_signal_handler_watcher), handler_watcher_running_(false),
     signal_handler_watcher_max_restores_(signal_handler_watcher_max_restores),
     enable_read_write_same_page_(expect_read_write_same_page), protection_mode_(protection_mode), uffd_is_init_(false)
 {
@@ -268,7 +273,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
 
     if (kMProtectMode == protection_mode_)
     {
-        InitializeSystemExceptionContext();
+        InitializeSystemExceptionContext(use_libsigchain);
     }
     else
     {
@@ -277,7 +282,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
             GFXRECON_LOG_ERROR("Userfaultfd initialization failed. Falling back to mprotect memory tracking mode.");
 
             protection_mode_ = kMProtectMode;
-            InitializeSystemExceptionContext();
+            InitializeSystemExceptionContext(use_libsigchain);
         }
     }
 }
@@ -356,12 +361,30 @@ bool PageGuardManager::CheckSignalHandler()
     return false;
 }
 
+void PageGuardManager::InstallSignalHandlerWatcher()
+{
+    GFXRECON_ASSERT(instance_ != nullptr);
+
+    if ((instance_->enable_signal_handler_watcher_ && !instance_->handler_watcher_running_) &&
+#if defined(__ANDROID__)
+        !instance_->libsigchain_active_ &&
+#endif
+        (instance_->signal_handler_watcher_max_restores_ < 0 ||
+         signal_handler_watcher_restores_ < static_cast<uint32_t>(instance_->signal_handler_watcher_max_restores_)))
+    {
+        int ret = pthread_create(&instance_->signal_handler_watcher_thread_, nullptr, SignalHandlerWatcher, nullptr);
+        if (ret)
+        {
+            GFXRECON_LOG_ERROR("Page guard manager failed spawning thread (%s)", strerror(ret));
+        }
+    }
+}
+
 void* PageGuardManager::SignalHandlerWatcher(void* args)
 {
+    instance_->handler_watcher_running_ = true;
+
     while (instance_->enable_signal_handler_watcher_ &&
-#if defined(__ANDROID__)
-           !instance_->libsigchain_active_ &&
-#endif
            (instance_->signal_handler_watcher_max_restores_ < 0 ||
             signal_handler_watcher_restores_ < static_cast<uint32_t>(instance_->signal_handler_watcher_max_restores_)))
     {
@@ -370,6 +393,8 @@ void* PageGuardManager::SignalHandlerWatcher(void* args)
             ++signal_handler_watcher_restores_;
         }
     }
+
+    instance_->handler_watcher_running_ = false;
 
     return NULL;
 }
@@ -381,6 +406,7 @@ void PageGuardManager::Create(bool                 enable_copy_on_map,
                               bool                 unblock_SIGSEGV,
                               bool                 enable_signal_handler_watcher,
                               int                  signal_handler_watcher_max_restores,
+                              bool                 page_guard_use_libsigchain,
                               MemoryProtectionMode protection_mode)
 {
     if (instance_ == nullptr)
@@ -391,21 +417,8 @@ void PageGuardManager::Create(bool                 enable_copy_on_map,
                                          unblock_SIGSEGV,
                                          enable_signal_handler_watcher,
                                          signal_handler_watcher_max_restores,
+                                         page_guard_use_libsigchain,
                                          protection_mode);
-
-#if !defined(WIN32)
-        if (enable_signal_handler_watcher &&
-            (signal_handler_watcher_max_restores < 0 ||
-             signal_handler_watcher_restores_ < static_cast<uint32_t>(signal_handler_watcher_max_restores)))
-        {
-            int ret =
-                pthread_create(&instance_->signal_handler_watcher_thread_, nullptr, SignalHandlerWatcher, nullptr);
-            if (ret)
-            {
-                GFXRECON_LOG_ERROR("Page guard manager failed spawning thread (%s)", strerror(ret));
-            }
-        }
-#endif
     }
     else
     {
@@ -590,6 +603,8 @@ void PageGuardManager::AddExceptionHandler()
             {
                 exception_handler_       = reinterpret_cast<void*>(PageGuardExceptionHandler);
                 exception_handler_count_ = 1;
+
+                InstallSignalHandlerWatcher();
             }
             else
             {
