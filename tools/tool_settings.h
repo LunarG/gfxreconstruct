@@ -82,6 +82,8 @@ const char kOverrideGpuArgument[]                = "--gpu";
 const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
+const char kFrameLoopArgument[]                  = "--frame-loop";
+const char kFrameLoopCountArgument[]             = "--frame-loop-count";
 const char kCaptureOption[]                      = "--capture";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
@@ -310,7 +312,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
 
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    uint32_t    pause_frame = 0;
+    uint32_t    pause_frame = std::numeric_limits<uint32_t>::max();
     const auto& value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
 
     if (arg_parser.IsOptionSet(kPausedOption))
@@ -703,6 +705,57 @@ static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, 
         }
 
         quit_frame = std::stoi(value);
+        return true;
+    }
+
+    return false;
+}
+
+static bool GetFrameLoop(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_number)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kFrameLoopArgument);
+    if (!value.empty())
+    {
+        bool invalid = false;
+
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid frame loop argument \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            invalid = true;
+        }
+
+        if (!invalid)
+        {
+            frame_number = std::stoi(value);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool GetFrameLoopCount(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& loop_count)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kFrameLoopCountArgument);
+    if (!value.empty())
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid frame loop count \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            return false;
+        }
+
+        uint32_t parsed_loop_count = static_cast<uint32_t>(std::stoul(value));
+        if (parsed_loop_count == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid frame loop count \"%s\", which must be greater than zero",
+                                 value.c_str());
+            return false;
+        }
+
+        loop_count = parsed_loop_count;
         return true;
     }
 

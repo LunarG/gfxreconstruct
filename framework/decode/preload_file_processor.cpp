@@ -38,6 +38,10 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
         error_state_ = CheckFileStatus();
         return;
     }
+    if (!advance_to_next_frame)
+    {
+        return;
+    }
 
     // Block processing will update current_frame_number_, so save and restore it,
     // as callers rely on it remaining unchanged by preload.
@@ -155,25 +159,73 @@ bool PreloadFileProcessor::ProcessNextFrame()
 
     PreloadedFrame&   frame          = *(current_preloaded_frame_->get());
     ProcessBlockState process_result = ReplayOneFrame(frame);
-    ++current_preloaded_frame_;
 
-    const bool at_end = (current_preloaded_frame_ == preloaded_frames_.end());
-    if (at_end)
+    return AdvanceToNextFrame(process_result);
+}
+
+bool PreloadFileProcessor::AdvanceToNextFrame(ProcessBlockState process_result)
+{
+    if (advance_to_next_frame)
     {
-        if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+        ++current_preloaded_frame_;
+
+        const bool at_end = (current_preloaded_frame_ == preloaded_frames_.end());
+        if (at_end)
         {
-            // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+            if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+            {
+                // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+                current_frame_number_++;
+            }
+            // Return true only if both the replay and preload are in a continue state
+            return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
+        }
+
+        if (IsFrameBoundary(process_result))
+        {
             current_frame_number_++;
         }
-        // Return true only if both the replay and preload are in a continue state
-        return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
     }
 
-    if (IsFrameBoundary(process_result))
-    {
-        current_frame_number_++;
-    }
     return ContinueProcessing(process_result);
+}
+
+void PreloadFileProcessor::DropStateBlocks()
+{
+    for (auto& preloaded_frame : preloaded_frames_)
+    {
+        ParsedBlockReplay& blocks = preloaded_frame->blocks;
+
+        // Find a state begin marker
+        auto begin_it = std::find_if(blocks.begin(), blocks.end(), [](const ParsedBlock& block_ptr) {
+            return block_ptr.Holds<StateBeginMarkerArgs>();
+        });
+        if (begin_it != blocks.end())
+        {
+            // Find the corresponding state end marker
+            auto end_it = std::find_if(blocks.begin(), blocks.end(), [](const ParsedBlock& block_ptr) {
+                return block_ptr.Holds<StateEndMarkerArgs>();
+            });
+            GFXRECON_ASSERT(end_it != blocks.end());
+            GFXRECON_ASSERT(begin_it < end_it);
+            blocks.erase(begin_it, std::next(end_it));
+
+            GFXRECON_LOG_INFO("Dropped state blocks from preloaded frame %" PRIu64, preloaded_frame->frame_number);
+        }
+    }
+}
+
+bool PreloadFileProcessor::IsFileValid() const
+{
+    if (advance_to_next_frame)
+    {
+        return FileProcessor::IsFileValid();
+    }
+    else
+    {
+        // When not advancing frames, ensure there is at least one preloaded frame to replay
+        return !preloaded_frames_.empty();
+    }
 }
 
 FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame(PreloadedFrame& frame)

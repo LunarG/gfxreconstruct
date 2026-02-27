@@ -44,6 +44,16 @@ class PreloadFileProcessor : public FileProcessor
     // Preloads *count* frames to continuous, expandable memory buffer
     void PreloadNextFrames(size_t count);
 
+    // If true, after replaying a preloaded frame, advance to the next preloaded frame.
+    // Otherwise, remain on the current preloaded frame so that it can be replayed again.
+    void SetAdvanceToNextFrame(bool advance) { advance_to_next_frame = advance; }
+
+    // Drops all blocks within a State Begin/End marker pair from preloaded frames.
+    void DropStateBlocks();
+
+  protected:
+    bool IsFileValid() const override;
+
   private:
     // Read and parse all blocks for one frame
     using ParsedBlockQueue  = std::deque<ParsedBlock>;
@@ -77,10 +87,12 @@ class PreloadFileProcessor : public FileProcessor
 
     ProcessBlockState PreloadBlocksOneFrame(ParsedBlockQueue& frame_queue);
     ProcessBlockState ReplayOneFrame(PreloadedFrame& frame);
+    bool              AdvanceToNextFrame(ProcessBlockState process_result);
 
     PreloadedFrames   preloaded_frames_;
     PreloadedFramesIt current_preloaded_frame_; // Only valid when preloaded_frames_ is not empty
     ProcessBlockState final_process_state_{ ProcessBlockState::kError }; // How the last frame preload ended
+    bool              advance_to_next_frame{ true };
 };
 
 GFXRECON_END_NAMESPACE(decode)
