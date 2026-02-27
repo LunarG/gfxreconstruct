@@ -4737,7 +4737,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineBinaryDataKHR(
         }
         else
         {
-            std::memset(pPipelineBinaryData, static_cast<uint64_t>(reinterpret_cast<uintptr_t>(pInfo->pipelineBinary)), fake_size);
+            std::memset(pPipelineBinaryData, 0xABCD, fake_size);
         }
     }
 //Not a CREATE or DESTROY function
