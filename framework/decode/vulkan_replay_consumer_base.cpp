@@ -2860,6 +2860,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
     }
 
+    const char* capture_surface_extension = "NONE";
     // Transfer requested extensions to filtered extension
     for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
     {
@@ -2875,11 +2876,13 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
         else if (is_surface_extension)
         {
-            if (!override_wsi_extensions)
-            {
-                application_->InitializeWsiContext(current_extension);
-                modified_extensions.push_back(current_extension);
-            }
+            // skip surface extensions here
+            // and add them when processing --wsi option
+            //
+            // if option other than auto is specified
+            // option is set at application creation and
+            // the applications wsi context is already initialized
+            capture_surface_extension = current_extension;
         }
         else
         {
@@ -2887,24 +2890,79 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
     }
 
-    // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
-    // extension without having VK_KHR_surface. Check for that and fix that.
-    if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
-    {
-        for (const std::string& current_extension : modified_extensions)
-        {
-            if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
-            {
-                modified_extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-                break;
-            }
-        }
-    }
-
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
     if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
+
+        // only set a wsi if there was one on the capture device
+        bool surface_at_capture_time = util::platform::StringCompare(capture_surface_extension, "NONE") != 0;
+        if (!override_wsi_extensions && surface_at_capture_time &&
+            options_.swapchain_option != util::SwapchainOption::kOffscreen)
+        {
+            bool picked_surface = false;
+            const std::unordered_map<std::string, std::unique_ptr<gfxrecon::application::WsiContext>>& wsi_contexts =
+                application_->GetWsiContexts();
+            // Try to use the same WSI as at capture time
+            if (graphics::feature_util::IsSupportedExtension(available_extensions, capture_surface_extension))
+            {
+                auto itr_surface_extension = kSurfaceExtensions.find(capture_surface_extension);
+
+                // check if corresponding compositor exists on replay device
+                if (wsi_contexts.find(*itr_surface_extension) != wsi_contexts.end() ||
+                    application_->InitializeWsiContext(itr_surface_extension->c_str()))
+                {
+                    modified_extensions.push_back(itr_surface_extension->c_str());
+                    GFXRECON_LOG_INFO("--wsi auto used same surface as capture: %s", itr_surface_extension->c_str());
+                    picked_surface = true;
+                }
+            }
+
+            // If the same WSI is not available, take any available WSI on the replay device
+            if (!picked_surface)
+            {
+                for (const VkExtensionProperties& current_extension : available_extensions)
+                {
+                    auto itr_surface_extension = kSurfaceExtensions.find(current_extension.extensionName);
+                    if (itr_surface_extension != kSurfaceExtensions.end())
+                    {
+                        // check if compositor exists before pushing back surface extension
+                        if (wsi_contexts.find(*itr_surface_extension) != wsi_contexts.end() ||
+                            application_->InitializeWsiContext(itr_surface_extension->c_str()))
+                        {
+                            modified_extensions.push_back(itr_surface_extension->c_str());
+                            GFXRECON_LOG_INFO("--wsi auto picked surface: %s", itr_surface_extension->c_str());
+                            picked_surface = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // If a WSI was requested at capture time but no WSI is available at replay time, abort
+            if (!picked_surface)
+            {
+                GFXRECON_LOG_FATAL("--wsi auto attempted to pick a surface, but no compositor was available.");
+                std::abort();
+            }
+        }
+        else if (override_wsi_extensions && !surface_at_capture_time)
+        {
+            // warn the user that they set the wsi when no surface was available at capture time
+            GFXRECON_LOG_WARNING(
+                "WSI was specified, but no surface was available at capture time, option will be ignored");
+        }
+
+        if (surface_at_capture_time)
+        {
+            // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
+            // extension without having VK_KHR_surface. Check for that and fix that.
+            if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
+            {
+                modified_extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+            }
+        }
+
         // Always enable portability enumeration if available
         modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
         for (const VkExtensionProperties& extension : available_extensions)

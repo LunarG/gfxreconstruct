@@ -217,8 +217,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache and skip calls to");
     GFXRECON_WRITE_CONSOLE("        \t\tvkGetPipelineCacheData (same as");
     GFXRECON_WRITE_CONSOLE("        \t\t--omit-pipeline-cache-data).");
-    GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform.");
+    GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform. If no surface");
+    GFXRECON_WRITE_CONSOLE("                  \twas available at capture time the option is ignored and no");
+    GFXRECON_WRITE_CONSOLE("                  \tsurface is chosen.");
     GFXRECON_WRITE_CONSOLE("                  \tAvailable platforms are: %s", GetWsiArgString().c_str());
+    GFXRECON_WRITE_CONSOLE("                  \tauto (default): Picks the same surface as at capture time if");
+    GFXRECON_WRITE_CONSOLE("                  \t                possible, otherwise picks a surface available");
+    GFXRECON_WRITE_CONSOLE("                  \t                on the replay device");
     GFXRECON_WRITE_CONSOLE("  --surface-index <N>\tRestrict rendering to the Nth surface object created.");
     GFXRECON_WRITE_CONSOLE("                  \tUsed with captures that include multiple surfaces.  Default");
     GFXRECON_WRITE_CONSOLE("                  \tis -1 (render to all surfaces).");
