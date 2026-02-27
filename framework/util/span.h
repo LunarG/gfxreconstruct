@@ -160,7 +160,7 @@ class DataSpan
 
     // Create an unowned DataSpan from a pointer or a span... OutputSpan is default initialized no reason to double
     // store the span but *do* set the holds to something value.
-    DataSpan(const DataType* data, size_type size) : data_(data), size_(size), store_(OutputSpan())
+    DataSpan(const DataType* data, size_type size) : size_(size), data_(data), store_(OutputSpan())
     {
         GFXRECON_ASSERT((data_ != nullptr) || (size_ == 0));
     }
