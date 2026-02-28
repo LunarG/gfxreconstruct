@@ -302,24 +302,5 @@ size_t FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
     return bytes_to_copy;
 }
 
-bool FStreamFileInputStream::ReadOverwriteSpan(const size_t bytes, DataSpan& span)
-{
-    span.Reset(buffer_pool_, bytes);
-    bool success = ReadBytes(const_cast<char*>(span.GetDataAs<const char>()), bytes);
-    return success;
-}
-
-DataSpan FStreamFileInputStream::ReadSpan(const size_t bytes)
-{
-    auto  pool_entry = buffer_pool_->Acquire(bytes);
-    char* buffer     = pool_entry.GetAs<char>();
-    bool  success    = ReadBytes(buffer, bytes);
-    if (success)
-    {
-        return DataSpan(std::move(pool_entry), bytes);
-    }
-    return DataSpan();
-}
-
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

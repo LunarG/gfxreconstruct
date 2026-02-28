@@ -22,8 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/block_buffer.h"
 #include "decode/file_processor.h"
-
 #include "format/format_util.h"
 #include "util/logging.h"
 
@@ -36,7 +36,7 @@ FileProcessor::FileProcessor() :
     current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
     annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), block_limit_(0),
     pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1),
-    loading_trimmed_capture_state_(false), pool_(util::HeapBufferPool::Create())
+    loading_trimmed_capture_state_(false)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -80,7 +80,7 @@ bool FileProcessor::Initialize(const std::string& filename)
         auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
             HandleBlockReadError(err, message);
         } };
-        block_parser_ = std::make_unique<BlockParser>(err_handler, pool_, compressor_.get());
+        block_parser_    = std::make_unique<BlockParser>(err_handler, compressor_.get());
         if (block_parser_.get() != nullptr)
         {
             // For immediate dispatching (the default mode of operation) no need to defer decompression
@@ -103,6 +103,10 @@ bool FileProcessor::ProcessNextFrame()
         error_state_ = CheckFileStatus();
         return false;
     }
+
+    // The dispatch function is correct only for non-enqueud, and requires decompression during ParsedBlock creation
+    GFXRECON_ASSERT(block_parser_->GetOperationMode() == BlockParser::OperationMode::kImmediate);
+    GFXRECON_ASSERT(block_parser_->GetDecompressionPolicy() == BlockParser::DecompressionPolicy::kAlways);
 
     DispatchVisitor  dispatch_visitor(decoders_, annotation_handler_);
     DispatchFunction dispatch = [this, &dispatch_visitor](uint64_t block_index, ParsedBlock& block) {
@@ -281,14 +285,12 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
                     block_parser.SetFrameNumber(current_frame_number_);
                     // NOTE: upon successful parsing, the block_buffer block data has been moved to the
                     // parsed_block, though the block header is still valid.
-                    ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
+                    ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
 
                     // NOTE: Visitable is either Ready or DeferredDecompression,
                     //       Invalid, Unknown, and Skip are not Visitable
                     if (parsed_block.IsVisitable())
                     {
-                        // Deferred decompress failure implies a late uncovering of an invalid block.
-                        success = parsed_block.Decompress(block_parser); // Safe without testing block state.
                         if (success)
                         {
                             std::visit(process_visitor, parsed_block.GetArgs());
@@ -300,6 +302,7 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
                                     process_visitor.IsFrameDelimiter())
                                 {
                                     process_state = ProcessBlockState::kFrameBoundary;
+                                    parsed_block.SetFrameBoundaryFlag(true);
                                 }
                             }
                             else
@@ -378,23 +381,6 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
         return true;
     }
     return false;
-}
-
-util::DataSpan FileProcessor::ReadSpan(size_t bytes)
-{
-    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
-    // without forcing use of mutability
-    auto& active_file = file_stack_.back().active_file;
-    GFXRECON_ASSERT(active_file);
-
-    util::DataSpan read_span = active_file->ReadSpan(bytes);
-    if (!read_span.empty())
-    {
-        // Note: Should this += read_span.size() instead... though current behavior of ReadSpan doesn't support partial
-        // reads
-        bytes_read_ += bytes;
-    }
-    return read_span;
 }
 
 bool FileProcessor::IsFileValid() const

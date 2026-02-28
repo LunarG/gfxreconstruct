@@ -35,87 +35,86 @@ class FileProcessor;
 class BlockBuffer
 {
   public:
-    using BlockSpan = util::DataSpan::OutputSpan;
-    // Validity means that it has a payload and the payload size is consistent with the block header
-    bool IsValid() const
-    {
-        return (block_span_.data() != nullptr) && (block_span_.size() == (header_.size + sizeof(format::BlockHeader)));
-    }
-    bool IsEof() const { return read_pos_ >= block_span_.size(); }
+    BlockBuffer() = default;
 
+    using BlockSpan = util::Span<const uint8_t>;
+
+    // Readers
     template <typename T>
     bool Read(T& value)
     {
-        bool success = ReadAt<T>(value, read_pos_);
-        if (success)
+        constexpr size_t size = sizeof(value);
+        if (IsAvailable(size))
         {
-            read_pos_ += sizeof(T);
-        }
-        return success;
-    }
-
-    template <typename T>
-    bool ReadAt(T& value, size_t at) const
-    {
-        // Ensure that this isn't being misused.
-        static_assert(std::is_trivially_copyable_v<T>, "Read<T> requires a trivially copyable type");
-        if (IsAvailableAt(sizeof(value), at))
-        {
-            memcpy(&value, block_span_.data() + at, sizeof(value));
+            memcpy(&value, cursor_, size);
+            cursor_ += size;
             return true;
         }
         return false;
     }
 
-    bool ReadBytes(void* buffer, size_t buffer_size);
-    bool ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const;
-
+    // No alignment guarantees, but none are assumed by the callers/decoders, or consumers
+    bool      ReadBytes(void* buffer, size_t buffer_size);
     BlockSpan ReadSpan(size_t buffer_size);
 
-    size_t                     Size() const { return block_span_.size(); }
-    const format::BlockHeader& Header() const { return header_; }
-
-    size_t ReadPos() const { return read_pos_; }
+    // Accessors
+    // Validity means that it has a payload and the payload size is consistent with the block header
+    // Don't assert on header_ as that's what we're checking.
+    bool IsValid() const { return (header_ != nullptr) && (Size() == (Header().size + sizeof(format::BlockHeader))); }
+    const format::BlockHeader& Header() const
+    {
+        AssertValidPointers();
+        return *header_;
+    }
+    size_t Size() const
+    {
+        AssertValidPointers();
+        return end_ - GetData();
+    }
+    const uint8_t* GetData() const
+    {
+        AssertValidPointers();
+        return reinterpret_cast<uint8_t*>(header_);
+    }
+    size_t ReadPos() const
+    {
+        AssertValidPointers();
+        return cursor_ - GetData();
+    }
+    bool IsAvailable(size_t size) const noexcept
+    {
+        AssertValidPointers();
+        return (cursor_ + size) <= end_;
+    }
     size_t Remainder() const
     {
-        GFXRECON_ASSERT(Size() >= read_pos_);
-        return Size() - read_pos_;
+        AssertValidPointers();
+        GFXRECON_ASSERT(end_ >= cursor_);
+        return end_ - cursor_;
     }
 
-    BlockBuffer() = default;
-    BlockBuffer(util::DataSpan&& block_span);
-
-    // TODO: Remove this when preload_file_processor is converted to the common BlockParser/ParsedBlock approach
-    bool IsFrameDelimiter(const FileProcessor& file_processor) const;
-
-    void Reset()
+    // Life cycle management
+    void Reset(uint8_t* data, size_t size);
+    void Clear()
     {
-        read_pos_ = 0;
-        block_span_.Reset();
+        header_ = 0;
+        cursor_ = 0;
+        end_    = nullptr;
     };
 
-    const util::DataSpan&          GetData() const noexcept { return block_span_; }
-    [[nodiscard]] util::DataSpan&& ReleaseData() noexcept { return std::move(block_span_); }
-
-    [[nodiscard]] util::DataSpan MakeNonOwnedData() const noexcept
+  private:
+    // Make sure the accessors are only called when the pointers are valid.
+    // It's an emptpy function on Release, but it should be eliminated by the optimizer.
+    void AssertValidPointers() const
     {
-        return util::DataSpan(block_span_, util::DataSpan::NonOwnedSpanTag{});
+        GFXRECON_ASSERT(header_ != nullptr);
+        GFXRECON_ASSERT(cursor_ != nullptr);
+        GFXRECON_ASSERT(end_ != nullptr);
     }
 
-    bool SeekForward(size_t size);
-    bool SeekTo(size_t size);
-
-    bool IsAvailable(size_t size) const noexcept { return IsAvailableAt(size, read_pos_); }
-    bool IsAvailableAt(size_t size, size_t at) const noexcept { return Size() >= (at + size); }
-
-    util::DataSpan& GetBlockStore() { return block_span_; }
-    void            InitBlockHeaderFromSpan();
-
-  private:
-    size_t              read_pos_{ 0 };
-    uint64_t            block_index_{ 0U };
-    util::DataSpan      block_span_;
-    format::BlockHeader header_;
+    format::BlockHeader* header_{ nullptr };
+    uint8_t*             cursor_{ nullptr };
+    uint8_t*             end_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

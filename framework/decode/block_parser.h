@@ -24,6 +24,7 @@
 #ifndef GFXRECON_DECODE_BLOCK_PARSER_H
 #define GFXRECON_DECODE_BLOCK_PARSER_H
 
+#include "decode/block_allocator.h"
 #include "decode/parsed_block.h"
 #include "util/heap_buffer.h"
 #include "util/file_input_stream.h"
@@ -33,6 +34,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+class BlockBuffer;
 
 // As the BlockParser is doing all the Read/Peek, this is the best place to define this
 // NOTE: Eventually FileInputStream will be an abstract base class for whatever input stream is in use
@@ -65,9 +68,6 @@ enum BlockIOError : int32_t
 
 };
 
-// TODO: Find a better allocator (or improve this one), and share with FileInputStream
-using BufferPool = util::HeapBufferPool::PoolPtr;
-
 class BlockParser
 {
   public:
@@ -83,6 +83,34 @@ class BlockParser
                          // block preload/preparsed content
     };
 
+    // In order to minimize memory migration overhead for both preloaded and non-preloaded dispatch, we have three
+    // modes of operation:
+    //
+    // kImmediate:
+    //     For immediate dispatch of ParsedBlocks. Data remains in the BlockParser working storage only.
+    //
+    // kEnqueued:
+    //     Optimized for enqueued batches of ParsedBlocks for preloaded dispatch.
+    //
+    //     * If the block is uncompressed, raw block data is stored in the BlockBatch, as it may be
+    //       referenced by the DispatchArgs alternative.
+    //     * If the block is compressed, and decompression is deferred, raw block data is stored in the BlockBatch
+    //     * If the block is compressed, and decompression is not deferred, raw block data is stored in the BlockParser
+    //       working storage until decompressed, with the decompressed data stored in the BlockBatch.
+    //
+    // kEnqueueRetained:
+    //     Used for enqueued batches of ParsedBlocks for preloaded dispatch where raw block data is needed after
+    //     parsing (for example to support re-compression) or Decoders/Consumers that want to access the raw block data.
+    //     In this mode, both raw block data and decompressed data are always stored in the BlockBatch.
+    //
+    enum OperationMode
+    {
+        kImmediate,      // Raw block data and decompressed data are in BlockParser working storage only
+        kEnqueued,       // Only store raw block data in BlockBatch when needed for decompressed data or
+                         // reference
+        kEnqueueRetained // Always store raw block data in BlockBatch
+    };
+
     // The threshold is based on a trade off, maximize the number blocks with no decompression at replay
     // but minimizing the memory overhead of the non-deferred compressions.
     //
@@ -91,8 +119,7 @@ class BlockParser
     // the 3/4 of the *bytes* are not decompressed when enqueued, limiting the memory impact
     static constexpr size_t kDeferThreshold = 96 + sizeof(format::BlockHeader); // 83% of blocks, 26% of bytes
 
-    using UncompressedStore = ParsedBlock::UncompressedStore;
-
+    using BlockSpan = ParsedBlock::BlockSpan;
     void SetFrameNumber(uint64_t frame_number) noexcept { frame_number_ = frame_number; }
     void SetBlockIndex(uint64_t block_index) noexcept { block_index_ = block_index; }
 
@@ -103,77 +130,84 @@ class BlockParser
     BlockIOError ReadBlockBuffer(FileInputStreamPtr& input_stream, BlockBuffer& block_buffer);
 
     // Define parsers for every block and sub-block type
-    ParsedBlock ParseBlock(BlockBuffer& block_buffer);
-    ParsedBlock ParseFunctionCall(BlockBuffer& block_buffer);
-    ParsedBlock ParseMethodCall(BlockBuffer& block_buffer);
-    ParsedBlock ParseMetaData(BlockBuffer& block_buffer);
-    ParsedBlock ParseFrameMarker(BlockBuffer& block_buffer);
-    ParsedBlock ParseStateMarker(BlockBuffer& block_buffer);
-    ParsedBlock ParseAnnotation(BlockBuffer& block_buffer);
+    ParsedBlock& ParseBlock(BlockBuffer& block_buffer);
+    ParsedBlock& ParseFunctionCall(BlockBuffer& block_buffer);
+    ParsedBlock& ParseMethodCall(BlockBuffer& block_buffer);
+    ParsedBlock& ParseMetaData(BlockBuffer& block_buffer);
+    ParsedBlock& ParseFrameMarker(BlockBuffer& block_buffer);
+    ParsedBlock& ParseStateMarker(BlockBuffer& block_buffer);
+    ParsedBlock& ParseAnnotation(BlockBuffer& block_buffer);
 
-    void HandleBlockReadError(BlockIOError error_code, const char* error_message);
+    void HandleBlockReadError(BlockIOError error_code, const char* error_message) const;
     void
     WarnUnknownBlock(const BlockBuffer& block_buffer, const char* sub_type_label = nullptr, uint32_t sub_type = 0U);
 
-    bool ShouldDeferDecompression(size_t block_size);
+    bool ShouldDeferDecompression(size_t block_size) const;
 
     // Control use of parser local storage for decompression
-    struct UseParserLocalStorageTag
-    {};
-    bool                           DecompressSpan(const BlockBuffer::BlockSpan&   compressed_span,
-                                                  size_t                          expanded_size,
-                                                  ParsedBlock::UncompressedStore& uncompressed_buffer);
-    ParsedBlock::UncompressedStore DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size);
     const uint8_t*
-    DecompressSpan(const BlockBuffer::BlockSpan& compressed_span, size_t expanded_size, UseParserLocalStorageTag);
+    DecompressSpan(const BlockSpan& compressed_span, size_t expanded_size, uint8_t* uncompressed_buffer) const;
 
     using ErrorHandler = std::function<void(BlockIOError, const char*)>;
-    BlockParser(ErrorHandler err, BufferPool& pool, util::Compressor* compressor) :
-        pool_(pool), err_handler_(std::move(err)), compressor_(compressor)
+    BlockParser(ErrorHandler err, util::Compressor* compressor) : err_handler_(std::move(err)), compressor_(compressor)
     {}
     BlockParser() = delete;
 
     void SetDecompressionPolicy(DecompressionPolicy policy) noexcept { decompression_policy_ = policy; }
-    void SetBlockReferencePolicy(ParsedBlock::BlockReferencePolicy policy) noexcept
-    {
-        block_reference_policy_ = policy;
-    }
+    void SetOperationMode(OperationMode mode) noexcept { operation_mode_ = mode; }
 
-    DecompressionPolicy               GetDecompressionPolicy() const noexcept { return decompression_policy_; }
-    ParsedBlock::BlockReferencePolicy GetBlockReferencePolicy() const noexcept { return block_reference_policy_; }
+    DecompressionPolicy GetDecompressionPolicy() const noexcept { return decompression_policy_; }
+    OperationMode       GetOperationMode() const noexcept { return operation_mode_; }
+
+    BlockAllocator& GetBlockAllocator() noexcept { return block_allocator_; }
 
   private:
+    BlockAllocator::BlockAllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
+
     struct ParameterReadResult
     {
         bool                   success           = true;
         bool                   is_compressed     = false;
         size_t                 uncompressed_size = 0;
-        BlockBuffer::BlockSpan buffer;
+        BlockSpan              buffer;
     };
 
-    template <typename ArgPayload>
-    [[nodiscard]] ParsedBlock MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
-                                                          const BlockParser::ParameterReadResult& result,
-                                                          ArgPayload&&                            args);
+    template <typename... Args>
+    ParsedBlock& EmplaceBlock(Args... args)
+    {
+        const bool add_to_list = operation_mode_ != OperationMode::kImmediate;
+        return block_allocator_.GetCurrentBatch().emplace_block(add_to_list, std::forward<Args>(args)...);
+    }
+
+    template <typename T, typename... Args>
+    T* Emplace(Args... args)
+    {
+        return block_allocator_.GetCurrentBatch().emplace<T>(std::forward<Args>(args)...);
+    }
 
     template <typename ArgPayload>
-    ParsedBlock
-    MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload&& args, bool references_block_buffer = false);
+    [[nodiscard]] ParsedBlock& MakeCompressibleParsedBlock(BlockBuffer&                            block_buffer,
+                                                           const BlockParser::ParameterReadResult& result,
+                                                           ArgPayload*                             args);
+
+    template <typename ArgPayload>
+    ParsedBlock& MakeIncompressibleParsedBlock(BlockBuffer& block_buffer, ArgPayload* args);
 
     constexpr static uint64_t kReadSizeFromBuffer = std::numeric_limits<std::uint64_t>::max();
     ParameterReadResult
     ReadParameterBuffer(const char* label, BlockBuffer& block_buffer, uint64_t uncompressed_size = kReadSizeFromBuffer);
 
-    BufferPool                        pool_; // TODO: Get a better pool, and share with FileInputStream
-    ErrorHandler                      err_handler_;
-    util::Compressor*                 compressor_             = nullptr;
-    DecompressionPolicy               decompression_policy_   = DecompressionPolicy::kAlways;
-    ParsedBlock::BlockReferencePolicy block_reference_policy_ = ParsedBlock::BlockReferencePolicy::kNonOwnedReference;
+    ErrorHandler        err_handler_;
+    util::Compressor*   compressor_           = nullptr;
+    DecompressionPolicy decompression_policy_ = DecompressionPolicy::kAlways;
+    OperationMode       operation_mode_       = OperationMode::kImmediate;
 
     uint64_t frame_number_ = 0;
     uint64_t block_index_  = 0;
 
-    ParsedBlock::UncompressedStore uncompressed_working_buffer_;
+    util::HeapBuffer uncompressed_working_buffer_;
+
+    BlockAllocator block_allocator_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

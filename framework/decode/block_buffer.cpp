@@ -30,19 +30,10 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 bool BlockBuffer::ReadBytes(void* buffer, size_t buffer_size)
 {
-    bool success = ReadBytesAt(buffer, buffer_size, read_pos_);
-    if (success)
+    if (IsAvailable(buffer_size))
     {
-        read_pos_ += buffer_size;
-    }
-    return success;
-}
-
-bool BlockBuffer::ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const
-{
-    if (IsAvailableAt(buffer_size, at))
-    {
-        memcpy(buffer, block_span_.data() + at, buffer_size);
+        memcpy(buffer, cursor_, buffer_size);
+        cursor_ += buffer_size;
         return true;
     }
     return false;
@@ -50,99 +41,29 @@ bool BlockBuffer::ReadBytesAt(void* buffer, size_t buffer_size, size_t at) const
 
 BlockBuffer::BlockSpan BlockBuffer::ReadSpan(size_t buffer_size)
 {
-    if (IsAvailableAt(buffer_size, read_pos_))
+    if (IsAvailable(buffer_size))
     {
-        const auto span_pos = read_pos_;
-        read_pos_ += buffer_size;
-        return BlockSpan(block_span_.data() + span_pos, buffer_size);
+        const auto span_data = cursor_;
+        cursor_ += buffer_size;
+        return BlockSpan(span_data, buffer_size);
     }
     return BlockSpan();
 }
 
-// Create a block buffer from a block data span
-// Reading the block header contents from the given span
-BlockBuffer::BlockBuffer(util::DataSpan&& block_span) : read_pos_{ 0 }, block_span_(std::move(block_span))
+void BlockBuffer::Reset(uint8_t* buffer, size_t size)
 {
-    InitBlockHeaderFromSpan();
-}
-
-void BlockBuffer::InitBlockHeaderFromSpan()
-{
-    GFXRECON_ASSERT(block_span_.IsValid());
-
     // Block header is always at the start of the block span
-    read_pos_          = 0;
-    const bool success = ReadBytes(&header_, sizeof(format::BlockHeader));
+    // and buffer must be allocated to be usable as a blockheader ptr.
+    GFXRECON_ASSERT(util::is_aligned_for<format::BlockHeader>(buffer));
+    GFXRECON_ASSERT(buffer != nullptr);
 
-    // Bad or incorrect block data should never be present
-    const bool correct = success && block_span_.Size() == header_.size + sizeof(header_);
-    assert(correct);
+    // Reset read position and block span
+    header_ = reinterpret_cast<format::BlockHeader*>(buffer);
+    cursor_ = buffer + sizeof(format::BlockHeader);
+    end_    = cursor_ + header_->size;
 
-    // Only report failure to read header, span size validity checks are done later in calling code
-    if (!success)
-    {
-        // Tag block buffer as invalid
-        block_span_.Reset();
-    }
-}
-
-// TODO: Remove this when preload_file_processor is converted to the common BlockParser/ParsedBlock approach
-bool BlockBuffer::IsFrameDelimiter(const FileProcessor& file_processor) const
-{
-    if (!IsValid())
-    {
-        return false;
-    }
-
-    format::BlockType base_type = format::RemoveCompressedBlockBit(header_.type);
-    switch (base_type)
-    {
-        case format::BlockType::kFrameMarkerBlock:
-            format::MarkerType marker_type;
-            if (ReadAt<format::MarkerType>(marker_type, sizeof(format::BlockHeader)))
-            {
-                return file_processor.IsFrameDelimiter(base_type, marker_type);
-            }
-            break;
-        case format::BlockType::kFunctionCallBlock:
-        case format::BlockType::kMethodCallBlock:
-            format::ApiCallId call_id;
-            if (ReadAt<format::ApiCallId>(call_id, sizeof(format::BlockHeader)))
-            {
-                return file_processor.IsFrameDelimiter(call_id);
-            }
-            break;
-
-        case format::BlockType::kUnknownBlock:
-        case format::BlockType::kStateMarkerBlock:
-        case format::BlockType::kMetaDataBlock:
-        case format::BlockType::kCompressedMetaDataBlock:
-        case format::BlockType::kCompressedFunctionCallBlock:
-        case format::BlockType::kCompressedMethodCallBlock:
-        case format::BlockType::kAnnotation:
-            break;
-    }
-    return false;
-}
-
-bool BlockBuffer::SeekForward(size_t size)
-{
-    if (IsAvailable(size))
-    {
-        read_pos_ += size;
-        return true;
-    }
-    return false;
-}
-
-bool BlockBuffer::SeekTo(size_t location)
-{
-    if (location <= Size())
-    {
-        read_pos_ = location;
-        return true;
-    }
-    return false;
+    GFXRECON_ASSERT(Size() == size);
+    GFXRECON_ASSERT(Size() == (Header().size + sizeof(format::BlockHeader)));
 }
 
 GFXRECON_END_NAMESPACE(decode)

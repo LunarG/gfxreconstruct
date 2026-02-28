@@ -45,42 +45,20 @@ class PreloadFileProcessor : public FileProcessor
     void PreloadNextFrames(size_t count);
 
   private:
-    // Read and parse all blocks for one frame
-    using ParsedBlockQueue  = std::deque<ParsedBlock>;
-    using ParsedBlockReplay = std::vector<ParsedBlockQueue::value_type>;
+    constexpr static size_t kWorkingStoreInitialSize = 4096;
 
-    // This structure is optimized for most efficient replay, even at the expense
-    // of some preload overhead
-    struct PreloadedFrame
-    {
-        uint64_t          frame_number;
-        ParsedBlockReplay blocks;
+    void              ResetPreload();
+    ProcessBlockState PreloadBlocksOneFrame();
+    ProcessBlockState ReplayOneFrame();
+    void              EnqueueBatch(BlockBatch::BatchPtr&& batch);
 
-        PreloadedFrame()                                 = default;
-        PreloadedFrame(PreloadedFrame&&) noexcept        = default;
-        PreloadedFrame(const PreloadedFrame&)            = delete;
-        PreloadedFrame& operator=(const PreloadedFrame&) = delete;
-        PreloadedFrame(uint64_t frame_number_) : frame_number(frame_number_), blocks() {}
+    util::HeapBuffer     working_uncompressed_store_;
+    BlockBatch::iterator preload_head_;
+    BlockBatch*          preload_tail_ = nullptr;
+    BlockBatch::iterator replay_cursor_;
 
-        // Blocks must be iterable container of ParsedBlock, with a size() method
-        template <typename Blocks>
-        void AppendMovedBlocks(Blocks& from_blocks)
-        {
-            blocks.reserve(blocks.size() + from_blocks.size());
-            blocks.insert(
-                blocks.end(), std::make_move_iterator(from_blocks.begin()), std::make_move_iterator(from_blocks.end()));
-        }
-    };
-    using PreloadedFramePtr = std::unique_ptr<PreloadedFrame>;
-    using PreloadedFrames   = std::vector<PreloadedFramePtr>;
-    using PreloadedFramesIt = PreloadedFrames::iterator;
-
-    ProcessBlockState PreloadBlocksOneFrame(ParsedBlockQueue& frame_queue);
-    ProcessBlockState ReplayOneFrame(PreloadedFrame& frame);
-
-    PreloadedFrames   preloaded_frames_;
-    PreloadedFramesIt current_preloaded_frame_; // Only valid when preloaded_frames_ is not empty
     ProcessBlockState final_process_state_{ ProcessBlockState::kError }; // How the last frame preload ended
+    bool              preload_contains_frame_stutter_ = false; // Tells replay to ignore first frame boundary block
 };
 
 GFXRECON_END_NAMESPACE(decode)
