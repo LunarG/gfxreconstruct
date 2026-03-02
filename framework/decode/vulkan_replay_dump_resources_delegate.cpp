@@ -2152,19 +2152,19 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             if (dump_build_as->dumped_build_infos[i].dumped_as.as_info->type ==
                 VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
             {
-                return DumpTLASToFile(*dumped_transfer_command,
-                                      dump_build_as->dumped_build_infos[i].dumped_as,
-                                      build_as_host_data->data[i],
-                                      delegate_context.before_command,
-                                      delegate_context.compressor);
+                DumpTLASToFile(*dumped_transfer_command,
+                               dump_build_as->dumped_build_infos[i].dumped_as,
+                               build_as_host_data->data[i],
+                               delegate_context.before_command,
+                               delegate_context.compressor);
             }
             else
             {
-                return DumpBLASToFile(*dumped_transfer_command,
-                                      dump_build_as->dumped_build_infos[i].dumped_as,
-                                      build_as_host_data->data[i],
-                                      delegate_context.before_command,
-                                      delegate_context.compressor);
+                DumpBLASToFile(*dumped_transfer_command,
+                               dump_build_as->dumped_build_infos[i].dumped_as,
+                               build_as_host_data->data[i],
+                               delegate_context.before_command,
+                               delegate_context.compressor);
             }
         }
     }
