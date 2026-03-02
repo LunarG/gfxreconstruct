@@ -1138,14 +1138,15 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
 {
     if (arg_parser.IsOptionSet(kEnumGpuIndices))
     {
-        IDXGIFactory1* factory1 = nullptr;
+        gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1 = nullptr;
 
-        HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+        HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
         if (SUCCEEDED(result))
         {
             gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
-            gfxrecon::graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters);
+            gfxrecon::graphics::dx12::TrackAdapters(
+                result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
 
             WriteOutput("GPU index\tGPU name\tSubSys ID");
             for (size_t index = 0; index < adapters.size(); ++index)
@@ -1161,12 +1162,10 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
                                     adapter.second.adapter_idx,
                                     replay_adapter_str.c_str(),
                                     adapter.second.internal_desc.SubSysId);
-                        adapter.second.adapter->Release();
                         break;
                     }
                 }
             }
-            factory1->Release();
         }
         else
         {

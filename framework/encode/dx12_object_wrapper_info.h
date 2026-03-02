@@ -384,6 +384,14 @@ struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 
 struct ID3D12DeviceInfo : public DxWrapperInfo
 {
+    virtual ~ID3D12DeviceInfo()
+    {
+        if (adapter3 != nullptr)
+        {
+            adapter3->Release();
+        }
+    }
+
     // Track the device's parent adapter as IDXGIAdapter3
     // This enables checking GPU memory availability via QueryVideoMemoryInfo()
     IDXGIAdapter3* adapter3{ nullptr };
