@@ -254,76 +254,69 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
     props.resize(property_count);
     instance_table_->GetPhysicalDeviceQueueFamilyProperties(device_info->parent, &property_count, props.data());
 
-    if (!found_copy_queue_family_.contains(device))
+    uint32_t copy_queue_family_index           = VK_QUEUE_FAMILY_IGNORED;
+    bool     found_copy_queue_family_index     = false;
+    bool     found_transfer_queue_family_index = false;
+    uint32_t transfer_queue_family_index       = 0;
+
+    for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
     {
-        bool     found_copy_queue_family_index     = false;
-        bool     found_transfer_queue_family_index = false;
-        uint32_t copy_queue_family_index           = 0;
-        uint32_t transfer_queue_family_index       = 0;
-        VkQueue  initial_copy_queue                = VK_NULL_HANDLE;
-
-        for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
+        // If we're past the point of enabled queues, then stop looking because we really can't enable
+        // a queue that isn't flagged during device creation.
+        if (queue_family_index >=
+            static_cast<uint32_t>(device_info->enabled_queue_family_flags.queue_family_index_enabled.size()))
         {
-            // If we're past the point of enabled queues, then stop looking because we really can't enable
-            // a queue that isn't flagged during device creation.
-            if (queue_family_index >=
-                static_cast<uint32_t>(device_info->enabled_queue_family_flags.queue_family_index_enabled.size()))
-            {
-                break;
-            }
-
-            if (!device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_family_index])
-            {
-                continue;
-            }
-
-            // If we find a graphics queue, we're good, so grab it and bail
-            if (props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            {
-                copy_queue_family_index       = queue_family_index;
-                found_copy_queue_family_index = true;
-                break;
-            }
-
-            // Find a transfer queue as an alternative, just in case
-            if (!found_transfer_queue_family_index && props[queue_family_index].queueFlags & VK_QUEUE_TRANSFER_BIT)
-            {
-                transfer_queue_family_index       = queue_family_index;
-                found_transfer_queue_family_index = true;
-            }
+            break;
         }
 
-        if (!found_copy_queue_family_index)
+        if (!device_info->enabled_queue_family_flags.queue_family_index_enabled[queue_family_index])
         {
-            if (!found_transfer_queue_family_index)
-            {
-                GFXRECON_LOG_ERROR("Virtual swapchain failed finding a queue to create initial virtual swapchain "
-                                   "images for swapchain (ID = %" PRIu64 ")",
-                                   swapchain_info->capture_id);
-                return VK_ERROR_OUT_OF_HOST_MEMORY;
-            }
-            copy_queue_family_index = transfer_queue_family_index;
-            GFXRECON_LOG_INFO("Virtual swapchain using transfer queue %d to create initial virtual swapchain "
-                              "images for swapchain (ID = %" PRIu64 ")",
-                              transfer_queue_family_index,
-                              swapchain_info->capture_id);
+            continue;
         }
 
-        initial_copy_queue = GetDeviceQueue(device_table_, device_info, copy_queue_family_index, 0);
-        if (initial_copy_queue == VK_NULL_HANDLE)
+        // If we find a graphics queue, we're good, so grab it and bail
+        if (props[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
-            GFXRECON_LOG_ERROR("Virtual swapchain failed getting device queue %d to create initial virtual swapchain "
-                               "images for swapchain (ID = %" PRIu64 ")",
-                               copy_queue_family_index,
-                               swapchain_info->capture_id);
-            return VK_ERROR_INITIALIZATION_FAILED;
+            copy_queue_family_index       = queue_family_index;
+            found_copy_queue_family_index = true;
+            break;
         }
 
-        found_copy_queue_family_.insert(device);
-
-        copy_queue_family_index_[device] = copy_queue_family_index;
-        initial_copy_queue_[device]      = initial_copy_queue;
+        // Find a transfer queue as an alternative, just in case
+        if (!found_transfer_queue_family_index && props[queue_family_index].queueFlags & VK_QUEUE_TRANSFER_BIT)
+        {
+            transfer_queue_family_index       = queue_family_index;
+            found_transfer_queue_family_index = true;
+        }
     }
+
+    if (!found_copy_queue_family_index)
+    {
+        if (!found_transfer_queue_family_index)
+        {
+            GFXRECON_LOG_ERROR("Virtual swapchain failed finding a queue to create initial virtual swapchain "
+                               "images for swapchain (ID = %" PRIu64 ")",
+                               swapchain_info->capture_id);
+            return VK_ERROR_OUT_OF_HOST_MEMORY;
+        }
+        copy_queue_family_index          = transfer_queue_family_index;
+        copy_queue_family_index_[device] = copy_queue_family_index;
+        GFXRECON_LOG_INFO("Virtual swapchain using transfer queue %d to create initial virtual swapchain "
+                          "images for swapchain (ID = %" PRIu64 ")",
+                          transfer_queue_family_index,
+                          swapchain_info->capture_id);
+    }
+
+    VkQueue initial_copy_queue = GetDeviceQueue(device_table_, device_info, copy_queue_family_index, 0);
+    if (initial_copy_queue == VK_NULL_HANDLE)
+    {
+        GFXRECON_LOG_ERROR("Virtual swapchain failed getting device queue %d to create initial virtual swapchain "
+                           "images for swapchain (ID = %" PRIu64 ")",
+                           copy_queue_family_index,
+                           swapchain_info->capture_id);
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+    initial_copy_queue_[device] = initial_copy_queue;
 
     auto& swapchain_resources = swapchain_resources_[swapchain];
     if (!swapchain_resources->forced_offscreen)
@@ -512,7 +505,6 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
             VirtualImage image;
 
             result = CreateVirtualSwapchainImage(device_info, image_create_info, image);
-
             if (result != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Failed to create virtual swapchain image for swapchain (ID = %" PRIu64 ")",
@@ -565,11 +557,13 @@ VkResult VulkanVirtualSwapchain::TransitionSwapchainImage(VkDevice              
     {
         return result;
     }
+
     result = device_table_->ResetFences(device, 1, &copy_fence);
     if (result != VK_SUCCESS)
     {
         return result;
     }
+
     result = device_table_->ResetCommandBuffer(command_buffer, 0);
     if (result != VK_SUCCESS)
     {
@@ -647,6 +641,7 @@ VkResult VulkanVirtualSwapchain::TransitionSwapchainImage(VkDevice              
                            swapchain_info->capture_id);
         return result;
     }
+
     result = device_table_->QueueWaitIdle(initial_copy_queue_[device]);
     if (result != VK_SUCCESS)
     {
@@ -1473,8 +1468,8 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
                                                              VK_PIPELINE_STAGE_TRANSFER_BIT);
 
         VkSubmitInfo submit_info;
-        submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submit_info.pNext                = nullptr;
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.pNext = nullptr;
         GFXRECON_NARROWING_ASSIGN(submit_info.waitSemaphoreCount, submit_wait_semaphores.size());
         submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
         submit_info.pWaitDstStageMask    = submit_wait_stages.data();
@@ -1500,7 +1495,7 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
     if (swapchain_options_.virtual_swapchain_skip_blit)
     {
         GFXRECON_NARROWING_ASSIGN(present_info.waitSemaphoreCount, submit_wait_semaphores.size());
-        present_info.pWaitSemaphores    = submit_wait_semaphores.data();
+        present_info.pWaitSemaphores = submit_wait_semaphores.data();
     }
     else
     {

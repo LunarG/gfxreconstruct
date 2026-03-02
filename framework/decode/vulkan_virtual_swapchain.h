@@ -181,6 +181,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     VkResult CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
                                          const VkImageCreateInfo& image_create_info,
                                          VirtualImage&            image);
+
     VkResult TransitionSwapchainImage(VkDevice                                device,
                                       const VulkanSwapchainKHRInfo*           swapchain_info,
                                       std::unique_ptr<SwapchainResourceData>& swapchain_resources,
@@ -214,9 +215,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         std::vector<OFBSwapchainImageData> image_datas{};
     };
 
-    std::unordered_map<VkDevice, OFBData> ofb_data_;
-
-    std::unordered_set<VkDevice>           found_copy_queue_family_;
+    std::unordered_map<VkDevice, OFBData>  ofb_data_;
     std::unordered_map<VkDevice, uint32_t> copy_queue_family_index_;
     std::unordered_map<VkDevice, VkQueue>  initial_copy_queue_;
 };
