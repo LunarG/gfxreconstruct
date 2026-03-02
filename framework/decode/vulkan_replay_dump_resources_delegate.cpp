@@ -1481,11 +1481,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateBLASJsonInfo(nlohmann::ordered_
         dump_json_.InsertBufferInfo(serialized_entry, dumped_as.serialized_buffer);
     }
 
-    auto& blas_inputs_entry = blas_json_entry["BuildInputs"];
     if (dumped_as.input_buffers.empty())
     {
         return;
     }
+
+    auto& blas_inputs_entry = blas_json_entry["BuildInputs"];
 
     std::string input_type_string;
     if (std::get_if<DumpedAccelerationStructure::DumpedBuildInputTriangleBuffer>(&dumped_as.input_buffers[0]))
