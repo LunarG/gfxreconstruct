@@ -2894,7 +2894,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     std::vector<VkExtensionProperties> available_extensions;
     if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
-
         // only set a wsi if there was one on the capture device
         bool surface_at_capture_time = util::platform::StringCompare(capture_surface_extension, "NONE") != 0;
         if (!override_wsi_extensions && surface_at_capture_time &&
@@ -2903,17 +2902,17 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             bool picked_surface = false;
             const std::unordered_map<std::string, std::unique_ptr<gfxrecon::application::WsiContext>>& wsi_contexts =
                 application_->GetWsiContexts();
+
             // Try to use the same WSI as at capture time
             if (graphics::feature_util::IsSupportedExtension(available_extensions, capture_surface_extension))
             {
                 auto itr_surface_extension = kSurfaceExtensions.find(capture_surface_extension);
 
                 // check if corresponding compositor exists on replay device
-                if (wsi_contexts.find(*itr_surface_extension) != wsi_contexts.end() ||
+                if (wsi_contexts.contains(*itr_surface_extension) ||
                     application_->InitializeWsiContext(itr_surface_extension->c_str()))
                 {
                     modified_extensions.push_back(itr_surface_extension->c_str());
-                    GFXRECON_LOG_INFO("--wsi auto used same surface as capture: %s", itr_surface_extension->c_str());
                     picked_surface = true;
                 }
             }
@@ -2927,11 +2926,13 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                     if (itr_surface_extension != kSurfaceExtensions.end())
                     {
                         // check if compositor exists before pushing back surface extension
-                        if (wsi_contexts.find(*itr_surface_extension) != wsi_contexts.end() ||
+                        if (wsi_contexts.contains(*itr_surface_extension) ||
                             application_->InitializeWsiContext(itr_surface_extension->c_str()))
                         {
                             modified_extensions.push_back(itr_surface_extension->c_str());
-                            GFXRECON_LOG_INFO("--wsi auto picked surface: %s", itr_surface_extension->c_str());
+                            GFXRECON_LOG_INFO("--wsi auto: could not find surface: %s, instead using: %s",
+                                              capture_surface_extension,
+                                              itr_surface_extension->c_str());
                             picked_surface = true;
                             break;
                         }
