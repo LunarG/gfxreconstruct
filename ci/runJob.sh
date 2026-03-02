@@ -10,7 +10,7 @@ if [ -z "${TEST_SUITE_BRANCH:-}" ]; then
   export TEST_SUITE_BRANCH
 fi
 
-git clone --verbose $TEST_SUITE_REPO ci-gfxr-suites
+time git clone --verbose $TEST_SUITE_REPO ci-gfxr-suites
 cd ci-gfxr-suites
 git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
 git fetch origin
