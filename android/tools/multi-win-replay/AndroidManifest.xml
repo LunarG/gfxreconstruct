@@ -13,7 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         android:supportsRtl="true"
-        android:extractNativeLibs="true"
         android:hasCode="true">
         <activity android:name=".ReplayActivity"
                   android:exported="true"
