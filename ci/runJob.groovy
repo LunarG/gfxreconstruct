@@ -47,7 +47,7 @@ def gfxrTestWindows(
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
@@ -113,7 +113,7 @@ def gfxrTestLinux(
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
@@ -179,7 +179,7 @@ def gfxrTestAndroid(
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
@@ -274,7 +274,7 @@ def gfxrTestWindowsManual(
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
@@ -354,7 +354,7 @@ def gfxrTestLinuxManual(
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
@@ -434,7 +434,7 @@ def gfxrTestAndroidManual(
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false

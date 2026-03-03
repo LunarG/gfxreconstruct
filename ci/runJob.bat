@@ -22,13 +22,11 @@ if %clonetestloop% gtr 3 (
 waitfor forever /t 60 2>nul
 goto :clone_suites
 :clone_suites_done
-cd ci-gfxr-suites
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
-git fetch origin
-git checkout %TEST_SUITE_BRANCH% || exit /b
-git submodule update --init --recursive
-git describe --tags --always
-cd ..
+git -C ci-gfxr-suites config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C ci-gfxr-suites fetch origin
+git -C ci-gfxr-suites checkout %TEST_SUITE_BRANCH% || exit /b
+git -C ci-gfxr-suites submodule update --init --recursive
+git -C ci-gfxr-suites describe --tags --always
 
 if not defined TEST_COMMIT (
     if exist test.ref (
@@ -51,15 +49,16 @@ if %clonetestloop% gtr 3 (
 waitfor forever /t 60 2>nul
 goto :clone_tests
 :clone_tests_done
-cd VulkanTests
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
-git fetch origin
-git checkout %TEST_COMMIT% || exit /b
-git submodule update --init --recursive
-git describe --tags --always
-cd ..
+git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C VulkanTests fetch origin
+git -C VulkanTests checkout %TEST_COMMIT% || exit /b
+git -C VulkanTests submodule update --init --recursive
+git -C VulkanTests describe --tags --always
 
 cmake --version
 python --version
 
-python VulkanTests\gfxrecontest.py --compiler vs2022 --build-mode %BUILD_MODE% --bits %BITS% %WINDOWS_TEST_ARGS% --suite "ci-gfxr-suites\%GFXRECON_TRACE_SUBDIR%\%TEST_SUITE%" --trace-dir "%GFXRECON_TRACE_DIR%" --result-dir "%RESULTS_DIR%"
+python -m venv %WORKSPACE%\python-venv
+%WORKSPACE%\python-venv\Scripts\python -m pip install --no-cache-dir -r VulkanTests\requirements.txt > %WORKSPACE%\python-venv.txt 2>&1 || exit /b
+
+%WORKSPACE%\python-venv\Scripts\python VulkanTests\gfxrecontest.py --compiler vs2022 --build-mode %BUILD_MODE% --bits %BITS% %WINDOWS_TEST_ARGS% --suite "ci-gfxr-suites\%GFXRECON_TRACE_SUBDIR%\%TEST_SUITE%" --trace-dir "%GFXRECON_TRACE_DIR%" --result-dir "%RESULTS_DIR%"
