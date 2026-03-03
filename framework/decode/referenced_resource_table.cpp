@@ -174,7 +174,7 @@ void ReferencedResourceTable::AddUserToUser(format::HandleId user_id, format::Ha
                 const auto& child_user_info = child_user_entry->second;
                 GFXRECON_ASSERT(user_info != nullptr && child_user_info != nullptr);
 
-                user_info->users_infos.emplace(child_user_id, child_user_info);
+                user_info->child_infos.emplace(child_user_id, child_user_info);
 
                 // Copy resource and container info from source user to destination user.
                 for (auto& source_resource_info : child_user_info->resource_infos)
@@ -271,13 +271,14 @@ void ReferencedResourceTable::ResetUser(format::HandleId user_id)
 {
     if (user_id != format::kNullHandleId)
     {
-        auto user_entry = users_.find(user_id);
-        if (user_entry != users_.end())
+        if (auto user_entry = users_.find(user_id); user_entry != users_.end())
         {
-            auto& user_info = user_entry->second;
+            const auto& user_info = user_entry->second;
             GFXRECON_ASSERT(user_info != nullptr);
 
-            user_info->resource_infos.clear();
+            // NOTE: we void clearing resources here. this is required for correctness under certain conditions
+            // see: gfxreconstruct/issues/2744
+
             user_info->container_infos.clear();
         }
     }
@@ -405,10 +406,10 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                         {
                             resource_info_ptr->used = true;
 
-                            for (auto& child : resource_info_ptr->child_infos)
+                            for (auto& child_info_weak : resource_info_ptr->child_infos | std::views::values)
                             {
                                 // attempt to lock a std::weak_ptr
-                                if (auto child_info_ptr = child.second.lock())
+                                if (auto child_info_ptr = child_info_weak.lock())
                                 {
                                     child_info_ptr->used = true;
                                 }
@@ -418,7 +419,7 @@ void ReferencedResourceTable::ProcessUserSubmission(format::HandleId user_id)
                 }
             }
 
-            for (auto& child_user_info : user_info->users_infos | std::views::values)
+            for (auto& child_user_info : user_info->child_infos | std::views::values)
             {
                 // attempt to lock a std::weak_ptr
                 if (auto child_user_ptr = child_user_info.lock())
@@ -453,7 +454,7 @@ void ReferencedResourceTable::GetReferencedHandleIds(std::unordered_set<format::
             {
                 referenced_ids->insert(handle_id);
 
-                for (const auto& [child_id, child_info] : resource_entry->child_infos)
+                for (const auto& child_id : resource_entry->child_infos | std::views::keys)
                 {
                     referenced_ids->insert(child_id);
                 }
