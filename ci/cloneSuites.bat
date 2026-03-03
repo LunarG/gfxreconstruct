@@ -1,3 +1,5 @@
+if exist ci-gfxr-suites rmdir /s /q ci-gfxr-suites
+
 if not defined TEST_SUITE_BRANCH (
     if exist test_suite.ref (
         set /p TEST_SUITE_BRANCH=<test_suite.ref
@@ -13,10 +15,12 @@ git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*
 
 git config remote.origin.promisor true
 git config remote.origin.partialclonefilter "blob:none"
+git sparse-checkout init --cone
+git sparse-checkout set %GFXRECON_TRACE_SUBDIR%
 
 set /a clonetestloop=0
 :fetch_suites
-git fetch --depth 1 --verbose origin %TEST_SUITE_BRANCH%
+git fetch --depth 1 --filter=blob:none --verbose origin %TEST_SUITE_BRANCH%
 if %errorlevel% equ 0 goto :fetch_suites_done
 set /a clonetestloop+=1
 if %clonetestloop% gtr 3 (
@@ -27,10 +31,7 @@ waitfor forever /t 60 2>nul
 goto :fetch_suites
 :fetch_suites_done
 
-git sparse-checkout init --cone
-git sparse-checkout set %GFXRECON_TRACE_SUBDIR%
-
 git checkout FETCH_HEAD || exit /b
-git submodule update --init --recursive --depth 1
 git describe --tags --always
+ls .
 cd ..
