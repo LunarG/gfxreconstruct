@@ -9709,7 +9709,7 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     const uint8_t* captured_data = pData->GetPointer();
     VkResult       result        = func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
 
-    if (result == VK_SUCCESS)
+    if (result == VK_SUCCESS && output_data != nullptr & captured_data != nullptr)
     {
         auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
 
