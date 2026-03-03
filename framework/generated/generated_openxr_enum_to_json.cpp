@@ -62,7 +62,868 @@ std::string ExpandFlags(TFlags flags, ToStringFunctionType toString)
 }
 
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrActionType& value)
+void to_json(nlohmann::ordered_json& jdata, const XrAndroidSurfaceSwapchainFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrAndroidSurfaceSwapchainFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrAndroidSurfaceSwapchainFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB:
+                return std::string("XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB");
+            case XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB:
+                return std::string("XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrCompositionLayerFlags_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrCompositionLayerFlags>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT:
+                return std::string("XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT");
+            case XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT:
+                return std::string("XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT");
+            case XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT:
+                return std::string("XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT");
+            case XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT:
+                return std::string("XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrCompositionLayerImageLayoutFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerImageLayoutFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrCompositionLayerImageLayoutFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrCompositionLayerSecureContentFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSecureContentFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrCompositionLayerSecureContentFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB");
+            case XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrCompositionLayerSettingsFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSettingsFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrCompositionLayerSettingsFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB");
+            case XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SUPER_SAMPLING_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SUPER_SAMPLING_BIT_FB");
+            case XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SHARPENING_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SHARPENING_BIT_FB");
+            case XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SHARPENING_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SHARPENING_BIT_FB");
+            case XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META:
+                return std::string("XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrCompositionLayerSpaceWarpInfoFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSpaceWarpInfoFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrCompositionLayerSpaceWarpInfoFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB:
+                return std::string("XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrDebugUtilsMessageSeverityFlagsEXT_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrDebugUtilsMessageSeverityFlagsEXT>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrDebugUtilsMessageSeverityFlagsEXT>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT");
+            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT");
+            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT");
+            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrDebugUtilsMessageTypeFlagsEXT_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrDebugUtilsMessageTypeFlagsEXT>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrDebugUtilsMessageTypeFlagsEXT>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT");
+            case XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT");
+            case XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT");
+            case XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT:
+                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrDigitalLensControlFlagsALMALENCE_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrDigitalLensControlFlagsALMALENCE>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrDigitalLensControlFlagsALMALENCE>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE:
+                return std::string("XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrEnvironmentDepthProviderCreateFlagsMETA_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrEnvironmentDepthProviderCreateFlagsMETA>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrEnvironmentDepthSwapchainCreateFlagsMETA_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrEnvironmentDepthSwapchainCreateFlagsMETA>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrExternalCameraStatusFlagsOCULUS_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrExternalCameraStatusFlagsOCULUS>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrExternalCameraStatusFlagsOCULUS>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS:
+                return std::string("XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS");
+            case XR_EXTERNAL_CAMERA_STATUS_CALIBRATING_BIT_OCULUS:
+                return std::string("XR_EXTERNAL_CAMERA_STATUS_CALIBRATING_BIT_OCULUS");
+            case XR_EXTERNAL_CAMERA_STATUS_CALIBRATION_FAILED_BIT_OCULUS:
+                return std::string("XR_EXTERNAL_CAMERA_STATUS_CALIBRATION_FAILED_BIT_OCULUS");
+            case XR_EXTERNAL_CAMERA_STATUS_CALIBRATED_BIT_OCULUS:
+                return std::string("XR_EXTERNAL_CAMERA_STATUS_CALIBRATED_BIT_OCULUS");
+            case XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS:
+                return std::string("XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrFoveationDynamicFlagsHTC_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrFoveationDynamicFlagsHTC>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrFoveationDynamicFlagsHTC>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC:
+                return std::string("XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC");
+            case XR_FOVEATION_DYNAMIC_CLEAR_FOV_ENABLED_BIT_HTC:
+                return std::string("XR_FOVEATION_DYNAMIC_CLEAR_FOV_ENABLED_BIT_HTC");
+            case XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC:
+                return std::string("XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrFoveationEyeTrackedProfileCreateFlagsMETA_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrFoveationEyeTrackedProfileCreateFlagsMETA>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrFoveationEyeTrackedStateFlagsMETA_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrFoveationEyeTrackedStateFlagsMETA>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrFoveationEyeTrackedStateFlagsMETA>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META:
+                return std::string("XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrFrameEndInfoFlagsML_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrFrameEndInfoFlagsML>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrFrameEndInfoFlagsML>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_FRAME_END_INFO_PROTECTED_BIT_ML:
+                return std::string("XR_FRAME_END_INFO_PROTECTED_BIT_ML");
+            case XR_FRAME_END_INFO_VIGNETTE_BIT_ML:
+                return std::string("XR_FRAME_END_INFO_VIGNETTE_BIT_ML");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrGlobalDimmerFrameEndInfoFlagsML_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrGlobalDimmerFrameEndInfoFlagsML>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrGlobalDimmerFrameEndInfoFlagsML>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML:
+                return std::string("XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrHandTrackingAimFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrHandTrackingAimFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrHandTrackingAimFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB");
+            case XR_HAND_TRACKING_AIM_VALID_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_VALID_BIT_FB");
+            case XR_HAND_TRACKING_AIM_INDEX_PINCHING_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_INDEX_PINCHING_BIT_FB");
+            case XR_HAND_TRACKING_AIM_MIDDLE_PINCHING_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_MIDDLE_PINCHING_BIT_FB");
+            case XR_HAND_TRACKING_AIM_RING_PINCHING_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_RING_PINCHING_BIT_FB");
+            case XR_HAND_TRACKING_AIM_LITTLE_PINCHING_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_LITTLE_PINCHING_BIT_FB");
+            case XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB");
+            case XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB");
+            case XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB:
+                return std::string("XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrInputSourceLocalizedNameFlags_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrInputSourceLocalizedNameFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrInputSourceLocalizedNameFlags>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT:
+                return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT");
+            case XR_INPUT_SOURCE_LOCALIZED_NAME_INTERACTION_PROFILE_BIT:
+                return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_INTERACTION_PROFILE_BIT");
+            case XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT:
+                return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrInstanceCreateFlags_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrInstanceCreateFlags>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrKeyboardTrackingFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrKeyboardTrackingFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrKeyboardTrackingFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_KEYBOARD_TRACKING_EXISTS_BIT_FB:
+                return std::string("XR_KEYBOARD_TRACKING_EXISTS_BIT_FB");
+            case XR_KEYBOARD_TRACKING_LOCAL_BIT_FB:
+                return std::string("XR_KEYBOARD_TRACKING_LOCAL_BIT_FB");
+            case XR_KEYBOARD_TRACKING_REMOTE_BIT_FB:
+                return std::string("XR_KEYBOARD_TRACKING_REMOTE_BIT_FB");
+            case XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB:
+                return std::string("XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrKeyboardTrackingQueryFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrKeyboardTrackingQueryFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrKeyboardTrackingQueryFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB:
+                return std::string("XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB");
+            case XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB:
+                return std::string("XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrLocalizationMapErrorFlagsML_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrLocalizationMapErrorFlagsML>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrLocalizationMapErrorFlagsML>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML:
+                return std::string("XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML");
+            case XR_LOCALIZATION_MAP_ERROR_OUT_OF_MAPPED_AREA_BIT_ML:
+                return std::string("XR_LOCALIZATION_MAP_ERROR_OUT_OF_MAPPED_AREA_BIT_ML");
+            case XR_LOCALIZATION_MAP_ERROR_LOW_FEATURE_COUNT_BIT_ML:
+                return std::string("XR_LOCALIZATION_MAP_ERROR_LOW_FEATURE_COUNT_BIT_ML");
+            case XR_LOCALIZATION_MAP_ERROR_EXCESSIVE_MOTION_BIT_ML:
+                return std::string("XR_LOCALIZATION_MAP_ERROR_EXCESSIVE_MOTION_BIT_ML");
+            case XR_LOCALIZATION_MAP_ERROR_LOW_LIGHT_BIT_ML:
+                return std::string("XR_LOCALIZATION_MAP_ERROR_LOW_LIGHT_BIT_ML");
+            case XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML:
+                return std::string("XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrOverlayMainSessionFlagsEXTX_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrOverlayMainSessionFlagsEXTX>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrOverlayMainSessionFlagsEXTX>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX:
+                return std::string("XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrOverlaySessionCreateFlagsEXTX_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrOverlaySessionCreateFlagsEXTX>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrPassthroughCapabilityFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughCapabilityFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrPassthroughCapabilityFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_PASSTHROUGH_CAPABILITY_BIT_FB:
+                return std::string("XR_PASSTHROUGH_CAPABILITY_BIT_FB");
+            case XR_PASSTHROUGH_CAPABILITY_COLOR_BIT_FB:
+                return std::string("XR_PASSTHROUGH_CAPABILITY_COLOR_BIT_FB");
+            case XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB:
+                return std::string("XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrPassthroughFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrPassthroughFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB:
+                return std::string("XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB");
+            case XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB:
+                return std::string("XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrPassthroughPreferenceFlagsMETA_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughPreferenceFlagsMETA>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrPassthroughPreferenceFlagsMETA>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META:
+                return std::string("XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrPassthroughStateChangedFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrPassthroughStateChangedFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrPassthroughStateChangedFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB:
+                return std::string("XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB");
+            case XR_PASSTHROUGH_STATE_CHANGED_NON_RECOVERABLE_ERROR_BIT_FB:
+                return std::string("XR_PASSTHROUGH_STATE_CHANGED_NON_RECOVERABLE_ERROR_BIT_FB");
+            case XR_PASSTHROUGH_STATE_CHANGED_RECOVERABLE_ERROR_BIT_FB:
+                return std::string("XR_PASSTHROUGH_STATE_CHANGED_RECOVERABLE_ERROR_BIT_FB");
+            case XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB:
+                return std::string("XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounterFlagsMETA_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrPerformanceMetricsCounterFlagsMETA>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrPerformanceMetricsCounterFlagsMETA>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META:
+                return std::string("XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META");
+            case XR_PERFORMANCE_METRICS_COUNTER_UINT_VALUE_VALID_BIT_META:
+                return std::string("XR_PERFORMANCE_METRICS_COUNTER_UINT_VALUE_VALID_BIT_META");
+            case XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META:
+                return std::string("XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrPlaneDetectionCapabilityFlagsEXT_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrPlaneDetectionCapabilityFlagsEXT>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrPlaneDetectionCapabilityFlagsEXT>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT:
+                return std::string("XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT");
+            case XR_PLANE_DETECTION_CAPABILITY_PLANE_HOLES_BIT_EXT:
+                return std::string("XR_PLANE_DETECTION_CAPABILITY_PLANE_HOLES_BIT_EXT");
+            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_CEILING_BIT_EXT:
+                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_CEILING_BIT_EXT");
+            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_FLOOR_BIT_EXT:
+                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_FLOOR_BIT_EXT");
+            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_WALL_BIT_EXT:
+                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_WALL_BIT_EXT");
+            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_PLATFORM_BIT_EXT:
+                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_PLATFORM_BIT_EXT");
+            case XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT:
+                return std::string("XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrPlaneDetectorFlagsEXT_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrPlaneDetectorFlagsEXT>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrPlaneDetectorFlagsEXT>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT:
+                return std::string("XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrRenderModelFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrRenderModelFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrRenderModelFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB:
+                return std::string("XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB");
+            case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB:
+                return std::string("XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSemanticLabelsSupportFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrSemanticLabelsSupportFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrSemanticLabelsSupportFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB:
+                return std::string("XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB");
+            case XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_DESK_TO_TABLE_MIGRATION_BIT_FB:
+                return std::string("XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_DESK_TO_TABLE_MIGRATION_BIT_FB");
+            case XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB:
+                return std::string("XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSessionCreateFlags_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrSessionCreateFlags>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSpaceLocationFlags_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrSpaceLocationFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrSpaceLocationFlags>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_SPACE_LOCATION_ORIENTATION_VALID_BIT:
+                return std::string("XR_SPACE_LOCATION_ORIENTATION_VALID_BIT");
+            case XR_SPACE_LOCATION_POSITION_VALID_BIT:
+                return std::string("XR_SPACE_LOCATION_POSITION_VALID_BIT");
+            case XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT:
+                return std::string("XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT");
+            case XR_SPACE_LOCATION_POSITION_TRACKED_BIT:
+                return std::string("XR_SPACE_LOCATION_POSITION_TRACKED_BIT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSpaceVelocityFlags_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrSpaceVelocityFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrSpaceVelocityFlags>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_SPACE_VELOCITY_LINEAR_VALID_BIT:
+                return std::string("XR_SPACE_VELOCITY_LINEAR_VALID_BIT");
+            case XR_SPACE_VELOCITY_ANGULAR_VALID_BIT:
+                return std::string("XR_SPACE_VELOCITY_ANGULAR_VALID_BIT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSwapchainCreateFlags_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrSwapchainCreateFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrSwapchainCreateFlags>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT:
+                return std::string("XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT");
+            case XR_SWAPCHAIN_CREATE_STATIC_IMAGE_BIT:
+                return std::string("XR_SWAPCHAIN_CREATE_STATIC_IMAGE_BIT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSwapchainCreateFoveationFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrSwapchainCreateFoveationFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrSwapchainCreateFoveationFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB:
+                return std::string("XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB");
+            case XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB:
+                return std::string("XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSwapchainStateFoveationFlagsFB_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrSwapchainStateFoveationFlagsFB>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrSwapchainUsageFlags_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrSwapchainUsageFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrSwapchainUsageFlags>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT:
+                return std::string("XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT");
+            case XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT:
+                return std::string("XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT");
+            case XR_SWAPCHAIN_USAGE_UNORDERED_ACCESS_BIT:
+                return std::string("XR_SWAPCHAIN_USAGE_UNORDERED_ACCESS_BIT");
+            case XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT:
+                return std::string("XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT");
+            case XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT:
+                return std::string("XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT");
+            case XR_SWAPCHAIN_USAGE_SAMPLED_BIT:
+                return std::string("XR_SWAPCHAIN_USAGE_SAMPLED_BIT");
+            case XR_SWAPCHAIN_USAGE_MUTABLE_FORMAT_BIT:
+                return std::string("XR_SWAPCHAIN_USAGE_MUTABLE_FORMAT_BIT");
+            case XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND:
+                return std::string("XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrTriangleMeshFlagsFB_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrTriangleMeshFlagsFB>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrTriangleMeshFlagsFB>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_TRIANGLE_MESH_MUTABLE_BIT_FB:
+                return std::string("XR_TRIANGLE_MESH_MUTABLE_BIT_FB");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrViewStateFlags_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrViewStateFlags>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrViewStateFlags>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_VIEW_STATE_ORIENTATION_VALID_BIT:
+                return std::string("XR_VIEW_STATE_ORIENTATION_VALID_BIT");
+            case XR_VIEW_STATE_POSITION_VALID_BIT:
+                return std::string("XR_VIEW_STATE_POSITION_VALID_BIT");
+            case XR_VIEW_STATE_ORIENTATION_TRACKED_BIT:
+                return std::string("XR_VIEW_STATE_ORIENTATION_TRACKED_BIT");
+            case XR_VIEW_STATE_POSITION_TRACKED_BIT:
+                return std::string("XR_VIEW_STATE_POSITION_TRACKED_BIT");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputStateFlagsMETA_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<XrVirtualKeyboardInputStateFlagsMETA>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<XrVirtualKeyboardInputStateFlagsMETA>(flags), [](XrFlags64 flags)
+    {
+        switch (flags)
+        {
+            case XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META:
+                return std::string("XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrVulkanDeviceCreateFlagsKHR_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrVulkanDeviceCreateFlagsKHR>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const XrVulkanInstanceCreateFlagsKHR_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<XrVulkanInstanceCreateFlagsKHR>(flags));
+}
+
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
+void to_json(nlohmann::ordered_json& jdata, const XrActionType& value)
 {
     switch (value) {
         case XR_ACTION_TYPE_BOOLEAN_INPUT:
@@ -81,12 +942,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrActionType& value)
             jdata = "XR_ACTION_TYPE_VIBRATION_OUTPUT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrAndroidThreadTypeKHR& value)
+void to_json(nlohmann::ordered_json& jdata, const XrAndroidThreadTypeKHR& value)
 {
     switch (value) {
         case XR_ANDROID_THREAD_TYPE_APPLICATION_MAIN_KHR:
@@ -102,12 +963,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrAndroidThreadTypeKHR& va
             jdata = "XR_ANDROID_THREAD_TYPE_RENDERER_WORKER_KHR";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrBlendFactorFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrBlendFactorFB& value)
 {
     switch (value) {
         case XR_BLEND_FACTOR_ZERO_FB:
@@ -129,12 +990,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrBlendFactorFB& value)
             jdata = "XR_BLEND_FACTOR_ONE_MINUS_DST_ALPHA_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrBodyJointFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrBodyJointFB& value)
 {
     switch (value) {
         case XR_BODY_JOINT_ROOT_FB:
@@ -354,24 +1215,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrBodyJointFB& value)
             jdata = "XR_BODY_JOINT_NONE_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrBodyJointSetFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrBodyJointSetFB& value)
 {
     switch (value) {
         case XR_BODY_JOINT_SET_DEFAULT_FB:
             jdata = "XR_BODY_JOINT_SET_DEFAULT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrColorSpaceFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrColorSpaceFB& value)
 {
     switch (value) {
         case XR_COLOR_SPACE_UNMANAGED_FB:
@@ -399,12 +1260,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrColorSpaceFB& value)
             jdata = "XR_COLOR_SPACE_ADOBE_RGB_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrCompareOpFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrCompareOpFB& value)
 {
     switch (value) {
         case XR_COMPARE_OP_NEVER_FB:
@@ -432,12 +1293,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrCompareOpFB& value)
             jdata = "XR_COMPARE_OP_ALWAYS_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentBlendMode& value)
+void to_json(nlohmann::ordered_json& jdata, const XrEnvironmentBlendMode& value)
 {
     switch (value) {
         case XR_ENVIRONMENT_BLEND_MODE_OPAQUE:
@@ -450,12 +1311,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentBlendMode& va
             jdata = "XR_ENVIRONMENT_BLEND_MODE_ALPHA_BLEND";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrExternalCameraAttachedToDeviceOCULUS& value)
+void to_json(nlohmann::ordered_json& jdata, const XrExternalCameraAttachedToDeviceOCULUS& value)
 {
     switch (value) {
         case XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_NONE_OCULUS:
@@ -471,12 +1332,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrExternalCameraAttachedTo
             jdata = "XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_RTOUCH_OCULUS";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeCalibrationStatusML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrEyeCalibrationStatusML& value)
 {
     switch (value) {
         case XR_EYE_CALIBRATION_STATUS_UNKNOWN_ML:
@@ -492,12 +1353,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeCalibrationStatusML& 
             jdata = "XR_EYE_CALIBRATION_STATUS_FINE_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeExpressionHTC& value)
+void to_json(nlohmann::ordered_json& jdata, const XrEyeExpressionHTC& value)
 {
     switch (value) {
         case XR_EYE_EXPRESSION_LEFT_BLINK_HTC:
@@ -543,12 +1404,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeExpressionHTC& value)
             jdata = "XR_EYE_EXPRESSION_RIGHT_UP_HTC";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyePositionFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrEyePositionFB& value)
 {
     switch (value) {
         case XR_EYE_POSITION_LEFT_FB:
@@ -561,12 +1422,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyePositionFB& value)
             jdata = "XR_EYE_POSITION_COUNT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeVisibility& value)
+void to_json(nlohmann::ordered_json& jdata, const XrEyeVisibility& value)
 {
     switch (value) {
         case XR_EYE_VISIBILITY_BOTH:
@@ -579,12 +1440,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrEyeVisibility& value)
             jdata = "XR_EYE_VISIBILITY_RIGHT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidence2FB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFaceConfidence2FB& value)
 {
     switch (value) {
         case XR_FACE_CONFIDENCE2_LOWER_FACE_FB:
@@ -597,12 +1458,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidence2FB& value
             jdata = "XR_FACE_CONFIDENCE2_COUNT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidenceFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFaceConfidenceFB& value)
 {
     switch (value) {
         case XR_FACE_CONFIDENCE_LOWER_FACE_FB:
@@ -615,12 +1476,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceConfidenceFB& value)
             jdata = "XR_FACE_CONFIDENCE_COUNT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpression2FB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFaceExpression2FB& value)
 {
     switch (value) {
         case XR_FACE_EXPRESSION2_BROW_LOWERER_L_FB:
@@ -837,12 +1698,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpression2FB& value
             jdata = "XR_FACE_EXPRESSION2_COUNT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFaceExpressionFB& value)
 {
     switch (value) {
         case XR_FACE_EXPRESSION_BROW_LOWERER_L_FB:
@@ -1038,36 +1899,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionFB& value)
             jdata = "XR_FACE_EXPRESSION_COUNT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSet2FB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFaceExpressionSet2FB& value)
 {
     switch (value) {
         case XR_FACE_EXPRESSION_SET2_DEFAULT_FB:
             jdata = "XR_FACE_EXPRESSION_SET2_DEFAULT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceExpressionSetFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFaceExpressionSetFB& value)
 {
     switch (value) {
         case XR_FACE_EXPRESSION_SET_DEFAULT_FB:
             jdata = "XR_FACE_EXPRESSION_SET_DEFAULT_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceTrackingDataSource2FB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFaceTrackingDataSource2FB& value)
 {
     switch (value) {
         case XR_FACE_TRACKING_DATA_SOURCE2_VISUAL_FB:
@@ -1077,12 +1938,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFaceTrackingDataSource2F
             jdata = "XR_FACE_TRACKING_DATA_SOURCE2_AUDIO_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFacialTrackingTypeHTC& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFacialTrackingTypeHTC& value)
 {
     switch (value) {
         case XR_FACIAL_TRACKING_TYPE_EYE_DEFAULT_HTC:
@@ -1092,12 +1953,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFacialTrackingTypeHTC& v
             jdata = "XR_FACIAL_TRACKING_TYPE_LIP_DEFAULT_HTC";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrForceFeedbackCurlLocationMNDX& value)
+void to_json(nlohmann::ordered_json& jdata, const XrForceFeedbackCurlLocationMNDX& value)
 {
     switch (value) {
         case XR_FORCE_FEEDBACK_CURL_LOCATION_THUMB_CURL_MNDX:
@@ -1116,12 +1977,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrForceFeedbackCurlLocatio
             jdata = "XR_FORCE_FEEDBACK_CURL_LOCATION_LITTLE_CURL_MNDX";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFormFactor& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFormFactor& value)
 {
     switch (value) {
         case XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY:
@@ -1131,12 +1992,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFormFactor& value)
             jdata = "XR_FORM_FACTOR_HANDHELD_DISPLAY";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFoveationDynamicFB& value)
 {
     switch (value) {
         case XR_FOVEATION_DYNAMIC_DISABLED_FB:
@@ -1146,12 +2007,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFB& valu
             jdata = "XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFoveationLevelFB& value)
 {
     switch (value) {
         case XR_FOVEATION_LEVEL_NONE_FB:
@@ -1167,12 +2028,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelFB& value)
             jdata = "XR_FOVEATION_LEVEL_HIGH_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelHTC& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFoveationLevelHTC& value)
 {
     switch (value) {
         case XR_FOVEATION_LEVEL_NONE_HTC:
@@ -1188,12 +2049,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelHTC& value
             jdata = "XR_FOVEATION_LEVEL_HIGH_HTC";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value)
 {
     switch (value) {
         case XR_FOVEATION_MODE_DISABLE_HTC:
@@ -1209,12 +2070,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value)
             jdata = "XR_FOVEATION_MODE_CUSTOM_HTC";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value)
 {
     switch (value) {
         case XR_FUTURE_STATE_PENDING_EXT:
@@ -1224,12 +2085,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value)
             jdata = "XR_FUTURE_STATE_READY_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHandEXT& value)
 {
     switch (value) {
         case XR_HAND_LEFT_EXT:
@@ -1239,12 +2100,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandEXT& value)
             jdata = "XR_HAND_RIGHT_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandForearmJointULTRALEAP& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHandForearmJointULTRALEAP& value)
 {
     switch (value) {
         case XR_HAND_FOREARM_JOINT_PALM_ULTRALEAP:
@@ -1329,12 +2190,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandForearmJointULTRALEA
             jdata = "XR_HAND_FOREARM_JOINT_ELBOW_ULTRALEAP";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHandJointEXT& value)
 {
     switch (value) {
         case XR_HAND_JOINT_PALM_EXT:
@@ -1416,12 +2277,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointEXT& value)
             jdata = "XR_HAND_JOINT_LITTLE_TIP_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointSetEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHandJointSetEXT& value)
 {
     switch (value) {
         case XR_HAND_JOINT_SET_DEFAULT_EXT:
@@ -1431,12 +2292,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointSetEXT& value)
             jdata = "XR_HAND_JOINT_SET_HAND_WITH_FOREARM_ULTRALEAP";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointsMotionRangeEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHandJointsMotionRangeEXT& value)
 {
     switch (value) {
         case XR_HAND_JOINTS_MOTION_RANGE_UNOBSTRUCTED_EXT:
@@ -1446,12 +2307,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointsMotionRangeEXT
             jdata = "XR_HAND_JOINTS_MOTION_RANGE_CONFORMING_TO_CONTROLLER_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandPoseTypeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHandPoseTypeMSFT& value)
 {
     switch (value) {
         case XR_HAND_POSE_TYPE_TRACKED_MSFT:
@@ -1461,12 +2322,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandPoseTypeMSFT& value)
             jdata = "XR_HAND_POSE_TYPE_REFERENCE_OPEN_PALM_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandTrackingDataSourceEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHandTrackingDataSourceEXT& value)
 {
     switch (value) {
         case XR_HAND_TRACKING_DATA_SOURCE_UNOBSTRUCTED_EXT:
@@ -1476,12 +2337,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHandTrackingDataSourceEX
             jdata = "XR_HAND_TRACKING_DATA_SOURCE_CONTROLLER_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHeadsetFitStatusML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrHeadsetFitStatusML& value)
 {
     switch (value) {
         case XR_HEADSET_FIT_STATUS_UNKNOWN_ML:
@@ -1497,12 +2358,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrHeadsetFitStatusML& valu
             jdata = "XR_HEADSET_FIT_STATUS_BAD_FIT_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLipExpressionHTC& value)
+void to_json(nlohmann::ordered_json& jdata, const XrLipExpressionHTC& value)
 {
     switch (value) {
         case XR_LIP_EXPRESSION_JAW_RIGHT_HTC:
@@ -1617,12 +2478,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLipExpressionHTC& value)
             jdata = "XR_LIP_EXPRESSION_TONGUE_DOWNLEFT_MORPH_HTC";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLoaderInterfaceStructs& value)
+void to_json(nlohmann::ordered_json& jdata, const XrLoaderInterfaceStructs& value)
 {
     switch (value) {
         case XR_LOADER_INTERFACE_STRUCT_UNINTIALIZED:
@@ -1644,12 +2505,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLoaderInterfaceStructs& 
             jdata = "XR_LOADER_INTERFACE_STRUCT_API_LAYER_NEXT_INFO";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalDimmingModeMETA& value)
+void to_json(nlohmann::ordered_json& jdata, const XrLocalDimmingModeMETA& value)
 {
     switch (value) {
         case XR_LOCAL_DIMMING_MODE_OFF_META:
@@ -1659,12 +2520,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalDimmingModeMETA& va
             jdata = "XR_LOCAL_DIMMING_MODE_ON_META";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapConfidenceML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrLocalizationMapConfidenceML& value)
 {
     switch (value) {
         case XR_LOCALIZATION_MAP_CONFIDENCE_POOR_ML:
@@ -1680,12 +2541,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapConfidenc
             jdata = "XR_LOCALIZATION_MAP_CONFIDENCE_EXCELLENT_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapStateML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrLocalizationMapStateML& value)
 {
     switch (value) {
         case XR_LOCALIZATION_MAP_STATE_NOT_LOCALIZED_ML:
@@ -1701,12 +2562,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapStateML& 
             jdata = "XR_LOCALIZATION_MAP_STATE_LOCALIZATION_SLEEPING_BEFORE_RETRY_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapTypeML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrLocalizationMapTypeML& value)
 {
     switch (value) {
         case XR_LOCALIZATION_MAP_TYPE_ON_DEVICE_ML:
@@ -1716,12 +2577,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapTypeML& v
             jdata = "XR_LOCALIZATION_MAP_TYPE_CLOUD_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerAprilTagDictML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerAprilTagDictML& value)
 {
     switch (value) {
         case XR_MARKER_APRIL_TAG_DICT_16H5_ML:
@@ -1737,12 +2598,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerAprilTagDictML& va
             jdata = "XR_MARKER_APRIL_TAG_DICT_36H11_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerArucoDictML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerArucoDictML& value)
 {
     switch (value) {
         case XR_MARKER_ARUCO_DICT_4X4_50_ML:
@@ -1794,12 +2655,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerArucoDictML& value
             jdata = "XR_MARKER_ARUCO_DICT_7X7_1000_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCameraML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerDetectorCameraML& value)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_CAMERA_RGB_CAMERA_ML:
@@ -1809,12 +2670,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCameraML& 
             jdata = "XR_MARKER_DETECTOR_CAMERA_WORLD_CAMERAS_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCornerRefineMethodML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerDetectorCornerRefineMethodML& value)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_CORNER_REFINE_METHOD_NONE_ML:
@@ -1830,12 +2691,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorCornerRefi
             jdata = "XR_MARKER_DETECTOR_CORNER_REFINE_METHOD_APRIL_TAG_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFpsML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerDetectorFpsML& value)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_FPS_LOW_ML:
@@ -1851,12 +2712,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFpsML& val
             jdata = "XR_MARKER_DETECTOR_FPS_MAX_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFullAnalysisIntervalML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerDetectorFullAnalysisIntervalML& value)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_FULL_ANALYSIS_INTERVAL_MAX_ML:
@@ -1872,12 +2733,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorFullAnalys
             jdata = "XR_MARKER_DETECTOR_FULL_ANALYSIS_INTERVAL_SLOW_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorProfileML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerDetectorProfileML& value)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_PROFILE_DEFAULT_ML:
@@ -1899,12 +2760,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorProfileML&
             jdata = "XR_MARKER_DETECTOR_PROFILE_CUSTOM_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorResolutionML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerDetectorResolutionML& value)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_RESOLUTION_LOW_ML:
@@ -1917,12 +2778,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorResolution
             jdata = "XR_MARKER_DETECTOR_RESOLUTION_HIGH_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorStatusML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerDetectorStatusML& value)
 {
     switch (value) {
         case XR_MARKER_DETECTOR_STATUS_PENDING_ML:
@@ -1935,12 +2796,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerDetectorStatusML& 
             jdata = "XR_MARKER_DETECTOR_STATUS_ERROR_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerTypeML& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMarkerTypeML& value)
 {
     switch (value) {
         case XR_MARKER_TYPE_ARUCO_ML:
@@ -1962,12 +2823,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMarkerTypeML& value)
             jdata = "XR_MARKER_TYPE_CODE_128_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrMeshComputeLodMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrMeshComputeLodMSFT& value)
 {
     switch (value) {
         case XR_MESH_COMPUTE_LOD_COARSE_MSFT:
@@ -1983,12 +2844,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrMeshComputeLodMSFT& valu
             jdata = "XR_MESH_COMPUTE_LOD_UNLIMITED_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrObjectType& value)
+void to_json(nlohmann::ordered_json& jdata, const XrObjectType& value)
 {
     switch (value) {
         case XR_OBJECT_TYPE_UNKNOWN:
@@ -2091,12 +2952,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrObjectType& value)
             jdata = "XR_OBJECT_TYPE_PLANE_DETECTOR_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughColorLutChannelsMETA& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPassthroughColorLutChannelsMETA& value)
 {
     switch (value) {
         case XR_PASSTHROUGH_COLOR_LUT_CHANNELS_RGB_META:
@@ -2106,12 +2967,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughColorLutChann
             jdata = "XR_PASSTHROUGH_COLOR_LUT_CHANNELS_RGBA_META";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughFormHTC& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPassthroughFormHTC& value)
 {
     switch (value) {
         case XR_PASSTHROUGH_FORM_PLANAR_HTC:
@@ -2121,12 +2982,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughFormHTC& valu
             jdata = "XR_PASSTHROUGH_FORM_PROJECTED_HTC";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughLayerPurposeFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPassthroughLayerPurposeFB& value)
 {
     switch (value) {
         case XR_PASSTHROUGH_LAYER_PURPOSE_RECONSTRUCTION_FB:
@@ -2142,12 +3003,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughLayerPurposeF
             jdata = "XR_PASSTHROUGH_LAYER_PURPOSE_TRACKED_KEYBOARD_MASKED_HANDS_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsDomainEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPerfSettingsDomainEXT& value)
 {
     switch (value) {
         case XR_PERF_SETTINGS_DOMAIN_CPU_EXT:
@@ -2157,12 +3018,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsDomainEXT& v
             jdata = "XR_PERF_SETTINGS_DOMAIN_GPU_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsLevelEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPerfSettingsLevelEXT& value)
 {
     switch (value) {
         case XR_PERF_SETTINGS_LEVEL_POWER_SAVINGS_EXT:
@@ -2178,12 +3039,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsLevelEXT& va
             jdata = "XR_PERF_SETTINGS_LEVEL_BOOST_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsNotificationLevelEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPerfSettingsNotificationLevelEXT& value)
 {
     switch (value) {
         case XR_PERF_SETTINGS_NOTIF_LEVEL_NORMAL_EXT:
@@ -2196,12 +3057,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsNotification
             jdata = "XR_PERF_SETTINGS_NOTIF_LEVEL_IMPAIRED_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsSubDomainEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPerfSettingsSubDomainEXT& value)
 {
     switch (value) {
         case XR_PERF_SETTINGS_SUB_DOMAIN_COMPOSITING_EXT:
@@ -2214,12 +3075,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerfSettingsSubDomainEXT
             jdata = "XR_PERF_SETTINGS_SUB_DOMAIN_THERMAL_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounterUnitMETA& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounterUnitMETA& value)
 {
     switch (value) {
         case XR_PERFORMANCE_METRICS_COUNTER_UNIT_GENERIC_META:
@@ -2238,12 +3099,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounte
             jdata = "XR_PERFORMANCE_METRICS_COUNTER_UNIT_HERTZ_META";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectionStateEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPlaneDetectionStateEXT& value)
 {
     switch (value) {
         case XR_PLANE_DETECTION_STATE_NONE_EXT:
@@ -2262,12 +3123,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectionStateEXT& 
             jdata = "XR_PLANE_DETECTION_STATE_FATAL_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorOrientationEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPlaneDetectorOrientationEXT& value)
 {
     switch (value) {
         case XR_PLANE_DETECTOR_ORIENTATION_HORIZONTAL_UPWARD_EXT:
@@ -2283,12 +3144,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorOrientation
             jdata = "XR_PLANE_DETECTOR_ORIENTATION_ARBITRARY_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorSemanticTypeEXT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrPlaneDetectorSemanticTypeEXT& value)
 {
     switch (value) {
         case XR_PLANE_DETECTOR_SEMANTIC_TYPE_UNDEFINED_EXT:
@@ -2307,12 +3168,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorSemanticTyp
             jdata = "XR_PLANE_DETECTOR_SEMANTIC_TYPE_PLATFORM_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& value)
+void to_json(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& value)
 {
     switch (value) {
         case XR_REFERENCE_SPACE_TYPE_VIEW:
@@ -2337,12 +3198,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& valu
             jdata = "XR_REFERENCE_SPACE_TYPE_LOCALIZATION_MAP_ML";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrReprojectionModeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrReprojectionModeMSFT& value)
 {
     switch (value) {
         case XR_REPROJECTION_MODE_DEPTH_MSFT:
@@ -2358,12 +3219,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrReprojectionModeMSFT& va
             jdata = "XR_REPROJECTION_MODE_ORIENTATION_ONLY_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrResult& value)
+void to_json(nlohmann::ordered_json& jdata, const XrResult& value)
 {
     switch (value) {
         case XR_SUCCESS:
@@ -2706,12 +3567,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrResult& value)
             jdata = "XR_ERROR_FUTURE_INVALID_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComponentTypeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSceneComponentTypeMSFT& value)
 {
     switch (value) {
         case XR_SCENE_COMPONENT_TYPE_INVALID_MSFT:
@@ -2736,12 +3597,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComponentTypeMSFT& 
             jdata = "XR_SCENE_COMPONENT_TYPE_MARKER_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeConsistencyMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSceneComputeConsistencyMSFT& value)
 {
     switch (value) {
         case XR_SCENE_COMPUTE_CONSISTENCY_SNAPSHOT_COMPLETE_MSFT:
@@ -2754,12 +3615,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeConsistencyM
             jdata = "XR_SCENE_COMPUTE_CONSISTENCY_OCCLUSION_OPTIMIZED_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeFeatureMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSceneComputeFeatureMSFT& value)
 {
     switch (value) {
         case XR_SCENE_COMPUTE_FEATURE_PLANE_MSFT:
@@ -2781,12 +3642,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeFeatureMSFT&
             jdata = "XR_SCENE_COMPUTE_FEATURE_MARKER_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeStateMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSceneComputeStateMSFT& value)
 {
     switch (value) {
         case XR_SCENE_COMPUTE_STATE_NONE_MSFT:
@@ -2802,12 +3663,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneComputeStateMSFT& v
             jdata = "XR_SCENE_COMPUTE_STATE_COMPLETED_WITH_ERROR_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerQRCodeSymbolTypeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSceneMarkerQRCodeSymbolTypeMSFT& value)
 {
     switch (value) {
         case XR_SCENE_MARKER_QR_CODE_SYMBOL_TYPE_QR_CODE_MSFT:
@@ -2817,24 +3678,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerQRCodeSymbolT
             jdata = "XR_SCENE_MARKER_QR_CODE_SYMBOL_TYPE_MICRO_QR_CODE_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneMarkerTypeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSceneMarkerTypeMSFT& value)
 {
     switch (value) {
         case XR_SCENE_MARKER_TYPE_QR_CODE_MSFT:
             jdata = "XR_SCENE_MARKER_TYPE_QR_CODE_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneObjectTypeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSceneObjectTypeMSFT& value)
 {
     switch (value) {
         case XR_SCENE_OBJECT_TYPE_UNCATEGORIZED_MSFT:
@@ -2859,12 +3720,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSceneObjectTypeMSFT& val
             jdata = "XR_SCENE_OBJECT_TYPE_INFERRED_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrScenePlaneAlignmentTypeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrScenePlaneAlignmentTypeMSFT& value)
 {
     switch (value) {
         case XR_SCENE_PLANE_ALIGNMENT_TYPE_NON_ORTHOGONAL_MSFT:
@@ -2877,12 +3738,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrScenePlaneAlignmentTypeM
             jdata = "XR_SCENE_PLANE_ALIGNMENT_TYPE_VERTICAL_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSessionState& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSessionState& value)
 {
     switch (value) {
         case XR_SESSION_STATE_UNKNOWN:
@@ -2913,12 +3774,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSessionState& value)
             jdata = "XR_SESSION_STATE_EXITING";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceComponentTypeFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSpaceComponentTypeFB& value)
 {
     switch (value) {
         case XR_SPACE_COMPONENT_TYPE_LOCATABLE_FB:
@@ -2949,12 +3810,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceComponentTypeFB& va
             jdata = "XR_SPACE_COMPONENT_TYPE_TRIANGLE_MESH_META";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpacePersistenceModeFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSpacePersistenceModeFB& value)
 {
     switch (value) {
         case XR_SPACE_PERSISTENCE_MODE_INVALID_FB:
@@ -2964,24 +3825,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpacePersistenceModeFB& 
             jdata = "XR_SPACE_PERSISTENCE_MODE_INDEFINITE_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceQueryActionFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSpaceQueryActionFB& value)
 {
     switch (value) {
         case XR_SPACE_QUERY_ACTION_LOAD_FB:
             jdata = "XR_SPACE_QUERY_ACTION_LOAD_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceStorageLocationFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSpaceStorageLocationFB& value)
 {
     switch (value) {
         case XR_SPACE_STORAGE_LOCATION_INVALID_FB:
@@ -2994,12 +3855,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceStorageLocationFB& 
             jdata = "XR_SPACE_STORAGE_LOCATION_CLOUD_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpatialGraphNodeTypeMSFT& value)
+void to_json(nlohmann::ordered_json& jdata, const XrSpatialGraphNodeTypeMSFT& value)
 {
     switch (value) {
         case XR_SPATIAL_GRAPH_NODE_TYPE_STATIC_MSFT:
@@ -3009,12 +3870,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrSpatialGraphNodeTypeMSFT
             jdata = "XR_SPATIAL_GRAPH_NODE_TYPE_DYNAMIC_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value)
+void to_json(nlohmann::ordered_json& jdata, const XrStructureType& value)
 {
     switch (value) {
         case XR_TYPE_UNKNOWN:
@@ -4086,24 +4947,24 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value)
             jdata = "XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsDomainQCOM& value)
+void to_json(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsDomainQCOM& value)
 {
     switch (value) {
         case XR_TRACKING_OPTIMIZATION_SETTINGS_DOMAIN_ALL_QCOM:
             jdata = "XR_TRACKING_OPTIMIZATION_SETTINGS_DOMAIN_ALL_QCOM";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsHintQCOM& value)
+void to_json(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSettingsHintQCOM& value)
 {
     switch (value) {
         case XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_NONE_QCOM:
@@ -4122,12 +4983,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrTrackingOptimizationSett
             jdata = "XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_HIGH_POWER_PRIORIZATION_QCOM";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrViewConfigurationType& value)
+void to_json(nlohmann::ordered_json& jdata, const XrViewConfigurationType& value)
 {
     switch (value) {
         case XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO:
@@ -4143,12 +5004,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrViewConfigurationType& v
             jdata = "XR_VIEW_CONFIGURATION_TYPE_SECONDARY_MONO_FIRST_PERSON_OBSERVER_MSFT";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputSourceMETA& value)
+void to_json(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputSourceMETA& value)
 {
     switch (value) {
         case XR_VIRTUAL_KEYBOARD_INPUT_SOURCE_CONTROLLER_RAY_LEFT_META:
@@ -4176,12 +5037,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputSour
             jdata = "XR_VIRTUAL_KEYBOARD_INPUT_SOURCE_HAND_DIRECT_INDEX_TIP_RIGHT_META";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardLocationTypeMETA& value)
+void to_json(nlohmann::ordered_json& jdata, const XrVirtualKeyboardLocationTypeMETA& value)
 {
     switch (value) {
         case XR_VIRTUAL_KEYBOARD_LOCATION_TYPE_CUSTOM_META:
@@ -4194,12 +5055,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardLocationT
             jdata = "XR_VIRTUAL_KEYBOARD_LOCATION_TYPE_DIRECT_META";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVisibilityMaskTypeKHR& value)
+void to_json(nlohmann::ordered_json& jdata, const XrVisibilityMaskTypeKHR& value)
 {
     switch (value) {
         case XR_VISIBILITY_MASK_TYPE_HIDDEN_TRIANGLE_MESH_KHR:
@@ -4212,12 +5073,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrVisibilityMaskTypeKHR& v
             jdata = "XR_VISIBILITY_MASK_TYPE_LINE_LOOP_KHR";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrWindingOrderFB& value)
+void to_json(nlohmann::ordered_json& jdata, const XrWindingOrderFB& value)
 {
     switch (value) {
         case XR_WINDING_ORDER_UNKNOWN_FB:
@@ -4230,871 +5091,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrWindingOrderFB& value)
             jdata = "XR_WINDING_ORDER_CCW_FB";
             break;
         default:
-            jdata = to_hex_fixed_width(value);
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
             break;
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const XrAndroidSurfaceSwapchainFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrAndroidSurfaceSwapchainFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrAndroidSurfaceSwapchainFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB:
-                return std::string("XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB");
-            case XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB:
-                return std::string("XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerFlags_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerFlags>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrCompositionLayerFlags>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT:
-                return std::string("XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT");
-            case XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT:
-                return std::string("XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT");
-            case XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT:
-                return std::string("XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT");
-            case XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT:
-                return std::string("XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerImageLayoutFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerImageLayoutFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrCompositionLayerImageLayoutFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerSecureContentFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSecureContentFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrCompositionLayerSecureContentFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB");
-            case XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerSettingsFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSettingsFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrCompositionLayerSettingsFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB");
-            case XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SUPER_SAMPLING_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SUPER_SAMPLING_BIT_FB");
-            case XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SHARPENING_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SHARPENING_BIT_FB");
-            case XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SHARPENING_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SHARPENING_BIT_FB");
-            case XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META:
-                return std::string("XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrCompositionLayerSpaceWarpInfoFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrCompositionLayerSpaceWarpInfoFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrCompositionLayerSpaceWarpInfoFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB:
-                return std::string("XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrDebugUtilsMessageSeverityFlagsEXT_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrDebugUtilsMessageSeverityFlagsEXT>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrDebugUtilsMessageSeverityFlagsEXT>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT");
-            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT");
-            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT");
-            case XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrDebugUtilsMessageTypeFlagsEXT_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrDebugUtilsMessageTypeFlagsEXT>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrDebugUtilsMessageTypeFlagsEXT>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT");
-            case XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT");
-            case XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT");
-            case XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT:
-                return std::string("XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrDigitalLensControlFlagsALMALENCE_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrDigitalLensControlFlagsALMALENCE>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrDigitalLensControlFlagsALMALENCE>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE:
-                return std::string("XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentDepthProviderCreateFlagsMETA_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrEnvironmentDepthProviderCreateFlagsMETA>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrEnvironmentDepthSwapchainCreateFlagsMETA_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrEnvironmentDepthSwapchainCreateFlagsMETA>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrExternalCameraStatusFlagsOCULUS_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrExternalCameraStatusFlagsOCULUS>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrExternalCameraStatusFlagsOCULUS>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS:
-                return std::string("XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS");
-            case XR_EXTERNAL_CAMERA_STATUS_CALIBRATING_BIT_OCULUS:
-                return std::string("XR_EXTERNAL_CAMERA_STATUS_CALIBRATING_BIT_OCULUS");
-            case XR_EXTERNAL_CAMERA_STATUS_CALIBRATION_FAILED_BIT_OCULUS:
-                return std::string("XR_EXTERNAL_CAMERA_STATUS_CALIBRATION_FAILED_BIT_OCULUS");
-            case XR_EXTERNAL_CAMERA_STATUS_CALIBRATED_BIT_OCULUS:
-                return std::string("XR_EXTERNAL_CAMERA_STATUS_CALIBRATED_BIT_OCULUS");
-            case XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS:
-                return std::string("XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFlagsHTC_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrFoveationDynamicFlagsHTC>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrFoveationDynamicFlagsHTC>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC:
-                return std::string("XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC");
-            case XR_FOVEATION_DYNAMIC_CLEAR_FOV_ENABLED_BIT_HTC:
-                return std::string("XR_FOVEATION_DYNAMIC_CLEAR_FOV_ENABLED_BIT_HTC");
-            case XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC:
-                return std::string("XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationEyeTrackedProfileCreateFlagsMETA_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrFoveationEyeTrackedProfileCreateFlagsMETA>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationEyeTrackedStateFlagsMETA_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrFoveationEyeTrackedStateFlagsMETA>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrFoveationEyeTrackedStateFlagsMETA>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META:
-                return std::string("XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrFrameEndInfoFlagsML_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrFrameEndInfoFlagsML>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrFrameEndInfoFlagsML>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_FRAME_END_INFO_PROTECTED_BIT_ML:
-                return std::string("XR_FRAME_END_INFO_PROTECTED_BIT_ML");
-            case XR_FRAME_END_INFO_VIGNETTE_BIT_ML:
-                return std::string("XR_FRAME_END_INFO_VIGNETTE_BIT_ML");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrGlobalDimmerFrameEndInfoFlagsML_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrGlobalDimmerFrameEndInfoFlagsML>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrGlobalDimmerFrameEndInfoFlagsML>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML:
-                return std::string("XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrHandTrackingAimFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrHandTrackingAimFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrHandTrackingAimFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB");
-            case XR_HAND_TRACKING_AIM_VALID_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_VALID_BIT_FB");
-            case XR_HAND_TRACKING_AIM_INDEX_PINCHING_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_INDEX_PINCHING_BIT_FB");
-            case XR_HAND_TRACKING_AIM_MIDDLE_PINCHING_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_MIDDLE_PINCHING_BIT_FB");
-            case XR_HAND_TRACKING_AIM_RING_PINCHING_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_RING_PINCHING_BIT_FB");
-            case XR_HAND_TRACKING_AIM_LITTLE_PINCHING_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_LITTLE_PINCHING_BIT_FB");
-            case XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB");
-            case XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB");
-            case XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB:
-                return std::string("XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrInputSourceLocalizedNameFlags_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrInputSourceLocalizedNameFlags>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrInputSourceLocalizedNameFlags>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT:
-                return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT");
-            case XR_INPUT_SOURCE_LOCALIZED_NAME_INTERACTION_PROFILE_BIT:
-                return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_INTERACTION_PROFILE_BIT");
-            case XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT:
-                return std::string("XR_INPUT_SOURCE_LOCALIZED_NAME_COMPONENT_BIT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrInstanceCreateFlags_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrInstanceCreateFlags>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrKeyboardTrackingFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrKeyboardTrackingFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrKeyboardTrackingFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_KEYBOARD_TRACKING_EXISTS_BIT_FB:
-                return std::string("XR_KEYBOARD_TRACKING_EXISTS_BIT_FB");
-            case XR_KEYBOARD_TRACKING_LOCAL_BIT_FB:
-                return std::string("XR_KEYBOARD_TRACKING_LOCAL_BIT_FB");
-            case XR_KEYBOARD_TRACKING_REMOTE_BIT_FB:
-                return std::string("XR_KEYBOARD_TRACKING_REMOTE_BIT_FB");
-            case XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB:
-                return std::string("XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrKeyboardTrackingQueryFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrKeyboardTrackingQueryFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrKeyboardTrackingQueryFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB:
-                return std::string("XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB");
-            case XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB:
-                return std::string("XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrLocalizationMapErrorFlagsML_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrLocalizationMapErrorFlagsML>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrLocalizationMapErrorFlagsML>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML:
-                return std::string("XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML");
-            case XR_LOCALIZATION_MAP_ERROR_OUT_OF_MAPPED_AREA_BIT_ML:
-                return std::string("XR_LOCALIZATION_MAP_ERROR_OUT_OF_MAPPED_AREA_BIT_ML");
-            case XR_LOCALIZATION_MAP_ERROR_LOW_FEATURE_COUNT_BIT_ML:
-                return std::string("XR_LOCALIZATION_MAP_ERROR_LOW_FEATURE_COUNT_BIT_ML");
-            case XR_LOCALIZATION_MAP_ERROR_EXCESSIVE_MOTION_BIT_ML:
-                return std::string("XR_LOCALIZATION_MAP_ERROR_EXCESSIVE_MOTION_BIT_ML");
-            case XR_LOCALIZATION_MAP_ERROR_LOW_LIGHT_BIT_ML:
-                return std::string("XR_LOCALIZATION_MAP_ERROR_LOW_LIGHT_BIT_ML");
-            case XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML:
-                return std::string("XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrOverlayMainSessionFlagsEXTX_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrOverlayMainSessionFlagsEXTX>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrOverlayMainSessionFlagsEXTX>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX:
-                return std::string("XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrOverlaySessionCreateFlagsEXTX_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrOverlaySessionCreateFlagsEXTX>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughCapabilityFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrPassthroughCapabilityFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrPassthroughCapabilityFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_PASSTHROUGH_CAPABILITY_BIT_FB:
-                return std::string("XR_PASSTHROUGH_CAPABILITY_BIT_FB");
-            case XR_PASSTHROUGH_CAPABILITY_COLOR_BIT_FB:
-                return std::string("XR_PASSTHROUGH_CAPABILITY_COLOR_BIT_FB");
-            case XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB:
-                return std::string("XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrPassthroughFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrPassthroughFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB:
-                return std::string("XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB");
-            case XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB:
-                return std::string("XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughPreferenceFlagsMETA_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrPassthroughPreferenceFlagsMETA>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrPassthroughPreferenceFlagsMETA>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META:
-                return std::string("XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPassthroughStateChangedFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrPassthroughStateChangedFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrPassthroughStateChangedFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB:
-                return std::string("XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB");
-            case XR_PASSTHROUGH_STATE_CHANGED_NON_RECOVERABLE_ERROR_BIT_FB:
-                return std::string("XR_PASSTHROUGH_STATE_CHANGED_NON_RECOVERABLE_ERROR_BIT_FB");
-            case XR_PASSTHROUGH_STATE_CHANGED_RECOVERABLE_ERROR_BIT_FB:
-                return std::string("XR_PASSTHROUGH_STATE_CHANGED_RECOVERABLE_ERROR_BIT_FB");
-            case XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB:
-                return std::string("XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPerformanceMetricsCounterFlagsMETA_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrPerformanceMetricsCounterFlagsMETA>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrPerformanceMetricsCounterFlagsMETA>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META:
-                return std::string("XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META");
-            case XR_PERFORMANCE_METRICS_COUNTER_UINT_VALUE_VALID_BIT_META:
-                return std::string("XR_PERFORMANCE_METRICS_COUNTER_UINT_VALUE_VALID_BIT_META");
-            case XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META:
-                return std::string("XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectionCapabilityFlagsEXT_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrPlaneDetectionCapabilityFlagsEXT>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrPlaneDetectionCapabilityFlagsEXT>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT:
-                return std::string("XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT");
-            case XR_PLANE_DETECTION_CAPABILITY_PLANE_HOLES_BIT_EXT:
-                return std::string("XR_PLANE_DETECTION_CAPABILITY_PLANE_HOLES_BIT_EXT");
-            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_CEILING_BIT_EXT:
-                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_CEILING_BIT_EXT");
-            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_FLOOR_BIT_EXT:
-                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_FLOOR_BIT_EXT");
-            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_WALL_BIT_EXT:
-                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_WALL_BIT_EXT");
-            case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_PLATFORM_BIT_EXT:
-                return std::string("XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_PLATFORM_BIT_EXT");
-            case XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT:
-                return std::string("XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrPlaneDetectorFlagsEXT_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrPlaneDetectorFlagsEXT>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrPlaneDetectorFlagsEXT>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT:
-                return std::string("XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrRenderModelFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrRenderModelFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrRenderModelFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB:
-                return std::string("XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB");
-            case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB:
-                return std::string("XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSemanticLabelsSupportFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrSemanticLabelsSupportFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrSemanticLabelsSupportFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB:
-                return std::string("XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB");
-            case XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_DESK_TO_TABLE_MIGRATION_BIT_FB:
-                return std::string("XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_DESK_TO_TABLE_MIGRATION_BIT_FB");
-            case XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB:
-                return std::string("XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSessionCreateFlags_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrSessionCreateFlags>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceLocationFlags_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrSpaceLocationFlags>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrSpaceLocationFlags>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_SPACE_LOCATION_ORIENTATION_VALID_BIT:
-                return std::string("XR_SPACE_LOCATION_ORIENTATION_VALID_BIT");
-            case XR_SPACE_LOCATION_POSITION_VALID_BIT:
-                return std::string("XR_SPACE_LOCATION_POSITION_VALID_BIT");
-            case XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT:
-                return std::string("XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT");
-            case XR_SPACE_LOCATION_POSITION_TRACKED_BIT:
-                return std::string("XR_SPACE_LOCATION_POSITION_TRACKED_BIT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSpaceVelocityFlags_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrSpaceVelocityFlags>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrSpaceVelocityFlags>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_SPACE_VELOCITY_LINEAR_VALID_BIT:
-                return std::string("XR_SPACE_VELOCITY_LINEAR_VALID_BIT");
-            case XR_SPACE_VELOCITY_ANGULAR_VALID_BIT:
-                return std::string("XR_SPACE_VELOCITY_ANGULAR_VALID_BIT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainCreateFlags_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrSwapchainCreateFlags>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrSwapchainCreateFlags>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT:
-                return std::string("XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT");
-            case XR_SWAPCHAIN_CREATE_STATIC_IMAGE_BIT:
-                return std::string("XR_SWAPCHAIN_CREATE_STATIC_IMAGE_BIT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainCreateFoveationFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrSwapchainCreateFoveationFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrSwapchainCreateFoveationFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB:
-                return std::string("XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB");
-            case XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB:
-                return std::string("XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainStateFoveationFlagsFB_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrSwapchainStateFoveationFlagsFB>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrSwapchainUsageFlags_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrSwapchainUsageFlags>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrSwapchainUsageFlags>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT:
-                return std::string("XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT");
-            case XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT:
-                return std::string("XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT");
-            case XR_SWAPCHAIN_USAGE_UNORDERED_ACCESS_BIT:
-                return std::string("XR_SWAPCHAIN_USAGE_UNORDERED_ACCESS_BIT");
-            case XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT:
-                return std::string("XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT");
-            case XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT:
-                return std::string("XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT");
-            case XR_SWAPCHAIN_USAGE_SAMPLED_BIT:
-                return std::string("XR_SWAPCHAIN_USAGE_SAMPLED_BIT");
-            case XR_SWAPCHAIN_USAGE_MUTABLE_FORMAT_BIT:
-                return std::string("XR_SWAPCHAIN_USAGE_MUTABLE_FORMAT_BIT");
-            case XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND:
-                return std::string("XR_SWAPCHAIN_USAGE_INPUT_ATTACHMENT_BIT_MND");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrTriangleMeshFlagsFB_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrTriangleMeshFlagsFB>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrTriangleMeshFlagsFB>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_TRIANGLE_MESH_MUTABLE_BIT_FB:
-                return std::string("XR_TRIANGLE_MESH_MUTABLE_BIT_FB");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrViewStateFlags_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrViewStateFlags>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrViewStateFlags>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_VIEW_STATE_ORIENTATION_VALID_BIT:
-                return std::string("XR_VIEW_STATE_ORIENTATION_VALID_BIT");
-            case XR_VIEW_STATE_POSITION_VALID_BIT:
-                return std::string("XR_VIEW_STATE_POSITION_VALID_BIT");
-            case XR_VIEW_STATE_ORIENTATION_TRACKED_BIT:
-                return std::string("XR_VIEW_STATE_ORIENTATION_TRACKED_BIT");
-            case XR_VIEW_STATE_POSITION_TRACKED_BIT:
-                return std::string("XR_VIEW_STATE_POSITION_TRACKED_BIT");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVirtualKeyboardInputStateFlagsMETA_t flags)
-{
-    if (!JsonOptions::expand_flags)
-    {
-        jdata = to_hex_fixed_width(static_cast<XrVirtualKeyboardInputStateFlagsMETA>(flags));
-        return;
-    }
-    jdata = ExpandFlags(static_cast<XrVirtualKeyboardInputStateFlagsMETA>(flags), [](XrFlags64 flags)
-    {
-        switch (flags)
-        {
-            case XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META:
-                return std::string("XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META");
-        }
-        return to_hex_fixed_width(flags);
-    });
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVulkanDeviceCreateFlagsKHR_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrVulkanDeviceCreateFlagsKHR>(flags));
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const XrVulkanInstanceCreateFlagsKHR_t flags)
-{
-    jdata = to_hex_fixed_width(static_cast<XrVulkanInstanceCreateFlagsKHR>(flags));
-}
-
-GFXRECON_END_NAMESPACE(decode)
-GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // ENABLE_OPENXR_SUPPORT

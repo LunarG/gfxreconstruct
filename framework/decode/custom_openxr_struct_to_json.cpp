@@ -59,9 +59,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanInstanceCr
         const XrVulkanInstanceCreateInfoKHR&         decoded_value = *data->decoded_value;
         const Decoded_XrVulkanInstanceCreateInfoKHR& meta_struct   = *data;
 
-        FieldToJson(jdata["type"], decoded_value.type);
+        jdata["type"] = decoded_value.type;
         HandleToJson(jdata["systemId"], meta_struct.systemId);
-        FieldToJson(jdata["createFlags"], XrVulkanInstanceCreateFlagsKHR_t{ decoded_value.createFlags });
+        jdata["createFlags"] = XrVulkanInstanceCreateFlagsKHR_t{ decoded_value.createFlags };
         FieldToJson(jdata["pfnGetInstanceProcAddr"], meta_struct.pfnGetInstanceProcAddr);
         FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo);
         FieldToJson(jdata["vulkanAllocator"], meta_struct.vulkanAllocator);
@@ -76,9 +76,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanDeviceCrea
         const XrVulkanDeviceCreateInfoKHR&         decoded_value = *data->decoded_value;
         const Decoded_XrVulkanDeviceCreateInfoKHR& meta_struct   = *data;
 
-        FieldToJson(jdata["type"], decoded_value.type);
+        jdata["type"] = decoded_value.type;
         HandleToJson(jdata["systemId"], meta_struct.systemId);
-        FieldToJson(jdata["createFlags"], XrVulkanDeviceCreateFlagsKHR_t{ decoded_value.createFlags });
+        jdata["createFlags"] = XrVulkanDeviceCreateFlagsKHR_t{ decoded_value.createFlags };
         FieldToJson(jdata["pfnGetInstanceProcAddr"], meta_struct.pfnGetInstanceProcAddr);
         HandleToJson(jdata["vulkanPhysicalDevice"], meta_struct.vulkanPhysicalDevice);
         FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo);
@@ -94,8 +94,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_timespec* data)
         const timespec&         decoded_value = *data->decoded_value;
         const Decoded_timespec& meta_struct   = *data;
 
-        FieldToJson(jdata["tv_sec"], decoded_value.tv_sec);
-        FieldToJson(jdata["tv_nsec"], decoded_value.tv_nsec);
+        jdata["tv_sec"]  = decoded_value.tv_sec;
+        jdata["tv_nsec"] = decoded_value.tv_nsec;
     }
 }
 

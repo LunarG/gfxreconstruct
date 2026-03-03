@@ -115,7 +115,7 @@ class KhronosExportJsonConsumerBodyGenerator():
             body += '    HandleToJson(jdata[NameReturn()], returnValue);\n'
         # Enums, ints, etc. handled by default and static dispatch based on C++ type:
         elif not 'void' in return_type:
-            body += '    FieldToJson(jdata[NameReturn()], returnValue);\n'
+            body += '    jdata[NameReturn()] = returnValue;\n'
 
         if len(values) > 0:
             body += '    auto& args = jdata[NameArgs()];\n'
@@ -141,12 +141,14 @@ class KhronosExportJsonConsumerBodyGenerator():
                     to_json = 'FieldToJsonAsHex(args["{0}"], {0})'
                 elif self.decode_as_handle(value):
                     to_json = 'HandleToJson(args["{0}"], {0})'
+                elif self.is_enum(value.base_type) and not (value.is_pointer or value.is_array):
+                    to_json = 'args["{0}"] = {0}'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flags_type_aliases:
                         flagsEnumType = self.flags_type_aliases[value.base_type
                                                                 ]
                     if not (value.is_pointer or value.is_array):
-                        to_json = 'FieldToJson(args["{0}"], {2}_t{{{0}}})'
+                        to_json = 'args["{0}"] = {2}_t{{{0}}}'
                     else:
                         # Default to outputting as the raw type but warn:
                         print(

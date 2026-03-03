@@ -479,7 +479,7 @@ void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data)
 {
     // First read in the type to know which child we need to handle
     XrStructureType struct_type;
-    FieldToJson(jdata["type"], struct_type);
+    jdata["type"] = struct_type;
 
     switch (struct_type)
     {

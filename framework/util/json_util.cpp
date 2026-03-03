@@ -290,33 +290,33 @@ void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult)
 void FieldToJson(nlohmann::ordered_json& jdata, const format::InitDx12AccelerationStructureGeometryDesc& data)
 {
     /// @todo handle enums and so on.
-    FieldToJson(jdata["geometry_type"], static_cast<D3D12_RAYTRACING_GEOMETRY_TYPE>(data.geometry_type));
-    FieldToJson(jdata["geometry_flags"], static_cast<D3D12_RAYTRACING_GEOMETRY_FLAGS_t>(data.geometry_flags));
-    FieldToJson(jdata["aabbs_count"], data.aabbs_count);
-    FieldToJson(jdata["aabbs_stride"], data.aabbs_stride);
+    jdata["geometry_type"]  = static_cast<D3D12_RAYTRACING_GEOMETRY_TYPE>(data.geometry_type);
+    jdata["geometry_flags"] = static_cast<D3D12_RAYTRACING_GEOMETRY_FLAGS_t>(data.geometry_flags);
+    jdata["aabbs_count"], data.aabbs_count;
+    jdata["aabbs_stride"], data.aabbs_stride;
     Bool32ToJson(jdata["triangles_has_transform"], data.triangles_has_transform);
-    FieldToJson(jdata["triangles_index_format"], static_cast<DXGI_FORMAT>(data.triangles_index_format));
-    FieldToJson(jdata["triangles_vertex_format"], static_cast<DXGI_FORMAT>(data.triangles_vertex_format));
-    FieldToJson(jdata["triangles_index_count"], data.triangles_index_count);
-    FieldToJson(jdata["triangles_vertex_count"], data.triangles_vertex_count);
-    FieldToJson(jdata["triangles_vertex_stride"], data.triangles_vertex_stride);
+    jdata["triangles_index_format"]  = static_cast<DXGI_FORMAT>(data.triangles_index_format);
+    jdata["triangles_vertex_format"] = static_cast<DXGI_FORMAT>(data.triangles_vertex_format);
+    jdata["triangles_index_count"]   = data.triangles_index_count;
+    jdata["triangles_vertex_count"]  = data.triangles_vertex_count;
+    jdata["triangles_vertex_stride"] = data.triangles_vertex_stride;
 }
 #endif // defined(D3D12_SUPPORT)
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data)
 {
     FieldToJson(jdata["Description"], std::wstring_view(data.Description));
-    FieldToJson(jdata["VendorId"], data.VendorId);
-    FieldToJson(jdata["DeviceId"], data.DeviceId);
-    FieldToJson(jdata["SubSysId"], data.SubSysId);
-    FieldToJson(jdata["Revision"], data.Revision);
-    FieldToJson(jdata["DedicatedVideoMemory"], data.DedicatedVideoMemory);
-    FieldToJson(jdata["DedicatedSystemMemory"], data.DedicatedSystemMemory);
-    FieldToJson(jdata["SharedSystemMemory"], data.SharedSystemMemory);
-    FieldToJson(jdata["LuidLowPart"], data.LuidLowPart);
-    FieldToJson(jdata["LuidHighPar"], data.LuidHighPart);
+    jdata["VendorId"]              = data.VendorId;
+    jdata["DeviceId"]              = data.DeviceId;
+    jdata["SubSysId"]              = data.SubSysId;
+    jdata["Revision"]              = data.Revision;
+    jdata["DedicatedVideoMemory"]  = data.DedicatedVideoMemory;
+    jdata["DedicatedSystemMemory"] = data.DedicatedSystemMemory;
+    jdata["SharedSystemMemory"]    = data.SharedSystemMemory;
+    jdata["LuidLowPart"]           = data.LuidLowPart;
+    jdata["LuidHighPar"]           = data.LuidHighPart;
     // Should we break out the packed data? (2 bits (LSB) to store Type and 30 bits for object ID)
-    FieldToJson(jdata["extra_info"], data.extra_info);
+    jdata["extra_info"] = data.extra_info;
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::Dx12RuntimeInfo& data)

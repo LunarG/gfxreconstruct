@@ -61,8 +61,6 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
             #include "util/to_string.h"
             #include "format/platform_types.h"
 
-            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-            GFXRECON_BEGIN_NAMESPACE(util)
         ''')
         write(code, file=self.outFile)
         self.newline()
@@ -74,13 +72,13 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
 
         for k, v in enum_dict.items():
             # Generate enum handler for all enums
-            enum_prototypes += format_cpp_code('''inline void FieldToJson(nlohmann::ordered_json& jdata, const {0} value)
+            enum_prototypes += format_cpp_code('''inline void to_json(nlohmann::ordered_json& jdata, const {0} value)
             {{
-                FieldToJson(jdata, ToString(value));
+                to_json(jdata, gfxrecon::util::ToString(value));
             }}
-            inline void FieldToJson(nlohmann::ordered_json& jdata, const {0}* pEnum)
+            inline void to_json(nlohmann::ordered_json& jdata, const {0}* pEnum)
             {{
-                FieldToJson(jdata, *pEnum);
+                to_json(jdata, *pEnum);
             }}
             '''.format(k))
             enum_prototypes += '\n\n'
@@ -90,18 +88,16 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
                 if k.find(bits) >= 0:
                     flag_prototypes += format_cpp_code('''
                     enum class {0}_t : std::underlying_type<{0}>::type {{}};
-                    inline void FieldToJson(nlohmann::ordered_json& jdata, const {0}_t flags)
+                    inline void to_json(nlohmann::ordered_json& jdata, const {0}_t flags)
                     {{
-                        std::string representation;
-                        if (!JsonOptions::expand_flags)
+                        if (!gfxrecon::util::JsonOptions::expand_flags)
                         {{
-                            representation = to_hex_fixed_width(static_cast<uint32_t>(flags));
+                            jdata = gfxrecon::util::to_hex_fixed_width(static_cast<uint32_t>(flags));
                         }}
                         else
                         {{
-                            representation = ToString_{0}(static_cast<uint32_t>(flags));
+                            jdata = gfxrecon::util::ToString_{0}(static_cast<uint32_t>(flags));
                         }}
-                        FieldToJson(jdata, representation);
                     }}
                     \n'''.format(k))
                     flag_prototypes += '\n'
@@ -110,10 +106,12 @@ class Dx12EnumToJsonHeaderGenerator(Dx12BaseGenerator):
         write(flag_prototypes, file=self.outFile)
 
         write(format_cpp_code('''
+        GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+        GFXRECON_BEGIN_NAMESPACE(util)
         // IID struct-as-enum special case:
         inline void FieldToJson(nlohmann::ordered_json& jdata, const IID& value)
         {
-            FieldToJson(jdata, ToString(value));
+            jdata = ToString(value);
         }
         '''), file=self.outFile)
 

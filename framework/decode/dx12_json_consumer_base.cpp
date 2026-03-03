@@ -60,8 +60,8 @@ void Dx12JsonConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocatio
 {
     writer_->SetCurrentBlockIndex(block_index_);
     auto& jdata = writer_->WriteMetaCommandStart("CreateHeapAllocationCommand");
-    FieldToJson(jdata["allocation_id"], allocation_id);
-    FieldToJson(jdata["allocation_size"], allocation_size);
+    jdata["allocation_id"]   = allocation_id;
+    jdata["allocation_size"] = allocation_size;
     writer_->WriteBlockEnd();
 }
 
@@ -70,14 +70,14 @@ void Dx12JsonConsumerBase::ProcessInitSubresourceCommand(const format::InitSubre
 {
     writer_->SetCurrentBlockIndex(block_index_);
     auto& jdata = writer_->WriteMetaCommandStart("InitSubresourceCommand");
-    FieldToJson(jdata["thread_id"], command_header.thread_id);
-    FieldToJson(jdata["device_id"], command_header.device_id);
-    FieldToJson(jdata["resource_id"], command_header.resource_id);
-    FieldToJson(jdata["subresource"], command_header.subresource);
-    FieldToJson(jdata["initial_state"], command_header.initial_state);
-    FieldToJson(jdata["resource_state"], command_header.resource_state);
-    FieldToJson(jdata["barrier_flags"], command_header.barrier_flags);
-    FieldToJson(jdata["data_size"], command_header.data_size);
+    jdata["thread_id"]      = command_header.thread_id;
+    jdata["device_id"]      = command_header.device_id;
+    jdata["resource_id"]    = command_header.resource_id;
+    jdata["subresource"]    = command_header.subresource;
+    jdata["initial_state"]  = command_header.initial_state;
+    jdata["resource_state"] = command_header.resource_state;
+    jdata["barrier_flags"]  = command_header.barrier_flags;
+    jdata["data_size"]      = command_header.data_size;
     RepresentBinaryFile(
         *(this->writer_), jdata[format::kNameData], "initsubresourcecommand.bin", command_header.data_size, data);
 
@@ -96,22 +96,20 @@ void Dx12JsonConsumerBase::ProcessInitDx12AccelerationStructureCommand(
 
     writer_->SetCurrentBlockIndex(block_index_);
     auto& jdata = writer_->WriteMetaCommandStart("InitDx12AccelerationStructureCommand");
-    FieldToJson(jdata["thread_id"], command_header.thread_id);
+    jdata["thread_id"] = command_header.thread_id;
     // The GPU address D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC.DestAccelerationStructureData
     // is mapped from this during replay but we'll just dump the raw capture file value:
     FieldToJsonAsHex(jdata["dest_acceleration_structure_data"], command_header.dest_acceleration_structure_data);
     // A GPU virtual address to copy from after pumping througnh a graphics::Dx12GpuVaMap during replay, but we'll just
     // dump the raw capture file value:
     FieldToJsonAsHex(jdata["copy_source_gpu_va"], command_header.copy_source_gpu_va);
-    FieldToJson(jdata["copy_mode"],
-                static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE>(command_header.copy_mode));
-    FieldToJson(jdata["inputs_type"],
-                static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE>(command_header.inputs_type));
-    FieldToJson(jdata["inputs_flags"],
-                static_cast<util::D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS_t>(command_header.inputs_flags));
-    FieldToJson(jdata["inputs_num_instance_descs"], command_header.inputs_num_instance_descs);
-    FieldToJson(jdata["inputs_num_geometry_descs"], command_header.inputs_num_geometry_descs);
-    FieldToJson(jdata["inputs_data_size"], command_header.inputs_data_size);
+    jdata["copy_mode"]   = static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE>(command_header.copy_mode);
+    jdata["inputs_type"] = static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE>(command_header.inputs_type);
+    jdata["inputs_flags"] =
+        static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS_t>(command_header.inputs_flags);
+    jdata["inputs_num_instance_descs"] = command_header.inputs_num_instance_descs;
+    jdata["inputs_num_geometry_descs"] = command_header.inputs_num_geometry_descs;
+    jdata["inputs_data_size"]          = command_header.inputs_data_size;
     RepresentBinaryFile(*(this->writer_),
                         jdata[format::kNameData],
                         "initdx12accelerationstructurecommand.bin",
@@ -126,8 +124,8 @@ void Dx12JsonConsumerBase::ProcessFillMemoryResourceValueCommand(
 {
     writer_->SetCurrentBlockIndex(block_index_);
     auto& jdata = writer_->WriteMetaCommandStart("FillMemoryResourceValueCommand");
-    FieldToJson(jdata["thread_id"], command_header.thread_id);
-    FieldToJson(jdata["resource_value_count"], command_header.resource_value_count);
+    jdata["thread_id"]            = command_header.thread_id;
+    jdata["resource_value_count"] = command_header.resource_value_count;
     // There are two blocks of values in data so we need to add together their sizes to know how big the blob to dump
     // is:
     const auto types_bytes   = command_header.resource_value_count * sizeof(format::ResourceValueType);
@@ -145,7 +143,7 @@ void Dx12JsonConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoC
 {
     writer_->SetCurrentBlockIndex(block_index_);
     auto& jdata = writer_->WriteMetaCommandStart("DxgiAdapterInfo");
-    FieldToJson(jdata["thread_id"], adapter_info_header.thread_id);
+    jdata["thread_id"] = adapter_info_header.thread_id;
     FieldToJson(jdata["adapter_desc"], adapter_info_header.adapter_desc);
     writer_->WriteBlockEnd();
 }
@@ -168,7 +166,7 @@ void Dx12JsonConsumerBase::ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoC
     writer_->SetCurrentBlockIndex(block_index_);
     auto& jdata = writer_->WriteMetaCommandStart("Dx12RuntimeInfoCommandHeader");
 
-    FieldToJson(jdata["thread_id"], runtime_info_header.thread_id);
+    jdata["thread_id"] = runtime_info_header.thread_id;
     FieldToJson(jdata["runtime_info"], runtime_info_header.runtime_info);
 
     writer_->WriteBlockEnd();
@@ -191,9 +189,9 @@ void Dx12JsonConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Hand
     HresultToJson(method[format::kNameReturn], original_result);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Feature"], feature);
+        args["Feature"] = feature;
         FieldToJson(args["pFeatureSupportData"], nullptr);
-        FieldToJson(args["FeatureSupportDataSize"], feature_data_size);
+        args["FeatureSupportDataSize"] = feature_data_size;
         /// @todo Complete conversion of the void * contents of Process_ID3D12Device_CheckFeatureSupport. See
         /// <https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport>
         FieldToJson(args[format::kNameWarning], "Incomplete conversion: pFeatureSupportData not supported yet.");
@@ -218,9 +216,9 @@ void Dx12JsonConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Han
     HresultToJson(method[format::kNameReturn], original_result);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Feature"], feature);
+        args["Feature"] = feature;
         FieldToJson(args["pFeatureSupportData"], nullptr);
-        FieldToJson(args["FeatureSupportDataSize"], feature_data_size);
+        args["FeatureSupportDataSize"] = feature_data_size;
         /// @todo Complete conversion of the void * contents of Process_IDXGIFactory5_CheckFeatureSupport. See
         /// <https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_5/nf-dxgi1_5-idxgifactory5-checkfeaturesupport>
         FieldToJson(args[format::kNameWarning], "Incomplete conversion: pFeatureSupportData not supported yet.");
@@ -246,13 +244,13 @@ void Dx12JsonConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::Han
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["DstSubresource"], DstSubresource);
+        args["DstSubresource"] = DstSubresource;
         FieldToJson(args["pDstBox"], pDstBox);
         /// @todo Complete conversion of the void * member pSrcData of Process_ID3D12Resource_WriteToSubresource.
         FieldToJson(args[format::kNameWarning], "Incomplete conversion: pSrcData not supported yet.");
         FieldToJson(args["pSrcData"], nullptr);
-        FieldToJson(args["SrcRowPitch"], SrcRowPitch);
-        FieldToJson(args["SrcDepthPitch"], SrcDepthPitch);
+        args["SrcRowPitch"]   = SrcRowPitch;
+        args["SrcDepthPitch"] = SrcDepthPitch;
     }
     writer_->WriteBlockEnd();
 }

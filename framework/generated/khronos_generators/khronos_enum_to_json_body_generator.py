@@ -83,10 +83,10 @@ class KhronosEnumToJsonBodyGenerator():
             processedEnums.add(enum)
 
             if self.is_flags_enum_64bit(enum):
-                body = f'void FieldToJson(nlohmann::ordered_json& jdata, const {enum}_t& value)\n'
+                body = f'void to_json(nlohmann::ordered_json& jdata, const {enum}_t& value)\n'
                 value = f'static_cast<{enum}>(value)'
             else:
-                body = f'void FieldToJson(nlohmann::ordered_json& jdata, const {enum}& value)\n'
+                body = f'void to_json(nlohmann::ordered_json& jdata, const {enum}& value)\n'
                 value = 'value'
             body += '{\n'
             if len(self.enumEnumerants[enum]):
@@ -96,14 +96,17 @@ class KhronosEnumToJsonBodyGenerator():
                     body += f'            jdata = "{enumerant}";\n'
                     body += f'            break;\n'
                 body += '        default:\n'
-                body += f'            jdata = to_hex_fixed_width({value});\n'
+                body += f'            jdata = gfxrecon::decode::to_hex_fixed_width({value});\n'
                 body += '            break;\n'
                 body += '    }\n'
             else:
-                body += f'    jdata = to_hex_fixed_width({value});\n'
+                body += f'    jdata = gfxrecon::decode::to_hex_fixed_width({value});\n'
 
             body += '}\n'
-            write(body, file=self.outFile)
+            if self.is_flags_enum_64bit(enum):
+                write(body, file=self.outFile)
+            else:
+                self.genOpts.begin_end_file_data.post_namespace_code.append(body)
 
         for flag in sorted(self.flags_types):
             if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
@@ -113,7 +116,7 @@ class KhronosEnumToJsonBodyGenerator():
             if flag in self.flags_to_enum_bits:
                 bittype = self.flags_to_enum_bits[flag]
 
-            body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}_t flags)\n'
+            body = 'void to_json(nlohmann::ordered_json& jdata, const {0}_t& flags)\n'
             body += '{{\n'
             if bittype is not None and len(self.enumEnumerants[bittype]):
                 body += "    if (!JsonOptions::expand_flags)\n"

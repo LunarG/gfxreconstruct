@@ -40,7 +40,7 @@ class KhronosStructToJsonHeaderGenerator():
         body += '{\n'
         body += '    // First read in the type to know which child we need to handle\n'
         body += f'    {struct_type} struct_type;\n'
-        body += '    FieldToJson(jdata["type"], struct_type);\n'
+        body += '    jdata["type"] = struct_type;\n'
         body += '\n'
         body += '    switch (struct_type)\n'
         body += '    {\n'

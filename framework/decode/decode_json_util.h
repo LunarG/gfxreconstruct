@@ -70,12 +70,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PointerDecoder<DecodedType
         {
             for (size_t i = 0; i < length; ++i)
             {
-                FieldToJson(jdata[i], decoded_value[i]);
+                jdata[i] = decoded_value[i];
             }
         }
         else if (length == 1)
         {
-            FieldToJson(jdata, *decoded_value);
+            jdata = *decoded_value;
         }
     }
 }

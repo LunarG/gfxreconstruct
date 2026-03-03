@@ -56,6 +56,8 @@ class KhronosEnumToJsonHeaderGenerator():
                 body = 'enum class {0}_t : {0} {{ }};'
                 write(body.format(enum), file=self.outFile)
 
+        global_functions = []
+
         self.newline()
         for enum in sorted(self.enum_names):
             if enum in processedEnums or self.skip_generating_enum_to_json_for_type(
@@ -65,13 +67,21 @@ class KhronosEnumToJsonHeaderGenerator():
             processedEnums.add(enum)
             if not enum in self.enumAliases:
                 if self.is_flags_enum_64bit(enum):
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}_t& enum_value);'
+                    body = 'void to_json(nlohmann::ordered_json& jdata, const {0}_t& value);'
+                    write(body.format(enum), file=self.outFile)
                 else:
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value);'
-                write(body.format(enum), file=self.outFile)
+                    body = 'void to_json(nlohmann::ordered_json& jdata, const {0}& value);'
+                    # Conversion functions for raw API enums must be in the global namespace
+                    global_functions.append(body.format(enum))
 
         for flag in sorted(self.flags_types):
             if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
                 continue
-            body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}_t flags);'
+            body = 'void to_json(nlohmann::ordered_json& jdata, const {0}_t& flags);'
             write(body.format(flag), file=self.outFile)
+        
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('\n'.join(global_functions), file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)

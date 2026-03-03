@@ -52,7 +52,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyInstance(
     format::HandleId                            instance)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyInstance");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
     WriteBlockEnd();
@@ -65,7 +65,7 @@ void OpenXrExportJsonConsumer::Process_xrGetInstanceProperties(
     StructPointerDecoder<Decoded_XrInstanceProperties>* instanceProperties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetInstanceProperties");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["instanceProperties"], instanceProperties);
@@ -80,10 +80,10 @@ void OpenXrExportJsonConsumer::Process_xrResultToString(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrResultToString");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(args["value"], value);
+        args["value"] = value;
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
 }
@@ -96,10 +96,10 @@ void OpenXrExportJsonConsumer::Process_xrStructureTypeToString(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrStructureTypeToString");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(args["value"], value);
+        args["value"] = value;
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
 }
@@ -112,7 +112,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSystem(
     HandlePointerDecoder<XrSystemId>*           systemId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSystem");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["getInfo"], getInfo);
@@ -128,7 +128,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSystemProperties(
     StructPointerDecoder<Decoded_XrSystemProperties>* properties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSystemProperties");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -147,11 +147,11 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateEnvironmentBlendModes(
     PointerDecoder<XrEnvironmentBlendMode>*     environmentBlendModes)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateEnvironmentBlendModes");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["viewConfigurationType"], viewConfigurationType);
+        args["viewConfigurationType"] = viewConfigurationType;
         FieldToJson(args["environmentBlendModeCapacityInput"], environmentBlendModeCapacityInput);
         FieldToJson(args["environmentBlendModeCountOutput"], environmentBlendModeCountOutput);
         FieldToJson(args["environmentBlendModes"], environmentBlendModes);
@@ -166,7 +166,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSession(
     HandlePointerDecoder<XrSession>*            session)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSession");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["createInfo"], createInfo);
@@ -180,7 +180,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySession(
     format::HandleId                            session)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySession");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
     WriteBlockEnd();
@@ -195,7 +195,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateReferenceSpaces(
     PointerDecoder<XrReferenceSpaceType>*       spaces)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateReferenceSpaces");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["spaceCapacityInput"], spaceCapacityInput);
@@ -212,7 +212,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateReferenceSpace(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateReferenceSpace");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -228,10 +228,10 @@ void OpenXrExportJsonConsumer::Process_xrGetReferenceSpaceBoundsRect(
     StructPointerDecoder<Decoded_XrExtent2Df>*  bounds)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetReferenceSpaceBoundsRect");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["referenceSpaceType"], referenceSpaceType);
+        args["referenceSpaceType"] = referenceSpaceType;
         FieldToJson(args["bounds"], bounds);
     WriteBlockEnd();
 }
@@ -244,7 +244,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateActionSpace(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateActionSpace");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -261,7 +261,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateSpace(
     StructPointerDecoder<Decoded_XrSpaceLocation>* location)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLocateSpace");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
         HandleToJson(args["baseSpace"], baseSpace);
@@ -276,7 +276,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySpace(
     format::HandleId                            space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySpace");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
     WriteBlockEnd();
@@ -292,7 +292,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViewConfigurations(
     PointerDecoder<XrViewConfigurationType>*    viewConfigurationTypes)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateViewConfigurations");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -311,11 +311,11 @@ void OpenXrExportJsonConsumer::Process_xrGetViewConfigurationProperties(
     StructPointerDecoder<Decoded_XrViewConfigurationProperties>* configurationProperties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetViewConfigurationProperties");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["viewConfigurationType"], viewConfigurationType);
+        args["viewConfigurationType"] = viewConfigurationType;
         FieldToJson(args["configurationProperties"], configurationProperties);
     WriteBlockEnd();
 }
@@ -331,11 +331,11 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViewConfigurationViews(
     StructPointerDecoder<Decoded_XrViewConfigurationView>* views)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateViewConfigurationViews");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["viewConfigurationType"], viewConfigurationType);
+        args["viewConfigurationType"] = viewConfigurationType;
         FieldToJson(args["viewCapacityInput"], viewCapacityInput);
         FieldToJson(args["viewCountOutput"], viewCountOutput);
         FieldToJson(args["views"], views);
@@ -351,7 +351,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateSwapchainFormats(
     PointerDecoder<int64_t>*                    formats)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateSwapchainFormats");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["formatCapacityInput"], formatCapacityInput);
@@ -368,7 +368,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSwapchain(
     HandlePointerDecoder<XrSwapchain>*          swapchain)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSwapchain");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -382,7 +382,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySwapchain(
     format::HandleId                            swapchain)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySwapchain");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
     WriteBlockEnd();
@@ -396,7 +396,7 @@ void OpenXrExportJsonConsumer::Process_xrAcquireSwapchainImage(
     PointerDecoder<uint32_t>*                   index)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrAcquireSwapchainImage");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
         FieldToJson(args["acquireInfo"], acquireInfo);
@@ -411,7 +411,7 @@ void OpenXrExportJsonConsumer::Process_xrWaitSwapchainImage(
     StructPointerDecoder<Decoded_XrSwapchainImageWaitInfo>* waitInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrWaitSwapchainImage");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
         FieldToJson(args["waitInfo"], waitInfo);
@@ -425,7 +425,7 @@ void OpenXrExportJsonConsumer::Process_xrReleaseSwapchainImage(
     StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrReleaseSwapchainImage");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
         FieldToJson(args["releaseInfo"], releaseInfo);
@@ -439,7 +439,7 @@ void OpenXrExportJsonConsumer::Process_xrBeginSession(
     StructPointerDecoder<Decoded_XrSessionBeginInfo>* beginInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrBeginSession");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["beginInfo"], beginInfo);
@@ -452,7 +452,7 @@ void OpenXrExportJsonConsumer::Process_xrEndSession(
     format::HandleId                            session)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEndSession");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
     WriteBlockEnd();
@@ -464,7 +464,7 @@ void OpenXrExportJsonConsumer::Process_xrRequestExitSession(
     format::HandleId                            session)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrRequestExitSession");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
     WriteBlockEnd();
@@ -478,7 +478,7 @@ void OpenXrExportJsonConsumer::Process_xrWaitFrame(
     StructPointerDecoder<Decoded_XrFrameState>* frameState)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrWaitFrame");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["frameWaitInfo"], frameWaitInfo);
@@ -493,7 +493,7 @@ void OpenXrExportJsonConsumer::Process_xrBeginFrame(
     StructPointerDecoder<Decoded_XrFrameBeginInfo>* frameBeginInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrBeginFrame");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["frameBeginInfo"], frameBeginInfo);
@@ -507,7 +507,7 @@ void OpenXrExportJsonConsumer::Process_xrEndFrame(
     StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEndFrame");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["frameEndInfo"], frameEndInfo);
@@ -525,7 +525,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateViews(
     StructPointerDecoder<Decoded_XrView>*       views)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLocateViews");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["viewLocateInfo"], viewLocateInfo);
@@ -544,7 +544,7 @@ void OpenXrExportJsonConsumer::Process_xrStringToPath(
     HandlePointerDecoder<XrPath>*               path)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrStringToPath");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["pathString"], pathString);
@@ -562,7 +562,7 @@ void OpenXrExportJsonConsumer::Process_xrPathToString(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPathToString");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["path"], path);
@@ -580,7 +580,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateActionSet(
     HandlePointerDecoder<XrActionSet>*          actionSet)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateActionSet");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["createInfo"], createInfo);
@@ -594,7 +594,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyActionSet(
     format::HandleId                            actionSet)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyActionSet");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["actionSet"], actionSet);
     WriteBlockEnd();
@@ -608,7 +608,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateAction(
     HandlePointerDecoder<XrAction>*             action)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateAction");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["actionSet"], actionSet);
         FieldToJson(args["createInfo"], createInfo);
@@ -622,7 +622,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyAction(
     format::HandleId                            action)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyAction");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["action"], action);
     WriteBlockEnd();
@@ -635,7 +635,7 @@ void OpenXrExportJsonConsumer::Process_xrSuggestInteractionProfileBindings(
     StructPointerDecoder<Decoded_XrInteractionProfileSuggestedBinding>* suggestedBindings)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSuggestInteractionProfileBindings");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["suggestedBindings"], suggestedBindings);
@@ -649,7 +649,7 @@ void OpenXrExportJsonConsumer::Process_xrAttachSessionActionSets(
     StructPointerDecoder<Decoded_XrSessionActionSetsAttachInfo>* attachInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrAttachSessionActionSets");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["attachInfo"], attachInfo);
@@ -664,7 +664,7 @@ void OpenXrExportJsonConsumer::Process_xrGetCurrentInteractionProfile(
     StructPointerDecoder<Decoded_XrInteractionProfileState>* interactionProfile)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetCurrentInteractionProfile");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["topLevelUserPath"], topLevelUserPath);
@@ -680,7 +680,7 @@ void OpenXrExportJsonConsumer::Process_xrGetActionStateBoolean(
     StructPointerDecoder<Decoded_XrActionStateBoolean>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetActionStateBoolean");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["getInfo"], getInfo);
@@ -696,7 +696,7 @@ void OpenXrExportJsonConsumer::Process_xrGetActionStateFloat(
     StructPointerDecoder<Decoded_XrActionStateFloat>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetActionStateFloat");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["getInfo"], getInfo);
@@ -712,7 +712,7 @@ void OpenXrExportJsonConsumer::Process_xrGetActionStateVector2f(
     StructPointerDecoder<Decoded_XrActionStateVector2f>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetActionStateVector2f");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["getInfo"], getInfo);
@@ -728,7 +728,7 @@ void OpenXrExportJsonConsumer::Process_xrGetActionStatePose(
     StructPointerDecoder<Decoded_XrActionStatePose>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetActionStatePose");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["getInfo"], getInfo);
@@ -743,7 +743,7 @@ void OpenXrExportJsonConsumer::Process_xrSyncActions(
     StructPointerDecoder<Decoded_XrActionsSyncInfo>* syncInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSyncActions");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["syncInfo"], syncInfo);
@@ -760,7 +760,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateBoundSourcesForAction(
     HandlePointerDecoder<XrPath>*               sources)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateBoundSourcesForAction");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["enumerateInfo"], enumerateInfo);
@@ -780,7 +780,7 @@ void OpenXrExportJsonConsumer::Process_xrGetInputSourceLocalizedName(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetInputSourceLocalizedName");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["getInfo"], getInfo);
@@ -798,7 +798,7 @@ void OpenXrExportJsonConsumer::Process_xrApplyHapticFeedback(
     StructPointerDecoder<Decoded_XrHapticBaseHeader>* hapticFeedback)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrApplyHapticFeedback");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["hapticActionInfo"], hapticActionInfo);
@@ -813,7 +813,7 @@ void OpenXrExportJsonConsumer::Process_xrStopHapticFeedback(
     StructPointerDecoder<Decoded_XrHapticActionInfo>* hapticActionInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrStopHapticFeedback");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["hapticActionInfo"], hapticActionInfo);
@@ -828,7 +828,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateApiLayerInstance(
     HandlePointerDecoder<XrInstance>*           instance)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateApiLayerInstance");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         FieldToJson(args["info"], info);
         FieldToJson(args["layerInfo"], layerInfo);
@@ -844,7 +844,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateSpaces(
     StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLocateSpaces");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["locateInfo"], locateInfo);
@@ -860,10 +860,10 @@ void OpenXrExportJsonConsumer::Process_xrSetAndroidApplicationThreadKHR(
     uint32_t                                    threadId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetAndroidApplicationThreadKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["threadType"], threadType);
+        args["threadType"] = threadType;
         FieldToJson(args["threadId"], threadId);
     WriteBlockEnd();
 }
@@ -877,7 +877,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSwapchainAndroidSurfaceKHR(
     uint64_t                                    surface)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSwapchainAndroidSurfaceKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -894,7 +894,7 @@ void OpenXrExportJsonConsumer::Process_xrGetOpenGLGraphicsRequirementsKHR(
     StructPointerDecoder<Decoded_XrGraphicsRequirementsOpenGLKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetOpenGLGraphicsRequirementsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -910,7 +910,7 @@ void OpenXrExportJsonConsumer::Process_xrGetOpenGLESGraphicsRequirementsKHR(
     StructPointerDecoder<Decoded_XrGraphicsRequirementsOpenGLESKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetOpenGLESGraphicsRequirementsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -928,7 +928,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanInstanceExtensionsKHR(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanInstanceExtensionsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -948,7 +948,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanDeviceExtensionsKHR(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanDeviceExtensionsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -967,7 +967,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanGraphicsDeviceKHR(
     HandlePointerDecoder<VkPhysicalDevice>*     vkPhysicalDevice)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanGraphicsDeviceKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -984,7 +984,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanGraphicsRequirementsKHR(
     StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanGraphicsRequirementsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -1000,7 +1000,7 @@ void OpenXrExportJsonConsumer::Process_xrGetD3D11GraphicsRequirementsKHR(
     StructPointerDecoder<Decoded_XrGraphicsRequirementsD3D11KHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetD3D11GraphicsRequirementsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -1016,7 +1016,7 @@ void OpenXrExportJsonConsumer::Process_xrGetD3D12GraphicsRequirementsKHR(
     StructPointerDecoder<Decoded_XrGraphicsRequirementsD3D12KHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetD3D12GraphicsRequirementsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -1032,7 +1032,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMetalGraphicsRequirementsKHR(
     StructPointerDecoder<Decoded_XrGraphicsRequirementsMetalKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMetalGraphicsRequirementsKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -1050,12 +1050,12 @@ void OpenXrExportJsonConsumer::Process_xrGetVisibilityMaskKHR(
     StructPointerDecoder<Decoded_XrVisibilityMaskKHR>* visibilityMask)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVisibilityMaskKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["viewConfigurationType"], viewConfigurationType);
+        args["viewConfigurationType"] = viewConfigurationType;
         FieldToJson(args["viewIndex"], viewIndex);
-        FieldToJson(args["visibilityMaskType"], visibilityMaskType);
+        args["visibilityMaskType"] = visibilityMaskType;
         FieldToJson(args["visibilityMask"], visibilityMask);
     WriteBlockEnd();
 }
@@ -1068,7 +1068,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertWin32PerformanceCounterToTimeKHR
     PointerDecoder<XrTime>*                     time)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrConvertWin32PerformanceCounterToTimeKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["performanceCounter"], *performanceCounter->GetPointer());
@@ -1084,7 +1084,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimeToWin32PerformanceCounterKHR
     PointerDecoder<LARGE_INTEGER>*              performanceCounter)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrConvertTimeToWin32PerformanceCounterKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["time"], time);
@@ -1100,7 +1100,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimespecTimeToTimeKHR(
     PointerDecoder<XrTime>*                     time)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrConvertTimespecTimeToTimeKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["timespecTime"], timespecTime);
@@ -1116,7 +1116,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimeToTimespecTimeKHR(
     StructPointerDecoder<Decoded_timespec>*     timespecTime)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrConvertTimeToTimespecTimeKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["time"], time);
@@ -1130,7 +1130,7 @@ void OpenXrExportJsonConsumer::Process_xrInitializeLoaderKHR(
     StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrInitializeLoaderKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         FieldToJson(args["loaderInitInfo"], loaderInitInfo);
     WriteBlockEnd();
@@ -1145,7 +1145,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateVulkanInstanceKHR(
     PointerDecoder<VkResult>*                   vulkanResult)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateVulkanInstanceKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["createInfo"], createInfo);
@@ -1163,7 +1163,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateVulkanDeviceKHR(
     PointerDecoder<VkResult>*                   vulkanResult)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateVulkanDeviceKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["createInfo"], createInfo);
@@ -1180,7 +1180,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanGraphicsDevice2KHR(
     HandlePointerDecoder<VkPhysicalDevice>*     vulkanPhysicalDevice)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanGraphicsDevice2KHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["getInfo"], getInfo);
@@ -1196,7 +1196,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanGraphicsRequirements2KHR(
     StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanGraphicsRequirements2KHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -1212,7 +1212,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateSpacesKHR(
     StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLocateSpacesKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["locateInfo"], locateInfo);
@@ -1228,11 +1228,11 @@ void OpenXrExportJsonConsumer::Process_xrPerfSettingsSetPerformanceLevelEXT(
     XrPerfSettingsLevelEXT                      level)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPerfSettingsSetPerformanceLevelEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["domain"], domain);
-        FieldToJson(args["level"], level);
+        args["domain"] = domain;
+        args["level"] = level;
     WriteBlockEnd();
 }
 
@@ -1246,10 +1246,10 @@ void OpenXrExportJsonConsumer::Process_xrThermalGetTemperatureTrendEXT(
     PointerDecoder<float>*                      tempSlope)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrThermalGetTemperatureTrendEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["domain"], domain);
+        args["domain"] = domain;
         FieldToJson(args["notificationLevel"], notificationLevel);
         FieldToJson(args["tempHeadroom"], tempHeadroom);
         FieldToJson(args["tempSlope"], tempSlope);
@@ -1263,7 +1263,7 @@ void OpenXrExportJsonConsumer::Process_xrSetDebugUtilsObjectNameEXT(
     StructPointerDecoder<Decoded_XrDebugUtilsObjectNameInfoEXT>* nameInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetDebugUtilsObjectNameEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["nameInfo"], nameInfo);
@@ -1278,7 +1278,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateDebugUtilsMessengerEXT(
     HandlePointerDecoder<XrDebugUtilsMessengerEXT>* messenger)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateDebugUtilsMessengerEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["createInfo"], createInfo);
@@ -1292,7 +1292,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyDebugUtilsMessengerEXT(
     format::HandleId                            messenger)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyDebugUtilsMessengerEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["messenger"], messenger);
     WriteBlockEnd();
@@ -1307,11 +1307,11 @@ void OpenXrExportJsonConsumer::Process_xrSubmitDebugUtilsMessageEXT(
     StructPointerDecoder<Decoded_XrDebugUtilsMessengerCallbackDataEXT>* callbackData)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSubmitDebugUtilsMessageEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(args["messageSeverity"], XrDebugUtilsMessageSeverityFlagsEXT_t{messageSeverity});
-        FieldToJson(args["messageTypes"], XrDebugUtilsMessageTypeFlagsEXT_t{messageTypes});
+        args["messageSeverity"] = XrDebugUtilsMessageSeverityFlagsEXT_t{messageSeverity};
+        args["messageTypes"] = XrDebugUtilsMessageTypeFlagsEXT_t{messageTypes};
         FieldToJson(args["callbackData"], callbackData);
     WriteBlockEnd();
 }
@@ -1323,7 +1323,7 @@ void OpenXrExportJsonConsumer::Process_xrSessionBeginDebugUtilsLabelRegionEXT(
     StructPointerDecoder<Decoded_XrDebugUtilsLabelEXT>* labelInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSessionBeginDebugUtilsLabelRegionEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["labelInfo"], labelInfo);
@@ -1336,7 +1336,7 @@ void OpenXrExportJsonConsumer::Process_xrSessionEndDebugUtilsLabelRegionEXT(
     format::HandleId                            session)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSessionEndDebugUtilsLabelRegionEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
     WriteBlockEnd();
@@ -1349,7 +1349,7 @@ void OpenXrExportJsonConsumer::Process_xrSessionInsertDebugUtilsLabelEXT(
     StructPointerDecoder<Decoded_XrDebugUtilsLabelEXT>* labelInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSessionInsertDebugUtilsLabelEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["labelInfo"], labelInfo);
@@ -1364,7 +1364,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorMSFT(
     HandlePointerDecoder<XrSpatialAnchorMSFT>*  anchor)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialAnchorMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -1380,7 +1380,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorSpaceMSFT(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialAnchorSpaceMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -1394,7 +1394,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySpatialAnchorMSFT(
     format::HandleId                            anchor)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySpatialAnchorMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["anchor"], anchor);
     WriteBlockEnd();
@@ -1409,7 +1409,7 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceActiveEXT(
     XrBool32                                    isActive)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceActiveEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["interactionProfile"], interactionProfile);
@@ -1427,7 +1427,7 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceStateBoolEXT(
     XrBool32                                    state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceStateBoolEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["topLevelPath"], topLevelPath);
@@ -1445,7 +1445,7 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceStateFloatEXT(
     float                                       state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceStateFloatEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["topLevelPath"], topLevelPath);
@@ -1463,7 +1463,7 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceStateVector2fEXT(
     Decoded_XrVector2f                          state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceStateVector2fEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["topLevelPath"], topLevelPath);
@@ -1482,7 +1482,7 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceLocationEXT(
     Decoded_XrPosef                             pose)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceLocationEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["topLevelPath"], topLevelPath);
@@ -1500,7 +1500,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialGraphNodeSpaceMSFT(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialGraphNodeSpaceMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -1516,7 +1516,7 @@ void OpenXrExportJsonConsumer::Process_xrTryCreateSpatialGraphStaticNodeBindingM
     HandlePointerDecoder<XrSpatialGraphNodeBindingMSFT>* nodeBinding)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrTryCreateSpatialGraphStaticNodeBindingMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -1530,7 +1530,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySpatialGraphNodeBindingMSFT(
     format::HandleId                            nodeBinding)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySpatialGraphNodeBindingMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["nodeBinding"], nodeBinding);
     WriteBlockEnd();
@@ -1544,7 +1544,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpatialGraphNodeBindingPropertiesMSF
     StructPointerDecoder<Decoded_XrSpatialGraphNodeBindingPropertiesMSFT>* properties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpatialGraphNodeBindingPropertiesMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["nodeBinding"], nodeBinding);
         FieldToJson(args["getInfo"], getInfo);
@@ -1560,7 +1560,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateHandTrackerEXT(
     HandlePointerDecoder<XrHandTrackerEXT>*     handTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateHandTrackerEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -1574,7 +1574,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyHandTrackerEXT(
     format::HandleId                            handTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyHandTrackerEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["handTracker"], handTracker);
     WriteBlockEnd();
@@ -1588,7 +1588,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateHandJointsEXT(
     StructPointerDecoder<Decoded_XrHandJointLocationsEXT>* locations)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLocateHandJointsEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["handTracker"], handTracker);
         FieldToJson(args["locateInfo"], locateInfo);
@@ -1604,7 +1604,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateHandMeshSpaceMSFT(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateHandMeshSpaceMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["handTracker"], handTracker);
         FieldToJson(args["createInfo"], createInfo);
@@ -1620,7 +1620,7 @@ void OpenXrExportJsonConsumer::Process_xrUpdateHandMeshMSFT(
     StructPointerDecoder<Decoded_XrHandMeshMSFT>* handMesh)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrUpdateHandMeshMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["handTracker"], handTracker);
         FieldToJson(args["updateInfo"], updateInfo);
@@ -1636,7 +1636,7 @@ void OpenXrExportJsonConsumer::Process_xrGetControllerModelKeyMSFT(
     StructPointerDecoder<Decoded_XrControllerModelKeyStateMSFT>* controllerModelKeyState)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetControllerModelKeyMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["topLevelUserPath"], topLevelUserPath);
@@ -1654,7 +1654,7 @@ void OpenXrExportJsonConsumer::Process_xrLoadControllerModelMSFT(
     PointerDecoder<uint8_t>*                    buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLoadControllerModelMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["modelKey"], modelKey);
@@ -1672,7 +1672,7 @@ void OpenXrExportJsonConsumer::Process_xrGetControllerModelPropertiesMSFT(
     StructPointerDecoder<Decoded_XrControllerModelPropertiesMSFT>* properties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetControllerModelPropertiesMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["modelKey"], modelKey);
@@ -1688,7 +1688,7 @@ void OpenXrExportJsonConsumer::Process_xrGetControllerModelStateMSFT(
     StructPointerDecoder<Decoded_XrControllerModelStateMSFT>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetControllerModelStateMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["modelKey"], modelKey);
@@ -1704,7 +1704,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorFromPerceptionAnchor
     HandlePointerDecoder<XrSpatialAnchorMSFT>*  anchor)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialAnchorFromPerceptionAnchorMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["perceptionAnchor"], perceptionAnchor);
@@ -1720,7 +1720,7 @@ void OpenXrExportJsonConsumer::Process_xrTryGetPerceptionAnchorFromSpatialAnchor
     PointerDecoder<uint64_t, void*>*            perceptionAnchor)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrTryGetPerceptionAnchorFromSpatialAnchorMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["anchor"], anchor);
@@ -1739,11 +1739,11 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateReprojectionModesMSFT(
     PointerDecoder<XrReprojectionModeMSFT>*     modes)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateReprojectionModesMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["viewConfigurationType"], viewConfigurationType);
+        args["viewConfigurationType"] = viewConfigurationType;
         FieldToJson(args["modeCapacityInput"], modeCapacityInput);
         FieldToJson(args["modeCountOutput"], modeCountOutput);
         FieldToJson(args["modes"], modes);
@@ -1757,7 +1757,7 @@ void OpenXrExportJsonConsumer::Process_xrUpdateSwapchainFB(
     StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrUpdateSwapchainFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
         FieldToJson(args["state"], state);
@@ -1771,7 +1771,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSwapchainStateFB(
     StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSwapchainStateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
         FieldToJson(args["state"], state);
@@ -1786,7 +1786,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateBodyTrackerFB(
     HandlePointerDecoder<XrBodyTrackerFB>*      bodyTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateBodyTrackerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -1800,7 +1800,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyBodyTrackerFB(
     format::HandleId                            bodyTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyBodyTrackerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["bodyTracker"], bodyTracker);
     WriteBlockEnd();
@@ -1814,7 +1814,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateBodyJointsFB(
     StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLocateBodyJointsFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["bodyTracker"], bodyTracker);
         FieldToJson(args["locateInfo"], locateInfo);
@@ -1829,7 +1829,7 @@ void OpenXrExportJsonConsumer::Process_xrGetBodySkeletonFB(
     StructPointerDecoder<Decoded_XrBodySkeletonFB>* skeleton)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetBodySkeletonFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["bodyTracker"], bodyTracker);
         FieldToJson(args["skeleton"], skeleton);
@@ -1846,7 +1846,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateSceneComputeFeaturesMSFT(
     PointerDecoder<XrSceneComputeFeatureMSFT>*  features)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateSceneComputeFeaturesMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
@@ -1864,7 +1864,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSceneObserverMSFT(
     HandlePointerDecoder<XrSceneObserverMSFT>*  sceneObserver)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSceneObserverMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -1878,7 +1878,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySceneObserverMSFT(
     format::HandleId                            sceneObserver)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySceneObserverMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["sceneObserver"], sceneObserver);
     WriteBlockEnd();
@@ -1892,7 +1892,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSceneMSFT(
     HandlePointerDecoder<XrSceneMSFT>*          scene)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSceneMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["sceneObserver"], sceneObserver);
         FieldToJson(args["createInfo"], createInfo);
@@ -1906,7 +1906,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySceneMSFT(
     format::HandleId                            scene)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySceneMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
     WriteBlockEnd();
@@ -1919,7 +1919,7 @@ void OpenXrExportJsonConsumer::Process_xrComputeNewSceneMSFT(
     StructPointerDecoder<Decoded_XrNewSceneComputeInfoMSFT>* computeInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrComputeNewSceneMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["sceneObserver"], sceneObserver);
         FieldToJson(args["computeInfo"], computeInfo);
@@ -1933,7 +1933,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSceneComputeStateMSFT(
     PointerDecoder<XrSceneComputeStateMSFT>*    state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSceneComputeStateMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["sceneObserver"], sceneObserver);
         FieldToJson(args["state"], state);
@@ -1948,7 +1948,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSceneComponentsMSFT(
     StructPointerDecoder<Decoded_XrSceneComponentsMSFT>* components)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSceneComponentsMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["getInfo"], getInfo);
@@ -1964,7 +1964,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateSceneComponentsMSFT(
     StructPointerDecoder<Decoded_XrSceneComponentLocationsMSFT>* locations)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLocateSceneComponentsMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["locateInfo"], locateInfo);
@@ -1980,7 +1980,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSceneMeshBuffersMSFT(
     StructPointerDecoder<Decoded_XrSceneMeshBuffersMSFT>* buffers)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSceneMeshBuffersMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["getInfo"], getInfo);
@@ -1995,7 +1995,7 @@ void OpenXrExportJsonConsumer::Process_xrDeserializeSceneMSFT(
     StructPointerDecoder<Decoded_XrSceneDeserializeInfoMSFT>* deserializeInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDeserializeSceneMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["sceneObserver"], sceneObserver);
         FieldToJson(args["deserializeInfo"], deserializeInfo);
@@ -2012,7 +2012,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSerializedSceneFragmentDataMSFT(
     PointerDecoder<uint8_t>*                    buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSerializedSceneFragmentDataMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["getInfo"], getInfo);
@@ -2031,7 +2031,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateDisplayRefreshRatesFB(
     PointerDecoder<float>*                      displayRefreshRates)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateDisplayRefreshRatesFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["displayRefreshRateCapacityInput"], displayRefreshRateCapacityInput);
@@ -2047,7 +2047,7 @@ void OpenXrExportJsonConsumer::Process_xrGetDisplayRefreshRateFB(
     PointerDecoder<float>*                      displayRefreshRate)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetDisplayRefreshRateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["displayRefreshRate"], displayRefreshRate);
@@ -2061,7 +2061,7 @@ void OpenXrExportJsonConsumer::Process_xrRequestDisplayRefreshRateFB(
     float                                       displayRefreshRate)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrRequestDisplayRefreshRateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["displayRefreshRate"], displayRefreshRate);
@@ -2077,7 +2077,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViveTrackerPathsHTCX(
     StructPointerDecoder<Decoded_XrViveTrackerPathsHTCX>* paths)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateViveTrackerPathsHTCX");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["pathCapacityInput"], pathCapacityInput);
@@ -2094,7 +2094,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateFacialTrackerHTC(
     HandlePointerDecoder<XrFacialTrackerHTC>*   facialTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateFacialTrackerHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2108,7 +2108,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyFacialTrackerHTC(
     format::HandleId                            facialTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyFacialTrackerHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["facialTracker"], facialTracker);
     WriteBlockEnd();
@@ -2121,7 +2121,7 @@ void OpenXrExportJsonConsumer::Process_xrGetFacialExpressionsHTC(
     StructPointerDecoder<Decoded_XrFacialExpressionsHTC>* facialExpressions)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetFacialExpressionsHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["facialTracker"], facialTracker);
         FieldToJson(args["facialExpressions"], facialExpressions);
@@ -2137,7 +2137,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateColorSpacesFB(
     PointerDecoder<XrColorSpaceFB>*             colorSpaces)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateColorSpacesFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["colorSpaceCapacityInput"], colorSpaceCapacityInput);
@@ -2153,10 +2153,10 @@ void OpenXrExportJsonConsumer::Process_xrSetColorSpaceFB(
     XrColorSpaceFB                              colorSpace)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetColorSpaceFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["colorSpace"], colorSpace);
+        args["colorSpace"] = colorSpace;
     WriteBlockEnd();
 }
 
@@ -2167,7 +2167,7 @@ void OpenXrExportJsonConsumer::Process_xrGetHandMeshFB(
     StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetHandMeshFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["handTracker"], handTracker);
         FieldToJson(args["mesh"], mesh);
@@ -2182,7 +2182,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialAnchorFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -2197,7 +2197,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceUuidFB(
     StructPointerDecoder<Decoded_XrUuid>*       uuid)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceUuidFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
         FieldToJson(args["uuid"], uuid);
@@ -2213,7 +2213,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateSpaceSupportedComponentsFB(
     PointerDecoder<XrSpaceComponentTypeFB>*     componentTypes)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateSpaceSupportedComponentsFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
         FieldToJson(args["componentTypeCapacityInput"], componentTypeCapacityInput);
@@ -2230,7 +2230,7 @@ void OpenXrExportJsonConsumer::Process_xrSetSpaceComponentStatusFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetSpaceComponentStatusFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
         FieldToJson(args["info"], info);
@@ -2246,10 +2246,10 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceComponentStatusFB(
     StructPointerDecoder<Decoded_XrSpaceComponentStatusFB>* status)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceComponentStatusFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
-        FieldToJson(args["componentType"], componentType);
+        args["componentType"] = componentType;
         FieldToJson(args["status"], status);
     WriteBlockEnd();
 }
@@ -2262,7 +2262,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateFoveationProfileFB(
     HandlePointerDecoder<XrFoveationProfileFB>* profile)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateFoveationProfileFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2276,7 +2276,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyFoveationProfileFB(
     format::HandleId                            profile)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyFoveationProfileFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["profile"], profile);
     WriteBlockEnd();
@@ -2290,7 +2290,7 @@ void OpenXrExportJsonConsumer::Process_xrQuerySystemTrackedKeyboardFB(
     StructPointerDecoder<Decoded_XrKeyboardTrackingDescriptionFB>* keyboard)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrQuerySystemTrackedKeyboardFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["queryInfo"], queryInfo);
@@ -2306,7 +2306,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateKeyboardSpaceFB(
     HandlePointerDecoder<XrSpace>*              keyboardSpace)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateKeyboardSpaceFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2320,7 +2320,7 @@ void OpenXrExportJsonConsumer::Process_xrTriangleMeshBeginUpdateFB(
     format::HandleId                            mesh)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrTriangleMeshBeginUpdateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["mesh"], mesh);
     WriteBlockEnd();
@@ -2334,7 +2334,7 @@ void OpenXrExportJsonConsumer::Process_xrTriangleMeshEndUpdateFB(
     uint32_t                                    triangleCount)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrTriangleMeshEndUpdateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["mesh"], mesh);
         FieldToJson(args["vertexCount"], vertexCount);
@@ -2349,7 +2349,7 @@ void OpenXrExportJsonConsumer::Process_xrTriangleMeshBeginVertexBufferUpdateFB(
     PointerDecoder<uint32_t>*                   outVertexCount)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrTriangleMeshBeginVertexBufferUpdateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["mesh"], mesh);
         FieldToJson(args["outVertexCount"], outVertexCount);
@@ -2362,7 +2362,7 @@ void OpenXrExportJsonConsumer::Process_xrTriangleMeshEndVertexBufferUpdateFB(
     format::HandleId                            mesh)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrTriangleMeshEndVertexBufferUpdateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["mesh"], mesh);
     WriteBlockEnd();
@@ -2376,7 +2376,7 @@ void OpenXrExportJsonConsumer::Process_xrCreatePassthroughFB(
     HandlePointerDecoder<XrPassthroughFB>*      outPassthrough)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreatePassthroughFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2390,7 +2390,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyPassthroughFB(
     format::HandleId                            passthrough)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyPassthroughFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["passthrough"], passthrough);
     WriteBlockEnd();
@@ -2402,7 +2402,7 @@ void OpenXrExportJsonConsumer::Process_xrPassthroughStartFB(
     format::HandleId                            passthrough)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPassthroughStartFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["passthrough"], passthrough);
     WriteBlockEnd();
@@ -2414,7 +2414,7 @@ void OpenXrExportJsonConsumer::Process_xrPassthroughPauseFB(
     format::HandleId                            passthrough)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPassthroughPauseFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["passthrough"], passthrough);
     WriteBlockEnd();
@@ -2428,7 +2428,7 @@ void OpenXrExportJsonConsumer::Process_xrCreatePassthroughLayerFB(
     HandlePointerDecoder<XrPassthroughLayerFB>* outLayer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreatePassthroughLayerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2442,7 +2442,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyPassthroughLayerFB(
     format::HandleId                            layer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyPassthroughLayerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["layer"], layer);
     WriteBlockEnd();
@@ -2454,7 +2454,7 @@ void OpenXrExportJsonConsumer::Process_xrPassthroughLayerPauseFB(
     format::HandleId                            layer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPassthroughLayerPauseFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["layer"], layer);
     WriteBlockEnd();
@@ -2466,7 +2466,7 @@ void OpenXrExportJsonConsumer::Process_xrPassthroughLayerResumeFB(
     format::HandleId                            layer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPassthroughLayerResumeFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["layer"], layer);
     WriteBlockEnd();
@@ -2479,7 +2479,7 @@ void OpenXrExportJsonConsumer::Process_xrPassthroughLayerSetStyleFB(
     StructPointerDecoder<Decoded_XrPassthroughStyleFB>* style)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPassthroughLayerSetStyleFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["layer"], layer);
         FieldToJson(args["style"], style);
@@ -2494,7 +2494,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateGeometryInstanceFB(
     HandlePointerDecoder<XrGeometryInstanceFB>* outGeometryInstance)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateGeometryInstanceFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2508,7 +2508,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyGeometryInstanceFB(
     format::HandleId                            instance)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyGeometryInstanceFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
     WriteBlockEnd();
@@ -2521,7 +2521,7 @@ void OpenXrExportJsonConsumer::Process_xrGeometryInstanceSetTransformFB(
     StructPointerDecoder<Decoded_XrGeometryInstanceTransformFB>* transformation)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGeometryInstanceSetTransformFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["transformation"], transformation);
@@ -2537,7 +2537,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateRenderModelPathsFB(
     StructPointerDecoder<Decoded_XrRenderModelPathInfoFB>* paths)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateRenderModelPathsFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["pathCapacityInput"], pathCapacityInput);
@@ -2554,7 +2554,7 @@ void OpenXrExportJsonConsumer::Process_xrGetRenderModelPropertiesFB(
     StructPointerDecoder<Decoded_XrRenderModelPropertiesFB>* properties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetRenderModelPropertiesFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["path"], path);
@@ -2570,7 +2570,7 @@ void OpenXrExportJsonConsumer::Process_xrLoadRenderModelFB(
     StructPointerDecoder<Decoded_XrRenderModelBufferFB>* buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrLoadRenderModelFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -2585,7 +2585,7 @@ void OpenXrExportJsonConsumer::Process_xrSetEnvironmentDepthEstimationVARJO(
     XrBool32                                    enabled)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetEnvironmentDepthEstimationVARJO");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         Bool32ToJson(args["enabled"], enabled);
@@ -2599,7 +2599,7 @@ void OpenXrExportJsonConsumer::Process_xrSetMarkerTrackingVARJO(
     XrBool32                                    enabled)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetMarkerTrackingVARJO");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         Bool32ToJson(args["enabled"], enabled);
@@ -2614,7 +2614,7 @@ void OpenXrExportJsonConsumer::Process_xrSetMarkerTrackingTimeoutVARJO(
     XrDuration                                  timeout)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetMarkerTrackingTimeoutVARJO");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["markerId"], markerId);
@@ -2630,7 +2630,7 @@ void OpenXrExportJsonConsumer::Process_xrSetMarkerTrackingPredictionVARJO(
     XrBool32                                    enable)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetMarkerTrackingPredictionVARJO");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["markerId"], markerId);
@@ -2646,7 +2646,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerSizeVARJO(
     StructPointerDecoder<Decoded_XrExtent2Df>*  size)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerSizeVARJO");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["markerId"], markerId);
@@ -2662,7 +2662,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateMarkerSpaceVARJO(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateMarkerSpaceVARJO");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2677,7 +2677,7 @@ void OpenXrExportJsonConsumer::Process_xrSetViewOffsetVARJO(
     float                                       offset)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetViewOffsetVARJO");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["offset"], offset);
@@ -2692,7 +2692,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpaceFromCoordinateFrameUIDML(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpaceFromCoordinateFrameUIDML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2708,7 +2708,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateMarkerDetectorML(
     HandlePointerDecoder<XrMarkerDetectorML>*   markerDetector)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateMarkerDetectorML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2722,7 +2722,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyMarkerDetectorML(
     format::HandleId                            markerDetector)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyMarkerDetectorML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
     WriteBlockEnd();
@@ -2735,7 +2735,7 @@ void OpenXrExportJsonConsumer::Process_xrSnapshotMarkerDetectorML(
     StructPointerDecoder<Decoded_XrMarkerDetectorSnapshotInfoML>* snapshotInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSnapshotMarkerDetectorML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         FieldToJson(args["snapshotInfo"], snapshotInfo);
@@ -2749,7 +2749,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerDetectorStateML(
     StructPointerDecoder<Decoded_XrMarkerDetectorStateML>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerDetectorStateML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         FieldToJson(args["state"], state);
@@ -2765,7 +2765,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkersML(
     HandlePointerDecoder<XrMarkerML>*           markers)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkersML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         FieldToJson(args["markerCapacityInput"], markerCapacityInput);
@@ -2782,7 +2782,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerReprojectionErrorML(
     PointerDecoder<float>*                      reprojectionErrorMeters)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerReprojectionErrorML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         HandleToJson(args["marker"], marker);
@@ -2798,7 +2798,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerLengthML(
     PointerDecoder<float>*                      meters)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerLengthML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         HandleToJson(args["marker"], marker);
@@ -2814,7 +2814,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerNumberML(
     PointerDecoder<uint64_t>*                   number)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerNumberML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         HandleToJson(args["marker"], marker);
@@ -2832,7 +2832,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerStringML(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerStringML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         HandleToJson(args["marker"], marker);
@@ -2850,7 +2850,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateMarkerSpaceML(
     HandlePointerDecoder<XrSpace>*              space)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateMarkerSpaceML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -2865,7 +2865,7 @@ void OpenXrExportJsonConsumer::Process_xrEnableLocalizationEventsML(
     StructPointerDecoder<Decoded_XrLocalizationEnableEventsInfoML>* info)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnableLocalizationEventsML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -2882,7 +2882,7 @@ void OpenXrExportJsonConsumer::Process_xrQueryLocalizationMapsML(
     StructPointerDecoder<Decoded_XrLocalizationMapML>* maps)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrQueryLocalizationMapsML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["queryInfo"], queryInfo);
@@ -2899,7 +2899,7 @@ void OpenXrExportJsonConsumer::Process_xrRequestMapLocalizationML(
     StructPointerDecoder<Decoded_XrMapLocalizationRequestInfoML>* requestInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrRequestMapLocalizationML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["requestInfo"], requestInfo);
@@ -2914,7 +2914,7 @@ void OpenXrExportJsonConsumer::Process_xrImportLocalizationMapML(
     StructPointerDecoder<Decoded_XrUuid>*       mapUuid)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrImportLocalizationMapML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["importInfo"], importInfo);
@@ -2930,7 +2930,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateExportedLocalizationMapML(
     HandlePointerDecoder<XrExportedLocalizationMapML>* map)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateExportedLocalizationMapML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["mapUuid"], mapUuid);
@@ -2944,7 +2944,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyExportedLocalizationMapML(
     format::HandleId                            map)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyExportedLocalizationMapML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["map"], map);
     WriteBlockEnd();
@@ -2959,7 +2959,7 @@ void OpenXrExportJsonConsumer::Process_xrGetExportedLocalizationMapDataML(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetExportedLocalizationMapDataML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["map"], map);
         FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
@@ -2975,7 +2975,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorStoreConnectionMSFT(
     HandlePointerDecoder<XrSpatialAnchorStoreConnectionMSFT>* spatialAnchorStore)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialAnchorStoreConnectionMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["spatialAnchorStore"], spatialAnchorStore);
@@ -2988,7 +2988,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySpatialAnchorStoreConnectionMSFT
     format::HandleId                            spatialAnchorStore)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySpatialAnchorStoreConnectionMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["spatialAnchorStore"], spatialAnchorStore);
     WriteBlockEnd();
@@ -3001,7 +3001,7 @@ void OpenXrExportJsonConsumer::Process_xrPersistSpatialAnchorMSFT(
     StructPointerDecoder<Decoded_XrSpatialAnchorPersistenceInfoMSFT>* spatialAnchorPersistenceInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPersistSpatialAnchorMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["spatialAnchorStore"], spatialAnchorStore);
         FieldToJson(args["spatialAnchorPersistenceInfo"], spatialAnchorPersistenceInfo);
@@ -3017,7 +3017,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumeratePersistedSpatialAnchorNamesMSF
     StructPointerDecoder<Decoded_XrSpatialAnchorPersistenceNameMSFT>* spatialAnchorNames)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumeratePersistedSpatialAnchorNamesMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["spatialAnchorStore"], spatialAnchorStore);
         FieldToJson(args["spatialAnchorNameCapacityInput"], spatialAnchorNameCapacityInput);
@@ -3034,7 +3034,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorFromPersistedNameMSF
     HandlePointerDecoder<XrSpatialAnchorMSFT>*  spatialAnchor)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialAnchorFromPersistedNameMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["spatialAnchorCreateInfo"], spatialAnchorCreateInfo);
@@ -3049,7 +3049,7 @@ void OpenXrExportJsonConsumer::Process_xrUnpersistSpatialAnchorMSFT(
     StructPointerDecoder<Decoded_XrSpatialAnchorPersistenceNameMSFT>* spatialAnchorPersistenceName)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrUnpersistSpatialAnchorMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["spatialAnchorStore"], spatialAnchorStore);
         FieldToJson(args["spatialAnchorPersistenceName"], spatialAnchorPersistenceName);
@@ -3062,7 +3062,7 @@ void OpenXrExportJsonConsumer::Process_xrClearSpatialAnchorStoreMSFT(
     format::HandleId                            spatialAnchorStore)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrClearSpatialAnchorStoreMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["spatialAnchorStore"], spatialAnchorStore);
     WriteBlockEnd();
@@ -3078,7 +3078,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSceneMarkerRawDataMSFT(
     PointerDecoder<uint8_t>*                    buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSceneMarkerRawDataMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["markerId"], markerId);
@@ -3098,7 +3098,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSceneMarkerDecodedStringMSFT(
     StringDecoder*                              buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSceneMarkerDecodedStringMSFT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["markerId"], markerId);
@@ -3116,7 +3116,7 @@ void OpenXrExportJsonConsumer::Process_xrQuerySpacesFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrQuerySpacesFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3132,7 +3132,7 @@ void OpenXrExportJsonConsumer::Process_xrRetrieveSpaceQueryResultsFB(
     StructPointerDecoder<Decoded_XrSpaceQueryResultsFB>* results)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrRetrieveSpaceQueryResultsFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["requestId"], requestId);
@@ -3148,7 +3148,7 @@ void OpenXrExportJsonConsumer::Process_xrSaveSpaceFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSaveSpaceFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3164,7 +3164,7 @@ void OpenXrExportJsonConsumer::Process_xrEraseSpaceFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEraseSpaceFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3179,7 +3179,7 @@ void OpenXrExportJsonConsumer::Process_xrGetAudioOutputDeviceGuidOculus(
     WStringDecoder*                             buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetAudioOutputDeviceGuidOculus");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["buffer"], buffer);
@@ -3193,7 +3193,7 @@ void OpenXrExportJsonConsumer::Process_xrGetAudioInputDeviceGuidOculus(
     WStringDecoder*                             buffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetAudioInputDeviceGuidOculus");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["buffer"], buffer);
@@ -3208,7 +3208,7 @@ void OpenXrExportJsonConsumer::Process_xrShareSpacesFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrShareSpacesFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3224,7 +3224,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceBoundingBox2DFB(
     StructPointerDecoder<Decoded_XrRect2Df>*    boundingBox2DOutput)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceBoundingBox2DFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["space"], space);
@@ -3240,7 +3240,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceBoundingBox3DFB(
     StructPointerDecoder<Decoded_XrRect3DfFB>*  boundingBox3DOutput)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceBoundingBox3DFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["space"], space);
@@ -3256,7 +3256,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceSemanticLabelsFB(
     StructPointerDecoder<Decoded_XrSemanticLabelsFB>* semanticLabelsOutput)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceSemanticLabelsFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["space"], space);
@@ -3272,7 +3272,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceBoundary2DFB(
     StructPointerDecoder<Decoded_XrBoundary2DFB>* boundary2DOutput)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceBoundary2DFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["space"], space);
@@ -3288,7 +3288,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceRoomLayoutFB(
     StructPointerDecoder<Decoded_XrRoomLayoutFB>* roomLayoutOutput)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceRoomLayoutFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["space"], space);
@@ -3303,7 +3303,7 @@ void OpenXrExportJsonConsumer::Process_xrSetDigitalLensControlALMALENCE(
     StructPointerDecoder<Decoded_XrDigitalLensControlALMALENCE>* digitalLensControl)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetDigitalLensControlALMALENCE");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["digitalLensControl"], digitalLensControl);
@@ -3318,7 +3318,7 @@ void OpenXrExportJsonConsumer::Process_xrRequestSceneCaptureFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrRequestSceneCaptureFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3334,7 +3334,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceContainerFB(
     StructPointerDecoder<Decoded_XrSpaceContainerFB>* spaceContainerOutput)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceContainerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["space"], space);
@@ -3349,7 +3349,7 @@ void OpenXrExportJsonConsumer::Process_xrGetFoveationEyeTrackedStateMETA(
     StructPointerDecoder<Decoded_XrFoveationEyeTrackedStateMETA>* foveationState)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetFoveationEyeTrackedStateMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["foveationState"], foveationState);
@@ -3364,7 +3364,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateFaceTrackerFB(
     HandlePointerDecoder<XrFaceTrackerFB>*      faceTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateFaceTrackerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -3378,7 +3378,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyFaceTrackerFB(
     format::HandleId                            faceTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyFaceTrackerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["faceTracker"], faceTracker);
     WriteBlockEnd();
@@ -3392,7 +3392,7 @@ void OpenXrExportJsonConsumer::Process_xrGetFaceExpressionWeightsFB(
     StructPointerDecoder<Decoded_XrFaceExpressionWeightsFB>* expressionWeights)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetFaceExpressionWeightsFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["faceTracker"], faceTracker);
         FieldToJson(args["expressionInfo"], expressionInfo);
@@ -3408,7 +3408,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateEyeTrackerFB(
     HandlePointerDecoder<XrEyeTrackerFB>*       eyeTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateEyeTrackerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -3422,7 +3422,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyEyeTrackerFB(
     format::HandleId                            eyeTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyEyeTrackerFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["eyeTracker"], eyeTracker);
     WriteBlockEnd();
@@ -3436,7 +3436,7 @@ void OpenXrExportJsonConsumer::Process_xrGetEyeGazesFB(
     StructPointerDecoder<Decoded_XrEyeGazesFB>* eyeGazes)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetEyeGazesFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["eyeTracker"], eyeTracker);
         FieldToJson(args["gazeInfo"], gazeInfo);
@@ -3451,7 +3451,7 @@ void OpenXrExportJsonConsumer::Process_xrPassthroughLayerSetKeyboardHandsIntensi
     StructPointerDecoder<Decoded_XrPassthroughKeyboardHandsIntensityFB>* intensity)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPassthroughLayerSetKeyboardHandsIntensityFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["layer"], layer);
         FieldToJson(args["intensity"], intensity);
@@ -3466,7 +3466,7 @@ void OpenXrExportJsonConsumer::Process_xrGetDeviceSampleRateFB(
     StructPointerDecoder<Decoded_XrDevicePcmSampleRateStateFB>* deviceSampleRate)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetDeviceSampleRateFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["hapticActionInfo"], hapticActionInfo);
@@ -3481,7 +3481,7 @@ void OpenXrExportJsonConsumer::Process_xrGetPassthroughPreferencesMETA(
     StructPointerDecoder<Decoded_XrPassthroughPreferencesMETA>* preferences)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetPassthroughPreferencesMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["preferences"], preferences);
@@ -3496,7 +3496,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateVirtualKeyboardMETA(
     HandlePointerDecoder<XrVirtualKeyboardMETA>* keyboard)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateVirtualKeyboardMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -3510,7 +3510,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyVirtualKeyboardMETA(
     format::HandleId                            keyboard)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyVirtualKeyboardMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
     WriteBlockEnd();
@@ -3525,7 +3525,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateVirtualKeyboardSpaceMETA(
     HandlePointerDecoder<XrSpace>*              keyboardSpace)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateVirtualKeyboardSpaceMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["keyboard"], keyboard);
@@ -3541,7 +3541,7 @@ void OpenXrExportJsonConsumer::Process_xrSuggestVirtualKeyboardLocationMETA(
     StructPointerDecoder<Decoded_XrVirtualKeyboardLocationInfoMETA>* locationInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSuggestVirtualKeyboardLocationMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["locationInfo"], locationInfo);
@@ -3555,7 +3555,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVirtualKeyboardScaleMETA(
     PointerDecoder<float>*                      scale)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVirtualKeyboardScaleMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["scale"], scale);
@@ -3569,7 +3569,7 @@ void OpenXrExportJsonConsumer::Process_xrSetVirtualKeyboardModelVisibilityMETA(
     StructPointerDecoder<Decoded_XrVirtualKeyboardModelVisibilitySetInfoMETA>* modelVisibility)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetVirtualKeyboardModelVisibilityMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["modelVisibility"], modelVisibility);
@@ -3583,7 +3583,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVirtualKeyboardModelAnimationStatesM
     StructPointerDecoder<Decoded_XrVirtualKeyboardModelAnimationStatesMETA>* animationStates)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVirtualKeyboardModelAnimationStatesMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["animationStates"], animationStates);
@@ -3599,7 +3599,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVirtualKeyboardDirtyTexturesMETA(
     PointerDecoder<uint64_t>*                   textureIds)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVirtualKeyboardDirtyTexturesMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["textureIdCapacityInput"], textureIdCapacityInput);
@@ -3616,7 +3616,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVirtualKeyboardTextureDataMETA(
     StructPointerDecoder<Decoded_XrVirtualKeyboardTextureDataMETA>* textureData)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVirtualKeyboardTextureDataMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["textureId"], textureId);
@@ -3632,7 +3632,7 @@ void OpenXrExportJsonConsumer::Process_xrSendVirtualKeyboardInputMETA(
     StructPointerDecoder<Decoded_XrPosef>*      interactorRootPose)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSendVirtualKeyboardInputMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["info"], info);
@@ -3647,7 +3647,7 @@ void OpenXrExportJsonConsumer::Process_xrChangeVirtualKeyboardTextContextMETA(
     StructPointerDecoder<Decoded_XrVirtualKeyboardTextContextChangeInfoMETA>* changeInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrChangeVirtualKeyboardTextContextMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
         FieldToJson(args["changeInfo"], changeInfo);
@@ -3663,7 +3663,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateExternalCamerasOCULUS(
     StructPointerDecoder<Decoded_XrExternalCameraOCULUS>* cameras)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateExternalCamerasOCULUS");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["cameraCapacityInput"], cameraCapacityInput);
@@ -3681,7 +3681,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumeratePerformanceMetricsCounterPaths
     HandlePointerDecoder<XrPath>*               counterPaths)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumeratePerformanceMetricsCounterPathsMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["counterPathCapacityInput"], counterPathCapacityInput);
@@ -3697,7 +3697,7 @@ void OpenXrExportJsonConsumer::Process_xrSetPerformanceMetricsStateMETA(
     StructPointerDecoder<Decoded_XrPerformanceMetricsStateMETA>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetPerformanceMetricsStateMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["state"], state);
@@ -3711,7 +3711,7 @@ void OpenXrExportJsonConsumer::Process_xrGetPerformanceMetricsStateMETA(
     StructPointerDecoder<Decoded_XrPerformanceMetricsStateMETA>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetPerformanceMetricsStateMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["state"], state);
@@ -3726,7 +3726,7 @@ void OpenXrExportJsonConsumer::Process_xrQueryPerformanceMetricsCounterMETA(
     StructPointerDecoder<Decoded_XrPerformanceMetricsCounterMETA>* counter)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrQueryPerformanceMetricsCounterMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["counterPath"], counterPath);
@@ -3742,7 +3742,7 @@ void OpenXrExportJsonConsumer::Process_xrSaveSpaceListFB(
     HandlePointerDecoder<XrAsyncRequestIdFB>*   requestId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSaveSpaceListFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3758,7 +3758,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpaceUserFB(
     HandlePointerDecoder<XrSpaceUserFB>*        user)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpaceUserFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3773,7 +3773,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceUserIdFB(
     PointerDecoder<XrSpaceUserIdFB>*            userId)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceUserIdFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["user"], user);
         FieldToJson(args["userId"], userId);
@@ -3786,7 +3786,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroySpaceUserFB(
     format::HandleId                            user)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroySpaceUserFB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["user"], user);
     WriteBlockEnd();
@@ -3800,7 +3800,7 @@ void OpenXrExportJsonConsumer::Process_xrGetRecommendedLayerResolutionMETA(
     StructPointerDecoder<Decoded_XrRecommendedLayerResolutionMETA>* resolution)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetRecommendedLayerResolutionMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
@@ -3816,7 +3816,7 @@ void OpenXrExportJsonConsumer::Process_xrCreatePassthroughColorLutMETA(
     HandlePointerDecoder<XrPassthroughColorLutMETA>* colorLut)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreatePassthroughColorLutMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["passthrough"], passthrough);
         FieldToJson(args["createInfo"], createInfo);
@@ -3830,7 +3830,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyPassthroughColorLutMETA(
     format::HandleId                            colorLut)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyPassthroughColorLutMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["colorLut"], colorLut);
     WriteBlockEnd();
@@ -3843,7 +3843,7 @@ void OpenXrExportJsonConsumer::Process_xrUpdatePassthroughColorLutMETA(
     StructPointerDecoder<Decoded_XrPassthroughColorLutUpdateInfoMETA>* updateInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrUpdatePassthroughColorLutMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["colorLut"], colorLut);
         FieldToJson(args["updateInfo"], updateInfo);
@@ -3858,7 +3858,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpaceTriangleMeshMETA(
     StructPointerDecoder<Decoded_XrSpaceTriangleMeshMETA>* triangleMeshOutput)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpaceTriangleMeshMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
         FieldToJson(args["getInfo"], getInfo);
@@ -3874,7 +3874,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateFaceTracker2FB(
     HandlePointerDecoder<XrFaceTracker2FB>*     faceTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateFaceTracker2FB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -3888,7 +3888,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyFaceTracker2FB(
     format::HandleId                            faceTracker)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyFaceTracker2FB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["faceTracker"], faceTracker);
     WriteBlockEnd();
@@ -3902,7 +3902,7 @@ void OpenXrExportJsonConsumer::Process_xrGetFaceExpressionWeights2FB(
     StructPointerDecoder<Decoded_XrFaceExpressionWeights2FB>* expressionWeights)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetFaceExpressionWeights2FB");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["faceTracker"], faceTracker);
         FieldToJson(args["expressionInfo"], expressionInfo);
@@ -3918,7 +3918,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateEnvironmentDepthProviderMETA(
     HandlePointerDecoder<XrEnvironmentDepthProviderMETA>* environmentDepthProvider)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateEnvironmentDepthProviderMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -3932,7 +3932,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyEnvironmentDepthProviderMETA(
     format::HandleId                            environmentDepthProvider)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyEnvironmentDepthProviderMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["environmentDepthProvider"], environmentDepthProvider);
     WriteBlockEnd();
@@ -3944,7 +3944,7 @@ void OpenXrExportJsonConsumer::Process_xrStartEnvironmentDepthProviderMETA(
     format::HandleId                            environmentDepthProvider)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrStartEnvironmentDepthProviderMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["environmentDepthProvider"], environmentDepthProvider);
     WriteBlockEnd();
@@ -3956,7 +3956,7 @@ void OpenXrExportJsonConsumer::Process_xrStopEnvironmentDepthProviderMETA(
     format::HandleId                            environmentDepthProvider)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrStopEnvironmentDepthProviderMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["environmentDepthProvider"], environmentDepthProvider);
     WriteBlockEnd();
@@ -3970,7 +3970,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateEnvironmentDepthSwapchainMETA(
     HandlePointerDecoder<XrEnvironmentDepthSwapchainMETA>* swapchain)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateEnvironmentDepthSwapchainMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["environmentDepthProvider"], environmentDepthProvider);
         FieldToJson(args["createInfo"], createInfo);
@@ -3984,7 +3984,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyEnvironmentDepthSwapchainMETA(
     format::HandleId                            swapchain)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyEnvironmentDepthSwapchainMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
     WriteBlockEnd();
@@ -3999,7 +3999,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateEnvironmentDepthSwapchainImage
     StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateEnvironmentDepthSwapchainImagesMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
         FieldToJson(args["imageCapacityInput"], imageCapacityInput);
@@ -4015,7 +4015,7 @@ void OpenXrExportJsonConsumer::Process_xrGetEnvironmentDepthSwapchainStateMETA(
     StructPointerDecoder<Decoded_XrEnvironmentDepthSwapchainStateMETA>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetEnvironmentDepthSwapchainStateMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
         FieldToJson(args["state"], state);
@@ -4030,7 +4030,7 @@ void OpenXrExportJsonConsumer::Process_xrAcquireEnvironmentDepthImageMETA(
     StructPointerDecoder<Decoded_XrEnvironmentDepthImageMETA>* environmentDepthImage)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrAcquireEnvironmentDepthImageMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["environmentDepthProvider"], environmentDepthProvider);
         FieldToJson(args["acquireInfo"], acquireInfo);
@@ -4045,7 +4045,7 @@ void OpenXrExportJsonConsumer::Process_xrSetEnvironmentDepthHandRemovalMETA(
     StructPointerDecoder<Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA>* setInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetEnvironmentDepthHandRemovalMETA");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["environmentDepthProvider"], environmentDepthProvider);
         FieldToJson(args["setInfo"], setInfo);
@@ -4060,11 +4060,11 @@ void OpenXrExportJsonConsumer::Process_xrSetTrackingOptimizationSettingsHintQCOM
     XrTrackingOptimizationSettingsHintQCOM      hint)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetTrackingOptimizationSettingsHintQCOM");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["domain"], domain);
-        FieldToJson(args["hint"], hint);
+        args["domain"] = domain;
+        args["hint"] = hint;
     WriteBlockEnd();
 }
 
@@ -4076,7 +4076,7 @@ void OpenXrExportJsonConsumer::Process_xrCreatePassthroughHTC(
     HandlePointerDecoder<XrPassthroughHTC>*     passthrough)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreatePassthroughHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -4090,7 +4090,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyPassthroughHTC(
     format::HandleId                            passthrough)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyPassthroughHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["passthrough"], passthrough);
     WriteBlockEnd();
@@ -4103,7 +4103,7 @@ void OpenXrExportJsonConsumer::Process_xrApplyFoveationHTC(
     StructPointerDecoder<Decoded_XrFoveationApplyInfoHTC>* applyInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrApplyFoveationHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["applyInfo"], applyInfo);
@@ -4118,7 +4118,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorHTC(
     HandlePointerDecoder<XrSpace>*              anchor)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateSpatialAnchorHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -4133,7 +4133,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSpatialAnchorNameHTC(
     StructPointerDecoder<Decoded_XrSpatialAnchorNameHTC>* name)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSpatialAnchorNameHTC");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["anchor"], anchor);
         FieldToJson(args["name"], name);
@@ -4147,7 +4147,7 @@ void OpenXrExportJsonConsumer::Process_xrApplyForceFeedbackCurlMNDX(
     StructPointerDecoder<Decoded_XrForceFeedbackCurlApplyLocationsMNDX>* locations)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrApplyForceFeedbackCurlMNDX");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["handTracker"], handTracker);
         FieldToJson(args["locations"], locations);
@@ -4162,7 +4162,7 @@ void OpenXrExportJsonConsumer::Process_xrCreatePlaneDetectorEXT(
     HandlePointerDecoder<XrPlaneDetectorEXT>*   planeDetector)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreatePlaneDetectorEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["createInfo"], createInfo);
@@ -4176,7 +4176,7 @@ void OpenXrExportJsonConsumer::Process_xrDestroyPlaneDetectorEXT(
     format::HandleId                            planeDetector)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrDestroyPlaneDetectorEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["planeDetector"], planeDetector);
     WriteBlockEnd();
@@ -4189,7 +4189,7 @@ void OpenXrExportJsonConsumer::Process_xrBeginPlaneDetectionEXT(
     StructPointerDecoder<Decoded_XrPlaneDetectorBeginInfoEXT>* beginInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrBeginPlaneDetectionEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["planeDetector"], planeDetector);
         FieldToJson(args["beginInfo"], beginInfo);
@@ -4203,7 +4203,7 @@ void OpenXrExportJsonConsumer::Process_xrGetPlaneDetectionStateEXT(
     PointerDecoder<XrPlaneDetectionStateEXT>*   state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetPlaneDetectionStateEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["planeDetector"], planeDetector);
         FieldToJson(args["state"], state);
@@ -4218,7 +4218,7 @@ void OpenXrExportJsonConsumer::Process_xrGetPlaneDetectionsEXT(
     StructPointerDecoder<Decoded_XrPlaneDetectorLocationsEXT>* locations)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetPlaneDetectionsEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["planeDetector"], planeDetector);
         FieldToJson(args["info"], info);
@@ -4235,7 +4235,7 @@ void OpenXrExportJsonConsumer::Process_xrGetPlanePolygonBufferEXT(
     StructPointerDecoder<Decoded_XrPlaneDetectorPolygonBufferEXT>* polygonBuffer)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetPlanePolygonBufferEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["planeDetector"], planeDetector);
         FieldToJson(args["planeId"], planeId);
@@ -4252,7 +4252,7 @@ void OpenXrExportJsonConsumer::Process_xrPollFutureEXT(
     StructPointerDecoder<Decoded_XrFuturePollResultEXT>* pollResult)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPollFutureEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["pollInfo"], pollInfo);
@@ -4267,7 +4267,7 @@ void OpenXrExportJsonConsumer::Process_xrCancelFutureEXT(
     StructPointerDecoder<Decoded_XrFutureCancelInfoEXT>* cancelInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCancelFutureEXT");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["cancelInfo"], cancelInfo);
@@ -4281,7 +4281,7 @@ void OpenXrExportJsonConsumer::Process_xrEnableUserCalibrationEventsML(
     StructPointerDecoder<Decoded_XrUserCalibrationEnableEventsInfoML>* enableInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnableUserCalibrationEventsML");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         FieldToJson(args["enableInfo"], enableInfo);

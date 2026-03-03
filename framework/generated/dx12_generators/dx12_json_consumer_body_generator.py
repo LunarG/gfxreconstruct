@@ -114,10 +114,11 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         function_name = self.choose_field_to_json_name(return_value)
         if self.is_bitflags(return_value):
             function_arg = f'{return_value.base_type}_t{{{{ return_value }}}}'
+            ret_line = f'{func_type}[format::kNameReturn] = {function_arg};\n'
         else:
             function_arg = 'return_value'
+            ret_line = f'{function_name}({func_type}[format::kNameReturn], {function_arg});\n'
 
-        ret_line = f'{function_name}({func_type}[format::kNameReturn], {function_arg});\n'
         return ret_line
 
     def make_consumer_func_body(self, method_info, return_type, return_value):
@@ -196,8 +197,13 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
                 src = f'*{src}->GetPointer()'
             # Flag types get passed as a type-safe enum to help with overlaod resolution
             src = f'{value_info.base_type}_t{{{{ {src} }}}}'
-        field_to_json = '{0}({1}["{2}"], {3});'.format(
-            function_name, parent_name, value_info.name, src)
+            field_to_json = '{1}["{2}"] = {3};'.format(
+                function_name, parent_name, value_info.name, src)
+        elif self.is_enum(value_info.base_type) and not (value_info.is_pointer or value_info.is_array):
+            field_to_json = f'{parent_name}["{value_info.name}"] = {src};'
+        else:
+            field_to_json = '{0}({1}["{2}"], {3});'.format(
+                function_name, parent_name, value_info.name, src)
         if "anon-union" in value_info.base_type:
             field_to_json += "// [anon-union] "
             print("ALERT: anon union " + value_info.name + " in " + parent_name)

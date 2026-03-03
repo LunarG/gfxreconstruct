@@ -174,6 +174,10 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 if self.is_union(value_info.base_type):
                     field_to_json = self.makeUnionFieldToJson(properties, name, union_index)
                     union_index += 1
+                elif self.is_bitflags(value_info):
+                    field_to_json = f'        jdata["{value_info.name}"] = {value_info.base_type}_t{{ decoded_value.{value_info.name} }};'
+                elif self.is_enum(value_info.base_type) and not (value_info.is_pointer or value_info.is_array):
+                    field_to_json = f'        jdata["{value_info.name}"] = decoded_value.{value_info.name};'
                 elif (name, value_info.name) in self.binary_blobs:
                     field_to_json  = '        static thread_local uint64_t {0}_{1}_counter{{ 0 }};\n'
                     field_to_json += '        const bool written = RepresentBinaryFile(jdata["{1}"], "{0}.{1}", {0}_{1}_counter, meta_struct.{1});\n'
@@ -183,10 +187,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     function_name = self.choose_field_to_json_name(value_info)
                     if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
                         # Basic data plumbs to raw struct:
-                        if self.is_bitflags(value_info):
-                            field_to_json = '        {0}(jdata["{1}"], {2}_t{{ decoded_value.{1} }});'
-                        else:
-                            field_to_json = '        {0}(jdata["{1}"], decoded_value.{1});'
+                        field_to_json = '        {0}(jdata["{1}"], decoded_value.{1});'
                     else:
                         # Complex types, pointers and handles plumb to the decoded struct:
                         field_to_json = '        {0}(jdata["{1}"], meta_struct.{1});'

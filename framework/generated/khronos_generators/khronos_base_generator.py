@@ -249,12 +249,13 @@ class ApiData():
 class BeginEndFileData():
     def __init__(self):
         # Begin and Endfile information to dry-up derived classes
-        self.guards = []             # if/ifdef/ifndef, condition expression pairs to guard files
-        self.specific_headers = []   # Header files for this specific generator
-        self.common_api_headers = [] # Header files for all generators this API
-        self.system_headers = []     # System headers (i.e <foo> includes)
-        self.pre_namespace_code = [] # Additional custom code that needs to be before the namespace begins
-        self.namespaces = []         # List of namespaces to begin and end the file
+        self.guards = []              # if/ifdef/ifndef, condition expression pairs to guard files
+        self.specific_headers = []    # Header files for this specific generator
+        self.common_api_headers = []  # Header files for all generators this API
+        self.system_headers = []      # System headers (i.e <foo> includes)
+        self.pre_namespace_code = []  # Additional custom code that needs to be before the namespace begins
+        self.post_namespace_code = [] # Additional custom code that needs to be after the namespace ends
+        self.namespaces = []          # List of namespaces to begin and end the file
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -772,6 +773,9 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # End namespaces beginFile started (empty list is safe)
         body = make_namespace_list(self.genOpts.begin_end_file_data.namespaces, op='END')
+        # Post-namespace custom code (if any)
+        body.extend(self.genOpts.begin_end_file_data.post_namespace_code)
+        # End file guards (if any)
         body.extend(make_guard_list(self.genOpts.begin_end_file_data.guards, op='END'))
 
         # Finish C++ wrapper and multiple inclusion protection

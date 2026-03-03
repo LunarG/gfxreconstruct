@@ -24,7 +24,7 @@
 #include "decode/dx12_dump_resources.h"
 // TODO: It should change the file name of "vulkan"
 #include "generated/generated_vulkan_struct_to_json.h"
-#include "generated/generated_dx12_enum_to_string.h"
+#include "generated/generated_dx12_enum_to_json.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "util/platform.h"
 #include "util/logging.h"
