@@ -9,8 +9,8 @@ fi
 
 git init ci-gfxr-suites
 cd ci-gfxr-suites
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
 git remote add origin $TEST_SUITE_REPO
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
 
 git config remote.origin.promisor true
 git config remote.origin.partialclonefilter "blob:none"
