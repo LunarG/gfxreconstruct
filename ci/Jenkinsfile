@@ -3,12 +3,6 @@ pipeline {
 
     options {
         disableConcurrentBuilds(abortPrevious: true)
-        buildDiscarder(logRotator(
-            daysToKeepStr: '90',
-            numToKeepStr: '100',
-            artifactDaysToKeepStr: '90',
-            artifactNumToKeepStr: '100'
-        ))
     }
 
     stages {
@@ -25,9 +19,9 @@ pipeline {
                         ))
                         : buildDiscarder(logRotator(
                             daysToKeepStr: '7',
-                            numToKeepStr: '10',
+                            numToKeepStr: '5',
                             artifactDaysToKeepStr: '7',
-                            artifactNumToKeepStr: '10'
+                            artifactNumToKeepStr: '5'
                         ))
                     properties([discarder])
 
