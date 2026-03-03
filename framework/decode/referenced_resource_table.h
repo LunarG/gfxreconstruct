@@ -119,7 +119,7 @@ class ReferencedResourceTable
         bool used{ false };
 
         // child user-infos, a.k.a secondary command-buffer
-        std::unordered_map<format::HandleId, std::weak_ptr<ResourceUserInfo>> users_infos;
+        std::unordered_map<format::HandleId, std::weak_ptr<ResourceUserInfo>> child_infos;
     };
 
     using PoolHandles = std::unordered_set<format::HandleId>;
