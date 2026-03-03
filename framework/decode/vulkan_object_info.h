@@ -598,6 +598,7 @@ struct VulkanSwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t             height{ 0 };
     VkFormat             format{ VK_FORMAT_UNDEFINED };
     std::vector<VkImage> images; // This image could be virtual or real according to if it uses VirtualSwapchain.
+    std::vector<format::HandleId>        image_handle_ids;
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The acquired_indices value and the remapping performed with it.

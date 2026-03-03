@@ -1977,6 +1977,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // goal is to allow replay when 'benign' extensions are missing during replay.
     std::vector<const char*> faked_extensions_;
 
+    // Fabian: tmp stuff to override swapchain-image via debug-name
+    const char*                                   swapchain_override_image_debug_name_ = "RTDeviceEyeTexture";
+    format::HandleId                              swapchain_override_image_id_         = format::kNullHandleId;
+    std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
+
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:
     //

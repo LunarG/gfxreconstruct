@@ -96,7 +96,9 @@ const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeTh
     { VK_TIMEOUT, VK_SUCCESS },
     { VK_NOT_READY, VK_SUCCESS },
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
-    { VK_SUBOPTIMAL_KHR, VK_SUCCESS }
+    { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
+{ VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
+{ VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -6299,6 +6301,9 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
     if (result == VK_SUCCESS && *replay_image != VK_NULL_HANDLE)
     {
+        // store handle-id for reverse lookups
+        image_handle_id_map_[*replay_image] = capture_id;
+
         auto image_info = reinterpret_cast<VulkanImageInfo*>(pImage->GetConsumerData(0));
         GFXRECON_ASSERT(image_info != nullptr);
 
@@ -6371,6 +6376,9 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
         allocator_data = image_info->allocator_data;
 
         image_info->allocator_data = 0;
+
+        // remove from handle-id map
+        image_handle_id_map_.erase(image);
     }
 
     allocator->DestroyImage(image, GetAllocationCallbacks(pAllocator), allocator_data);
@@ -7430,6 +7438,28 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     VkDebugUtilsObjectNameInfoEXT* info = meta_info->decoded_value;
     GFXRECON_ASSERT(info != nullptr);
 
+    // hook for identifying potential swapchain-override VkImage
+    if (info->objectType == VK_OBJECT_TYPE_IMAGE && strstr(info->pObjectName, swapchain_override_image_debug_name_))
+    {
+        // correct referenced handle in info
+        MapStructHandles(meta_info, GetObjectInfoTable());
+
+        if (auto img_id_it = image_handle_id_map_.find((VkImage)info->objectHandle);
+            img_id_it != image_handle_id_map_.end())
+        {
+            format::HandleId handle_id = img_id_it->second;
+
+            if (auto* img_info = object_info_table_->GetVkImageInfo(handle_id))
+            {
+                if (!vkuFormatIsDepthOrStencil(img_info->format))
+                {
+                    GFXRECON_LOG_INFO("found image: %s - handle-id: %" PRIu64 "", info->pObjectName, handle_id);
+                    swapchain_override_image_id_ = handle_id;
+                }
+            }
+        }
+    }
+
     // a VkPipeline is currently being compiled asynchronously -> defer setting the debug-name
     if (info->objectType == VK_OBJECT_TYPE_PIPELINE && IsUsedByAsyncTask(meta_info->objectHandle))
     {
@@ -7980,17 +8010,21 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
         // If replay_image_count isn't full image count, it will return VK_INCOMPLETE.
         // Their image infos should also be initialized, even if it's VK_INCOMPLETE.
-        if ((result == VK_SUCCESS || result == VK_INCOMPLETE) && (replay_images != nullptr) &&
-            (replay_image_count != nullptr))
+        if ((result == VK_SUCCESS || result == VK_INCOMPLETE) && replay_images != nullptr &&
+            replay_image_count != nullptr)
         {
-            uint32_t count = (*replay_image_count);
+            uint32_t count = *replay_image_count;
 
             swapchain_info->acquired_indices.resize(count);
 
+            // Fabian: store handle-ids for potential override
+            swapchain_info->image_handle_ids = { pSwapchainImages->GetPointer(),
+                                                 pSwapchainImages->GetPointer() + count };
+
             for (uint32_t i = 0; i < count; ++i)
             {
-                auto image_info = reinterpret_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
-                assert(image_info != nullptr);
+                auto* image_info = static_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                GFXRECON_ASSERT(image_info != nullptr);
 
                 image_info->format             = swapchain_info->format;
                 image_info->extent             = { swapchain_info->width, swapchain_info->height, 1 };
@@ -8538,6 +8572,19 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 }
                 uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
                 modified_image_indices_[i]  = replay_image_index;
+
+                // Fabian: TODO try to issue an image-copy into a swapchain image here
+                if (swapchain_override_image_id_ != format::kNullHandleId)
+                {
+                    GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
+
+                    auto* img_info =
+                        object_info_table_->GetVkImageInfo(swapchain_info->image_handle_ids[replay_image_index]);
+                    GFXRECON_ASSERT(img_info != nullptr);
+
+                    auto* override_img_info = object_info_table_->GetVkImageInfo(swapchain_override_image_id_);
+                    GFXRECON_ASSERT(override_img_info != nullptr);
+                }
             }
         }
 
@@ -8553,7 +8600,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     util::EndInjectedCommands();
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
-    if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
+    if (!have_imported_semaphores_ && shadow_semaphores_.empty() && modified_present_info.swapchainCount != 0)
     {
         result = swapchain_->QueuePresentKHR(
             original_result, func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
