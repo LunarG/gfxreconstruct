@@ -1756,7 +1756,7 @@ bool VulkanAddressReplacer::init_pipeline()
             GFXRECON_LOG_ERROR("VulkanAddressReplacer: pipeline creation failed");
         }
 
-        if (set_debug_utils_object_name_fn_)
+        if (result == VK_SUCCESS && set_debug_utils_object_name_fn_)
         {
             VkDebugUtilsObjectNameInfoEXT object_name_info = {};
             object_name_info.sType                         = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
@@ -1770,6 +1770,7 @@ bool VulkanAddressReplacer::init_pipeline()
         {
             device_table_->DestroyShaderModule(device_, compute_module, nullptr);
         }
+
         return result;
     };
 
