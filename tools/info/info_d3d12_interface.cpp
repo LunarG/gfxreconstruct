@@ -25,6 +25,8 @@
 
 #include "info_d3d12_interface.h"
 
+#include "util/to_string.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
@@ -39,19 +41,19 @@ std::string InfoD3d12Interface::ApiCompiledHeaderVersionString()
 #endif
 }
 
-void InfoD3d12Interface::UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments)
+void InfoD3d12Interface::UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
 {
     options += " ";
     options += kEnumGpuIndices;
 }
 
-void InfoD3d12Interface::UpdateCommandLineUsage(std::string& usage)
+void InfoD3d12Interface::OutputCommandLineUsage()
 {
-    usage += "\n// D3D12-specific\n";
-    usage += std::string("  ") + std::to_string(kEnumGpuIndices) + "\tPrint GPU indices and exit\n";
+    WriteOutput("\n// D3D12-specific\n");
+    WriteOutput(std::string("  ") + kEnumGpuIndices + "\tPrint GPU indices and exit\n");
 }
 
-bool InfoD3d12Interface::CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser)
+bool InfoD3d12Interface::CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser)
 {
     if (arg_parser->IsOptionSet(kEnumGpuIndices))
     {
@@ -59,6 +61,7 @@ bool InfoD3d12Interface::CheckCommandLine(std::shared_ptr<gfxrecon::util::Argume
         api_output_override_ = true;
         info_output_level_   = kD3d12EnumGpuDevices;
     }
+    return true;
 }
 
 void InfoD3d12Interface::RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor)
@@ -89,10 +92,8 @@ void InfoD3d12Interface::PrintEnumGpuIndices()
                     std::string replay_adapter_str =
                         gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
 
-                    WriteOutput("%-9x\t%s\t%u",
-                                adapter.second.adapter_idx,
-                                replay_adapter_str.c_str(),
-                                adapter.second.internal_desc.SubSysId);
+                    WriteOutput(UintToHexString<uint32_t>(adapter.second.adapter_idx, 9, false, false) + "\t" +
+                                replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId));
                     break;
                 }
             }
@@ -102,6 +103,18 @@ void InfoD3d12Interface::PrintEnumGpuIndices()
     else
     {
         GFXRECON_LOG_ERROR("Failed to enumerate GPU indices");
+    }
+}
+
+std::string InfoD3d12Interface::GetDriverInfoString()
+{
+    if (!driver_info_.empty())
+    {
+        return driver_info_;
+    }
+    else
+    {
+        return "Not available";
     }
 }
 
@@ -142,7 +155,7 @@ void InfoD3d12Interface::PrintRuntimeInfoText()
     std::string runtime_src = "N/A";
     std::string runtime_ver = "N/A";
 
-    if (runtime_info.src.empty() == false)
+    if (gfxrecon::util::platform::StringLength(runtime_info.src) > 0)
     {
         runtime_src = runtime_info.src;
         runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
@@ -150,7 +163,7 @@ void InfoD3d12Interface::PrintRuntimeInfoText()
     }
 
     WriteOutput("D3D12 runtime info:");
-    WriteOutput(std::string("\tVersion: " + runtime_ver);
+    WriteOutput(std::string("\tVersion: ") + runtime_ver);
     WriteOutput(std::string("\tSource: ") + runtime_src);
     WriteOutput("");
 }
@@ -162,7 +175,7 @@ nlohmann::json InfoD3d12Interface::GetRuntimeInfoJson()
     std::string runtime_src = "N/A";
     std::string runtime_ver = "N/A";
 
-    if (runtime_info.src.empty() == false)
+    if (gfxrecon::util::platform::StringLength(runtime_info.src) > 0)
     {
         runtime_src = runtime_info.src;
         runtime_ver = std::to_string(runtime_info.version[0]) + "." + std::to_string(runtime_info.version[1]) + "." +
@@ -209,15 +222,15 @@ void InfoD3d12Interface::PrintAdapterInfoText()
 
             WriteOutput(std::string("\tDescription: ") + gfxrecon::util::WCharArrayToString(adapter.Description) + " " +
                         adapter_workload_pct);
-            WriteOutput(std::string("\tVendor ID: ") + UintToHexString(adapter.VendorId));
-            WriteOutput(std::string("\tDevice ID: ") + UintToHexString(adapter.DeviceId));
-            WriteOutput(std::string("\tSubsys ID: ") + UintToHexString(adapter.SubSysId));
+            WriteOutput(std::string("\tVendor ID: ") + UintToHexString<uint32_t>(adapter.VendorId));
+            WriteOutput(std::string("\tDevice ID: ") + UintToHexString<uint32_t>(adapter.DeviceId));
+            WriteOutput(std::string("\tSubsys ID: ") + UintToHexString<uint32_t>(adapter.SubSysId));
             WriteOutput(std::string("\tRevision: ") + std::to_string(adapter.Revision));
             WriteOutput(std::string("\tDedicated Video Memory: ") + std::to_string(adapter.DedicatedVideoMemory));
             WriteOutput(std::string("\tDedicated System Memory: ") + std::to_string(adapter.DedicatedSystemMemory));
             WriteOutput(std::string("\tShared System Memory: ") + std::to_string(adapter.SharedSystemMemory));
-            WriteOutput(std::string("\tLUID LowPart: ") + UintToHexString(adapter.LuidLowPart));
-            WriteOutput(std::string("\tLUID HighPart: ") + UintToHexString(adapter.LuidHighPart));
+            WriteOutput(std::string("\tLUID LowPart: ") + UintToHexString<uint32_t>(adapter.LuidLowPart));
+            WriteOutput(std::string("\tLUID HighPart: ") + UintToHexString<int32_t>(adapter.LuidHighPart));
             WriteOutput(std::string("\tAdapter type: ") + adapter_type);
             WriteOutput("");
         }
@@ -372,7 +385,7 @@ void InfoD3d12Interface::PrintInfo()
             PrintDxrEiInfoText();
             break;
         }
-        case InfoApiInterface::InfoOutputLevel::kD3d12EnumGpuDevices:
+        case InfoApiInterface::InfoOutputLevel::kApiSpecific_1: // kD3d12EnumGpuDevices:
             PrintEnumGpuIndices();
             break;
         default:
@@ -401,7 +414,7 @@ nlohmann::json InfoD3d12Interface::GenerateJson()
     return d3d12_json;
 }
 
-uint32_t GetBlankFrameCount()
+uint32_t InfoD3d12Interface::GetBlankFrameCount()
 {
     return dx12_consumer_.GetDummyFrameCount();
 }
