@@ -62,6 +62,11 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             overrides = json.loads(open(genOpts.json_overrides, 'r').read())
             self.JSON_OVERRIDES = overrides
 
+        write(format_cpp_code('''
+            using util::Bool32ToJson;
+        '''), file=self.outFile)
+        self.newline()
+
     def write_include(self):
         write(format_cpp_code('''
             #include "generated_dx12_json_consumer.h"
@@ -107,7 +112,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         if(None == return_value):
             return ""
         function_name = self.choose_field_to_json_name(return_value)
-        ret_line = "{0}({1}[format::kNameReturn], return_value, options);\n"
+        ret_line = "{0}({1}[format::kNameReturn], return_value);\n"
         ## if return_type.startswith("HANDLE "):
         ## This is a Windows handle, probably to a waitable object so we output it as a JSON number:
         ## <https://learn.microsoft.com/en-us/windows/win32/sysinfo/handles-and-objects>
@@ -123,7 +128,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
 
         code = '''
             nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "{}");
-            const JsonOptions& options = writer_->GetOptions();
         '''
         code += ret_line
         code += '''nlohmann::ordered_json& args = function[format::kNameArgs];
@@ -132,7 +136,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         # Generate a correct FieldToJson for each argument:
         for parameter in method_info['parameters']:
             value = self.get_value_info(parameter)
-            code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+            code += "    " + self.make_field_to_json("args", value) + "\n"
 
         code += remove_leading_empty_lines('''
                 }}
@@ -144,7 +148,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     def make_consumer_method_body(self, class_name, method_info, return_type, return_value):
         code = '''
             nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
-            const JsonOptions& options = writer_->GetOptions();
         '''
 
         # Deal with the function's returned value:
@@ -160,7 +163,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             for parameter in method_info['parameters']:
                 value = self.get_value_info(parameter)
 
-                function_call = self.make_field_to_json("args", value, "options") + "\n"
+                function_call = self.make_field_to_json("args", value) + "\n"
 
                 ## Special case for pointers to flag sets defined by enums:
                 ## (easier than having pointer decoder versions of each flagset type's FieldToString)
@@ -171,7 +174,8 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
                     code += '    }}\n'
                     code += '    else\n'
                     code += '    {{\n'
-                    code += '        FieldToJson(args["{}"], nullptr, options);\n'.format(value.name)
+                    code += '        FieldToJson(args["{}"], nullptr);\n'.format(
+                        value.name)
                     code += '    }}\n'
                 else:
                     code += "    " + function_call
@@ -182,14 +186,15 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         return code
 
     ## @param value_info A ValueInfo object from base_generator.py.
-    def make_field_to_json(self, parent_name, value_info, options_name):
+    def make_field_to_json(self, parent_name, value_info):
         function_name = self.choose_field_to_json_name(value_info)
         src = value_info.name
         ## Special case for pointers to flag sets defined by enums:
         ## (easier than having pointer decoder versions of each flagset type's FieldToString)
         if value_info.is_pointer and function_name.startswith("FieldToJson_"):
             src = "*" + src + "->GetPointer()"
-        field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(function_name, parent_name, value_info.name, src, options_name)
+        field_to_json = '{0}({1}["{2}"], {3});'.format(
+            function_name, parent_name, value_info.name, src)
         if "anon-union" in value_info.base_type:
             field_to_json += "// [anon-union] "
             print("ALERT: anon union " + value_info.name + " in " + parent_name)

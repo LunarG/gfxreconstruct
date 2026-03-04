@@ -42,7 +42,9 @@ class KhronosExportJsonConsumerBodyGenerator():
             remove_trailing_newlines(
                 indent_cpp_code(
                     '''
-            using util::JsonOptions;
+            using util::FieldToJson;
+            using util::HandleToJson;
+            using util::Bool32ToJson;
         '''
                 )
             ),
@@ -65,7 +67,6 @@ class KhronosExportJsonConsumerBodyGenerator():
                 '''
                 {{
                     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "{0}");
-                    const JsonOptions& json_options = GetJsonOptions();
                 '''.format(cmd)
             )
             cmddef += '\n'
@@ -106,15 +107,15 @@ class KhronosExportJsonConsumerBodyGenerator():
 
         # Handle function return value
         if return_type in self.formatAsHex:
-            body += '    FieldToJsonAsHex(jdata[NameReturn()], returnValue, json_options);\n'
+            body += '    FieldToJsonAsHex(jdata[NameReturn()], returnValue);\n'
         elif self.is_boolean_type(return_type):
             # Output as JSON boolean type true/false without quotes:
-            body += '            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);\n'
+            body += '    Bool32ToJson(jdata[NameReturn()], returnValue);\n'
         elif self.is_handle_like(return_type):
-            body += '    HandleToJson(jdata[NameReturn()], returnValue, json_options);\n'
+            body += '    HandleToJson(jdata[NameReturn()], returnValue);\n'
         # Enums, ints, etc. handled by default and static dispatch based on C++ type:
         elif not 'void' in return_type:
-            body += '    FieldToJson(jdata[NameReturn()], returnValue, json_options);\n'
+            body += '    FieldToJson(jdata[NameReturn()], returnValue);\n'
 
         if len(values) > 0:
             body += '    auto& args = jdata[NameArgs()];\n'
@@ -125,27 +126,27 @@ class KhronosExportJsonConsumerBodyGenerator():
                 # Default to letting the right function overload to be resolved based on argument types,
                 # including enums, strings ints, floats etc.:
                 # Note there are overloads for scalars and pointers/arrays.
-                to_json = 'FieldToJson(args["{0}"], {0}, json_options)'
+                to_json = 'FieldToJson(args["{0}"], {0})'
 
                 # Special cases:
                 if self.has_special_case_json_export(value.base_type):
                     to_json = self.get_special_case_json_export(value.base_type)
                 elif not (value.is_pointer or value.is_array) and self.is_struct(value.base_type):
-                    to_json = 'FieldToJson(args["{0}"], &{0}, json_options)'
+                    to_json = 'FieldToJson(args["{0}"], &{0})'
                 elif value.is_array and value.base_type in self.children_structs:
-                    to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
+                    to_json = 'ParentChildFieldToJson(args["{0}"], {0})'
                 elif self.is_boolean_type(value.base_type):
-                    to_json = 'Bool32ToJson(args["{0}"], {0}, json_options)'
+                    to_json = 'Bool32ToJson(args["{0}"], {0})'
                 elif value.name == 'ppData' or self.decode_as_hex(value):
-                    to_json = 'FieldToJsonAsHex(args["{0}"], {0}, json_options)'
+                    to_json = 'FieldToJsonAsHex(args["{0}"], {0})'
                 elif self.decode_as_handle(value):
-                    to_json = 'HandleToJson(args["{0}"], {0}, json_options)'
+                    to_json = 'HandleToJson(args["{0}"], {0})'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flags_type_aliases:
                         flagsEnumType = self.flags_type_aliases[value.base_type
                                                                 ]
                     if not (value.is_pointer or value.is_array):
-                        to_json = 'FieldToJson({2}_t(), args["{0}"], {0}, json_options)'
+                        to_json = 'FieldToJson({2}_t(), args["{0}"], {0})'
                     else:
                         # Default to outputting as the raw type but warn:
                         print(

@@ -23,30 +23,32 @@
 #include "decode/decode_json_util.h"
 #include "util/defines.h"
 #include "nlohmann/json.hpp"
+#include "util/json_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-using util::JsonOptions;
+using util::Bool32ToJson;
+using util::FieldToJson;
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder& data)
 {
     const char* const decoded_data = data.GetPointer();
     if (decoded_data)
     {
-        FieldToJson(jdata, decoded_data, options);
+        FieldToJson(jdata, decoded_data);
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const StringDecoder* data)
 {
     if (data)
     {
-        FieldToJson(jdata, *data, options);
+        FieldToJson(jdata, *data);
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data)
 {
     if (data && data->GetPointer())
     {
@@ -58,39 +60,37 @@ void FieldToJson(nlohmann::ordered_json& jdata, const StringArrayDecoder* data, 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder& data)
 {
     const wchar_t* const decoded_data = data.GetPointer();
     if (decoded_data)
     {
-        FieldToJson(jdata, decoded_data, options);
+        FieldToJson(jdata, decoded_data);
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const WStringDecoder* data)
 {
     if (data)
     {
-        FieldToJson(jdata, *data, options);
+        FieldToJson(jdata, *data);
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const WStringArrayDecoder& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const WStringArrayDecoder& data)
 {
     const auto decoded_data = data.GetPointer();
     if (decoded_data)
     {
         for (size_t i = 0; i < data.GetLength(); ++i)
         {
-            FieldToJson(jdata[i], decoded_data[i], options);
+            FieldToJson(jdata[i], decoded_data[i]);
         }
     }
 }
 
 template <>
-void FieldToJson(nlohmann::ordered_json&                   jdata,
-                 const PointerDecoder<uint32_t, uint32_t>& data,
-                 const JsonOptions&                        options)
+void FieldToJson(nlohmann::ordered_json& jdata, const PointerDecoder<uint32_t, uint32_t>& data)
 {
     if (data.GetPointer())
     {
@@ -111,9 +111,7 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
 }
 
 template <>
-void FieldToJson(nlohmann::ordered_json&                 jdata,
-                 const PointerDecoder<int32_t, int32_t>& data,
-                 const JsonOptions&                      options)
+void FieldToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int32_t, int32_t>& data)
 {
     if (data.GetPointer())
     {
@@ -134,9 +132,7 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
 }
 
 template <>
-void FieldToJson(nlohmann::ordered_json&                   jdata,
-                 const PointerDecoder<uint64_t, uint64_t>& data,
-                 const JsonOptions&                        options)
+void FieldToJson(nlohmann::ordered_json& jdata, const PointerDecoder<uint64_t, uint64_t>& data)
 {
     if (data.GetPointer())
     {
@@ -157,9 +153,7 @@ void FieldToJson(nlohmann::ordered_json&                   jdata,
 }
 
 template <>
-void FieldToJson(nlohmann::ordered_json&                 jdata,
-                 const PointerDecoder<int64_t, int64_t>& data,
-                 const JsonOptions&                      options)
+void FieldToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int64_t, int64_t>& data)
 {
     if (data.GetPointer())
     {
@@ -179,9 +173,7 @@ void FieldToJson(nlohmann::ordered_json&                 jdata,
     }
 }
 
-void Bool32ToJson(nlohmann::ordered_json&                   jdata,
-                  const PointerDecoder<uint32_t, uint32_t>* data,
-                  const util::JsonOptions&                  options)
+void Bool32ToJson(nlohmann::ordered_json& jdata, const PointerDecoder<uint32_t, uint32_t>* data)
 {
     if (data && data->GetPointer())
     {
@@ -192,17 +184,17 @@ void Bool32ToJson(nlohmann::ordered_json&                   jdata,
         {
             for (size_t i = 0; i < length; ++i)
             {
-                util::Bool32ToJson(jdata[i], decoded_value[i], options);
+                Bool32ToJson(jdata[i], decoded_value[i]);
             }
         }
         else if (length == 1)
         {
-            util::Bool32ToJson(jdata, *decoded_value, options);
+            Bool32ToJson(jdata, *decoded_value);
         }
     }
 }
 
-void Bool32ToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int, int>* data, const util::JsonOptions& options)
+void Bool32ToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int, int>* data)
 {
     if (data && data->GetPointer())
     {
@@ -213,17 +205,17 @@ void Bool32ToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int, int>*
         {
             for (size_t i = 0; i < length; ++i)
             {
-                util::Bool32ToJson(jdata[i], decoded_value[i], options);
+                Bool32ToJson(jdata[i], decoded_value[i]);
             }
         }
         else if (length == 1)
         {
-            util::Bool32ToJson(jdata, *decoded_value, options);
+            Bool32ToJson(jdata, *decoded_value);
         }
     }
 }
 
-void Bool32ToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int, int>& data, const util::JsonOptions& options)
+void Bool32ToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int, int>& data)
 {
     if (data.GetPointer())
     {
@@ -234,12 +226,12 @@ void Bool32ToJson(nlohmann::ordered_json& jdata, const PointerDecoder<int, int>&
         {
             for (size_t i = 0; i < length; ++i)
             {
-                util::Bool32ToJson(jdata[i], decoded_value[i], options);
+                Bool32ToJson(jdata[i], decoded_value[i]);
             }
         }
         else if (length == 1)
         {
-            util::Bool32ToJson(jdata, *decoded_value, options);
+            Bool32ToJson(jdata, *decoded_value);
         }
     }
 }
