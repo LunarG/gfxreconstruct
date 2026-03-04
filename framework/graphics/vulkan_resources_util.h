@@ -177,7 +177,33 @@ class VulkanResourcesUtil
                             const VkExtent3D& extent,
                             float             scale) const;
 
+    void CopyImage(VkImage    source_img,
+                   VkImage    destination_img,
+                   VkExtent3D extent,
+                   VkOffset3D src_offset = { 0, 0, 0 },
+                   VkOffset3D dst_offset = { 0, 0, 0 });
+
   private:
+
+    void StageBarrier(VkCommandBuffer       command_buffer,
+                      VkPipelineStageFlags2 src_stage_mask,
+                      VkAccessFlags2        src_access,
+                      VkPipelineStageFlags2 dst_stage_mask,
+                      VkAccessFlags2        dst_access);
+
+    void StageBarrier(VkCommandBuffer       command_buffer,
+                      VkPipelineStageFlags2 src_stage_mask,
+                      VkPipelineStageFlags2 dst_stage_mask)
+    {
+        VkAccessFlags2 access_flags = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+        StageBarrier(command_buffer, src_stage_mask, access_flags, dst_stage_mask, access_flags);
+    }
+
+    void StageBarrier(VkCommandBuffer command_buffer, VkPipelineStageFlags2 stage_mask)
+    {
+        StageBarrier(command_buffer, stage_mask, stage_mask);
+    }
+
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
     void ResetCommandBuffer(VkCommandBuffer command_buffer);
@@ -196,15 +222,13 @@ class VulkanResourcesUtil
                                           VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect,
-                                          uint32_t           queue_family_index);
+                                          VkImageAspectFlags aspect);
 
     void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
                                             VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect,
-                                            uint32_t           queue_family_index);
+                                            VkImageAspectFlags aspect);
 
     void CopyImageBuffer(VkCommandBuffer              command_buffer,
                          VkImage                      image,
@@ -224,6 +248,13 @@ class VulkanResourcesUtil
                     uint64_t        size,
                     uint64_t        src_offset,
                     uint64_t        dst_offset);
+
+    void CopyImage(VkCommandBuffer command_buffer,
+                   VkImage         source_img,
+                   VkImage         destination_img,
+                   VkExtent3D      extent,
+                   VkOffset3D      src_offset = { 0, 0, 0 },
+                   VkOffset3D      dst_offset = { 0, 0, 0 });
 
     VkResult ResolveImage(VkCommandBuffer   command_buffer,
                           VkImage           image,

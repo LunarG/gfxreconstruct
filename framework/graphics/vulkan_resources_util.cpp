@@ -1260,8 +1260,7 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    co
                                                            VkImage            image,
                                                            VkImageLayout      current_layout,
                                                            VkImageLayout      destination_layout,
-                                                           VkImageAspectFlags aspect,
-                                                           uint32_t           queue_family_index)
+                                                           VkImageAspectFlags aspect)
 {
     GFXRECON_ASSERT(image != VK_NULL_HANDLE);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
@@ -1273,8 +1272,8 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    co
     memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
     memory_barrier.oldLayout                       = current_layout;
     memory_barrier.newLayout                       = destination_layout;
-    memory_barrier.srcQueueFamilyIndex             = queue_family_index;
-    memory_barrier.dstQueueFamilyIndex             = queue_family_index;
+    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     memory_barrier.image                           = image;
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
@@ -1298,8 +1297,7 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
                                                              VkImage            image,
                                                              VkImageLayout      old_layout,
                                                              VkImageLayout      new_layout,
-                                                             VkImageAspectFlags aspect,
-                                                             uint32_t           queue_family_index)
+                                                             VkImageAspectFlags aspect)
 {
     GFXRECON_ASSERT(image != VK_NULL_HANDLE);
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
@@ -1307,8 +1305,8 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     memory_barrier.pNext                           = nullptr;
-    memory_barrier.srcQueueFamilyIndex             = queue_family_index;
-    memory_barrier.dstQueueFamilyIndex             = queue_family_index;
+    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
     memory_barrier.image                           = image;
     memory_barrier.subresourceRange.aspectMask     = aspect;
     memory_barrier.subresourceRange.baseMipLevel   = 0;
@@ -1445,6 +1443,65 @@ void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
                                      &barrier,
                                      0,
                                      nullptr);
+}
+
+void VulkanResourcesUtil::CopyImage(VkCommandBuffer command_buffer,
+                                    VkImage         source_img,
+                                    VkImage         destination_img,
+                                    VkExtent3D      extent,
+                                    VkOffset3D      src_offset,
+                                    VkOffset3D      dst_offset)
+{
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(source_img != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(destination_img != VK_NULL_HANDLE);
+
+    constexpr auto aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    VkImageLayout src_layout = VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+    VkImageLayout dst_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    // transition src-layout
+    TransitionImageToTransferOptimal(
+        command_buffer, source_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
+
+    // transition dst-layout
+    TransitionImageToTransferOptimal(command_buffer, source_img, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, dst_layout, aspect);
+
+    // copy src-image -> dst-image
+    VkImageCopy2 region                  = {};
+    region.sType                         = VK_STRUCTURE_TYPE_IMAGE_COPY_2;
+    region.extent                        = extent;
+    region.srcOffset                     = src_offset;
+    region.dstOffset                     = dst_offset;
+    region.srcSubresource.aspectMask     = aspect;
+    region.srcSubresource.baseArrayLayer = 0;
+    region.srcSubresource.layerCount     = 1;
+    region.srcSubresource.mipLevel       = 0;
+
+    region.dstSubresource.aspectMask     = aspect;
+    region.dstSubresource.baseArrayLayer = 0;
+    region.dstSubresource.layerCount     = 1;
+    region.dstSubresource.mipLevel       = 0;
+
+    VkCopyImageInfo2 copy_info = {};
+    copy_info.sType            = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2;
+    copy_info.regionCount      = 1;
+    copy_info.pRegions         = &region;
+    copy_info.srcImage         = source_img;
+    copy_info.srcImageLayout   = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    copy_info.dstImage         = destination_img;
+    copy_info.dstImageLayout   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+    // actual copy command
+    device_table_.CmdCopyImage2(command_buffer, &copy_info);
+
+    // transition src-layout
+    TransitionImageFromTransferOptimal(
+        command_buffer, source_img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_layout, aspect);
+
+    // transition dst-layout
+    TransitionImageFromTransferOptimal(command_buffer, source_img, dst_layout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aspect);
 }
 
 VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queue_index)
@@ -1927,8 +1984,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                  img.image,
                                                  img.layout,
                                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                 tmp_data[i].transition_aspect,
-                                                 img.queue_family_index);
+                                                 tmp_data[i].transition_aspect);
             }
 
             VkFormat dst_format = img.dst_format != VK_FORMAT_UNDEFINED ? img.dst_format : img.format;
@@ -2011,8 +2067,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                    img.image,
                                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                                    img.layout,
-                                                   tmp_data[i].transition_aspect,
-                                                   img.queue_family_index);
+                                                   tmp_data[i].transition_aspect);
             }
         } // current batch, record commands
 
@@ -2638,6 +2693,35 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
     }
 
     return scale == 1.0f || is_blit_supported;
+}
+
+void VulkanResourcesUtil::CopyImage(
+    VkImage source_img, VkImage destination_img, VkExtent3D extent, VkOffset3D src_offset, VkOffset3D dst_offset)
+{
+    uint32_t queue_family_index = 0;
+    auto     command_buffer     = CreateCommandBufferAndBegin(queue_family_index);
+    CopyImage(command_buffer, source_img, destination_img, extent, src_offset, dst_offset);
+    SubmitCommandBuffer(command_buffer, GetQueue(0, 0));
+}
+
+void VulkanResourcesUtil::StageBarrier(VkCommandBuffer       command_buffer,
+                                       VkPipelineStageFlags2 src_stage_mask,
+                                       VkAccessFlags2        src_access,
+                                       VkPipelineStageFlags2 dst_stage_mask,
+                                       VkAccessFlags2        dst_access)
+{
+    VkMemoryBarrier2 barrier = {};
+    barrier.sType            = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+    barrier.srcStageMask     = src_stage_mask;
+    barrier.srcAccessMask    = src_access;
+    barrier.dstStageMask     = dst_stage_mask;
+    barrier.dstAccessMask    = dst_access;
+
+    VkDependencyInfo dependency_info   = {};
+    dependency_info.sType              = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    dependency_info.memoryBarrierCount = 1;
+    dependency_info.pMemoryBarriers    = &barrier;
+    device_table_.CmdPipelineBarrier2(command_buffer, &dependency_info);
 }
 
 VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,

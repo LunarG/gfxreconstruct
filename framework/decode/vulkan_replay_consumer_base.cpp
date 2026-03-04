@@ -8017,7 +8017,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
             swapchain_info->acquired_indices.resize(count);
 
-            // Fabian: store handle-ids for potential override
+            // store handle-ids
             swapchain_info->image_handle_ids = { pSwapchainImages->GetPointer(),
                                                  pSwapchainImages->GetPointer() + count };
 
@@ -8573,17 +8573,30 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
                 modified_image_indices_[i]  = replay_image_index;
 
-                // Fabian: TODO try to issue an image-copy into a swapchain image here
+                // Fabian: override image-copy into current swapchain image
                 if (swapchain_override_image_id_ != format::kNullHandleId)
                 {
                     GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
 
+                    const VulkanPhysicalDeviceInfo* phys_dev_info =
+                        object_info_table_->GetVkPhysicalDeviceInfo(swapchain_info->device_info->parent_id);
+                    GFXRECON_ASSERT(phys_dev_info);
+
+                    graphics::VulkanResourcesUtil resource_util(swapchain_info->device_info->handle,
+                                                                phys_dev_info->handle,
+                                                                *GetDeviceTable(swapchain_info->device_info->handle),
+                                                                *GetInstanceTable(phys_dev_info->handle),
+                                                                *phys_dev_info->replay_device_info->memory_properties);
+
                     auto* img_info =
-                        object_info_table_->GetVkImageInfo(swapchain_info->image_handle_ids[replay_image_index]);
+                        object_info_table_->GetVkImageInfo(swapchain_info->image_handle_ids[capture_image_index]);
                     GFXRECON_ASSERT(img_info != nullptr);
 
                     auto* override_img_info = object_info_table_->GetVkImageInfo(swapchain_override_image_id_);
                     GFXRECON_ASSERT(override_img_info != nullptr);
+
+                    // image-transitions back/forth, actual copy, fence sync
+                    resource_util.CopyImage(override_img_info->handle, img_info->handle, img_info->extent);
                 }
             }
         }
