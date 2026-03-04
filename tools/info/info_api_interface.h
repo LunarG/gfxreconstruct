@@ -82,7 +82,7 @@ class InfoApiInterface
     virtual bool                ApiDesiresSingleLineFrameOutput() { return false; }
 
     // A few "setter" style methods
-    void         SetWriter(const std::shared_ptr<InfoWriter>& writer) { info_writer_ = writer; }
+    void         SetWriter(InfoWriter* writer) { info_writer_ = writer; }
     virtual void SetFrameMarkerUsage(bool uses) { uses_frame_markers_ = uses; }
     virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
 
@@ -92,9 +92,17 @@ class InfoApiInterface
     bool ApiOutputOverrideDetected() { return api_output_override_; }
 
     // API-specific command-line methods (default is do nothing and return true if required)
-    virtual void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) {}
-    virtual void UpdateCommandLineUsage(std::string& usage) {}
-    virtual bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) { return true; }
+    virtual void UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(options);
+        GFXRECON_UNREFERENCED_PARAMETER(arguments);
+    }
+    virtual void OutputCommandLineUsage() {}
+    virtual bool CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(arg_parser);
+        return true;
+    }
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor
@@ -108,25 +116,28 @@ class InfoApiInterface
   protected:
     inline void WriteOutput(const std::string& message) { info_writer_->Print(message); }
 
-    std::string UintToHexString(uint32_t value)
+    template <typename T>
+    std::string UintToHexString(T value, uint32_t min_width = 2, bool zero_fill = true, bool show_base = true)
     {
         std::stringstream ss;
-        ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << value;
+        ss << std::hex;
+        if (show_base)
+        {
+            ss << std::showbase;
+        }
+        if (zero_fill)
+        {
+            ss << std::setfill('0');
+        }
+        ss << std::setw(min_width) << value;
         return ss.str();
     }
 
-    std::string UintToHexString(uint64_t value)
-    {
-        std::stringstream ss;
-        ss << "0x" << std::hex << std::setfill('0') << std::setw(2) << value;
-        return ss.str();
-    }
-
-    bool                        api_output_override_{ false };
-    InfoOutputLevel             info_output_level_{ InfoOutputLevel::kBasic };
-    bool                        uses_frame_markers_{ false };
-    std::string                 driver_info_;
-    std::shared_ptr<InfoWriter> info_writer_;
+    bool            api_output_override_{ false };
+    InfoOutputLevel info_output_level_{ InfoOutputLevel::kBasic };
+    bool            uses_frame_markers_{ false };
+    std::string     driver_info_;
+    InfoWriter*     info_writer_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(info)

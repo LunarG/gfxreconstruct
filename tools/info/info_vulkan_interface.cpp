@@ -35,23 +35,6 @@ std::string InfoVulkanInterface::ApiCompiledHeaderVersionString()
            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 }
 
-void InfoVulkanInterface::UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(options);
-    GFXRECON_UNREFERENCED_PARAMETER(arguments);
-}
-
-void InfoVulkanInterface::UpdateCommandLineUsage(std::string& usage)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(usage);
-}
-
-bool InfoVulkanInterface::CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(arg_parser);
-    return true;
-}
-
 void InfoVulkanInterface::RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor)
 {
     vulkan_decoder_.AddConsumer(&vulkan_detection_consumer_);
@@ -152,10 +135,12 @@ void InfoVulkanInterface::PrintInfo()
                 if (properties != nullptr)
                 {
                     WriteOutput(std::string("\tDevice name:         ") + properties->deviceName);
-                    WriteOutput(std::string("\tDevice ID:           ") + UintToHexString(properties->deviceID));
-                    WriteOutput(std::string("\tVendor ID:           ") + UintToHexString(properties->vendorID));
+                    WriteOutput(std::string("\tDevice ID:           ") +
+                                UintToHexString<uint32_t>(properties->deviceID));
+                    WriteOutput(std::string("\tVendor ID:           ") +
+                                UintToHexString<uint32_t>(properties->vendorID));
                     WriteOutput(std::string("\tDriver version:      ") + std::to_string(properties->driverVersion) +
-                                " (" + UintToHexString(properties->driverVersion) + ")");
+                                " (" + UintToHexString<uint32_t>(properties->driverVersion) + ")");
                     WriteOutput(std::string("\tAPI version:         ") + std::to_string(properties->apiVersion) + " (" +
                                 GetVersionString(properties->apiVersion) + ")");
                 }
@@ -183,11 +168,13 @@ void InfoVulkanInterface::PrintInfo()
             for (const auto& props : physical_device_properties)
             {
                 WriteOutput(std::string("  Device: ") + std::to_string(props.first));
-                WriteOutput(std::string("\tAPI version:         ") + UintToHexString(props.second.apiVersion) + " (" +
+                WriteOutput(std::string("\tAPI version:         ") +
+                            UintToHexString<uint64_t>(props.second.apiVersion) + " (" +
                             GetVersionString(props.second.apiVersion) + ")");
-                WriteOutput(std::string("\tDriver version:      ") + UintToHexString(props.second.driverVersion));
-                WriteOutput(std::string("\tVendor ID:           ") + UintToHexString(props.second.vendorID));
-                WriteOutput(std::string("\tDevice ID:           ") + UintToHexString(props.second.deviceID));
+                WriteOutput(std::string("\tDriver version:      ") +
+                            UintToHexString<uint32_t>(props.second.driverVersion));
+                WriteOutput(std::string("\tVendor ID:           ") + UintToHexString<uint32_t>(props.second.vendorID));
+                WriteOutput(std::string("\tDevice ID:           ") + UintToHexString<uint32_t>(props.second.deviceID));
                 WriteOutput(std::string("\tDevice name:         ") + props.second.deviceName);
             }
             break;

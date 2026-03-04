@@ -155,7 +155,7 @@ class InfoContainer
 
     std::string                                     app_name_;
     InfoApiInterface::InfoOutputLevel               output_level_{ InfoApiInterface::InfoOutputLevel::kBasic };
-    std::shared_ptr<InfoWriter>                     info_writer_;
+    InfoWriter                                      info_writer_;
     std::vector<std::unique_ptr<InfoApiInterface>>  api_interfaces_;
     std::vector<std::string>                        detected_apis_;
     uint32_t                                        blank_frame_count_{ 0 };
@@ -170,7 +170,7 @@ class InfoContainer
     gfxrecon::decode::InfoDecoder                   info_decoder_;
     AnnotationRecorder                              annotation_recorder_;
     ApiAgnosticStats                                api_agnostic_stats_;
-    std::shared_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
+    std::unique_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
     nlohmann::json                                  json_base_;
 };
 
