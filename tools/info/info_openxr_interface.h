@@ -46,11 +46,6 @@ class InfoOpenXrInterface : public InfoApiInterface
     bool                ApiWasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
     std::string         ApiCompiledHeaderVersionString() override;
 
-    // API-specific command-line methods (default is do nothing and return true if required)
-    void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
-    void UpdateCommandLineUsage(std::string& usage) override;
-    bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
-
     // Method to register this API's decoder elements with the containers
     // FileProcessor
     void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;

@@ -83,31 +83,18 @@ bool InfoContainer::RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_i
 bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
 {
     // Save the app name first
-    std::string app_name     = argv[0];
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-    app_name_ = app_name;
-
-    info_writer_ = std::make_shared<InfoWriter>();
-    if (!info_writer_)
-    {
-        WriteError("Failed creating InfoWriter");
-        return false;
-    }
+    const std::string app_name_ = std::filesystem::path{ argv[0] }.filename().string();
 
     // Add any API-specific command-line arguments/options
     std::string arguments = kArguments;
     std::string options   = kOptions;
     for (auto& api_if : api_interfaces_)
     {
-        api_if->UpdatePossibleCommandLineOptionsArgs(options, arguments);
+        api_if->UpdateValidCommandLineOptionsArgs(options, arguments);
     }
 
     // Create a shared argument parser so we can share it with the API-specific interfaces
-    argument_parser_ = std::make_shared<gfxrecon::util::ArgumentParser>(argc, argv, options, arguments);
+    argument_parser_ = std::make_unique<gfxrecon::util::ArgumentParser>(argc, argv, options, arguments);
 
     if (argument_parser_->IsOptionSet(kHelpShortOption) || argument_parser_->IsOptionSet(kHelpLongOption))
     {
@@ -127,8 +114,9 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
         output_level_ = InfoApiInterface::InfoOutputLevel::kInfoVersionOnly;
         return false;
     }
+
 #if defined(WIN32) && defined(_DEBUG)
-    if (arg_parser.IsOptionSet(kNoDebugPopup))
+    if (argument_parser_->IsOptionSet(kNoDebugPopup))
     {
         _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
     }
@@ -156,7 +144,7 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
         output_level_ = InfoApiInterface::InfoOutputLevel::kVerbose;
 
         // For verbose, we want the errors and warnings to always go to the console
-        info_writer_->OutputErrorsWarningsToConsole(true);
+        info_writer_.OutputErrorsWarningsToConsole(true);
     }
 
     if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
@@ -164,13 +152,13 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
         // Check for API-specific items
         for (auto& api_if : api_interfaces_)
         {
-            if (!api_if->CheckCommandLine(argument_parser_))
+            if (!api_if->CheckCommandLine(argument_parser_.get()))
             {
                 PrintUsage();
                 return false;
             }
 
-            api_if->SetWriter(info_writer_);
+            api_if->SetWriter(&info_writer_);
 
             if (api_if->ApiOutputOverrideDetected())
             {
@@ -184,7 +172,7 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
 
         if (argument_parser_->IsArgumentSet(kOutputFileArgument))
         {
-            info_writer_->SetOutputFile(argument_parser_->GetArgumentValue(kOutputFileArgument));
+            info_writer_.SetOutputFile(argument_parser_->GetArgumentValue(kOutputFileArgument));
         }
     }
 
@@ -414,12 +402,11 @@ void InfoContainer::PrintUsage()
     WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
     WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 
-    std::string api_specific_usage;
     for (auto& api_if : api_interfaces_)
     {
-        api_if->UpdateCommandLineUsage(api_specific_usage);
+        api_if->SetWriter(&info_writer_);
+        api_if->OutputCommandLineUsage();
     }
-    WriteOutput(api_specific_usage);
 }
 
 void InfoContainer::PrintVersion()
@@ -688,17 +675,17 @@ nlohmann::json InfoContainer::GetGfxrOperationsJson()
 
 void InfoContainer::WriteOutput(const std::string& message)
 {
-    info_writer_->Print(message);
+    info_writer_.Print(message);
 }
 
 void InfoContainer::WriteError(const std::string& message)
 {
-    info_writer_->PrintError(message);
+    info_writer_.PrintError(message);
 }
 
 void InfoContainer::WriteWarning(const std::string& message)
 {
-    info_writer_->PrintWarning(message);
+    info_writer_.PrintWarning(message);
 }
 
 GFXRECON_END_NAMESPACE(info)
