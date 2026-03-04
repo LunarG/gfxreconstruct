@@ -50,9 +50,9 @@ class InfoD3d12Interface : public InfoApiInterface
     uint32_t            GetBlankFrameCount() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
-    void UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
-    void UpdateCommandLineUsage(std::string& usage) override;
-    bool CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser) override;
+    void UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
+    void OutputCommandLineUsage() override;
+    bool CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser) override;
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor
@@ -64,6 +64,7 @@ class InfoD3d12Interface : public InfoApiInterface
 
   private:
     std::string AdapterTypeToString(gfxrecon::format::AdapterType type);
+    std::string GetDriverInfoString();
 
     void PrintEnumGpuIndices();
     void PrintDriverInfoText();
@@ -77,7 +78,7 @@ class InfoD3d12Interface : public InfoApiInterface
     nlohmann::json GetSwapchainInfoJson();
     nlohmann::json GetDxrEiInfoJson();
 
-    constexpr InfoOutputLevel kD3d12EnumGpuDevices = InfoOutputLevel::kApiSpecific_1;
+    const InfoApiInterface::InfoOutputLevel kD3d12EnumGpuDevices = InfoApiInterface::InfoOutputLevel::kApiSpecific_1;
 
     gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer_;
     gfxrecon::decode::Dx12StatsConsumer     dx12_consumer_;

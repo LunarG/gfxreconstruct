@@ -35,23 +35,6 @@ std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString()
            std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION));
 }
 
-void InfoOpenXrInterface::UpdatePossibleCommandLineOptionsArgs(std::string& options, std::string& arguments)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(options);
-    GFXRECON_UNREFERENCED_PARAMETER(arguments);
-}
-
-void InfoOpenXrInterface::UpdateCommandLineUsage(std::string& usage)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(usage);
-}
-
-bool InfoOpenXrInterface::CheckCommandLine(std::shared_ptr<gfxrecon::util::ArgumentParser> arg_parser)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(arg_parser);
-    return true;
-}
-
 void InfoOpenXrInterface::RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor)
 {
     openxr_decoder_.AddConsumer(&openxr_detection_consumer_);
