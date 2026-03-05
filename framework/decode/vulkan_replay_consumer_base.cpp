@@ -2860,33 +2860,30 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
     }
 
-    const char* capture_surface_extension = "NONE";
+    std::string capture_surface_extension;
+
     // Transfer requested extensions to filtered extension
     for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
     {
-        const auto current_extension    = replay_create_info->ppEnabledExtensionNames[i];
-        const bool is_surface_extension = kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end();
+        const auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
         const bool is_forced =
             util::platform::StringCompare(current_extension, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0 ||
             util::platform::StringCompare(current_extension, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0;
-        if (is_forced)
+        if (!is_forced)
         {
-            // Will always be added if available
-            continue;
-        }
-        else if (is_surface_extension)
-        {
-            // skip surface extensions here
-            // and add them when processing --wsi option
-            //
-            // if option other than auto is specified
-            // option is set at application creation and
-            // the applications wsi context is already initialized
-            capture_surface_extension = current_extension;
-        }
-        else
-        {
-            modified_extensions.push_back(current_extension);
+            if (kSurfaceExtensions.contains(current_extension))
+            {
+                if (!override_wsi_extensions)
+                {
+                    application_->InitializeWsiContext(current_extension);
+                    capture_surface_extension = current_extension;
+                    modified_extensions.push_back(current_extension);
+                }
+            }
+            else
+            {
+                modified_extensions.push_back(current_extension);
+            }
         }
     }
 
@@ -2895,7 +2892,8 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
         // only set a wsi if there was one on the capture device
-        bool surface_at_capture_time = util::platform::StringCompare(capture_surface_extension, "NONE") != 0;
+        bool surface_at_capture_time = !capture_surface_extension.empty();
+
         if (!override_wsi_extensions && surface_at_capture_time &&
             options_.swapchain_option != util::SwapchainOption::kOffscreen)
         {
@@ -2904,13 +2902,12 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 application_->GetWsiContexts();
 
             // Try to use the same WSI as at capture time
-            if (graphics::feature_util::IsSupportedExtension(available_extensions, capture_surface_extension))
+            if (graphics::feature_util::IsSupportedExtension(available_extensions, capture_surface_extension.c_str()))
             {
-                auto itr_surface_extension = kSurfaceExtensions.find(capture_surface_extension);
+                const auto itr_surface_extension = kSurfaceExtensions.find(capture_surface_extension);
 
                 // check if corresponding compositor exists on replay device
-                if (wsi_contexts.contains(*itr_surface_extension) ||
-                    application_->InitializeWsiContext(itr_surface_extension->c_str()))
+                if (itr_surface_extension != kSurfaceExtensions.end() && wsi_contexts.contains(*itr_surface_extension))
                 {
                     modified_extensions.push_back(itr_surface_extension->c_str());
                     picked_surface = true;
@@ -2931,7 +2928,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                         {
                             modified_extensions.push_back(itr_surface_extension->c_str());
                             GFXRECON_LOG_INFO("--wsi auto: could not find surface: %s, instead using: %s",
-                                              capture_surface_extension,
+                                              capture_surface_extension.c_str(),
                                               itr_surface_extension->c_str());
                             picked_surface = true;
                             break;
