@@ -218,7 +218,8 @@ class FileProcessor
     uint64_t block_index_;
 
   protected:
-    bool         IsFileValid() const;
+    virtual bool IsFileValid() const;
+
     BlockIOError CheckFileStatus() const
     {
         if (file_stack_.empty())
