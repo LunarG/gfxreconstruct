@@ -731,9 +731,14 @@ Optional arguments:
                         vkCreatePipelineCache and skip calls to
                         vkGetPipelineCacheData (same as
                         --omit-pipeline-cache-data).
-  --wsi <platform>      Force replay to use the specified wsi platform.
-                        Available platforms are:
+  --wsi <platform>      Force replay to use the specified wsi platform. If no surface
+                        was available at capture time the option is ignored and no
+                        surface is chosen.
+                        Available surfaces are:
                         auto,display,headless,metal,wayland,win32,xcb,xlib
+                        auto (default): Picks the same surface as at capture time if
+                                        possible, otherwise picks a surface available
+                                        on the replay device");
   --surface-index <N>   Restrict rendering to the Nth surface object created.
                         Used with captures that include multiple surfaces.  Default
                         is -1 (render to all surfaces).

@@ -79,7 +79,7 @@ class Application final
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);
 
-    void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
+    bool InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
 #if defined(WIN32)
     void InitializeDx12WsiContext();
