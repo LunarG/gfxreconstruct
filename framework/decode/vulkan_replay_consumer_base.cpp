@@ -2927,9 +2927,9 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                             application_->InitializeWsiContext(itr_surface_extension->c_str()))
                         {
                             modified_extensions.push_back(itr_surface_extension->c_str());
-                            GFXRECON_LOG_INFO("--wsi auto: could not find surface: %s, instead using: %s",
-                                              capture_surface_extension.c_str(),
-                                              itr_surface_extension->c_str());
+                            GFXRECON_LOG_WARNING("--wsi auto: could not find surface: %s, instead using: %s",
+                                                 capture_surface_extension.c_str(),
+                                                 itr_surface_extension->c_str());
                             picked_surface = true;
                             break;
                         }
