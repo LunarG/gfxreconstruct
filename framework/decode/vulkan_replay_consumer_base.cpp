@@ -2780,8 +2780,13 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
     {
         for (uint32_t i = 0; i < frame_boundary->pImages.GetLength(); ++i)
         {
-            const std::string filename_prefix =
+            std::string filename_prefix =
                 screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+
+            if (frame_boundary->pImages.GetLength() > 1)
+            {
+                filename_prefix += "_image_" + std::to_string(i);
+            }
 
             const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
             const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
