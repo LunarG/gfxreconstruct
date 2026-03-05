@@ -246,8 +246,9 @@ void Application::ProcessEvents(bool wait_for_input)
     }
 }
 
-void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* pPlatformSpecificData)
+bool Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* pPlatformSpecificData)
 {
+    bool platform_exists = false;
     assert(pSurfaceExtensionName);
     auto itr = wsi_contexts_.find(pSurfaceExtensionName);
     if (itr == wsi_contexts_.end())
@@ -255,57 +256,97 @@ void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_KHR_WIN32_SURFACE_EXTENSION_NAME] = std::make_unique<Win32Context>(this);
+            std::unique_ptr<Win32Context> platform_context = std::make_unique<Win32Context>(this);
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_KHR_WIN32_SURFACE_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                                    = true;
+            }
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME] = std::make_unique<WaylandContext>(this);
+            std::unique_ptr<WaylandContext> platform_context = std::make_unique<WaylandContext>(this);
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                                      = true;
+            }
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_XCB_SURFACE_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_KHR_XCB_SURFACE_EXTENSION_NAME] = std::make_unique<XcbContext>(this);
+            std::unique_ptr<XcbContext> platform_context = std::make_unique<XcbContext>(this);
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_KHR_XCB_SURFACE_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                                  = true;
+            }
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_KHR_XLIB_SURFACE_EXTENSION_NAME] = std::make_unique<XlibContext>(this);
+            std::unique_ptr<XlibContext> platform_context = std::make_unique<XlibContext>(this);
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_KHR_XLIB_SURFACE_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                                   = true;
+            }
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_KHR_ANDROID_SURFACE_EXTENSION_NAME] =
+            std::unique_ptr<AndroidContext> platform_context =
                 std::make_unique<AndroidContext>(this, reinterpret_cast<struct android_app*>(pPlatformSpecificData));
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_KHR_ANDROID_SURFACE_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                                      = true;
+            }
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_METAL_EXT)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_EXT_METAL_SURFACE_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_EXT_METAL_SURFACE_EXTENSION_NAME] = std::make_unique<MetalContext>(this);
+            std::unique_ptr<MetalContext> platform_context = std::make_unique<MetalContext>(this);
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_EXT_METAL_SURFACE_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                                    = true;
+            }
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_DISPLAY_KHR)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_KHR_DISPLAY_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_KHR_DISPLAY_EXTENSION_NAME] = std::make_unique<DisplayContext>(this);
+            std::unique_ptr<DisplayContext> platform_context = std::make_unique<DisplayContext>(this);
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_KHR_DISPLAY_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                              = true;
+            }
         }
         else
 #endif
 #if defined(VK_USE_PLATFORM_HEADLESS)
             if (!util::platform::StringCompare(pSurfaceExtensionName, VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME))
         {
-            wsi_contexts_[VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME] = std::make_unique<HeadlessContext>(this);
+            std::unique_ptr<HeadlessContext> platform_context = std::make_unique<HeadlessContext>(this);
+            if (platform_context->Valid())
+            {
+                wsi_contexts_[VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME] = std::move(platform_context);
+                platform_exists                                       = true;
+            }
         }
         else
 #endif
@@ -313,6 +354,7 @@ void Application::InitializeWsiContext(const char* pSurfaceExtensionName, void* 
             // NOOP :
         }
     }
+    return platform_exists;
 }
 
 #if defined(D3D12_SUPPORT)
