@@ -794,6 +794,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--quit-after-frame FRAME]
                           [--screenshot-ignore-FrameBoundaryANDROID]
                           [--wait-before-first-submit MILLISECONDS]
+                          [--idle-before-submit]
                           [file]
 
 Launch the replay tool.
@@ -1005,6 +1006,8 @@ options:
   --wait-before-first-submit MILLISECONDS
                         Wait for the specified amount of milliseconds before
                         processing the first submit. (forwarded to replay tool)
+  --idle-before-submit  Wait for the GPU to become idle before each submit.
+                        (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

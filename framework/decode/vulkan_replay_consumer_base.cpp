@@ -4174,6 +4174,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
 
+    if (options_.idle_before_submit)
+    {
+        GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
+    }
+
     VulkanSubmitJobPlan     plan;
     VulkanSubmitJobExecutor executor;
 
@@ -4389,6 +4394,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
     allocator->ClearStagingResources();
+
+    if (options_.idle_before_submit)
+    {
+        GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
+    }
 
     VulkanSubmitJobPlan     plan;
     VulkanSubmitJobExecutor executor;
