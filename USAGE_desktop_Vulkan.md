@@ -634,6 +634,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--pbi-all] [--pbis <index1,index2>]
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
                         [--deduplicate-device]
+                        [--wait-before-first-submit MILLISECONDS]
 
 
 Required arguments:
@@ -731,9 +732,14 @@ Optional arguments:
                         vkCreatePipelineCache and skip calls to
                         vkGetPipelineCacheData (same as
                         --omit-pipeline-cache-data).
-  --wsi <platform>      Force replay to use the specified wsi platform.
-                        Available platforms are:
+  --wsi <platform>      Force replay to use the specified wsi platform. If no surface
+                        was available at capture time the option is ignored and no
+                        surface is chosen.
+                        Available surfaces are:
                         auto,display,headless,metal,wayland,win32,xcb,xlib
+                        auto (default): Picks the same surface as at capture time if
+                                        possible, otherwise picks a surface available
+                                        on the replay device");
   --surface-index <N>   Restrict rendering to the Nth surface object created.
                         Used with captures that include multiple surfaces.  Default
                         is -1 (render to all surfaces).
@@ -863,9 +869,10 @@ Optional arguments:
                         `--load-pipeline-cache`.
   --quit-after-frame
               Specify a frame after which replay will terminate.
-
   --deduplicate-device
               If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
+  --wait-before-first-submit <milliseconds>
+              Wait for the specified amount of milliseconds before processing the first submit.
 ```
 
 ### Key Controls

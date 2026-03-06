@@ -793,6 +793,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--add-new-pipeline-caches]
                           [--quit-after-frame FRAME]
                           [--screenshot-ignore-FrameBoundaryANDROID]
+                          [--wait-before-first-submit MILLISECONDS]
                           [file]
 
 Launch the replay tool.
@@ -1001,6 +1002,9 @@ options:
   --screenshot-ignore-FrameBoundaryANDROID
                         If set, frames switced with vkFrameBoundANDROID will
                         be ignored from the screenshot handler.
+  --wait-before-first-submit MILLISECONDS
+                        Wait for the specified amount of milliseconds before
+                        processing the first submit. (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay
