@@ -148,6 +148,7 @@ const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
+const char kWaitBeforeFrame[]                     = "--wait-before-frame";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -162,6 +163,7 @@ const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 
 const char kDumpResourcesArgument[]    = "--dump-resources";
 const char kDumpResourcesDirArgument[] = "--dump-resources-dir";
+const char kFrameWarmUpLoad[]          = "--frame-warm-up-load";
 
 enum class WsiPlatform
 {
@@ -893,6 +895,44 @@ static void GetWaitBeforeFirstSubmit(const gfxrecon::util::ArgumentParser& arg_p
     }
 }
 
+static void GetFrameWarmUpLoad(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_warm_up_load)
+{
+    const auto& value = arg_parser.GetArgumentValue(kFrameWarmUpLoad);
+
+    if (!value.empty())
+    {
+        try
+        {
+            frame_warm_up_load = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid frame warm up load option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
+    }
+}
+
+static void GetWaitBeforeFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& wait_before_frame)
+{
+    const auto& value = arg_parser.GetArgumentValue(kWaitBeforeFrame);
+
+    if (!value.empty())
+    {
+        try
+        {
+            wait_before_frame = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid wait before frame option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
+    }
+}
+
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
                              const gfxrecon::util::ArgumentParser& arg_parser,
                              const std::string&                    filename)
@@ -1241,6 +1281,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
+    GetFrameWarmUpLoad(arg_parser, replay_options.frame_warm_up_load);
+    GetWaitBeforeFrame(arg_parser, replay_options.wait_before_frame);
 
     return replay_options;
 }
