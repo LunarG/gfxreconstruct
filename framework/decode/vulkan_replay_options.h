@@ -175,7 +175,11 @@ struct VulkanReplayOptions : public ReplayOptions
     // A bigger `frame_warm_up_load` means more synthetic GPU work to ramp/stabilize GPU clocks before replay.
     uint32_t frame_warm_up_load{ 0 };
 
+    /// Milliseconds to wait before starting to replay each frame.
+    uint32_t wait_before_frame{ 0 };
+
     void MaybeWaitBeforeFirstSubmit() const;
+    void MaybeWaitBeforeFrame() const;
 };
 
 GFXRECON_END_NAMESPACE(decode)
