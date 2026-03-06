@@ -1481,11 +1481,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateBLASJsonInfo(nlohmann::ordered_
         dump_json_.InsertBufferInfo(serialized_entry, dumped_as.serialized_buffer);
     }
 
-    auto& blas_inputs_entry = blas_json_entry["BuildInputs"];
     if (dumped_as.input_buffers.empty())
     {
         return;
     }
+
+    auto& blas_inputs_entry = blas_json_entry["BuildInputs"];
 
     std::string input_type_string;
     if (std::get_if<DumpedAccelerationStructure::DumpedBuildInputTriangleBuffer>(&dumped_as.input_buffers[0]))
@@ -2152,19 +2153,19 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             if (dump_build_as->dumped_build_infos[i].dumped_as.as_info->type ==
                 VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
             {
-                return DumpTLASToFile(*dumped_transfer_command,
-                                      dump_build_as->dumped_build_infos[i].dumped_as,
-                                      build_as_host_data->data[i],
-                                      delegate_context.before_command,
-                                      delegate_context.compressor);
+                DumpTLASToFile(*dumped_transfer_command,
+                               dump_build_as->dumped_build_infos[i].dumped_as,
+                               build_as_host_data->data[i],
+                               delegate_context.before_command,
+                               delegate_context.compressor);
             }
             else
             {
-                return DumpBLASToFile(*dumped_transfer_command,
-                                      dump_build_as->dumped_build_infos[i].dumped_as,
-                                      build_as_host_data->data[i],
-                                      delegate_context.before_command,
-                                      delegate_context.compressor);
+                DumpBLASToFile(*dumped_transfer_command,
+                               dump_build_as->dumped_build_infos[i].dumped_as,
+                               build_as_host_data->data[i],
+                               delegate_context.before_command,
+                               delegate_context.compressor);
             }
         }
     }
