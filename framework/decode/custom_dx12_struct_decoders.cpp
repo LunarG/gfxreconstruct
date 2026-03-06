@@ -798,7 +798,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
     D3D12_RAYTRACING_OPACITY_MICROMAP_FORMAT format;
     bytes_read +=
         ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ByteOffset));
-    
+
     bytes_read +=
         ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(subdivision_level));
     value->SubdivisionLevel = subdivision_level;
@@ -1136,6 +1136,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
                 wrapper->rasterizer2.decoded_value = &subobject->value;
 
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->rasterizer2));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+            {
+                auto subobject                        = reinterpret_cast<format::Dx12DepthStencil2Subobject*>(current);
+                subobject->type                       = type;
+                wrapper->depth_stencil2.decoded_value = &subobject->value;
+
+                bytes_read +=
+                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->depth_stencil2));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SERIALIZED_ROOT_SIGNATURE:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12SerializedRootSignatureSubobject*>(current);
+                subobject->type = type;
+                wrapper->serialized_root_signature.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->serialized_root_signature));
 
                 offset += sizeof(*subobject);
                 break;

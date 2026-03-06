@@ -42,25 +42,27 @@ struct alignas(void*) Dx12SubobjectType
     T                                   value;
 };
 
-using Dx12UIntSubobject                = Dx12SubobjectType<UINT>;
-using Dx12SignatureSubobject           = Dx12SubobjectType<ID3D12RootSignature*>;
-using Dx12ShaderBytecodeSubobject      = Dx12SubobjectType<D3D12_SHADER_BYTECODE>;
-using Dx12StreamOutputSubobject        = Dx12SubobjectType<D3D12_STREAM_OUTPUT_DESC>;
-using Dx12BlendSubobject               = Dx12SubobjectType<D3D12_BLEND_DESC>;
-using Dx12RasterizerSubobject          = Dx12SubobjectType<D3D12_RASTERIZER_DESC>;
-using Dx12DepthStencilSubobject        = Dx12SubobjectType<D3D12_DEPTH_STENCIL_DESC>;
-using Dx12InputLayoutSubobject         = Dx12SubobjectType<D3D12_INPUT_LAYOUT_DESC>;
-using Dx12StripCutSubobject            = Dx12SubobjectType<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE>;
-using Dx12PrimitiveTopologySubobject   = Dx12SubobjectType<D3D12_PRIMITIVE_TOPOLOGY_TYPE>;
-using Dx12RenderTargetFormatsSubobject = Dx12SubobjectType<D3D12_RT_FORMAT_ARRAY>;
-using Dx12FormatSubobject              = Dx12SubobjectType<DXGI_FORMAT>;
-using Dx12SampleDescSubobject          = Dx12SubobjectType<DXGI_SAMPLE_DESC>;
-using Dx12CachedPsoSubobject           = Dx12SubobjectType<D3D12_CACHED_PIPELINE_STATE>;
-using Dx12TypeFlagsSubobject           = Dx12SubobjectType<D3D12_PIPELINE_STATE_FLAGS>;
-using Dx12DepthStencil1Subobject       = Dx12SubobjectType<D3D12_DEPTH_STENCIL_DESC1>;
-using Dx12ViewInstancingSubobject      = Dx12SubobjectType<D3D12_VIEW_INSTANCING_DESC>;
-using Dx12Rasterizer1Subobject         = Dx12SubobjectType<D3D12_RASTERIZER_DESC1>;
-using Dx12Rasterizer2Subobject         = Dx12SubobjectType<D3D12_RASTERIZER_DESC2>;
+using Dx12UIntSubobject                    = Dx12SubobjectType<UINT>;
+using Dx12SignatureSubobject               = Dx12SubobjectType<ID3D12RootSignature*>;
+using Dx12ShaderBytecodeSubobject          = Dx12SubobjectType<D3D12_SHADER_BYTECODE>;
+using Dx12StreamOutputSubobject            = Dx12SubobjectType<D3D12_STREAM_OUTPUT_DESC>;
+using Dx12BlendSubobject                   = Dx12SubobjectType<D3D12_BLEND_DESC>;
+using Dx12RasterizerSubobject              = Dx12SubobjectType<D3D12_RASTERIZER_DESC>;
+using Dx12DepthStencilSubobject            = Dx12SubobjectType<D3D12_DEPTH_STENCIL_DESC>;
+using Dx12InputLayoutSubobject             = Dx12SubobjectType<D3D12_INPUT_LAYOUT_DESC>;
+using Dx12StripCutSubobject                = Dx12SubobjectType<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE>;
+using Dx12PrimitiveTopologySubobject       = Dx12SubobjectType<D3D12_PRIMITIVE_TOPOLOGY_TYPE>;
+using Dx12RenderTargetFormatsSubobject     = Dx12SubobjectType<D3D12_RT_FORMAT_ARRAY>;
+using Dx12FormatSubobject                  = Dx12SubobjectType<DXGI_FORMAT>;
+using Dx12SampleDescSubobject              = Dx12SubobjectType<DXGI_SAMPLE_DESC>;
+using Dx12CachedPsoSubobject               = Dx12SubobjectType<D3D12_CACHED_PIPELINE_STATE>;
+using Dx12TypeFlagsSubobject               = Dx12SubobjectType<D3D12_PIPELINE_STATE_FLAGS>;
+using Dx12DepthStencil1Subobject           = Dx12SubobjectType<D3D12_DEPTH_STENCIL_DESC1>;
+using Dx12ViewInstancingSubobject          = Dx12SubobjectType<D3D12_VIEW_INSTANCING_DESC>;
+using Dx12Rasterizer1Subobject             = Dx12SubobjectType<D3D12_RASTERIZER_DESC1>;
+using Dx12Rasterizer2Subobject             = Dx12SubobjectType<D3D12_RASTERIZER_DESC2>;
+using Dx12DepthStencil2Subobject           = Dx12SubobjectType<D3D12_DEPTH_STENCIL_DESC2>;
+using Dx12SerializedRootSignatureSubobject = Dx12SubobjectType<D3D12_SERIALIZED_ROOT_SIGNATURE_DESC>;
 
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)

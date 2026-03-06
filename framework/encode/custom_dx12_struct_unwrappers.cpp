@@ -191,6 +191,12 @@ void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMe
                 case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2:
                     offset += sizeof(format::Dx12Rasterizer2Subobject);
                     break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                    offset += sizeof(format::Dx12DepthStencil2Subobject);
+                    break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SERIALIZED_ROOT_SIGNATURE:
+                    offset += sizeof(format::Dx12SerializedRootSignatureSubobject);
+                    break;
                 default:
                     // Type is unrecognized.  Write an invalid enum value so the decoder know the data is incomplete,
                     // and log a warning.
