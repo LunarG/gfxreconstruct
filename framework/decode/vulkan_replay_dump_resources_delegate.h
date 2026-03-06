@@ -182,7 +182,7 @@ struct VulkanDelegateDumpResourceContext
 class VulkanDumpResourcesDelegate
 {
   public:
-    VulkanDumpResourcesDelegate(const VulkanReplayOptions& options, const std::string capture_filename) {}
+    VulkanDumpResourcesDelegate(const VulkanReplayOptions& options) {}
     virtual ~VulkanDumpResourcesDelegate() {}
 
     virtual bool Open()                                                                    = 0;
@@ -207,12 +207,9 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
         uint32_t                  layer,
         bool                      before_command) const;
 
-    DefaultVulkanDumpResourcesDelegate(const VulkanReplayOptions& options,
-                                       CommonObjectInfoTable&     object_info_table,
-                                       const std::string          capture_filename) :
-        VulkanDumpResourcesDelegate(options, capture_filename),
-        dump_json_(options), options_(options), object_info_table_(object_info_table),
-        capture_filename_(capture_filename)
+    DefaultVulkanDumpResourcesDelegate(const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table) :
+        VulkanDumpResourcesDelegate(options), dump_json_(options), options_(options),
+        object_info_table_(object_info_table)
     {}
     virtual ~DefaultVulkanDumpResourcesDelegate() {}
 
@@ -386,7 +383,6 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     VulkanReplayDumpResourcesJson dump_json_;
     const VulkanReplayOptions&    options_;
     CommonObjectInfoTable&        object_info_table_;
-    const std::string             capture_filename_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
