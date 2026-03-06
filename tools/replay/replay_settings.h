@@ -43,7 +43,7 @@ const char kArguments[] =
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
     "present-mode,--wait-before-first-submit,--idle-before-submit,--present-override,--serialize-render-passes,--frame-"
-    "warm-up-spirv,--frame-warm-up-load";
+    "warm-up-spirv,--frame-warm-up-load,--wait-before-frame";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -85,7 +85,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--wait-before-first-submit <milliseconds>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--frame-warm-up-spirv <spirv-file>] [--frame-warm-up-load <load>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--idle-before-submit] [--pbi-all] [--pbis <index1,index2>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--serialize-render-passes]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--serialize-render-passes] [--wait-before-frame <milliseconds>]");
 #if !defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <filename>.json]");
 #endif
@@ -380,6 +380,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --frame-warm-up-load <load>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify workload scale factor for a compute dispatch warm-up pass");
     GFXRECON_WRITE_CONSOLE("          \t\trun before each frame replay. Default is 0 (disabled).");
+    GFXRECON_WRITE_CONSOLE("  --wait-before-frame <milliseconds>");
+    GFXRECON_WRITE_CONSOLE("          \t\tWait for the specified amount of milliseconds before starting to replay");
+    GFXRECON_WRITE_CONSOLE("          \t\teach frame. Default is 0 (no wait).");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")
