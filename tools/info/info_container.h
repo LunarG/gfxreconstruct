@@ -58,14 +58,6 @@ class InfoContainer
 
     bool OutputContent();
 
-    // Temporary - only for transition (will be removed)
-    std::string GetInputFilename()
-    {
-        return argument_parser_->GetPositionalArguments().size() > 0 ? argument_parser_->GetPositionalArguments()[0]
-                                                                     : "";
-    }
-    InfoApiInterface::InfoOutputLevel GetOutputLevel() { return output_level_; }
-
   private:
     void PrintUsage();
     void PrintVersion();
