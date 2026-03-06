@@ -70,8 +70,8 @@ bool InfoContainer::RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_i
     {
         if (api_if->ApiFamilyId() == api_interface->ApiFamilyId())
         {
-            WriteError(std::format("Duplicate Api Interface for API {} found!\n",
-                                   static_cast<uint32_t>(api_interface->ApiFamilyId()))
+            WriteError((std::string("Duplicate Api Interface for API ") +
+                        std::to_string(static_cast<uint32_t>(api_interface->ApiFamilyId())) + " found!\n")
                            .c_str());
             return false;
         }
@@ -380,10 +380,10 @@ bool InfoContainer::OutputContent()
 
 void InfoContainer::PrintUsage()
 {
-    WriteOutput(std::format("\n{} - Print statistics for a GFXReconstruct capture file.", app_name_));
-    WriteOutput(std::format(
-        "Usage:\n  {} [-h | --help] [--version] [--exe-info-only] [--verbose] [--output <file>] <capture-file>",
-        app_name_));
+    WriteOutput((std::string("\n") + app_name_ + " - Print statistics for a GFXReconstruct capture file.").c_str());
+    WriteOutput((std::string("Usage:\n  ") + app_name_ +
+                 " [-h | --help] [--version] [--exe-info-only] [--verbose] [--output <file>] <capture-file>")
+                    .c_str());
     WriteOutput("Required arguments:");
     WriteOutput("  <capture-file>\tThe GFXReconstruct capture file to be processed.");
     WriteOutput("\nOptional arguments:");
@@ -411,7 +411,7 @@ void InfoContainer::PrintUsage()
 
 void InfoContainer::PrintVersion()
 {
-    WriteOutput(std::format("{} version info:\n  GFXReconstruct Version {}", app_name_, GetProjectVersionString()));
+    WriteOutput((app_name_ + " version info:\n  GFXReconstruct Version " + GetProjectVersionString()).c_str());
     for (auto& api_if : api_interfaces_)
     {
         WriteOutput(api_if->ApiCompiledHeaderVersionString());
