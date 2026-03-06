@@ -636,6 +636,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--deduplicate-device]
                         [--wait-before-first-submit MILLISECONDS]
                         [--idle-before-submit] [--serialize-render-passes]
+                        [--wait-before-frame MILLISECONDS]
 
 
 Required arguments:
@@ -885,6 +886,8 @@ Optional arguments:
   --frame-warm-up-load <load>
               Specify workload scale factor for a compute dispatch warm-up pass
               run before each frame replay. Default is 0 (disabled).
+  --wait-before-frame <milliseconds>
+              Specify a wait time in milliseconds before starting replay of each frame. Default is 0 (disabled).
 ```
 
 ### Key Controls

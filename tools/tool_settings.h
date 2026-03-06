@@ -151,6 +151,7 @@ const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
 const char kIdleBeforeSubmit[]                    = "--idle-before-submit";
 const char kSerializeRenderPasses[]               = "--serialize-render-passes";
+const char kWaitBeforeFrame[]                     = "--wait-before-frame";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -950,6 +951,25 @@ static void GetFrameWarmUpOptions(const gfxrecon::util::ArgumentParser& arg_pars
     }
 }
 
+static void GetWaitBeforeFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& wait_before_frame)
+{
+    const auto& value = arg_parser.GetArgumentValue(kWaitBeforeFrame);
+
+    if (!value.empty())
+    {
+        try
+        {
+            wait_before_frame = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid wait before frame option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
+    }
+}
+
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
                              const gfxrecon::util::ArgumentParser& arg_parser,
                              const std::string&                    filename)
@@ -1308,6 +1328,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.serialize_render_passes = arg_parser.IsOptionSet(kSerializeRenderPasses);
 
     GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);
+    GetWaitBeforeFrame(arg_parser, replay_options.wait_before_frame);
 
     return replay_options;
 }
