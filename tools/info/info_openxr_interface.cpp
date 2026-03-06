@@ -31,8 +31,8 @@ GFXRECON_BEGIN_NAMESPACE(info)
 std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString()
 {
     return std::string("  OpenXR Header Version  ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
-           std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
-           std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION));
+           std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
+           std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 }
 
 void InfoOpenXrInterface::RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor)
