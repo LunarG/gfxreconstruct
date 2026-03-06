@@ -73,9 +73,10 @@ void InfoD3d12Interface::RegisterApiDecodeComponents(gfxrecon::decode::FileProce
 
 void InfoD3d12Interface::PrintEnumGpuIndices()
 {
-    IDXGIFactory1* factory1 = nullptr;
+    gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1 = nullptr;
 
     HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
+
     if (SUCCEEDED(result))
     {
         gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
