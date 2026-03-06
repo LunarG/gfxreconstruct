@@ -46,7 +46,6 @@ class InfoD3d12Interface : public InfoApiInterface
     std::string         ApiLabel() override { return "D3D12"; }
     bool                ApiWasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
     std::string         ApiCompiledHeaderVersionString() override;
-    uint32_t            GetFrameStart() override;
     uint32_t            GetBlankFrameCount() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
