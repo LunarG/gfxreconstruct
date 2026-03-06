@@ -635,6 +635,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
                         [--deduplicate-device]
                         [--wait-before-first-submit MILLISECONDS]
+                        [--idle-before-submit]
 
 
 Required arguments:
@@ -873,6 +874,8 @@ Optional arguments:
               If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
   --wait-before-first-submit <milliseconds>
               Wait for the specified amount of milliseconds before processing the first submit.
+  --idle-before-submit
+              Wait for the GPU to become idle before each submit.
 ```
 
 ### Key Controls
