@@ -340,11 +340,19 @@ void Dx12DecoderBase::DispatchSetEnvironmentVariablesCommand(const format::SetEn
     }
 }
 
-void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
+void Dx12DecoderBase::BeginDispatchBlock(const ParsedBlock* parsed_block)
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index);
+        consumer->BeginProcessBlock(parsed_block);
+    }
+}
+
+void Dx12DecoderBase::EndDispatchBlock()
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->EndProcessBlock();
     }
 }
 

@@ -129,7 +129,7 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
 
 FileProcessor::ProcessBlockState PreloadFileProcessor::PreloadBlocksOneFrame(ParsedBlockQueue& frame_queue)
 {
-    DispatchFunction dispatch = [&frame_queue](uint64_t block_index, ParsedBlock& block) {
+    DispatchFunction dispatch = [&frame_queue](ParsedBlock& block) {
         frame_queue.emplace_back(std::move(block));
         return ProcessBlockState::kRunning;
     };
@@ -204,8 +204,9 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame(PreloadedF
             }
         }
 
-        dispatch_visitor.SetBlockIndex(block_index);
+        dispatch_visitor.SetCurrentBlock(&queued_block);
         std::visit(dispatch_visitor, queued_block.GetArgs());
+        dispatch_visitor.SetCurrentBlock(nullptr);
     }
 
     return process_state;
