@@ -2558,16 +2558,6 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommandList1(ID3D12Dev
     }
 }
 
-CaptureSettings::TraceSettings D3D12CaptureManager::GetDefaultTraceSettings()
-{
-    CaptureSettings::TraceSettings d3d12_trace_settings = {};
-
-    // Return different trace setting defaults for D3D12.
-    d3d12_trace_settings.page_guard_external_memory = true;
-
-    return d3d12_trace_settings;
-}
-
 void D3D12CaptureManager::PostProcess_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart(
     ID3D12DescriptorHeap_Wrapper* wrapper, D3D12_GPU_DESCRIPTOR_HANDLE result)
 {
