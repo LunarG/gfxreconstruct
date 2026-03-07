@@ -33,5 +33,5 @@ goto :fetch_suites
 
 git checkout FETCH_HEAD || exit /b
 git describe --tags --always
-ls .
+dir
 cd ..
