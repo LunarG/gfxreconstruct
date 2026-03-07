@@ -22,6 +22,7 @@
 
 #include "file_transformer.h"
 
+#include "decode/block_buffer.h"
 #include "format/format_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
@@ -33,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileTransformer::FileTransformer() :
     input_file_(std::make_shared<FileInputStream>()), output_file_(nullptr), bytes_read_(0), bytes_written_(0),
-    error_state_(kErrorInvalidFileDescriptor), loading_state_(false), pool_(util::HeapBufferPool::Create())
+    error_state_(kErrorInvalidFileDescriptor), loading_state_(false)
 {}
 
 FileTransformer::~FileTransformer()
@@ -82,8 +83,7 @@ bool FileTransformer::Initialize(const std::string& input_filename,
     {
         // We wait until after "ProcessFileHeader" as that is where compressor_ is initialized
         auto err_handler = [this](BlockIOError err, const char* message) { HandleBlockReadError(err, message); };
-        block_parser_ =
-            std::make_unique<BlockParser>(BlockParser::ErrorHandler{ err_handler }, pool_, compressor_.get());
+        block_parser_    = std::make_unique<BlockParser>(BlockParser::ErrorHandler{ err_handler }, compressor_.get());
         success = block_parser_ != nullptr;
         if (success)
         {
@@ -163,7 +163,7 @@ bool FileTransformer::Process()
             // Track bytes read by the parser, since we aren't using ReadBytes here
             bytes_read_ += block_buffer.Size();
             block_parser_->SetBlockIndex(block_index_);
-            ParsedBlock parsed_block = block_parser_->ParseBlock(block_buffer);
+            ParsedBlock& parsed_block = block_parser_->ParseBlock(block_buffer);
 
             // There are four states for a parsed block
             //    kReady and kDeferredDecompress are "Visitable"
@@ -175,7 +175,14 @@ bool FileTransformer::Process()
                 if (parsed_block.IsVisitable())
                 {
                     auto visit_call = [this, &parsed_block](auto&& args) {
-                        return this->ProcessNextBlock(parsed_block, *args);
+                        if constexpr (std::is_same_v<std::decay_t<decltype(args)>, std::monostate>)
+                        {
+                            return true; // Skipping unknown and invalid blocks.
+                        }
+                        else
+                        {
+                            return this->ProcessNextBlock(parsed_block, *args);
+                        }
                     };
                     success = std::visit(visit_call, parsed_block.GetArgs());
                 }
@@ -337,7 +344,7 @@ bool FileTransformer::WriteBytes(const void* buffer, size_t buffer_size)
 
 bool FileTransformer::WriteBytes(const ParsedBlock& parsed_block)
 {
-    const util::DataSpan& block_span = parsed_block.GetBlockData();
+    const ParsedBlock::BlockSpan block_span = parsed_block.GetBlockSpan();
     if (!WriteBytes(block_span.data(), block_span.size()))
     {
         HandleBlockWriteError(kErrorWritingBlockData, "Failed to write passthrough block data");
