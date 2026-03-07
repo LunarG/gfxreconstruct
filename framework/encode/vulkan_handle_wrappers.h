@@ -281,6 +281,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     // the memory.
     DeviceWrapper*   parent_device{ nullptr };
     const void*      mapped_data{ nullptr };
+    const void*      original_mapped_data{ nullptr };
     VkDeviceSize     mapped_offset{ 0 };
     VkDeviceSize     mapped_size{ 0 };
     VkMemoryMapFlags mapped_flags{ 0 };

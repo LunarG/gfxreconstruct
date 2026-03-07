@@ -108,8 +108,13 @@ void VulkanCaptureManager::DestroyInstance()
 
 void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data)
 {
+    uint32_t trim_frame = GetCurrentFrame();
+    if (CommonCaptureManager::IsRecaptureCopyData())
+    {
+        trim_frame += (GetRecaptureTrimStartFrame() - 1);
+    }
     uint64_t n_blocks = state_tracker_->WriteState(
-        file_stream, thread_data, [] { return GetUniqueId(); }, GetCompressor(), GetCurrentFrame(), nullptr, nullptr);
+        file_stream, thread_data, [] { return GetUniqueId(); }, GetCompressor(), trim_frame, nullptr, nullptr);
 
     common_manager_->IncrementBlockIndex(n_blocks);
 }
@@ -119,12 +124,17 @@ void VulkanCaptureManager::WriteTrackedStateWithAssetFile(util::FileOutputStream
                                                           util::FileOutputStream* asset_file_stream,
                                                           const std::string*      asset_file_name)
 {
+    uint32_t trim_frame = GetCurrentFrame();
+    if (CommonCaptureManager::IsRecaptureCopyData())
+    {
+        trim_frame += (GetRecaptureTrimStartFrame() - 1);
+    }
     uint64_t n_blocks = state_tracker_->WriteState(
         file_stream,
         thread_data,
         [] { return GetUniqueId(); },
         GetCompressor(),
-        GetCurrentFrame(),
+        trim_frame,
         asset_file_stream,
         asset_file_name);
 
@@ -2934,6 +2944,16 @@ void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice        
     }
 }
 
+void VulkanCaptureManager::SetOriginalMappedMemoryPointer(VkDeviceMemory memory, const void* original_ptr)
+{
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
+    assert(wrapper != nullptr);
+    if (wrapper->mapped_data != nullptr)
+    {
+        wrapper->original_mapped_data = original_ptr;
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
@@ -2948,6 +2968,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
             GFXRECON_ASSERT(state_tracker_ != nullptr);
             state_tracker_->TrackAssetsInMemory(wrapper->handle_id);
         }
+        wrapper->original_mapped_data = nullptr;
 
         if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)

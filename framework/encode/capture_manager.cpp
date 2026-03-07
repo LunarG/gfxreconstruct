@@ -60,7 +60,8 @@ CommonCaptureManager*                          CommonCaptureManager::singleton_;
 std::mutex                                     CommonCaptureManager::instance_lock_;
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
-bool                                           CommonCaptureManager::initialize_log_ = true;
+bool                                           CommonCaptureManager::recapture_in_replay_ = false;
+bool                                           CommonCaptureManager::recapture_copy_data_ = false;
 std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
 uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
 thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
@@ -90,6 +91,13 @@ extern "C"
     }
 }
 
+void CommonCaptureManager::SetupForRecaptureInReplay(format::HandleId offset, bool copy_data)
+{
+    recapture_in_replay_      = true;
+    recapture_copy_data_      = copy_data;
+    default_unique_id_offset_ = offset;
+}
+
 format::HandleId CommonCaptureManager::GetUniqueId()
 {
     uint64_t result = 0;
@@ -99,6 +107,8 @@ format::HandleId CommonCaptureManager::GetUniqueId()
     }
     else
     {
+        GFXRECON_ASSERT(IsRecaptureInReplay() &&
+                        "CommonCaptureManager::unique_id_stack_ should be empty unless doing capture in replay.");
         result = unique_id_stack_.back();
         unique_id_stack_.pop_back();
     }
@@ -123,12 +133,13 @@ CommonCaptureManager::CommonCaptureManager() :
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
-    queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
-    previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
-    debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
-    accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false), previous_write_assets_(false), skip_threads_with_invalid_data_(false)
+    recapture_trim_start_frame_(kFirstFrame), queue_submit_count_(0), capture_mode_(kModeWrite),
+    previous_hotkey_state_(false), previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed),
+    debug_layer_(false), debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false),
+    disable_dxr_(false), accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false),
+    queue_zero_only_(false), allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false),
+    use_asset_file_(false), block_index_(0), write_assets_(false), previous_write_assets_(false),
+    skip_threads_with_invalid_data_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -167,7 +178,8 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             GFXRECON_LOG_WARNING("Failed registering atexit");
         }
 
-        if (initialize_log_)
+        // Don't initialize logger when doing recapture. It is already initialized by replay.
+        if (!IsRecaptureInReplay())
         {
             // Initialize logging
             util::Log::Init();
@@ -178,7 +190,7 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
         default_settings_ = api_capture_singleton->GetDefaultTraceSettings();
         capture_settings_ = api_capture_singleton->GetDefaultTraceSettings();
 
-        if (initialize_log_)
+        if (!IsRecaptureInReplay())
         {
             // Load log settings.
             CaptureSettings::LoadLogSettings(&capture_settings_);
@@ -188,7 +200,7 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
         }
 
         // Load all settings with final logging settings active.
-        CaptureSettings::LoadSettings(&capture_settings_, initialize_log_);
+        CaptureSettings::LoadSettings(&capture_settings_, !IsRecaptureInReplay());
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
         GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GetProjectVersionString());
@@ -531,11 +543,17 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                 if ((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) &&
                     (trim_ranges_[0].first == current_frame_))
                 {
+                    capture_mode_ = kModeTrim;
+                    if (!IsRecaptureCopyData())
+                    {
+                        capture_mode_ |= kModeWrite;
+                    }
+
                     // When capturing from the first frame, state tracking only needs to be enabled if there is more
                     // than one capture range.
                     if (trim_ranges_.size() > 1)
                     {
-                        capture_mode_ = kModeWriteAndTrack;
+                        capture_mode_ |= kModeTrack;
                     }
 
                     util::SignalTrimmingStart();
@@ -563,7 +581,11 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                     trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled ||
                     ExternalTriggerEnabled())
                 {
-                    capture_mode_         = kModeWriteAndTrack;
+                    capture_mode_ = kModeTrim | kModeTrack;
+                    if (!IsRecaptureCopyData())
+                    {
+                        capture_mode_ |= kModeWrite;
+                    }
                     trim_key_first_frame_ = current_frame_;
 
                     util::SignalTrimmingStart();
@@ -657,6 +679,11 @@ bool CommonCaptureManager::IsCaptureModeTrack() const
 bool CommonCaptureManager::IsCaptureModeWrite() const
 {
     return (GetCaptureMode() & kModeWrite) == kModeWrite;
+}
+
+bool CommonCaptureManager::IsCaptureModeTrim() const
+{
+    return (GetCaptureMode() & kModeTrim) == kModeTrim;
 }
 
 bool CommonCaptureManager::IsCaptureModeDisabled() const
@@ -898,9 +925,9 @@ bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
     }
 }
 
-void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId              api_family,
-                                                            uint32_t                         current_boundary_count,
-                                                            std::shared_lock<ApiCallMutexT>& current_lock)
+void CommonCaptureManager::CheckContinueCaptureForTrimMode(format::ApiFamilyId              api_family,
+                                                           uint32_t                         current_boundary_count,
+                                                           std::shared_lock<ApiCallMutexT>& current_lock)
 {
     if (!trim_ranges_.empty())
     {
@@ -1111,11 +1138,11 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_
 
     if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kFrames))
     {
-        if (IsCaptureModeWrite())
+        if (IsCaptureModeTrim())
         {
             // Currently capturing a frame range.
             // Check for end of range or hotkey trigger to stop capture.
-            CheckContinueCaptureForWriteMode(api_family, current_frame_, current_lock);
+            CheckContinueCaptureForTrimMode(api_family, current_frame_, current_lock);
         }
         else if (IsCaptureModeTrack())
         {
@@ -1160,9 +1187,9 @@ void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId              api_
 
     if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
     {
-        if (IsCaptureModeWrite())
+        if (IsCaptureModeTrim())
         {
-            CheckContinueCaptureForWriteMode(api_family, queue_submit_count_, current_lock);
+            CheckContinueCaptureForTrimMode(api_family, queue_submit_count_, current_lock);
         }
     }
 }
@@ -1374,8 +1401,12 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
             exclusive_api_call_lock = AcquireExclusiveApiCallLock();
         }
 
-        capture_mode_ |= kModeWrite;
+        capture_mode_ |= kModeTrim;
         util::SignalTrimmingStart();
+        if (!IsRecaptureCopyData())
+        {
+            capture_mode_ |= kModeWrite;
+        }
 
         auto* thread_data = GetThreadData();
         GFXRECON_ASSERT(thread_data != nullptr);
@@ -1419,7 +1450,7 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
             exclusive_api_call_lock = AcquireExclusiveApiCallLock();
         }
 
-        capture_mode_ &= ~kModeWrite;
+        capture_mode_ &= ~(kModeWrite | kModeTrim);
         util::SignalTrimmingEnd();
 
         assert(file_stream_);
