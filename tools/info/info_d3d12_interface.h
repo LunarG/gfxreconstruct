@@ -42,11 +42,11 @@ class InfoD3d12Interface : public InfoApiInterface
     virtual ~InfoD3d12Interface() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_D3D12; }
-    std::string         ApiLabel() override { return "D3D12"; }
+    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_D3D12; }
+    std::string         ApiLabel() const override { return "D3D12"; }
     bool                ApiWasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() override;
-    uint32_t            GetBlankFrameCount() override;
+    std::string         ApiCompiledHeaderVersionString() const override;
+    uint32_t            GetBlankFrameCount() const override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
     void UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
