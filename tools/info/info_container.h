@@ -50,8 +50,6 @@ class InfoContainer
     InfoContainer();
     ~InfoContainer();
 
-    bool RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_interface);
-
     bool ProcessCommandLine(int32_t argc, const char** argv);
 
     bool ProcessCapture();

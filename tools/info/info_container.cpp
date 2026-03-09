@@ -57,27 +57,19 @@ const int  kDefaultIndent              = 12;
 InfoContainer::InfoContainer()
 {
     gfxrecon::util::Log::Init();
+
+    // Query the base InfoApiInterface class which should have a vector
+    // of all child classes that registered with it.
+    // They are unique_ptrs so we need to move control to our list.
+    for (const auto& registered_type : InfoApiInterface::GetRegisteredInterfaces())
+    {
+        api_interfaces_.push_back(std::move(registered_type()));
+    }
 }
 
 InfoContainer::~InfoContainer()
 {
     gfxrecon::util::Log::Release();
-}
-
-bool InfoContainer::RegisterApiInterface(std::unique_ptr<InfoApiInterface> api_interface)
-{
-    for (auto& api_if : api_interfaces_)
-    {
-        if (api_if->ApiFamilyId() == api_interface->ApiFamilyId())
-        {
-            WriteError((std::string("Duplicate Api Interface for API ") +
-                        std::to_string(static_cast<uint32_t>(api_interface->ApiFamilyId())) + " found!\n")
-                           .c_str());
-            return false;
-        }
-    }
-    api_interfaces_.push_back(std::move(api_interface));
-    return true;
 }
 
 bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
