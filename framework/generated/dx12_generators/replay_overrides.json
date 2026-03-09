@@ -36,7 +36,8 @@
       "CreateCommandSignature": "OverrideCreateCommandSignature",
       "CreateCommandList": "OverrideCreateCommandList",
       "CreateRootSignature": "OverrideCreateRootSignature",
-      "OpenSharedHandle": "OverrideOpenSharedHandle"
+      "OpenSharedHandle": "OverrideOpenSharedHandle",
+      "CreateCommandAllocator": "OverrideCreateCommandAllocator"
     },
     "ID3D12Device1": {
       "CreatePipelineLibrary": "OverrideCreatePipelineLibrary"

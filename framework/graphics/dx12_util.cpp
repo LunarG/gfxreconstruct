@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -1060,7 +1060,7 @@ bool IsUma(ID3D12Device* device)
 
 uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usage, const bool is_uma)
 {
-    GFXRECON_ASSERT(memory_usage > 0.0 && memory_usage <= 1.0);
+    GFXRECON_ASSERT(memory_usage >= 0.0 && memory_usage <= 1.0);
     uint64_t available_mem = 0;
     if (adapter != nullptr)
     {
@@ -1093,7 +1093,7 @@ uint64_t GetAvailableGpuAdapterMemory(IDXGIAdapter3* adapter, double memory_usag
 
 uint64_t GetAvailableCpuMemory(double max_usage)
 {
-    GFXRECON_ASSERT(max_usage > 0.0 && max_usage <= 1.0);
+    GFXRECON_ASSERT(max_usage >= 0.0 && max_usage <= 1.0);
     MEMORYSTATUSEX mem_info = {};
     mem_info.dwLength       = sizeof(MEMORYSTATUSEX);
     if (GlobalMemoryStatusEx(&mem_info) == FALSE)

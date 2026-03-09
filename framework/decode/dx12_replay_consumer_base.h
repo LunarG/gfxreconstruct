@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -932,6 +932,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                        D3D12_COMMAND_LIST_FLAGS     flags,
                                        Decoded_GUID                 riid,
                                        HandlePointerDecoder<void*>* command_list1_decoder);
+
+    HRESULT OverrideCreateCommandAllocator(DxObjectInfo*                device_object_info,
+                                           HRESULT                      original_result,
+                                           D3D12_COMMAND_LIST_TYPE      type,
+                                           Decoded_GUID                 riid,
+                                           HandlePointerDecoder<void*>* command_allocator_decoder);
 
     HRESULT OverrideCommandListReset(DxObjectInfo* command_list_object_info,
                                      HRESULT       original_result,

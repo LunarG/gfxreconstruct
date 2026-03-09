@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -106,6 +106,7 @@ typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
                                                                      ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter3, &__uuidof(IDXGIAdapter3)>> IDXGIAdapter3ComPtr;
 
 #if defined(GFXRECON_DXC_SUPPORT)
 typedef _com_ptr_t<_com_IIID<IDxcUtils, &__uuidof(IDxcUtils)>> IDxcUtilsComPtr;
