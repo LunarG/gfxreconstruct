@@ -960,6 +960,14 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     GFXRECON_ASSERT(!RP_indices_.empty());
 
+    for (const auto& [key, inside_renderpass] : active_queries_)
+    {
+        if (inside_renderpass)
+        {
+            device_table_->CmdEndQuery(current_command_buffer, key.first, key.second);
+        }
+    }
+
     if (current_render_pass_type_ == RenderPassType::kRenderPass)
     {
         device_table_->CmdEndRenderPass(current_command_buffer);
@@ -1007,6 +1015,14 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
                     cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 }
             }
+        }
+    }
+
+    for (const auto& [key, inside_renderpass] : active_queries_)
+    {
+        if (!inside_renderpass)
+        {
+            device_table_->CmdEndQuery(current_command_buffer, key.first, key.second);
         }
     }
 
@@ -3379,6 +3395,7 @@ void DrawCallsDumpingContext::EndRenderPass()
 
     ++current_renderpass_;
 
+    active_renderpass_        = nullptr;
     current_render_pass_type_ = kNone;
 }
 
@@ -3506,6 +3523,16 @@ void DrawCallsDumpingContext::BindIndexBuffer(
     bound_index_buffer_.offset      = offset;
     bound_index_buffer_.index_type  = index_type;
     bound_index_buffer_.size        = index_buffer_size;
+}
+
+void DrawCallsDumpingContext::CmdBeginQuery(VkQueryPool queryPool, uint32_t query)
+{
+    active_queries_[{ queryPool, query }] = active_renderpass_ != nullptr;
+}
+
+void DrawCallsDumpingContext::CmdEndQuery(VkQueryPool queryPool, uint32_t query)
+{
+    active_queries_.erase({ queryPool, query });
 }
 
 void DrawCallsDumpingContext::SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,

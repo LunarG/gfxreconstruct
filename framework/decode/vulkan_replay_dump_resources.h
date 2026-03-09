@@ -400,6 +400,19 @@ class VulkanReplayDumpResourcesBase
     void
     OverrideEndCommandBuffer(const ApiCallInfo& call_info, PFN_vkEndCommandBuffer func, VkCommandBuffer commandBuffer);
 
+    void OverrideCmdBeginQuery(const ApiCallInfo&         call_info,
+                               PFN_vkCmdBeginQuery        func,
+                               VkCommandBuffer            original_command_buffer,
+                               const VulkanQueryPoolInfo* queryPool,
+                               uint32_t                   query,
+                               VkQueryControlFlags        flags);
+
+    void OverrideCmdEndQuery(const ApiCallInfo&         call_info,
+                             PFN_vkCmdEndQuery          func,
+                             VkCommandBuffer            original_command_buffer,
+                             const VulkanQueryPoolInfo* queryPool,
+                             uint32_t                   query);
+
     void OverrideCmdExecuteCommands(const ApiCallInfo&       call_info,
                                     PFN_vkCmdExecuteCommands func,
                                     VkCommandBuffer          commandBuffer,
@@ -465,7 +478,7 @@ class VulkanReplayDumpResourcesBase
                 {
                     const auto library_count =
                         GFXRECON_NARROWING_CAST(uint32_t, pipeline_library_info->pLibraries.GetLength());
-                    const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
+                    const format::HandleId* ppl_ids = pipeline_library_info->pLibraries.GetPointer();
 
                     for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
                     {

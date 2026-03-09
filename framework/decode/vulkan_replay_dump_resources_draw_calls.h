@@ -196,6 +196,10 @@ class DrawCallsDumpingContext
                          VkIndexType             index_type,
                          VkDeviceSize            size = 0);
 
+    void CmdBeginQuery(VkQueryPool queryPool, uint32_t query);
+
+    void CmdEndQuery(VkQueryPool queryPool, uint32_t query);
+
     // When this is called for a command buffer that corresponds to a before command, dc_params should be null
     void FinalizeCommandBuffer(DrawCallParams* dc_params = nullptr);
 
@@ -766,6 +770,8 @@ class DrawCallsDumpingContext
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
     const VulkanPerDeviceAddressTrackers& address_trackers_;
+
+    std::map<std::pair<VkQueryPool, uint32_t>, bool> active_queries_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,

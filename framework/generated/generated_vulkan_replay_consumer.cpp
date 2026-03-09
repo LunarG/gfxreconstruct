@@ -1103,7 +1103,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginQuery(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBeginQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQuery, in_commandBuffer, in_queryPool, query, flags);
+        resource_dumper_->Process_vkCmdBeginQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQuery, in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(queryPool), query, flags);
     }
 }
 
@@ -1120,7 +1120,7 @@ void VulkanReplayConsumer::Process_vkCmdEndQuery(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQuery, in_commandBuffer, in_queryPool, query);
+        resource_dumper_->Process_vkCmdEndQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQuery, in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(queryPool), query);
     }
 }
 
