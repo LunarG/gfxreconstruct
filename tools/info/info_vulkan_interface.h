@@ -39,11 +39,11 @@ class InfoVulkanInterface : public InfoApiInterface
     virtual ~InfoVulkanInterface() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_Vulkan; }
-    std::string         ApiLabel() override { return "Vulkan"; }
+    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_Vulkan; }
+    std::string         ApiLabel() const override { return "Vulkan"; }
     bool                ApiWasDetected() override { return vulkan_detection_consumer_.WasVulkanAPIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() override;
-    bool                ApiDesiresSingleLineFrameOutput() override { return true; }
+    std::string         ApiCompiledHeaderVersionString() const override;
+    bool                ApiDesiresSingleLineFrameOutput() const override { return true; }
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor
@@ -54,7 +54,7 @@ class InfoVulkanInterface : public InfoApiInterface
     nlohmann::json GenerateJson() override;
 
     // Frame-specific methods
-    uint32_t GetFrameStart() override;
+    uint32_t GetFrameStart() const override;
 
   private:
     nlohmann::json GetDeviceMemoryStatsJson(uint64_t alloc_count,

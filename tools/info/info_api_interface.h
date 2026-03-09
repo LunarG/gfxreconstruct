@@ -32,9 +32,11 @@
 
 #include <nlohmann/json.hpp>
 
+#include <functional>
 #include <iomanip>
 #include <memory>
 #include <sstream>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
@@ -48,6 +50,19 @@ enum class FrameMarkerTypes : std::uint32_t
 class InfoApiInterface
 {
   public:
+    // Static methods for handling an automatic mechanism for registering
+    // child classes with this base class.
+
+    // Define a method that can be used casts a child unique_ptr to parent
+    // so it can be included in a std::vector we'll call the registry.
+    using BaseApiInterfacePtr = std::function<std::unique_ptr<InfoApiInterface>()>;
+    static void RegisterInterface(BaseApiInterfacePtr if_ptr) { GetRegisteredInterfaces().push_back(if_ptr); }
+    static std::vector<BaseApiInterfacePtr>& GetRegisteredInterfaces()
+    {
+        static std::vector<BaseApiInterfacePtr> registered_interfaces_;
+        return registered_interfaces_;
+    }
+
     enum class InfoOutputLevel : std::uint32_t
     {
         // Pre-10 value - items that do not need API-specific info
@@ -73,13 +88,13 @@ class InfoApiInterface
     virtual ~InfoApiInterface() = default;
 
     // Simple "getter" style methods
-    virtual format::ApiFamilyId ApiFamilyId()    = 0;
-    virtual std::string         ApiLabel()       = 0;
-    virtual bool                ApiWasDetected() = 0;
-    virtual std::string         ApiCompiledHeaderVersionString() { return ""; }
-    virtual uint32_t            GetBlankFrameCount() { return 0; }
-    virtual uint32_t            GetFrameStart() { return 0; }
-    virtual bool                ApiDesiresSingleLineFrameOutput() { return false; }
+    virtual format::ApiFamilyId ApiFamilyId() const = 0;
+    virtual std::string         ApiLabel() const    = 0;
+    virtual bool                ApiWasDetected()    = 0;
+    virtual std::string         ApiCompiledHeaderVersionString() const { return ""; }
+    virtual uint32_t            GetBlankFrameCount() const { return 0; }
+    virtual uint32_t            GetFrameStart() const { return 0; }
+    virtual bool                ApiDesiresSingleLineFrameOutput() const { return false; }
 
     // A few "setter" style methods
     void         SetWriter(InfoWriter* writer) { info_writer_ = writer; }

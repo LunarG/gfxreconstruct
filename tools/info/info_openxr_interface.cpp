@@ -28,7 +28,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString()
+// Static boolean that runs a lambda to automatically create and register this class with the
+// base class RegisterInterface method.
+static bool sRegisterThisInterface = []() {
+    InfoApiInterface::RegisterInterface([]() { return std::make_unique<InfoOpenXrInterface>(); });
+    return true;
+}();
+
+std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString() const
 {
     return std::string("  OpenXR Header Version  ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
            std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
