@@ -45,7 +45,6 @@
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
-#include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "graphics/vulkan_struct_extract_handles.h"
@@ -286,6 +285,9 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
     // free replacer internal vulkan-resources
     _device_address_replacers.clear();
+
+    // free vulkan-resources related to swapchain-image overrides
+    swapchain_override_copy_utils_.clear();
 
     // process queued async tasks
     background_queue_.join_all();
@@ -2648,26 +2650,42 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 filename_prefix += "_frame_";
                 filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
 
+                VkFormat image_format = swapchain_info->format;
+                VkImage  image        = swapchain_info->images[image_index];
+                uint32_t image_width  = swapchain_info->width;
+                uint32_t image_height = swapchain_info->height;
+
+                // apply swapchain-image override, if any
+                if (swapchain_override_image_id_ != format::kNullHandleId)
+                {
+                    auto* override_img_info = object_info_table_->GetVkImageInfo(swapchain_override_image_id_);
+                    GFXRECON_ASSERT(override_img_info != nullptr);
+
+                    image_format = override_img_info->format;
+                    image        = override_img_info->handle;
+                    image_width  = override_img_info->extent.width;
+                    image_height = override_img_info->extent.height;
+                }
+
                 // If both copy_scale and copy_width are provided, use copy_scale.
                 const uint32_t screenshot_width =
-                    options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->width)
-                        : (options_.screenshot_width ? options_.screenshot_width : swapchain_info->width);
+                    options_.screenshot_scale ? static_cast<uint32_t>(options_.screenshot_scale * image_width)
+                                              : (options_.screenshot_width ? options_.screenshot_width : image_width);
 
                 const uint32_t screenshot_height =
                     options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->height)
-                        : (options_.screenshot_height ? options_.screenshot_height : swapchain_info->height);
+                        ? static_cast<uint32_t>(options_.screenshot_scale * image_height)
+                        : (options_.screenshot_height ? options_.screenshot_height : image_height);
 
                 screenshot_handler_->WriteImage(filename_prefix,
                                                 device_info,
                                                 GetDeviceTable(device_info->handle),
                                                 memory_properties,
                                                 device_info->allocator.get(),
-                                                swapchain_info->images[image_index],
-                                                swapchain_info->format,
-                                                swapchain_info->width,
-                                                swapchain_info->height,
+                                                image,
+                                                image_format,
+                                                image_width,
+                                                image_height,
                                                 screenshot_width,
                                                 screenshot_height,
                                                 VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
@@ -8578,15 +8596,21 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 {
                     GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
 
-                    const VulkanPhysicalDeviceInfo* phys_dev_info =
-                        object_info_table_->GetVkPhysicalDeviceInfo(swapchain_info->device_info->parent_id);
-                    GFXRECON_ASSERT(phys_dev_info);
+                    auto& copy_util = swapchain_override_copy_utils_[swapchain_info->device_info->handle];
+                    if (!copy_util)
+                    {
+                        const VulkanPhysicalDeviceInfo* phys_dev_info =
+                            object_info_table_->GetVkPhysicalDeviceInfo(swapchain_info->device_info->parent_id);
+                        GFXRECON_ASSERT(phys_dev_info);
 
-                    graphics::VulkanResourcesUtil resource_util(swapchain_info->device_info->handle,
-                                                                phys_dev_info->handle,
-                                                                *GetDeviceTable(swapchain_info->device_info->handle),
-                                                                *GetInstanceTable(phys_dev_info->handle),
-                                                                *phys_dev_info->replay_device_info->memory_properties);
+                        copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
+                            swapchain_info->device_info->handle,
+                            phys_dev_info->handle,
+                            *GetDeviceTable(swapchain_info->device_info->handle),
+                            *GetInstanceTable(phys_dev_info->handle),
+                            *phys_dev_info->replay_device_info->memory_properties);
+                        GFXRECON_ASSERT(copy_util);
+                    }
 
                     auto* img_info =
                         object_info_table_->GetVkImageInfo(swapchain_info->image_handle_ids[capture_image_index]);
@@ -8596,7 +8620,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
                     // image-transitions back/forth, actual copy, fence sync
-                    resource_util.CopyImage(override_img_info->handle, img_info->handle, img_info->extent);
+                    copy_util->CopyImage(override_img_info->handle, img_info->handle, img_info->extent);
                 }
             }
         }
