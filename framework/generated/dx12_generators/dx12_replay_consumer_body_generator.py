@@ -747,7 +747,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
         length_name = value.array_length
         base_length_name = length_name.replace('* ', '')
-        return 'if ({}->IsNull() && !{}->IsNull()) {{ SetOutputArrayCount(object_id, {}, {}->GetOutputPointer()); }}\n'.format(
+        return 'if (SUCCEEDED(replay_result) && {}->IsNull() && !{}->IsNull()) {{ SetOutputArrayCount(object_id, {}, {}->GetOutputPointer()); }}\n'.format(
             value.name, base_length_name, index_id,
             length_name.replace(' ', '')
         )

@@ -7,3 +7,4 @@
 /captures
 .cxx/
 .externalNativeBuild
+/gradle/gradle-daemon-jvm.properties

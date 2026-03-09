@@ -53,14 +53,31 @@ Type ClosestLowerPrime(void)
     return static_cast<Type>(primes[type_size]);
 }
 
+// Adapted from https://prng.di.unimi.it/splitmix64.c
+// Note: Doesn't include the Weyl sequence step
+// "Public Domain" License
+constexpr uint64_t SplitMixFinalizer(uint64_t value) noexcept
+{
+    constexpr uint64_t kMult1{ 0xbf58476d1ce4e5b9U };
+    constexpr uint64_t kMult2{ 0x94d049bb133111ebU };
+    value = (value ^ (value >> 30)) * kMult1;
+    value = (value ^ (value >> 27)) * kMult2;
+    return value ^ (value >> 31);
+}
+
 template <class Type>
 Type GenerateCheckSum(const uint8_t* code, size_t code_size)
 {
-    Type current_sum   = code_size;
+    static_assert(std::is_unsigned_v<Type>, "GenerateCheckSum algorithm requires unsigned Type");
+    // static_cast would have silenced warnings, but when
+    // sizeof(Type) < sizeof(size_t) better seeding is needed,
+    // and even without narrowing, the SplitMix is a better seed
+    Type current_sum   = static_cast<Type>(SplitMixFinalizer(code_size));
     Type closest_prime = ClosestLowerPrime<Type>();
-    for (Type i = 0; i < code_size; ++i)
+    for (size_t i = 0; i < code_size; ++i)
     {
-        current_sum = (current_sum * closest_prime) + std::hash<uint8_t>{}(code[i]);
+        // Note: std::hash for a uint8_t would add no entropy, likely just the identity
+        current_sum = (current_sum * closest_prime) + static_cast<Type>(code[i]);
     }
     return current_sum;
 }

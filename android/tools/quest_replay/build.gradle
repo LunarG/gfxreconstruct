@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 34
-    namespace 'com.lunarg.gfxreconstruct.replay'
-    ndkVersion '26.3.11579264'
+    namespace = 'com.lunarg.gfxreconstruct.replay'
+    ndkVersion = '26.3.11579264'
     defaultConfig {
         applicationId "com.lunarg.gfxreconstruct.replay"
         minSdkVersion 26
@@ -23,7 +23,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     externalNativeBuild {
@@ -39,14 +39,19 @@ android {
     {
         logger.info('GFXReconstruct OpenXR capture layer not enabled in replay application [default]')
         androidResources {
-            ignoreAssetsPattern "XrLayer_gfxreconstruct.json"
+            ignoreAssetsPattern = "XrLayer_gfxreconstruct.json"
+        }
+    }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
  }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation project(':layer')
 }

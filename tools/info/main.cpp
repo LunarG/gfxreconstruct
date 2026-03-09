@@ -72,10 +72,8 @@
 
 #include <nlohmann/json.hpp>
 
-const char kHelpShortOption[]      = "-h";
-const char kHelpLongOption[]       = "--help";
-const char kVersionOption[]        = "--version";
-const char kNoDebugPopup[]         = "--no-debug-popup";
+#include "tool_settings.h"
+
 const char kExeInfoOnlyOption[]    = "--exe-info-only";
 const char kEnvVarsOnlyOption[]    = "--env-vars-only";
 const char kFileFormatOnlyOption[] = "--file-format-only";
@@ -85,7 +83,7 @@ const char kOutputFileArgument[]   = "--output";
 
 const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--"
                           "enum-gpu-indices,--verbose";
-const char kArguments[] = "--output";
+const char kArguments[] = "--output,--log-level";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -243,42 +241,8 @@ static void PrintUsage(const char* exe_name)
     WriteOutput("  --verbose\t\tOutput more information in JSON format");
     WriteOutput(
         "  --output\t\tOutput generated information to the provided file. If not defined output goes to std::out");
-}
-
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
-        {
-            app_name.replace(0, dir_location + 1, "");
-        }
-
-        WriteOutput("%s version info:", app_name.c_str());
-        WriteOutput("  GFXReconstruct Version %s", GetProjectVersionString());
-        WriteOutput("  Vulkan Header Version %u.%u.%u",
-                    VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                    VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                    VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-        return true;
-    }
-
-    return false;
+    WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
+    WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 }
 
 static std::string GetVkVersionString(uint32_t api_version)
@@ -291,7 +255,7 @@ static std::string GetVkVersionString(uint32_t api_version)
 }
 
 #if ENABLE_OPENXR_SUPPORT
-static std::string GetXrVersionString(uint32_t api_version)
+static std::string GetXrVersionString(XrVersion api_version)
 {
     uint32_t major = XR_VERSION_MAJOR(api_version);
     uint32_t minor = XR_VERSION_MINOR(api_version);
@@ -321,7 +285,7 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     }
     api_agnostic_stats.compression_type   = compression_type;
     api_agnostic_stats.trim_start_frame   = stat_consumer.GetTrimmedStartFrame();
-    api_agnostic_stats.frame_count        = file_processor.GetCurrentFrameNumber();
+    GFXRECON_NARROWING_ASSIGN(api_agnostic_stats.frame_count, file_processor.GetCurrentFrameNumber());
     api_agnostic_stats.uses_frame_markers = file_processor.UsesFrameMarkers();
     api_agnostic_stats.blank_frame_count  = blank_frame_count;
 }
@@ -642,9 +606,9 @@ nlohmann::json GetVulkanDeviceMemoryStatsJson(uint64_t alloc_count,
 void PrintVulkanDeviceMemoryStatsText(uint64_t alloc_count,
                                       uint64_t min_alloc,
                                       uint64_t max_alloc,
-                                      uint32_t gfx_pipelines,
-                                      uint32_t comp_pipelines,
-                                      uint32_t rt_pipelines)
+                                      uint64_t gfx_pipelines,
+                                      uint64_t comp_pipelines,
+                                      uint64_t rt_pipelines)
 {
     WriteOutput("\nVulkan device memory allocation info:");
     WriteOutput("\tTotal allocations:   %" PRIu64, alloc_count);
@@ -748,12 +712,13 @@ nlohmann::json GetVulkanStatsJson(const gfxrecon::decode::FileProcessor&       f
                     dev_json["extensions"] = dev_info[dev].enabled_extensions;
 
                     // For Verbose, we write out each devices alloc info.
-                    dev_json["memory"] = GetVulkanDeviceMemoryStatsJson(dev_info[dev].allocation_count,
-                                                                        dev_info[dev].min_allocation_size,
-                                                                        dev_info[dev].max_allocation_size,
-                                                                        dev_info[dev].graphics_pipelines,
-                                                                        dev_info[dev].compute_pipelines,
-                                                                        dev_info[dev].raytracing_pipelines);
+                    dev_json["memory"] = GetVulkanDeviceMemoryStatsJson(
+                        dev_info[dev].allocation_count,
+                        dev_info[dev].min_allocation_size,
+                        dev_info[dev].max_allocation_size,
+                        GFXRECON_NARROWING_CAST(uint32_t, dev_info[dev].graphics_pipelines),
+                        GFXRECON_NARROWING_CAST(uint32_t, dev_info[dev].compute_pipelines),
+                        GFXRECON_NARROWING_CAST(uint32_t, dev_info[dev].raytracing_pipelines));
 
                     vulkan_devices.push_back(dev_json);
                 }
@@ -1137,14 +1102,15 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
 {
     if (arg_parser.IsOptionSet(kEnumGpuIndices))
     {
-        IDXGIFactory1* factory1 = nullptr;
+        gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1 = nullptr;
 
-        HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+        HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
         if (SUCCEEDED(result))
         {
             gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
-            gfxrecon::graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters);
+            gfxrecon::graphics::dx12::TrackAdapters(
+                result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
 
             WriteOutput("GPU index\tGPU name\tSubSys ID");
             for (size_t index = 0; index < adapters.size(); ++index)
@@ -1160,12 +1126,10 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
                                     adapter.second.adapter_idx,
                                     replay_adapter_str.c_str(),
                                     adapter.second.internal_desc.SubSysId);
-                        adapter.second.adapter->Release();
                         break;
                     }
                 }
             }
-            factory1->Release();
         }
         else
         {
@@ -1518,6 +1482,11 @@ int main(int argc, const char** argv)
         }
 #endif
     }
+
+    // Update logging with values retrieved from command line arguments
+    gfxrecon::util::Log::Settings log_settings;
+    GetLogSettings(arg_parser, log_settings);
+    gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
     const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
     std::string                     input_filename       = positional_arguments[0];

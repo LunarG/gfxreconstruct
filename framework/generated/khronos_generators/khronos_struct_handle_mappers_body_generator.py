@@ -140,33 +140,31 @@ class KhronosStructHandleMappersBodyGenerator():
             )
         )
         lines.append('{')
-        lines.append(f'    while ({next_var})')
-        lines.append('    {')
-        lines.append(f'        void *wrapper = {next_var}->GetMetaStructPointer();')
-        lines.append(f'        const auto* header = reinterpret_cast<{cast_type}>({next_var}->GetMetaStructPointer());')
+        lines.append(f'    GFXRECON_ASSERT({next_var} != nullptr);')
         lines.append('')
-        lines.append(f'        switch (*header->{type_var})')
-        lines.append('        {')
-        lines.append('        default:')
-        lines.append(f'            // TODO: Report or raise fatal error for unrecognized {type_var}?')
-        lines.append('            break;')
+        lines.append(f'    void *wrapper = {next_var}->GetMetaStructPointer();')
+        lines.append(f'    const auto* header = reinterpret_cast<{cast_type}>({next_var}->GetMetaStructPointer());')
+        lines.append('')
+        lines.append(f'    switch (*header->{type_var})')
+        lines.append('    {')
+        lines.append('    default:')
+        lines.append(f'        // TODO: Report or raise fatal error for unrecognized {type_var}?')
+        lines.append('        break;')
         write('\n'.join(lines), file=self.outFile)
 
         for base_type in sorted(self.all_possible_extendable_structs):
             if base_type not in self.all_struct_aliases:
                 write(
-                    '        case {}:'.format(self.struct_type_names[base_type]),
+                    '    case {}:'.format(self.struct_type_names[base_type]),
                     file=self.outFile
                 )
                 write(
-                    '            MapStructHandles(reinterpret_cast<Decoded_{}*>(wrapper), object_info_table);'
+                    '        MapStructHandles(reinterpret_cast<Decoded_{}*>(wrapper), object_info_table);'
                     .format(base_type),
                     file=self.outFile
                 )
-                write('            break;', file=self.outFile)
+                write('        break;', file=self.outFile)
 
-        write('        }', file=self.outFile)
-        write(f'        {next_var} = header->{next_field};', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 

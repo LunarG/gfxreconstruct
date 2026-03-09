@@ -1045,10 +1045,11 @@ void OpenXrReplayConsumerBase::Process_xrEnumerateDisplayRefreshRatesFB(
 
             // Allocate the blend mode array and get all the values
             std::vector<float> display_refresh_rates(replay_count);
-            replay_result = pfn_enum_dis_refresh_rates_fb(in_session,
-                                                          display_refresh_rates.size(),
-                                                          out_displayRefreshRateCountOutput,
-                                                          display_refresh_rates.data());
+            replay_result =
+                pfn_enum_dis_refresh_rates_fb(in_session,
+                                              GFXRECON_NARROWING_CAST(uint32_t, display_refresh_rates.size()),
+                                              out_displayRefreshRateCountOutput,
+                                              display_refresh_rates.data());
 
             // We are comparing against success, but the original replay may have had an incomplete
             CheckResult("xrEnumerateEnvironmentBlendModes", XR_SUCCESS, replay_result, call_info);

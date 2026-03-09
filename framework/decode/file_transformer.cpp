@@ -141,7 +141,7 @@ bool FileTransformer::Process()
         annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
         annotation.block_header.type = format::BlockType::kAnnotation;
         annotation.annotation_type   = format::kJson;
-        annotation.label_length      = label_length;
+        GFXRECON_NARROWING_ASSIGN(annotation.label_length, label_length);
         annotation.data_length       = data_length;
         if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
             !WriteBytes(data.c_str(), data_length))

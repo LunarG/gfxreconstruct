@@ -4662,1077 +4662,1075 @@ void MapStructHandles(Decoded_XrUserCalibrationEnableEventsInfoML* wrapper, cons
 
 void MapNextStructHandles(OpenXrNextNode* next, const CommonObjectInfoTable& object_info_table)
 {
-    while (next)
-    {
-        void *wrapper = next->GetMetaStructPointer();
-        const auto* header = reinterpret_cast<const OpenXrMetaStructHeader*>(next->GetMetaStructPointer());
+    GFXRECON_ASSERT(next != nullptr);
 
-        switch (*header->type)
-        {
-        default:
-            // TODO: Report or raise fatal error for unrecognized type?
-            break;
-        case XR_TYPE_ACTION_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionCreateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTION_SET_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionSetCreateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTION_SPACE_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionSpaceCreateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTION_STATE_BOOLEAN:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionStateBoolean*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTION_STATE_FLOAT:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionStateFloat*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTION_STATE_GET_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionStateGetInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTION_STATE_POSE:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionStatePose*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTION_STATE_VECTOR2F:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionStateVector2f*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTIONS_SYNC_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrActionsSyncInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ACTIVE_ACTION_SET_PRIORITIES_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrActiveActionSetPrioritiesEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ANDROID_SURFACE_SWAPCHAIN_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrAndroidSurfaceSwapchainCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_API_LAYER_PROPERTIES:
-            MapStructHandles(reinterpret_cast<Decoded_XrApiLayerProperties*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_BINDING_MODIFICATIONS_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrBindingModificationsKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_BODY_JOINT_LOCATIONS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrBodyJointLocationsFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_BODY_JOINTS_LOCATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrBodyJointsLocateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_BODY_SKELETON_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrBodySkeletonFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_BODY_TRACKER_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrBodyTrackerCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_BOUND_SOURCES_FOR_ACTION_ENUMERATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrBoundSourcesForActionEnumerateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_BOUNDARY_2D_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrBoundary2DFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_ALPHA_BLEND_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerAlphaBlendFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerColorScaleBiasKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerCubeKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerCylinderKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerDepthInfoKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerDepthTestFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_VARJO:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerDepthTestVARJO*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerEquirect2KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerEquirectKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_IMAGE_LAYOUT_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerImageLayoutFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerPassthroughFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerPassthroughHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerProjection*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerProjectionView*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_QUAD:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerQuad*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_REPROJECTION_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerReprojectionInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_REPROJECTION_PLANE_OVERRIDE_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerReprojectionPlaneOverrideMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSecureContentFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_SETTINGS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSettingsFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSpaceWarpInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_CONTROLLER_MODEL_KEY_STATE_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrControllerModelKeyStateMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_CONTROLLER_MODEL_NODE_PROPERTIES_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrControllerModelNodePropertiesMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_CONTROLLER_MODEL_NODE_STATE_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrControllerModelNodeStateMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_CONTROLLER_MODEL_PROPERTIES_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrControllerModelPropertiesMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_CONTROLLER_MODEL_STATE_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrControllerModelStateMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COORDINATE_SPACE_CREATE_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrCoordinateSpaceCreateInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_DEBUG_UTILS_LABEL_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsLabelEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsMessengerCallbackDataEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsMessengerCreateInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsObjectNameInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_DEVICE_PCM_SAMPLE_RATE_STATE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrDevicePcmSampleRateStateFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_DIGITAL_LENS_CONTROL_ALMALENCE:
-            MapStructHandles(reinterpret_cast<Decoded_XrDigitalLensControlALMALENCE*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthImageAcquireInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthImageMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthImageViewMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthProviderCreateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthSwapchainStateMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_BUFFER:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataBuffer*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataDisplayRefreshRateChangedFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_EVENTS_LOST:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataEventsLost*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataEyeCalibrationChangedML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataHeadsetFitChangedML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataInstanceLossPending*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataInteractionProfileChanged*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataLocalizationChangedML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataMainSessionVisibilityChangedEXTX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataMarkerTrackingUpdateVARJO*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataPassthroughStateChangedFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataPerfSettingsEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataReferenceSpaceChangePending*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SCENE_CAPTURE_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSceneCaptureCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSessionStateChanged*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceEraseCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceListSaveCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceQueryCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceQueryResultsAvailableFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceSaveCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceSetStatusCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceShareCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpatialAnchorCreateCompleteFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataUserPresenceChangedEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_BACKSPACE_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardBackspaceMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_COMMIT_TEXT_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardCommitTextMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_ENTER_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardEnterMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_HIDDEN_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardHiddenMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_SHOWN_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardShownMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataVisibilityMaskChangedKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
-            MapStructHandles(reinterpret_cast<Decoded_XrEventDataViveTrackerConnectedHTCX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EXTENSION_PROPERTIES:
-            MapStructHandles(reinterpret_cast<Decoded_XrExtensionProperties*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EXTERNAL_CAMERA_OCULUS:
-            MapStructHandles(reinterpret_cast<Decoded_XrExternalCameraOCULUS*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EYE_GAZE_SAMPLE_TIME_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrEyeGazeSampleTimeEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EYE_GAZES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEyeGazesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EYE_GAZES_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEyeGazesInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_EYE_TRACKER_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrEyeTrackerCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACE_EXPRESSION_INFO2_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionInfo2FB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACE_EXPRESSION_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionWeights2FB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACE_EXPRESSION_WEIGHTS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionWeightsFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACE_TRACKER_CREATE_INFO2_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFaceTrackerCreateInfo2FB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACE_TRACKER_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFaceTrackerCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACIAL_EXPRESSIONS_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrFacialExpressionsHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FACIAL_TRACKER_CREATE_INFO_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrFacialTrackerCreateInfoHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FORCE_FEEDBACK_CURL_APPLY_LOCATIONS_MNDX:
-            MapStructHandles(reinterpret_cast<Decoded_XrForceFeedbackCurlApplyLocationsMNDX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATED_VIEW_CONFIGURATION_VIEW_VARJO:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveatedViewConfigurationViewVARJO*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATION_APPLY_INFO_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveationApplyInfoHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATION_CUSTOM_MODE_INFO_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveationCustomModeInfoHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATION_DYNAMIC_MODE_INFO_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveationDynamicModeInfoHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATION_EYE_TRACKED_PROFILE_CREATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveationEyeTrackedProfileCreateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATION_EYE_TRACKED_STATE_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveationEyeTrackedStateMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATION_LEVEL_PROFILE_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveationLevelProfileCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FOVEATION_PROFILE_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrFoveationProfileCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FRAME_BEGIN_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrFrameBeginInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FRAME_END_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrFrameEndInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FRAME_END_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrFrameEndInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FRAME_STATE:
-            MapStructHandles(reinterpret_cast<Decoded_XrFrameState*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FRAME_WAIT_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrFrameWaitInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FUTURE_CANCEL_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrFutureCancelInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FUTURE_COMPLETION_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrFutureCompletionEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FUTURE_POLL_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrFuturePollInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_FUTURE_POLL_RESULT_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrFuturePollResultEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GEOMETRY_INSTANCE_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrGeometryInstanceCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GEOMETRY_INSTANCE_TRANSFORM_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrGeometryInstanceTransformFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GLOBAL_DIMMER_FRAME_END_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrGlobalDimmerFrameEndInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_D3D11_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingD3D11KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingD3D12KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_EGL_MNDX:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingEGLMNDX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingMetalKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLESAndroidKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_OPENGL_WAYLAND_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLWaylandKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLWin32KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_OPENGL_XCB_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLXcbKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_OPENGL_XLIB_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLXlibKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingVulkanKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsD3D11KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsD3D12KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsMetalKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsOpenGLESKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsOpenGLKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsVulkanKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_JOINT_LOCATIONS_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandJointLocationsEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_JOINT_VELOCITIES_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandJointVelocitiesEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandJointsLocateInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_JOINTS_MOTION_RANGE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandJointsMotionRangeInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_MESH_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandMeshMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_MESH_SPACE_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandMeshSpaceCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_MESH_UPDATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandMeshUpdateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_POSE_TYPE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandPoseTypeInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandTrackerCreateInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_TRACKING_AIM_STATE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingAimStateFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_TRACKING_CAPSULES_STATE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingCapsulesStateFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_TRACKING_DATA_SOURCE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingDataSourceInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_TRACKING_DATA_SOURCE_STATE_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingDataSourceStateEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_TRACKING_MESH_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingMeshFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAND_TRACKING_SCALE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingScaleFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAPTIC_ACTION_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrHapticActionInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrHapticAmplitudeEnvelopeVibrationFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrHapticPcmVibrationFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HAPTIC_VIBRATION:
-            MapStructHandles(reinterpret_cast<Decoded_XrHapticVibration*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_HOLOGRAPHIC_WINDOW_ATTACHMENT_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrHolographicWindowAttachmentMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INPUT_SOURCE_LOCALIZED_NAME_GET_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrInputSourceLocalizedNameGetInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INSTANCE_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrInstanceCreateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrInstanceCreateInfoAndroidKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INSTANCE_PROPERTIES:
-            MapStructHandles(reinterpret_cast<Decoded_XrInstanceProperties*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
-            MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileAnalogThresholdVALVE*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileDpadBindingEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INTERACTION_PROFILE_STATE:
-            MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileState*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING:
-            MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileSuggestedBinding*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_KEYBOARD_SPACE_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrKeyboardSpaceCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_KEYBOARD_TRACKING_QUERY_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrKeyboardTrackingQueryFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrLoaderInitInfoAndroidKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_LOCAL_DIMMING_FRAME_END_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrLocalDimmingFrameEndInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_LOCALIZATION_ENABLE_EVENTS_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrLocalizationEnableEventsInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_LOCALIZATION_MAP_IMPORT_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrLocalizationMapImportInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_LOCALIZATION_MAP_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrLocalizationMapML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MAP_LOCALIZATION_REQUEST_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMapLocalizationRequestInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_DETECTOR_APRIL_TAG_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorAprilTagInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_DETECTOR_ARUCO_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorArucoInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_DETECTOR_CREATE_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorCreateInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_DETECTOR_CUSTOM_PROFILE_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorCustomProfileInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_DETECTOR_SIZE_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorSizeInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_DETECTOR_SNAPSHOT_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorSnapshotInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_DETECTOR_STATE_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorStateML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_SPACE_CREATE_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerSpaceCreateInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_MARKER_SPACE_CREATE_INFO_VARJO:
-            MapStructHandles(reinterpret_cast<Decoded_XrMarkerSpaceCreateInfoVARJO*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_NEW_SCENE_COMPUTE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrNewSceneComputeInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_BRIGHTNESS_CONTRAST_SATURATION_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughBrightnessContrastSaturationFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_COLOR_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_COLOR_LUT_CREATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorLutCreateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_COLOR_LUT_UPDATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorLutUpdateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_COLOR_MAP_INTERPOLATED_LUT_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapInterpolatedLutMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_COLOR_MAP_LUT_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapLutMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_MONO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapMonoToMonoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapMonoToRgbaFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughCreateInfoHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_KEYBOARD_HANDS_INTENSITY_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughKeyboardHandsIntensityFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_LAYER_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughLayerCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughMeshTransformInfoHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_PREFERENCES_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughPreferencesMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PASSTHROUGH_STYLE_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrPassthroughStyleFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PERFORMANCE_METRICS_COUNTER_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrPerformanceMetricsCounterMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PERFORMANCE_METRICS_STATE_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrPerformanceMetricsStateMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PLANE_DETECTOR_BEGIN_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorBeginInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PLANE_DETECTOR_CREATE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorCreateInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PLANE_DETECTOR_GET_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorGetInfoEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PLANE_DETECTOR_LOCATION_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorLocationEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PLANE_DETECTOR_LOCATIONS_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorLocationsEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_PLANE_DETECTOR_POLYGON_BUFFER_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorPolygonBufferEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_RECOMMENDED_LAYER_RESOLUTION_GET_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrRecommendedLayerResolutionGetInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_RECOMMENDED_LAYER_RESOLUTION_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrRecommendedLayerResolutionMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_REFERENCE_SPACE_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrReferenceSpaceCreateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_RENDER_MODEL_BUFFER_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrRenderModelBufferFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_RENDER_MODEL_CAPABILITIES_REQUEST_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrRenderModelCapabilitiesRequestFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_RENDER_MODEL_LOAD_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrRenderModelLoadInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_RENDER_MODEL_PATH_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrRenderModelPathInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_RENDER_MODEL_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrRenderModelPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_ROOM_LAYOUT_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrRoomLayoutFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_CAPTURE_REQUEST_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneCaptureRequestInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_COMPONENT_LOCATIONS_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentLocationsMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_COMPONENT_PARENT_FILTER_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentParentFilterInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_COMPONENTS_GET_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentsGetInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_COMPONENTS_LOCATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentsLocateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_COMPONENTS_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentsMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_DESERIALIZE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneDeserializeInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MARKER_QR_CODES_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMarkerQRCodesMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MARKER_TYPE_FILTER_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMarkerTypeFilterMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MARKERS_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMarkersMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MESH_BUFFERS_GET_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshBuffersGetInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MESH_BUFFERS_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshBuffersMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MESH_INDICES_UINT16_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshIndicesUint16MSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MESH_INDICES_UINT32_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshIndicesUint32MSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MESH_VERTEX_BUFFER_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshVertexBufferMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_MESHES_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshesMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_OBJECT_TYPES_FILTER_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneObjectTypesFilterInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_OBJECTS_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneObjectsMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_OBSERVER_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSceneObserverCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_PLANE_ALIGNMENT_FILTER_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrScenePlaneAlignmentFilterInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SCENE_PLANES_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrScenePlanesMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_FRAME_END_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationFrameEndInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_FRAME_STATE_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationFrameStateMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_LAYER_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationLayerInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_SESSION_BEGIN_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationSessionBeginInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_STATE_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationStateMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_SWAPCHAIN_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationSwapchainCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SEMANTIC_LABELS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSemanticLabelsFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SEMANTIC_LABELS_SUPPORT_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSemanticLabelsSupportInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SERIALIZED_SCENE_FRAGMENT_DATA_GET_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSerializedSceneFragmentDataGetInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSessionActionSetsAttachInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SESSION_BEGIN_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSessionBeginInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SESSION_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSessionCreateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SESSION_CREATE_INFO_OVERLAY_EXTX:
-            MapStructHandles(reinterpret_cast<Decoded_XrSessionCreateInfoOverlayEXTX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceComponentFilterInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_COMPONENT_STATUS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceComponentStatusFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_COMPONENT_STATUS_SET_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceComponentStatusSetInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_CONTAINER_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceContainerFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_ERASE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceEraseInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_LIST_SAVE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceListSaveInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_LOCATION:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceLocation*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_LOCATIONS:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceLocations*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_QUERY_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceQueryInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_QUERY_RESULTS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceQueryResultsFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_SAVE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceSaveInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_SHARE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceShareInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_STORAGE_LOCATION_FILTER_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceStorageLocationFilterInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_TRIANGLE_MESH_GET_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceTriangleMeshGetInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_TRIANGLE_MESH_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceTriangleMeshMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_USER_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceUserCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceUuidFilterInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_VELOCITIES:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceVelocities*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACE_VELOCITY:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpaceVelocity*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPACES_LOCATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpacesLocateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorCreateInfoHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_ANCHOR_FROM_PERSISTED_ANCHOR_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_ANCHOR_PERSISTENCE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorPersistenceInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorSpaceCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_GET_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphNodeBindingPropertiesGetInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphNodeBindingPropertiesMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_GRAPH_NODE_SPACE_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphNodeSpaceCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SPATIAL_GRAPH_STATIC_NODE_BINDING_CREATE_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphStaticNodeBindingCreateInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainCreateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_CREATE_INFO_FOVEATION_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainCreateInfoFoveationFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageAcquireInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageD3D11KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageD3D12KHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageFoveationVulkanFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageMetalKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageOpenGLESKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageOpenGLKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageReleaseInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageVulkanKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageWaitInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateFoveationFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateSamplerOpenGLESFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateSamplerVulkanFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_ANCHOR_PROPERTIES_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemAnchorPropertiesHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_BODY_TRACKING_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemBodyTrackingPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_COLOR_SPACE_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemColorSpacePropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemEnvironmentDepthPropertiesMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_EYE_GAZE_INTERACTION_PROPERTIES_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemEyeGazeInteractionPropertiesEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_EYE_TRACKING_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemEyeTrackingPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES2_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemFaceTrackingProperties2FB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemFaceTrackingPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_FACIAL_TRACKING_PROPERTIES_HTC:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemFacialTrackingPropertiesHTC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_FORCE_FEEDBACK_CURL_PROPERTIES_MNDX:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemForceFeedbackCurlPropertiesMNDX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_FOVEATED_RENDERING_PROPERTIES_VARJO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemFoveatedRenderingPropertiesVARJO*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_FOVEATION_EYE_TRACKED_PROPERTIES_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemFoveationEyeTrackedPropertiesMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_GET_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemGetInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_HAND_TRACKING_MESH_PROPERTIES_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemHandTrackingMeshPropertiesMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemHandTrackingPropertiesEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_HEADSET_ID_PROPERTIES_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemHeadsetIdPropertiesMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_KEYBOARD_TRACKING_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemKeyboardTrackingPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_MARKER_TRACKING_PROPERTIES_VARJO:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemMarkerTrackingPropertiesVARJO*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_MARKER_UNDERSTANDING_PROPERTIES_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemMarkerUnderstandingPropertiesML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_PASSTHROUGH_COLOR_LUT_PROPERTIES_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemPassthroughColorLutPropertiesMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES2_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemPassthroughProperties2FB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemPassthroughPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_PLANE_DETECTION_PROPERTIES_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemPlaneDetectionPropertiesEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_PROPERTIES:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemProperties*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_RENDER_MODEL_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemRenderModelPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_SPACE_WARP_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemSpaceWarpPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_SPATIAL_ENTITY_PROPERTIES_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemSpatialEntityPropertiesFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemUserPresencePropertiesEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_SYSTEM_VIRTUAL_KEYBOARD_PROPERTIES_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrSystemVirtualKeyboardPropertiesMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_TRIANGLE_MESH_CREATE_INFO_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrTriangleMeshCreateInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_USER_CALIBRATION_ENABLE_EVENTS_INFO_ML:
-            MapStructHandles(reinterpret_cast<Decoded_XrUserCalibrationEnableEventsInfoML*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW:
-            MapStructHandles(reinterpret_cast<Decoded_XrView*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationDepthRangeEXT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW_CONFIGURATION_PROPERTIES:
-            MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationProperties*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW_CONFIGURATION_VIEW:
-            MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationView*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW_CONFIGURATION_VIEW_FOV_EPIC:
-            MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationViewFovEPIC*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW_LOCATE_FOVEATED_RENDERING_VARJO:
-            MapStructHandles(reinterpret_cast<Decoded_XrViewLocateFoveatedRenderingVARJO*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW_LOCATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_XrViewLocateInfo*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIEW_STATE:
-            MapStructHandles(reinterpret_cast<Decoded_XrViewState*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_ANIMATION_STATE_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardAnimationStateMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_CREATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardCreateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_INPUT_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardInputInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_LOCATION_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardLocationInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_MODEL_ANIMATION_STATES_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardModelAnimationStatesMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_MODEL_VISIBILITY_SET_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardModelVisibilitySetInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_SPACE_CREATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardSpaceCreateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_TEXT_CONTEXT_CHANGE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardTextContextChangeInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIRTUAL_KEYBOARD_TEXTURE_DATA_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardTextureDataMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VISIBILITY_MASK_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrVisibilityMaskKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VISUAL_MESH_COMPUTE_LOD_INFO_MSFT:
-            MapStructHandles(reinterpret_cast<Decoded_XrVisualMeshComputeLodInfoMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VIVE_TRACKER_PATHS_HTCX:
-            MapStructHandles(reinterpret_cast<Decoded_XrViveTrackerPathsHTCX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VULKAN_GRAPHICS_DEVICE_GET_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrVulkanGraphicsDeviceGetInfoKHR*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VULKAN_SWAPCHAIN_CREATE_INFO_META:
-            MapStructHandles(reinterpret_cast<Decoded_XrVulkanSwapchainCreateInfoMETA*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_VULKAN_SWAPCHAIN_FORMAT_LIST_CREATE_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrVulkanSwapchainFormatListCreateInfoKHR*>(wrapper), object_info_table);
-            break;
-        }
-        next = header->next;
+    void *wrapper = next->GetMetaStructPointer();
+    const auto* header = reinterpret_cast<const OpenXrMetaStructHeader*>(next->GetMetaStructPointer());
+
+    switch (*header->type)
+    {
+    default:
+        // TODO: Report or raise fatal error for unrecognized type?
+        break;
+    case XR_TYPE_ACTION_CREATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionCreateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTION_SET_CREATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionSetCreateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTION_SPACE_CREATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionSpaceCreateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTION_STATE_BOOLEAN:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionStateBoolean*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTION_STATE_FLOAT:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionStateFloat*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTION_STATE_GET_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionStateGetInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTION_STATE_POSE:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionStatePose*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTION_STATE_VECTOR2F:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionStateVector2f*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTIONS_SYNC_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrActionsSyncInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ACTIVE_ACTION_SET_PRIORITIES_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrActiveActionSetPrioritiesEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ANDROID_SURFACE_SWAPCHAIN_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrAndroidSurfaceSwapchainCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_API_LAYER_PROPERTIES:
+        MapStructHandles(reinterpret_cast<Decoded_XrApiLayerProperties*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_BINDING_MODIFICATIONS_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrBindingModificationsKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_BODY_JOINT_LOCATIONS_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrBodyJointLocationsFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_BODY_JOINTS_LOCATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrBodyJointsLocateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_BODY_SKELETON_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrBodySkeletonFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_BODY_TRACKER_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrBodyTrackerCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_BOUND_SOURCES_FOR_ACTION_ENUMERATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrBoundSourcesForActionEnumerateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_BOUNDARY_2D_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrBoundary2DFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_ALPHA_BLEND_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerAlphaBlendFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerColorScaleBiasKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerCubeKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerCylinderKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerDepthInfoKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerDepthTestFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_VARJO:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerDepthTestVARJO*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerEquirect2KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerEquirectKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_IMAGE_LAYOUT_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerImageLayoutFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerPassthroughFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerPassthroughHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerProjection*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerProjectionView*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_QUAD:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerQuad*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_REPROJECTION_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerReprojectionInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_REPROJECTION_PLANE_OVERRIDE_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerReprojectionPlaneOverrideMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSecureContentFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_SETTINGS_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSettingsFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSpaceWarpInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_CONTROLLER_MODEL_KEY_STATE_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrControllerModelKeyStateMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_CONTROLLER_MODEL_NODE_PROPERTIES_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrControllerModelNodePropertiesMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_CONTROLLER_MODEL_NODE_STATE_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrControllerModelNodeStateMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_CONTROLLER_MODEL_PROPERTIES_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrControllerModelPropertiesMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_CONTROLLER_MODEL_STATE_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrControllerModelStateMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_COORDINATE_SPACE_CREATE_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrCoordinateSpaceCreateInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_DEBUG_UTILS_LABEL_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsLabelEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsMessengerCallbackDataEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsMessengerCreateInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrDebugUtilsObjectNameInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_DEVICE_PCM_SAMPLE_RATE_STATE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrDevicePcmSampleRateStateFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_DIGITAL_LENS_CONTROL_ALMALENCE:
+        MapStructHandles(reinterpret_cast<Decoded_XrDigitalLensControlALMALENCE*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthImageAcquireInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthImageMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthImageViewMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthProviderCreateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEnvironmentDepthSwapchainStateMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_BUFFER:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataBuffer*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataDisplayRefreshRateChangedFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataEventsLost*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataEyeCalibrationChangedML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataHeadsetFitChangedML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataInstanceLossPending*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataInteractionProfileChanged*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataLocalizationChangedML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataMainSessionVisibilityChangedEXTX*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataMarkerTrackingUpdateVARJO*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataPassthroughStateChangedFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataPerfSettingsEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataReferenceSpaceChangePending*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SCENE_CAPTURE_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSceneCaptureCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSessionStateChanged*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceEraseCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceListSaveCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceQueryCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceQueryResultsAvailableFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceSaveCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceSetStatusCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpaceShareCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataSpatialAnchorCreateCompleteFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataUserPresenceChangedEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_BACKSPACE_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardBackspaceMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_COMMIT_TEXT_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardCommitTextMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_ENTER_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardEnterMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_HIDDEN_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardHiddenMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_SHOWN_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataVirtualKeyboardShownMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataVisibilityMaskChangedKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+        MapStructHandles(reinterpret_cast<Decoded_XrEventDataViveTrackerConnectedHTCX*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EXTENSION_PROPERTIES:
+        MapStructHandles(reinterpret_cast<Decoded_XrExtensionProperties*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EXTERNAL_CAMERA_OCULUS:
+        MapStructHandles(reinterpret_cast<Decoded_XrExternalCameraOCULUS*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EYE_GAZE_SAMPLE_TIME_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrEyeGazeSampleTimeEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EYE_GAZES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEyeGazesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EYE_GAZES_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEyeGazesInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_EYE_TRACKER_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrEyeTrackerCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACE_EXPRESSION_INFO2_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionInfo2FB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACE_EXPRESSION_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionWeights2FB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACE_EXPRESSION_WEIGHTS_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFaceExpressionWeightsFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACE_TRACKER_CREATE_INFO2_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFaceTrackerCreateInfo2FB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACE_TRACKER_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFaceTrackerCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACIAL_EXPRESSIONS_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrFacialExpressionsHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FACIAL_TRACKER_CREATE_INFO_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrFacialTrackerCreateInfoHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FORCE_FEEDBACK_CURL_APPLY_LOCATIONS_MNDX:
+        MapStructHandles(reinterpret_cast<Decoded_XrForceFeedbackCurlApplyLocationsMNDX*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATED_VIEW_CONFIGURATION_VIEW_VARJO:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveatedViewConfigurationViewVARJO*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATION_APPLY_INFO_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveationApplyInfoHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATION_CUSTOM_MODE_INFO_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveationCustomModeInfoHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATION_DYNAMIC_MODE_INFO_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveationDynamicModeInfoHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATION_EYE_TRACKED_PROFILE_CREATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveationEyeTrackedProfileCreateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATION_EYE_TRACKED_STATE_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveationEyeTrackedStateMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATION_LEVEL_PROFILE_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveationLevelProfileCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FOVEATION_PROFILE_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrFoveationProfileCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FRAME_BEGIN_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrFrameBeginInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FRAME_END_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrFrameEndInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FRAME_END_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrFrameEndInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FRAME_STATE:
+        MapStructHandles(reinterpret_cast<Decoded_XrFrameState*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FRAME_WAIT_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrFrameWaitInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FUTURE_CANCEL_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrFutureCancelInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FUTURE_COMPLETION_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrFutureCompletionEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FUTURE_POLL_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrFuturePollInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_FUTURE_POLL_RESULT_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrFuturePollResultEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GEOMETRY_INSTANCE_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrGeometryInstanceCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GEOMETRY_INSTANCE_TRANSFORM_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrGeometryInstanceTransformFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GLOBAL_DIMMER_FRAME_END_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrGlobalDimmerFrameEndInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_D3D11_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingD3D11KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingD3D12KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_EGL_MNDX:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingEGLMNDX*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingMetalKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLESAndroidKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_OPENGL_WAYLAND_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLWaylandKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLWin32KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_OPENGL_XCB_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLXcbKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_OPENGL_XLIB_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingOpenGLXlibKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingVulkanKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsD3D11KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsD3D12KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsMetalKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsOpenGLESKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsOpenGLKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrGraphicsRequirementsVulkanKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_JOINT_LOCATIONS_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandJointLocationsEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_JOINT_VELOCITIES_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandJointVelocitiesEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandJointsLocateInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_JOINTS_MOTION_RANGE_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandJointsMotionRangeInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_MESH_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandMeshMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_MESH_SPACE_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandMeshSpaceCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_MESH_UPDATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandMeshUpdateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_POSE_TYPE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandPoseTypeInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandTrackerCreateInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_TRACKING_AIM_STATE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingAimStateFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_TRACKING_CAPSULES_STATE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingCapsulesStateFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_TRACKING_DATA_SOURCE_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingDataSourceInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_TRACKING_DATA_SOURCE_STATE_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingDataSourceStateEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_TRACKING_MESH_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingMeshFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAND_TRACKING_SCALE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrHandTrackingScaleFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAPTIC_ACTION_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrHapticActionInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrHapticAmplitudeEnvelopeVibrationFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrHapticPcmVibrationFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HAPTIC_VIBRATION:
+        MapStructHandles(reinterpret_cast<Decoded_XrHapticVibration*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_HOLOGRAPHIC_WINDOW_ATTACHMENT_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrHolographicWindowAttachmentMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INPUT_SOURCE_LOCALIZED_NAME_GET_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrInputSourceLocalizedNameGetInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INSTANCE_CREATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrInstanceCreateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrInstanceCreateInfoAndroidKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INSTANCE_PROPERTIES:
+        MapStructHandles(reinterpret_cast<Decoded_XrInstanceProperties*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+        MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileAnalogThresholdVALVE*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileDpadBindingEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INTERACTION_PROFILE_STATE:
+        MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileState*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING:
+        MapStructHandles(reinterpret_cast<Decoded_XrInteractionProfileSuggestedBinding*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_KEYBOARD_SPACE_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrKeyboardSpaceCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_KEYBOARD_TRACKING_QUERY_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrKeyboardTrackingQueryFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrLoaderInitInfoAndroidKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_LOCAL_DIMMING_FRAME_END_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrLocalDimmingFrameEndInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_LOCALIZATION_ENABLE_EVENTS_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrLocalizationEnableEventsInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_LOCALIZATION_MAP_IMPORT_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrLocalizationMapImportInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_LOCALIZATION_MAP_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrLocalizationMapML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MAP_LOCALIZATION_REQUEST_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMapLocalizationRequestInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_DETECTOR_APRIL_TAG_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorAprilTagInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_DETECTOR_ARUCO_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorArucoInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_DETECTOR_CREATE_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorCreateInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_DETECTOR_CUSTOM_PROFILE_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorCustomProfileInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_DETECTOR_SIZE_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorSizeInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_DETECTOR_SNAPSHOT_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorSnapshotInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_DETECTOR_STATE_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerDetectorStateML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_SPACE_CREATE_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerSpaceCreateInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_MARKER_SPACE_CREATE_INFO_VARJO:
+        MapStructHandles(reinterpret_cast<Decoded_XrMarkerSpaceCreateInfoVARJO*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_NEW_SCENE_COMPUTE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrNewSceneComputeInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_BRIGHTNESS_CONTRAST_SATURATION_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughBrightnessContrastSaturationFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_COLOR_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_COLOR_LUT_CREATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorLutCreateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_COLOR_LUT_UPDATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorLutUpdateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_COLOR_MAP_INTERPOLATED_LUT_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapInterpolatedLutMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_COLOR_MAP_LUT_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapLutMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_MONO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapMonoToMonoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapMonoToRgbaFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughCreateInfoHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_KEYBOARD_HANDS_INTENSITY_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughKeyboardHandsIntensityFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_LAYER_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughLayerCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughMeshTransformInfoHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_PREFERENCES_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughPreferencesMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PASSTHROUGH_STYLE_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrPassthroughStyleFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PERFORMANCE_METRICS_COUNTER_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrPerformanceMetricsCounterMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PERFORMANCE_METRICS_STATE_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrPerformanceMetricsStateMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PLANE_DETECTOR_BEGIN_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorBeginInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PLANE_DETECTOR_CREATE_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorCreateInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PLANE_DETECTOR_GET_INFO_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorGetInfoEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PLANE_DETECTOR_LOCATION_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorLocationEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PLANE_DETECTOR_LOCATIONS_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorLocationsEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_PLANE_DETECTOR_POLYGON_BUFFER_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrPlaneDetectorPolygonBufferEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_RECOMMENDED_LAYER_RESOLUTION_GET_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrRecommendedLayerResolutionGetInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_RECOMMENDED_LAYER_RESOLUTION_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrRecommendedLayerResolutionMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_REFERENCE_SPACE_CREATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrReferenceSpaceCreateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_RENDER_MODEL_BUFFER_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrRenderModelBufferFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_RENDER_MODEL_CAPABILITIES_REQUEST_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrRenderModelCapabilitiesRequestFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_RENDER_MODEL_LOAD_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrRenderModelLoadInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_RENDER_MODEL_PATH_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrRenderModelPathInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_RENDER_MODEL_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrRenderModelPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_ROOM_LAYOUT_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrRoomLayoutFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_CAPTURE_REQUEST_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneCaptureRequestInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_COMPONENT_LOCATIONS_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentLocationsMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_COMPONENT_PARENT_FILTER_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentParentFilterInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_COMPONENTS_GET_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentsGetInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_COMPONENTS_LOCATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentsLocateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_COMPONENTS_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneComponentsMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_DESERIALIZE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneDeserializeInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MARKER_QR_CODES_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMarkerQRCodesMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MARKER_TYPE_FILTER_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMarkerTypeFilterMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MARKERS_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMarkersMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MESH_BUFFERS_GET_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshBuffersGetInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MESH_BUFFERS_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshBuffersMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MESH_INDICES_UINT16_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshIndicesUint16MSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MESH_INDICES_UINT32_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshIndicesUint32MSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MESH_VERTEX_BUFFER_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshVertexBufferMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_MESHES_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneMeshesMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_OBJECT_TYPES_FILTER_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneObjectTypesFilterInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_OBJECTS_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneObjectsMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_OBSERVER_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSceneObserverCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_PLANE_ALIGNMENT_FILTER_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrScenePlaneAlignmentFilterInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SCENE_PLANES_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrScenePlanesMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_FRAME_END_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationFrameEndInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_FRAME_STATE_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationFrameStateMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_LAYER_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationLayerInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_SESSION_BEGIN_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationSessionBeginInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_STATE_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationStateMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_SWAPCHAIN_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSecondaryViewConfigurationSwapchainCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SEMANTIC_LABELS_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSemanticLabelsFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SEMANTIC_LABELS_SUPPORT_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSemanticLabelsSupportInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SERIALIZED_SCENE_FRAGMENT_DATA_GET_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSerializedSceneFragmentDataGetInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSessionActionSetsAttachInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SESSION_BEGIN_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSessionBeginInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SESSION_CREATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSessionCreateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SESSION_CREATE_INFO_OVERLAY_EXTX:
+        MapStructHandles(reinterpret_cast<Decoded_XrSessionCreateInfoOverlayEXTX*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceComponentFilterInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_COMPONENT_STATUS_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceComponentStatusFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_COMPONENT_STATUS_SET_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceComponentStatusSetInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_CONTAINER_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceContainerFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_ERASE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceEraseInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_LIST_SAVE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceListSaveInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_LOCATION:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceLocation*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_LOCATIONS:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceLocations*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_QUERY_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceQueryInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_QUERY_RESULTS_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceQueryResultsFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_SAVE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceSaveInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_SHARE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceShareInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_STORAGE_LOCATION_FILTER_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceStorageLocationFilterInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_TRIANGLE_MESH_GET_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceTriangleMeshGetInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_TRIANGLE_MESH_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceTriangleMeshMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_USER_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceUserCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceUuidFilterInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_VELOCITIES:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceVelocities*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACE_VELOCITY:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpaceVelocity*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPACES_LOCATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpacesLocateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorCreateInfoHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_ANCHOR_FROM_PERSISTED_ANCHOR_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_ANCHOR_PERSISTENCE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorPersistenceInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialAnchorSpaceCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_GET_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphNodeBindingPropertiesGetInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphNodeBindingPropertiesMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_GRAPH_NODE_SPACE_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphNodeSpaceCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SPATIAL_GRAPH_STATIC_NODE_BINDING_CREATE_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSpatialGraphStaticNodeBindingCreateInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_CREATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainCreateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_CREATE_INFO_FOVEATION_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainCreateInfoFoveationFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageAcquireInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageD3D11KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageD3D12KHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageFoveationVulkanFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageMetalKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageOpenGLESKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageOpenGLKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageReleaseInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageVulkanKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainImageWaitInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateFoveationFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateSamplerOpenGLESFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSwapchainStateSamplerVulkanFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_ANCHOR_PROPERTIES_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemAnchorPropertiesHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_BODY_TRACKING_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemBodyTrackingPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_COLOR_SPACE_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemColorSpacePropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemEnvironmentDepthPropertiesMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_EYE_GAZE_INTERACTION_PROPERTIES_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemEyeGazeInteractionPropertiesEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_EYE_TRACKING_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemEyeTrackingPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES2_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemFaceTrackingProperties2FB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemFaceTrackingPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_FACIAL_TRACKING_PROPERTIES_HTC:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemFacialTrackingPropertiesHTC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_FORCE_FEEDBACK_CURL_PROPERTIES_MNDX:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemForceFeedbackCurlPropertiesMNDX*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_FOVEATED_RENDERING_PROPERTIES_VARJO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemFoveatedRenderingPropertiesVARJO*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_FOVEATION_EYE_TRACKED_PROPERTIES_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemFoveationEyeTrackedPropertiesMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_GET_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemGetInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_HAND_TRACKING_MESH_PROPERTIES_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemHandTrackingMeshPropertiesMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemHandTrackingPropertiesEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_HEADSET_ID_PROPERTIES_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemHeadsetIdPropertiesMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_KEYBOARD_TRACKING_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemKeyboardTrackingPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_MARKER_TRACKING_PROPERTIES_VARJO:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemMarkerTrackingPropertiesVARJO*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_MARKER_UNDERSTANDING_PROPERTIES_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemMarkerUnderstandingPropertiesML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_PASSTHROUGH_COLOR_LUT_PROPERTIES_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemPassthroughColorLutPropertiesMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES2_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemPassthroughProperties2FB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemPassthroughPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_PLANE_DETECTION_PROPERTIES_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemPlaneDetectionPropertiesEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_PROPERTIES:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemProperties*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_RENDER_MODEL_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemRenderModelPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_SPACE_WARP_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemSpaceWarpPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_SPATIAL_ENTITY_PROPERTIES_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemSpatialEntityPropertiesFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemUserPresencePropertiesEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_SYSTEM_VIRTUAL_KEYBOARD_PROPERTIES_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrSystemVirtualKeyboardPropertiesMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_TRIANGLE_MESH_CREATE_INFO_FB:
+        MapStructHandles(reinterpret_cast<Decoded_XrTriangleMeshCreateInfoFB*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_USER_CALIBRATION_ENABLE_EVENTS_INFO_ML:
+        MapStructHandles(reinterpret_cast<Decoded_XrUserCalibrationEnableEventsInfoML*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW:
+        MapStructHandles(reinterpret_cast<Decoded_XrView*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT:
+        MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationDepthRangeEXT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW_CONFIGURATION_PROPERTIES:
+        MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationProperties*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW_CONFIGURATION_VIEW:
+        MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationView*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW_CONFIGURATION_VIEW_FOV_EPIC:
+        MapStructHandles(reinterpret_cast<Decoded_XrViewConfigurationViewFovEPIC*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW_LOCATE_FOVEATED_RENDERING_VARJO:
+        MapStructHandles(reinterpret_cast<Decoded_XrViewLocateFoveatedRenderingVARJO*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW_LOCATE_INFO:
+        MapStructHandles(reinterpret_cast<Decoded_XrViewLocateInfo*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIEW_STATE:
+        MapStructHandles(reinterpret_cast<Decoded_XrViewState*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_ANIMATION_STATE_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardAnimationStateMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_CREATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardCreateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_INPUT_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardInputInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_LOCATION_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardLocationInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_MODEL_ANIMATION_STATES_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardModelAnimationStatesMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_MODEL_VISIBILITY_SET_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardModelVisibilitySetInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_SPACE_CREATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardSpaceCreateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_TEXT_CONTEXT_CHANGE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardTextContextChangeInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIRTUAL_KEYBOARD_TEXTURE_DATA_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVirtualKeyboardTextureDataMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VISIBILITY_MASK_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrVisibilityMaskKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VISUAL_MESH_COMPUTE_LOD_INFO_MSFT:
+        MapStructHandles(reinterpret_cast<Decoded_XrVisualMeshComputeLodInfoMSFT*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VIVE_TRACKER_PATHS_HTCX:
+        MapStructHandles(reinterpret_cast<Decoded_XrViveTrackerPathsHTCX*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VULKAN_GRAPHICS_DEVICE_GET_INFO_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrVulkanGraphicsDeviceGetInfoKHR*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VULKAN_SWAPCHAIN_CREATE_INFO_META:
+        MapStructHandles(reinterpret_cast<Decoded_XrVulkanSwapchainCreateInfoMETA*>(wrapper), object_info_table);
+        break;
+    case XR_TYPE_VULKAN_SWAPCHAIN_FORMAT_LIST_CREATE_INFO_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_XrVulkanSwapchainFormatListCreateInfoKHR*>(wrapper), object_info_table);
+        break;
     }
 }
 

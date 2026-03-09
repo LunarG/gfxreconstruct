@@ -2780,8 +2780,13 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
     {
         for (uint32_t i = 0; i < frame_boundary->pImages.GetLength(); ++i)
         {
-            const std::string filename_prefix =
+            std::string filename_prefix =
                 screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+
+            if (frame_boundary->pImages.GetLength() > 1)
+            {
+                filename_prefix += "_image_" + std::to_string(i);
+            }
 
             const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
             const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
@@ -2860,43 +2865,29 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
     }
 
+    std::string capture_surface_extension;
+
     // Transfer requested extensions to filtered extension
     for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
     {
-        const auto current_extension    = replay_create_info->ppEnabledExtensionNames[i];
-        const bool is_surface_extension = kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end();
+        const auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
         const bool is_forced =
             util::platform::StringCompare(current_extension, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0 ||
             util::platform::StringCompare(current_extension, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0;
-        if (is_forced)
+        if (!is_forced)
         {
-            // Will always be added if available
-            continue;
-        }
-        else if (is_surface_extension)
-        {
-            if (!override_wsi_extensions)
+            if (kSurfaceExtensions.contains(current_extension))
             {
-                application_->InitializeWsiContext(current_extension);
-                modified_extensions.push_back(current_extension);
+                if (!override_wsi_extensions)
+                {
+                    application_->InitializeWsiContext(current_extension);
+                    capture_surface_extension = current_extension;
+                    modified_extensions.push_back(current_extension);
+                }
             }
-        }
-        else
-        {
-            modified_extensions.push_back(current_extension);
-        }
-    }
-
-    // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
-    // extension without having VK_KHR_surface. Check for that and fix that.
-    if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
-    {
-        for (const std::string& current_extension : modified_extensions)
-        {
-            if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+            else
             {
-                modified_extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-                break;
+                modified_extensions.push_back(current_extension);
             }
         }
     }
@@ -2905,6 +2896,76 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     std::vector<VkExtensionProperties> available_extensions;
     if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
+        // only set a wsi if there was one on the capture device
+        bool surface_at_capture_time = !capture_surface_extension.empty();
+
+        if (!override_wsi_extensions && surface_at_capture_time &&
+            options_.swapchain_option != util::SwapchainOption::kOffscreen)
+        {
+            bool picked_surface = false;
+            const std::unordered_map<std::string, std::unique_ptr<gfxrecon::application::WsiContext>>& wsi_contexts =
+                application_->GetWsiContexts();
+
+            // Try to use the same WSI as at capture time
+            if (graphics::feature_util::IsSupportedExtension(available_extensions, capture_surface_extension.c_str()))
+            {
+                const auto itr_surface_extension = kSurfaceExtensions.find(capture_surface_extension);
+
+                // check if corresponding compositor exists on replay device
+                if (itr_surface_extension != kSurfaceExtensions.end() && wsi_contexts.contains(*itr_surface_extension))
+                {
+                    modified_extensions.push_back(itr_surface_extension->c_str());
+                    picked_surface = true;
+                }
+            }
+
+            // If the same WSI is not available, take any available WSI on the replay device
+            if (!picked_surface)
+            {
+                for (const VkExtensionProperties& current_extension : available_extensions)
+                {
+                    auto itr_surface_extension = kSurfaceExtensions.find(current_extension.extensionName);
+                    if (itr_surface_extension != kSurfaceExtensions.end())
+                    {
+                        // check if compositor exists before pushing back surface extension
+                        if (wsi_contexts.contains(*itr_surface_extension) ||
+                            application_->InitializeWsiContext(itr_surface_extension->c_str()))
+                        {
+                            modified_extensions.push_back(itr_surface_extension->c_str());
+                            GFXRECON_LOG_WARNING("--wsi auto: could not find surface: %s, instead using: %s",
+                                                 capture_surface_extension.c_str(),
+                                                 itr_surface_extension->c_str());
+                            picked_surface = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // If a WSI was requested at capture time but no WSI is available at replay time, abort
+            if (!picked_surface)
+            {
+                GFXRECON_LOG_FATAL("--wsi auto attempted to pick a surface, but no compositor was available.");
+                std::abort();
+            }
+        }
+        else if (override_wsi_extensions && !surface_at_capture_time)
+        {
+            // warn the user that they set the wsi when no surface was available at capture time
+            GFXRECON_LOG_WARNING(
+                "WSI was specified, but no surface was available at capture time, option will be ignored");
+        }
+
+        if (surface_at_capture_time)
+        {
+            // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
+            // extension without having VK_KHR_surface. Check for that and fix that.
+            if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
+            {
+                modified_extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+            }
+        }
+
         // Always enable portability enumeration if available
         modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
         for (const VkExtensionProperties& extension : available_extensions)
@@ -3102,7 +3163,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                                          ext, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
                                                  }),
                                   modified_extensions.end());
-        create_state.modified_create_info.enabledExtensionCount = modified_extensions.size();
+        GFXRECON_NARROWING_ASSIGN(create_state.modified_create_info.enabledExtensionCount, modified_extensions.size());
 
         // Try to create instance again
         result = create_instance_proc_(
@@ -6643,7 +6704,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
     if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
         const VkRenderPassCreateInfo* create_info = pCreateInfo->GetPointer();
-        uint32_t                      num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
+        size_t                        num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
         render_pass_info->func_version = VulkanRenderPassInfo::kCreateRenderPass;
         render_pass_info->create_info.resize(num_bytes);
@@ -6696,7 +6757,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass2(
     if (original_result == VK_SUCCESS && options_.dumping_resources)
     {
         const VkRenderPassCreateInfo2* create_info = pCreateInfo->GetPointer();
-        uint32_t                       num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
+        const size_t                   num_bytes   = graphics::vulkan_struct_deep_copy(create_info, 1, nullptr);
 
         render_pass_info->func_version = (func == GetDeviceTable(device_info->handle)->CreateRenderPass2)
                                              ? VulkanRenderPassInfo::kCreateRenderPass2
@@ -7158,7 +7219,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
         // following process, we'll try to find corresponding replay time pipeline cache data.
         auto capture_pipeline_cache_data_hash = gfxrecon::util::hash::GenerateCheckSum<uint32_t>(
             reinterpret_cast<const uint8_t*>(override_create_info.pInitialData), override_create_info.initialDataSize);
-        uint32_t capture_pipeline_cache_data_size = override_create_info.initialDataSize;
+        size_t capture_pipeline_cache_data_size = override_create_info.initialDataSize;
 
         object_info_table_->VisitVkPipelineCacheInfo([&](const VulkanPipelineCacheInfo* pipeline_cache_info) {
             GFXRECON_ASSERT(pipeline_cache_info != nullptr);
@@ -9709,7 +9770,7 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     const uint8_t* captured_data = pData->GetPointer();
     VkResult       result        = func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
 
-    if (result == VK_SUCCESS)
+    if (result == VK_SUCCESS && output_data != nullptr & captured_data != nullptr)
     {
         auto physical_device_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(device_info->parent_id);
 
@@ -11348,7 +11409,7 @@ void VulkanReplayConsumerBase::ProcessVulkanCopyAccelerationStructuresCommand(
             const auto& address_tracker  = GetDeviceAddressTracker(device_info);
             auto&       address_replacer = GetDeviceAddressReplacer(device_info);
             address_replacer.ProcessCopyVulkanAccelerationStructuresMetaCommand(
-                copy_infos->GetLength(), copy_infos->GetPointer(), address_tracker);
+                GFXRECON_NARROWING_CAST(uint32_t, copy_infos->GetLength()), copy_infos->GetPointer(), address_tracker);
         }
     }
 }
@@ -11709,7 +11770,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
 
     if (original_result >= 0 && !options_.replace_shader_dir.empty())
     {
-        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
+        const size_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
         create_info_data.resize(num_bytes);
         graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, create_info_data.data());
         auto* replaced_create_infos = reinterpret_cast<VkGraphicsPipelineCreateInfo*>(create_info_data.data());
@@ -11864,7 +11925,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
 
     if (original_result >= 0 && !options_.replace_shader_dir.empty())
     {
-        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
+        const size_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
         create_info_data.resize(num_bytes);
         graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, create_info_data.data());
         auto* replaced_create_infos = reinterpret_cast<VkShaderCreateInfoEXT*>(create_info_data.data());
@@ -12145,7 +12206,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     }
 
     // replace with deep-copy of create-info array
-    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    const size_t         num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
     std::vector<format::HandleId> pipeline_ids(createInfoCount);
@@ -12265,7 +12326,7 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
 
     // replace with deep-copy of create-info array
-    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    const size_t         num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
     std::vector<format::HandleId> pipeline_ids(createInfoCount);
@@ -12345,7 +12406,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
     VkDevice                     device_handle   = device_info->handle;
 
     // replace with deep-copy of create-info array
-    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    const size_t         num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
     std::vector<format::HandleId> shaders(createInfoCount);
@@ -12654,10 +12715,10 @@ void VulkanReplayConsumerBase::TrackNewPipelineCache(const VulkanDeviceInfo* dev
                                                      format::HandleId        id,
                                                      VkPipelineCache         pipelineCache,
                                                      VkPipeline*             pipelines,
-                                                     uint32_t                pipelineCount)
+                                                     size_t                  pipelineCount)
 {
     tracked_pipeline_caches_.emplace(id, std::make_pair(device_info, pipelineCache));
-    for (uint32_t i = 0; i < pipelineCount; ++i)
+    for (size_t i = 0; i < pipelineCount; ++i)
     {
         pipeline_cache_correspondances_.emplace(pipelines[i], id);
     }
@@ -13012,13 +13073,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineBinariesKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*          pAllocator,
     StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries)
 {
-    const VkPipelineBinaryCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks*         in_pAllocator  = GetAllocationCallbacks(pAllocator);
+    const VkPipelineBinaryCreateInfoKHR*  in_pCreateInfo = pCreateInfo->GetPointer();
+    const VkAllocationCallbacks*          in_pAllocator  = GetAllocationCallbacks(pAllocator);
+    VkPipelineBinaryHandlesInfoKHR*       out_pBinaries  = pBinaries->GetOutputPointer();
+    const VkPipelineBinaryHandlesInfoKHR* in_pBinaries   = pBinaries->GetMetaStructPointer()->decoded_value;
+    auto in_pPipelineBinaries = pBinaries->GetMetaStructPointer()->pPipelineBinaries.GetPointer();
 
-    VkPipelineBinaryHandlesInfoKHR* out_pBinaries = pBinaries->GetOutputPointer();
-    if (out_pBinaries != nullptr && pBinaries->GetLength() > 0)
+    if (out_pBinaries != nullptr && in_pBinaries->pipelineBinaryCount > 0 && in_pPipelineBinaries != nullptr)
     {
-        out_pBinaries->pipelineBinaryCount = pBinaries->GetLength();
+        out_pBinaries->pipelineBinaryCount = in_pBinaries->pipelineBinaryCount;
         out_pBinaries->pPipelineBinaries =
             DecodeAllocator::Allocate<VkPipelineBinaryKHR>(out_pBinaries->pipelineBinaryCount);
     }

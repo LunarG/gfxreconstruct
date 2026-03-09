@@ -611,11 +611,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
     static std::string BuildValue(const StdVideoAV1FrameRestorationType* values, uint32_t count);
 
     template <typename T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-    static std::string BuildValue(const T* values, uint32_t count)
+    static std::string BuildValue(const T* values, size_t count)
     {
         std::stringstream output;
         output << "{";
-        for (uint32_t idx = 0; idx < count; idx++)
+        for (size_t idx = 0; idx < count; idx++)
         {
             output << std::to_string(values[idx]) << ", ";
         }

@@ -3,18 +3,28 @@ pipeline {
 
     options {
         disableConcurrentBuilds(abortPrevious: true)
-        buildDiscarder(logRotator(
-            daysToKeepStr: '90',
-            numToKeepStr: '100',
-            artifactDaysToKeepStr: '90',
-            artifactNumToKeepStr: '100'
-        ))
     }
 
     stages {
         stage('Per Commit Tests') {
             steps {
                 script {
+                    // different log rotator settings for dev vs PRs
+                    def discarder = env.BRANCH_NAME == 'dev'
+                        ? buildDiscarder(logRotator(
+                            daysToKeepStr: '90',
+                            numToKeepStr: '100',
+                            artifactDaysToKeepStr: '90',
+                            artifactNumToKeepStr: '100'
+                        ))
+                        : buildDiscarder(logRotator(
+                            daysToKeepStr: '7',
+                            numToKeepStr: '5',
+                            artifactDaysToKeepStr: '7',
+                            artifactNumToKeepStr: '5'
+                        ))
+                    properties([discarder])
+
                     def tests
 
                     // Checkout and load on any available node

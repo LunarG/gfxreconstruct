@@ -79,7 +79,7 @@ class Application final
 
     void SetFpsInfo(graphics::FpsInfo* fps_info);
 
-    void InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
+    bool InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
 #if defined(WIN32)
     void InitializeDx12WsiContext();
@@ -89,7 +89,7 @@ class Application final
 
     uint32_t GetCurrentFrameNumber() const
     {
-        return file_processor_->GetCurrentFrameNumber();
+        return GFXRECON_NARROWING_CAST(uint32_t, file_processor_->GetCurrentFrameNumber());
     }
 
   private:

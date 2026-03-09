@@ -81,12 +81,12 @@ LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description
             for (uint32_t i = 0; i < type_description->member_count; ++i)
             {
                 LayoutInfo layout_info = compute_type_layout(&type_description->members[i]);
-                offset                 = util::aligned_value(offset, layout_info.alignment);
+                GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, layout_info.alignment));
                 offset += layout_info.size;
                 max_align = std::max(max_align, layout_info.alignment);
             }
 
-            num_bytes = util::aligned_value(offset, max_align);
+            GFXRECON_NARROWING_ASSIGN(num_bytes, util::aligned_value(offset, max_align));
         }
         break;
 
@@ -367,7 +367,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
                         // align offset, add size
                         auto layout_info = compute_type_layout(member);
-                        offset           = util::aligned_value(offset, layout_info.alignment);
+                        GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, layout_info.alignment));
                         offset += layout_info.size;
                     }
                 }
@@ -521,8 +521,10 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                         auto layout_info = compute_type_layout(&td->members[m]);
 
                                         // align offset, add size
-                                        buffer_reference_info.buffer_offset = util::aligned_value(
-                                            buffer_reference_info.buffer_offset, layout_info.alignment);
+                                        GFXRECON_NARROWING_ASSIGN(
+                                            buffer_reference_info.buffer_offset,
+                                            util::aligned_value(buffer_reference_info.buffer_offset,
+                                                                layout_info.alignment));
                                         buffer_reference_info.buffer_offset += layout_info.size;
                                     }
 

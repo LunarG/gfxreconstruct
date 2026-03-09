@@ -207,7 +207,9 @@ static void AddHandleArrayAsync(format::HandleId        parent_id,
     {
         assert(ids_len <= initial_infos.size());
 
-        for (size_t i = 0; i < ids_len; ++i)
+        // future_handle_index below is uint32_t, so the length must be bounded
+        const auto ids_len_32 = GFXRECON_NARROWING_CAST(uint32_t, ids_len);
+        for (uint32_t i = 0; i < ids_len_32; ++i)
         {
             auto& initial_info               = initial_infos[i];
             initial_info.handle              = VK_NULL_HANDLE; // handle does not yet exist
