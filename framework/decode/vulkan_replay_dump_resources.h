@@ -701,6 +701,8 @@ class VulkanReplayDumpResourcesBase
     template <typename MapOfContexts>
     void ReleaseDumpingContexts(MapOfContexts& contexts, decode::Index qs_index);
 
+    void ReleaseDumpingContexts(decode::Index qs_index);
+
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,
                                      VkCommandBuffer             original_command_buffer,

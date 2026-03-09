@@ -50,6 +50,8 @@ class DispatchTraceRaysDumpingContext
     DispatchTraceRaysDumpingContext(const CommandIndices*                             dispatch_indices,
                                     const CommandImageSubresource&                    disp_subresources,
                                     const CommandIndices*                             trace_rays_indices,
+                                    decode::Index                                     bcb_index,
+                                    decode::Index                                     qs_index,
                                     const CommandImageSubresource&                    tr_subresources,
                                     CommonObjectInfoTable&                            object_info_table,
                                     const VulkanReplayOptions&                        options,
@@ -116,14 +118,9 @@ class DispatchTraceRaysDumpingContext
                             uint32_t                                           dynamicOffsetCount,
                             const uint32_t*                                    pDynamicOffsets);
 
-    VkResult DumpDispatchTraceRays(VkQueue             queue,
-                                   uint64_t            qs_index,
-                                   uint64_t            bcb_index,
-                                   const VkSubmitInfo& submit_info,
-                                   VkFence             fence,
-                                   bool                use_semaphores);
+    VkResult DumpDispatchTraceRays();
 
-    VkResult DumpMutableResources(uint64_t bcb_index, uint64_t qs_index, uint64_t cmd_index, bool is_dispatch);
+    VkResult DumpMutableResources(uint64_t cmd_index, bool is_dispatch);
 
     void FinalizeCommandBuffer(bool is_dispatch);
 
@@ -180,9 +177,11 @@ class DispatchTraceRaysDumpingContext
 
     VkResult FetchIndirectParams();
 
-    VkResult DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
+    VkResult DumpDescriptors(uint64_t cmd_index, bool is_dispatch);
 
     const VulkanCommandBufferInfo* original_command_buffer_info_;
+    decode::Index                  bcb_index_;
+    decode::Index                  qs_index_;
     VkCommandBuffer                DR_command_buffer_;
     CommandIndices                 dispatch_indices_;
     CommandImageSubresource        disp_subresources_;
