@@ -143,7 +143,7 @@ void Process_vkCmdBeginQuery(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginQuery                         func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
     VkQueryControlFlags                         flags);
 
@@ -151,7 +151,7 @@ void Process_vkCmdEndQuery(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdEndQuery                           func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query);
 
 void Process_vkCmdResetQueryPool(

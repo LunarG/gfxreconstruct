@@ -3237,5 +3237,62 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
     }
 }
 
+void VulkanReplayDumpResourcesBase::OverrideCmdBeginQuery(const ApiCallInfo&         call_info,
+                                                          PFN_vkCmdBeginQuery        func,
+                                                          VkCommandBuffer            original_command_buffer,
+                                                          const VulkanQueryPoolInfo* queryPool,
+                                                          uint32_t                   query,
+                                                          VkQueryControlFlags        flags)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(original_command_buffer);
+        for (auto dc_context : dc_contexts)
+        {
+            dc_context->CmdBeginQuery(queryPool->handle, query);
+        }
+
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, query, flags);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdEndQuery(const ApiCallInfo&         call_info,
+                                                        PFN_vkCmdEndQuery          func,
+                                                        VkCommandBuffer            original_command_buffer,
+                                                        const VulkanQueryPoolInfo* queryPool,
+                                                        uint32_t                   query)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(original_command_buffer);
+        for (auto dc_context : dc_contexts)
+        {
+            dc_context->CmdEndQuery(queryPool->handle, query);
+        }
+
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, query);
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
