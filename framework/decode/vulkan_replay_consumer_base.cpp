@@ -7457,7 +7457,8 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     GFXRECON_ASSERT(info != nullptr);
 
     // hook for identifying potential swapchain-override VkImage
-    if (info->objectType == VK_OBJECT_TYPE_IMAGE && strstr(info->pObjectName, swapchain_override_image_debug_name_))
+    if (!options_.swapchain_override_image_name.empty() && info->objectType == VK_OBJECT_TYPE_IMAGE &&
+        strstr(info->pObjectName, options_.swapchain_override_image_name.c_str()))
     {
         // correct referenced handle in info
         MapStructHandles(meta_info, GetObjectInfoTable());
@@ -7471,7 +7472,9 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
             {
                 if (!vkuFormatIsDepthOrStencil(img_info->format))
                 {
-                    GFXRECON_LOG_INFO("found image: %s - handle-id: %" PRIu64 "", info->pObjectName, handle_id);
+                    GFXRECON_LOG_INFO("Replay is using swapchain-image override: %s - handle-id: %" PRIu64 "",
+                                      info->pObjectName,
+                                      handle_id);
                     swapchain_override_image_id_ = handle_id;
                 }
             }
@@ -8591,7 +8594,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
                 modified_image_indices_[i]  = replay_image_index;
 
-                // Fabian: override image-copy into current swapchain image
+                // copy override-image into current swapchain image
                 if (swapchain_override_image_id_ != format::kNullHandleId)
                 {
                     GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
@@ -8612,15 +8615,25 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                         GFXRECON_ASSERT(copy_util);
                     }
 
-                    auto* img_info =
-                        object_info_table_->GetVkImageInfo(swapchain_info->image_handle_ids[capture_image_index]);
+                    format::HandleId swapchain_img_id = swapchain_info->image_handle_ids[capture_image_index];
+                    auto*            img_info         = object_info_table_->GetVkImageInfo(swapchain_img_id);
                     GFXRECON_ASSERT(img_info != nullptr);
 
                     auto* override_img_info = object_info_table_->GetVkImageInfo(swapchain_override_image_id_);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
-                    // image-transitions back/forth, actual copy, fence sync
-                    copy_util->CopyImage(override_img_info->handle, img_info->handle, img_info->extent);
+                    if (img_info != nullptr && override_img_info != nullptr)
+                    {
+                        // image-transitions back/forth, actual copy, fence sync
+                        copy_util->CopyImage(override_img_info->handle, img_info->handle, img_info->extent);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("could not retrieve images for attempted swapchain-image override: "
+                                             "override-image-id: %" PRIu64 " - swapchain-image-id: %" PRIu64 "",
+                                             swapchain_override_image_id_,
+                                             swapchain_img_id);
+                    }
                 }
             }
         }

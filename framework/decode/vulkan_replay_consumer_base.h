@@ -1977,8 +1977,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<const char*> faked_extensions_;
 
     // option to override swapchain-image via debug-name
-    const char*      swapchain_override_image_debug_name_ = "RTDeviceEyeTexture";
-    format::HandleId swapchain_override_image_id_         = format::kNullHandleId;
+    format::HandleId swapchain_override_image_id_ = format::kNullHandleId;
     std::unordered_map<VkDevice, std::unique_ptr<graphics::VulkanResourcesUtil>> swapchain_override_copy_utils_;
 
     // required for reverse lookup of handle-ids

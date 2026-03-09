@@ -125,6 +125,7 @@ const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
 const char kPresentModeOption[]                  = "--present-mode";
+const char kPresentOverrideImageArgument[]       = "--present-override";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
@@ -1153,6 +1154,12 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
     replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
+
+    if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
+    {
+        replay_options.swapchain_override_image_name = override_name;
+    }
+
     if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))
     {
         replay_options.screenshot_ignore_frameBoundaryAndroid = true;

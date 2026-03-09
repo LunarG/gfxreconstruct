@@ -101,14 +101,18 @@ static constexpr int kUnspecifiedColorAttachment = -1;
 
 struct VulkanReplayOptions : public ReplayOptions
 {
-    bool                         enable_vulkan{ true };
-    bool                         capture{ false };
-    bool                         omit_pipeline_cache_data{ false };
-    bool                         use_colorspace_fallback{ false };
-    bool                         offscreen_swapchain_frame_boundary{ false };
-    util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };
-    util::PresentModeOption      present_mode_option{ util::PresentModeOption::kCapture };
-    bool                         virtual_swapchain_skip_blit{ false };
+    bool                    enable_vulkan{ true };
+    bool                    capture{ false };
+    bool                    omit_pipeline_cache_data{ false };
+    bool                    use_colorspace_fallback{ false };
+    bool                    offscreen_swapchain_frame_boundary{ false };
+    util::SwapchainOption   swapchain_option{ util::SwapchainOption::kVirtual };
+    util::PresentModeOption present_mode_option{ util::PresentModeOption::kCapture };
+    bool                    virtual_swapchain_skip_blit{ false };
+
+    // optionally override swapchain-images by providing an image debug-utils name
+    std::string swapchain_override_image_name;
+
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;
