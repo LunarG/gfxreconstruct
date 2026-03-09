@@ -28,7 +28,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-std::string InfoVulkanInterface::ApiCompiledHeaderVersionString()
+// Static boolean that runs a lambda to automatically create and register this class with the
+// base class RegisterInterface method.
+static bool sRegisterThisInterface = []() {
+    InfoApiInterface::RegisterInterface([]() { return std::make_unique<InfoVulkanInterface>(); });
+    return true;
+}();
+
+std::string InfoVulkanInterface::ApiCompiledHeaderVersionString() const
 {
     return std::string("  Vulkan Header Version  ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
            "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
@@ -312,7 +319,7 @@ nlohmann::json InfoVulkanInterface::GenerateJson()
     return vulkan_stats;
 }
 
-uint32_t InfoVulkanInterface::GetFrameStart()
+uint32_t InfoVulkanInterface::GetFrameStart() const
 {
     return vulkan_stats_consumer_.GetTrimmedStartFrame();
 }

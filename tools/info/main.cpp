@@ -24,24 +24,12 @@
 #include PROJECT_VERSION_HEADER_FILE
 
 #include "info_container.h"
-#include "info_d3d12_interface.h"
-#include "info_openxr_interface.h"
-#include "info_vulkan_interface.h"
 
 int main(int argc, const char** argv)
 {
     bool success = false;
 
     gfxrecon::info::InfoContainer info_container;
-
-    // Register APIs for handling info
-    info_container.RegisterApiInterface(std::make_unique<gfxrecon::info::InfoVulkanInterface>());
-#if defined(D3D12_SUPPORT)
-    info_container.RegisterApiInterface(std::make_unique<gfxrecon::info::InfoD3d12Interface>());
-#endif
-#if ENABLE_OPENXR_SUPPORT
-    info_container.RegisterApiInterface(std::make_unique<gfxrecon::info::InfoOpenXrInterface>());
-#endif
 
     // Process the command-line
     if (info_container.ProcessCommandLine(argc, argv))

@@ -41,10 +41,10 @@ class InfoOpenXrInterface : public InfoApiInterface
     virtual ~InfoOpenXrInterface() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() override { return format::ApiFamilyId::ApiFamily_OpenXR; }
-    std::string         ApiLabel() override { return "OpenXR"; }
+    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_OpenXR; }
+    std::string         ApiLabel() const override { return "OpenXR"; }
     bool                ApiWasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() override;
+    std::string         ApiCompiledHeaderVersionString() const override;
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor

@@ -30,9 +30,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
+// Static boolean that runs a lambda to automatically create and register this class with the
+// base class RegisterInterface method.
+static bool sRegisterThisInterface = []() {
+    InfoApiInterface::RegisterInterface([]() { return std::make_unique<InfoD3d12Interface>(); });
+    return true;
+}();
+
 const char kEnumGpuIndices[] = "--enum-gpu-indices";
 
-std::string InfoD3d12Interface::ApiCompiledHeaderVersionString()
+std::string InfoD3d12Interface::ApiCompiledHeaderVersionString() const
 {
 #if defined(D3D12SDKVersion)
     return std::string("  D3D12 SDK Version      ") + D3D12SDKVersion;
