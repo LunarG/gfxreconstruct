@@ -25,12 +25,7 @@ function(FindAgsLibrary AGS_SEARCH_PATH AGS_LIBRARY_NAME AGS_LIBRARY_VAR)
 endfunction()
 
 # Find the build architecture.
-set(AGS_ARCH "")
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(AGS_ARCH "x64")
-else()
-    message(WARNING "AGS support requires an x64 build.")
-endif()
+set(AGS_ARCH "x64")
 
 # Find the MSVC version.
 set(AGS_MSVC_TOOLSET "")

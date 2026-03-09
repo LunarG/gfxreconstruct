@@ -32,11 +32,7 @@ if (jsoncpp_ROOT)
 endif()
 
 # Normal search.
-set(_jsoncpp_x86 "(x86)")
-set(_jsoncpp_SEARCH_NORMAL
-    PATHS "$ENV{ProgramFiles}/jsoncpp"
-          "$ENV{ProgramFiles${_jsoncpp_x86}}/jsoncpp")
-unset(_jsoncpp_x86)
+set(_jsoncpp_SEARCH_NORMAL PATHS "$ENV{ProgramFiles}/jsoncpp")
 list(APPEND _jsoncpp_SEARCH_PATH _jsoncpp_SEARCH_NORMAL)
 
 set(jsoncpp_NAMES jsoncpp)

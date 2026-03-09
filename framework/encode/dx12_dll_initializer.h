@@ -59,18 +59,6 @@ std::string GetWindowsModuleRoot()
     if (windows_dir_result != 0)
     {
         windows_module_root = std::string(win_dir) + util::filepath::kPathSep + std::string("System32");
-
-        // Check if app is 32-bit
-        BOOL process_32_bit = FALSE;
-        BOOL found_bitness  = IsWow64Process(GetCurrentProcess(), &process_32_bit);
-
-        if (found_bitness != 0)
-        {
-            if (process_32_bit == TRUE)
-            {
-                windows_module_root = std::string(win_dir) + util::filepath::kPathSep + std::string("SysWOW64");
-            }
-        }
     }
 
     return windows_module_root;

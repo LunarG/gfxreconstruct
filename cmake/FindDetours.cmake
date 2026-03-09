@@ -32,11 +32,7 @@ if (Detours_ROOT)
 endif()
 
 # Normal search.
-set(_Detours_x86 "(x86)")
-set(_Detours_SEARCH_NORMAL
-    PATHS "$ENV{ProgramFiles}/detours"
-          "$ENV{ProgramFiles${_Detours_x86}}/detours")
-unset(_Detours_x86)
+set(_Detours_SEARCH_NORMAL PATHS "$ENV{ProgramFiles}/detours")
 list(APPEND _Detours_SEARCH_PATH _Detours_SEARCH_NORMAL)
 
 set(Detours_NAMES detours)

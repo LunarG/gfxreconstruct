@@ -306,10 +306,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     void AddInstanceTable(XrInstance instance);
 
     const encode::OpenXrInstanceTable* GetInstanceTable(XrInstance handle) const;
-#if defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
-    // NOTE: This won't work on 32-bit builds because OpenXR defines all 32-bit
-    //       handles as uint64_t breaking the type conversion on each of these
-    //       override functions.
     const encode::OpenXrInstanceTable* GetInstanceTable(XrSession handle) const;
     const encode::OpenXrInstanceTable* GetInstanceTable(XrSpace handle) const;
     const encode::OpenXrInstanceTable* GetInstanceTable(XrSwapchain handle) const;
@@ -341,10 +337,8 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     const encode::OpenXrInstanceTable* GetInstanceTable(XrTriangleMeshFB handle) const;
     const encode::OpenXrInstanceTable* GetInstanceTable(XrEnvironmentDepthProviderMETA handle) const;
     const encode::OpenXrInstanceTable* GetInstanceTable(XrEnvironmentDepthSwapchainMETA handle) const;
-#endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
     void AssociateParent(XrSession session, XrInstance instance);
-#if defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
     void AssociateParent(XrSpace space, XrSession session);
     void AssociateParent(XrSwapchain swapchain, XrSession session);
     void AssociateParent(XrActionSet action_set, XrInstance instance);
@@ -378,7 +372,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     void AssociateParent(XrEnvironmentDepthProviderMETA env_depth_provider, XrSession session);
     void AssociateParent(XrEnvironmentDepthSwapchainMETA env_depth_swapchain,
                          XrEnvironmentDepthProviderMETA  environment_depth_provider);
-#endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 

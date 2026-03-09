@@ -358,23 +358,13 @@ if (TARGET ZLIB::ZLIB)
 endif()
 
 if (WIN32)
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        target_include_directories(gfxrecon_decode
-                               PUBLIC
-                                   ${CMAKE_BINARY_DIR}
-                                   ${PROJECT_SOURCE_DIR}/framework
-                                   ${PROJECT_SOURCE_DIR}/external
-                                   ${PROJECT_SOURCE_DIR}/external/precompiled/win64/include/
-                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
-    else()
-        target_include_directories(gfxrecon_decode
-                               PUBLIC
-                                   ${CMAKE_BINARY_DIR}
-                                   ${PROJECT_SOURCE_DIR}/framework
-                                   ${PROJECT_SOURCE_DIR}/external
-                                   ${PROJECT_SOURCE_DIR}/external/precompiled/win32/include/
-                                   $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
-    endif()
+    target_include_directories(gfxrecon_decode
+                           PUBLIC
+                               ${CMAKE_BINARY_DIR}
+                               ${PROJECT_SOURCE_DIR}/framework
+                               ${PROJECT_SOURCE_DIR}/external
+                               ${PROJECT_SOURCE_DIR}/external/precompiled/win64/include/
+                               $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 elseif(APPLE)
     target_include_directories(gfxrecon_decode
                            PRIVATE
@@ -397,30 +387,18 @@ else()
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 endif()
 
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    if (WIN32)
-        target_link_directories(gfxrecon_decode
-                                PUBLIC
-                                    ${PROJECT_SOURCE_DIR}/external/precompiled/win64/lib)
-    elseif(APPLE)
-        target_link_directories(gfxrecon_decode
-                                PUBLIC
-                                    ${PROJECT_SOURCE_DIR}/external/precompiled/macos/lib)
-    else()
-        target_link_directories(gfxrecon_decode
-                                PUBLIC
-                                    ${PROJECT_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
-    endif()
-else (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    if (WIN32)
-        target_link_directories(gfxrecon_decode
-                                PUBLIC
-                                    ${PROJECT_SOURCE_DIR}/external/precompiled/win32/lib)
-    else()
-        target_link_directories(gfxrecon_decode
-                                PUBLIC
-                                    ${PROJECT_SOURCE_DIR}/external/precompiled/linux/lib/x86)
-    endif()
+if (WIN32)
+    target_link_directories(gfxrecon_decode
+                            PUBLIC
+                                ${PROJECT_SOURCE_DIR}/external/precompiled/win64/lib)
+elseif(APPLE)
+    target_link_directories(gfxrecon_decode
+                            PUBLIC
+                                ${PROJECT_SOURCE_DIR}/external/precompiled/macos/lib)
+else()
+    target_link_directories(gfxrecon_decode
+                            PUBLIC
+                                ${PROJECT_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
 endif()
 
 target_link_libraries(gfxrecon_decode
@@ -447,11 +425,7 @@ if (${RUN_TESTS})
     if (MSVC)
         # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
         # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-            target_link_options(gfxrecon_decode_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-        else()
-            target_link_options(gfxrecon_decode_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-        endif()
+        target_link_options(gfxrecon_decode_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
     endif()
     common_build_directives(gfxrecon_decode_test)
     common_test_directives(gfxrecon_decode_test)
