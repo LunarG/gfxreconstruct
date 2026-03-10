@@ -538,7 +538,7 @@ on Android can be found in the [HOWTO_android.md](./HOWTO_android.md) document.
 Because of the many places that settings/options appear throughout the GFXReconstruct
 code base, the settings are all defined in a single JSON and that file is used to
 generate the appropriate usage of those settings throughout the code.
-The relevant files are all located in the `scripts/settingss_options` directory
+The relevant files are all located in the `scripts/settings_options` directory
 and a [README](./scripts/settings_options/README.md) is provided for more information.
 
 Generating settings can be enabled by setting the CMake project option `GENERATE_SETTINGS_OPTIONS` to

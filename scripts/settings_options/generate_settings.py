@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2025 LunarG, Inc.
+# Copyright (c) 2025-2026 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -70,7 +70,7 @@ capture_gen_end_str = "<!-- CAPTURE_SETTINGS_OPTIONS TABLE CODEGEN END -->"
 
 generated_source_copyright = f"""
 /*
- * Copyright (c) 2025 LunarG, Inc.
+ * Copyright (c) 2025-2026 LunarG, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
