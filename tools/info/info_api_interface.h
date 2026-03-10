@@ -41,12 +41,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-enum class FrameMarkerTypes : std::uint32_t
-{
-    kImplicit = 0,
-    kExplicit,
-};
-
 class InfoApiInterface
 {
   public:
@@ -130,23 +124,6 @@ class InfoApiInterface
 
   protected:
     inline void WriteOutput(const std::string& message) { info_writer_->Print(message); }
-
-    template <typename T>
-    std::string UintToHexString(T value, uint32_t min_width = 2, bool zero_fill = true, bool show_base = true)
-    {
-        std::stringstream ss;
-        ss << std::hex;
-        if (show_base)
-        {
-            ss << std::showbase;
-        }
-        if (zero_fill)
-        {
-            ss << std::setfill('0');
-        }
-        ss << std::setw(min_width) << value;
-        return ss.str();
-    }
 
     bool            api_output_override_{ false };
     InfoOutputLevel info_output_level_{ InfoOutputLevel::kBasic };
