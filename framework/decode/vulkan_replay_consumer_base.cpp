@@ -68,9 +68,6 @@
 #include <unordered_set>
 #include <future>
 
-// NOTE: still unsupported on android, as of NDK 36 (check _LIBCPP_HAS_NO_INCOMPLETE_FORMAT)
-#include <format>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
