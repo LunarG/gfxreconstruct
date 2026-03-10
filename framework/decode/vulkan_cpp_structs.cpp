@@ -996,7 +996,7 @@ GenerateStruct_VkAccelerationStructureMotionInstanceNV(std::ostream&            
 {
     std::stringstream struct_body;
     std::string       accel_struct_inst_variable = GenerateStruct_VkAccelerationStructureInstanceKHR(
-        out, &structInfo->data.staticInstance, metaInfo->staticInstance, consumer);
+        out, &structInfo->data.staticInstance, metaInfo->data->staticInstance, consumer);
     // type
     struct_body << "\t\t\t"
                 << "VkAccelerationStructureMotionInstanceTypeNV(" << structInfo->type << ")"
@@ -1226,7 +1226,7 @@ std::string GenerateStruct_VkIndirectExecutionSetCreateInfoEXT(std::ostream&    
     struct_body << "\t\t\t"
                 << "VkIndirectExecutionSetInfoTypeEXT(" << structInfo->type << ")" << std::endl;
     // info
-    switch (metaInfo->decoded_type)
+    switch (structInfo->type)
     {
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
             struct_body << "\t\t\t"
@@ -1263,7 +1263,7 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     struct_body << "\t\t\t"
                 << "VkIndirectCommandsTokenTypeEXT(" << structInfo->type << ")" << std::endl;
     // data
-    switch (metaInfo->decoded_type)
+    switch (structInfo->type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
@@ -1298,7 +1298,7 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_EXT:
             GFXRECON_LOG_ERROR(
                 "GenerateStruct_VkIndirectCommandsLayoutTokenEXT: unhandled case in switch-statement: %d",
-                metaInfo->decoded_type);
+                structInfo->type);
             break;
     }
     // offset
