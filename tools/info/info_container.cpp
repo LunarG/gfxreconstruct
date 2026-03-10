@@ -273,8 +273,7 @@ bool InfoContainer::ProcessCapture()
 
 bool InfoContainer::OutputContent()
 {
-    if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin &&
-        api_agnostic_stats_.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
+    if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin)
     {
         WriteOutput("A failure has occurred during file processing");
         // We still print out what we can and bail afterwards.
@@ -293,10 +292,6 @@ bool InfoContainer::OutputContent()
             break;
         case InfoApiInterface::InfoOutputLevel::kBasic:
             PrintExeInfo();
-            if (api_agnostic_stats_.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
-            {
-                return false;
-            }
             PrintApiAgnosticStatsText();
 
             for (auto& api_if : api_interfaces_)
@@ -330,12 +325,7 @@ bool InfoContainer::OutputContent()
                 detected_apis_.push_back("Unable to detect captured APIs");
             }
             json_base_["detected-apis"] = detected_apis_;
-
-            if (api_agnostic_stats_.error_state != gfxrecon::decode::BlockIOError::kErrorNone)
-            {
-                return false;
-            }
-            json_base_["general-info"] = GetApiAgnosticStatsJson();
+            json_base_["general-info"]  = GetApiAgnosticStatsJson();
 
             for (auto& api_if : api_interfaces_)
             {
@@ -390,7 +380,7 @@ void InfoContainer::PrintUsage()
 #endif
     WriteOutput("  --verbose\t\tOutput more information in JSON format");
     WriteOutput(
-        "  --output\t\tOutput generated information to the provided file. If not defined output goes to std::out");
+        "  --output\t\tOutput generated information to the provided file. If not defined output goes to stdout");
     WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
     WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 
@@ -510,8 +500,6 @@ nlohmann::json InfoContainer::GetFileFormatInfoJson()
 
 void InfoContainer::GatherApiAgnosticStats()
 {
-    api_agnostic_stats_.error_state = file_processor_.GetErrorState();
-
     // File options.
     gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
 
