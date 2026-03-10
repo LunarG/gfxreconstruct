@@ -99,15 +99,27 @@ struct Decoded_VkPerformanceValueDataINTEL
     StringDecoder valueString;
 };
 
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the
+// Decoded_VkAccelerationStructureMotionInstanceNV DecodeStruct function, based on the value of
+// VkAccelerationStructureMotionInstanceNV::type.
+struct Decoded_VkAccelerationStructureMotionInstanceDataNV
+{
+    using struct_type = VkAccelerationStructureMotionInstanceDataNV;
+
+    VkAccelerationStructureMotionInstanceDataNV* decoded_value{ nullptr };
+
+    Decoded_VkAccelerationStructureInstanceKHR*            staticInstance{ nullptr };
+    Decoded_VkAccelerationStructureMatrixMotionInstanceNV* matrixMotionInstance{ nullptr };
+    Decoded_VkAccelerationStructureSRTMotionInstanceNV*    srtMotionInstance{ nullptr };
+};
+
 struct Decoded_VkAccelerationStructureMotionInstanceNV
 {
     using struct_type = VkAccelerationStructureMotionInstanceNV;
 
     VkAccelerationStructureMotionInstanceNV* decoded_value{ nullptr };
 
-    Decoded_VkAccelerationStructureInstanceKHR*            staticInstance{ nullptr };
-    Decoded_VkAccelerationStructureMatrixMotionInstanceNV* matrixMotionInstance{ nullptr };
-    Decoded_VkAccelerationStructureSRTMotionInstanceNV*    srtMotionInstance{ nullptr };
+    Decoded_VkAccelerationStructureMotionInstanceDataNV* data{ nullptr };
 };
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
@@ -202,10 +214,12 @@ struct Decoded_SECURITY_ATTRIBUTES
 // VkIndirectExecutionSetCreateInfoEXT::type.
 struct Decoded_VkIndirectExecutionSetInfoEXT
 {
-    using struct_type = VkIndirectExecutionSetEXT;
+    using struct_type = VkIndirectExecutionSetInfoEXT;
 
-    Decoded_VkIndirectExecutionSetPipelineInfoEXT* pPipelineInfo;
-    Decoded_VkIndirectExecutionSetShaderInfoEXT*   pShaderInfo;
+    VkIndirectExecutionSetInfoEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetPipelineInfoEXT>* pPipelineInfo{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetShaderInfoEXT>*   pShaderInfo{ nullptr };
 };
 
 struct Decoded_VkIndirectExecutionSetCreateInfoEXT
@@ -215,18 +229,22 @@ struct Decoded_VkIndirectExecutionSetCreateInfoEXT
     VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
 
     PNextNode*                             pNext{ nullptr };
-    VkIndirectExecutionSetInfoTypeEXT      decoded_type;
-    Decoded_VkIndirectExecutionSetInfoEXT* info;
+    Decoded_VkIndirectExecutionSetInfoEXT* info{ nullptr };
 };
 
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the
+// Decoded_VkIndirectCommandsLayoutTokenEXT DecodeStruct function, based on the value of
+// VkIndirectCommandsLayoutTokenEXT::type.
 struct Decoded_VkIndirectCommandsTokenDataEXT
 {
     using struct_type = VkIndirectCommandsTokenDataEXT;
 
-    Decoded_VkIndirectCommandsPushConstantTokenEXT* pPushConstant;
-    Decoded_VkIndirectCommandsVertexBufferTokenEXT* pVertexBuffer;
-    Decoded_VkIndirectCommandsIndexBufferTokenEXT*  pIndexBuffer;
-    Decoded_VkIndirectCommandsExecutionSetTokenEXT* pExecutionSet;
+    VkIndirectCommandsTokenDataEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkIndirectCommandsPushConstantTokenEXT>* pPushConstant{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsVertexBufferTokenEXT>* pVertexBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsIndexBufferTokenEXT>*  pIndexBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsExecutionSetTokenEXT>* pExecutionSet{ nullptr };
 };
 
 struct Decoded_VkIndirectCommandsLayoutTokenEXT
@@ -236,7 +254,6 @@ struct Decoded_VkIndirectCommandsLayoutTokenEXT
     VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
 
     PNextNode*                              pNext{ nullptr };
-    VkIndirectCommandsTokenTypeEXT          decoded_type;
     Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
     uint32_t                                offset{};
 };
@@ -327,7 +344,6 @@ struct Decoded_VkDescriptorGetInfoEXT
     VkDescriptorGetInfoEXT* decoded_value{ nullptr };
 
     PNextNode*                   pNext{ nullptr };
-    VkDescriptorType             decoded_type;
     Decoded_VkDescriptorDataEXT* data{ nullptr };
 };
 
