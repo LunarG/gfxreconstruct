@@ -1445,28 +1445,25 @@ void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
                                      nullptr);
 }
 
-void VulkanResourcesUtil::CopyImage(VkCommandBuffer command_buffer,
-                                    VkImage         source_img,
-                                    VkImage         destination_img,
-                                    VkExtent3D      extent,
-                                    VkOffset3D      src_offset,
-                                    VkOffset3D      dst_offset)
+void VulkanResourcesUtil::CopyImage(VkCommandBuffer    command_buffer,
+                                    VkImage            src_img,
+                                    VkImage            dst_img,
+                                    VkExtent3D         extent,
+                                    VkImageLayout      src_layout,
+                                    VkImageLayout      dst_layout,
+                                    VkImageAspectFlags aspect,
+                                    VkOffset3D         src_offset,
+                                    VkOffset3D         dst_offset)
 {
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(source_img != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(destination_img != VK_NULL_HANDLE);
-
-    constexpr auto aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    VkImageLayout src_layout = VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
-    VkImageLayout dst_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    GFXRECON_ASSERT(src_img != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(dst_img != VK_NULL_HANDLE);
 
     // transition src-layout
-    TransitionImageToTransferOptimal(
-        command_buffer, source_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
+    TransitionImageToTransferOptimal(command_buffer, src_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
 
     // transition dst-layout
-    TransitionImageToTransferOptimal(command_buffer, source_img, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, dst_layout, aspect);
+    TransitionImageToTransferOptimal(command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
 
     // copy src-image -> dst-image
     VkImageCopy2 region                  = {};
@@ -1488,9 +1485,9 @@ void VulkanResourcesUtil::CopyImage(VkCommandBuffer command_buffer,
     copy_info.sType            = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2;
     copy_info.regionCount      = 1;
     copy_info.pRegions         = &region;
-    copy_info.srcImage         = source_img;
+    copy_info.srcImage         = src_img;
     copy_info.srcImageLayout   = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    copy_info.dstImage         = destination_img;
+    copy_info.dstImage         = dst_img;
     copy_info.dstImageLayout   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
     // actual copy command
@@ -1498,10 +1495,10 @@ void VulkanResourcesUtil::CopyImage(VkCommandBuffer command_buffer,
 
     // transition src-layout
     TransitionImageFromTransferOptimal(
-        command_buffer, source_img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_layout, aspect);
+        command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_layout, aspect);
 
     // transition dst-layout
-    TransitionImageFromTransferOptimal(command_buffer, source_img, dst_layout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aspect);
+    TransitionImageFromTransferOptimal(command_buffer, dst_img, dst_layout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aspect);
 }
 
 VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queue_index)
@@ -2695,33 +2692,51 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
     return scale == 1.0f || is_blit_supported;
 }
 
-void VulkanResourcesUtil::CopyImage(
-    VkImage source_img, VkImage destination_img, VkExtent3D extent, VkOffset3D src_offset, VkOffset3D dst_offset)
+void VulkanResourcesUtil::CopyImage(VkImage            source_img,
+                                    VkImage            destination_img,
+                                    VkExtent3D         extent,
+                                    VkImageLayout      src_layout,
+                                    VkImageLayout      dst_layout,
+                                    VkImageAspectFlags aspect,
+                                    VkOffset3D         src_offset,
+                                    VkOffset3D         dst_offset)
 {
     uint32_t queue_family_index = 0;
     auto     command_buffer     = CreateCommandBufferAndBegin(queue_family_index);
-    CopyImage(command_buffer, source_img, destination_img, extent, src_offset, dst_offset);
+    CopyImage(
+        command_buffer, source_img, destination_img, extent, src_layout, dst_layout, aspect, src_offset, dst_offset);
     SubmitCommandBuffer(command_buffer, GetQueue(0, 0));
 }
 
-void VulkanResourcesUtil::StageBarrier(VkCommandBuffer       command_buffer,
-                                       VkPipelineStageFlags2 src_stage_mask,
-                                       VkAccessFlags2        src_access,
-                                       VkPipelineStageFlags2 dst_stage_mask,
-                                       VkAccessFlags2        dst_access)
+void VulkanResourcesUtil::BlitImage(VkImage            src_img,
+                                    VkImage            dst_img,
+                                    VkExtent3D         src_extent,
+                                    VkExtent3D         dst_extent,
+                                    VkImageLayout      src_layout,
+                                    VkImageLayout      dst_layout,
+                                    VkImageAspectFlags aspect,
+                                    VkOffset3D         src_offset,
+                                    VkOffset3D         dst_offset)
 {
-    VkMemoryBarrier2 barrier = {};
-    barrier.sType            = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
-    barrier.srcStageMask     = src_stage_mask;
-    barrier.srcAccessMask    = src_access;
-    barrier.dstStageMask     = dst_stage_mask;
-    barrier.dstAccessMask    = dst_access;
+    uint32_t queue_family_index = 0;
+    auto     command_buffer     = CreateCommandBufferAndBegin(queue_family_index);
 
-    VkDependencyInfo dependency_info   = {};
-    dependency_info.sType              = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-    dependency_info.memoryBarrierCount = 1;
-    dependency_info.pMemoryBarriers    = &barrier;
-    device_table_.CmdPipelineBarrier2(command_buffer, &dependency_info);
+    // transition src-layout
+    TransitionImageToTransferOptimal(command_buffer, src_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
+
+    // transition dst-layout
+    TransitionImageToTransferOptimal(command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
+
+    BlitHelper(command_buffer, src_img, dst_img, src_extent, dst_extent, 1, 1, aspect);
+
+    // transition src-layout
+    TransitionImageFromTransferOptimal(
+        command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_layout, aspect);
+
+    // transition dst-layout
+    TransitionImageFromTransferOptimal(command_buffer, dst_img, dst_layout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aspect);
+
+    SubmitCommandBuffer(command_buffer, GetQueue(0, 0));
 }
 
 VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
@@ -2823,7 +2838,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
         return result;
     }
 
-    VkImageAspectFlags aspectMask = static_cast<VkImageAspectFlagBits>(aspect);
+    VkImageAspectFlags aspectMask = aspect;
 
     // Transition scaled image into TRANSFER_DST_OPTIMAL
     VkImageMemoryBarrier img_barrier;
@@ -2850,27 +2865,23 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
                                      &img_barrier);
 
     VkImageBlit blit_region;
-    blit_region.srcOffsets[0].x = 0;
-    blit_region.srcOffsets[0].y = 0;
-    blit_region.srcOffsets[0].z = 0;
-
-    blit_region.dstOffsets[0].x = 0;
-    blit_region.dstOffsets[0].y = 0;
-    blit_region.dstOffsets[0].z = 0;
+    blit_region.srcOffsets[0] = { 0, 0, 0 };
+    blit_region.dstOffsets[0] = { 0, 0, 0 };
 
     GFXRECON_ASSERT(mip_levels);
     // assert(dst_img_mip_levels);
     std::vector<VkImageBlit> blit_regions(mip_levels);
+
     for (uint32_t i = 0; i < mip_levels; ++i)
     {
-        blit_region.srcOffsets[1].x = std::max((int32_t)extent.width >> i, 1);
-        blit_region.srcOffsets[1].y = std::max((int32_t)extent.height >> i, 1);
-        blit_region.srcOffsets[1].z = std::max((int32_t)extent.depth >> i, 1);
+        blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(extent.width) >> i, 1);
+        blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(extent.height) >> i, 1);
+        blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(extent.depth) >> i, 1);
         blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
 
-        blit_region.dstOffsets[1].x = std::max((int32_t)scaled_extent.width >> i, 1);
-        blit_region.dstOffsets[1].y = std::max((int32_t)scaled_extent.height >> i, 1);
-        blit_region.dstOffsets[1].z = std::max((int32_t)scaled_extent.depth >> i, 1);
+        blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(scaled_extent.width) >> i, 1);
+        blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(scaled_extent.height) >> i, 1);
+        blit_region.dstOffsets[1].z = std::max(static_cast<int32_t>(scaled_extent.depth) >> i, 1);
         blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
 
         blit_regions[i] = blit_region;
@@ -2904,6 +2915,49 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
                                      &img_barrier);
 
     return VK_SUCCESS;
+}
+
+void VulkanResourcesUtil::BlitHelper(VkCommandBuffer    command_buffer,
+                                     VkImage            src_image,
+                                     VkImage            dst_image,
+                                     const VkExtent3D&  src_extent,
+                                     const VkExtent3D&  dst_extent,
+                                     uint32_t           mip_levels,
+                                     uint32_t           array_layers,
+                                     VkImageAspectFlags aspect)
+{
+    VkImageBlit blit_region;
+    blit_region.srcOffsets[0] = { 0, 0, 0 };
+    blit_region.dstOffsets[0] = { 0, 0, 0 };
+
+    GFXRECON_ASSERT(mip_levels);
+    // assert(dst_img_mip_levels);
+    std::vector<VkImageBlit> blit_regions(mip_levels);
+    const VkImageAspectFlags aspectMask = aspect;
+
+    for (uint32_t i = 0; i < mip_levels; ++i)
+    {
+        blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(src_extent.width) >> i, 1);
+        blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(src_extent.height) >> i, 1);
+        blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(src_extent.depth) >> i, 1);
+        blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
+
+        blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(dst_extent.width) >> i, 1);
+        blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(dst_extent.height) >> i, 1);
+        blit_region.dstOffsets[1].z = std::max(static_cast<int32_t>(dst_extent.depth) >> i, 1);
+        blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
+
+        blit_regions[i] = blit_region;
+    }
+
+    device_table_.CmdBlitImage(command_buffer,
+                               src_image,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               dst_image,
+                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                               static_cast<uint32_t>(blit_regions.size()),
+                               blit_regions.data(),
+                               VK_FILTER_NEAREST);
 }
 
 /**

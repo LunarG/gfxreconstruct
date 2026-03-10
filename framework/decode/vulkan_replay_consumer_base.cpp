@@ -8625,7 +8625,17 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     if (img_info != nullptr && override_img_info != nullptr)
                     {
                         // image-transitions back/forth, actual copy, fence sync
-                        copy_util->CopyImage(override_img_info->handle, img_info->handle, img_info->extent);
+                        // copy_util->CopyImage(override_img_info->handle,
+                        //                      img_info->handle,
+                        //                      img_info->extent,
+                        //                      override_img_info->current_layout,
+                        //                      img_info->current_layout);
+                        copy_util->BlitImage(override_img_info->handle,
+                                             img_info->handle,
+                                             override_img_info->extent,
+                                             img_info->extent,
+                                             override_img_info->current_layout,
+                                             img_info->current_layout);
                     }
                     else
                     {

@@ -177,32 +177,26 @@ class VulkanResourcesUtil
                             const VkExtent3D& extent,
                             float             scale) const;
 
-    void CopyImage(VkImage    source_img,
-                   VkImage    destination_img,
-                   VkExtent3D extent,
-                   VkOffset3D src_offset = { 0, 0, 0 },
-                   VkOffset3D dst_offset = { 0, 0, 0 });
+    void CopyImage(VkImage            source_img,
+                   VkImage            destination_img,
+                   VkExtent3D         extent,
+                   VkImageLayout      src_layout,
+                   VkImageLayout      dst_layout,
+                   VkImageAspectFlags aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
+                   VkOffset3D         src_offset = { 0, 0, 0 },
+                   VkOffset3D         dst_offset = { 0, 0, 0 });
+
+    void BlitImage(VkImage            src_img,
+                   VkImage            dst_img,
+                   VkExtent3D         src_extent,
+                   VkExtent3D         dst_extent,
+                   VkImageLayout      src_layout,
+                   VkImageLayout      dst_layout,
+                   VkImageAspectFlags aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
+                   VkOffset3D         src_offset = { 0, 0, 0 },
+                   VkOffset3D         dst_offset = { 0, 0, 0 });
 
   private:
-
-    void StageBarrier(VkCommandBuffer       command_buffer,
-                      VkPipelineStageFlags2 src_stage_mask,
-                      VkAccessFlags2        src_access,
-                      VkPipelineStageFlags2 dst_stage_mask,
-                      VkAccessFlags2        dst_access);
-
-    void StageBarrier(VkCommandBuffer       command_buffer,
-                      VkPipelineStageFlags2 src_stage_mask,
-                      VkPipelineStageFlags2 dst_stage_mask)
-    {
-        VkAccessFlags2 access_flags = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
-        StageBarrier(command_buffer, src_stage_mask, access_flags, dst_stage_mask, access_flags);
-    }
-
-    void StageBarrier(VkCommandBuffer command_buffer, VkPipelineStageFlags2 stage_mask)
-    {
-        StageBarrier(command_buffer, stage_mask, stage_mask);
-    }
 
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
@@ -249,12 +243,15 @@ class VulkanResourcesUtil
                     uint64_t        src_offset,
                     uint64_t        dst_offset);
 
-    void CopyImage(VkCommandBuffer command_buffer,
-                   VkImage         source_img,
-                   VkImage         destination_img,
-                   VkExtent3D      extent,
-                   VkOffset3D      src_offset = { 0, 0, 0 },
-                   VkOffset3D      dst_offset = { 0, 0, 0 });
+    void CopyImage(VkCommandBuffer    command_buffer,
+                   VkImage            src_img,
+                   VkImage            dst_img,
+                   VkExtent3D         extent,
+                   VkImageLayout      src_layout,
+                   VkImageLayout      dst_layout,
+                   VkImageAspectFlags aspect,
+                   VkOffset3D         src_offset,
+                   VkOffset3D         dst_offset);
 
     VkResult ResolveImage(VkCommandBuffer   command_buffer,
                           VkImage           image,
@@ -286,6 +283,15 @@ class VulkanResourcesUtil
                        float                 scale,
                        VkImage&              scaled_image,
                        VkDeviceMemory&       scaled_image_mem);
+
+    void BlitHelper(VkCommandBuffer       command_buffer,
+                    VkImage               src_image,
+                    VkImage               dst_image,
+                    const VkExtent3D&     src_extent,
+                    const VkExtent3D&     dst_extent,
+                    uint32_t              mip_levels,
+                    uint32_t              array_layers,
+                    VkImageAspectFlags aspect);
 
     struct StagingBufferContext
     {
