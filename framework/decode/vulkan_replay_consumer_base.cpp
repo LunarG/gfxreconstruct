@@ -2617,7 +2617,7 @@ void VulkanReplayConsumerBase::InitializeScreenshotHandler()
 
 void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const
 {
-    if ((meta_info != nullptr) && (meta_info->decoded_value != nullptr) && !meta_info->pSwapchains.IsNull())
+    if (meta_info != nullptr && meta_info->decoded_value != nullptr && !meta_info->pSwapchains.IsNull())
     {
         auto present_info  = meta_info->decoded_value;
         auto swapchain_ids = meta_info->pSwapchains.GetPointer();
@@ -2625,8 +2625,8 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
         {
             auto swapchain_info = object_info_table_->GetVkSwapchainKHRInfo(swapchain_ids[i]);
-            if ((swapchain_info != nullptr) && (swapchain_info->device_info != nullptr) &&
-                (swapchain_info->images.size() > 0))
+            if (swapchain_info != nullptr && swapchain_info->device_info != nullptr &&
+                swapchain_info->images.size() > 0)
             {
                 auto     device_info = swapchain_info->device_info;
                 uint32_t image_index = present_info->pImageIndices[i];
@@ -2661,10 +2661,13 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                     auto* override_img_info = object_info_table_->GetVkImageInfo(swapchain_override_image_id_);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
-                    image_format = override_img_info->format;
-                    image        = override_img_info->handle;
-                    image_width  = override_img_info->extent.width;
-                    image_height = override_img_info->extent.height;
+                    if (override_img_info != nullptr)
+                    {
+                        image_format = override_img_info->format;
+                        image        = override_img_info->handle;
+                        image_width  = override_img_info->extent.width;
+                        image_height = override_img_info->extent.height;
+                    }
                 }
 
                 // If both copy_scale and copy_width are provided, use copy_scale.
