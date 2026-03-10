@@ -205,7 +205,7 @@
                                     "key": "capture_trigger",
                                     "env": "GFXRECON_CAPTURE_TRIGGER",
                                     "label": "Hotkey Capture Trigger",
-                                    "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses.   This, in effect, toggles `capture_dynamic_trigger`.",
+                                    "description": "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses.",
                                     "platforms": [
                                         "LINUX",
                                         "MACOS",

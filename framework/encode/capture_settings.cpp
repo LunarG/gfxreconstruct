@@ -178,7 +178,7 @@ void CaptureSettings::LoadGeneralSettings(CaptureSettings* settings, bool proces
     if (!settings_struct->capture_settings.capture_draw_calls.empty())
     {
         std::vector<util::UintRange> trim_values;
-        ParseUintRangeList(temp_string, &trim_values, "capture draw calls");
+        ParseUintRangeList(settings_struct->capture_settings.capture_draw_calls, &trim_values, "capture draw calls");
         if (!trim_values.empty())
         {
             if (trim_values.size() == 3 || trim_values.size() == 4)
@@ -206,7 +206,7 @@ void CaptureSettings::LoadGeneralSettings(CaptureSettings* settings, bool proces
 
     if (!settings_struct->capture_settings.capture_queue_submits.empty())
     {
-        if (settings->trace_settings_.trim_ranges.empty())
+        if (!settings->trace_settings_.trim_ranges.empty())
         {
             ParseUintRangeList(settings_struct->capture_settings.capture_queue_submits,
                                &settings->trace_settings_.trim_ranges,
