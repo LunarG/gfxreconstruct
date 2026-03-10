@@ -116,7 +116,6 @@ class InfoContainer
         gfxrecon::format::CompressionType compression_type;
         uint32_t                          trim_start_frame;
         uint32_t                          frame_count;
-        gfxrecon::decode::BlockIOError    error_state;
         uint32_t                          blank_frame_count;
         bool                              uses_frame_markers;
     };

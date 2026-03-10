@@ -42,7 +42,7 @@ std::string InfoVulkanInterface::ApiCompiledHeaderVersionString() const
            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 }
 
-void InfoVulkanInterface::RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor)
+void InfoVulkanInterface::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     vulkan_decoder_.AddConsumer(&vulkan_detection_consumer_);
     vulkan_decoder_.AddConsumer(&vulkan_stats_consumer_);
@@ -137,17 +137,16 @@ void InfoVulkanInterface::PrintInfo()
             WriteOutput("\nVulkan physical device info:");
             for (auto pd : best_instance_info.used_physical_devices)
             {
-                auto properties =
-                    vulkan_stats_consumer_.GetDeviceProperties(reinterpret_cast<gfxrecon::format::HandleId>(pd));
+                auto properties = vulkan_stats_consumer_.GetDeviceProperties(reinterpret_cast<format::HandleId>(pd));
                 if (properties != nullptr)
                 {
                     WriteOutput(std::string("\tDevice name:         ") + properties->deviceName);
                     WriteOutput(std::string("\tDevice ID:           ") +
-                                UintToHexString<uint32_t>(properties->deviceID));
+                                util::to_hex_fixed_width<uint32_t>(properties->deviceID));
                     WriteOutput(std::string("\tVendor ID:           ") +
-                                UintToHexString<uint32_t>(properties->vendorID));
+                                util::to_hex_fixed_width<uint32_t>(properties->vendorID));
                     WriteOutput(std::string("\tDriver version:      ") + std::to_string(properties->driverVersion) +
-                                " (" + UintToHexString<uint32_t>(properties->driverVersion) + ")");
+                                " (" + util::to_hex_fixed_width<uint32_t>(properties->driverVersion) + ")");
                     WriteOutput(std::string("\tAPI version:         ") + std::to_string(properties->apiVersion) + " (" +
                                 GetVersionString(properties->apiVersion) + ")");
                 }
@@ -168,7 +167,7 @@ void InfoVulkanInterface::PrintInfo()
             // WriteOutput("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetTotalDispatchCount());
 
             // Print Physical device info
-            const gfxrecon::decode::VulkanStatsConsumer::PhysicalDeviceProperties& physical_device_properties =
+            const decode::VulkanStatsConsumer::PhysicalDeviceProperties& physical_device_properties =
                 vulkan_stats_consumer_.GetPhysicalDeviceProperties();
 
             WriteOutput("\nPhysical device properties:");
@@ -176,12 +175,14 @@ void InfoVulkanInterface::PrintInfo()
             {
                 WriteOutput(std::string("  Device: ") + std::to_string(props.first));
                 WriteOutput(std::string("\tAPI version:         ") +
-                            UintToHexString<uint64_t>(props.second.apiVersion) + " (" +
+                            util::to_hex_fixed_width<uint64_t>(props.second.apiVersion) + " (" +
                             GetVersionString(props.second.apiVersion) + ")");
                 WriteOutput(std::string("\tDriver version:      ") +
-                            UintToHexString<uint32_t>(props.second.driverVersion));
-                WriteOutput(std::string("\tVendor ID:           ") + UintToHexString<uint32_t>(props.second.vendorID));
-                WriteOutput(std::string("\tDevice ID:           ") + UintToHexString<uint32_t>(props.second.deviceID));
+                            util::to_hex_fixed_width<uint32_t>(props.second.driverVersion));
+                WriteOutput(std::string("\tVendor ID:           ") +
+                            util::to_hex_fixed_width<uint32_t>(props.second.vendorID));
+                WriteOutput(std::string("\tDevice ID:           ") +
+                            util::to_hex_fixed_width<uint32_t>(props.second.deviceID));
                 WriteOutput(std::string("\tDevice name:         ") + props.second.deviceName);
             }
             break;
@@ -278,8 +279,7 @@ nlohmann::json InfoVulkanInterface::GenerateJson()
         for (auto pd : it.second.used_physical_devices)
         {
             nlohmann::json pd_json;
-            const auto&    properties =
-                vulkan_stats_consumer_.GetDeviceProperties(reinterpret_cast<gfxrecon::format::HandleId>(pd));
+            const auto& properties = vulkan_stats_consumer_.GetDeviceProperties(reinterpret_cast<format::HandleId>(pd));
             if (properties != nullptr)
             {
                 pd_json["name"]           = properties->deviceName;
@@ -288,7 +288,7 @@ nlohmann::json InfoVulkanInterface::GenerateJson()
                 pd_json["id"]             = properties->deviceID;
                 pd_json["vendor"]         = properties->vendorID;
                 pd_json["driver-version"] = properties->driverVersion;
-                std::string uuid_string   = gfxrecon::util::uuid_to_string(VK_UUID_SIZE, properties->pipelineCacheUUID);
+                std::string uuid_string   = util::uuid_to_string(VK_UUID_SIZE, properties->pipelineCacheUUID);
                 pd_json["uuid"]           = uuid_string;
 
                 auto& vulkan_devices = pd_json["vulkan-devices"] = nlohmann::json::array();
