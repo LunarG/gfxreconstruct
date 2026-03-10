@@ -53,20 +53,38 @@ typedef uint32_t ToStringFlags;
 
 /// Convert a value to a string in hexadecimal form.
 template <typename T>
-std::string to_hex_variable_width(T value)
+std::string to_hex_variable_width(T value, bool zero_fill = true, bool show_base = true)
 {
     std::ostringstream stream;
-    stream << "0x" << std::hex << value;
+    stream << std::hex;
+    if (show_base)
+    {
+        stream << std::showbase;
+    }
+    if (zero_fill)
+    {
+        stream << std::setfill('0');
+    }
+    stream << value;
     return stream.str();
 }
 
 /// Convert a value to a string in hexadecimal form, filling with leading zeros
 /// to make a fixed-width for a given parameter type.
 template <typename T>
-std::string to_hex_fixed_width(T value)
+std::string to_hex_fixed_width(T value, bool zero_fill = true, bool show_base = true)
 {
     std::ostringstream stream;
-    stream << "0x" << std::setfill('0') << std::setw(sizeof(T) * 2) << std::hex << value;
+    stream << std::hex;
+    if (show_base)
+    {
+        stream << std::showbase;
+    }
+    if (zero_fill)
+    {
+        stream << std::setfill('0');
+    }
+    stream << std::setw(sizeof(T) * 2) << value;
     return stream.str();
 }
 

@@ -42,7 +42,7 @@ std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString() const
            std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 }
 
-void InfoOpenXrInterface::RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor)
+void InfoOpenXrInterface::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     openxr_decoder_.AddConsumer(&openxr_detection_consumer_);
     openxr_decoder_.AddConsumer(&openxr_stats_consumer_);
