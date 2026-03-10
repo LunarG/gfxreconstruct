@@ -45,7 +45,7 @@ def is_mac():
     '''
     return 'darwin' == platform.system().lower()
 
-ARCHITECTURES = ['x64', 'arm', 'arm64']
+ARCHITECTURES = ['x64', 'arm64']
 if is_mac():
     ARCHITECTURES = ['universal', 'x64', 'arm64']
 DEFAULT_ARCHITECTURE = ARCHITECTURES[0]

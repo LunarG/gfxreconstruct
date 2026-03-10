@@ -500,8 +500,6 @@ This may not necessarily be the top `build.gradle` in the tree.
 gfxreconstruct/android/tools/replay/src/main/jniLibs/
     arm64-v8a/
         libVkLayer_khronos_validation.so
-    armeabi-v7a/
-        libVkLayer_khronos_validation.so
     x86-64/
         libVkLayer_khronos_validation.so
 ```
