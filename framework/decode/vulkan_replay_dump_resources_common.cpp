@@ -1075,38 +1075,24 @@ VkResult SubmitAndDestroyCommandBuffer(const TemporaryCommandBuffer& cmd_buf_obj
     GFXRECON_ASSERT(cmd_buf_objects.queue != VK_NULL_HANDLE);
     GFXRECON_ASSERT(cmd_buf_objects.command_pool != VK_NULL_HANDLE);
 
-    const VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, VkFenceCreateFlags(0) };
-    VkFence                 fence;
-    VkResult                res =
-        cmd_buf_objects.device_table->CreateFence(cmd_buf_objects.device_info->handle, &fence_info, nullptr, &fence);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s() CreateFence failed (%s)", __func__, util::ToString(res).c_str());
-        return res;
-    }
+    TemporaryFence fence(cmd_buf_objects.device_info->handle, cmd_buf_objects.device_table);
 
     cmd_buf_objects.device_table->EndCommandBuffer(cmd_buf_objects.command_buffer);
 
-    cmd_buf_objects.device_table->ResetFences(cmd_buf_objects.device_info->handle, 1, &fence);
-
     const VkSubmitInfo submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO,   nullptr, 0,      nullptr, nullptr, 1,
                                        &cmd_buf_objects.command_buffer, 0,       nullptr };
-    cmd_buf_objects.device_table->QueueSubmit(cmd_buf_objects.queue, 1, &submit_info, fence);
+    cmd_buf_objects.device_table->QueueSubmit(cmd_buf_objects.queue, 1, &submit_info, fence.handle);
 
     // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or
     // crash.
-    res = cmd_buf_objects.device_table->WaitForFences(
-        cmd_buf_objects.device_info->handle, 1, &fence, VK_TRUE, 10000000000);
+    VkResult res = fence.Wait();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: WaitForFences failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
     cmd_buf_objects.device_table->DestroyCommandPool(
         cmd_buf_objects.device_info->handle, cmd_buf_objects.command_pool, nullptr);
-
-    cmd_buf_objects.device_table->DestroyFence(cmd_buf_objects.device_info->handle, fence, nullptr);
 
     return VK_SUCCESS;
 }
@@ -1232,35 +1218,19 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         return VK_ERROR_UNKNOWN;
     }
 
-    const VkFenceCreateInfo fci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-    VkFence                 fence;
-    res = device_table.CreateFence(device, &fci, nullptr, &fence);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: CreateFence failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    res = device_table.ResetFences(device, 1, &fence);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: ResetFences failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
+    TemporaryFence fence(device, &device_table);
 
     const VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &cmd_buffer, 0, nullptr };
-    res                   = device_table.QueueSubmit(compute_queue, 1, &si, fence);
+    res                   = device_table.QueueSubmit(compute_queue, 1, &si, fence.handle);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: QueueSubmit failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
-    res = device_table.WaitForFences(device, 1, &fence, VK_TRUE, 10000000000);
+    res = fence.Wait();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: WaitForFences failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
@@ -1364,32 +1334,28 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
 
     device_table.EndCommandBuffer(cmd_buffer);
 
-    res = device_table.ResetFences(device, 1, &fence);
+    res = fence.Reset();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: ResetFences failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    res = device_table.QueueSubmit(compute_queue, 1, &si, fence);
+    res = device_table.QueueSubmit(compute_queue, 1, &si, fence.handle);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: QueueSubmit (2) failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
-    res = device_table.WaitForFences(device, 1, &fence, VK_TRUE, 10000000000);
+    res = fence.Wait();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: WaitForFences (2) failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
     // Release temporary vulkan objects
     device_table.DestroyCommandPool(device, cmd_pool, nullptr);
     device_table.DestroyQueryPool(device, query_pool, nullptr);
-    device_table.DestroyFence(device, fence, nullptr);
 
     return VK_SUCCESS;
 }
