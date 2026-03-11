@@ -93,7 +93,7 @@ class InfoApiGenerator
     virtual std::string         ApiLabel() const    = 0;
     virtual bool                ApiWasDetected()    = 0;
     virtual std::string         ApiCompiledHeaderVersionString() const { return ""; }
-    virtual uint32_t            GetBlankFrameCount() const { return 0; }
+    virtual uint32_t            GetBlankFrameCount() { return 0; }
     virtual uint32_t            GetFrameStart() const { return 0; }
     virtual bool                ApiDesiresSingleLineFrameOutput() const { return false; }
 

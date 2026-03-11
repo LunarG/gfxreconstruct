@@ -370,7 +370,8 @@ nlohmann::json InfoD3d12Generator::GetDxrEiInfoJson()
 
 void InfoD3d12Generator::PrintInfo()
 {
-    if (output_flags_ & InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1)
+    if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1) !=
+        InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
         PrintEnumGpuIndices();
     }
@@ -414,7 +415,7 @@ nlohmann::json InfoD3d12Generator::GenerateJson()
     return d3d12_json;
 }
 
-uint32_t InfoD3d12Generator::GetBlankFrameCount() const
+uint32_t InfoD3d12Generator::GetBlankFrameCount()
 {
     return dx12_consumer_.GetDummyFrameCount();
 }
