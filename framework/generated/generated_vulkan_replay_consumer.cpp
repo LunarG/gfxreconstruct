@@ -11770,18 +11770,17 @@ void VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectExecutionSetEXT>* pIndirectExecutionSet)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkIndirectExecutionSetCreateInfoEXT* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
     if (!pIndirectExecutionSet->IsNull()) { pIndirectExecutionSet->SetHandleLength(1); }
-    VkIndirectExecutionSetEXT* out_pIndirectExecutionSet = pIndirectExecutionSet->GetHandlePointer();
+    VulkanIndirectExecutionSetEXTInfo handle_info;
+    pIndirectExecutionSet->SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(pIndirectExecutionSet->GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateIndirectExecutionSetEXT(in_device, in_pCreateInfo, in_pAllocator, out_pIndirectExecutionSet);
+    VkResult replay_result = OverrideCreateIndirectExecutionSetEXT(GetDeviceTable(in_device->handle)->CreateIndirectExecutionSetEXT, returnValue, in_device, pCreateInfo, pAllocator, pIndirectExecutionSet);
     CheckResult("vkCreateIndirectExecutionSetEXT", returnValue, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanIndirectExecutionSetEXTInfo>(device, pIndirectExecutionSet->GetPointer(), out_pIndirectExecutionSet, &CommonObjectInfoTable::AddVkIndirectExecutionSetEXTInfo);
+    AddHandle<VulkanIndirectExecutionSetEXTInfo>(device, pIndirectExecutionSet->GetPointer(), pIndirectExecutionSet->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkIndirectExecutionSetEXTInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(

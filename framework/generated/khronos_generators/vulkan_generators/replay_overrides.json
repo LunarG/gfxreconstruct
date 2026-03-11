@@ -175,6 +175,7 @@
     "vkCreateSampler": "OverrideCreateSampler",
     "vkCreatePipelineBinariesKHR": "OverrideCreatePipelineBinariesKHR",
     "vkCmdBeginRendering": "OverrideCmdBeginRendering",
-    "vkCmdBeginRenderingKHR": "OverrideCmdBeginRendering"
+    "vkCmdBeginRenderingKHR": "OverrideCmdBeginRendering",
+    "vkCreateIndirectExecutionSetEXT": "OverrideCreateIndirectExecutionSetEXT"
   }
 }
