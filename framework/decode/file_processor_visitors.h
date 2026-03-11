@@ -70,32 +70,33 @@ void SetDecoderApiCallId(ApiDecoder& decoder, const Args& args)
 class DispatchVisitor
 {
   public:
-    // No valid dispatch args, nothing to do. It is possible to modify in future to support
-    // passing down raw block data to some raw block handler if needed
-    void operator()(const std::monostate&) {}
+    // No valid dispatch args, nothing to do. It is possible to modify in future to support passing down
+    // raw block data to some raw block handler if needed
+    ProcessBlockState operator()(const std::monostate&) { return ProcessBlockState::kRunning; };
 
+    // Dispatch based on the Args traits.
     template <typename Args>
-    void operator()(const Args* args)
+    ProcessBlockState operator()(const Args* args)
     {
-        DispatchArgs(args);
+        return DispatchArgs(args);
     }
 
     // State Marker control
-    void operator()(const StateBeginMarkerArgs* state_begin)
+    ProcessBlockState operator()(const StateBeginMarkerArgs* state_begin)
     {
         // The block and marker type are implied by the Args type
         file_processor_.ProcessStateBeginMarker(*state_begin);
-        DispatchArgs(state_begin);
+        return DispatchArgs(state_begin);
     }
 
-    void operator()(const StateEndMarkerArgs* state_end)
+    ProcessBlockState operator()(const StateEndMarkerArgs* state_end)
     {
         // The block and marker type are implied by the Args type
         file_processor_.ProcessStateEndMarker(*state_end);
-        DispatchArgs(state_end);
+        return DispatchArgs(state_end);
     }
 
-    void operator()(const AnnotationArgs* annotation)
+    ProcessBlockState operator()(const AnnotationArgs* annotation)
     {
         if (annotation_handler_)
         {
@@ -104,6 +105,17 @@ class DispatchVisitor
             };
             std::apply(annotation_call, annotation->GetTuple());
         }
+        return ProcessBlockState::kRunning;
+    }
+
+    // Replay frame/error/end control.
+    //
+    // During replay, this is in-band signaling to allow the dispatch loop to return before end of batch,
+    // while still commuinicating the correct state and error information back to the caller.
+    ProcessBlockState operator()(const ProcessBlocksResult* result)
+    {
+        SetReplayResult(*result);
+        return result->state;
     }
 
     DispatchVisitor(FileProcessor&                  file_processor,
@@ -114,10 +126,17 @@ class DispatchVisitor
     {}
 
     void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }
+    void ResetReplayResult() { replay_result_ = ProcessBlocksResult{}; }
+    void SetReplayResult(const ProcessBlocksResult& result) { replay_result_ = result; }
+
+    // Only report status based on the replay_result_, even if in the future we want to allow decoders
+    // to set results.
+    const ProcessBlocksResult& GetReplayResult() const noexcept { return replay_result_; }
+    const ProcessBlockState    GetState() const noexcept { return replay_result_.state; }
 
   private:
     template <typename Args>
-    void DispatchArgs(const Args* args)
+    ProcessBlockState DispatchArgs(const Args* args)
     {
         constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
         for (auto decoder : decoders_)
@@ -133,12 +152,15 @@ class DispatchVisitor
                 std::apply(dispatch_call, args->GetTuple());
             }
         }
+        // NOTE: If future decoders can updata state, this should be updated to forward that information.
+        return ProcessBlockState::kRunning;
     }
 
     FileProcessor&                  file_processor_;
     const std::vector<ApiDecoder*>& decoders_;
     AnnotationHandler*              annotation_handler_;
     uint64_t                        block_index_{ 0 };
+    ProcessBlocksResult             replay_result_{};
 };
 
 class ProcessVisitor
@@ -147,6 +169,7 @@ class ProcessVisitor
     // NOTE: All overloads should set all state, as the caller is *reusing* the Visitor object across a number of
     //       std::visit calls
 
+    // Frame boundary control
     void operator()(const FunctionCallArgs* function_call)
     {
         is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call->call_id);
@@ -161,18 +184,22 @@ class ProcessVisitor
 
     void operator()(const FrameEndMarkerArgs* end_frame)
     {
+        // The block and marker type are implied by the Args type
         is_frame_delimiter = file_processor_.ProcessFrameDelimiter(*end_frame);
         success            = true;
     }
 
+    // I/O Control
     void operator()(const ExecuteBlocksFromFileArgs* execute_blocks)
     {
+        // The block and marker type are implied by the Args type
         is_frame_delimiter = false;
         success            = file_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
     }
 
     void operator()(const StateEndMarkerArgs* state_end)
     {
+        // The block and marker type are implied by the Args type
         is_frame_delimiter = false;
         success            = true;
         file_processor_.ProcessStateEndMarkerFrameState(*state_end);
@@ -180,6 +207,7 @@ class ProcessVisitor
 
     void operator()(const AnnotationArgs* annotation)
     {
+        // The block and marker type are implied by the Command type
         is_frame_delimiter = false;
         success            = true;
         file_processor_.ProcessAnnotation(*annotation);

@@ -22,7 +22,9 @@
 */
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
+#include <new>
 #include <limits>
 #include <utility>
 #include <type_traits>
@@ -66,6 +68,20 @@ struct IsSafeIntegralAssign
 
 template <typename T, typename U>
 inline constexpr bool IsSafeIntegralAssign_v = IsSafeIntegralAssign<T, U>::value;
+
+// Use std:: cache-line constants where available and safe:
+//   - GCC defines __cpp_lib_hardware_interference_size but emits -Winterference-size (-Werror)
+//     because the value is ABI-unstable across -mtune targets.
+//   - Android NDK Clang defines the feature macro but lacks the actual constants.
+// Fall back to 64 bytes, which is correct for all targeted platforms (x86_64/ARM64).
+#if defined(__cpp_lib_hardware_interference_size) && !(defined(__GNUC__) && !defined(__clang__)) && \
+    !defined(__ANDROID__)
+constexpr static size_t kDestructiveAlign  = std::hardware_destructive_interference_size;
+constexpr static size_t kConstructiveAlign = std::hardware_constructive_interference_size;
+#else
+constexpr static size_t kDestructiveAlign  = 64;
+constexpr static size_t kConstructiveAlign = 64;
+#endif
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
