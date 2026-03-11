@@ -2708,18 +2708,21 @@ void VulkanResourcesUtil::CopyImage(VkImage            source_img,
     SubmitCommandBuffer(command_buffer, GetQueue(0, 0));
 }
 
-void VulkanResourcesUtil::BlitImage(VkImage            src_img,
-                                    VkImage            dst_img,
-                                    VkExtent3D         src_extent,
-                                    VkExtent3D         dst_extent,
-                                    VkImageLayout      src_layout,
-                                    VkImageLayout      dst_layout,
-                                    VkImageAspectFlags aspect,
-                                    VkOffset3D         src_offset,
-                                    VkOffset3D         dst_offset)
+void VulkanResourcesUtil::BlitImage(VkImage             src_img,
+                                    VkImage             dst_img,
+                                    VkExtent3D          src_extent,
+                                    VkExtent3D          dst_extent,
+                                    VkImageLayout       src_layout,
+                                    VkImageLayout       dst_layout,
+                                    VkImageAspectFlags  aspect,
+                                    VkOffset3D          src_offset,
+                                    VkOffset3D          dst_offset,
+                                    std::array<bool, 3> flip_axis)
 {
-    uint32_t queue_family_index = 0;
-    auto     command_buffer     = CreateCommandBufferAndBegin(queue_family_index);
+    constexpr uint32_t queue_family_index = 0;
+    constexpr uint32_t queue_index        = 0;
+
+    auto command_buffer = CreateCommandBufferAndBegin(queue_family_index);
 
     // transition src-layout
     TransitionImageToTransferOptimal(command_buffer, src_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
@@ -2727,7 +2730,8 @@ void VulkanResourcesUtil::BlitImage(VkImage            src_img,
     // transition dst-layout
     TransitionImageToTransferOptimal(command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
 
-    BlitHelper(command_buffer, src_img, dst_img, src_extent, dst_extent, 1, 1, aspect);
+    BlitHelper(
+        command_buffer, src_img, dst_img, src_extent, dst_extent, 1, 1, aspect, src_offset, dst_offset, flip_axis);
 
     // transition src-layout
     TransitionImageFromTransferOptimal(
@@ -2736,7 +2740,7 @@ void VulkanResourcesUtil::BlitImage(VkImage            src_img,
     // transition dst-layout
     TransitionImageFromTransferOptimal(command_buffer, dst_img, dst_layout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aspect);
 
-    SubmitCommandBuffer(command_buffer, GetQueue(0, 0));
+    SubmitCommandBuffer(command_buffer, GetQueue(queue_family_index, queue_index));
 }
 
 VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
@@ -2917,21 +2921,23 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     return VK_SUCCESS;
 }
 
-void VulkanResourcesUtil::BlitHelper(VkCommandBuffer    command_buffer,
-                                     VkImage            src_image,
-                                     VkImage            dst_image,
-                                     const VkExtent3D&  src_extent,
-                                     const VkExtent3D&  dst_extent,
-                                     uint32_t           mip_levels,
-                                     uint32_t           array_layers,
-                                     VkImageAspectFlags aspect)
+void VulkanResourcesUtil::BlitHelper(VkCommandBuffer     command_buffer,
+                                     VkImage             src_image,
+                                     VkImage             dst_image,
+                                     const VkExtent3D&   src_extent,
+                                     const VkExtent3D&   dst_extent,
+                                     uint32_t            mip_levels,
+                                     uint32_t            array_layers,
+                                     VkImageAspectFlags  aspect,
+                                     VkOffset3D          src_offset,
+                                     VkOffset3D          dst_offset,
+                                     std::array<bool, 3> flip_axis)
 {
     VkImageBlit blit_region;
-    blit_region.srcOffsets[0] = { 0, 0, 0 };
-    blit_region.dstOffsets[0] = { 0, 0, 0 };
+    blit_region.srcOffsets[0] = src_offset;
+    blit_region.dstOffsets[0] = dst_offset;
 
     GFXRECON_ASSERT(mip_levels);
-    // assert(dst_img_mip_levels);
     std::vector<VkImageBlit> blit_regions(mip_levels);
     const VkImageAspectFlags aspectMask = aspect;
 
@@ -2948,6 +2954,19 @@ void VulkanResourcesUtil::BlitHelper(VkCommandBuffer    command_buffer,
         blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
 
         blit_regions[i] = blit_region;
+
+        if (flip_axis[0])
+        {
+            std::swap(blit_regions[i].dstOffsets[0].x, blit_regions[i].dstOffsets[1].x);
+        }
+        if (flip_axis[1])
+        {
+            std::swap(blit_regions[i].dstOffsets[0].y, blit_regions[i].dstOffsets[1].y);
+        }
+        if (flip_axis[2])
+        {
+            std::swap(blit_regions[i].dstOffsets[0].z, blit_regions[i].dstOffsets[1].z);
+        }
     }
 
     device_table_.CmdBlitImage(command_buffer,

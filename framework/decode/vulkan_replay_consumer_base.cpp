@@ -8623,18 +8623,29 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
                     if (img_info != nullptr && override_img_info != nullptr)
                     {
-                        // image-transitions back/forth, actual copy, fence sync
-                        // copy_util->CopyImage(override_img_info->handle,
-                        //                      img_info->handle,
-                        //                      img_info->extent,
-                        //                      override_img_info->current_layout,
-                        //                      img_info->current_layout);
+                        constexpr VkOffset3D         zero_offset  = { 0, 0, 0 };
+                        constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
+
+                        // init with 'false'
+                        std::array<bool, 3> flip_axis = {};
+                        if (options_.screenshot_scale)
+                        {
+                            flip_axis = { options_.screenshot_scale.value()[0] < 0.f,
+                                          options_.screenshot_scale.value()[1] < 0.f,
+                                          false };
+                        }
+
+                        // image-transitions back/forth, actual copy/blit, fence sync
                         copy_util->BlitImage(override_img_info->handle,
                                              img_info->handle,
                                              override_img_info->extent,
                                              img_info->extent,
                                              override_img_info->current_layout,
-                                             img_info->current_layout);
+                                             img_info->current_layout,
+                                             aspect_color,
+                                             zero_offset,
+                                             zero_offset,
+                                             flip_axis);
                     }
                     else
                     {

@@ -103,8 +103,9 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
 
     if (copy_scale)
     {
-        copy_width  = static_cast<uint32_t>(width * copy_scale.value()[0]);
-        copy_height = static_cast<uint32_t>(height * copy_scale.value()[1]);
+        // scales can be negative, use absolute values
+        copy_width  = static_cast<uint32_t>(width * std::abs(copy_scale.value()[0]));
+        copy_height = static_cast<uint32_t>(height * std::abs(copy_scale.value()[1]));
         flip_x      = copy_scale.value()[0] < 0.f;
         flip_y      = copy_scale.value()[1] < 0.f;
     }

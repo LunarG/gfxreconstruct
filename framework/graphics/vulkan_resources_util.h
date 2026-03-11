@@ -186,15 +186,16 @@ class VulkanResourcesUtil
                    VkOffset3D         src_offset = { 0, 0, 0 },
                    VkOffset3D         dst_offset = { 0, 0, 0 });
 
-    void BlitImage(VkImage            src_img,
-                   VkImage            dst_img,
-                   VkExtent3D         src_extent,
-                   VkExtent3D         dst_extent,
-                   VkImageLayout      src_layout,
-                   VkImageLayout      dst_layout,
-                   VkImageAspectFlags aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
-                   VkOffset3D         src_offset = { 0, 0, 0 },
-                   VkOffset3D         dst_offset = { 0, 0, 0 });
+    void BlitImage(VkImage             src_img,
+                   VkImage             dst_img,
+                   VkExtent3D          src_extent,
+                   VkExtent3D          dst_extent,
+                   VkImageLayout       src_layout,
+                   VkImageLayout       dst_layout,
+                   VkImageAspectFlags  aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
+                   VkOffset3D          src_offset = { 0, 0, 0 },
+                   VkOffset3D          dst_offset = { 0, 0, 0 },
+                   std::array<bool, 3> flip_axis  = { false, false, false });
 
   private:
 
@@ -284,14 +285,17 @@ class VulkanResourcesUtil
                        VkImage&              scaled_image,
                        VkDeviceMemory&       scaled_image_mem);
 
-    void BlitHelper(VkCommandBuffer       command_buffer,
-                    VkImage               src_image,
-                    VkImage               dst_image,
-                    const VkExtent3D&     src_extent,
-                    const VkExtent3D&     dst_extent,
-                    uint32_t              mip_levels,
-                    uint32_t              array_layers,
-                    VkImageAspectFlags aspect);
+    void BlitHelper(VkCommandBuffer     command_buffer,
+                    VkImage             src_image,
+                    VkImage             dst_image,
+                    const VkExtent3D&   src_extent,
+                    const VkExtent3D&   dst_extent,
+                    uint32_t            mip_levels,
+                    uint32_t            array_layers,
+                    VkImageAspectFlags  aspect,
+                    VkOffset3D          src_offset,
+                    VkOffset3D          dst_offset,
+                    std::array<bool, 3> flip_axis);
 
     struct StagingBufferContext
     {
