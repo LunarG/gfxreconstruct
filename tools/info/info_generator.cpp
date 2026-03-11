@@ -25,7 +25,7 @@
 
 #include "util/logging.h"
 
-#include "info_container.h"
+#include "info_generator.h"
 
 #define GFXR_HIDE_PRINT_USAGE_DEFINE
 #include "tool_settings.h"
@@ -54,7 +54,7 @@ const char kArguments[] = "--output,--log-level";
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 const int  kDefaultIndent              = 12;
 
-InfoContainer::InfoContainer()
+InfoGenerator::InfoGenerator()
 {
     gfxrecon::util::Log::Init();
 
@@ -67,12 +67,12 @@ InfoContainer::InfoContainer()
     }
 }
 
-InfoContainer::~InfoContainer()
+InfoGenerator::~InfoGenerator()
 {
     gfxrecon::util::Log::Release();
 }
 
-bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
+bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
 {
     // Save the app name first
     const std::string app_name_ = std::filesystem::path{ argv[0] }.filename().string();
@@ -163,7 +163,7 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
     return true;
 }
 
-bool InfoContainer::ProcessCapture()
+bool InfoGenerator::ProcessCapture()
 {
     if (output_flags_ != InfoApiInterface::OutputSelectionFlags::kNoInfo)
     {
@@ -266,7 +266,7 @@ bool InfoContainer::ProcessCapture()
     return true;
 }
 
-bool InfoContainer::OutputContent()
+bool InfoGenerator::OutputContent()
 {
     if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kExeInfo) !=
         InfoApiInterface::OutputSelectionFlags::kNoInfo)
@@ -371,7 +371,7 @@ bool InfoContainer::OutputContent()
     return true;
 }
 
-void InfoContainer::PrintUsage()
+void InfoGenerator::PrintUsage()
 {
     WriteOutput((std::string("\n") + app_name_ + " - Print statistics for a GFXReconstruct capture file.").c_str());
     WriteOutput((std::string("Usage:\n  ") + app_name_ +
@@ -402,7 +402,7 @@ void InfoContainer::PrintUsage()
     }
 }
 
-void InfoContainer::PrintVersion()
+void InfoGenerator::PrintVersion()
 {
     WriteOutput((app_name_ + " version info:\n  GFXReconstruct Version " + GetProjectVersionString()).c_str());
     for (auto& api_if : api_interfaces_)
@@ -411,7 +411,7 @@ void InfoContainer::PrintVersion()
     }
 }
 
-void InfoContainer::PrintExeInfo()
+void InfoGenerator::PrintExeInfo()
 {
     std::string exe_name     = info_consumer_.GetAppExeName();
     auto        exe_version  = info_consumer_.GetAppVersion();
@@ -440,7 +440,7 @@ void InfoContainer::PrintExeInfo()
     WriteOutput(std::string("\tProduct name: ") + app_data);
 }
 
-nlohmann::json InfoContainer::GetExeInfoJson()
+nlohmann::json InfoGenerator::GetExeInfoJson()
 {
     std::string exe_name     = info_consumer_.GetAppExeName();
     auto        exe_version  = info_consumer_.GetAppVersion();
@@ -457,7 +457,7 @@ nlohmann::json InfoContainer::GetExeInfoJson()
     };
 }
 
-void InfoContainer::PrintEnvironmentVariableInfo()
+void InfoGenerator::PrintEnvironmentVariableInfo()
 {
     WriteOutput("Environment variables:");
     for (const auto& var : info_consumer_.GetEnvironmentVariables())
@@ -466,7 +466,7 @@ void InfoContainer::PrintEnvironmentVariableInfo()
     }
 }
 
-nlohmann::json InfoContainer::GetEnvironmentVariableInfoJson()
+nlohmann::json InfoGenerator::GetEnvironmentVariableInfoJson()
 {
     nlohmann::json           environment;
     static const std::string delimiter = "=";
@@ -482,12 +482,12 @@ nlohmann::json InfoContainer::GetEnvironmentVariableInfoJson()
     return environment;
 }
 
-std::string InfoContainer::GetFrameMarkerString(bool uses_frame_markers, bool needs_update)
+std::string InfoGenerator::GetFrameMarkerString(bool uses_frame_markers, bool needs_update)
 {
     return uses_frame_markers ? (needs_update ? "explicit (unsupported)" : "explicit") : "implicit";
 }
 
-void InfoContainer::PrintFileFormatInfoText()
+void InfoGenerator::PrintFileFormatInfoText()
 {
     WriteOutput("File format info:");
     FileFormatInfo file_format_info(file_processor_);
@@ -497,7 +497,7 @@ void InfoContainer::PrintFileFormatInfoText()
                             GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate())));
 }
 
-nlohmann::json InfoContainer::GetFileFormatInfoJson()
+nlohmann::json InfoGenerator::GetFileFormatInfoJson()
 {
     FileFormatInfo file_format_info(file_processor_);
 
@@ -509,7 +509,7 @@ nlohmann::json InfoContainer::GetFileFormatInfoJson()
     };
 }
 
-void InfoContainer::GatherApiAgnosticStats()
+void InfoGenerator::GatherApiAgnosticStats()
 {
     // File options.
     gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
@@ -533,7 +533,7 @@ void InfoContainer::GatherApiAgnosticStats()
     GFXRECON_NARROWING_ASSIGN(api_agnostic_stats_.frame_count, file_processor_.GetCurrentFrameNumber());
 }
 
-void InfoContainer::PrintApiAgnosticStatsText()
+void InfoGenerator::PrintApiAgnosticStatsText()
 {
     // Compression type.
     std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(api_agnostic_stats_.compression_type);
@@ -584,7 +584,7 @@ void InfoContainer::PrintApiAgnosticStatsText()
     }
 }
 
-nlohmann::json InfoContainer::GetApiAgnosticStatsJson()
+nlohmann::json InfoGenerator::GetApiAgnosticStatsJson()
 {
     // Compression type.
     std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(api_agnostic_stats_.compression_type);
@@ -618,7 +618,7 @@ nlohmann::json InfoContainer::GetApiAgnosticStatsJson()
                } } };
 }
 
-void InfoContainer::PrintGfxrOperationsText()
+void InfoGenerator::PrintGfxrOperationsText()
 {
     // If the capture file had target annotations, display them in an info block
     if (!annotation_recorder_.operation_annotations_.empty())
@@ -659,7 +659,7 @@ void InfoContainer::PrintGfxrOperationsText()
     }
 }
 
-nlohmann::json InfoContainer::GetGfxrOperationsJson()
+nlohmann::json InfoGenerator::GetGfxrOperationsJson()
 {
     nlohmann::json annotations_json = nlohmann::json::array();
     for (const auto& annotation_info : annotation_recorder_.operation_annotations_)
@@ -669,17 +669,17 @@ nlohmann::json InfoContainer::GetGfxrOperationsJson()
     return annotations_json;
 }
 
-void InfoContainer::WriteOutput(const std::string& message)
+void InfoGenerator::WriteOutput(const std::string& message)
 {
     info_writer_.Print(message);
 }
 
-void InfoContainer::WriteError(const std::string& message)
+void InfoGenerator::WriteError(const std::string& message)
 {
     info_writer_.PrintError(message);
 }
 
-void InfoContainer::WriteWarning(const std::string& message)
+void InfoGenerator::WriteWarning(const std::string& message)
 {
     info_writer_.PrintWarning(message);
 }
