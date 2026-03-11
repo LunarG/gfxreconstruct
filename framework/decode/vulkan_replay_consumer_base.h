@@ -1615,6 +1615,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*               pAllocator,
         HandlePointerDecoder<VkIndirectExecutionSetEXT>*                   pIndirectExecutionSet);
 
+    void OverrideCmdPreprocessGeneratedCommandsEXT(
+        PFN_vkCmdPreprocessGeneratedCommandsEXT                   func,
+        const VulkanCommandBufferInfo*                            command_buffer_info,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
+        const VulkanCommandBufferInfo*                            state_command_buffer_info);
+
+    void OverrideCmdExecuteGeneratedCommandsEXT(
+        PFN_vkCmdExecuteGeneratedCommandsEXT                      func,
+        const VulkanCommandBufferInfo*                            command_buffer_info,
+        VkBool32                                                  isPreprocessed,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,

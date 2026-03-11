@@ -1553,6 +1553,53 @@ void VulkanAddressReplacer::ProcessUpdateDescriptorSets(uint32_t              de
     }
 }
 
+void VulkanAddressReplacer::ProcessGeneratedCommandsInfoEXT(VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo,
+                                                            const decode::VulkanDeviceAddressTracker& address_tracker)
+{
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
+
+    auto address_remap = [&address_tracker](VkDeviceAddress& capture_address) -> bool {
+        auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
+
+        // skip over null-addresses
+        if (capture_address == 0)
+        {
+            return false;
+        }
+
+        if (buffer_info != nullptr && buffer_info->replay_address != 0)
+        {
+            if (buffer_info->capture_address != buffer_info->replay_address)
+            {
+                uint64_t offset = capture_address - buffer_info->capture_address;
+
+                // in-place address-remap via const-cast
+                capture_address = buffer_info->replay_address + offset;
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if (!address_remap(pGeneratedCommandsInfo->indirectAddress))
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "VulkanAddressReplacer::ProcessGeneratedCommandsInfoEXT: indirectAddress remap failed");
+    }
+
+    if (!address_remap(pGeneratedCommandsInfo->preprocessAddress))
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "VulkanAddressReplacer::ProcessGeneratedCommandsInfoEXT: preprocessAddress remap failed");
+    }
+
+    if (!address_remap(pGeneratedCommandsInfo->sequenceCountAddress))
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "VulkanAddressReplacer::ProcessGeneratedCommandsInfoEXT: sequenceCountAddress remap failed");
+    }
+}
+
 void VulkanAddressReplacer::ProcessGetQueryPoolResults(VkDevice           device,
                                                        VkQueryPool        query_pool,
                                                        uint32_t           firstQuery,

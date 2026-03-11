@@ -13216,5 +13216,50 @@ VkResult VulkanReplayConsumerBase::OverrideCreateIndirectExecutionSetEXT(
                 pIndirectExecutionSet->GetHandlePointer());
 }
 
+void VulkanReplayConsumerBase::OverrideCmdPreprocessGeneratedCommandsEXT(
+    PFN_vkCmdPreprocessGeneratedCommandsEXT                   func,
+    const VulkanCommandBufferInfo*                            command_buffer_info,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
+    const VulkanCommandBufferInfo*                            state_command_buffer_info)
+{
+    GFXRECON_ASSERT(func != nullptr && command_buffer_info != nullptr && pGeneratedCommandsInfo != nullptr &&
+                    state_command_buffer_info != nullptr);
+
+    VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+
+    VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
+
+    if (UseAddressReplacement(device_info))
+    {
+        auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessGeneratedCommandsInfoEXT(in_pGeneratedCommandsInfo, address_tracker);
+    }
+
+    func(command_buffer_info->handle, in_pGeneratedCommandsInfo, state_command_buffer_info->handle);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdExecuteGeneratedCommandsEXT(
+    PFN_vkCmdExecuteGeneratedCommandsEXT                      func,
+    const VulkanCommandBufferInfo*                            command_buffer_info,
+    VkBool32                                                  isPreprocessed,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
+{
+    GFXRECON_ASSERT(func != nullptr && command_buffer_info != nullptr && pGeneratedCommandsInfo != nullptr);
+
+    VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+
+    VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
+
+    if (UseAddressReplacement(device_info))
+    {
+        auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessGeneratedCommandsInfoEXT(in_pGeneratedCommandsInfo, address_tracker);
+    }
+
+    func(command_buffer_info->handle, isPreprocessed, in_pGeneratedCommandsInfo);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
