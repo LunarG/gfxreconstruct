@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2025 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -158,6 +158,8 @@ const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
 const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
 const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
+const char kDxBatchedAsBuildModeArgument[]        = "--dx12-batched-as-build-mode";
+const char kDxBatchedAsBuildMemoryUsageArgument[] = "--dx12-batched-as-build-memory-usage";
 #endif
 
 const char kDumpResourcesArgument[]    = "--dump-resources";
@@ -1310,11 +1312,39 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         if (memory_usage_int >= 0 && memory_usage_int <= 100)
         {
             replay_options.memory_usage = static_cast<uint32_t>(memory_usage_int);
+
+            // By default, batched AS builds' memory usage will inherit the value from --batching-memory-usage
+            // However, this can be overridden if explicitly setting --dx12-batched-as-build-memory-usage
+            replay_options.batched_as_build_config.memory_usage = static_cast<uint32_t>(memory_usage_int);
         }
         else
         {
             GFXRECON_LOG_WARNING(
                 "The parameter to --batching-memory-usage is out of range [0, 100], will use 80 as default value.");
+        }
+    }
+
+    const std::string& batched_as_build_mode = arg_parser.GetArgumentValue(kDxBatchedAsBuildModeArgument);
+    if (!batched_as_build_mode.empty())
+    {
+        replay_options.batched_as_build_config.mode =
+            static_cast<gfxrecon::decode::BatchedASBuildMode>(std::stoi(batched_as_build_mode));
+    }
+
+    const std::string& batched_as_build_mem_consumption =
+        arg_parser.GetArgumentValue(kDxBatchedAsBuildMemoryUsageArgument);
+    if (!batched_as_build_mem_consumption.empty())
+    {
+        int batched_as_build_mem_consumption_int = std::stoi(batched_as_build_mem_consumption);
+        if (batched_as_build_mem_consumption_int >= 0 && batched_as_build_mem_consumption_int <= 100)
+        {
+            replay_options.batched_as_build_config.memory_usage =
+                static_cast<uint32_t>(batched_as_build_mem_consumption_int);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("The parameter to --dx12-batched-as-build-memory-usage is out of range [0, 100], will "
+                                 "use 80 as default value.");
         }
     }
 

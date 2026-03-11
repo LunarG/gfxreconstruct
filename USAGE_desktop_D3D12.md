@@ -215,6 +215,8 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
+                        [--dx12-batched-as-build-mode <mode>]
+                        [--dx12-batched-as-build-memory-usage <pct>]
                         [--dump-resources <submit-index,command-index,draw-call-index>]
                         [--dump-resources-before-draw]
                         [--dump-resources-dir <dir>]
@@ -321,6 +323,15 @@ Optional arguments:
                         only limits memory use for batching and does not guarantee overall max memory usage.
                         Acceptable values range from 0 to 100 (default: 80). 0 means no batching, 100 means
                         use all available system and GPU memory.
+  --dx12-batched-as-build-mode <mode>
+                        Enable batching of AS builds for trimmed capture files, and set operational mode
+                        0: No batching of AS builds
+                        1: Submit grouping happens incrementally as AS builds are encountered
+                        2: Submit grouping happens after all AS builds have been seen
+  --dx12-batched-as-build-memory-usage <pct>
+                        Max amount of memory consumption dedicated to AS building while loading a trimmed
+                        capture file. Acceptable values range from 0 to 100 (default: 80). 0 means no batching
+                        at all, 100 means use all available GPU memory.
   --dump-resources <submit-index,command-index,draw-call-index>
                         Output binary resources for a specific draw call.  The draw call is specified as a
                         submit index, command index, and draw call index triplet.  The output includes vertex,

@@ -4465,15 +4465,20 @@ void Dx12ReplayConsumer::Process_ID3D12Device_CreateCommandAllocator(
             type,
             riid,
             ppCommandAllocator);
-        if(!ppCommandAllocator->IsNull()) ppCommandAllocator->SetHandleLength(1);
-        auto out_p_ppCommandAllocator    = ppCommandAllocator->GetPointer();
-        auto out_hp_ppCommandAllocator   = ppCommandAllocator->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D12Device*>(replay_object->object)->CreateCommandAllocator(type,
-                                                                                                            *riid.decoded_value,
-                                                                                                            out_hp_ppCommandAllocator);
+        DxObjectInfo object_info_ppCommandAllocator{};
+        if(!ppCommandAllocator->IsNull())
+        {
+            ppCommandAllocator->SetHandleLength(1);
+            ppCommandAllocator->SetConsumerData(0, &object_info_ppCommandAllocator);
+        }
+        auto replay_result = OverrideCreateCommandAllocator(replay_object,
+                                                            return_value,
+                                                            type,
+                                                            riid,
+                                                            ppCommandAllocator);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppCommandAllocator, out_hp_ppCommandAllocator, format::ApiCall_ID3D12Device_CreateCommandAllocator);
+            AddObject(ppCommandAllocator->GetPointer(), ppCommandAllocator->GetHandlePointer(), std::move(object_info_ppCommandAllocator), format::ApiCall_ID3D12Device_CreateCommandAllocator);
         }
         CheckReplayResult("ID3D12Device_CreateCommandAllocator", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateCommandAllocator>::Dispatch(

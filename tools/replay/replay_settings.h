@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2023 LunarG, Inc.
-** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -42,7 +42,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit";
+    "present-mode,--wait-before-first-submit,--dx12-batched-as-build-mode,--dx12-batched-as-build-memory-usage";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -94,6 +94,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dx12-batched-as-build-mode <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dx12-batched-as-build-memory-usage <pct>]");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
 #endif
@@ -382,6 +384,19 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
     GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
     GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
+    GFXRECON_WRITE_CONSOLE("  --dx12-batched-as-build-mode <mode>");
+    GFXRECON_WRITE_CONSOLE(
+        "          \t\tEnable batching of AS builds for trimmed capture files, and set operational mode");
+    GFXRECON_WRITE_CONSOLE("          \t\t0: No batching of AS builds");
+    GFXRECON_WRITE_CONSOLE("          \t\t1: Submit grouping happens incrementally as AS builds are encountered");
+    GFXRECON_WRITE_CONSOLE("          \t\t2: Submit grouping happens after all AS builds have been seen");
+
+    GFXRECON_WRITE_CONSOLE("  --dx12-batched-as-build-memory-usage <pct>");
+    GFXRECON_WRITE_CONSOLE("          \t\tMax amount of memory consumption dedicated to AS building while loading a "
+                           "trimmed capture file.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
+    GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
+    GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available GPU memory");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-modifiable-state-only");
     GFXRECON_WRITE_CONSOLE(
         "          \t\tOnly dump resources that are in a modifiable state set by D3D12 ResourceBarrier")

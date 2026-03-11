@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -123,7 +123,7 @@ Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Appl
     options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
     frame_buffer_renderer_(nullptr), debug_layer_enabled_(false), set_auto_breadcrumbs_enablement_(false),
     set_breadcrumb_context_enablement_(false), set_page_fault_enablement_(false), loading_trim_state_(false),
-    fps_info_(nullptr), unique_proxy_window_id_counter_(0), frame_end_marker_count_(0)
+    fps_info_(nullptr), unique_proxy_window_id_counter_(0), frame_end_marker_count_(0), accel_struct_builder_(nullptr)
 {
     if (options_.enable_validation_layer)
     {
@@ -746,10 +746,20 @@ void Dx12ReplayConsumerBase::ProcessInitDx12AccelerationStructureCommand(
         GFXRECON_ASSERT(dest_resource);
 
         auto device5          = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device5>(dest_resource);
-        accel_struct_builder_ = std::make_unique<Dx12AccelerationStructureBuilder>(device5);
+        
+        uint32_t       index       = 0;
+        IDXGIAdapter3* adapter3    = nullptr;
+        bool obtained_adapter_info = graphics::dx12::GetAdapterAndIndexbyDevice(device5, adapter3, index, adapters_);
+
+        accel_struct_builder_ =
+            std::make_unique<Dx12AccelerationStructureBuilder>(device5, adapter3, options_.batched_as_build_config);
+        GFXRECON_ASSERT(accel_struct_builder_ != nullptr);
     }
 
+    accel_struct_builder_->BeginTimestamp();
     accel_struct_builder_->Build(gpu_va_map_, command_header, geometry_descs, build_inputs_data);
+    
+    GFXRECON_LOG_DEBUG("InitDx12AccelerationStructureCommand BlockIndex = %u", GetCurrentBlockIndex());
 
     dxr_workload_ = true;
 }
@@ -4122,6 +4132,26 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList1(DxObjectInfo*        
         cmd_list_info->create_list_type = type;
         SetExtraInfo(command_list1_decoder, std::move(cmd_list_info));
     }
+    return replay_result;
+}
+
+HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandAllocator(DxObjectInfo*                device_object_info,
+                                                               HRESULT                      original_result,
+                                                               D3D12_COMMAND_LIST_TYPE      type,
+                                                               Decoded_GUID                 riid,
+                                                               HandlePointerDecoder<void*>* command_allocator_decoder)
+{
+    auto device = static_cast<ID3D12Device*>(device_object_info->object);
+
+    if (accel_struct_builder_ != nullptr)
+    {
+        accel_struct_builder_->End(gpu_va_map_);
+        accel_struct_builder_->EndTimestamp();
+    }
+
+    auto replay_result =
+        device->CreateCommandAllocator(type, *riid.decoded_value, command_allocator_decoder->GetHandlePointer());
+
     return replay_result;
 }
 
