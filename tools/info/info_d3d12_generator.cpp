@@ -23,7 +23,7 @@
 
 #if defined(D3D12_SUPPORT)
 
-#include "info_d3d12_interface.h"
+#include "info_d3d12_generator.h"
 
 #include "util/to_string.h"
 
@@ -31,15 +31,15 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
 // Static boolean that runs a lambda to automatically create and register this class with the
-// base class RegisterInterface method.
-static bool sRegisterThisInterface = []() {
-    InfoApiInterface::RegisterInterface([]() { return std::make_unique<InfoD3d12Interface>(); });
+// base class RegisterGenerator method.
+static bool sRegisterThisGenerator = []() {
+    InfoApiGenerator::RegisterGenerator([]() { return std::make_unique<InfoD3d12Generator>(); });
     return true;
 }();
 
 const char kEnumGpuIndices[] = "--enum-gpu-indices";
 
-std::string InfoD3d12Interface::ApiCompiledHeaderVersionString() const
+std::string InfoD3d12Generator::ApiCompiledHeaderVersionString() const
 {
 #if defined(D3D12SDKVersion)
     return std::string("  D3D12 SDK Version      ") + D3D12SDKVersion;
@@ -48,35 +48,35 @@ std::string InfoD3d12Interface::ApiCompiledHeaderVersionString() const
 #endif
 }
 
-void InfoD3d12Interface::UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
+void InfoD3d12Generator::UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
 {
     options += " ";
     options += kEnumGpuIndices;
 }
 
-void InfoD3d12Interface::OutputCommandLineUsage()
+void InfoD3d12Generator::OutputCommandLineUsage()
 {
     WriteOutput("\n// D3D12-specific\n");
     WriteOutput(std::string("  ") + kEnumGpuIndices + "\tPrint GPU indices and exit\n");
 }
 
-bool InfoD3d12Interface::CheckCommandLine(util::ArgumentParser* arg_parser)
+bool InfoD3d12Generator::CheckCommandLine(util::ArgumentParser* arg_parser)
 {
     if (arg_parser->IsOptionSet(kEnumGpuIndices))
     {
-        output_flags_ = InfoApiInterface::OutputSelectionFlags::kApiSpecific_1;
+        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1;
     }
     return true;
 }
 
-void InfoD3d12Interface::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoD3d12Generator::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     dx12_decoder_.AddConsumer(&dx12_detection_consumer_);
     dx12_decoder_.AddConsumer(&dx12_consumer_);
     file_processor.AddDecoder(&dx12_decoder_);
 }
 
-void InfoD3d12Interface::PrintEnumGpuIndices()
+void InfoD3d12Generator::PrintEnumGpuIndices()
 {
     IDXGIFactory1* factory1 = nullptr;
 
@@ -110,7 +110,7 @@ void InfoD3d12Interface::PrintEnumGpuIndices()
     }
 }
 
-std::string InfoD3d12Interface::GetDriverInfoString()
+std::string InfoD3d12Generator::GetDriverInfoString()
 {
     if (!driver_info_.empty())
     {
@@ -122,7 +122,7 @@ std::string InfoD3d12Interface::GetDriverInfoString()
     }
 }
 
-void InfoD3d12Interface::PrintDriverInfoText()
+void InfoD3d12Generator::PrintDriverInfoText()
 {
     WriteOutput("");
     WriteOutput("Driver info:");
@@ -137,7 +137,7 @@ void InfoD3d12Interface::PrintDriverInfoText()
     }
 }
 
-std::string InfoD3d12Interface::AdapterTypeToString(format::AdapterType type)
+std::string InfoD3d12Generator::AdapterTypeToString(format::AdapterType type)
 {
     switch (type)
     {
@@ -152,7 +152,7 @@ std::string InfoD3d12Interface::AdapterTypeToString(format::AdapterType type)
     }
 }
 
-void InfoD3d12Interface::PrintRuntimeInfoText()
+void InfoD3d12Generator::PrintRuntimeInfoText()
 {
     format::Dx12RuntimeInfo runtime_info = dx12_consumer_.GetDx12RuntimeInfo();
 
@@ -172,7 +172,7 @@ void InfoD3d12Interface::PrintRuntimeInfoText()
     WriteOutput("");
 }
 
-nlohmann::json InfoD3d12Interface::GetRuntimeInfoJson()
+nlohmann::json InfoD3d12Generator::GetRuntimeInfoJson()
 {
     format::Dx12RuntimeInfo runtime_info = dx12_consumer_.GetDx12RuntimeInfo();
 
@@ -192,7 +192,7 @@ nlohmann::json InfoD3d12Interface::GetRuntimeInfoJson()
     };
 }
 
-void InfoD3d12Interface::PrintAdapterInfoText()
+void InfoD3d12Generator::PrintAdapterInfoText()
 {
     WriteOutput("D3D12 adapter info:");
 
@@ -245,7 +245,7 @@ void InfoD3d12Interface::PrintAdapterInfoText()
     }
 }
 
-nlohmann::json InfoD3d12Interface::GetAdapterInfoJson()
+nlohmann::json InfoD3d12Generator::GetAdapterInfoJson()
 {
     const auto&    adapters      = dx12_consumer_.GetAdapters();
     nlohmann::json adapters_json = nlohmann::json::array();
@@ -296,7 +296,7 @@ nlohmann::json InfoD3d12Interface::GetAdapterInfoJson()
     return adapters_json;
 }
 
-void InfoD3d12Interface::PrintSwapchainInfoText()
+void InfoD3d12Generator::PrintSwapchainInfoText()
 {
     WriteOutput("D3D12 swapchain info:");
 
@@ -312,13 +312,13 @@ void InfoD3d12Interface::PrintSwapchainInfoText()
     WriteOutput("");
 }
 
-nlohmann::json InfoD3d12Interface::GetSwapchainInfoJson()
+nlohmann::json InfoD3d12Generator::GetSwapchainInfoJson()
 {
     auto [width, height] = dx12_consumer_.GetSwapchainDimensions();
     return { "dimensions", { { "width", width }, { "height", height } } };
 }
 
-void InfoD3d12Interface::PrintDxrEiInfoText()
+void InfoD3d12Generator::PrintDxrEiInfoText()
 {
     if (dx12_consumer_.ContainsEiWorkload())
     {
@@ -355,7 +355,7 @@ void InfoD3d12Interface::PrintDxrEiInfoText()
     }
 }
 
-nlohmann::json InfoD3d12Interface::GetDxrEiInfoJson()
+nlohmann::json InfoD3d12Generator::GetDxrEiInfoJson()
 {
     return {
         { "ei-workload", dx12_consumer_.ContainsEiWorkload() ? "yes" : "no" },
@@ -368,16 +368,16 @@ nlohmann::json InfoD3d12Interface::GetDxrEiInfoJson()
     };
 }
 
-void InfoD3d12Interface::PrintInfo()
+void InfoD3d12Generator::PrintInfo()
 {
-    if (output_flags_ & InfoApiInterface::OutputSelectionFlags::kApiSpecific_1)
+    if (output_flags_ & InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1)
     {
         PrintEnumGpuIndices();
     }
 
     // Output everything else, unless we're only supposed to output the
     // enum gpu indicies only.
-    if (output_flags_ != InfoApiInterface::OutputSelectionFlags::kApiSpecific_1)
+    if (output_flags_ != InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1)
     {
         if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
         {
@@ -393,7 +393,7 @@ void InfoD3d12Interface::PrintInfo()
     }
 }
 
-nlohmann::json InfoD3d12Interface::GenerateJson()
+nlohmann::json InfoD3d12Generator::GenerateJson()
 {
     nlohmann::json d3d12_json;
 
@@ -414,7 +414,7 @@ nlohmann::json InfoD3d12Interface::GenerateJson()
     return d3d12_json;
 }
 
-uint32_t InfoD3d12Interface::GetBlankFrameCount() const
+uint32_t InfoD3d12Generator::GetBlankFrameCount() const
 {
     return dx12_consumer_.GetDummyFrameCount();
 }

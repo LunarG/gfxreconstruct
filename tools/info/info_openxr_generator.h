@@ -20,12 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_OPENXR_INTERFACE_H
-#define GFXRECON_INFO_OPENXR_INTERFACE_H
+#ifndef GFXRECON_INFO_OPENXR_GENERATOR_H
+#define GFXRECON_INFO_OPENXR_GENERATOR_H
 
 #if ENABLE_OPENXR_SUPPORT
 
-#include "info_api_interface.h"
+#include "info_api_generator.h"
 
 #include "decode/openxr_detection_consumer.h"
 #include "decode/openxr_stats_consumer.h"
@@ -34,11 +34,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoOpenXrInterface : public InfoApiInterface
+class InfoOpenXrGenerator : public InfoApiGenerator
 {
   public:
-    InfoOpenXrInterface() : openxr_detection_consumer_() {}
-    virtual ~InfoOpenXrInterface() = default;
+    InfoOpenXrGenerator() : openxr_detection_consumer_() {}
+    virtual ~InfoOpenXrGenerator() = default;
 
     // Simple "getter" style methods
     format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_OpenXR; }
@@ -67,4 +67,4 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // ENABLE_OPENXR_SUPPORT
 
-#endif // GFXRECON_INFO_OPENXR_INTERFACE_H
+#endif // GFXRECON_INFO_OPENXR_GENERATOR_H

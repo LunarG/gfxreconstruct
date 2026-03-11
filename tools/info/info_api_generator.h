@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_API_INTERFACE_H
-#define GFXRECON_INFO_API_INTERFACE_H
+#ifndef GFXRECON_INFO_API_GENERATOR_H
+#define GFXRECON_INFO_API_GENERATOR_H
 
 #include "decode/file_processor.h"
 #include "format/format.h"
@@ -41,7 +41,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoApiInterface
+class InfoApiGenerator
 {
   public:
     // Static methods for handling an automatic mechanism for registering
@@ -49,12 +49,12 @@ class InfoApiInterface
 
     // Define a method that can be used casts a child unique_ptr to parent
     // so it can be included in a std::vector we'll call the registry.
-    using BaseApiInterfacePtr = std::function<std::unique_ptr<InfoApiInterface>()>;
-    static void RegisterInterface(BaseApiInterfacePtr if_ptr) { GetRegisteredInterfaces().push_back(if_ptr); }
-    static std::vector<BaseApiInterfacePtr>& GetRegisteredInterfaces()
+    using BaseApiGeneratorPtr = std::function<std::unique_ptr<InfoApiGenerator>()>;
+    static void RegisterGenerator(BaseApiGeneratorPtr gen_ptr) { GetRegisteredGenerators().push_back(gen_ptr); }
+    static std::vector<BaseApiGeneratorPtr>& GetRegisteredGenerators()
     {
-        static std::vector<BaseApiInterfacePtr> registered_interfaces_;
-        return registered_interfaces_;
+        static std::vector<BaseApiGeneratorPtr> registered_Generators_;
+        return registered_Generators_;
     }
 
     enum class OutputSelectionFlags : std::uint32_t
@@ -82,11 +82,11 @@ class InfoApiInterface
 
         kAllInfo = 0xFFFFFFFF,
 
-        // We require API info if not outputing only file, exe, and/or environment info.
+        // We require API info if not outputting only file, exe, and/or environment info.
         kRequiresApiInfo = (kAllInfo & ~(kFileInfo | kExeInfo | kEnvironmentInfo))
     };
 
-    virtual ~InfoApiInterface() = default;
+    virtual ~InfoApiGenerator() = default;
 
     // Simple "getter" style methods
     virtual format::ApiFamilyId ApiFamilyId() const = 0;
@@ -133,38 +133,38 @@ class InfoApiInterface
     InfoWriter*          info_writer_{ nullptr };
 };
 
-constexpr InfoApiInterface::OutputSelectionFlags operator|(InfoApiInterface::OutputSelectionFlags a,
-                                                           InfoApiInterface::OutputSelectionFlags b)
+constexpr InfoApiGenerator::OutputSelectionFlags operator|(InfoApiGenerator::OutputSelectionFlags a,
+                                                           InfoApiGenerator::OutputSelectionFlags b)
 {
-    return static_cast<InfoApiInterface::OutputSelectionFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+    return static_cast<InfoApiGenerator::OutputSelectionFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
 }
 
-constexpr InfoApiInterface::OutputSelectionFlags operator&(InfoApiInterface::OutputSelectionFlags a,
-                                                           InfoApiInterface::OutputSelectionFlags b)
+constexpr InfoApiGenerator::OutputSelectionFlags operator&(InfoApiGenerator::OutputSelectionFlags a,
+                                                           InfoApiGenerator::OutputSelectionFlags b)
 {
-    return static_cast<InfoApiInterface::OutputSelectionFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
+    return static_cast<InfoApiGenerator::OutputSelectionFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
 }
 
-constexpr InfoApiInterface::OutputSelectionFlags operator^(InfoApiInterface::OutputSelectionFlags a,
-                                                           InfoApiInterface::OutputSelectionFlags b)
+constexpr InfoApiGenerator::OutputSelectionFlags operator^(InfoApiGenerator::OutputSelectionFlags a,
+                                                           InfoApiGenerator::OutputSelectionFlags b)
 {
-    return static_cast<InfoApiInterface::OutputSelectionFlags>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b));
+    return static_cast<InfoApiGenerator::OutputSelectionFlags>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b));
 }
 
-constexpr InfoApiInterface::OutputSelectionFlags operator~(InfoApiInterface::OutputSelectionFlags a)
+constexpr InfoApiGenerator::OutputSelectionFlags operator~(InfoApiGenerator::OutputSelectionFlags a)
 {
-    return static_cast<InfoApiInterface::OutputSelectionFlags>(~static_cast<uint32_t>(a));
+    return static_cast<InfoApiGenerator::OutputSelectionFlags>(~static_cast<uint32_t>(a));
 }
 
-constexpr InfoApiInterface::OutputSelectionFlags& operator|=(InfoApiInterface::OutputSelectionFlags& a,
-                                                             InfoApiInterface::OutputSelectionFlags  b)
+constexpr InfoApiGenerator::OutputSelectionFlags& operator|=(InfoApiGenerator::OutputSelectionFlags& a,
+                                                             InfoApiGenerator::OutputSelectionFlags  b)
 {
     a = a | b;
     return a;
 }
 
-constexpr InfoApiInterface::OutputSelectionFlags& operator&=(InfoApiInterface::OutputSelectionFlags& a,
-                                                             InfoApiInterface::OutputSelectionFlags  b)
+constexpr InfoApiGenerator::OutputSelectionFlags& operator&=(InfoApiGenerator::OutputSelectionFlags& a,
+                                                             InfoApiGenerator::OutputSelectionFlags  b)
 {
     a = a & b;
     return a;
@@ -173,4 +173,4 @@ constexpr InfoApiInterface::OutputSelectionFlags& operator&=(InfoApiInterface::O
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_INFO_API_INTERFACE_H
+#endif // GFXRECON_INFO_API_GENERATOR_H

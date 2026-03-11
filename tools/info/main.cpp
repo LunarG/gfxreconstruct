@@ -25,15 +25,13 @@
 
 int main(int argc, const char** argv)
 {
-    bool success = false;
-
     gfxrecon::info::InfoGenerator info_generator;
 
-    // Process the command-line
-    if (info_generator.ProcessCommandLine(argc, argv))
+    if (info_generator.ProcessCommandLine(argc, argv) && info_generator.ProcessCapture() &&
+        info_generator.OutputContent())
     {
-        success = (info_generator.ProcessCapture() && info_generator.OutputContent());
+        return EXIT_SUCCESS;
     }
 
-    return success ? EXIT_SUCCESS : EXIT_FAILURE;
+    return EXIT_FAILURE;
 }

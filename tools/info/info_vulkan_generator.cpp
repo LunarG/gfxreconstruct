@@ -23,33 +23,33 @@
 
 #include "util/to_string.h"
 
-#include "info_vulkan_interface.h"
+#include "info_vulkan_generator.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
 // Static boolean that runs a lambda to automatically create and register this class with the
-// base class RegisterInterface method.
-static bool sRegisterThisInterface = []() {
-    InfoApiInterface::RegisterInterface([]() { return std::make_unique<InfoVulkanInterface>(); });
+// base class RegisterGenerator method.
+static bool sRegisterThisGenerator = []() {
+    InfoApiGenerator::RegisterGenerator([]() { return std::make_unique<InfoVulkanGenerator>(); });
     return true;
 }();
 
-std::string InfoVulkanInterface::ApiCompiledHeaderVersionString() const
+std::string InfoVulkanGenerator::ApiCompiledHeaderVersionString() const
 {
     return std::string("  Vulkan Header Version  ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
            "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 }
 
-void InfoVulkanInterface::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoVulkanGenerator::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     vulkan_decoder_.AddConsumer(&vulkan_detection_consumer_);
     vulkan_decoder_.AddConsumer(&vulkan_stats_consumer_);
     file_processor.AddDecoder(&vulkan_decoder_);
 }
 
-std::string InfoVulkanInterface::GetVersionString(uint32_t api_version)
+std::string InfoVulkanGenerator::GetVersionString(uint32_t api_version)
 {
     uint32_t major = VK_API_VERSION_MAJOR(api_version);
     uint32_t minor = VK_API_VERSION_MINOR(api_version);
@@ -58,7 +58,7 @@ std::string InfoVulkanInterface::GetVersionString(uint32_t api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
-void InfoVulkanInterface::PrintDeviceMemoryStatsText(uint64_t alloc_count,
+void InfoVulkanGenerator::PrintDeviceMemoryStatsText(uint64_t alloc_count,
                                                      uint64_t min_alloc,
                                                      uint64_t max_alloc,
                                                      uint64_t gfx_pipelines,
@@ -80,7 +80,7 @@ void InfoVulkanInterface::PrintDeviceMemoryStatsText(uint64_t alloc_count,
     WriteOutput(std::string("\tTotal raytracing pipelines: ") + std::to_string(rt_pipelines));
 }
 
-void InfoVulkanInterface::PrintInfo()
+void InfoVulkanGenerator::PrintInfo()
 {
     uint32_t inst_count    = vulkan_stats_consumer_.GetInstanceCount();
     auto     instance_info = vulkan_stats_consumer_.GetInstanceInfo();
@@ -178,7 +178,7 @@ void InfoVulkanInterface::PrintInfo()
     }
 }
 
-std::string InfoVulkanInterface::GetDeviceTypeString(VkPhysicalDeviceType device_type)
+std::string InfoVulkanGenerator::GetDeviceTypeString(VkPhysicalDeviceType device_type)
 {
     switch (device_type)
     {
@@ -203,7 +203,7 @@ std::string InfoVulkanInterface::GetDeviceTypeString(VkPhysicalDeviceType device
     }
 }
 
-nlohmann::json InfoVulkanInterface::GetDeviceMemoryStatsJson(uint64_t alloc_count,
+nlohmann::json InfoVulkanGenerator::GetDeviceMemoryStatsJson(uint64_t alloc_count,
                                                              uint64_t min_alloc,
                                                              uint64_t max_alloc,
                                                              uint64_t gfx_pipelines,
@@ -226,7 +226,7 @@ nlohmann::json InfoVulkanInterface::GetDeviceMemoryStatsJson(uint64_t alloc_coun
     };
 }
 
-nlohmann::json InfoVulkanInterface::GenerateJson()
+nlohmann::json InfoVulkanGenerator::GenerateJson()
 {
     nlohmann::json vulkan_stats;
 
@@ -305,7 +305,7 @@ nlohmann::json InfoVulkanInterface::GenerateJson()
     return vulkan_stats;
 }
 
-uint32_t InfoVulkanInterface::GetFrameStart() const
+uint32_t InfoVulkanGenerator::GetFrameStart() const
 {
     return vulkan_stats_consumer_.GetTrimmedStartFrame();
 }
