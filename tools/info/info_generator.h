@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_CONTAINER_H
-#define GFXRECON_INFO_CONTAINER_H
+#ifndef GFXRECON_INFO_GENERATOR_H
+#define GFXRECON_INFO_GENERATOR_H
 
 #include "decode/decode_api_detection.h"
 #include "decode/file_processor.h"
@@ -44,11 +44,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoContainer
+class InfoGenerator
 {
   public:
-    InfoContainer();
-    ~InfoContainer();
+    InfoGenerator();
+    ~InfoGenerator();
 
     bool ProcessCommandLine(int32_t argc, const char** argv);
 
@@ -167,4 +167,4 @@ class InfoContainer
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_INFO_CONTAINER_H
+#endif // GFXRECON_INFO_GENERATOR_H
