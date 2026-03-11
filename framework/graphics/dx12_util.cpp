@@ -770,18 +770,20 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
     if (SUCCEEDED(result))
     {
         // First see if the created factory can be queried as a 1.1 factory
-        IDXGIFactory1* factory1 = reinterpret_cast<IDXGIFactory1*>(*ppFactory);
+        auto*               base_factory = reinterpret_cast<IUnknown*>(*ppFactory);
+        IDXGIFactory1ComPtr factory1     = nullptr;
 
         // DXGI 1.1 tracking (default)
-        if (SUCCEEDED(factory1->QueryInterface(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory1))))
+        if (SUCCEEDED(base_factory->QueryInterface(IID_PPV_ARGS(&factory1))))
         {
             // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
             RemoveDeactivatedAdapters(adapters);
 
             // Enumerate 1.1 adapters and fetch data with GetDesc1()
-            IDXGIAdapter1* adapter1 = nullptr;
+            IDXGIAdapter1ComPtr adapter1 = nullptr;
 
-            for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1)); ++adapter_idx)
+            for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1.GetInterfacePtr()));
+                 ++adapter_idx)
             {
                 DXGI_ADAPTER_DESC1 dxgi_desc = {};
                 adapter1->GetDesc1(&dxgi_desc);
@@ -792,7 +794,7 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
                     adapter_type = format::AdapterType::kSoftwareAdapter;
                 }
 
-                TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, adapters, adapter_type);
+                TrackAdapterDesc(adapter1.GetInterfacePtr(), adapter_idx, dxgi_desc, adapters, adapter_type);
             }
         }
 
@@ -802,20 +804,25 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
             // Only enumerate 1.0 factory adapters if nothing has been seen yet
             if (adapters.empty())
             {
-                IDXGIFactory* factory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
+                IDXGIFactoryComPtr factory = nullptr;
 
-                if (SUCCEEDED(factory->QueryInterface(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory))))
+                if (SUCCEEDED(base_factory->QueryInterface(IID_PPV_ARGS(&factory))))
                 {
                     // Enumerate 1.0 adapters and fetch data with GetDesc()
-                    IDXGIAdapter* adapter = nullptr;
+                    IDXGIAdapterComPtr adapter = nullptr;
 
-                    for (UINT adapter_idx = 0; SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter)); ++adapter_idx)
+                    for (UINT adapter_idx = 0;
+                         SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter.GetInterfacePtr()));
+                         ++adapter_idx)
                     {
                         DXGI_ADAPTER_DESC dxgi_desc = {};
                         adapter->GetDesc(&dxgi_desc);
 
-                        TrackAdapterDesc(
-                            adapter, adapter_idx, dxgi_desc, adapters, format::AdapterType::kUnknownAdapter);
+                        TrackAdapterDesc(adapter.GetInterfacePtr(),
+                                         adapter_idx,
+                                         dxgi_desc,
+                                         adapters,
+                                         format::AdapterType::kUnknownAdapter);
                     }
                 }
                 else
@@ -942,7 +949,7 @@ bool GetAdapterAndIndexbyLUID(LUID                              luid,
     if (search != adapters.end())
     {
         index       = search->second.adapter_idx;
-        adapter_ptr = search->second.adapter;
+        adapter_ptr = search->second.adapter.GetInterfacePtr();
         success     = true;
     }
     return success;
@@ -972,7 +979,7 @@ IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int3
     {
         if (static_cast<int32_t>(adapter.second.adapter_idx) == index)
         {
-            return adapter.second.adapter;
+            return adapter.second.adapter.GetInterfacePtr();
         }
     }
     return nullptr;
