@@ -20,12 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_D3D12_INTERFACE_H
-#define GFXRECON_INFO_D3D12_INTERFACE_H
+#ifndef GFXRECON_INFO_D3D12_GENERATOR_H
+#define GFXRECON_INFO_D3D12_GENERATOR_H
 
 #if defined(D3D12_SUPPORT)
 
-#include "info_api_interface.h"
+#include "info_api_generator.h"
 
 #include "decode/dx12_detection_consumer.h"
 #include "decode/dx12_stats_consumer.h"
@@ -35,11 +35,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoD3d12Interface : public InfoApiInterface
+class InfoD3d12Generator : public InfoApiGenerator
 {
   public:
-    InfoD3d12Interface() : dx12_detection_consumer_(gfxrecon::decode::Dx12DetectionConsumer::kNoBlockLimit) {}
-    virtual ~InfoD3d12Interface() = default;
+    InfoD3d12Generator() : dx12_detection_consumer_(gfxrecon::decode::Dx12DetectionConsumer::kNoBlockLimit) {}
+    virtual ~InfoD3d12Generator() = default;
 
     // Simple "getter" style methods
     format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_D3D12; }
@@ -87,4 +87,4 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // D3D12_SUPPORT
 
-#endif // GFXRECON_INFO_D3D12_INTERFACE_H
+#endif // GFXRECON_INFO_D3D12_GENERATOR_H

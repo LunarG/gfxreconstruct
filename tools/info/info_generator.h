@@ -34,7 +34,7 @@
 #include "format/format_util.h"
 
 #include "info_writer.h"
-#include "info_api_interface.h"
+#include "info_api_generator.h"
 
 #include <memory>
 #include <vector>
@@ -142,11 +142,11 @@ class InfoGenerator
         }
     };
 
-    InfoApiInterface::OutputSelectionFlags output_flags_{ InfoApiInterface::OutputSelectionFlags::kDefaultInfo };
+    InfoApiGenerator::OutputSelectionFlags output_flags_{ InfoApiGenerator::OutputSelectionFlags::kDefaultInfo };
 
     std::string                                     app_name_;
     InfoWriter                                      info_writer_;
-    std::vector<std::unique_ptr<InfoApiInterface>>  api_interfaces_;
+    std::vector<std::unique_ptr<InfoApiGenerator>>  api_generators_;
     std::vector<std::string>                        detected_apis_;
     uint32_t                                        blank_frame_count_{ 0 };
     uint32_t                                        start_frame_{ 0 };
