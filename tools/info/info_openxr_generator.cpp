@@ -23,33 +23,33 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
-#include "info_openxr_interface.h"
+#include "info_openxr_generator.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
 // Static boolean that runs a lambda to automatically create and register this class with the
-// base class RegisterInterface method.
-static bool sRegisterThisInterface = []() {
-    InfoApiInterface::RegisterInterface([]() { return std::make_unique<InfoOpenXrInterface>(); });
+// base class RegisterGenerator method.
+static bool sRegisterThisGenerator = []() {
+    InfoApiGenerator::RegisterGenerator([]() { return std::make_unique<InfoOpenXrGenerator>(); });
     return true;
 }();
 
-std::string InfoOpenXrInterface::ApiCompiledHeaderVersionString() const
+std::string InfoOpenXrGenerator::ApiCompiledHeaderVersionString() const
 {
     return std::string("  OpenXR Header Version  ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
            std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
            std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 }
 
-void InfoOpenXrInterface::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoOpenXrGenerator::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     openxr_decoder_.AddConsumer(&openxr_detection_consumer_);
     openxr_decoder_.AddConsumer(&openxr_stats_consumer_);
     file_processor.AddDecoder(&openxr_decoder_);
 }
 
-std::string InfoOpenXrInterface::GetVersionString(XrVersion api_version)
+std::string InfoOpenXrGenerator::GetVersionString(XrVersion api_version)
 {
     uint32_t major = XR_VERSION_MAJOR(api_version);
     uint32_t minor = XR_VERSION_MINOR(api_version);
@@ -58,7 +58,7 @@ std::string InfoOpenXrInterface::GetVersionString(XrVersion api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
-void InfoOpenXrInterface::PrintInfo()
+void InfoOpenXrGenerator::PrintInfo()
 {
     auto instance_info = openxr_stats_consumer_.GetInstanceInfo();
 
@@ -79,7 +79,7 @@ void InfoOpenXrInterface::PrintInfo()
                 GetVersionString(instance_info[0].api_version) + ")");
 }
 
-nlohmann::json InfoOpenXrInterface::GenerateJson()
+nlohmann::json InfoOpenXrGenerator::GenerateJson()
 {
     auto instance_info = openxr_stats_consumer_.GetInstanceInfo();
 
