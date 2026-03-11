@@ -83,6 +83,25 @@ bool FpsInfo::ShouldQuit(uint64_t frame)
     return (quit_after_range_ && (frame >= measurement_end_frame_)) || (quit_after_frame_ && frame > quit_frame_);
 }
 
+// Return exclusive quit frame;
+uint64_t FpsInfo::GetQuitBeforeFrame()
+{
+    uint64_t quit_frame = std::numeric_limits<uint64_t>::max();
+    if (quit_after_range_)
+    {
+        // end frame is exclusive
+        quit_frame = std::min(quit_frame, measurement_end_frame_);
+    }
+    if (quit_after_frame_)
+    {
+        // quit_after_frame_ is inclusive
+        quit_frame = std::min(quit_frame, (quit_frame_ + 1));
+    }
+
+    GFXRECON_ASSERT(quit_frame > 1);
+    return quit_frame;
+}
+
 void FpsInfo::BeginFrame(uint64_t frame)
 {
     if (!started_measurement_)
@@ -229,6 +248,15 @@ uint64_t FpsInfo::ShouldPreloadFrames(uint64_t current_frame) const
         result = measurement_end_frame_ - measurement_start_frame_;
     }
     return result;
+}
+
+std::optional<std::pair<uint64_t, uint64_t>> FpsInfo::GetPreloadFrameRange() const
+{
+    if (preload_measurement_range_)
+    {
+        return std::make_pair(measurement_start_frame_, measurement_end_frame_);
+    }
+    return std::nullopt;
 }
 
 GFXRECON_END_NAMESPACE(graphics)
