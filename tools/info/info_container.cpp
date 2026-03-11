@@ -91,19 +91,21 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
     if (argument_parser_->IsOptionSet(kHelpShortOption) || argument_parser_->IsOptionSet(kHelpLongOption))
     {
         PrintUsage();
-        output_level_ = InfoApiInterface::InfoOutputLevel::kInfoVersionOnly;
+        output_flags_ = InfoApiInterface::OutputSelectionFlags::kNoInfo;
+        return true;
     }
     else if (argument_parser_->IsOptionSet(kVersionOption))
     {
         PrintVersion();
-        output_level_ = InfoApiInterface::InfoOutputLevel::kInfoVersionOnly;
+        output_flags_ = InfoApiInterface::OutputSelectionFlags::kNoInfo;
+        return true;
     }
     else if (argument_parser_->IsInvalid() || (argument_parser_->GetPositionalArgumentsCount() != 1))
     {
         WriteError("Missing required capture file name");
 
         PrintUsage();
-        output_level_ = InfoApiInterface::InfoOutputLevel::kInfoVersionOnly;
+        output_flags_ = InfoApiInterface::OutputSelectionFlags::kNoInfo;
         return false;
     }
 
@@ -121,51 +123,41 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
 
     if (argument_parser_->IsOptionSet(kExeInfoOnlyOption))
     {
-        output_level_ = InfoApiInterface::InfoOutputLevel::kExeInfo;
+        output_flags_ = InfoApiInterface::OutputSelectionFlags::kExeInfo;
     }
     else if (argument_parser_->IsOptionSet(kEnvVarsOnlyOption))
     {
-        output_level_ = InfoApiInterface::InfoOutputLevel::kEnvironmentInfo;
+        output_flags_ = InfoApiInterface::OutputSelectionFlags::kEnvironmentInfo;
     }
     else if (argument_parser_->IsOptionSet(kFileFormatOnlyOption))
     {
-        output_level_ = InfoApiInterface::InfoOutputLevel::kFileInfo;
+        output_flags_ = InfoApiInterface::OutputSelectionFlags::kFileInfo;
     }
     else if (argument_parser_->IsOptionSet(kVerboseOption))
     {
-        output_level_ = InfoApiInterface::InfoOutputLevel::kVerbose;
+        output_flags_       = InfoApiInterface::OutputSelectionFlags::kAllInfo;
+        output_json_format_ = true;
 
         // For verbose, we want the errors and warnings to always go to the console
         info_writer_.OutputErrorsWarningsToConsole(true);
     }
 
-    if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
+    // Check for API-specific items
+    for (auto& api_if : api_interfaces_)
     {
-        // Check for API-specific items
-        for (auto& api_if : api_interfaces_)
+        if (!api_if->CheckCommandLine(argument_parser_.get()))
         {
-            if (!api_if->CheckCommandLine(argument_parser_.get()))
-            {
-                PrintUsage();
-                return false;
-            }
-
-            api_if->SetWriter(&info_writer_);
-
-            if (api_if->ApiOutputOverrideDetected())
-            {
-                api_restricted_output_ = true;
-            }
-            else
-            {
-                api_if->SetOutputLevel(output_level_);
-            }
+            PrintUsage();
+            return false;
         }
 
-        if (argument_parser_->IsArgumentSet(kOutputFileArgument))
-        {
-            info_writer_.SetOutputFile(argument_parser_->GetArgumentValue(kOutputFileArgument));
-        }
+        api_if->SetWriter(&info_writer_);
+        api_if->SetOutputFlags(output_flags_);
+    }
+
+    if (argument_parser_->IsArgumentSet(kOutputFileArgument))
+    {
+        info_writer_.SetOutputFile(argument_parser_->GetArgumentValue(kOutputFileArgument));
     }
 
     return true;
@@ -173,7 +165,7 @@ bool InfoContainer::ProcessCommandLine(int32_t argc, const char** argv)
 
 bool InfoContainer::ProcessCapture()
 {
-    if (output_level_ > InfoApiInterface::InfoOutputLevel::kInfoVersionOnly)
+    if (output_flags_ != InfoApiInterface::OutputSelectionFlags::kNoInfo)
     {
         const std::vector<std::string>& positional_arguments = argument_parser_->GetPositionalArguments();
         std::string                     input_filename       = positional_arguments[0];
@@ -186,8 +178,8 @@ bool InfoContainer::ProcessCapture()
             file_processor_.AddDecoder(&info_decoder_);
             file_processor_.SetAnnotationProcessor(&annotation_recorder_);
 
-            // For file info, we want to do a simpler pass.
-            if (output_level_ == InfoApiInterface::InfoOutputLevel::kFileInfo)
+            // For only file info, we want to do a simpler pass.
+            if (output_flags_ == InfoApiInterface::OutputSelectionFlags::kFileInfo)
             {
                 if (!file_processor_.ProcessNextFrame())
                 {
@@ -203,7 +195,8 @@ bool InfoContainer::ProcessCapture()
             {
                 // Also add the API-specific components if we're doing any kind of output
                 // that requires it.
-                if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin)
+                if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kRequiresApiInfo) !=
+                    InfoApiInterface::OutputSelectionFlags::kNoInfo)
                 {
                     for (auto& api_if : api_interfaces_)
                     {
@@ -223,7 +216,8 @@ bool InfoContainer::ProcessCapture()
             // Look to see what APIs we detected.  If none were found, we want to output
             // whatever we can from every possible API since we might have just failed to
             // detect it manually.
-            if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin)
+            if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kRequiresApiInfo) !=
+                InfoApiInterface::OutputSelectionFlags::kNoInfo)
             {
                 std::string driver_info = "Driver info not available.";
                 if (gfxrecon::util::platform::StringLength(info_consumer_.GetDriverDesc()) > 0)
@@ -268,69 +262,74 @@ bool InfoContainer::ProcessCapture()
             return false;
         }
     }
+
     return true;
 }
 
 bool InfoContainer::OutputContent()
 {
-    if (output_level_ >= InfoApiInterface::InfoOutputLevel::kApiSpecificBegin)
+    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kExeInfo) !=
+        InfoApiInterface::OutputSelectionFlags::kNoInfo)
     {
-        WriteOutput("A failure has occurred during file processing");
-        // We still print out what we can and bail afterwards.
+        if (output_json_format_)
+        {
+            json_base_["exe"] = GetExeInfoJson();
+        }
+        else
+        {
+            PrintExeInfo();
+        }
     }
-
-    switch (output_level_)
+    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kEnvironmentInfo) !=
+        InfoApiInterface::OutputSelectionFlags::kNoInfo)
     {
-        case InfoApiInterface::InfoOutputLevel::kExeInfo:
-            PrintExeInfo();
-            break;
-        case InfoApiInterface::InfoOutputLevel::kEnvironmentInfo:
-            PrintEnvironmentVariableInfo();
-            break;
-        case InfoApiInterface::InfoOutputLevel::kFileInfo:
-            PrintFileFormatInfoText();
-            break;
-        case InfoApiInterface::InfoOutputLevel::kBasic:
-            PrintExeInfo();
-            PrintApiAgnosticStatsText();
-
-            for (auto& api_if : api_interfaces_)
-            {
-                if ((api_if->ApiWasDetected() || force_all_api_output_) &&
-                    (!api_restricted_output_ || api_if->ApiOutputOverrideDetected()))
-                {
-                    api_if->PrintInfo();
-
-                    if (api_restricted_output_)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if (file_processor_.GetCurrentFrameNumber() == 0)
-            {
-                WriteWarning("File did not contain any frames");
-            }
-
-            PrintGfxrOperationsText();
-            break;
-        case InfoApiInterface::InfoOutputLevel::kVerbose:
-            json_base_["exe"]         = GetExeInfoJson();
+        if (output_json_format_)
+        {
             json_base_["environment"] = GetEnvironmentVariableInfoJson();
-            json_base_["file-info"]   = GetFileFormatInfoJson();
-
+        }
+        else
+        {
+            PrintEnvironmentVariableInfo();
+        }
+    }
+    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kFileInfo) !=
+        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    {
+        if (output_json_format_)
+        {
+            json_base_["file-info"] = GetFileFormatInfoJson();
+        }
+        else
+        {
+            PrintFileFormatInfoText();
+        }
+    }
+    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kApiAgnosticInfo) !=
+        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    {
+        if (output_json_format_)
+        {
             if (!detected_apis_.size())
             {
                 detected_apis_.push_back("Unable to detect captured APIs");
             }
             json_base_["detected-apis"] = detected_apis_;
             json_base_["general-info"]  = GetApiAgnosticStatsJson();
+        }
+        else
+        {
+            PrintApiAgnosticStatsText();
+        }
+    }
 
-            for (auto& api_if : api_interfaces_)
+    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kRequiresApiInfo) !=
+        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    {
+        for (auto& api_if : api_interfaces_)
+        {
+            if ((api_if->ApiWasDetected() || force_all_api_output_))
             {
-                if ((api_if->ApiWasDetected() || force_all_api_output_) &&
-                    (!api_restricted_output_ || api_if->ApiOutputOverrideDetected()))
+                if (output_json_format_)
                 {
                     std::string api_lower = api_if->ApiLabel();
                     std::transform(api_lower.begin(), api_lower.end(), api_lower.begin(), [](unsigned char c) {
@@ -338,23 +337,35 @@ bool InfoContainer::OutputContent()
                     });
 
                     json_base_[api_lower] = api_if->GenerateJson();
-
-                    if (api_restricted_output_)
-                    {
-                        break;
-                    }
+                }
+                else
+                {
+                    api_if->PrintInfo();
                 }
             }
+        }
 
+        if (file_processor_.GetCurrentFrameNumber() == 0)
+        {
+            WriteWarning("File did not contain any frames");
+        }
+
+        if (output_json_format_)
+        {
             if (!annotation_recorder_.operation_annotations_.empty())
             {
                 json_base_["gfxr-operations"] = GetGfxrOperationsJson();
             }
+        }
+        else
+        {
+            PrintGfxrOperationsText();
+        }
+    }
 
-            WriteOutput(json_base_.dump(4, ' ', true).c_str());
-            break;
-        default:
-            break;
+    if (output_flags_ != InfoApiInterface::OutputSelectionFlags::kNoInfo && output_json_format_)
+    {
+        WriteOutput(json_base_.dump(4, ' ', true).c_str());
     }
 
     return true;
@@ -583,9 +594,14 @@ nlohmann::json InfoContainer::GetApiAgnosticStatsJson()
     }
 
     uint32_t total_count = api_agnostic_stats_.blank_frame_count + api_agnostic_stats_.frame_count;
+    uint32_t end_frame   = 0;
     if (file_processor_.GetCurrentFrameNumber() == 0)
     {
         total_count = 0;
+    }
+    else
+    {
+        end_frame = api_agnostic_stats_.trim_start_frame + api_agnostic_stats_.frame_count - 1;
     }
 
     return { { "compression",
@@ -598,7 +614,7 @@ nlohmann::json InfoContainer::GetApiAgnosticStatsJson()
                    { "actual-count", api_agnostic_stats_.frame_count },
                    { "total-count", total_count },
                    { "start-frame", api_agnostic_stats_.trim_start_frame },
-                   { "end-frame", api_agnostic_stats_.trim_start_frame + api_agnostic_stats_.frame_count - 1 },
+                   { "end-frame", end_frame },
                } } };
 }
 
