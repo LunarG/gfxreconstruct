@@ -286,8 +286,8 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // free replacer internal vulkan-resources
     _device_address_replacers.clear();
 
-    // free vulkan-resources related to swapchain-image overrides
-    swapchain_override_copy_utils_.clear();
+    // free vulkan-resources related to present-image overrides
+    present_override_state_ = {};
 
     // process queued async tasks
     background_queue_.join_all();
@@ -2656,9 +2656,9 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 uint32_t image_height = swapchain_info->height;
 
                 // apply swapchain-image override, if any
-                if (swapchain_override_image_id_ != format::kNullHandleId)
+                if (present_override_state_.image_id != format::kNullHandleId)
                 {
-                    auto* override_img_info = object_info_table_->GetVkImageInfo(swapchain_override_image_id_);
+                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_state_.image_id);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
                     if (override_img_info != nullptr)
@@ -7474,7 +7474,7 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
                     GFXRECON_LOG_INFO("Replay is using swapchain-image override: %s - handle-id: %" PRIu64 "",
                                       info->pObjectName,
                                       handle_id);
-                    swapchain_override_image_id_ = handle_id;
+                    present_override_state_.image_id = handle_id;
                 }
             }
         }
@@ -8594,11 +8594,11 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 modified_image_indices_[i]  = replay_image_index;
 
                 // copy override-image into current swapchain image
-                if (swapchain_override_image_id_ != format::kNullHandleId)
+                if (present_override_state_.image_id != format::kNullHandleId)
                 {
                     GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
 
-                    auto& copy_util = swapchain_override_copy_utils_[swapchain_info->device_info->handle];
+                    auto& copy_util = present_override_state_.copy_utils[swapchain_info->device_info->handle];
                     if (!copy_util)
                     {
                         const VulkanPhysicalDeviceInfo* phys_dev_info =
@@ -8618,7 +8618,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     auto*            img_info         = object_info_table_->GetVkImageInfo(swapchain_img_id);
                     GFXRECON_ASSERT(img_info != nullptr);
 
-                    auto* override_img_info = object_info_table_->GetVkImageInfo(swapchain_override_image_id_);
+                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_state_.image_id);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
                     if (img_info != nullptr && override_img_info != nullptr)
@@ -8651,7 +8651,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     {
                         GFXRECON_LOG_WARNING("could not retrieve images for attempted swapchain-image override: "
                                              "override-image-id: %" PRIu64 " - swapchain-image-id: %" PRIu64 "",
-                                             swapchain_override_image_id_,
+                                             present_override_state_.image_id,
                                              swapchain_img_id);
                     }
                 }

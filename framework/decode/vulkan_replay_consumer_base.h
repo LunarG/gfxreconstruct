@@ -1977,8 +1977,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::vector<const char*> faked_extensions_;
 
     // option to override swapchain-image via debug-name
-    format::HandleId swapchain_override_image_id_ = format::kNullHandleId;
-    std::unordered_map<VkDevice, std::unique_ptr<graphics::VulkanResourcesUtil>> swapchain_override_copy_utils_;
+    struct present_override_state_t
+    {
+        format::HandleId                                                             image_id = format::kNullHandleId;
+        std::unordered_map<VkDevice, std::unique_ptr<graphics::VulkanResourcesUtil>> copy_utils;
+    };
+    present_override_state_t present_override_state_;
 
     // required for reverse lookup of handle-ids
     std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
