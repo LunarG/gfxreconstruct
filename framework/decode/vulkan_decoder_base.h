@@ -205,7 +205,8 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
                                                         const char* env_string) override;
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index) override;
+    virtual void BeginDispatchBlock(const ParsedBlock* parsed_block) override;
+    virtual void EndDispatchBlock() override;
 
     virtual void SetCurrentFrameNumber(uint64_t frame_number) override;
 

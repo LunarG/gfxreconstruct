@@ -29,6 +29,7 @@
 #include "decode/marker_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
+#include "decode/parsed_block.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
@@ -50,7 +51,29 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
+    uint64_t GetCurrentBlockIndex() const
+    {
+        GFXRECON_ASSERT(current_parsed_block_ != nullptr);
+        return current_parsed_block_->GetBlockIndex();
+    }
+
+    const ParsedBlock* GetCurrentBlock() const
+    {
+        GFXRECON_ASSERT(current_parsed_block_ != nullptr);
+        return current_parsed_block_;
+    }
+
+    virtual void BeginProcessBlock(const ParsedBlock* parsed_block)
+    {
+        GFXRECON_ASSERT(current_parsed_block_ == nullptr);
+        current_parsed_block_ = parsed_block;
+    }
+
+    virtual void EndProcessBlock()
+    {
+        GFXRECON_ASSERT(current_parsed_block_ != nullptr);
+        current_parsed_block_ = nullptr;
+    }
 
     virtual void SetCurrentFrameNumber(uint64_t frame_number) { frame_number_ = frame_number; }
 
@@ -65,6 +88,10 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
   protected:
     uint64_t frame_number_{ 0 };
+
+  private:
+    // current_parsed_block_ is valid between calls to BeginProcessBlock and EndProcessBlock and is nullptr otherwise.
+    const ParsedBlock* current_parsed_block_{ nullptr };
 };
 
 /* Utility */

@@ -36,14 +36,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+class ParsedBlock;
+
 struct ApiCallInfo
 {
     /// The block index of a function call. Stream processors like FileProcessor
     /// must set this before dispatching function calls to decoders.
     /// @note This is lightly used: only for a log output in replay and for JSON
     /// Convert.
-    /// @see ApiDecoder::SetCurrentBlockIndex() which can pass the block index
-    /// to decoders so it is available for any block type, not just API calls.
+    /// @see ApiDecoder::BeginDispatchBlock() which can pass the parsed block to
+    /// decoders so it is available for any block type, not just API calls.
     uint64_t index{ 0 };
 
     /// Thread id of captured function call.
@@ -203,7 +205,8 @@ class ApiDecoder
                                                int64_t            offset,
                                                const std::string& filename){};
 
-    virtual void SetCurrentBlockIndex(uint64_t block_index){};
+    virtual void BeginDispatchBlock(const ParsedBlock* parsed_block){};
+    virtual void EndDispatchBlock(){};
 
     // Expects zero-based frame_number to match the way FileProcessor::current_frame_number_ works
     virtual void SetCurrentFrameNumber(uint64_t frame_number){};

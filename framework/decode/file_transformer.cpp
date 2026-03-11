@@ -162,8 +162,7 @@ bool FileTransformer::Process()
         {
             // Track bytes read by the parser, since we aren't using ReadBytes here
             bytes_read_ += block_buffer.Size();
-            block_parser_->SetBlockIndex(block_index_);
-            ParsedBlock parsed_block = block_parser_->ParseBlock(block_buffer);
+            ParsedBlock parsed_block = block_parser_->ParseBlock(block_buffer, block_index_);
 
             // There are four states for a parsed block
             //    kReady and kDeferredDecompress are "Visitable"
