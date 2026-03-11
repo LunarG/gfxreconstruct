@@ -64,9 +64,7 @@ bool InfoD3d12Interface::CheckCommandLine(util::ArgumentParser* arg_parser)
 {
     if (arg_parser->IsOptionSet(kEnumGpuIndices))
     {
-        // Indicate we need an API-specific overrid, and set the output to only show the necessary info
-        api_output_override_ = true;
-        info_output_level_   = kD3d12EnumGpuDevices;
+        output_flags_ = InfoApiInterface::OutputSelectionFlags::kApiSpecific_1;
     }
     return true;
 }
@@ -372,28 +370,26 @@ nlohmann::json InfoD3d12Interface::GetDxrEiInfoJson()
 
 void InfoD3d12Interface::PrintInfo()
 {
-    switch (info_output_level_)
+    if (output_flags_ & InfoApiInterface::OutputSelectionFlags::kApiSpecific_1)
     {
-        case InfoApiInterface::InfoOutputLevel::kBasic:
-        {
-            if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
-            {
-                WriteOutput(std::string("\tTest present count: ") +
-                            std::to_string(dx12_consumer_.GetDXGITestPresentCount()));
-            }
+        PrintEnumGpuIndices();
+    }
 
-            PrintDriverInfoText();
-            PrintRuntimeInfoText();
-            PrintAdapterInfoText();
-            PrintSwapchainInfoText();
-            PrintDxrEiInfoText();
-            break;
+    // Output everything else, unless we're only supposed to output the
+    // enum gpu indicies only.
+    if (output_flags_ != InfoApiInterface::OutputSelectionFlags::kApiSpecific_1)
+    {
+        if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
+        {
+            WriteOutput(std::string("\tTest present count: ") +
+                        std::to_string(dx12_consumer_.GetDXGITestPresentCount()));
         }
-        case InfoApiInterface::InfoOutputLevel::kApiSpecific_1: // kD3d12EnumGpuDevices:
-            PrintEnumGpuIndices();
-            break;
-        default:
-            break;
+
+        PrintDriverInfoText();
+        PrintRuntimeInfoText();
+        PrintAdapterInfoText();
+        PrintSwapchainInfoText();
+        PrintDxrEiInfoText();
     }
 }
 
