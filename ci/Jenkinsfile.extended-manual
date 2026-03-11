@@ -41,7 +41,6 @@ pipeline {
     }
 
     options {
-        disableConcurrentBuilds(abortPrevious: true)
         buildDiscarder(logRotator(
             daysToKeepStr: '7',
             numToKeepStr: '20',
