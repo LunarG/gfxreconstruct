@@ -58,12 +58,12 @@ InfoGenerator::InfoGenerator()
 {
     gfxrecon::util::Log::Init();
 
-    // Query the base InfoApiInterface class which should have a vector
+    // Query the base InfoApiGenerator class which should have a vector
     // of all child classes that registered with it.
     // They are unique_ptrs so we need to move control to our list.
-    for (const auto& registered_type : InfoApiInterface::GetRegisteredInterfaces())
+    for (const auto& registered_type : InfoApiGenerator::GetRegisteredGenerators())
     {
-        api_interfaces_.push_back(std::move(registered_type()));
+        api_generators_.push_back(std::move(registered_type()));
     }
 }
 
@@ -80,24 +80,24 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
     // Add any API-specific command-line arguments/options
     std::string arguments = kArguments;
     std::string options   = kOptions;
-    for (auto& api_if : api_interfaces_)
+    for (auto& api_gen : api_generators_)
     {
-        api_if->UpdateValidCommandLineOptionsArgs(options, arguments);
+        api_gen->UpdateValidCommandLineOptionsArgs(options, arguments);
     }
 
-    // Create a shared argument parser so we can share it with the API-specific interfaces
+    // Create a shared argument parser so we can share it with the API-specific generators
     argument_parser_ = std::make_unique<gfxrecon::util::ArgumentParser>(argc, argv, options, arguments);
 
     if (argument_parser_->IsOptionSet(kHelpShortOption) || argument_parser_->IsOptionSet(kHelpLongOption))
     {
         PrintUsage();
-        output_flags_ = InfoApiInterface::OutputSelectionFlags::kNoInfo;
+        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kNoInfo;
         return true;
     }
     else if (argument_parser_->IsOptionSet(kVersionOption))
     {
         PrintVersion();
-        output_flags_ = InfoApiInterface::OutputSelectionFlags::kNoInfo;
+        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kNoInfo;
         return true;
     }
     else if (argument_parser_->IsInvalid() || (argument_parser_->GetPositionalArgumentsCount() != 1))
@@ -105,7 +105,7 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
         WriteError("Missing required capture file name");
 
         PrintUsage();
-        output_flags_ = InfoApiInterface::OutputSelectionFlags::kNoInfo;
+        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kNoInfo;
         return false;
     }
 
@@ -123,19 +123,19 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
 
     if (argument_parser_->IsOptionSet(kExeInfoOnlyOption))
     {
-        output_flags_ = InfoApiInterface::OutputSelectionFlags::kExeInfo;
+        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kExeInfo;
     }
     else if (argument_parser_->IsOptionSet(kEnvVarsOnlyOption))
     {
-        output_flags_ = InfoApiInterface::OutputSelectionFlags::kEnvironmentInfo;
+        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kEnvironmentInfo;
     }
     else if (argument_parser_->IsOptionSet(kFileFormatOnlyOption))
     {
-        output_flags_ = InfoApiInterface::OutputSelectionFlags::kFileInfo;
+        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kFileInfo;
     }
     else if (argument_parser_->IsOptionSet(kVerboseOption))
     {
-        output_flags_       = InfoApiInterface::OutputSelectionFlags::kAllInfo;
+        output_flags_       = InfoApiGenerator::OutputSelectionFlags::kAllInfo;
         output_json_format_ = true;
 
         // For verbose, we want the errors and warnings to always go to the console
@@ -143,16 +143,16 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
     }
 
     // Check for API-specific items
-    for (auto& api_if : api_interfaces_)
+    for (auto& api_gen : api_generators_)
     {
-        if (!api_if->CheckCommandLine(argument_parser_.get()))
+        if (!api_gen->CheckCommandLine(argument_parser_.get()))
         {
             PrintUsage();
             return false;
         }
 
-        api_if->SetWriter(&info_writer_);
-        api_if->SetOutputFlags(output_flags_);
+        api_gen->SetWriter(&info_writer_);
+        api_gen->SetOutputFlags(output_flags_);
     }
 
     if (argument_parser_->IsArgumentSet(kOutputFileArgument))
@@ -165,7 +165,7 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
 
 bool InfoGenerator::ProcessCapture()
 {
-    if (output_flags_ != InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    if (output_flags_ != InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
         const std::vector<std::string>& positional_arguments = argument_parser_->GetPositionalArguments();
         std::string                     input_filename       = positional_arguments[0];
@@ -179,7 +179,7 @@ bool InfoGenerator::ProcessCapture()
             file_processor_.SetAnnotationProcessor(&annotation_recorder_);
 
             // For only file info, we want to do a simpler pass.
-            if (output_flags_ == InfoApiInterface::OutputSelectionFlags::kFileInfo)
+            if (output_flags_ == InfoApiGenerator::OutputSelectionFlags::kFileInfo)
             {
                 if (!file_processor_.ProcessNextFrame())
                 {
@@ -195,12 +195,12 @@ bool InfoGenerator::ProcessCapture()
             {
                 // Also add the API-specific components if we're doing any kind of output
                 // that requires it.
-                if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kRequiresApiInfo) !=
-                    InfoApiInterface::OutputSelectionFlags::kNoInfo)
+                if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kRequiresApiInfo) !=
+                    InfoApiGenerator::OutputSelectionFlags::kNoInfo)
                 {
-                    for (auto& api_if : api_interfaces_)
+                    for (auto& api_gen : api_generators_)
                     {
-                        api_if->RegisterApiDecodeComponents(file_processor_);
+                        api_gen->RegisterApiDecodeComponents(file_processor_);
                     }
                 }
 
@@ -216,8 +216,8 @@ bool InfoGenerator::ProcessCapture()
             // Look to see what APIs we detected.  If none were found, we want to output
             // whatever we can from every possible API since we might have just failed to
             // detect it manually.
-            if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kRequiresApiInfo) !=
-                InfoApiInterface::OutputSelectionFlags::kNoInfo)
+            if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kRequiresApiInfo) !=
+                InfoApiGenerator::OutputSelectionFlags::kNoInfo)
             {
                 std::string driver_info = "Driver info not available.";
                 if (gfxrecon::util::platform::StringLength(info_consumer_.GetDriverDesc()) > 0)
@@ -226,22 +226,22 @@ bool InfoGenerator::ProcessCapture()
                 }
 
                 bool api_found = false;
-                for (auto& api_if : api_interfaces_)
+                for (auto& api_gen : api_generators_)
                 {
-                    if (api_if->ApiWasDetected())
+                    if (api_gen->ApiWasDetected())
                     {
-                        detected_apis_.push_back(api_if->ApiLabel());
-                        blank_frame_count_ += api_if->GetBlankFrameCount();
-                        uint32_t api_start_frame = api_if->GetFrameStart();
+                        detected_apis_.push_back(api_gen->ApiLabel());
+                        blank_frame_count_ += api_gen->GetBlankFrameCount();
+                        uint32_t api_start_frame = api_gen->GetFrameStart();
                         if (api_start_frame > start_frame_)
                         {
                             start_frame_ = api_start_frame;
                         }
-                        api_if->SetFrameMarkerUsage(file_processor_.UsesFrameMarkers());
-                        api_if->SetDriverInfoString(driver_info);
+                        api_gen->SetFrameMarkerUsage(file_processor_.UsesFrameMarkers());
+                        api_gen->SetDriverInfoString(driver_info);
                         api_found = true;
 
-                        if (api_if->ApiDesiresSingleLineFrameOutput())
+                        if (api_gen->ApiDesiresSingleLineFrameOutput())
                         {
                             use_single_line_frame_output_ = true;
                         }
@@ -268,8 +268,8 @@ bool InfoGenerator::ProcessCapture()
 
 bool InfoGenerator::OutputContent()
 {
-    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kExeInfo) !=
-        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kExeInfo) !=
+        InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
         if (output_json_format_)
         {
@@ -280,8 +280,8 @@ bool InfoGenerator::OutputContent()
             PrintExeInfo();
         }
     }
-    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kEnvironmentInfo) !=
-        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kEnvironmentInfo) !=
+        InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
         if (output_json_format_)
         {
@@ -292,8 +292,8 @@ bool InfoGenerator::OutputContent()
             PrintEnvironmentVariableInfo();
         }
     }
-    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kFileInfo) !=
-        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kFileInfo) !=
+        InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
         if (output_json_format_)
         {
@@ -304,8 +304,8 @@ bool InfoGenerator::OutputContent()
             PrintFileFormatInfoText();
         }
     }
-    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kApiAgnosticInfo) !=
-        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kApiAgnosticInfo) !=
+        InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
         if (output_json_format_)
         {
@@ -322,25 +322,25 @@ bool InfoGenerator::OutputContent()
         }
     }
 
-    if ((output_flags_ & InfoApiInterface::OutputSelectionFlags::kRequiresApiInfo) !=
-        InfoApiInterface::OutputSelectionFlags::kNoInfo)
+    if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kRequiresApiInfo) !=
+        InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
-        for (auto& api_if : api_interfaces_)
+        for (auto& api_gen : api_generators_)
         {
-            if ((api_if->ApiWasDetected() || force_all_api_output_))
+            if ((api_gen->ApiWasDetected() || force_all_api_output_))
             {
                 if (output_json_format_)
                 {
-                    std::string api_lower = api_if->ApiLabel();
+                    std::string api_lower = api_gen->ApiLabel();
                     std::transform(api_lower.begin(), api_lower.end(), api_lower.begin(), [](unsigned char c) {
                         return std::tolower(c);
                     });
 
-                    json_base_[api_lower] = api_if->GenerateJson();
+                    json_base_[api_lower] = api_gen->GenerateJson();
                 }
                 else
                 {
-                    api_if->PrintInfo();
+                    api_gen->PrintInfo();
                 }
             }
         }
@@ -363,7 +363,7 @@ bool InfoGenerator::OutputContent()
         }
     }
 
-    if (output_flags_ != InfoApiInterface::OutputSelectionFlags::kNoInfo && output_json_format_)
+    if (output_flags_ != InfoApiGenerator::OutputSelectionFlags::kNoInfo && output_json_format_)
     {
         WriteOutput(json_base_.dump(4, ' ', true).c_str());
     }
@@ -395,19 +395,19 @@ void InfoGenerator::PrintUsage()
     WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
     WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 
-    for (auto& api_if : api_interfaces_)
+    for (auto& api_gen : api_generators_)
     {
-        api_if->SetWriter(&info_writer_);
-        api_if->OutputCommandLineUsage();
+        api_gen->SetWriter(&info_writer_);
+        api_gen->OutputCommandLineUsage();
     }
 }
 
 void InfoGenerator::PrintVersion()
 {
     WriteOutput((app_name_ + " version info:\n  GFXReconstruct Version " + GetProjectVersionString()).c_str());
-    for (auto& api_if : api_interfaces_)
+    for (auto& api_gen : api_generators_)
     {
-        WriteOutput(api_if->ApiCompiledHeaderVersionString());
+        WriteOutput(api_gen->ApiCompiledHeaderVersionString());
     }
 }
 
