@@ -20,10 +20,10 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_VULKAN_INTERFACE_H
-#define GFXRECON_INFO_VULKAN_INTERFACE_H
+#ifndef GFXRECON_INFO_VULKAN_GENERATOR_H
+#define GFXRECON_INFO_VULKAN_GENERATOR_H
 
-#include "info_api_interface.h"
+#include "info_api_generator.h"
 
 #include "decode/vulkan_detection_consumer.h"
 #include "decode/vulkan_stats_consumer.h"
@@ -32,11 +32,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoVulkanInterface : public InfoApiInterface
+class InfoVulkanGenerator : public InfoApiGenerator
 {
   public:
-    InfoVulkanInterface() : vulkan_detection_consumer_(gfxrecon::decode::VulkanDetectionConsumer::kNoBlockLimit) {}
-    virtual ~InfoVulkanInterface() = default;
+    InfoVulkanGenerator() : vulkan_detection_consumer_(gfxrecon::decode::VulkanDetectionConsumer::kNoBlockLimit) {}
+    virtual ~InfoVulkanGenerator() = default;
 
     // Simple "getter" style methods
     format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_Vulkan; }
@@ -80,4 +80,4 @@ class InfoVulkanInterface : public InfoApiInterface
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_INFO_D3D12_INTERFACE_H
+#endif // GFXRECON_INFO_VULKAN_GENERATOR_H
