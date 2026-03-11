@@ -36,6 +36,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+GFXRECON_BEGIN_NAMESPACE(file_processor)
+// Forward declarations for types use in DispatchArgs
+struct ProcessBlocksResult;
+GFXRECON_END_NAMESPACE(file_processor)
+
 template <typename Command, typename Dummy = void>
 struct DispatchHasCallId : std::false_type
 {};
@@ -783,8 +788,28 @@ struct DispatchTraits<AnnotationArgs> : DispatchFlagTraits<AnnotationArgs>
     // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
 };
 
+template <>
+struct DispatchTraits<file_processor::ProcessBlocksResult> : DispatchFlagTraits<void>
+{
+    // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
+};
+
+template <>
+struct DispatchTraits<std::monostate> : DispatchFlagTraits<void>
+{
+    // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
+};
+
+template <typename T>
+using DispatchAlternativeType = std::remove_pointer_t<std::remove_cvref_t<T>>;
+;
+template <typename Alternative>
+struct DispatchAlternativeTraits : DispatchTraits<DispatchAlternativeType<Alternative>>
+{};
+
 // --- Variant of all payloads by reference, storage in allocator
 using DispatchArgs = std::variant<std::monostate,
+                                  file_processor::ProcessBlocksResult*,
                                   FunctionCallArgs*,
                                   MethodCallArgs*,
                                   StateBeginMarkerArgs*,

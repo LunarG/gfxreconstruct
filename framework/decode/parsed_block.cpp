@@ -70,7 +70,7 @@ ParsedBlock::BlockSpan ParsedBlock::GetBlockSpan() const noexcept
     return { block_data_, size };
 }
 
-bool ParsedBlock::Decompress(BlockParser& parser, util::HeapBuffer& working_store)
+bool ParsedBlock::Decompress(const BlockParser& parser, util::HeapBuffer& working_store)
 {
     // Shouldn't call this unless we know it's needed
     // Also, not safe if it isn't needed...
@@ -80,33 +80,29 @@ bool ParsedBlock::Decompress(BlockParser& parser, util::HeapBuffer& working_stor
     }
 
     auto decompress = [this, &parser, &working_store](auto&& args_store) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(args_store)>, std::monostate>)
+        if constexpr (DispatchAlternativeTraits<decltype(args_store)>::kHasData)
         {
-            parser.HandleBlockReadError(kErrorReadingCompressedBlockData,
-                                        "Block is invalid or unknown, but is marked as needing decompression");
+            auto& args              = *args_store;
+            auto  compressed_span   = GetCompressedSpan(args);
+            auto  uncompressed_size = GetDispatchArgsDataSize(args);
+            working_store.ReserveDiscarding(uncompressed_size);
+            auto uncompressed_store = parser.DecompressSpan(compressed_span, uncompressed_size, working_store.get());
+            if (uncompressed_store != nullptr)
+            {
+                // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
+                args.data = uncompressed_store;
+                state_    = BlockState::kReady;
+            }
+        }
+        else
+        {
+            parser.HandleBlockReadError(
+                kErrorReadingCompressedBlockData,
+                "Block type cannot hold compressed data, but is marked as needing decompression");
             GFXRECON_ASSERT(false && "Cannot decompress a block with no DispatchArgs");
             // We tried to decompress an unknown or invalid block that was in kDeferredDecompress state, which shouldn't
             // be possible.
             state_ = BlockState::kInvalid;
-        }
-        else
-        {
-            auto& args = *args_store;
-            using Args = std::decay_t<decltype(args)>;
-            if constexpr (DispatchTraits<Args>::kHasData)
-            {
-                auto compressed_span   = GetCompressedSpan(args);
-                auto uncompressed_size = GetDispatchArgsDataSize(args);
-                working_store.ReserveDiscarding(uncompressed_size);
-                auto uncompressed_store =
-                    parser.DecompressSpan(compressed_span, uncompressed_size, working_store.get());
-                if (uncompressed_store != nullptr)
-                {
-                    // Patch the data buffer pointer, and shift ownership of the backing store to the parsed block
-                    args.data = uncompressed_store;
-                    state_    = BlockState::kReady;
-                }
-            }
         }
     };
 
