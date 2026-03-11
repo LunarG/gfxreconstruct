@@ -113,16 +113,16 @@ struct VulkanReplayOptions : public ReplayOptions
     // optionally override swapchain-images by providing an image debug-utils name
     std::string swapchain_override_image_name;
 
-    int32_t                      override_gpu_group_index{ -1 };
-    int32_t                      surface_index{ -1 };
-    CreateResourceAllocator      create_resource_allocator;
-    uint32_t                     screenshot_width, screenshot_height;
-    float                        screenshot_scale;
-    std::string                  replace_shader_dir;
-    SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
-    std::vector<util::UintRange> skip_get_fence_ranges;
-    bool                         wait_before_present{ false };
-    VkFlags                      debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+    int32_t                             override_gpu_group_index{ -1 };
+    int32_t                             surface_index{ -1 };
+    CreateResourceAllocator             create_resource_allocator;
+    uint32_t                            screenshot_width, screenshot_height;
+    std::optional<std::array<float, 2>> screenshot_scale;
+    std::string                         replace_shader_dir;
+    SkipGetFenceStatus                  skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
+    std::vector<util::UintRange>        skip_get_fence_ranges;
+    bool                                wait_before_present{ false };
+    VkFlags                             debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
 
     // Dumping resources related configurable replay options

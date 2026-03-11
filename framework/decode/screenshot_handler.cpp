@@ -67,26 +67,25 @@ inline void WriteImageFile(const std::string&     filename,
     }
 }
 
-void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
-                                   const VulkanDeviceInfo*                 device_info,
-                                   const graphics::VulkanDeviceTable*      device_table,
-                                   const VkPhysicalDeviceMemoryProperties& memory_properties,
-                                   VulkanResourceAllocator*                allocator,
-                                   VkImage                                 image,
-                                   VkFormat                                format,
-                                   uint32_t                                width,
-                                   uint32_t                                height,
-                                   uint32_t                                copy_width,
-                                   uint32_t                                copy_height,
-                                   VkImageLayout                           image_layout)
+void ScreenshotHandler::WriteImage(const std::string&                         filename_prefix,
+                                   const VulkanDeviceInfo*                    device_info,
+                                   const graphics::VulkanDeviceTable*         device_table,
+                                   const VkPhysicalDeviceMemoryProperties&    memory_properties,
+                                   VulkanResourceAllocator*                   allocator,
+                                   VkImage                                    image,
+                                   VkFormat                                   format,
+                                   uint32_t                                   width,
+                                   uint32_t                                   height,
+                                   const std::optional<std::array<float, 2>>& copy_scale,
+                                   VkImageLayout                              image_layout)
 {
-    if ((device_table == nullptr) || (allocator == nullptr))
+    if (device_table == nullptr || allocator == nullptr)
     {
         GFXRECON_LOG_ERROR("Screenshot could not be created: missing device table or allocator");
         return;
     }
 
-    if ((width == 0) || (height == 0))
+    if (width == 0 || height == 0)
     {
         GFXRECON_LOG_WARNING("Cannot create screenshot \"%s\" for 0 size image (width=%" PRIu32 ", height=%" PRIu32
                              ").",
@@ -94,6 +93,20 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                              width,
                              height);
         return;
+    }
+
+    // derive output-size and orientation from provided scale
+    uint32_t copy_width  = width;
+    uint32_t copy_height = height;
+    bool     flip_x      = false;
+    bool     flip_y      = false;
+
+    if (copy_scale)
+    {
+        copy_width  = static_cast<uint32_t>(width * copy_scale.value()[0]);
+        copy_height = static_cast<uint32_t>(height * copy_scale.value()[1]);
+        flip_x      = copy_scale.value()[0] < 0.f;
+        flip_y      = copy_scale.value()[1] < 0.f;
     }
 
     VkResult result = VK_SUCCESS;
@@ -141,8 +154,8 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
         bool         create_resource = false;
 
         // If the copy resource is not initialized, or the image properties have changed, recompute the copy size.
-        if ((buffer_size == 0) || (copy_resource.width != copy_width) || (copy_resource.height != copy_height) ||
-            (copy_resource.format != copy_format))
+        if (buffer_size == 0 || copy_resource.width != copy_width || copy_resource.height != copy_height ||
+            copy_resource.format != copy_format)
         {
             buffer_size     = GetCopyBufferSize(device, device_table, copy_format, copy_width, copy_height);
             create_resource = true;
@@ -275,11 +288,11 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
                     blit_region.dstSubresource.mipLevel       = 0;
                     blit_region.dstSubresource.baseArrayLayer = 0;
                     blit_region.dstSubresource.layerCount     = 1;
-                    blit_region.dstOffsets[0].x               = 0;
-                    blit_region.dstOffsets[0].y               = 0;
+                    blit_region.dstOffsets[0].x               = flip_x ? copy_width : 0;
+                    blit_region.dstOffsets[0].y               = flip_y ? copy_height : 0;
                     blit_region.dstOffsets[0].z               = 0;
-                    blit_region.dstOffsets[1].x               = copy_width;
-                    blit_region.dstOffsets[1].y               = copy_height;
+                    blit_region.dstOffsets[1].x               = flip_x ? 0 : copy_width;
+                    blit_region.dstOffsets[1].y               = flip_y ? 0 : copy_height;
                     blit_region.dstOffsets[1].z               = 1;
 
                     device_table->CmdBlitImage(command_buffer,

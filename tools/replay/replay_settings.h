@@ -154,9 +154,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tPrefix to apply to the screenshot file name.  Default is ");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot\", producing file names similar to");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot_frame_8049.bmp\".");
-    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>");
-    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a decimal factor which will determine screenshot sizes.");
-    GFXRECON_WRITE_CONSOLE("          \t\tThe factor will be multiplied with the swapchain images");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>|<factor_x,factor_y>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify one or two float factors which will determine screenshot sizes.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe factor(s) will be multiplied with the swapchain-image sizes");
     GFXRECON_WRITE_CONSOLE("          \t\tdimension to determine the screenshot dimensions. Default is 1.0.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-size <width>x<height>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");

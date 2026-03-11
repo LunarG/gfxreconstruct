@@ -636,26 +636,37 @@ static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, 
     }
 }
 
-static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
+static std::optional<std::array<float, 2>> GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotScaleArgument);
-
-    float scale = 0.0f;
 
     if (!value.empty())
     {
         try
         {
-            scale = std::stof(value);
+            std::array<float, 2> scale = { 1.0f, 1.0f };
+            std::size_t          pos   = 0;
+            scale[0]                   = std::stof(value, &pos);
+
+            // skip comma separator
+            if (pos < value.size() && value[pos] == ',')
+            {
+                scale[1] = std::stof(value.substr(pos + 1));
+            }
+            else
+            {
+                // single value provided — apply uniformly
+                scale[1] = scale[0];
+            }
+            return scale;
         }
         catch (std::exception&)
         {
             GFXRECON_LOG_WARNING(
-                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [x,y]");
         }
     }
-
-    return scale;
+    return {};
 }
 
 static std::vector<gfxrecon::decode::ScreenshotRange>

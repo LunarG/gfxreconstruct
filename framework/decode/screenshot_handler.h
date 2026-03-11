@@ -56,18 +56,17 @@ class ScreenshotHandler : public ScreenshotHandlerBase
         ScreenshotHandlerBase(screenshot_format, screenshot_ranges, screenshot_interval)
     {}
 
-    void WriteImage(const std::string&                      filename_prefix,
-                    const VulkanDeviceInfo*                 device_info,
-                    const graphics::VulkanDeviceTable*      device_table,
-                    const VkPhysicalDeviceMemoryProperties& memory_properties,
-                    VulkanResourceAllocator*                allocator,
-                    VkImage                                 image,
-                    VkFormat                                format,
-                    uint32_t                                width,
-                    uint32_t                                height,
-                    uint32_t                                copy_width,
-                    uint32_t                                copy_height,
-                    VkImageLayout                           image_layout);
+    void WriteImage(const std::string&                         filename_prefix,
+                    const VulkanDeviceInfo*                    device_info,
+                    const graphics::VulkanDeviceTable*         device_table,
+                    const VkPhysicalDeviceMemoryProperties&    memory_properties,
+                    VulkanResourceAllocator*                   allocator,
+                    VkImage                                    image,
+                    VkFormat                                   format,
+                    uint32_t                                   width,
+                    uint32_t                                   height,
+                    const std::optional<std::array<float, 2>>& copy_scale,
+                    VkImageLayout                              image_layout);
 
     void DestroyDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table);
 
