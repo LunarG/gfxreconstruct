@@ -1359,6 +1359,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               uint32_t                   memoryRangeCount,
                                               const VkMappedMemoryRange* pMemoryRanges);
 
+    void SetOriginalMappedMemoryPointer(VkDeviceMemory memory, const void* original_ptr);
+
     void PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory);
 
     void PreProcess_vkUnmapMemory2(VkDevice device, const VkMemoryUnmapInfo* pMemoryUnmapInfo);

@@ -59,6 +59,7 @@ class ApiCaptureManager
     format::ApiFamilyId GetApiFamily() const { return api_family_; }
     bool                IsCaptureModeTrack() const { return common_manager_->IsCaptureModeTrack(); }
     bool                IsCaptureModeWrite() const { return common_manager_->IsCaptureModeWrite(); }
+    bool                IsCaptureModeTrim() const { return common_manager_->IsCaptureModeTrim(); }
     bool                IsCaptureModeDisabled() const { return common_manager_->IsCaptureModeDisabled(); }
     bool IsCaptureSkippingCurrentThread() const { return common_manager_->IsCaptureSkippingCurrentThread(); }
 
@@ -108,7 +109,11 @@ class ApiCaptureManager
 
     void EndFrame(CommonCaptureManager::ApiSharedLockT& current_lock)
     {
-        common_manager_->EndFrame(api_family_, current_lock);
+        // When doing recapture in replay with copy data, replay is responsible for calling EndFrameForRecapture.
+        if (!CommonCaptureManager::IsRecaptureCopyData())
+        {
+            common_manager_->EndFrame(api_family_, current_lock);
+        }
     }
     void EndFrame(CommonCaptureManager::ApiCallLock& current_lock)
     {
@@ -123,6 +128,14 @@ class ApiCaptureManager
         }
     }
 
+    // Called by the replay consumer when processing a frame end marker.
+    void EndFrameForRecapture()
+    {
+        GFXRECON_ASSERT(CommonCaptureManager::IsRecaptureCopyData());
+        CommonCaptureManager::ApiSharedLockT empty_lock;
+        common_manager_->EndFrame(api_family_, empty_lock);
+    }
+
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
     void PreQueueSubmit(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
@@ -135,12 +148,6 @@ class ApiCaptureManager
     }
 
     bool ShouldTriggerScreenshot() { return common_manager_->ShouldTriggerScreenshot(); }
-
-    void CheckContinueCaptureForWriteMode(uint32_t                                               current_boundary_count,
-                                          std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
-    {
-        common_manager_->CheckContinueCaptureForWriteMode(api_family_, current_boundary_count, current_lock);
-    }
 
     void CheckStartCaptureForTrackMode(uint32_t                                               current_boundary_count,
                                        std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock)
@@ -199,6 +206,13 @@ class ApiCaptureManager
     {
         return common_manager_->GetPageGuardMemoryMode();
     }
+
+    uint32_t GetRecaptureTrimStartFrame() const { return common_manager_->GetRecaptureTrimStartFrame(); }
+    void     SetRecaptureTrimStartFrame(uint32_t frame_number) const
+    {
+        common_manager_->SetRecaptureTrimStartFrame(frame_number);
+    }
+
     const std::string&                GetTrimKey() const { return common_manager_->GetTrimKey(); }
     bool                              IsTrimEnabled() const { return common_manager_->IsTrimEnabled(); }
     uint32_t                          GetCurrentFrame() const { return common_manager_->GetCurrentFrame(); }

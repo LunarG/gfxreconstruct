@@ -30,7 +30,7 @@ Dx12ResourceValueTrackingConsumer::Dx12ResourceValueTrackingConsumer(
     Dx12ReplayConsumer(application, options),
     replay_resource_value_calls_(true)
 {
-    auto get_current_block_index_func = std::bind(static_cast<uint64_t (Dx12ReplayConsumerBase::*)(void)>(
+    auto get_current_block_index_func = std::bind(static_cast<uint64_t (Dx12ReplayConsumerBase::*)(void) const>(
                                                       &Dx12ResourceValueTrackingConsumer::GetCurrentBlockIndex),
                                                   this);
     GetResourceValueMapper()->EnableResourceValueTracker(get_current_block_index_func, experimental_tracker);

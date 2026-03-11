@@ -575,11 +575,19 @@ void VulkanDecoderBase::DispatchSetEnvironmentVariablesCommand(const format::Set
     }
 }
 
-void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
+void VulkanDecoderBase::BeginDispatchBlock(const ParsedBlock* parsed_block)
 {
     for (auto consumer : consumers_)
     {
-        consumer->SetCurrentBlockIndex(block_index);
+        consumer->BeginProcessBlock(parsed_block);
+    }
+}
+
+void VulkanDecoderBase::EndDispatchBlock()
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->EndProcessBlock();
     }
 }
 

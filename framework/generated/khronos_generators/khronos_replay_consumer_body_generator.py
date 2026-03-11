@@ -623,6 +623,9 @@ class KhronosReplayConsumerBodyGenerator():
                     # instead of the PointerDecoder object.
                     need_temp_value = False
 
+                if name in self.NEED_TEMP_VALUE_OVERRIDES:
+                    need_temp_value = self.NEED_TEMP_VALUE_OVERRIDES[name]
+
                 # Determine name of variable specifying the length of an array.  An override may be required to
                 # replace the original length value with a temporary pointer variable.
                 length_name = value.array_length
