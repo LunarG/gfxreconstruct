@@ -15772,6 +15772,20 @@ std::string GenerateStruct_VkPhysicalDeviceImageViewImageFormatInfoEXT(std::ostr
 }
 
 
+std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->cooperativeMatrixConversion << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceCooperativeMatrixConversionFeaturesQCOM");
+    out << "\t\t" << "VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
 std::string GenerateStruct_VkMemoryHostPointerPropertiesEXT(std::ostream &out, const VkMemoryHostPointerPropertiesEXT* structInfo, Decoded_VkMemoryHostPointerPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
@@ -23314,12 +23328,30 @@ std::string GenerateStruct_VkPhysicalDevicePerformanceCountersByRegionProperties
 std::string GenerateStruct_VkRenderPassPerformanceCountersByRegionBeginInfoARM(std::ostream &out, const VkRenderPassPerformanceCountersByRegionBeginInfoARM* structInfo, Decoded_VkRenderPassPerformanceCountersByRegionBeginInfoARM* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string pcounter_addresses_array = "pcounter_addresses_array_" + std::to_string(consumer.GetNextId());
+    if (structInfo->counterAddressCount > 0) {
+        std::string pcounter_addresses_values = toStringJoin(structInfo->pCounterAddresses,
+                                                             structInfo->pCounterAddresses + structInfo->counterAddressCount,
+                                                             [](VkDeviceAddress current) { return std::to_string(current); },
+                                                             ", ");
+        if (structInfo->counterAddressCount == 1) {
+            pcounter_addresses_array = "&" + pcounter_addresses_values;
+        } else if (structInfo->counterAddressCount > 1) {
+            out << "\t\t" << "VkDeviceAddress " << pcounter_addresses_array << "[] = {" << pcounter_addresses_values << "};" << std::endl;
+        }
+    }
+    std::string pcounter_indices_array = "NULL";
+    if (structInfo->pCounterIndices != NULL) {
+        pcounter_indices_array = "pCounterIndices_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << "uint32_t " << pcounter_indices_array << "[] = " << VulkanCppConsumerBase::BuildValue(structInfo->pCounterIndices, structInfo->counterIndexCount) << ";" << std::endl;
+    }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->counterAddressCount << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pCounterAddresses << "UL" << "," << std::endl;
+    struct_body << "\t\t\t" << "{ *" << pcounter_addresses_array << " }" << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->serializeRegions << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->counterIndexCount << "," << std::endl;
+    struct_body << "\t\t\t" << pcounter_indices_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "renderPassPerformanceCountersByRegionBeginInfoARM");
     out << "\t\t" << "VkRenderPassPerformanceCountersByRegionBeginInfoARM " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -23653,6 +23685,23 @@ std::string GenerateStruct_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT(
     struct_body << "\t\t\t" << structInfo->shaderSubgroupPartitioned << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderSubgroupPartitionedFeaturesEXT");
     out << "\t\t" << "VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t" << "};" << std::endl;
+    return variable_name;
+}
+
+
+std::string GenerateStruct_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE(std::ostream &out, const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* structInfo, Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* metaInfo, VulkanCppConsumerBase &consumer){
+    std::stringstream struct_body;
+    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
+    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderMixedFloatDotProductFloat16AccFloat32 << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderMixedFloatDotProductFloat16AccFloat16 << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderMixedFloatDotProductBFloat16Acc << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->shaderMixedFloatDotProductFloat8AccFloat32 << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "physicalDeviceShaderMixedFloatDotProductFeaturesVALVE");
+    out << "\t\t" << "VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;

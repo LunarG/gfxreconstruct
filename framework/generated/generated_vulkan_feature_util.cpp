@@ -2714,6 +2714,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
+            {
+                const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* currentNext = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(next);
+                VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->cooperativeMatrixConversion == VK_TRUE) && (query.cooperativeMatrixConversion == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature cooperativeMatrixConversion %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(currentNext)->cooperativeMatrixConversion =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV:
             {
                 const VkPhysicalDeviceMeshShaderFeaturesNV* currentNext = reinterpret_cast<const VkPhysicalDeviceMeshShaderFeaturesNV*>(next);
@@ -5617,6 +5632,42 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature shaderSubgroupPartitioned %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT*>(currentNext)->shaderSubgroupPartitioned =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
+            {
+                const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(next);
+                VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->shaderMixedFloatDotProductFloat16AccFloat32 == VK_TRUE) && (query.shaderMixedFloatDotProductFloat16AccFloat32 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderMixedFloatDotProductFloat16AccFloat32 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(currentNext)->shaderMixedFloatDotProductFloat16AccFloat32 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderMixedFloatDotProductFloat16AccFloat16 == VK_TRUE) && (query.shaderMixedFloatDotProductFloat16AccFloat16 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderMixedFloatDotProductFloat16AccFloat16 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(currentNext)->shaderMixedFloatDotProductFloat16AccFloat16 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderMixedFloatDotProductBFloat16Acc == VK_TRUE) && (query.shaderMixedFloatDotProductBFloat16Acc == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderMixedFloatDotProductBFloat16Acc %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(currentNext)->shaderMixedFloatDotProductBFloat16Acc =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->shaderMixedFloatDotProductFloat8AccFloat32 == VK_TRUE) && (query.shaderMixedFloatDotProductFloat8AccFloat32 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature shaderMixedFloatDotProductFloat8AccFloat32 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(currentNext)->shaderMixedFloatDotProductFloat8AccFloat32 =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;
