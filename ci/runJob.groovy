@@ -3,7 +3,8 @@ def gfxrTestWindows(
     String buildMode,
     String label,
     String bits,
-    String testSuite
+    String testSuite,
+    def branches
 ) {
     echo "Creating closure for ${name} with label: ${label}"
     return {
@@ -25,12 +26,22 @@ def gfxrTestWindows(
                     bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout scm
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+                        def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withEnv([
                                 "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "PROJECT_COMMIT=${projectCommit}",
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
@@ -71,7 +82,8 @@ def gfxrTestLinux(
     String buildMode,
     String label,
     String bits,
-    String testSuite
+    String testSuite,
+    def branches
 ) {
     return {
         stage(name) {
@@ -91,12 +103,22 @@ def gfxrTestLinux(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout scm
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+                        def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withEnv([
                                 "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "PROJECT_COMMIT=${projectCommit}",
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
@@ -137,7 +159,8 @@ def gfxrTestAndroid(
     String buildMode,
     String label,
     String bits,
-    String testSuite
+    String testSuite,
+    def branches
 ) {
     return {
         stage(name) {
@@ -157,12 +180,22 @@ def gfxrTestAndroid(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout scm
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+                        def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withEnv([
                                 "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "PROJECT_COMMIT=${projectCommit}",
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
