@@ -141,6 +141,7 @@ enum CommandHandleType : uint32_t
     TensorARMHandle,
     TensorViewARMHandle,
     DataGraphPipelineSessionARMHandle,
+    ShaderInstrumentationARMHandle,
 
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };

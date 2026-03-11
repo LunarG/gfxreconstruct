@@ -4681,6 +4681,8 @@ bool VulkanStateWriter::CheckCommandHandle(vulkan_state_info::CommandHandleType 
             return (state_table.GetVulkanShaderEXTWrapper(handle_id) != nullptr);
         case vulkan_state_info::CommandHandleType::DeviceMemoryHandle:
             return (state_table.GetVulkanDeviceMemoryWrapper(handle_id) != nullptr);
+        case vulkan_state_info::CommandHandleType::ShaderInstrumentationARMHandle:
+            return (state_table.GetVulkanDeviceMemoryWrapper(handle_id) != nullptr);
         default:
             GFXRECON_LOG_ERROR("State write is skipping unrecognized handle type when checking handles "
                                "referenced by command buffers");

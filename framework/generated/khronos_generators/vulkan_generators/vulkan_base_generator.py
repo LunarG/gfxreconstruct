@@ -85,6 +85,7 @@ _remove_extensions = [
     "VK_KHR_video_encode_h265",
     "VK_KHR_video_maintenance2",
     "VK_EXT_descriptor_heap",
+    "VK_SEC_ubm_surface",
 ]
 
 # Exclude *video* extensions from code generation.  This excludes all

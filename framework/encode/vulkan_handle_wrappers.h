@@ -110,6 +110,7 @@ struct PhysicalDevicePipelineBinaryFeaturesKHRWrapper      : public HandleWrappe
 struct PhysicalDevicePipelineBinaryPropertiesKHRWrapper      : public HandleWrapper<VkPhysicalDevicePipelineBinaryPropertiesKHR> {};
 struct IndirectCommandsLayoutEXTWrapper : public HandleWrapper<VkIndirectCommandsLayoutEXT> {};
 struct IndirectExecutionSetEXTWrapper : public HandleWrapper<VkIndirectExecutionSetEXT> {};
+struct ShaderInstrumentationARMWrapper : public HandleWrapper<VkShaderInstrumentationARM> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.

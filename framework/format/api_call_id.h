@@ -822,6 +822,13 @@ enum ApiCallId : uint32_t
     ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134c),
     ApiCall_vkCmdSetComputeOccupancyPriorityNV                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x134d),
     ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134e),
+    ApiCall_vkClearShaderInstrumentationMetricsARM                                                = MakeApiCallId(ApiFamily_Vulkan, 0x134f),
+    ApiCall_vkCmdBeginShaderInstrumentationARM                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1350),
+    ApiCall_vkCmdEndShaderInstrumentationARM                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1351),
+    ApiCall_vkCreateShaderInstrumentationARM                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1352),
+    ApiCall_vkDestroyShaderInstrumentationARM                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1353),
+    ApiCall_vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM                              = MakeApiCallId(ApiFamily_Vulkan, 0x1354),
+    ApiCall_vkGetShaderInstrumentationValuesARM                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1355),
 
     ApiCall_VulkanLast,
 
