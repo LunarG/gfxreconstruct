@@ -77,8 +77,6 @@ class InfoD3d12Interface : public InfoApiInterface
     nlohmann::json GetSwapchainInfoJson();
     nlohmann::json GetDxrEiInfoJson();
 
-    const InfoApiInterface::InfoOutputLevel kD3d12EnumGpuDevices = InfoApiInterface::InfoOutputLevel::kApiSpecific_1;
-
     gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer_;
     gfxrecon::decode::Dx12StatsConsumer     dx12_consumer_;
     gfxrecon::decode::Dx12Decoder           dx12_decoder_;

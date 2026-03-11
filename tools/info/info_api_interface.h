@@ -57,26 +57,33 @@ class InfoApiInterface
         return registered_interfaces_;
     }
 
-    enum class InfoOutputLevel : std::uint32_t
+    enum class OutputSelectionFlags : std::uint32_t
     {
-        // Pre-10 value - items that do not need API-specific info
-        kInfoVersionOnly = 0,
-        kFileInfo,
-        kExeInfo,
-        kEnvironmentInfo,
+        kNoInfo          = 0x00000000,
+        kFileInfo        = 0x00000001,
+        kExeInfo         = 0x00000002,
+        kEnvironmentInfo = 0x00000004,
+        kApiAgnosticInfo = 0x00000008,
+        kApiGeneralInfo  = 0x00000010,
 
-        // Everything past this requires API-specific info
-        kApiSpecificBegin = 10,
-        kBasic            = kApiSpecificBegin,
+        kDefaultInfo = kApiAgnosticInfo | kApiGeneralInfo,
 
         // API-specific reserved section
-        kApiSpecific_1 = 250,
-        kApiSpecific_2,
-        kApiSpecific_3,
-        kApiSpecific_4,
-        kApiSpecific_5,
+        kApiSpecific_Begin = 0x00010000,
+        kApiSpecific_1     = kApiSpecific_Begin, // Reserved and used
+        kApiSpecific_2     = kApiSpecific_Begin | 0x0001,
+        kApiSpecific_3     = kApiSpecific_Begin | 0x0002,
+        kApiSpecific_4     = kApiSpecific_Begin | 0x0004,
+        kApiSpecific_5     = kApiSpecific_Begin | 0x0008,
+        kApiSpecific_6     = kApiSpecific_Begin | 0x0010,
+        kApiSpecific_7     = kApiSpecific_Begin | 0x0020,
+        kApiSpecific_8     = kApiSpecific_Begin | 0x0040,
+        kApiSpecific_9     = kApiSpecific_Begin | 0x0080,
 
-        kVerbose = 9999
+        kAllInfo = 0xFFFFFFFF,
+
+        // We require API info if not outputing only file, exe, and/or environment info.
+        kRequiresApiInfo = (kAllInfo & ~(kFileInfo | kExeInfo | kEnvironmentInfo))
     };
 
     virtual ~InfoApiInterface() = default;
@@ -94,11 +101,6 @@ class InfoApiInterface
     void         SetWriter(InfoWriter* writer) { info_writer_ = writer; }
     virtual void SetFrameMarkerUsage(bool uses) { uses_frame_markers_ = uses; }
     virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
-
-    // This indicates that the API has output that should be executed WITHOUT any
-    // other API outputing.  This is usually the case where the user asked to
-    // get some API-specific info only.
-    bool ApiOutputOverrideDetected() { return api_output_override_; }
 
     // API-specific command-line methods (default is do nothing and return true if required)
     virtual void UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
@@ -118,19 +120,55 @@ class InfoApiInterface
     virtual void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) = 0;
 
     // Output methods
-    void                   SetOutputLevel(InfoOutputLevel output_level) { info_output_level_ = output_level; }
+    void                   SetOutputFlags(OutputSelectionFlags flags) { output_flags_ = flags; }
     virtual void           PrintInfo()    = 0;
     virtual nlohmann::json GenerateJson() = 0;
 
   protected:
     inline void WriteOutput(const std::string& message) { info_writer_->Print(message); }
 
-    bool            api_output_override_{ false };
-    InfoOutputLevel info_output_level_{ InfoOutputLevel::kBasic };
-    bool            uses_frame_markers_{ false };
-    std::string     driver_info_;
-    InfoWriter*     info_writer_{ nullptr };
+    OutputSelectionFlags output_flags_{ OutputSelectionFlags::kDefaultInfo };
+    bool                 uses_frame_markers_{ false };
+    std::string          driver_info_;
+    InfoWriter*          info_writer_{ nullptr };
 };
+
+constexpr InfoApiInterface::OutputSelectionFlags operator|(InfoApiInterface::OutputSelectionFlags a,
+                                                           InfoApiInterface::OutputSelectionFlags b)
+{
+    return static_cast<InfoApiInterface::OutputSelectionFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+}
+
+constexpr InfoApiInterface::OutputSelectionFlags operator&(InfoApiInterface::OutputSelectionFlags a,
+                                                           InfoApiInterface::OutputSelectionFlags b)
+{
+    return static_cast<InfoApiInterface::OutputSelectionFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
+}
+
+constexpr InfoApiInterface::OutputSelectionFlags operator^(InfoApiInterface::OutputSelectionFlags a,
+                                                           InfoApiInterface::OutputSelectionFlags b)
+{
+    return static_cast<InfoApiInterface::OutputSelectionFlags>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b));
+}
+
+constexpr InfoApiInterface::OutputSelectionFlags operator~(InfoApiInterface::OutputSelectionFlags a)
+{
+    return static_cast<InfoApiInterface::OutputSelectionFlags>(~static_cast<uint32_t>(a));
+}
+
+constexpr InfoApiInterface::OutputSelectionFlags& operator|=(InfoApiInterface::OutputSelectionFlags& a,
+                                                             InfoApiInterface::OutputSelectionFlags  b)
+{
+    a = a | b;
+    return a;
+}
+
+constexpr InfoApiInterface::OutputSelectionFlags& operator&=(InfoApiInterface::OutputSelectionFlags& a,
+                                                             InfoApiInterface::OutputSelectionFlags  b)
+{
+    a = a & b;
+    return a;
+}
 
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)

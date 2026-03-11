@@ -60,32 +60,23 @@ std::string InfoOpenXrInterface::GetVersionString(XrVersion api_version)
 
 void InfoOpenXrInterface::PrintInfo()
 {
-    switch (info_output_level_)
-    {
-        case InfoApiInterface::InfoOutputLevel::kBasic:
-        {
-            auto instance_info = openxr_stats_consumer_.GetInstanceInfo();
+    auto instance_info = openxr_stats_consumer_.GetInstanceInfo();
 
-            WriteOutput("");
-            WriteOutput("OpenXR info:");
+    WriteOutput("");
+    WriteOutput("OpenXR info:");
 
-            WriteOutput(std::string("\tHeader Version:             ") + GetVersionString(XR_CURRENT_API_VERSION));
+    WriteOutput(std::string("\tHeader Version:             ") + GetVersionString(XR_CURRENT_API_VERSION));
 
-            WriteOutput(std::string("\tNumber of OpenXR Instances: ") + std::to_string(instance_info.size()));
+    WriteOutput(std::string("\tNumber of OpenXR Instances: ") + std::to_string(instance_info.size()));
 
-            // For non-verbose standard output, just print first application/instance info
-            WriteOutput("\nOpenXR application info:");
-            WriteOutput(std::string("\tApplication name:    ") + instance_info[0].app_name);
-            WriteOutput(std::string("\tApplication version: ") + std::to_string(instance_info[0].app_version));
-            WriteOutput(std::string("\tEngine name:         ") + instance_info[0].engine_name);
-            WriteOutput(std::string("\tEngine version:      ") + std::to_string(instance_info[0].engine_version));
-            WriteOutput(std::string("\tTarget API version:  ") + std::to_string(instance_info[0].api_version) + " (" +
-                        GetVersionString(instance_info[0].api_version) + ")");
-            break;
-        }
-        default:
-            break;
-    }
+    // For non-verbose standard output, just print first application/instance info
+    WriteOutput("\nOpenXR application info:");
+    WriteOutput(std::string("\tApplication name:    ") + instance_info[0].app_name);
+    WriteOutput(std::string("\tApplication version: ") + std::to_string(instance_info[0].app_version));
+    WriteOutput(std::string("\tEngine name:         ") + instance_info[0].engine_name);
+    WriteOutput(std::string("\tEngine version:      ") + std::to_string(instance_info[0].engine_version));
+    WriteOutput(std::string("\tTarget API version:  ") + std::to_string(instance_info[0].api_version) + " (" +
+                GetVersionString(instance_info[0].api_version) + ")");
 }
 
 nlohmann::json InfoOpenXrInterface::GenerateJson()
