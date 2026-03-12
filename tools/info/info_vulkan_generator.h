@@ -49,8 +49,8 @@ class InfoVulkanGenerator : public InfoApiGenerator
     // FileProcessor
     void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
-    // Output methods%s
-    void           PrintInfo() override;
+    // Output methods
+    std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
     // Frame-specific methods
@@ -63,12 +63,6 @@ class InfoVulkanGenerator : public InfoApiGenerator
                                             uint64_t gfx_pipelines,
                                             uint64_t comp_pipelines,
                                             uint64_t rt_pipelines);
-    void           PrintDeviceMemoryStatsText(uint64_t alloc_count,
-                                              uint64_t min_alloc,
-                                              uint64_t max_alloc,
-                                              uint64_t gfx_pipelines,
-                                              uint64_t comp_pipelines,
-                                              uint64_t rt_pipelines);
     std::string    GetDeviceTypeString(VkPhysicalDeviceType device_type);
     std::string    GetVersionString(uint32_t api_version);
 
