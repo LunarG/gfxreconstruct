@@ -32,6 +32,15 @@ target_sources(gfxrecon-info
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/info_generator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/info_generator.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/info_api_generator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/info_d3d12_generator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/info_d3d12_generator.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/info_openxr_generator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/info_openxr_generator.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/info_vulkan_generator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/info_vulkan_generator.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
                    $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
                    $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>

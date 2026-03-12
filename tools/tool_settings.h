@@ -1367,6 +1367,7 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
     return false;
 }
 
+#if !defined(GFXR_HIDE_PRINT_USAGE_DEFINE)
 static void PrintUsage(const char* exe_name);
 
 static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
@@ -1379,5 +1380,6 @@ static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::Ar
 
     return false;
 }
+#endif // GFXR_HIDE_PRINT_USAGE_DEFINE
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H
