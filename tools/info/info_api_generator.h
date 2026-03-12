@@ -105,8 +105,8 @@ class InfoApiGenerator
         GFXRECON_UNREFERENCED_PARAMETER(options);
         GFXRECON_UNREFERENCED_PARAMETER(arguments);
     }
-    virtual void OutputCommandLineUsage() {}
-    virtual bool CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser)
+    virtual std::string GetCommandLineUsage() { return ""; }
+    virtual bool        CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser)
     {
         GFXRECON_UNREFERENCED_PARAMETER(arg_parser);
         return true;

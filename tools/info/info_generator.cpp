@@ -399,7 +399,7 @@ void InfoGenerator::PrintUsage()
 
     for (auto& api_gen : api_generators_)
     {
-        api_gen->OutputCommandLineUsage();
+        WriteOutput(api_gen->GetCommandLineUsage());
     }
 }
 
