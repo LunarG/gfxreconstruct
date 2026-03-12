@@ -57,7 +57,8 @@ void InfoD3d12Generator::UpdateValidCommandLineOptionsArgs(std::string& options,
 std::string InfoD3d12Generator::GetCommandLineUsage()
 {
     std::string return_val = "\n// D3D12-specific\n  ";
-    return_val += kEnumGpuIndices + "\tPrint GPU indices and exit\n";
+    return_val += kEnumGpuIndices;
+    return_val += "\tPrint GPU indices and exit\n";
     return return_val;
 }
 
