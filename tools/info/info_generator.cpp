@@ -151,7 +151,6 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
             return false;
         }
 
-        api_gen->SetWriter(&info_writer_);
         api_gen->SetOutputFlags(output_flags_);
     }
 
@@ -340,7 +339,7 @@ bool InfoGenerator::OutputContent()
                 }
                 else
                 {
-                    api_gen->PrintInfo();
+                    WriteOutput(api_gen->GenerateText());
                 }
             }
         }
@@ -397,7 +396,6 @@ void InfoGenerator::PrintUsage()
 
     for (auto& api_gen : api_generators_)
     {
-        api_gen->SetWriter(&info_writer_);
         api_gen->OutputCommandLineUsage();
     }
 }

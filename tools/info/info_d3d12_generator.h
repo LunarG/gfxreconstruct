@@ -57,20 +57,20 @@ class InfoD3d12Generator : public InfoApiGenerator
     // FileProcessor
     void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
-    // Output methods%s
-    void           PrintInfo() override;
+    // Output methods
+    std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
   private:
     std::string AdapterTypeToString(gfxrecon::format::AdapterType type);
     std::string GetDriverInfoString();
 
-    void PrintEnumGpuIndices();
-    void PrintDriverInfoText();
-    void PrintSwapchainInfoText();
-    void PrintRuntimeInfoText();
-    void PrintAdapterInfoText();
-    void PrintDxrEiInfoText();
+    std::string GetEnumGpuIndicesText();
+    std::string GetDriverInfoText();
+    std::string GetSwapchainInfoText();
+    std::string GetRuntimeInfoText();
+    std::string GetAdapterInfoText();
+    std::string GetDxrEiInfoText();
 
     nlohmann::json GetRuntimeInfoJson();
     nlohmann::json GetAdapterInfoJson();
