@@ -54,10 +54,11 @@ void InfoD3d12Generator::UpdateValidCommandLineOptionsArgs(std::string& options,
     options += kEnumGpuIndices;
 }
 
-void InfoD3d12Generator::OutputCommandLineUsage()
+std::string InfoD3d12Generator::GetCommandLineUsage()
 {
-    WriteOutput("\n// D3D12-specific\n");
-    WriteOutput(std::string("  ") + kEnumGpuIndices + "\tPrint GPU indices and exit\n");
+    std::string return_val = "\n// D3D12-specific\n  ";
+    return_val += kEnumGpuIndices + "\tPrint GPU indices and exit\n";
+    return return_val;
 }
 
 bool InfoD3d12Generator::CheckCommandLine(util::ArgumentParser* arg_parser)
@@ -322,12 +323,13 @@ nlohmann::json InfoD3d12Generator::GetSwapchainInfoJson()
 std::string InfoD3d12Generator::GetDxrEiInfoText()
 {
     std::string return_val = "D3D12 EI workload: ";
-    return_val += (dx12_consumer_.ContainsEiWorkload() ? "yes" : "no") + "\n";
-    return_val += "D3D12 DXR workload: " + (dx12_consumer_.ContainsDxrWorkload() ? "yes" : "no") + "\n";
+    return_val += std::string(dx12_consumer_.ContainsEiWorkload() ? "yes" : "no") + "\n";
+    return_val += "D3D12 DXR workload: " + std::string(dx12_consumer_.ContainsDxrWorkload() ? "yes" : "no") + "\n";
 
     if (dx12_consumer_.ContainsEiWorkload() || dx12_consumer_.ContainsDxrWorkload())
     {
-        return_val += "D3D12 DXR/EI optimized: " + (dx12_consumer_.ContainsOptFillMem() ? "yes" : "no") + "\n";
+        return_val +=
+            "D3D12 DXR/EI optimized: " + std::string(dx12_consumer_.ContainsOptFillMem() ? "yes" : "no") + "\n";
     }
     return_val += "\n";
     return return_val;
