@@ -189,6 +189,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                       uint32_t                                image_index,
                                       uint32_t                                image_count);
 
+    // TODO: consolidate with resource-util
     void BlitHelper(VkCommandBuffer     command_buffer,
                     VkImage             src_image,
                     VkImage             dst_image,
@@ -200,6 +201,20 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                     VkOffset3D          src_offset,
                     VkOffset3D          dst_offset,
                     std::array<bool, 3> flip_axis) const;
+
+    // TODO: consolidate with resource-util
+    void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
+                                          VkImage            image,
+                                          VkImageLayout      current_layout,
+                                          VkImageLayout      destination_layout,
+                                          VkImageAspectFlags aspect) const;
+
+    // TODO: consolidate with resource-util
+    void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
+                                            VkImage            image,
+                                            VkImageLayout      old_layout,
+                                            VkImageLayout      new_layout,
+                                            VkImageAspectFlags aspect) const;
 
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
@@ -217,6 +232,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
     struct OFBData
     {
+        const VulkanInstanceInfo*          instance_info{ nullptr };
         VulkanSurfaceKHRInfo               surface_info{};
         HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
         VkQueue                            queue{ VK_NULL_HANDLE };

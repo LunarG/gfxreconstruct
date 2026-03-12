@@ -2728,7 +2728,7 @@ void VulkanResourcesUtil::BlitImage(VkImage             src_img,
     TransitionImageToTransferOptimal(command_buffer, src_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
 
     // transition dst-layout
-    TransitionImageToTransferOptimal(command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
+    TransitionImageToTransferOptimal(command_buffer, dst_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
 
     BlitHelper(
         command_buffer, src_img, dst_img, src_extent, dst_extent, 1, 1, aspect, src_offset, dst_offset, flip_axis);

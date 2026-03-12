@@ -67,13 +67,7 @@ void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device, const graphic
         if (ofb_data.swapchain != VK_NULL_HANDLE)
         {
             device_table->DestroySwapchainKHR(device, ofb_data.swapchain, nullptr);
-        }
-
-        // TODO: cleanup missing a surface
-        if (ofb_data.surface_info.window)
-        {
-            // ofb_data.surface_info.window->DestroySurface(instance_table_, );
-            ofb_data.surface_info.window->Destroy();
+            DestroySurface(nullptr, ofb_data.instance_info, &ofb_data.surface_info, nullptr);
         }
 
         if (ofb_data.command_pool != VK_NULL_HANDLE)
@@ -737,6 +731,17 @@ void VulkanVirtualSwapchain::BlitHelper(VkCommandBuffer     command_buffer,
         }
     }
 
+    auto src_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    auto dst_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    // transition src-layout
+    TransitionImageToTransferOptimal(
+        command_buffer, src_image, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
+
+    // transition dst-layout
+    TransitionImageToTransferOptimal(
+        command_buffer, dst_image, dst_layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, aspect);
+
     device_table_->CmdBlitImage(command_buffer,
                                 src_image,
                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -745,6 +750,89 @@ void VulkanVirtualSwapchain::BlitHelper(VkCommandBuffer     command_buffer,
                                 static_cast<uint32_t>(blit_regions.size()),
                                 blit_regions.data(),
                                 VK_FILTER_NEAREST);
+
+    // transition src-layout
+    TransitionImageFromTransferOptimal(
+        command_buffer, src_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL, aspect);
+
+    // transition dst-layout
+    TransitionImageFromTransferOptimal(
+        command_buffer, dst_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
+}
+
+void VulkanVirtualSwapchain::TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
+                                                              VkImage            image,
+                                                              VkImageLayout      current_layout,
+                                                              VkImageLayout      destination_layout,
+                                                              VkImageAspectFlags aspect) const
+{
+    GFXRECON_ASSERT(image != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+
+    VkImageMemoryBarrier memory_barrier;
+    memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    memory_barrier.pNext                           = nullptr;
+    memory_barrier.srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
+    memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+    memory_barrier.oldLayout                       = current_layout;
+    memory_barrier.newLayout                       = destination_layout;
+    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.image                           = image;
+    memory_barrier.subresourceRange.aspectMask     = aspect;
+    memory_barrier.subresourceRange.baseMipLevel   = 0;
+    memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+    memory_barrier.subresourceRange.baseArrayLayer = 0;
+    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+
+    device_table_->CmdPipelineBarrier(command_buffer,
+                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      0,
+                                      0,
+                                      nullptr,
+                                      0,
+                                      nullptr,
+                                      1,
+                                      &memory_barrier);
+}
+
+void VulkanVirtualSwapchain::TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
+                                                                VkImage            image,
+                                                                VkImageLayout      old_layout,
+                                                                VkImageLayout      new_layout,
+                                                                VkImageAspectFlags aspect) const
+{
+    GFXRECON_ASSERT(image != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+
+    VkImageMemoryBarrier memory_barrier;
+    memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    memory_barrier.pNext                           = nullptr;
+    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    memory_barrier.image                           = image;
+    memory_barrier.subresourceRange.aspectMask     = aspect;
+    memory_barrier.subresourceRange.baseMipLevel   = 0;
+    memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+    memory_barrier.subresourceRange.baseArrayLayer = 0;
+    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+
+    memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    memory_barrier.oldLayout     = old_layout;
+    memory_barrier.newLayout     = new_layout;
+
+    device_table_->CmdPipelineBarrier(command_buffer,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                      0,
+                                      0,
+                                      nullptr,
+                                      0,
+                                      nullptr,
+                                      1,
+                                      &memory_barrier);
 }
 
 VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(VkResult                    original_result,
@@ -1317,6 +1405,8 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
     if (ofb_data.command_pool == VK_NULL_HANDLE)
     {
+        ofb_data.instance_info = instance_info;
+
         // Retrieve the queue that will be used for presentation/image copy and create a command pool
         device_table->GetDeviceQueue(device, 0, 0, &ofb_data.queue);
 
@@ -1338,7 +1428,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         ofb_data.surface_ptr.SetConsumerData(0, &ofb_data.surface_info);
 
         // TODO: automatic wsi deduction not good enough? maybe select a matching wsi (providing required surface-format)
-        std::string wsi_extension;
+        std::string wsi_extension;// = "VK_KHR_wayland_surface";
 
         result = CreateSurface(
             VK_SUCCESS, instance_info, wsi_extension, 0, &ofb_data.surface_ptr, instance_table, application);
@@ -1380,7 +1470,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         swapchain_create_info.flags                 = 0;
         swapchain_create_info.surface               = ofb_data.surface_info.handle;
         swapchain_create_info.minImageCount         = 3;
-        swapchain_create_info.imageFormat           = VK_FORMAT_B8G8R8A8_UNORM; // image_info->format;
+        swapchain_create_info.imageFormat           = image_info->format;//VK_FORMAT_B8G8R8A8_UNORM
         swapchain_create_info.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         swapchain_create_info.imageExtent.width     = current_window_size.width;
         swapchain_create_info.imageExtent.height    = current_window_size.height;
