@@ -102,7 +102,7 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
     }
     else if (argument_parser_->IsInvalid() || (argument_parser_->GetPositionalArgumentsCount() != 1))
     {
-        WriteError("Missing required capture file name");
+        GFXRECON_LOG_ERROR("Missing required capture file name");
 
         PrintUsage();
         output_flags_ = InfoApiGenerator::OutputSelectionFlags::kNoInfo;
@@ -137,9 +137,6 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
     {
         output_flags_       = InfoApiGenerator::OutputSelectionFlags::kAllInfo;
         output_json_format_ = true;
-
-        // For verbose, we want the errors and warnings to always go to the console
-        info_writer_.OutputErrorsWarningsToConsole(true);
     }
 
     // Check for API-specific items
@@ -156,7 +153,13 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
 
     if (argument_parser_->IsArgumentSet(kOutputFileArgument))
     {
-        info_writer_.SetOutputFile(argument_parser_->GetArgumentValue(kOutputFileArgument));
+        output_file_.open(argument_parser_->GetArgumentValue(kOutputFileArgument));
+        if (!output_file_.is_open())
+        {
+            GFXRECON_LOG_ERROR(
+                (std::string("Failed to open file ") + argument_parser_->GetArgumentValue(kOutputFileArgument) + "\n")
+                    .c_str());
+        }
     }
 
     return true;
@@ -208,7 +211,7 @@ bool InfoGenerator::ProcessCapture()
 
             if (file_processor_.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
             {
-                WriteError("Encountered error while reading capture, Stats unavailable.");
+                GFXRECON_LOG_ERROR("Encountered error while reading capture, Stats unavailable.");
                 return false;
             }
 
@@ -250,7 +253,7 @@ bool InfoGenerator::ProcessCapture()
                 // If no API data found, force each API to try to spit out info
                 if (!api_found)
                 {
-                    WriteWarning("Unable to detect capture file API(s). Writing all stats.");
+                    GFXRECON_LOG_WARNING("Unable to detect capture file API(s). Writing all stats.");
                     force_all_api_output_ = true;
                 }
                 GatherApiAgnosticStats();
@@ -346,7 +349,7 @@ bool InfoGenerator::OutputContent()
 
         if (file_processor_.GetCurrentFrameNumber() == 0)
         {
-            WriteWarning("File did not contain any frames");
+            GFXRECON_LOG_WARNING("File did not contain any frames");
         }
 
         if (output_json_format_)
@@ -669,17 +672,14 @@ nlohmann::json InfoGenerator::GetGfxrOperationsJson()
 
 void InfoGenerator::WriteOutput(const std::string& message)
 {
-    info_writer_.Print(message);
-}
-
-void InfoGenerator::WriteError(const std::string& message)
-{
-    info_writer_.PrintError(message);
-}
-
-void InfoGenerator::WriteWarning(const std::string& message)
-{
-    info_writer_.PrintWarning(message);
+    if (output_file_.is_open())
+    {
+        output_file_ << message << std::endl;
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE(message.c_str());
+    }
 }
 
 GFXRECON_END_NAMESPACE(info)
