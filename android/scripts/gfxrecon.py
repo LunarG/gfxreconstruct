@@ -143,6 +143,7 @@ def CreateReplayParser():
     parser.add_argument('--quit-after-frame', metavar='FRAME', help='Specify a frame after which replay will terminate.')
     parser.add_argument('--screenshot-ignore-FrameBoundaryANDROID', action='store_true', default=False, help='If set, frames switced with vkFrameBoundANDROID will be ignored from the screenshot handler.')
     parser.add_argument('--wait-before-first-submit', metavar='MILLISECONDS', help='Wait for the specified amount of milliseconds before processing the first submit. (forwarded to replay tool)')
+    parser.add_argument('--frame-warm-up-load', metavar='LOAD', default=0, help='Specify workload scale factor for a compute dispatch warm-up pass run before each frame replay. Default is 0 (disabled). (forwarded to replay tool)')
 
     return parser
 
@@ -325,6 +326,10 @@ def MakeExtrasString(args):
     if args.wait_before_first_submit:
         arg_list.append('--wait-before-first-submit')
         arg_list.append('{}'.format(args.wait_before_first_submit))
+
+    if args.frame_warm_up_load:
+        arg_list.append('--frame-warm-up-load')
+        arg_list.append('{}'.format(args.frame_warm_up_load))
 
     if args.file:
         arg_list.append(args.file)

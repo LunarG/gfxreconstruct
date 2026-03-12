@@ -1005,6 +1005,9 @@ options:
   --wait-before-first-submit MILLISECONDS
                         Wait for the specified amount of milliseconds before
                         processing the first submit. (forwarded to replay tool)
+  --frame-warm-up-load LOAD
+                        Specify workload scale factor for a compute dispatch warm-up pass
+                        run before each frame replay. Default is 0 (disabled).
 ```
 
 The command will force-stop an active replay process before starting the replay
