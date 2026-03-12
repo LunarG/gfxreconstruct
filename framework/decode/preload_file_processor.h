@@ -57,7 +57,13 @@ class PreloadFileProcessor : public FileProcessor
     BlockBatch*          preload_tail_ = nullptr;
     BlockBatch::iterator replay_cursor_;
 
-    ProcessBlockState final_process_state_{ ProcessBlockState::kError }; // How the last frame preload ended
+    struct PreloadResult
+    {
+        ProcessBlockState state{ ProcessBlockState::kRunning }; // final ProcessBlocks return value.
+        BlockIOError      error{ BlockIOError::kErrorNone };    // snap shot of the process_error_state_, if any.
+    };
+
+    PreloadResult     preload_result_{ ProcessBlockState::kError }; // How the last frame preload ended
     bool              preload_contains_frame_stutter_ = false; // Tells replay to ignore first frame boundary block
 };
 
