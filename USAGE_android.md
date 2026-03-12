@@ -794,6 +794,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--quit-after-frame FRAME]
                           [--screenshot-ignore-FrameBoundaryANDROID]
                           [--wait-before-first-submit MILLISECONDS]
+                          [--wait-before-frame MILLISECONDS]
                           [file]
 
 Launch the replay tool.
@@ -1005,6 +1006,12 @@ options:
   --wait-before-first-submit MILLISECONDS
                         Wait for the specified amount of milliseconds before
                         processing the first submit. (forwarded to replay tool)
+  --frame-warm-up-load LOAD
+                        Specify workload scale factor for a compute dispatch warm-up pass
+                        run before each frame replay. Default is 0 (disabled).
+  --wait-before-frame MILLISECONDS
+                       Wait for the specified amount of milliseconds before starting
+                       to replay each frame. Default is 0 (no wait).
 ```
 
 The command will force-stop an active replay process before starting the replay

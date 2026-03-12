@@ -46,5 +46,14 @@ void VulkanReplayOptions::MaybeWaitBeforeFirstSubmit() const
     });
 }
 
+void VulkanReplayOptions::MaybeWaitBeforeFrame() const
+{
+    if (wait_before_frame > 0)
+    {
+        GFXRECON_LOG_INFO("Waiting %u ms before starting to replay the frame.", wait_before_frame);
+        std::this_thread::sleep_for(std::chrono::milliseconds(wait_before_frame));
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
