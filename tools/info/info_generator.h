@@ -33,7 +33,6 @@
 #include "format/format.h"
 #include "format/format_util.h"
 
-#include "info_writer.h"
 #include "info_api_generator.h"
 
 #include <memory>
@@ -78,8 +77,6 @@ class InfoGenerator
     nlohmann::json GetGfxrOperationsJson();
 
     void WriteOutput(const std::string& message);
-    void WriteError(const std::string& message);
-    void WriteWarning(const std::string& message);
 
     class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
     {
@@ -145,7 +142,6 @@ class InfoGenerator
     InfoApiGenerator::OutputSelectionFlags output_flags_{ InfoApiGenerator::OutputSelectionFlags::kDefaultInfo };
 
     std::string                                     app_name_;
-    InfoWriter                                      info_writer_;
     std::vector<std::unique_ptr<InfoApiGenerator>>  api_generators_;
     std::vector<std::string>                        detected_apis_;
     uint32_t                                        blank_frame_count_{ 0 };
@@ -162,6 +158,7 @@ class InfoGenerator
     std::unique_ptr<gfxrecon::util::ArgumentParser> argument_parser_;
     bool                                            output_json_format_{ false };
     nlohmann::json                                  json_base_;
+    std::ofstream                                   output_file_;
 };
 
 GFXRECON_END_NAMESPACE(info)
