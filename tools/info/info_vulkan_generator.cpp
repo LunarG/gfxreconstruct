@@ -58,30 +58,10 @@ std::string InfoVulkanGenerator::GetVersionString(uint32_t api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
-void InfoVulkanGenerator::PrintDeviceMemoryStatsText(uint64_t alloc_count,
-                                                     uint64_t min_alloc,
-                                                     uint64_t max_alloc,
-                                                     uint64_t gfx_pipelines,
-                                                     uint64_t comp_pipelines,
-                                                     uint64_t rt_pipelines)
+std::string InfoVulkanGenerator::GenerateText()
 {
-    WriteOutput("\nVulkan device memory allocation info:");
-    WriteOutput(std::string("\tTotal allocations:   ") + std::to_string(alloc_count));
+    std::string return_val = "\nVulkan application info:\n";
 
-    if (alloc_count > 0)
-    {
-        WriteOutput(std::string("\tMin allocation size: ") + std::to_string(min_alloc));
-        WriteOutput(std::string("\tMax allocation size: ") + std::to_string(max_alloc));
-    }
-
-    WriteOutput("\nVulkan pipeline info:");
-    WriteOutput(std::string("\tTotal graphics pipelines:   ") + std::to_string(gfx_pipelines));
-    WriteOutput(std::string("\tTotal compute pipelines:    ") + std::to_string(comp_pipelines));
-    WriteOutput(std::string("\tTotal raytracing pipelines: ") + std::to_string(rt_pipelines));
-}
-
-void InfoVulkanGenerator::PrintInfo()
-{
     uint32_t inst_count    = vulkan_stats_consumer_.GetInstanceCount();
     auto     instance_info = vulkan_stats_consumer_.GetInstanceInfo();
     auto     pd_info       = vulkan_stats_consumer_.GetPhysicalDeviceInfo();
@@ -111,71 +91,79 @@ void InfoVulkanGenerator::PrintInfo()
             max_pipelines = used_pipelines;
         }
     }
-    auto& best_instance_info = instance_info[best_instance];
 
-    WriteOutput("\nVulkan application info:");
-    WriteOutput(std::string("\tApplication name:    ") + best_instance_info.app_info.app_name);
-    WriteOutput(std::string("\tApplication version: ") + std::to_string(best_instance_info.app_info.app_version));
-    WriteOutput(std::string("\tEngine name:         ") + best_instance_info.app_info.engine_name);
-    WriteOutput(std::string("\tEngine version:      ") + std::to_string(best_instance_info.app_info.engine_version));
-    WriteOutput(std::string("\tTarget API version:  ") + std::to_string(best_instance_info.app_info.api_version) + " " +
-                GetVersionString(best_instance_info.app_info.api_version));
-    std::string resolutions = "\tUsed resolutions:    ";
+    auto& best_instance_info = instance_info[best_instance];
+    return_val += "\tApplication name:    " + best_instance_info.app_info.app_name + "\n";
+    return_val += "\tApplication version: " + std::to_string(best_instance_info.app_info.app_version) + "\n";
+    return_val += "\tEngine name:         " + best_instance_info.app_info.engine_name + "\n";
+    return_val += "\tEngine version:      " + std::to_string(best_instance_info.app_info.engine_version) + "\n";
+    return_val += "\tTarget API version:  " + std::to_string(best_instance_info.app_info.api_version) + " " +
+                  GetVersionString(best_instance_info.app_info.api_version) + "\n";
+    return_val += "\tUsed resolutions:    ";
     for (const auto& resolution : best_instance_info.resolutions)
     {
-        resolutions += std::to_string(resolution.width) + "x" + std::to_string(resolution.height) + " ";
+        return_val += std::to_string(resolution.width) + "x" + std::to_string(resolution.height) + " ";
     }
-    WriteOutput(resolutions.c_str());
-
-    WriteOutput("\nVulkan physical device info:");
+    return_val += "\n\nVulkan physical device info:\n";
     for (auto pd : best_instance_info.used_physical_devices)
     {
         auto properties = vulkan_stats_consumer_.GetDeviceProperties(reinterpret_cast<format::HandleId>(pd));
         if (properties != nullptr)
         {
-            WriteOutput(std::string("\tDevice name:         ") + properties->deviceName);
-            WriteOutput(std::string("\tDevice ID:           ") +
-                        util::to_hex_fixed_width<uint32_t>(properties->deviceID));
-            WriteOutput(std::string("\tVendor ID:           ") +
-                        util::to_hex_fixed_width<uint32_t>(properties->vendorID));
-            WriteOutput(std::string("\tDriver version:      ") + std::to_string(properties->driverVersion) + " (" +
-                        util::to_hex_fixed_width<uint32_t>(properties->driverVersion) + ")");
-            WriteOutput(std::string("\tAPI version:         ") + std::to_string(properties->apiVersion) + " (" +
-                        GetVersionString(properties->apiVersion) + ")");
+            return_val += "\tDevice name:         " + std::string(properties->deviceName) + "\n";
+            return_val += "\tDevice ID:           " + util::to_hex_fixed_width<uint32_t>(properties->deviceID) + "\n";
+            return_val += "\tVendor ID:           " + util::to_hex_fixed_width<uint32_t>(properties->vendorID) + "\n";
+            return_val += "\tDriver version:      " + std::to_string(properties->driverVersion) + " (" +
+                          util::to_hex_fixed_width<uint32_t>(properties->driverVersion) + ")\n";
+            return_val += "\tAPI version:         " + std::to_string(properties->apiVersion) + " (" +
+                          GetVersionString(properties->apiVersion) + ")\n";
         }
     }
 
     // For Verbose, we right out each devices alloc info.
-    PrintDeviceMemoryStatsText(vulkan_stats_consumer_.GetTotalAllocationCount(),
-                               vulkan_stats_consumer_.GetTotalMinAllocationSize(),
-                               vulkan_stats_consumer_.GetTotalMaxAllocationSize(),
-                               vulkan_stats_consumer_.GetTotalGraphicsPipelineCount(),
-                               vulkan_stats_consumer_.GetTotalComputePipelineCount(),
-                               vulkan_stats_consumer_.GetTotalRayTracingPipelineCount());
+    return_val += "\nVulkan device memory allocation info:\n";
+    return_val += "\tTotal allocations:   " + std::to_string(vulkan_stats_consumer_.GetTotalAllocationCount()) + "\n";
+    if (vulkan_stats_consumer_.GetTotalAllocationCount() > 0)
+    {
+        return_val +=
+            "\tMin allocation size: " + std::to_string(vulkan_stats_consumer_.GetTotalMinAllocationSize()) + "\n";
+        return_val +=
+            "\tMax allocation size: " + std::to_string(vulkan_stats_consumer_.GetTotalMaxAllocationSize()) + "\n";
+    }
+
+    return_val += "\nVulkan pipeline info:\n";
+    return_val +=
+        "\tTotal graphics pipelines:   " + std::to_string(vulkan_stats_consumer_.GetTotalGraphicsPipelineCount()) +
+        "\n";
+    return_val +=
+        "\tTotal compute pipelines:    " + std::to_string(vulkan_stats_consumer_.GetTotalComputePipelineCount()) + "\n";
+    return_val +=
+        "\tTotal raytracing pipelines: " + std::to_string(vulkan_stats_consumer_.GetTotalRayTracingPipelineCount()) +
+        "\n";
 
     // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls
     // executed when recorded once to a command buffer that is submitted/replayed more than once.
-    // WriteOutput("\nDraw/dispatch call info:");
-    // WriteOutput("\tTotal draw calls: %" PRIu64, stats_consumer.GetTotalDrawCount());
-    // WriteOutput("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetTotalDispatchCount());
+    // return_val += "\nDraw/dispatch call info:\n";
+    // return_val += "\tTotal draw calls: " + std::to_string(stats_consumer.GetTotalDrawCount()) + "\n";
+    // return_val += "\tTotal dispatch calls: " + std::to_string(stats_consumer.GetTotalDispatchCount()) + "\n";
 
     // Print Physical device info
     const decode::VulkanStatsConsumer::PhysicalDeviceProperties& physical_device_properties =
         vulkan_stats_consumer_.GetPhysicalDeviceProperties();
 
-    WriteOutput("\nPhysical device properties:");
+    return_val += "\nPhysical device properties:\n";
     for (const auto& props : physical_device_properties)
     {
-        WriteOutput(std::string("  Device: ") + std::to_string(props.first));
-        WriteOutput(std::string("\tAPI version:         ") +
-                    util::to_hex_fixed_width<uint64_t>(props.second.apiVersion) + " (" +
-                    GetVersionString(props.second.apiVersion) + ")");
-        WriteOutput(std::string("\tDriver version:      ") +
-                    util::to_hex_fixed_width<uint32_t>(props.second.driverVersion));
-        WriteOutput(std::string("\tVendor ID:           ") + util::to_hex_fixed_width<uint32_t>(props.second.vendorID));
-        WriteOutput(std::string("\tDevice ID:           ") + util::to_hex_fixed_width<uint32_t>(props.second.deviceID));
-        WriteOutput(std::string("\tDevice name:         ") + props.second.deviceName);
+        return_val += "  Device: " + std::to_string(props.first) + "\n";
+        return_val += "\tAPI version:         " + util::to_hex_fixed_width<uint64_t>(props.second.apiVersion) + " (" +
+                      GetVersionString(props.second.apiVersion) + ")" + "\n";
+        return_val += "\tDriver version:      " + util::to_hex_fixed_width<uint32_t>(props.second.driverVersion) + "\n";
+        return_val += "\tVendor ID:           " + util::to_hex_fixed_width<uint32_t>(props.second.vendorID) + "\n";
+        return_val += "\tDevice ID:           " + util::to_hex_fixed_width<uint32_t>(props.second.deviceID) + "\n";
+        return_val += "\tDevice name:         " + std::string(props.second.deviceName) + "\n";
     }
+
+    return return_val;
 }
 
 std::string InfoVulkanGenerator::GetDeviceTypeString(VkPhysicalDeviceType device_type)

@@ -76,9 +76,10 @@ void InfoD3d12Generator::RegisterApiDecodeComponents(decode::FileProcessor& file
     file_processor.AddDecoder(&dx12_decoder_);
 }
 
-void InfoD3d12Generator::PrintEnumGpuIndices()
+std::string InfoD3d12Generator::GetEnumGpuIndicesText()
 {
-    IDXGIFactory1* factory1 = nullptr;
+    IDXGIFactory1* factory1   = nullptr;
+    std::string    return_val = "";
 
     HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
@@ -88,7 +89,7 @@ void InfoD3d12Generator::PrintEnumGpuIndices()
         gfxrecon::graphics::dx12::TrackAdapters(
             result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
 
-        WriteOutput("GPU index\tGPU name\tSubSys ID");
+        return_val = "GPU index\tGPU name\tSubSys ID\n";
         for (size_t index = 0; index < adapters.size(); ++index)
         {
             for (auto adapter : adapters)
@@ -97,8 +98,9 @@ void InfoD3d12Generator::PrintEnumGpuIndices()
                 {
                     std::string replay_adapter_str = util::WCharArrayToString(adapter.second.internal_desc.Description);
 
-                    WriteOutput(util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +
-                                replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId));
+                    return_val += util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +
+                                  replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId) +
+                                  "\n";
                     break;
                 }
             }
@@ -108,6 +110,7 @@ void InfoD3d12Generator::PrintEnumGpuIndices()
     {
         GFXRECON_LOG_ERROR("Failed to enumerate GPU indices");
     }
+    return return_val;
 }
 
 std::string InfoD3d12Generator::GetDriverInfoString()
@@ -122,19 +125,18 @@ std::string InfoD3d12Generator::GetDriverInfoString()
     }
 }
 
-void InfoD3d12Generator::PrintDriverInfoText()
+std::string InfoD3d12Generator::GetDriverInfoText()
 {
-    WriteOutput("");
-    WriteOutput("Driver info:");
+    std::string return_val = "\nDriver info:\n";
     if (driver_info_.length())
     {
-        WriteOutput(std::string("\t") + driver_info_);
+        return_val += "\t" + driver_info_ + "\n";
     }
     else
     {
-        WriteOutput("\tDriver info not available.");
-        WriteOutput("");
+        return_val += "\tDriver info not available.\n\n";
     }
+    return return_val;
 }
 
 std::string InfoD3d12Generator::AdapterTypeToString(format::AdapterType type)
@@ -152,7 +154,7 @@ std::string InfoD3d12Generator::AdapterTypeToString(format::AdapterType type)
     }
 }
 
-void InfoD3d12Generator::PrintRuntimeInfoText()
+std::string InfoD3d12Generator::GetRuntimeInfoText()
 {
     format::Dx12RuntimeInfo runtime_info = dx12_consumer_.GetDx12RuntimeInfo();
 
@@ -166,10 +168,10 @@ void InfoD3d12Generator::PrintRuntimeInfoText()
                       std::to_string(runtime_info.version[2]) + "." + std::to_string(runtime_info.version[3]);
     }
 
-    WriteOutput("D3D12 runtime info:");
-    WriteOutput(std::string("\tVersion: ") + runtime_ver);
-    WriteOutput(std::string("\tSource: ") + runtime_src);
-    WriteOutput("");
+    std::string return_val = "D3D12 runtime info:\n";
+    return_val += "\tVersion: " + runtime_ver + "\n";
+    return_val += "\tSource: " + runtime_src + "\n\n";
+    return return_val;
 }
 
 nlohmann::json InfoD3d12Generator::GetRuntimeInfoJson()
@@ -192,9 +194,9 @@ nlohmann::json InfoD3d12Generator::GetRuntimeInfoJson()
     };
 }
 
-void InfoD3d12Generator::PrintAdapterInfoText()
+std::string InfoD3d12Generator::GetAdapterInfoText()
 {
-    WriteOutput("D3D12 adapter info:");
+    std::string return_val = "D3D12 adapter info:\n";
 
     const auto& adapters = dx12_consumer_.GetAdapters();
 
@@ -223,26 +225,25 @@ void InfoD3d12Generator::PrintAdapterInfoText()
 
             std::string adapter_type = AdapterTypeToString(graphics::dx12::ExtractAdapterType(adapter.extra_info));
 
-            WriteOutput(std::string("\tDescription: ") + util::WCharArrayToString(adapter.Description) + " " +
-                        adapter_workload_pct);
-            WriteOutput(std::string("\tVendor ID: ") + util::to_hex_fixed_width<uint32_t>(adapter.VendorId));
-            WriteOutput(std::string("\tDevice ID: ") + util::to_hex_fixed_width<uint32_t>(adapter.DeviceId));
-            WriteOutput(std::string("\tSubsys ID: ") + util::to_hex_fixed_width<uint32_t>(adapter.SubSysId));
-            WriteOutput(std::string("\tRevision: ") + std::to_string(adapter.Revision));
-            WriteOutput(std::string("\tDedicated Video Memory: ") + std::to_string(adapter.DedicatedVideoMemory));
-            WriteOutput(std::string("\tDedicated System Memory: ") + std::to_string(adapter.DedicatedSystemMemory));
-            WriteOutput(std::string("\tShared System Memory: ") + std::to_string(adapter.SharedSystemMemory));
-            WriteOutput(std::string("\tLUID LowPart: ") + util::to_hex_fixed_width<uint32_t>(adapter.LuidLowPart));
-            WriteOutput(std::string("\tLUID HighPart: ") + util::to_hex_fixed_width<int32_t>(adapter.LuidHighPart));
-            WriteOutput(std::string("\tAdapter type: ") + adapter_type);
-            WriteOutput("");
+            return_val +=
+                "\tDescription: " + util::WCharArrayToString(adapter.Description) + " " + adapter_workload_pct + "\n";
+            return_val += "\tVendor ID: " + util::to_hex_fixed_width<uint32_t>(adapter.VendorId) + "\n";
+            return_val += "\tDevice ID: " + util::to_hex_fixed_width<uint32_t>(adapter.DeviceId) + "\n";
+            return_val += "\tSubsys ID: " + util::to_hex_fixed_width<uint32_t>(adapter.SubSysId) + "\n";
+            return_val += "\tRevision: " + std::to_string(adapter.Revision) + "\n";
+            return_val += "\tDedicated Video Memory: " + std::to_string(adapter.DedicatedVideoMemory) + "\n";
+            return_val += "\tDedicated System Memory: " + std::to_string(adapter.DedicatedSystemMemory) + "\n";
+            return_val += "\tShared System Memory: " + std::to_string(adapter.SharedSystemMemory) + "\n";
+            return_val += "\tLUID LowPart: " + util::to_hex_fixed_width<uint32_t>(adapter.LuidLowPart) + "\n";
+            return_val += "\tLUID HighPart: " + util::to_hex_fixed_width<int32_t>(adapter.LuidHighPart) + "\n";
+            return_val += "\tAdapter type: " + adapter_type + "\n\n";
         }
     }
     else
     {
-        WriteOutput("\tAdapter info not available.");
-        WriteOutput("");
+        return_val += "\tAdapter info not available.\n\n";
     }
+    return return_val;
 }
 
 nlohmann::json InfoD3d12Generator::GetAdapterInfoJson()
@@ -296,20 +297,20 @@ nlohmann::json InfoD3d12Generator::GetAdapterInfoJson()
     return adapters_json;
 }
 
-void InfoD3d12Generator::PrintSwapchainInfoText()
+std::string InfoD3d12Generator::GetSwapchainInfoText()
 {
-    WriteOutput("D3D12 swapchain info:");
+    std::string return_val = "D3D12 swapchain info:\n";
 
     if (dx12_consumer_.FoundSwapchainInfo())
     {
-        WriteOutput(std::string("\tDimensions: ") + dx12_consumer_.GetSwapchainDimensionsString());
+        return_val += "\tDimensions: " + dx12_consumer_.GetSwapchainDimensionsString() + "\n\n";
     }
     else
     {
-        WriteOutput("\tDimensions not available.");
+        return_val += "\tDimensions not available.\n\n";
     }
 
-    WriteOutput("");
+    return return_val;
 }
 
 nlohmann::json InfoD3d12Generator::GetSwapchainInfoJson()
@@ -318,41 +319,18 @@ nlohmann::json InfoD3d12Generator::GetSwapchainInfoJson()
     return { "dimensions", { { "width", width }, { "height", height } } };
 }
 
-void InfoD3d12Generator::PrintDxrEiInfoText()
+std::string InfoD3d12Generator::GetDxrEiInfoText()
 {
-    if (dx12_consumer_.ContainsEiWorkload())
-    {
-        WriteOutput("D3D12 EI workload: yes");
-    }
-    else
-    {
-        WriteOutput("D3D12 EI workload: no");
-    }
-
-    WriteOutput("");
-
-    if (dx12_consumer_.ContainsDxrWorkload())
-    {
-        WriteOutput("D3D12 DXR workload: yes");
-    }
-    else
-    {
-        WriteOutput("D3D12 DXR workload: no");
-    }
+    std::string return_val = "D3D12 EI workload: ";
+    return_val += (dx12_consumer_.ContainsEiWorkload() ? "yes" : "no") + "\n";
+    return_val += "D3D12 DXR workload: " + (dx12_consumer_.ContainsDxrWorkload() ? "yes" : "no") + "\n";
 
     if (dx12_consumer_.ContainsEiWorkload() || dx12_consumer_.ContainsDxrWorkload())
     {
-        WriteOutput("");
-
-        if (dx12_consumer_.ContainsOptFillMem())
-        {
-            WriteOutput("D3D12 DXR/EI optimized: yes");
-        }
-        else
-        {
-            WriteOutput("D3D12 DXR/EI optimized: no");
-        }
+        return_val += "D3D12 DXR/EI optimized: " + (dx12_consumer_.ContainsOptFillMem() ? "yes" : "no") + "\n";
     }
+    return_val += "\n";
+    return return_val;
 }
 
 nlohmann::json InfoD3d12Generator::GetDxrEiInfoJson()
@@ -368,12 +346,14 @@ nlohmann::json InfoD3d12Generator::GetDxrEiInfoJson()
     };
 }
 
-void InfoD3d12Generator::PrintInfo()
+std::string InfoD3d12Generator::GenerateText()
 {
+    std::string return_val = "";
+
     if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1) !=
         InfoApiGenerator::OutputSelectionFlags::kNoInfo)
     {
-        PrintEnumGpuIndices();
+        return_val = GetEnumGpuIndicesText();
     }
 
     // Output everything else, unless we're only supposed to output the
@@ -382,16 +362,16 @@ void InfoD3d12Generator::PrintInfo()
     {
         if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
         {
-            WriteOutput(std::string("\tTest present count: ") +
-                        std::to_string(dx12_consumer_.GetDXGITestPresentCount()));
+            return_val += "\tTest present count: " + std::to_string(dx12_consumer_.GetDXGITestPresentCount()) + "\n";
         }
 
-        PrintDriverInfoText();
-        PrintRuntimeInfoText();
-        PrintAdapterInfoText();
-        PrintSwapchainInfoText();
-        PrintDxrEiInfoText();
+        return_val += GetDriverInfoText();
+        return_val += GetRuntimeInfoText();
+        return_val += GetAdapterInfoText();
+        return_val += GetSwapchainInfoText();
+        return_val += GetDxrEiInfoText();
     }
+    return return_val;
 }
 
 nlohmann::json InfoD3d12Generator::GenerateJson()
