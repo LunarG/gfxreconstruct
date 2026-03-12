@@ -287,26 +287,23 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
     return original_result;
 }
 
-void VulkanOffscreenSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
-                                                    const VulkanDeviceInfo*              device_info,
-                                                    const VulkanSemaphoreInfo*           semaphore_info,
-                                                    const VulkanImageInfo*               image_info,
-                                                    VulkanInstanceInfo*                  instance_info,
-                                                    const graphics::VulkanInstanceTable* instance_table,
-                                                    const graphics::VulkanDeviceTable*   device_table,
-                                                    application::Application*            application)
+void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*              device_info,
+                                                 const VulkanSemaphoreInfo*           semaphore_info,
+                                                 const VulkanImageInfo*               image_info,
+                                                 VulkanInstanceInfo*                  instance_info,
+                                                 const graphics::VulkanInstanceTable* instance_table,
+                                                 const graphics::VulkanDeviceTable*   device_table,
+                                                 application::Application*            application)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(semaphore_info);
+    GFXRECON_UNREFERENCED_PARAMETER(image_info);
     GFXRECON_UNREFERENCED_PARAMETER(instance_info);
     GFXRECON_UNREFERENCED_PARAMETER(instance_table);
     GFXRECON_UNREFERENCED_PARAMETER(device_table);
     GFXRECON_UNREFERENCED_PARAMETER(application);
 
-    GFXRECON_ASSERT(device_info != nullptr);
-
-    VkSemaphore semaphore = (semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
-    VkImage     image     = (image_info == nullptr ? VK_NULL_HANDLE : image_info->handle);
-
-    func(device_info->handle, semaphore, image);
+    GFXRECON_LOG_WARNING("%s is not implemented and should not be called", __func__);
 }
 
 // queue_info could be nullptr. It means it doesn't specify a VkQueue and use default_queue. Its purpose is to singal

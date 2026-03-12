@@ -8621,6 +8621,29 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_state_.image_id);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
+                    {
+                        CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
+
+                        VulkanPhysicalDeviceInfo* physical_device_info =
+                            object_info_table.GetVkPhysicalDeviceInfo(swapchain_info->device_info->parent_id);
+                        GFXRECON_ASSERT(physical_device_info != nullptr);
+
+                        VulkanInstanceInfo* instance_info =
+                            object_info_table.GetVkInstanceInfo(physical_device_info->parent_id);
+                        GFXRECON_ASSERT(instance_info != nullptr);
+
+                        const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
+                        auto* device_table = GetDeviceTable(swapchain_info->device_info->handle);
+
+                        swapchain_->PresentImageAdHoc(swapchain_info->device_info,
+                                                      nullptr,
+                                                      override_img_info,
+                                                      instance_info,
+                                                      instance_table,
+                                                      device_table,
+                                                      application_.get());
+                    }
+
                     if (img_info != nullptr && override_img_info != nullptr)
                     {
                         constexpr VkOffset3D         zero_offset  = { 0, 0, 0 };
@@ -10593,6 +10616,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
     // TODO: merged in PR #2623 but causing issues in extended CI -> debug remaining issues and enable this again
     // related issue: https://github.com/LunarG/gfxreconstruct/issues/2660
     if constexpr (false)
+    // if (options_.swapchain_option == util::SwapchainOption::kVirtual)
     {
         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
 
@@ -10605,14 +10629,8 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
-        swapchain_->FrameBoundaryANDROID(func,
-                                         device_info,
-                                         semaphore_info,
-                                         image_info,
-                                         instance_info,
-                                         instance_table,
-                                         device_table,
-                                         application_.get());
+        swapchain_->PresentImageAdHoc(
+            device_info, semaphore_info, image_info, instance_info, instance_table, device_table, application_.get());
     }
     else
     {

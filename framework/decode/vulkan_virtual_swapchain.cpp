@@ -1211,14 +1211,13 @@ void VulkanVirtualSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
     func(command_buffer, pDependencyInfo);
 }
 
-void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
-                                                  const VulkanDeviceInfo*              device_info,
-                                                  const VulkanSemaphoreInfo*           semaphore_info,
-                                                  const VulkanImageInfo*               image_info,
-                                                  VulkanInstanceInfo*                  instance_info,
-                                                  const graphics::VulkanInstanceTable* instance_table,
-                                                  const graphics::VulkanDeviceTable*   device_table,
-                                                  application::Application*            application)
+void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*              device_info,
+                                               const VulkanSemaphoreInfo*           semaphore_info,
+                                               const VulkanImageInfo*               image_info,
+                                               VulkanInstanceInfo*                  instance_info,
+                                               const graphics::VulkanInstanceTable* instance_table,
+                                               const graphics::VulkanDeviceTable*   device_table,
+                                               application::Application*            application)
 {
     GFXRECON_ASSERT(instance_info != nullptr && instance_table != nullptr && device_info != nullptr &&
                     device_table != nullptr && application != nullptr);
@@ -1234,7 +1233,7 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
         return;
     }
 
-    util::BeginInjectedCommands();
+    // util::BeginInjectedCommands();
 
     // Create a new surface if necessary
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -1243,7 +1242,6 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
     if (ofb_data.surface_info.handle == VK_NULL_HANDLE)
     {
         // Create a window and surface
-
         ofb_data.surface_ptr.SetHandleLength(1);
         ofb_data.surface_ptr.SetConsumerData(0, &ofb_data.surface_info);
 
@@ -1274,21 +1272,25 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
-    // Create/Re-create a swapchain if necessary
-
     VkExtent2D window_size = ofb_data.surface_info.window->GetSize();
+
+    // Create/Re-create a swapchain if necessary
     if (image_info->extent.width != window_size.width || image_info->extent.height != window_size.height ||
         ofb_data.swapchain == VK_NULL_HANDLE)
     {
+        // TODO: extract params from provided image instead of hardcoding?
         // Create a swapchain
+        VkSwapchainPresentScalingCreateInfoKHR scaling_info = {};
+        scaling_info.sType           = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR;
+        scaling_info.scalingBehavior = VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_KHR;
 
         VkSwapchainCreateInfoKHR swapchain_create_info;
         swapchain_create_info.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        swapchain_create_info.pNext                 = nullptr;
+        swapchain_create_info.pNext                 = &scaling_info;
         swapchain_create_info.flags                 = 0;
         swapchain_create_info.surface               = ofb_data.surface_info.handle;
         swapchain_create_info.minImageCount         = 3;
-        swapchain_create_info.imageFormat           = VK_FORMAT_B8G8R8A8_UNORM;
+        swapchain_create_info.imageFormat           = image_info->format; // VK_FORMAT_B8G8R8A8_UNORM;
         swapchain_create_info.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         swapchain_create_info.imageExtent.width     = image_info->extent.width;
         swapchain_create_info.imageExtent.height    = image_info->extent.height;
@@ -1331,7 +1333,6 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         // Destroy old swapchain resources if necessary
-
         if (ofb_data.swapchain != VK_NULL_HANDLE)
         {
             // We need to be sure that swapchain resources are not in use anymore
@@ -1356,7 +1357,6 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
         ofb_data.swapchain = swapchain;
 
         // Get swapchain images and create swapchain resources
-
         uint32_t image_count = 0;
         result               = device_table->GetSwapchainImagesKHR(device, ofb_data.swapchain, &image_count, nullptr);
         GFXRECON_ASSERT(result == VK_SUCCESS);
@@ -1505,7 +1505,7 @@ void VulkanVirtualSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID    
 
     result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);
 
-    util::EndInjectedCommands();
+    // util::EndInjectedCommands();
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,

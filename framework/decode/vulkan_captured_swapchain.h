@@ -109,14 +109,13 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
-    virtual void FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
-                                      const VulkanDeviceInfo*              device_info,
-                                      const VulkanSemaphoreInfo*           semaphore_info,
-                                      const VulkanImageInfo*               image_info,
-                                      VulkanInstanceInfo*                  instance_info,
-                                      const graphics::VulkanInstanceTable* instance_table,
-                                      const graphics::VulkanDeviceTable*   device_table,
-                                      application::Application*            application) override;
+    virtual void PresentImageAdHoc(const VulkanDeviceInfo*              device_info,
+                                   const VulkanSemaphoreInfo*           semaphore_info,
+                                   const VulkanImageInfo*               image_info,
+                                   VulkanInstanceInfo*                  instance_info,
+                                   const graphics::VulkanInstanceTable* instance_table,
+                                   const graphics::VulkanDeviceTable*   device_table,
+                                   application::Application*            application) override;
 
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
