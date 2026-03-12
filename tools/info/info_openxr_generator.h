@@ -51,7 +51,7 @@ class InfoOpenXrGenerator : public InfoApiGenerator
     void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods
-    void           PrintInfo() override;
+    std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
   private:

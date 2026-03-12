@@ -28,8 +28,6 @@
 #include "util/argument_parser.h"
 #include "util/defines.h"
 
-#include "info_writer.h"
-
 #include <nlohmann/json.hpp>
 
 #include <functional>
@@ -98,7 +96,6 @@ class InfoApiGenerator
     virtual bool                ApiDesiresSingleLineFrameOutput() const { return false; }
 
     // A few "setter" style methods
-    void         SetWriter(InfoWriter* writer) { info_writer_ = writer; }
     virtual void SetFrameMarkerUsage(bool uses) { uses_frame_markers_ = uses; }
     virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
 
@@ -121,16 +118,13 @@ class InfoApiGenerator
 
     // Output methods
     void                   SetOutputFlags(OutputSelectionFlags flags) { output_flags_ = flags; }
-    virtual void           PrintInfo()    = 0;
+    virtual std::string    GenerateText() = 0;
     virtual nlohmann::json GenerateJson() = 0;
 
   protected:
-    inline void WriteOutput(const std::string& message) { info_writer_->Print(message); }
-
     OutputSelectionFlags output_flags_{ OutputSelectionFlags::kDefaultInfo };
     bool                 uses_frame_markers_{ false };
     std::string          driver_info_;
-    InfoWriter*          info_writer_{ nullptr };
 };
 
 constexpr InfoApiGenerator::OutputSelectionFlags operator|(InfoApiGenerator::OutputSelectionFlags a,
