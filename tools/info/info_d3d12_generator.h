@@ -49,9 +49,9 @@ class InfoD3d12Generator : public InfoApiGenerator
     uint32_t            GetBlankFrameCount() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
-    void UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
-    void OutputCommandLineUsage() override;
-    bool CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser) override;
+    void        UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
+    std::string GetCommandLineUsage() override;
+    bool        CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser) override;
 
     // Method to register this API's decoder elements with the containers
     // FileProcessor
