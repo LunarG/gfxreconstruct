@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
 
 #include "decode/vulkan_swapchain.h"
+#include "graphics/vulkan_resources_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -111,13 +112,14 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
-    void PresentImageAdHoc(const VulkanDeviceInfo*              device_info,
-                           const VulkanSemaphoreInfo*           semaphore_info,
-                           const VulkanImageInfo*               image_info,
-                           VulkanInstanceInfo*                  instance_info,
-                           const graphics::VulkanInstanceTable* instance_table,
-                           const graphics::VulkanDeviceTable*   device_table,
-                           application::Application*            application) override;
+    void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+                           const VulkanSemaphoreInfo*                 semaphore_info,
+                           const VulkanImageInfo*                     image_info,
+                           VulkanInstanceInfo*                        instance_info,
+                           const graphics::VulkanInstanceTable*       instance_table,
+                           const graphics::VulkanDeviceTable*         device_table,
+                           application::Application*                  application,
+                           const std::optional<std::array<float, 2>>& scale) override;
 
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
@@ -187,6 +189,18 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                       uint32_t                                image_index,
                                       uint32_t                                image_count);
 
+    void BlitHelper(VkCommandBuffer     command_buffer,
+                    VkImage             src_image,
+                    VkImage             dst_image,
+                    const VkExtent3D&   src_extent,
+                    const VkExtent3D&   dst_extent,
+                    uint32_t            mip_levels,
+                    uint32_t            array_layers,
+                    VkImageAspectFlags  aspect,
+                    VkOffset3D          src_offset,
+                    VkOffset3D          dst_offset,
+                    std::array<bool, 3> flip_axis) const;
+
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
 
@@ -196,6 +210,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         VkImage         image{ VK_NULL_HANDLE };
         VkCommandBuffer copy_command_buffer{ VK_NULL_HANDLE };
         VkSemaphore     copy_semaphore{ VK_NULL_HANDLE };
+        VkFence         copy_fence{ VK_NULL_HANDLE };
     };
 
     // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
@@ -211,7 +226,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         std::vector<VkSemaphore> acquire_semaphores{};
         uint32_t                 acquire_index{ 0 };
 
-        std::vector<OFBSwapchainImageData> image_datas{};
+        std::vector<OFBSwapchainImageData> image_data{};
     };
 
     std::unordered_map<VkDevice, OFBData>  ofb_data_;

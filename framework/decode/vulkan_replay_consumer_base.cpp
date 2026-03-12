@@ -8593,34 +8593,12 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
                 modified_image_indices_[i]  = replay_image_index;
 
-                // copy override-image into current swapchain image
+                // present override-image in a dedicated swapchain
                 if (present_override_state_.image_id != format::kNullHandleId)
                 {
                     GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
 
-                    auto& copy_util = present_override_state_.copy_utils[swapchain_info->device_info->handle];
-                    if (!copy_util)
-                    {
-                        const VulkanPhysicalDeviceInfo* phys_dev_info =
-                            object_info_table_->GetVkPhysicalDeviceInfo(swapchain_info->device_info->parent_id);
-                        GFXRECON_ASSERT(phys_dev_info);
-
-                        copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
-                            swapchain_info->device_info->handle,
-                            phys_dev_info->handle,
-                            *GetDeviceTable(swapchain_info->device_info->handle),
-                            *GetInstanceTable(phys_dev_info->handle),
-                            *phys_dev_info->replay_device_info->memory_properties);
-                        GFXRECON_ASSERT(copy_util);
-                    }
-
-                    format::HandleId swapchain_img_id = swapchain_info->image_handle_ids[capture_image_index];
-                    auto*            img_info         = object_info_table_->GetVkImageInfo(swapchain_img_id);
-                    GFXRECON_ASSERT(img_info != nullptr);
-
-                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_state_.image_id);
-                    GFXRECON_ASSERT(override_img_info != nullptr);
-
+                    if (auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_state_.image_id))
                     {
                         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
 
@@ -8641,41 +8619,15 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                                       instance_info,
                                                       instance_table,
                                                       device_table,
-                                                      application_.get());
-                    }
-
-                    if (img_info != nullptr && override_img_info != nullptr)
-                    {
-                        constexpr VkOffset3D         zero_offset  = { 0, 0, 0 };
-                        constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
-
-                        // init with 'false'
-                        std::array<bool, 3> flip_axis = {};
-                        if (options_.screenshot_scale)
-                        {
-                            flip_axis = { options_.screenshot_scale.value()[0] < 0.f,
-                                          options_.screenshot_scale.value()[1] < 0.f,
-                                          false };
-                        }
-
-                        // image-transitions back/forth, actual copy/blit, fence sync
-                        copy_util->BlitImage(override_img_info->handle,
-                                             img_info->handle,
-                                             override_img_info->extent,
-                                             img_info->extent,
-                                             override_img_info->current_layout,
-                                             img_info->current_layout,
-                                             aspect_color,
-                                             zero_offset,
-                                             zero_offset,
-                                             flip_axis);
+                                                      application_.get(),
+                                                      options_.screenshot_scale);
                     }
                     else
                     {
-                        GFXRECON_LOG_WARNING("could not retrieve images for attempted swapchain-image override: "
-                                             "override-image-id: %" PRIu64 " - swapchain-image-id: %" PRIu64 "",
-                                             present_override_state_.image_id,
-                                             swapchain_img_id);
+                        GFXRECON_LOG_WARNING("could not retrieve image for  --present-override '%s' "
+                                             "override-image-id: %" PRIu64 "",
+                                             options_.swapchain_override_image_name.c_str(),
+                                             present_override_state_.image_id);
                     }
                 }
             }
@@ -10629,8 +10581,14 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
-        swapchain_->PresentImageAdHoc(
-            device_info, semaphore_info, image_info, instance_info, instance_table, device_table, application_.get());
+        swapchain_->PresentImageAdHoc(device_info,
+                                      semaphore_info,
+                                      image_info,
+                                      instance_info,
+                                      instance_table,
+                                      device_table,
+                                      application_.get(),
+                                      {});
     }
     else
     {

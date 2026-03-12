@@ -266,13 +266,14 @@ void VulkanCapturedSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func
     func(command_buffer, pDependencyInfo);
 }
 
-void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*              device_info,
-                                                const VulkanSemaphoreInfo*           semaphore_info,
-                                                const VulkanImageInfo*               image_info,
-                                                VulkanInstanceInfo*                  instance_info,
-                                                const graphics::VulkanInstanceTable* instance_table,
-                                                const graphics::VulkanDeviceTable*   device_table,
-                                                application::Application*            application)
+void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+                                                const VulkanSemaphoreInfo*                 semaphore_info,
+                                                const VulkanImageInfo*                     image_info,
+                                                VulkanInstanceInfo*                        instance_info,
+                                                const graphics::VulkanInstanceTable*       instance_table,
+                                                const graphics::VulkanDeviceTable*         device_table,
+                                                application::Application*                  application,
+                                                const std::optional<std::array<float, 2>>& scale)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device_info);
     GFXRECON_UNREFERENCED_PARAMETER(semaphore_info);
@@ -281,6 +282,7 @@ void VulkanCapturedSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*         
     GFXRECON_UNREFERENCED_PARAMETER(instance_table);
     GFXRECON_UNREFERENCED_PARAMETER(device_table);
     GFXRECON_UNREFERENCED_PARAMETER(application);
+    GFXRECON_UNREFERENCED_PARAMETER(scale);
 
     GFXRECON_LOG_WARNING("%s is not implemented and should not be called", __func__);
 }
