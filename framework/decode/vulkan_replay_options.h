@@ -171,6 +171,9 @@ struct VulkanReplayOptions : public ReplayOptions
     // Milliseconds to wait before first queue submit.
     uint32_t wait_before_first_submit{ 0 };
 
+    /// Wait for the GPU to become idle before each submit.
+    bool idle_before_submit{ false };
+
     void MaybeWaitBeforeFirstSubmit() const;
 };
 
