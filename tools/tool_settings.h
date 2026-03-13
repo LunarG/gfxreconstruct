@@ -731,25 +731,31 @@ static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, 
 static bool GetLoopFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_number)
 {
     const std::string& value = arg_parser.GetArgumentValue(kLoopFrameArgument);
-    if (!value.empty())
-    {
-        bool invalid = false;
 
+    bool valid = !value.empty();
+
+    if (valid)
+    {
         if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
         {
             GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which contains non-numeric values",
                                  value.c_str());
-            invalid = true;
-        }
-
-        if (!invalid)
-        {
-            frame_number = std::stoi(value);
-            return true;
+            valid = false;
         }
     }
 
-    return false;
+    if (valid)
+    {
+        frame_number = std::stoi(value);
+        if (frame_number == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which must be greater than zero",
+                                 value.c_str());
+            valid = false;
+        }
+    }
+
+    return valid;
 }
 
 static bool GetLoopCount(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& loop_count)
