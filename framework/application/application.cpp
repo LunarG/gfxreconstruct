@@ -66,8 +66,9 @@ Application::Application(const std::string&     name,
                          const std::string&     cli_wsi_extension,
                          void*                  platform_specific_wsi_data) :
     name_(name),
-    file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0),
-    cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
+    file_processor_(file_processor), running_(false), paused_(false),
+    pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension),
+    fps_info_(nullptr), frame_loop_info_{ nullptr }
 {
     if (!cli_wsi_extension_.empty())
     {
@@ -140,6 +141,27 @@ void Application::Run()
             // Add one to match "trim frame range semantic"
             uint32_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 
+            if (frame_loop_info_ != nullptr)
+            {
+                frame_loop_info_->SetCurrentFrameNumber(frame_number);
+
+                // Quit when frame looping has finished.
+                if (frame_loop_info_->GetLoopIterations() == 0)
+                {
+                    running_ = false;
+                    break;
+                }
+
+                if (frame_loop_info_->AtLoopFrame())
+                {
+                    // Preload the next frame and make sure we don't advance to the next one.
+                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
+                    GFXRECON_ASSERT(preload_processor)
+                    preload_processor->PreloadNextFrames(1);
+                    preload_processor->SetAdvanceToNextFrame(false);
+                }
+            }
+
             if (fps_info_ != nullptr)
             {
                 if (fps_info_->ShouldQuit(frame_number))
@@ -166,6 +188,21 @@ void Application::Run()
 
             // PlaySingleFrame() increments this->current_frame_number_ *if* there's an end-of-frame
             PlaySingleFrame();
+
+            if (frame_loop_info_ != nullptr && frame_loop_info_->AtLoopFrame())
+            {
+                frame_loop_info_->SetLooping(true);
+
+                auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
+                GFXRECON_ASSERT(preload_processor)
+                preload_processor->WaitDecodersIdle();
+
+                // When replaying a frame again, skip any state blocks to avoid reapplying them again.
+                preload_processor->SkipStateBlocks();
+
+                GFXRECON_LOG_INFO("Looping frame (%i iterations remaining)", frame_loop_info_->GetLoopIterations());
+                frame_loop_info_->DecrementLoopIterations();
+            }
 
             if (fps_info_ != nullptr)
             {
