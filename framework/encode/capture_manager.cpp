@@ -65,6 +65,7 @@ std::atomic<format::HandleId>              CommonCaptureManager::default_unique_
 uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
 thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
 thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
+int64_t                                        CommonCaptureManager::avoid_api_call_lock_ = 0;
 
 static std::mutex external_trim_trigger_mutex_g;
 static bool       externally_set_trimming_state_g          = false;
@@ -689,7 +690,11 @@ ParameterEncoder* CommonCaptureManager::InitMethodCallCapture(format::ApiCallId 
 
 CommonCaptureManager::ApiCallLock CommonCaptureManager::AcquireCallLock() const
 {
-    if (force_command_serialization_)
+    if (avoid_api_call_lock_)
+    {
+        return ApiCallLock(ApiCallLock::Type::kNone, api_call_mutex_);
+    }
+    else if (force_command_serialization_)
     {
         return ApiCallLock(ApiCallLock::Type::kExclusive, api_call_mutex_);
     }
@@ -1368,7 +1373,7 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
 
     {
         auto exclusive_api_call_lock = std::unique_lock<CommonCaptureManager::ApiCallMutexT>{};
-        if (!GetForceCommandSerialization())
+        if (!avoid_api_call_lock_ && !GetForceCommandSerialization())
         {
             // If command serialization is active, the caller already holds the exclusive lock.
             exclusive_api_call_lock = AcquireExclusiveApiCallLock();
@@ -1413,7 +1418,7 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
 
     {
         auto exclusive_api_call_lock = std::unique_lock<CommonCaptureManager::ApiCallMutexT>{};
-        if (!GetForceCommandSerialization())
+        if (!avoid_api_call_lock_ && !GetForceCommandSerialization())
         {
             // If command serialization is active, the caller already holds the exclusive lock.
             exclusive_api_call_lock = AcquireExclusiveApiCallLock();
@@ -1854,13 +1859,16 @@ bool CaptureFileOutputStream::Write(const void* data, size_t len)
 
 CommonCaptureManager::ApiCallLock::ApiCallLock(Type type, ApiCallMutexT& mutex)
 {
-    if (type == Type::kExclusive)
+    switch (type)
     {
-        exclusive.emplace(mutex);
-    }
-    else
-    {
-        shared.emplace(mutex);
+        case Type::kExclusive:
+            exclusive.emplace(mutex);
+            break;
+        case Type::kShared:
+            shared.emplace(mutex);
+            break;
+        default:
+            break;
     }
 }
 
