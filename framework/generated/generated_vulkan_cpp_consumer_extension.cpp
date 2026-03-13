@@ -3693,6 +3693,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM(out,
+                                                                        casted_struct,
+                                                                        decoded_struct,
+                                                                        consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT: {
                 auto casted_struct = reinterpret_cast<const VkImportMemoryHostPointerInfoEXT*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkImportMemoryHostPointerInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
@@ -6710,6 +6720,16 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                      casted_struct,
                                                                      decoded_struct,
                                                                      consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE(out,
+                                                                        casted_struct,
+                                                                        decoded_struct,
+                                                                        consumer);
 
                 break;
             }

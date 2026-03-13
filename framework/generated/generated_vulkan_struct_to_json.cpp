@@ -1253,74 +1253,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRect2D* data, co
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarrier* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkBufferMemoryBarrier& decoded_value = *data->decoded_value;
-        const Decoded_VkBufferMemoryBarrier& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
-        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
-        jdata["srcQueueFamilyIndex"] = decoded_value.srcQueueFamilyIndex;
-        jdata["dstQueueFamilyIndex"] = decoded_value.dstQueueFamilyIndex;
-        HandleToJson(jdata["buffer"], meta_struct.buffer, options);
-        FieldToJson(jdata["offset"], decoded_value.offset, options);
-        FieldToJson(jdata["size"], decoded_value.size, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresourceRange* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkImageSubresourceRange& decoded_value = *data->decoded_value;
-        const Decoded_VkImageSubresourceRange& meta_struct = *data;
-
-        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
-        jdata["baseMipLevel"] = decoded_value.baseMipLevel;
-        jdata["levelCount"] = decoded_value.levelCount;
-        jdata["baseArrayLayer"] = decoded_value.baseArrayLayer;
-        jdata["layerCount"] = decoded_value.layerCount;
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryBarrier* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkImageMemoryBarrier& decoded_value = *data->decoded_value;
-        const Decoded_VkImageMemoryBarrier& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
-        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
-        FieldToJson(jdata["oldLayout"], decoded_value.oldLayout, options);
-        FieldToJson(jdata["newLayout"], decoded_value.newLayout, options);
-        jdata["srcQueueFamilyIndex"] = decoded_value.srcQueueFamilyIndex;
-        jdata["dstQueueFamilyIndex"] = decoded_value.dstQueueFamilyIndex;
-        HandleToJson(jdata["image"], meta_struct.image, options);
-        FieldToJson(jdata["subresourceRange"], meta_struct.subresourceRange, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryBarrier* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkMemoryBarrier& decoded_value = *data->decoded_value;
-        const Decoded_VkMemoryBarrier& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
-        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAllocationCallbacks* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1790,6 +1722,76 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryRequiremen
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkImageSubresource& decoded_value = *data->decoded_value;
+        const Decoded_VkImageSubresource& meta_struct = *data;
+
+        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
+        jdata["mipLevel"] = decoded_value.mipLevel;
+        jdata["arrayLayer"] = decoded_value.arrayLayer;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageFormatProperties* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSparseImageFormatProperties& decoded_value = *data->decoded_value;
+        const Decoded_VkSparseImageFormatProperties& meta_struct = *data;
+
+        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
+        FieldToJson(jdata["imageGranularity"], meta_struct.imageGranularity, options);
+        FieldToJson(VkSparseImageFormatFlags_t(),jdata["flags"], decoded_value.flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryBind* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSparseImageMemoryBind& decoded_value = *data->decoded_value;
+        const Decoded_VkSparseImageMemoryBind& meta_struct = *data;
+
+        FieldToJson(jdata["subresource"], meta_struct.subresource, options);
+        FieldToJson(jdata["offset"], meta_struct.offset, options);
+        FieldToJson(jdata["extent"], meta_struct.extent, options);
+        HandleToJson(jdata["memory"], meta_struct.memory, options);
+        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset, options);
+        FieldToJson(VkSparseMemoryBindFlags_t(),jdata["flags"], decoded_value.flags, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryBindInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSparseImageMemoryBindInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkSparseImageMemoryBindInfo& meta_struct = *data;
+
+        HandleToJson(jdata["image"], meta_struct.image, options);
+        jdata["bindCount"] = decoded_value.bindCount;
+        FieldToJson(jdata["pBinds"], meta_struct.pBinds, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryRequirements* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSparseImageMemoryRequirements& decoded_value = *data->decoded_value;
+        const Decoded_VkSparseImageMemoryRequirements& meta_struct = *data;
+
+        FieldToJson(jdata["formatProperties"], meta_struct.formatProperties, options);
+        jdata["imageMipTailFirstLod"] = decoded_value.imageMipTailFirstLod;
+        FieldToJson(jdata["imageMipTailSize"], decoded_value.imageMipTailSize, options);
+        FieldToJson(jdata["imageMipTailOffset"], decoded_value.imageMipTailOffset, options);
+        FieldToJson(jdata["imageMipTailStride"], decoded_value.imageMipTailStride, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseMemoryBind* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1831,48 +1833,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageOpaqu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkImageSubresource& decoded_value = *data->decoded_value;
-        const Decoded_VkImageSubresource& meta_struct = *data;
-
-        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
-        jdata["mipLevel"] = decoded_value.mipLevel;
-        jdata["arrayLayer"] = decoded_value.arrayLayer;
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryBind* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkSparseImageMemoryBind& decoded_value = *data->decoded_value;
-        const Decoded_VkSparseImageMemoryBind& meta_struct = *data;
-
-        FieldToJson(jdata["subresource"], meta_struct.subresource, options);
-        FieldToJson(jdata["offset"], meta_struct.offset, options);
-        FieldToJson(jdata["extent"], meta_struct.extent, options);
-        HandleToJson(jdata["memory"], meta_struct.memory, options);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset, options);
-        FieldToJson(VkSparseMemoryBindFlags_t(),jdata["flags"], decoded_value.flags, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryBindInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkSparseImageMemoryBindInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkSparseImageMemoryBindInfo& meta_struct = *data;
-
-        HandleToJson(jdata["image"], meta_struct.image, options);
-        jdata["bindCount"] = decoded_value.bindCount;
-        FieldToJson(jdata["pBinds"], meta_struct.pBinds, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindSparseInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1892,34 +1852,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindSparseInfo* 
         jdata["signalSemaphoreCount"] = decoded_value.signalSemaphoreCount;
         HandleToJson(jdata["pSignalSemaphores"], &meta_struct.pSignalSemaphores, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageFormatProperties* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkSparseImageFormatProperties& decoded_value = *data->decoded_value;
-        const Decoded_VkSparseImageFormatProperties& meta_struct = *data;
-
-        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
-        FieldToJson(jdata["imageGranularity"], meta_struct.imageGranularity, options);
-        FieldToJson(VkSparseImageFormatFlags_t(),jdata["flags"], decoded_value.flags, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryRequirements* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkSparseImageMemoryRequirements& decoded_value = *data->decoded_value;
-        const Decoded_VkSparseImageMemoryRequirements& meta_struct = *data;
-
-        FieldToJson(jdata["formatProperties"], meta_struct.formatProperties, options);
-        jdata["imageMipTailFirstLod"] = decoded_value.imageMipTailFirstLod;
-        FieldToJson(jdata["imageMipTailSize"], decoded_value.imageMipTailSize, options);
-        FieldToJson(jdata["imageMipTailOffset"], decoded_value.imageMipTailOffset, options);
-        FieldToJson(jdata["imageMipTailStride"], decoded_value.imageMipTailStride, options);
     }
 }
 
@@ -2034,6 +1966,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComponentMapping
         FieldToJson(jdata["g"], decoded_value.g, options);
         FieldToJson(jdata["b"], decoded_value.b, options);
         FieldToJson(jdata["a"], decoded_value.a, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresourceRange* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkImageSubresourceRange& decoded_value = *data->decoded_value;
+        const Decoded_VkImageSubresourceRange& meta_struct = *data;
+
+        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
+        jdata["baseMipLevel"] = decoded_value.baseMipLevel;
+        jdata["levelCount"] = decoded_value.levelCount;
+        jdata["baseArrayLayer"] = decoded_value.baseArrayLayer;
+        jdata["layerCount"] = decoded_value.layerCount;
     }
 }
 
@@ -2171,6 +2118,59 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCopy* data,
         FieldToJson(jdata["dstSubresource"], meta_struct.dstSubresource, options);
         FieldToJson(jdata["dstOffset"], meta_struct.dstOffset, options);
         FieldToJson(jdata["extent"], meta_struct.extent, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarrier* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkBufferMemoryBarrier& decoded_value = *data->decoded_value;
+        const Decoded_VkBufferMemoryBarrier& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
+        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
+        jdata["srcQueueFamilyIndex"] = decoded_value.srcQueueFamilyIndex;
+        jdata["dstQueueFamilyIndex"] = decoded_value.dstQueueFamilyIndex;
+        HandleToJson(jdata["buffer"], meta_struct.buffer, options);
+        FieldToJson(jdata["offset"], decoded_value.offset, options);
+        FieldToJson(jdata["size"], decoded_value.size, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryBarrier* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkImageMemoryBarrier& decoded_value = *data->decoded_value;
+        const Decoded_VkImageMemoryBarrier& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
+        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
+        FieldToJson(jdata["oldLayout"], decoded_value.oldLayout, options);
+        FieldToJson(jdata["newLayout"], decoded_value.newLayout, options);
+        jdata["srcQueueFamilyIndex"] = decoded_value.srcQueueFamilyIndex;
+        jdata["dstQueueFamilyIndex"] = decoded_value.dstQueueFamilyIndex;
+        HandleToJson(jdata["image"], meta_struct.image, options);
+        FieldToJson(jdata["subresourceRange"], meta_struct.subresourceRange, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryBarrier* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkMemoryBarrier& decoded_value = *data->decoded_value;
+        const Decoded_VkMemoryBarrier& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
+        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
 
@@ -2485,154 +2485,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawIndirectComm
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindingDescription* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkVertexInputBindingDescription& decoded_value = *data->decoded_value;
-        const Decoded_VkVertexInputBindingDescription& meta_struct = *data;
-
-        jdata["binding"] = decoded_value.binding;
-        jdata["stride"] = decoded_value.stride;
-        FieldToJson(jdata["inputRate"], decoded_value.inputRate, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputAttributeDescription* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkVertexInputAttributeDescription& decoded_value = *data->decoded_value;
-        const Decoded_VkVertexInputAttributeDescription& meta_struct = *data;
-
-        jdata["location"] = decoded_value.location;
-        jdata["binding"] = decoded_value.binding;
-        FieldToJson(jdata["format"], decoded_value.format, options);
-        jdata["offset"] = decoded_value.offset;
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineVertexInputStateCreateInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPipelineVertexInputStateCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineVertexInputStateCreateInfo& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineVertexInputStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        jdata["vertexBindingDescriptionCount"] = decoded_value.vertexBindingDescriptionCount;
-        FieldToJson(jdata["pVertexBindingDescriptions"], meta_struct.pVertexBindingDescriptions, options);
-        jdata["vertexAttributeDescriptionCount"] = decoded_value.vertexAttributeDescriptionCount;
-        FieldToJson(jdata["pVertexAttributeDescriptions"], meta_struct.pVertexAttributeDescriptions, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineInputAssemblyStateCreateInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPipelineInputAssemblyStateCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineInputAssemblyStateCreateInfo& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineInputAssemblyStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        FieldToJson(jdata["topology"], decoded_value.topology, options);
-        jdata["primitiveRestartEnable"] = static_cast<bool>(decoded_value.primitiveRestartEnable);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineTessellationStateCreateInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPipelineTessellationStateCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineTessellationStateCreateInfo& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineTessellationStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        jdata["patchControlPoints"] = decoded_value.patchControlPoints;
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewport* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkViewport& decoded_value = *data->decoded_value;
-        const Decoded_VkViewport& meta_struct = *data;
-
-        FieldToJson(jdata["x"], decoded_value.x, options);
-        FieldToJson(jdata["y"], decoded_value.y, options);
-        FieldToJson(jdata["width"], decoded_value.width, options);
-        FieldToJson(jdata["height"], decoded_value.height, options);
-        FieldToJson(jdata["minDepth"], decoded_value.minDepth, options);
-        FieldToJson(jdata["maxDepth"], decoded_value.maxDepth, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportStateCreateInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPipelineViewportStateCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineViewportStateCreateInfo& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineViewportStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        jdata["viewportCount"] = decoded_value.viewportCount;
-        FieldToJson(jdata["pViewports"], meta_struct.pViewports, options);
-        jdata["scissorCount"] = decoded_value.scissorCount;
-        FieldToJson(jdata["pScissors"], meta_struct.pScissors, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationStateCreateInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPipelineRasterizationStateCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineRasterizationStateCreateInfo& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineRasterizationStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        jdata["depthClampEnable"] = static_cast<bool>(decoded_value.depthClampEnable);
-        jdata["rasterizerDiscardEnable"] = static_cast<bool>(decoded_value.rasterizerDiscardEnable);
-        FieldToJson(jdata["polygonMode"], decoded_value.polygonMode, options);
-        FieldToJson(VkCullModeFlags_t(),jdata["cullMode"], decoded_value.cullMode, options);
-        FieldToJson(jdata["frontFace"], decoded_value.frontFace, options);
-        jdata["depthBiasEnable"] = static_cast<bool>(decoded_value.depthBiasEnable);
-        FieldToJson(jdata["depthBiasConstantFactor"], decoded_value.depthBiasConstantFactor, options);
-        FieldToJson(jdata["depthBiasClamp"], decoded_value.depthBiasClamp, options);
-        FieldToJson(jdata["depthBiasSlopeFactor"], decoded_value.depthBiasSlopeFactor, options);
-        FieldToJson(jdata["lineWidth"], decoded_value.lineWidth, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineMultisampleStateCreateInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPipelineMultisampleStateCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineMultisampleStateCreateInfo& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineMultisampleStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        FieldToJson(jdata["rasterizationSamples"], decoded_value.rasterizationSamples, options);
-        jdata["sampleShadingEnable"] = static_cast<bool>(decoded_value.sampleShadingEnable);
-        FieldToJson(jdata["minSampleShading"], decoded_value.minSampleShading, options);
-        FieldToJson(jdata["pSampleMask"], meta_struct.pSampleMask, options);
-        jdata["alphaToCoverageEnable"] = static_cast<bool>(decoded_value.alphaToCoverageEnable);
-        jdata["alphaToOneEnable"] = static_cast<bool>(decoded_value.alphaToOneEnable);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStencilOpState* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2650,25 +2502,46 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStencilOpState* 
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDepthStencilStateCreateInfo* data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputAttributeDescription* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
     {
-        const VkPipelineDepthStencilStateCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkPipelineDepthStencilStateCreateInfo& meta_struct = *data;
+        const VkVertexInputAttributeDescription& decoded_value = *data->decoded_value;
+        const Decoded_VkVertexInputAttributeDescription& meta_struct = *data;
 
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkPipelineDepthStencilStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        jdata["depthTestEnable"] = static_cast<bool>(decoded_value.depthTestEnable);
-        jdata["depthWriteEnable"] = static_cast<bool>(decoded_value.depthWriteEnable);
-        FieldToJson(jdata["depthCompareOp"], decoded_value.depthCompareOp, options);
-        jdata["depthBoundsTestEnable"] = static_cast<bool>(decoded_value.depthBoundsTestEnable);
-        jdata["stencilTestEnable"] = static_cast<bool>(decoded_value.stencilTestEnable);
-        FieldToJson(jdata["front"], meta_struct.front, options);
-        FieldToJson(jdata["back"], meta_struct.back, options);
-        FieldToJson(jdata["minDepthBounds"], decoded_value.minDepthBounds, options);
-        FieldToJson(jdata["maxDepthBounds"], decoded_value.maxDepthBounds, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+        jdata["location"] = decoded_value.location;
+        jdata["binding"] = decoded_value.binding;
+        FieldToJson(jdata["format"], decoded_value.format, options);
+        jdata["offset"] = decoded_value.offset;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindingDescription* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkVertexInputBindingDescription& decoded_value = *data->decoded_value;
+        const Decoded_VkVertexInputBindingDescription& meta_struct = *data;
+
+        jdata["binding"] = decoded_value.binding;
+        jdata["stride"] = decoded_value.stride;
+        FieldToJson(jdata["inputRate"], decoded_value.inputRate, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewport* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkViewport& decoded_value = *data->decoded_value;
+        const Decoded_VkViewport& meta_struct = *data;
+
+        FieldToJson(jdata["x"], decoded_value.x, options);
+        FieldToJson(jdata["y"], decoded_value.y, options);
+        FieldToJson(jdata["width"], decoded_value.width, options);
+        FieldToJson(jdata["height"], decoded_value.height, options);
+        FieldToJson(jdata["minDepth"], decoded_value.minDepth, options);
+        FieldToJson(jdata["maxDepth"], decoded_value.maxDepth, options);
     }
 }
 
@@ -2708,6 +2581,28 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorBle
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDepthStencilStateCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineDepthStencilStateCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineDepthStencilStateCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPipelineDepthStencilStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        jdata["depthTestEnable"] = static_cast<bool>(decoded_value.depthTestEnable);
+        jdata["depthWriteEnable"] = static_cast<bool>(decoded_value.depthWriteEnable);
+        FieldToJson(jdata["depthCompareOp"], decoded_value.depthCompareOp, options);
+        jdata["depthBoundsTestEnable"] = static_cast<bool>(decoded_value.depthBoundsTestEnable);
+        jdata["stencilTestEnable"] = static_cast<bool>(decoded_value.stencilTestEnable);
+        FieldToJson(jdata["front"], meta_struct.front, options);
+        FieldToJson(jdata["back"], meta_struct.back, options);
+        FieldToJson(jdata["minDepthBounds"], decoded_value.minDepthBounds, options);
+        FieldToJson(jdata["maxDepthBounds"], decoded_value.maxDepthBounds, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDynamicStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2719,6 +2614,111 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDynamicS
         FieldToJson(VkPipelineDynamicStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
         jdata["dynamicStateCount"] = decoded_value.dynamicStateCount;
         FieldToJson(jdata["pDynamicStates"], meta_struct.pDynamicStates, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineInputAssemblyStateCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineInputAssemblyStateCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineInputAssemblyStateCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPipelineInputAssemblyStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        FieldToJson(jdata["topology"], decoded_value.topology, options);
+        jdata["primitiveRestartEnable"] = static_cast<bool>(decoded_value.primitiveRestartEnable);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineMultisampleStateCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineMultisampleStateCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineMultisampleStateCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPipelineMultisampleStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        FieldToJson(jdata["rasterizationSamples"], decoded_value.rasterizationSamples, options);
+        jdata["sampleShadingEnable"] = static_cast<bool>(decoded_value.sampleShadingEnable);
+        FieldToJson(jdata["minSampleShading"], decoded_value.minSampleShading, options);
+        FieldToJson(jdata["pSampleMask"], meta_struct.pSampleMask, options);
+        jdata["alphaToCoverageEnable"] = static_cast<bool>(decoded_value.alphaToCoverageEnable);
+        jdata["alphaToOneEnable"] = static_cast<bool>(decoded_value.alphaToOneEnable);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationStateCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineRasterizationStateCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineRasterizationStateCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPipelineRasterizationStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        jdata["depthClampEnable"] = static_cast<bool>(decoded_value.depthClampEnable);
+        jdata["rasterizerDiscardEnable"] = static_cast<bool>(decoded_value.rasterizerDiscardEnable);
+        FieldToJson(jdata["polygonMode"], decoded_value.polygonMode, options);
+        FieldToJson(VkCullModeFlags_t(),jdata["cullMode"], decoded_value.cullMode, options);
+        FieldToJson(jdata["frontFace"], decoded_value.frontFace, options);
+        jdata["depthBiasEnable"] = static_cast<bool>(decoded_value.depthBiasEnable);
+        FieldToJson(jdata["depthBiasConstantFactor"], decoded_value.depthBiasConstantFactor, options);
+        FieldToJson(jdata["depthBiasClamp"], decoded_value.depthBiasClamp, options);
+        FieldToJson(jdata["depthBiasSlopeFactor"], decoded_value.depthBiasSlopeFactor, options);
+        FieldToJson(jdata["lineWidth"], decoded_value.lineWidth, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineTessellationStateCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineTessellationStateCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineTessellationStateCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPipelineTessellationStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        jdata["patchControlPoints"] = decoded_value.patchControlPoints;
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineVertexInputStateCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineVertexInputStateCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineVertexInputStateCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPipelineVertexInputStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        jdata["vertexBindingDescriptionCount"] = decoded_value.vertexBindingDescriptionCount;
+        FieldToJson(jdata["pVertexBindingDescriptions"], meta_struct.pVertexBindingDescriptions, options);
+        jdata["vertexAttributeDescriptionCount"] = decoded_value.vertexAttributeDescriptionCount;
+        FieldToJson(jdata["pVertexAttributeDescriptions"], meta_struct.pVertexAttributeDescriptions, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportStateCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineViewportStateCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineViewportStateCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkPipelineViewportStateCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        jdata["viewportCount"] = decoded_value.viewportCount;
+        FieldToJson(jdata["pViewports"], meta_struct.pViewports, options);
+        jdata["scissorCount"] = decoded_value.scissorCount;
+        FieldToJson(jdata["pScissors"], meta_struct.pScissors, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -2802,6 +2802,23 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferCreat
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDependency* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSubpassDependency& decoded_value = *data->decoded_value;
+        const Decoded_VkSubpassDependency& meta_struct = *data;
+
+        jdata["srcSubpass"] = decoded_value.srcSubpass;
+        jdata["dstSubpass"] = decoded_value.dstSubpass;
+        FieldToJson(VkPipelineStageFlags_t(),jdata["srcStageMask"], decoded_value.srcStageMask, options);
+        FieldToJson(VkPipelineStageFlags_t(),jdata["dstStageMask"], decoded_value.dstStageMask, options);
+        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
+        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
+        FieldToJson(VkDependencyFlags_t(),jdata["dependencyFlags"], decoded_value.dependencyFlags, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescription* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2819,23 +2836,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescripti
         FieldToJson(jdata["pDepthStencilAttachment"], meta_struct.pDepthStencilAttachment, options);
         jdata["preserveAttachmentCount"] = decoded_value.preserveAttachmentCount;
         FieldToJson(jdata["pPreserveAttachments"], meta_struct.pPreserveAttachments, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDependency* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkSubpassDependency& decoded_value = *data->decoded_value;
-        const Decoded_VkSubpassDependency& meta_struct = *data;
-
-        jdata["srcSubpass"] = decoded_value.srcSubpass;
-        jdata["dstSubpass"] = decoded_value.dstSubpass;
-        FieldToJson(VkPipelineStageFlags_t(),jdata["srcStageMask"], decoded_value.srcStageMask, options);
-        FieldToJson(VkPipelineStageFlags_t(),jdata["dstStageMask"], decoded_value.dstStageMask, options);
-        FieldToJson(VkAccessFlags_t(),jdata["srcAccessMask"], decoded_value.srcAccessMask, options);
-        FieldToJson(VkAccessFlags_t(),jdata["dstAccessMask"], decoded_value.dstAccessMask, options);
-        FieldToJson(VkDependencyFlags_t(),jdata["dependencyFlags"], decoded_value.dependencyFlags, options);
     }
 }
 
@@ -2870,19 +2870,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearDepthStenci
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearAttachment* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkClearAttachment& decoded_value = *data->decoded_value;
-        const Decoded_VkClearAttachment& meta_struct = *data;
-
-        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
-        jdata["colorAttachment"] = decoded_value.colorAttachment;
-        FieldToJson(jdata["clearValue"], meta_struct.clearValue, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearRect* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2893,6 +2880,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearRect* data,
         FieldToJson(jdata["rect"], meta_struct.rect, options);
         jdata["baseArrayLayer"] = decoded_value.baseArrayLayer;
         jdata["layerCount"] = decoded_value.layerCount;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearAttachment* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkClearAttachment& decoded_value = *data->decoded_value;
+        const Decoded_VkClearAttachment& meta_struct = *data;
+
+        FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
+        jdata["colorAttachment"] = decoded_value.colorAttachment;
+        FieldToJson(jdata["clearValue"], meta_struct.clearValue, options);
     }
 }
 
@@ -3902,6 +3902,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConformanceVersion* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkConformanceVersion& decoded_value = *data->decoded_value;
+        const Decoded_VkConformanceVersion& meta_struct = *data;
+
+        jdata["major"] = decoded_value.major;
+        jdata["minor"] = decoded_value.minor;
+        jdata["subminor"] = decoded_value.subminor;
+        jdata["patch"] = decoded_value.patch;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDriverProperties* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceDriverProperties& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceDriverProperties& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["driverID"], decoded_value.driverID, options);
+        FieldToJson(jdata["driverName"], &meta_struct.driverName, options);
+        FieldToJson(jdata["driverInfo"], &meta_struct.driverInfo, options);
+        FieldToJson(jdata["conformanceVersion"], meta_struct.conformanceVersion, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan11Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4012,20 +4042,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConformanceVersion* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkConformanceVersion& decoded_value = *data->decoded_value;
-        const Decoded_VkConformanceVersion& meta_struct = *data;
-
-        jdata["major"] = decoded_value.major;
-        jdata["minor"] = decoded_value.minor;
-        jdata["subminor"] = decoded_value.subminor;
-        jdata["patch"] = decoded_value.patch;
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan12Properties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4100,22 +4116,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatListC
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["viewFormatCount"] = decoded_value.viewFormatCount;
         FieldToJson(jdata["pViewFormats"], meta_struct.pViewFormats, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDriverProperties* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPhysicalDeviceDriverProperties& decoded_value = *data->decoded_value;
-        const Decoded_VkPhysicalDeviceDriverProperties& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["driverID"], decoded_value.driverID, options);
-        FieldToJson(jdata["driverName"], &meta_struct.driverName, options);
-        FieldToJson(jdata["driverInfo"], &meta_struct.driverInfo, options);
-        FieldToJson(jdata["conformanceVersion"], meta_struct.conformanceVersion, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -4626,27 +4626,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDependenc
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreateInfo2* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkRenderPassCreateInfo2& decoded_value = *data->decoded_value;
-        const Decoded_VkRenderPassCreateInfo2& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(VkRenderPassCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
-        jdata["attachmentCount"] = decoded_value.attachmentCount;
-        FieldToJson(jdata["pAttachments"], meta_struct.pAttachments, options);
-        jdata["subpassCount"] = decoded_value.subpassCount;
-        FieldToJson(jdata["pSubpasses"], meta_struct.pSubpasses, options);
-        jdata["dependencyCount"] = decoded_value.dependencyCount;
-        FieldToJson(jdata["pDependencies"], meta_struct.pDependencies, options);
-        jdata["correlatedViewMaskCount"] = decoded_value.correlatedViewMaskCount;
-        FieldToJson(jdata["pCorrelatedViewMasks"], meta_struct.pCorrelatedViewMasks, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4668,6 +4647,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassEndInfo* 
         const Decoded_VkSubpassEndInfo& meta_struct = *data;
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreateInfo2* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkRenderPassCreateInfo2& decoded_value = *data->decoded_value;
+        const Decoded_VkRenderPassCreateInfo2& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkRenderPassCreateFlags_t(),jdata["flags"], decoded_value.flags, options);
+        jdata["attachmentCount"] = decoded_value.attachmentCount;
+        FieldToJson(jdata["pAttachments"], meta_struct.pAttachments, options);
+        jdata["subpassCount"] = decoded_value.subpassCount;
+        FieldToJson(jdata["pSubpasses"], meta_struct.pSubpasses, options);
+        jdata["dependencyCount"] = decoded_value.dependencyCount;
+        FieldToJson(jdata["pDependencies"], meta_struct.pDependencies, options);
+        jdata["correlatedViewMaskCount"] = decoded_value.correlatedViewMaskCount;
+        FieldToJson(jdata["pCorrelatedViewMasks"], meta_struct.pCorrelatedViewMasks, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -4748,20 +4748,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferAttac
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferAttachmentsCreateInfo* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkFramebufferAttachmentsCreateInfo& decoded_value = *data->decoded_value;
-        const Decoded_VkFramebufferAttachmentsCreateInfo& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        jdata["attachmentImageInfoCount"] = decoded_value.attachmentImageInfoCount;
-        FieldToJson(jdata["pAttachmentImageInfos"], meta_struct.pAttachmentImageInfos, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassAttachmentBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4772,6 +4758,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassAttach
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["attachmentCount"] = decoded_value.attachmentCount;
         HandleToJson(jdata["pAttachments"], &meta_struct.pAttachments, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferAttachmentsCreateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkFramebufferAttachmentsCreateInfo& decoded_value = *data->decoded_value;
+        const Decoded_VkFramebufferAttachmentsCreateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["attachmentImageInfoCount"] = decoded_value.attachmentImageInfoCount;
+        FieldToJson(jdata["pAttachmentImageInfos"], meta_struct.pAttachmentImageInfos, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -5902,6 +5902,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceLayout2* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkSubresourceLayout2& decoded_value = *data->decoded_value;
+        const Decoded_VkSubresourceLayout2& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["subresourceLayout"], meta_struct.subresourceLayout, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5925,19 +5938,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceImageSubre
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["pCreateInfo"], meta_struct.pCreateInfo, options);
         FieldToJson(jdata["pSubresource"], meta_struct.pSubresource, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceLayout2* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkSubresourceLayout2& decoded_value = *data->decoded_value;
-        const Decoded_VkSubresourceLayout2& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["subresourceLayout"], meta_struct.subresourceLayout, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -11893,6 +11893,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFilterCubicImage
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         jdata["filterCubic"] = static_cast<bool>(decoded_value.filterCubic);
         jdata["filterCubicMinmax"] = static_cast<bool>(decoded_value.filterCubicMinmax);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["cooperativeMatrixConversion"] = static_cast<bool>(decoded_value.cooperativeMatrixConversion);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -18423,6 +18436,22 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["shaderMixedFloatDotProductFloat16AccFloat32"] = static_cast<bool>(decoded_value.shaderMixedFloatDotProductFloat16AccFloat32);
+        jdata["shaderMixedFloatDotProductFloat16AccFloat16"] = static_cast<bool>(decoded_value.shaderMixedFloatDotProductFloat16AccFloat16);
+        jdata["shaderMixedFloatDotProductBFloat16Acc"] = static_cast<bool>(decoded_value.shaderMixedFloatDotProductBFloat16Acc);
+        jdata["shaderMixedFloatDotProductFloat8AccFloat32"] = static_cast<bool>(decoded_value.shaderMixedFloatDotProductFloat8AccFloat32);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -21584,6 +21613,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(data->GetMetaStructPointer());
@@ -23421,6 +23457,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }

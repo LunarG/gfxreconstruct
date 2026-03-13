@@ -683,43 +683,6 @@ struct Decoded_VkRect2D
     Decoded_VkExtent2D* extent{ nullptr };
 };
 
-struct Decoded_VkBufferMemoryBarrier
-{
-    using struct_type = VkBufferMemoryBarrier;
-
-    VkBufferMemoryBarrier* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId buffer{ format::kNullHandleId };
-};
-
-struct Decoded_VkImageSubresourceRange
-{
-    using struct_type = VkImageSubresourceRange;
-
-    VkImageSubresourceRange* decoded_value{ nullptr };
-};
-
-struct Decoded_VkImageMemoryBarrier
-{
-    using struct_type = VkImageMemoryBarrier;
-
-    VkImageMemoryBarrier* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId image{ format::kNullHandleId };
-    Decoded_VkImageSubresourceRange* subresourceRange{ nullptr };
-};
-
-struct Decoded_VkMemoryBarrier
-{
-    using struct_type = VkMemoryBarrier;
-
-    VkMemoryBarrier* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
 struct Decoded_VkAllocationCallbacks
 {
     using struct_type = VkAllocationCallbacks;
@@ -927,6 +890,53 @@ struct Decoded_VkMemoryRequirements
     VkMemoryRequirements* decoded_value{ nullptr };
 };
 
+struct Decoded_VkImageSubresource
+{
+    using struct_type = VkImageSubresource;
+
+    VkImageSubresource* decoded_value{ nullptr };
+};
+
+struct Decoded_VkSparseImageFormatProperties
+{
+    using struct_type = VkSparseImageFormatProperties;
+
+    VkSparseImageFormatProperties* decoded_value{ nullptr };
+
+    Decoded_VkExtent3D* imageGranularity{ nullptr };
+};
+
+struct Decoded_VkSparseImageMemoryBind
+{
+    using struct_type = VkSparseImageMemoryBind;
+
+    VkSparseImageMemoryBind* decoded_value{ nullptr };
+
+    Decoded_VkImageSubresource* subresource{ nullptr };
+    Decoded_VkOffset3D* offset{ nullptr };
+    Decoded_VkExtent3D* extent{ nullptr };
+    format::HandleId memory{ format::kNullHandleId };
+};
+
+struct Decoded_VkSparseImageMemoryBindInfo
+{
+    using struct_type = VkSparseImageMemoryBindInfo;
+
+    VkSparseImageMemoryBindInfo* decoded_value{ nullptr };
+
+    format::HandleId image{ format::kNullHandleId };
+    StructPointerDecoder<Decoded_VkSparseImageMemoryBind>* pBinds{ nullptr };
+};
+
+struct Decoded_VkSparseImageMemoryRequirements
+{
+    using struct_type = VkSparseImageMemoryRequirements;
+
+    VkSparseImageMemoryRequirements* decoded_value{ nullptr };
+
+    Decoded_VkSparseImageFormatProperties* formatProperties{ nullptr };
+};
+
 struct Decoded_VkSparseMemoryBind
 {
     using struct_type = VkSparseMemoryBind;
@@ -956,35 +966,6 @@ struct Decoded_VkSparseImageOpaqueMemoryBindInfo
     StructPointerDecoder<Decoded_VkSparseMemoryBind>* pBinds{ nullptr };
 };
 
-struct Decoded_VkImageSubresource
-{
-    using struct_type = VkImageSubresource;
-
-    VkImageSubresource* decoded_value{ nullptr };
-};
-
-struct Decoded_VkSparseImageMemoryBind
-{
-    using struct_type = VkSparseImageMemoryBind;
-
-    VkSparseImageMemoryBind* decoded_value{ nullptr };
-
-    Decoded_VkImageSubresource* subresource{ nullptr };
-    Decoded_VkOffset3D* offset{ nullptr };
-    Decoded_VkExtent3D* extent{ nullptr };
-    format::HandleId memory{ format::kNullHandleId };
-};
-
-struct Decoded_VkSparseImageMemoryBindInfo
-{
-    using struct_type = VkSparseImageMemoryBindInfo;
-
-    VkSparseImageMemoryBindInfo* decoded_value{ nullptr };
-
-    format::HandleId image{ format::kNullHandleId };
-    StructPointerDecoder<Decoded_VkSparseImageMemoryBind>* pBinds{ nullptr };
-};
-
 struct Decoded_VkBindSparseInfo
 {
     using struct_type = VkBindSparseInfo;
@@ -997,24 +978,6 @@ struct Decoded_VkBindSparseInfo
     StructPointerDecoder<Decoded_VkSparseImageOpaqueMemoryBindInfo>* pImageOpaqueBinds{ nullptr };
     StructPointerDecoder<Decoded_VkSparseImageMemoryBindInfo>* pImageBinds{ nullptr };
     HandlePointerDecoder<VkSemaphore> pSignalSemaphores;
-};
-
-struct Decoded_VkSparseImageFormatProperties
-{
-    using struct_type = VkSparseImageFormatProperties;
-
-    VkSparseImageFormatProperties* decoded_value{ nullptr };
-
-    Decoded_VkExtent3D* imageGranularity{ nullptr };
-};
-
-struct Decoded_VkSparseImageMemoryRequirements
-{
-    using struct_type = VkSparseImageMemoryRequirements;
-
-    VkSparseImageMemoryRequirements* decoded_value{ nullptr };
-
-    Decoded_VkSparseImageFormatProperties* formatProperties{ nullptr };
 };
 
 struct Decoded_VkFenceCreateInfo
@@ -1077,6 +1040,13 @@ struct Decoded_VkComponentMapping
     using struct_type = VkComponentMapping;
 
     VkComponentMapping* decoded_value{ nullptr };
+};
+
+struct Decoded_VkImageSubresourceRange
+{
+    using struct_type = VkImageSubresourceRange;
+
+    VkImageSubresourceRange* decoded_value{ nullptr };
 };
 
 struct Decoded_VkImageViewCreateInfo
@@ -1167,6 +1137,36 @@ struct Decoded_VkImageCopy
     Decoded_VkImageSubresourceLayers* dstSubresource{ nullptr };
     Decoded_VkOffset3D* dstOffset{ nullptr };
     Decoded_VkExtent3D* extent{ nullptr };
+};
+
+struct Decoded_VkBufferMemoryBarrier
+{
+    using struct_type = VkBufferMemoryBarrier;
+
+    VkBufferMemoryBarrier* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId buffer{ format::kNullHandleId };
+};
+
+struct Decoded_VkImageMemoryBarrier
+{
+    using struct_type = VkImageMemoryBarrier;
+
+    VkImageMemoryBarrier* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId image{ format::kNullHandleId };
+    Decoded_VkImageSubresourceRange* subresourceRange{ nullptr };
+};
+
+struct Decoded_VkMemoryBarrier
+{
+    using struct_type = VkMemoryBarrier;
+
+    VkMemoryBarrier* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
 };
 
 struct Decoded_VkDispatchIndirectCommand
@@ -1373,11 +1373,11 @@ struct Decoded_VkDrawIndirectCommand
     VkDrawIndirectCommand* decoded_value{ nullptr };
 };
 
-struct Decoded_VkVertexInputBindingDescription
+struct Decoded_VkStencilOpState
 {
-    using struct_type = VkVertexInputBindingDescription;
+    using struct_type = VkStencilOpState;
 
-    VkVertexInputBindingDescription* decoded_value{ nullptr };
+    VkStencilOpState* decoded_value{ nullptr };
 };
 
 struct Decoded_VkVertexInputAttributeDescription
@@ -1387,33 +1387,11 @@ struct Decoded_VkVertexInputAttributeDescription
     VkVertexInputAttributeDescription* decoded_value{ nullptr };
 };
 
-struct Decoded_VkPipelineVertexInputStateCreateInfo
+struct Decoded_VkVertexInputBindingDescription
 {
-    using struct_type = VkPipelineVertexInputStateCreateInfo;
+    using struct_type = VkVertexInputBindingDescription;
 
-    VkPipelineVertexInputStateCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkVertexInputBindingDescription>* pVertexBindingDescriptions{ nullptr };
-    StructPointerDecoder<Decoded_VkVertexInputAttributeDescription>* pVertexAttributeDescriptions{ nullptr };
-};
-
-struct Decoded_VkPipelineInputAssemblyStateCreateInfo
-{
-    using struct_type = VkPipelineInputAssemblyStateCreateInfo;
-
-    VkPipelineInputAssemblyStateCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPipelineTessellationStateCreateInfo
-{
-    using struct_type = VkPipelineTessellationStateCreateInfo;
-
-    VkPipelineTessellationStateCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
+    VkVertexInputBindingDescription* decoded_value{ nullptr };
 };
 
 struct Decoded_VkViewport
@@ -1421,54 +1399,6 @@ struct Decoded_VkViewport
     using struct_type = VkViewport;
 
     VkViewport* decoded_value{ nullptr };
-};
-
-struct Decoded_VkPipelineViewportStateCreateInfo
-{
-    using struct_type = VkPipelineViewportStateCreateInfo;
-
-    VkPipelineViewportStateCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkViewport>* pViewports{ nullptr };
-    StructPointerDecoder<Decoded_VkRect2D>* pScissors{ nullptr };
-};
-
-struct Decoded_VkPipelineRasterizationStateCreateInfo
-{
-    using struct_type = VkPipelineRasterizationStateCreateInfo;
-
-    VkPipelineRasterizationStateCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPipelineMultisampleStateCreateInfo
-{
-    using struct_type = VkPipelineMultisampleStateCreateInfo;
-
-    VkPipelineMultisampleStateCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    PointerDecoder<VkSampleMask> pSampleMask;
-};
-
-struct Decoded_VkStencilOpState
-{
-    using struct_type = VkStencilOpState;
-
-    VkStencilOpState* decoded_value{ nullptr };
-};
-
-struct Decoded_VkPipelineDepthStencilStateCreateInfo
-{
-    using struct_type = VkPipelineDepthStencilStateCreateInfo;
-
-    VkPipelineDepthStencilStateCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkStencilOpState* front{ nullptr };
-    Decoded_VkStencilOpState* back{ nullptr };
 };
 
 struct Decoded_VkPipelineColorBlendAttachmentState
@@ -1489,6 +1419,17 @@ struct Decoded_VkPipelineColorBlendStateCreateInfo
     PointerDecoder<float> blendConstants;
 };
 
+struct Decoded_VkPipelineDepthStencilStateCreateInfo
+{
+    using struct_type = VkPipelineDepthStencilStateCreateInfo;
+
+    VkPipelineDepthStencilStateCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkStencilOpState* front{ nullptr };
+    Decoded_VkStencilOpState* back{ nullptr };
+};
+
 struct Decoded_VkPipelineDynamicStateCreateInfo
 {
     using struct_type = VkPipelineDynamicStateCreateInfo;
@@ -1497,6 +1438,65 @@ struct Decoded_VkPipelineDynamicStateCreateInfo
 
     PNextNode* pNext{ nullptr };
     PointerDecoder<VkDynamicState> pDynamicStates;
+};
+
+struct Decoded_VkPipelineInputAssemblyStateCreateInfo
+{
+    using struct_type = VkPipelineInputAssemblyStateCreateInfo;
+
+    VkPipelineInputAssemblyStateCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPipelineMultisampleStateCreateInfo
+{
+    using struct_type = VkPipelineMultisampleStateCreateInfo;
+
+    VkPipelineMultisampleStateCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkSampleMask> pSampleMask;
+};
+
+struct Decoded_VkPipelineRasterizationStateCreateInfo
+{
+    using struct_type = VkPipelineRasterizationStateCreateInfo;
+
+    VkPipelineRasterizationStateCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPipelineTessellationStateCreateInfo
+{
+    using struct_type = VkPipelineTessellationStateCreateInfo;
+
+    VkPipelineTessellationStateCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPipelineVertexInputStateCreateInfo
+{
+    using struct_type = VkPipelineVertexInputStateCreateInfo;
+
+    VkPipelineVertexInputStateCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkVertexInputBindingDescription>* pVertexBindingDescriptions{ nullptr };
+    StructPointerDecoder<Decoded_VkVertexInputAttributeDescription>* pVertexAttributeDescriptions{ nullptr };
+};
+
+struct Decoded_VkPipelineViewportStateCreateInfo
+{
+    using struct_type = VkPipelineViewportStateCreateInfo;
+
+    VkPipelineViewportStateCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkViewport>* pViewports{ nullptr };
+    StructPointerDecoder<Decoded_VkRect2D>* pScissors{ nullptr };
 };
 
 struct Decoded_VkGraphicsPipelineCreateInfo
@@ -1546,6 +1546,13 @@ struct Decoded_VkFramebufferCreateInfo
     HandlePointerDecoder<VkImageView> pAttachments;
 };
 
+struct Decoded_VkSubpassDependency
+{
+    using struct_type = VkSubpassDependency;
+
+    VkSubpassDependency* decoded_value{ nullptr };
+};
+
 struct Decoded_VkSubpassDescription
 {
     using struct_type = VkSubpassDescription;
@@ -1557,13 +1564,6 @@ struct Decoded_VkSubpassDescription
     StructPointerDecoder<Decoded_VkAttachmentReference>* pResolveAttachments{ nullptr };
     StructPointerDecoder<Decoded_VkAttachmentReference>* pDepthStencilAttachment{ nullptr };
     PointerDecoder<uint32_t> pPreserveAttachments;
-};
-
-struct Decoded_VkSubpassDependency
-{
-    using struct_type = VkSubpassDependency;
-
-    VkSubpassDependency* decoded_value{ nullptr };
 };
 
 struct Decoded_VkRenderPassCreateInfo
@@ -1585,15 +1585,6 @@ struct Decoded_VkClearDepthStencilValue
     VkClearDepthStencilValue* decoded_value{ nullptr };
 };
 
-struct Decoded_VkClearAttachment
-{
-    using struct_type = VkClearAttachment;
-
-    VkClearAttachment* decoded_value{ nullptr };
-
-    Decoded_VkClearValue* clearValue{ nullptr };
-};
-
 struct Decoded_VkClearRect
 {
     using struct_type = VkClearRect;
@@ -1601,6 +1592,15 @@ struct Decoded_VkClearRect
     VkClearRect* decoded_value{ nullptr };
 
     Decoded_VkRect2D* rect{ nullptr };
+};
+
+struct Decoded_VkClearAttachment
+{
+    using struct_type = VkClearAttachment;
+
+    VkClearAttachment* decoded_value{ nullptr };
+
+    Decoded_VkClearValue* clearValue{ nullptr };
 };
 
 struct Decoded_VkImageBlit
@@ -2288,6 +2288,25 @@ struct Decoded_VkPhysicalDeviceShaderDrawParametersFeatures
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkConformanceVersion
+{
+    using struct_type = VkConformanceVersion;
+
+    VkConformanceVersion* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDriverProperties
+{
+    using struct_type = VkPhysicalDeviceDriverProperties;
+
+    VkPhysicalDeviceDriverProperties* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StringDecoder driverName;
+    StringDecoder driverInfo;
+    Decoded_VkConformanceVersion* conformanceVersion{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceVulkan11Features
 {
     using struct_type = VkPhysicalDeviceVulkan11Features;
@@ -2318,13 +2337,6 @@ struct Decoded_VkPhysicalDeviceVulkan12Features
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkConformanceVersion
-{
-    using struct_type = VkConformanceVersion;
-
-    VkConformanceVersion* decoded_value{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceVulkan12Properties
 {
     using struct_type = VkPhysicalDeviceVulkan12Properties;
@@ -2345,18 +2357,6 @@ struct Decoded_VkImageFormatListCreateInfo
 
     PNextNode* pNext{ nullptr };
     PointerDecoder<VkFormat> pViewFormats;
-};
-
-struct Decoded_VkPhysicalDeviceDriverProperties
-{
-    using struct_type = VkPhysicalDeviceDriverProperties;
-
-    VkPhysicalDeviceDriverProperties* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StringDecoder driverName;
-    StringDecoder driverInfo;
-    Decoded_VkConformanceVersion* conformanceVersion{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures
@@ -2652,19 +2652,6 @@ struct Decoded_VkSubpassDependency2
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkRenderPassCreateInfo2
-{
-    using struct_type = VkRenderPassCreateInfo2;
-
-    VkRenderPassCreateInfo2* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkAttachmentDescription2>* pAttachments{ nullptr };
-    StructPointerDecoder<Decoded_VkSubpassDescription2>* pSubpasses{ nullptr };
-    StructPointerDecoder<Decoded_VkSubpassDependency2>* pDependencies{ nullptr };
-    PointerDecoder<uint32_t> pCorrelatedViewMasks;
-};
-
 struct Decoded_VkSubpassBeginInfo
 {
     using struct_type = VkSubpassBeginInfo;
@@ -2681,6 +2668,19 @@ struct Decoded_VkSubpassEndInfo
     VkSubpassEndInfo* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkRenderPassCreateInfo2
+{
+    using struct_type = VkRenderPassCreateInfo2;
+
+    VkRenderPassCreateInfo2* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkAttachmentDescription2>* pAttachments{ nullptr };
+    StructPointerDecoder<Decoded_VkSubpassDescription2>* pSubpasses{ nullptr };
+    StructPointerDecoder<Decoded_VkSubpassDependency2>* pDependencies{ nullptr };
+    PointerDecoder<uint32_t> pCorrelatedViewMasks;
 };
 
 struct Decoded_VkSubpassDescriptionDepthStencilResolve
@@ -2730,16 +2730,6 @@ struct Decoded_VkFramebufferAttachmentImageInfo
     PointerDecoder<VkFormat> pViewFormats;
 };
 
-struct Decoded_VkFramebufferAttachmentsCreateInfo
-{
-    using struct_type = VkFramebufferAttachmentsCreateInfo;
-
-    VkFramebufferAttachmentsCreateInfo* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkFramebufferAttachmentImageInfo>* pAttachmentImageInfos{ nullptr };
-};
-
 struct Decoded_VkRenderPassAttachmentBeginInfo
 {
     using struct_type = VkRenderPassAttachmentBeginInfo;
@@ -2748,6 +2738,16 @@ struct Decoded_VkRenderPassAttachmentBeginInfo
 
     PNextNode* pNext{ nullptr };
     HandlePointerDecoder<VkImageView> pAttachments;
+};
+
+struct Decoded_VkFramebufferAttachmentsCreateInfo
+{
+    using struct_type = VkFramebufferAttachmentsCreateInfo;
+
+    VkFramebufferAttachmentsCreateInfo* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkFramebufferAttachmentImageInfo>* pAttachmentImageInfos{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures
@@ -3412,6 +3412,16 @@ struct Decoded_VkPhysicalDeviceMaintenance5Properties
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkSubresourceLayout2
+{
+    using struct_type = VkSubresourceLayout2;
+
+    VkSubresourceLayout2* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkSubresourceLayout* subresourceLayout{ nullptr };
+};
+
 struct Decoded_VkImageSubresource2
 {
     using struct_type = VkImageSubresource2;
@@ -3431,16 +3441,6 @@ struct Decoded_VkDeviceImageSubresourceInfo
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkImageCreateInfo>* pCreateInfo{ nullptr };
     StructPointerDecoder<Decoded_VkImageSubresource2>* pSubresource{ nullptr };
-};
-
-struct Decoded_VkSubresourceLayout2
-{
-    using struct_type = VkSubresourceLayout2;
-
-    VkSubresourceLayout2* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    Decoded_VkSubresourceLayout* subresourceLayout{ nullptr };
 };
 
 struct Decoded_VkBufferUsageFlags2CreateInfo
@@ -7360,6 +7360,15 @@ struct Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT
     using struct_type = VkFilterCubicImageViewImageFormatPropertiesEXT;
 
     VkFilterCubicImageViewImageFormatPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM
+{
+    using struct_type = VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM;
+
+    VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
@@ -11563,6 +11572,15 @@ struct Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT
     using struct_type = VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT;
 
     VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE
+{
+    using struct_type = VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE;
+
+    VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };
