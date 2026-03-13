@@ -3325,6 +3325,7 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList_Reset(HRESULT 
                                                                         ID3D12CommandAllocator*            pAllocator,
                                                                         ID3D12PipelineState* pInitialState)
 {
+    ScopedCounter scoped(AvoidApiCallLock());
     DecrementCallScope();
 
     auto trim_draw_calls_command_sets =
@@ -3349,6 +3350,7 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList_Reset(HRESULT 
 void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList_ExecuteBundle(
     ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12GraphicsCommandList* pCommandList)
 {
+    ScopedCounter scoped(AvoidApiCallLock());
     DecrementCallScope();
 
     auto trim_draw_calls_command_sets =
@@ -3397,6 +3399,7 @@ void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPa
     const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
     D3D12_RENDER_PASS_FLAGS                     Flags)
 {
+    ScopedCounter scoped(AvoidApiCallLock());
     DecrementCallScope();
 
     auto trim_draw_calls_command_sets =
@@ -3589,6 +3592,7 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
         cmdlists.emplace_back(before_draw_call_cmd);
 
         // Here has to use the wrapped queue since this ExecuteCommandLists needs to be tracked.
+        ScopedCounter scoped(AvoidApiCallLock());
         DecrementCallScope();
         wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
         IncrementCallScope();
