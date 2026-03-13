@@ -32,7 +32,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-FileProcessor::FileProcessor() : compressor_(nullptr), first_frame_(kFirstFrame + 1), file_header_({ 0, 0, 0, 0 }) {}
+FileProcessor::FileProcessor() :
+    compressor_(nullptr), first_frame_(kFirstFrame + 1), file_header_({ 0, 0, 0, 0 }),
+    working_uncompressed_store_(kWorkingStoreInitialSize)
+{}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
 {
@@ -50,7 +53,29 @@ void FileProcessor::WaitDecodersIdle()
     {
         decoder->WaitIdle();
     }
+}
+
+void FileProcessor::StartAsyncProcessing()
+{
+    GFXRECON_ASSERT(process_frame_number_ == kFirstFrame);
+    // async_processing_
+    async_thread_ = std::thread([this]() { this->ProcessBlocksAsync(); });
+}
+
+void FileProcessor::SetPreloadFrameRange(std::optional<std::pair<uint64_t, uint64_t>> frame_range)
+{
+    async_preload_frame_range_ = frame_range;
+    if (frame_range.has_value())
+    {
+        GFXRECON_LOG_DEBUG(
+            "Preload frame range set to [%" PRIu64 ", %" PRIu64 ")", frame_range->first, frame_range->second);
+    }
 };
+
+void FileProcessor::SetQuitBeforeFrame(uint64_t frame_number)
+{
+    async_quit_before_frame_ = frame_number;
+}
 
 bool FileProcessor::Initialize(const std::string& filename)
 {
@@ -105,21 +130,7 @@ bool FileProcessor::ProcessNextFrame()
 
     DispatchVisitor  dispatch_visitor(decoders_, annotation_handler_);
     DispatchFunction dispatch = [this, &dispatch_visitor](uint64_t block_index, ParsedBlock& block) {
-        ProcessBlockState state = ProcessBlockState::kError;
-
-        // update the "dispatched" block index for the application facing interfaces and decoders
-        dispatch_block_index_ = block_index;
-        if (ContinueBlockDecoding()) // Requires the dispatch_block_index_ to be updated
-        {
-            dispatch_visitor.SetBlockIndex(block_index);
-            std::visit(dispatch_visitor, block.GetArgs());
-            state = ProcessBlockState::kRunning;
-        }
-        else
-        {
-            state = ProcessBlockState::kEndProcessing;
-        }
-        return state;
+        return DispatchBlock(block_index, dispatch_visitor, block);
     };
 
     // This is immediate mode, process and dispatch frame numbers are matched.
@@ -138,6 +149,26 @@ bool FileProcessor::ProcessNextFrame()
     dispatch_error_state_ = process_error_state_;
 
     return ContinueProcessing(process_result);
+}
+
+FileProcessor::ProcessBlockState
+FileProcessor::DispatchBlock(uint64_t block_index, DispatchVisitor& dispatch_visitor, ParsedBlock& block)
+{
+    ProcessBlockState state = ProcessBlockState::kError;
+
+    // update the "dispatched" block index for the application facing interfaces and decoders
+    dispatch_block_index_ = block_index;
+    if (ContinueBlockDecoding()) // Requires the dispatch_block_index_ to be updated
+    {
+        dispatch_visitor.SetBlockIndex(block_index);
+        std::visit(dispatch_visitor, block.GetArgs());
+        state = ProcessBlockState::kRunning;
+    }
+    else
+    {
+        state = ProcessBlockState::kEndProcessing;
+    }
+    return state;
 }
 
 bool FileProcessor::ProcessAllFrames()
@@ -388,6 +419,94 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
         return true;
     }
     return false;
+}
+
+void FileProcessor::ProcessBlocksAsync() {}
+
+FileProcessor::ProcessBlockState FileProcessor::ReplayBlockBatch(BlockBatch::BatchPtr& batch)
+{
+    GFXRECON_ASSERT(batch.get() != nullptr);
+    // WIP WIP WIP -- do we need to define this once for the class?
+    DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
+    BlockParser&    block_parser = GetBlockParser();
+
+    ProcessBlockState state = ProcessBlockState::kRunning;
+    for (auto& block : *batch)
+    {
+        // We assume that only known, visitable blocks were preloaded
+        GFXRECON_ASSERT(block.IsVisitable());
+
+        if (block.NeedsDecompression())
+        {
+            // Note: This path is destructive to replayed blocks.
+            //
+            // Decompression during replay sets the args data pointer to the working_uncompressed_store_ data.
+            // The block is ready to dispatch; however, it will become invalid as soon as the next block is
+            // decompressed. This is because the working store will be overwritten with the most recently
+            // decompressed data, and since the working store automatically resizes as needed, the data
+            // pointer may become stale.
+            //
+            // For performance reasons, we are neither updating the block state nor deleting the block until
+            // *after* all preloaded blocks (or at least blocks in a given batch have been replayed. This
+            // means that replayed blocks are effectively invalid, yet they are retained and still marked as valid.
+            //
+            // If in the future we need to support the reuse of preloaded blocks, we will need a way to:
+            //  1: restore the args data pointer, or
+            //  2: retain the decompressed data in the block batch (likely as a dynamic allocation in the HLA), or
+            //  3: allocate the decompressed buffer storage at block creation time, but still defer decompression.
+            if (!block.Decompress(block_parser, working_uncompressed_store_))
+            {
+                // As is the case with decompression failure during block parsing, decompression failure on replay
+                // is fatal.
+                //
+                // Note: Error message generation is done by the block decompression code
+                state = ProcessBlockState::kError;
+                break;
+            }
+        }
+
+        state = DispatchBlock(block.GetBlockIndex(), dispatch_visitor, block);
+        if (ProcessBlockState::kRunning != state)
+        {
+            break;
+        }
+    }
+    return state;
+}
+
+FileProcessor::ProcessBlockState FileProcessor::ReplayBlockQueueItem(BlockQueueItem& item_opt)
+{
+    ProcessBlockState state = ProcessBlockState::kRunning;
+    if (!item_opt.has_value())
+    {
+        // End of queue
+        GFXRECON_ASSERT(false &&
+                        "Should never encounter end of queue without a terminating ProcessBlocksResult ahead of it.");
+        state = ProcessBlockState::kEndProcessing;
+    }
+    else
+    {
+        // Item can be an "end of ProcessBlockResult" or a batch of blocks comprising some part of the current frame
+        // Batches are flushed at frame boundaries to allow the ProcessBlockResults to carry all of the weight
+        // of frame boundary, state, and error information when enqueue, simplifying replay
+        std::visit(
+            [this, &state](auto& item) {
+                using Item = std::decay_t<decltype(item)>;
+                if constexpr (std::is_same_v<Item, ProcessBlocksResult>)
+                {
+                    state                 = item.state;
+                    dispatch_error_state_ = item.error;
+                    dispatch_frame_number_ =
+                        item.frame_number; // this is the post increment frame number (which may stutter)
+                }
+                else if constexpr (std::is_same_v<Item, BlockBatch::BatchPtr>)
+                {
+                    state = this->ReplayBlockBatch(item);
+                }
+            },
+            *item_opt);
+    }
+    return state;
 }
 
 bool FileProcessor::IsFileValid() const

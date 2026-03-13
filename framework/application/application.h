@@ -65,6 +65,7 @@ class Application final
 
     bool IsRunning() const { return running_; }
 
+    void SetAsyncProcessing(bool async_processing) { async_processing_ = async_processing; }
     void Run();
 
     bool GetPaused() const { return paused_; }
@@ -96,6 +97,7 @@ class Application final
     // clang-format off
     std::string                                                  name_;              ///< Application name to display in window title bar.
     decode::FileProcessor*                                       file_processor_;    ///< The FileProcessor object responsible for decoding and processing capture file data.
+    bool                                                         async_processing_;  ///< Indicates that file processing is run in async mode.
     bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
     bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
     uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.

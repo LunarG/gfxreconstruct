@@ -53,11 +53,14 @@ class FpsInfo
     bool                   ShouldWaitIdleBeforeFrame(uint64_t file_processor_frame);
     bool                   ShouldWaitIdleAfterFrame(uint64_t file_processor_frame);
     bool                   ShouldQuit(uint64_t file_processor_frame);
+    uint64_t               GetQuitBeforeFrame();
     void                   BeginFrame(uint64_t file_processor_frame);
     void                   EndFrame(uint64_t file_processor_frame);
     void                   EndFile(uint64_t end_file_processor_frame);
     void                   ProcessStateEndMarker(uint64_t file_processor_frame);
     [[nodiscard]] uint64_t ShouldPreloadFrames(uint64_t current_frame) const;
+
+    std::optional<std::pair<uint64_t, uint64_t>> GetPreloadFrameRange() const;
 
   private:
     uint64_t start_time_;

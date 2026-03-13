@@ -148,6 +148,7 @@ const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
+const char kAsyncProcessingOption[]               = "--async-processing";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
