@@ -44,6 +44,7 @@ class ThreadSafeQueue
 {
   public:
     using value_type                                   = T;
+    using pop_type                                     = std::optional<value_type>;
     ThreadSafeQueue()                                  = default;
     ThreadSafeQueue(const ThreadSafeQueue&)            = delete;
     ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
@@ -104,7 +105,7 @@ class ThreadSafeQueue
     requires std::constructible_from<value_type, U&&>
     bool push(U&& value) { return emplace(std::forward<U>(value)); }
 
-    std::optional<value_type> pop()
+    pop_type pop()
     {
         std::unique_lock<std::mutex> lock(mutex_);
         cv_.wait(lock, [this] { return !queue_.empty() || !live_; });
@@ -114,7 +115,7 @@ class ThreadSafeQueue
     }
 
     // Returns std::nullopt if the queue is empty, otherwise pops and returns the front value. Does not block.
-    std::optional<value_type> try_pop()
+    pop_type try_pop()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         return try_pop_locked();
@@ -122,7 +123,7 @@ class ThreadSafeQueue
 
   private:
     // Note: Must only be called while holding mutex_
-    std::optional<value_type> try_pop_locked()
+    pop_type try_pop_locked()
     {
         if (queue_.empty())
         {
@@ -140,6 +141,94 @@ class ThreadSafeQueue
     std::deque<value_type>   queue_;        // Only accessed under the mutex
     bool                     live_{ true }; // Only accessed under the mutex
     std::atomic<std::size_t> size_{ 0 };    // Snapshot counter -- allows size() calls without holding the mutex.
+};
+
+// A non-threadsafe queue with an API intentionally mirroring ThreadSafeQueue
+//
+// This is useful when generic code may want optimized specialization
+// of the queue operations, but are instantiated in synchronous and
+// asynchronous domains.
+//
+// Semantic differences from ThreadSafeQueue:
+// * No synchronization or data-race protections.
+// * pop() is non-blocking and equivalent to try_pop().
+// * size() and empty() are precise, not snapshot values.
+// * Not safe for producer/consumer concurrent usage
+// * clear() is provided only by ThreadUnsafeQueue.
+//
+// Similarities with ThreadSafeQueue, and differences from typical queues such
+// as std::deque:
+// * pop()/try_pop() return std::optional<value_type> or std::nullopt when the
+//   queue is empty.
+// * push()/emplace() return success status.
+// * close() prevents further push()/emplace() operations (asserts)
+
+template <typename T>
+class ThreadUnsafeQueue
+{
+  public:
+    using value_type                                       = T;
+    using pop_type                                         = std::optional<value_type>;
+    ThreadUnsafeQueue()                                    = default;
+    ThreadUnsafeQueue(const ThreadUnsafeQueue&)            = delete;
+    ThreadUnsafeQueue& operator=(const ThreadUnsafeQueue&) = delete;
+
+    std::size_t size() const { return queue_.size(); }
+    bool        empty() const { return queue_.empty(); }
+
+    // It is unclear if "liveness" semantics are useful in the singly-threaded case,
+    // but this is kept for interface consistency.
+    bool live() { return live_; }
+
+    // Closes the queue
+    //
+    // After close() returns:
+    // * push and emplace operations will fail and return false. (Asserts in debug builds, invalid to push to a closed
+    // queue)
+    // * unblock any pop operations waiting on empty queue_.
+    // * Pop operations will return previously pushed values, or std::nullopt once queue_ is empty
+    //
+    void close() { live_ = false; }
+
+    template <typename... Args>
+    requires std::constructible_from<value_type, Args&&...>
+    bool emplace(Args&&... args)
+    {
+        if (!live_)
+        {
+            GFXRECON_ASSERT(false && "Attempting to push to a closed ThreadUnsafeQueue");
+            return false;
+        }
+
+        queue_.emplace_back(std::forward<Args>(args)...);
+        return true;
+    }
+
+    template <typename U>
+    requires std::constructible_from<value_type, U&&>
+    bool push(U&& value) { return emplace(std::forward<U>(value)); }
+
+    pop_type pop() { return try_pop(); }
+
+    // Returns std::nullopt if the queue is empty, otherwise pops and returns the front value. Does not block.
+    pop_type try_pop()
+    {
+        if (queue_.empty())
+        {
+            return std::nullopt;
+        }
+        value_type value = std::move(queue_.front());
+        queue_.pop_front();
+        return value;
+    }
+
+    // Not present in ThreadSafeQueue, where the synchronization semantics for
+    // clear() have not been defined and there is no current use case.
+    void clear() { queue_.clear(); }
+
+  private:
+    std::deque<value_type> queue_;        // Not a thread safe type
+    bool                   live_{ true }; // False after close
 };
 
 GFXRECON_END_NAMESPACE(util)

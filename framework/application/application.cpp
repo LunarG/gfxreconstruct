@@ -66,7 +66,7 @@ Application::Application(const std::string&     name,
                          const std::string&     cli_wsi_extension,
                          void*                  platform_specific_wsi_data) :
     name_(name),
-    file_processor_(file_processor), running_(false), paused_(false), pause_frame_(0),
+    file_processor_(file_processor), async_processing_(false), running_(false), paused_(false), pause_frame_(0),
     cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr)
 {
     if (!cli_wsi_extension_.empty())
@@ -129,6 +129,28 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
 void Application::Run()
 {
     running_ = true;
+
+    if (async_processing_)
+    {
+        if (fps_info_ != nullptr)
+        {
+            auto preload_range = fps_info_->GetPreloadFrameRange();
+            if (preload_range.has_value())
+            {
+                // Fileprocessor frames are 0 based, fps_info frames are 1 based,
+                GFXRECON_ASSERT(preload_range->first > 0);
+                GFXRECON_ASSERT(preload_range->second > 0);
+                preload_range->first -= 1;  //
+                preload_range->second -= 1; //
+                // The base class controls async processing, and needs to know if a preload range exists.
+                file_processor_->SetPreloadFrameRange(preload_range);
+            }
+            // Prevent async "run on"
+            file_processor_->SetQuitBeforeFrame(fps_info_->GetQuitBeforeFrame() - 1);
+        }
+
+        file_processor_->StartAsyncProcessing();
+    }
 
     while (running_)
     {

@@ -45,26 +45,16 @@ class PreloadFileProcessor : public FileProcessor
     void PreloadNextFrames(size_t count);
 
   private:
-    constexpr static size_t kWorkingStoreInitialSize = 4096;
-
     void              ResetPreload();
     ProcessBlockState PreloadBlocksOneFrame();
-    ProcessBlockState ReplayOneFrame();
     void              EnqueueBatch(BlockBatch::BatchPtr&& batch);
 
-    util::HeapBuffer     working_uncompressed_store_;
-    BlockBatch::iterator preload_head_;
-    BlockBatch*          preload_tail_ = nullptr;
-    BlockBatch::iterator replay_cursor_;
+    bool     replay_from_queue_{ false };
 
-    struct PreloadResult
-    {
-        ProcessBlockState state{ ProcessBlockState::kRunning }; // final ProcessBlocks return value.
-        BlockIOError      error{ BlockIOError::kErrorNone };    // snap shot of the process_error_state_, if any.
-    };
-
-    PreloadResult     preload_result_{ ProcessBlockState::kError }; // How the last frame preload ended
-    bool              preload_contains_frame_stutter_ = false; // Tells replay to ignore first frame boundary block
+    std::vector<ProcessedBlockItem> keep_alive_;
+    using PreloadBlockQueue = util::ThreadUnsafeQueue<ProcessedBlockItem>;
+    static_assert(std::is_same_v<typename PreloadBlockQueue::pop_type, BlockQueueItem>);
+    PreloadBlockQueue preload_queue_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

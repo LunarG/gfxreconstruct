@@ -36,6 +36,7 @@
 #include "decode/decode_allocator.h"
 #include "util/logging.h"
 #include "util/file_input_stream.h"
+#include "util/thread_safe_queue.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -103,6 +104,7 @@ class FileProcessor
 
   public:
     constexpr static uint32_t kFirstFrame = 0;
+    constexpr static uint64_t kMaxFrame   = std::numeric_limits<uint64_t>::max();
 
     FileProcessor();
 
@@ -113,6 +115,10 @@ class FileProcessor
     void WaitDecodersIdle();
 
     void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
+
+    void StartAsyncProcessing();
+    void SetPreloadFrameRange(std::optional<std::pair<uint64_t, uint64_t>> frame_range);
+    void SetQuitBeforeFrame(uint64_t frame_number);
 
     void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
 
@@ -139,7 +145,7 @@ class FileProcessor
     uint64_t GetCurrentFrameNumber() const noexcept { return dispatch_frame_number_; }
     uint64_t GetCurrentBlockIndex() const noexcept { return dispatch_block_index_; }
 
-    // WIP WIP WIP what are the expect semantics process_ or dispatch_ ? WIP WIP WIP
+    // These have "process_" side semantic semantics process_
     bool         GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
     uint64_t GetNumBytesRead() const { return bytes_read_; }
     BlockIOError GetErrorState() const { return dispatch_error_state_; }
@@ -225,7 +231,40 @@ class FileProcessor
     /// @brief Incremented at the end of every block successfully dispatched.
     uint64_t dispatch_block_index_{ 0 };
 
+    // Only used for async processing, but we need it to pause async processing at the end of the preload frame range,
+    void                                         ProcessBlocksAsync();
+    bool                                         async_processing_{ false };
+    std::optional<std::pair<uint64_t, uint64_t>> async_preload_frame_range_;
+    uint64_t                                     async_quit_before_frame_{ kMaxFrame };
+    std::thread                                  async_thread_;
+
+    struct ProcessBlocksResult
+    {
+        uint64_t          frame_number;
+        ProcessBlockState state{ ProcessBlockState::kRunning }; // final ProcessBlocks return value.
+        BlockIOError      error{ BlockIOError::kErrorNone };    // snap shot of the process_error_state_, if any.
+    };
+    using ProcessedBlockItem       = std::variant<BlockBatch::BatchPtr, ProcessBlocksResult>;
+    using AsyncProcessedBlockQueue = util::ThreadSafeQueue<ProcessedBlockItem>;
+    using BlockQueueItem           = typename AsyncProcessedBlockQueue::pop_type;
+    using ItemRetirementProc       = std::function<void(ProcessedBlockItem&&)>;
+
+    template <typename Queue>
+    ProcessBlockState ReplayOneFrame(Queue& queue, ItemRetirementProc* retirement_proc = nullptr)
+    {
+        ProcessBlockState state = ProcessBlockState::kRunning;
+        SetDecoderFrameNumber(dispatch_frame_number_);
+        while (state == ProcessBlockState::kRunning)
+        {
+            state = ReplayBlockQueueItem(queue.pop(), retirement_proc);
+        }
+        return state;
+    }
+
   protected:
+    ProcessBlockState ReplayBlockQueueItem(BlockQueueItem&& item_opt, ItemRetirementProc* retirement_proc);
+    ProcessBlockState ReplayBlockBatch(BlockBatch::BatchPtr& batch);
+
     bool         IsFileValid() const;
     BlockIOError CheckFileStatus() const
     {
@@ -317,6 +356,7 @@ class FileProcessor
         AnnotationHandler*              annotation_handler_;
         uint64_t                        block_index_{ 0 };
     };
+    ProcessBlockState DispatchBlock(uint64_t block_index, DispatchVisitor& dispatch_visitor, ParsedBlock& block);
 
   private:
     class ProcessVisitor
@@ -435,6 +475,11 @@ class FileProcessor
 
     std::string        absolute_path_;
     format::FileHeader file_header_;
+
+    // Working store for replay time decompression
+    // Working store for replay time decompression
+    constexpr static size_t kWorkingStoreInitialSize = 4096;
+    util::HeapBuffer        working_uncompressed_store_;
 
   protected:
     std::unique_ptr<util::Compressor> compressor_;
