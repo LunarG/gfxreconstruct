@@ -40,47 +40,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void MapStructHandles(Decoded_VkBufferMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkBufferMemoryBarrier* value = wrapper->decoded_value;
-
-        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &CommonObjectInfoTable::GetVkBufferInfo);
-
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkImageMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkImageMemoryBarrier* value = wrapper->decoded_value;
-
-        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
-
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
 void MapStructHandles(Decoded_VkApplicationInfo* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -174,6 +133,28 @@ void MapStructHandles(Decoded_VkMemoryAllocateInfo* wrapper, const CommonObjectI
     }
 }
 
+void MapStructHandles(Decoded_VkSparseImageMemoryBind* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSparseImageMemoryBind* value = wrapper->decoded_value;
+
+        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &CommonObjectInfoTable::GetVkDeviceMemoryInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSparseImageMemoryBindInfo* value = wrapper->decoded_value;
+
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
+
+        MapStructArrayHandles<Decoded_VkSparseImageMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
+    }
+}
+
 void MapStructHandles(Decoded_VkSparseMemoryBind* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -205,28 +186,6 @@ void MapStructHandles(Decoded_VkSparseImageOpaqueMemoryBindInfo* wrapper, const 
         value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
 
         MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
-    }
-}
-
-void MapStructHandles(Decoded_VkSparseImageMemoryBind* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkSparseImageMemoryBind* value = wrapper->decoded_value;
-
-        value->memory = handle_mapping::MapHandle<VulkanDeviceMemoryInfo>(wrapper->memory, object_info_table, &CommonObjectInfoTable::GetVkDeviceMemoryInfo);
-    }
-}
-
-void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkSparseImageMemoryBindInfo* value = wrapper->decoded_value;
-
-        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
-
-        MapStructArrayHandles<Decoded_VkSparseImageMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
     }
 }
 
@@ -378,6 +337,47 @@ void MapStructHandles(Decoded_VkCommandBufferBeginInfo* wrapper, const CommonObj
         }
 
         MapStructArrayHandles<Decoded_VkCommandBufferInheritanceInfo>(wrapper->pInheritanceInfo->GetMetaStructPointer(), 1, object_info_table);
+    }
+}
+
+void MapStructHandles(Decoded_VkBufferMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkBufferMemoryBarrier* value = wrapper->decoded_value;
+
+        value->buffer = handle_mapping::MapHandle<VulkanBufferInfo>(wrapper->buffer, object_info_table, &CommonObjectInfoTable::GetVkBufferInfo);
+
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkImageMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkImageMemoryBarrier* value = wrapper->decoded_value;
+
+        value->image = handle_mapping::MapHandle<VulkanImageInfo>(wrapper->image, object_info_table, &CommonObjectInfoTable::GetVkImageInfo);
+
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
     }
 }
 
@@ -569,62 +569,7 @@ void MapStructHandles(Decoded_VkDescriptorSetLayoutCreateInfo* wrapper, const Co
     }
 }
 
-void MapStructHandles(Decoded_VkPipelineVertexInputStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkPipelineInputAssemblyStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkPipelineTessellationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkPipelineViewportStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkPipelineRasterizationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkPipelineMultisampleStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+void MapStructHandles(Decoded_VkPipelineColorBlendStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
@@ -646,7 +591,7 @@ void MapStructHandles(Decoded_VkPipelineDepthStencilStateCreateInfo* wrapper, co
     }
 }
 
-void MapStructHandles(Decoded_VkPipelineColorBlendStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+void MapStructHandles(Decoded_VkPipelineDynamicStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
@@ -657,7 +602,62 @@ void MapStructHandles(Decoded_VkPipelineColorBlendStateCreateInfo* wrapper, cons
     }
 }
 
-void MapStructHandles(Decoded_VkPipelineDynamicStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+void MapStructHandles(Decoded_VkPipelineInputAssemblyStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineMultisampleStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineRasterizationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineTessellationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineVertexInputStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineViewportStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
@@ -1515,6 +1515,17 @@ void MapStructHandles(Decoded_VkPhysicalDeviceShaderDrawParametersFeatures* wrap
     }
 }
 
+void MapStructHandles(Decoded_VkPhysicalDeviceDriverProperties* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkPhysicalDeviceVulkan11Features* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -1560,17 +1571,6 @@ void MapStructHandles(Decoded_VkPhysicalDeviceVulkan12Properties* wrapper, const
 }
 
 void MapStructHandles(Decoded_VkImageFormatListCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_VkPhysicalDeviceDriverProperties* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
@@ -1946,23 +1946,6 @@ void MapStructHandles(Decoded_VkSubpassDependency2* wrapper, const CommonObjectI
     }
 }
 
-void MapStructHandles(Decoded_VkRenderPassCreateInfo2* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-
-        MapStructArrayHandles<Decoded_VkAttachmentDescription2>(wrapper->pAttachments->GetMetaStructPointer(), wrapper->pAttachments->GetLength(), object_info_table);
-
-        MapStructArrayHandles<Decoded_VkSubpassDescription2>(wrapper->pSubpasses->GetMetaStructPointer(), wrapper->pSubpasses->GetLength(), object_info_table);
-
-        MapStructArrayHandles<Decoded_VkSubpassDependency2>(wrapper->pDependencies->GetMetaStructPointer(), wrapper->pDependencies->GetLength(), object_info_table);
-    }
-}
-
 void MapStructHandles(Decoded_VkSubpassBeginInfo* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -1982,6 +1965,23 @@ void MapStructHandles(Decoded_VkSubpassEndInfo* wrapper, const CommonObjectInfoT
         {
             MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
+    }
+}
+
+void MapStructHandles(Decoded_VkRenderPassCreateInfo2* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+
+        MapStructArrayHandles<Decoded_VkAttachmentDescription2>(wrapper->pAttachments->GetMetaStructPointer(), wrapper->pAttachments->GetLength(), object_info_table);
+
+        MapStructArrayHandles<Decoded_VkSubpassDescription2>(wrapper->pSubpasses->GetMetaStructPointer(), wrapper->pSubpasses->GetLength(), object_info_table);
+
+        MapStructArrayHandles<Decoded_VkSubpassDependency2>(wrapper->pDependencies->GetMetaStructPointer(), wrapper->pDependencies->GetLength(), object_info_table);
     }
 }
 
@@ -2042,19 +2042,6 @@ void MapStructHandles(Decoded_VkFramebufferAttachmentImageInfo* wrapper, const C
     }
 }
 
-void MapStructHandles(Decoded_VkFramebufferAttachmentsCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
-
-        MapStructArrayHandles<Decoded_VkFramebufferAttachmentImageInfo>(wrapper->pAttachmentImageInfos->GetMetaStructPointer(), wrapper->pAttachmentImageInfos->GetLength(), object_info_table);
-    }
-}
-
 void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfo* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -2067,6 +2054,19 @@ void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfo* wrapper, const Co
         {
             MapPNextStructHandles(wrapper->pNext, object_info_table);
         }
+    }
+}
+
+void MapStructHandles(Decoded_VkFramebufferAttachmentsCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+
+        MapStructArrayHandles<Decoded_VkFramebufferAttachmentImageInfo>(wrapper->pAttachmentImageInfos->GetMetaStructPointer(), wrapper->pAttachmentImageInfos->GetLength(), object_info_table);
     }
 }
 
@@ -2901,6 +2901,17 @@ void MapStructHandles(Decoded_VkPhysicalDeviceMaintenance5Properties* wrapper, c
     }
 }
 
+void MapStructHandles(Decoded_VkSubresourceLayout2* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkImageSubresource2* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -2924,17 +2935,6 @@ void MapStructHandles(Decoded_VkDeviceImageSubresourceInfo* wrapper, const Commo
         }
 
         MapStructArrayHandles<Decoded_VkImageSubresource2>(wrapper->pSubresource->GetMetaStructPointer(), 1, object_info_table);
-    }
-}
-
-void MapStructHandles(Decoded_VkSubresourceLayout2* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext, object_info_table);
-        }
     }
 }
 
@@ -7358,6 +7358,17 @@ void MapStructHandles(Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT* wrapp
 }
 
 void MapStructHandles(Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
@@ -12156,6 +12167,17 @@ void MapStructHandles(Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesE
     }
 }
 
+void MapStructHandles(Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -13614,6 +13636,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_2_PROPERTIES_NV:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrix2PropertiesNV*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_KHR:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR*>(wrapper), object_info_table);
         break;
@@ -14402,6 +14427,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MAXIMAL_RECONVERGENCE_FEATURES_KHR:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MODULE_IDENTIFIER_FEATURES_EXT:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT*>(wrapper), object_info_table);

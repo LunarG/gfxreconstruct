@@ -4894,6 +4894,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const Jso
         case VK_FORMAT_R8_BOOL_ARM:
             jdata = "VK_FORMAT_R8_BOOL_ARM";
             break;
+        case VK_FORMAT_R16_SFLOAT_FPENCODING_BFLOAT16_ARM:
+            jdata = "VK_FORMAT_R16_SFLOAT_FPENCODING_BFLOAT16_ARM";
+            break;
+        case VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E4M3_ARM:
+            jdata = "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E4M3_ARM";
+            break;
+        case VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E5M2_ARM:
+            jdata = "VK_FORMAT_R8_SFLOAT_FPENCODING_FLOAT8E5M2_ARM";
+            break;
         case VK_FORMAT_R16G16_SFIXED5_NV:
             jdata = "VK_FORMAT_R16G16_SFIXED5_NV";
             break;
@@ -6685,6 +6694,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkObjectType& value, const
         case VK_OBJECT_TYPE_INDIRECT_EXECUTION_SET_EXT:
             jdata = "VK_OBJECT_TYPE_INDIRECT_EXECUTION_SET_EXT";
             break;
+        case VK_OBJECT_TYPE_SHADER_INSTRUMENTATION_ARM:
+            jdata = "VK_OBJECT_TYPE_SHADER_INSTRUMENTATION_ARM";
+            break;
         default:
             jdata = to_hex_fixed_width(value);
             break;
@@ -7517,6 +7529,9 @@ void FieldToJson(VkPipelineCreateFlagBits2_t, nlohmann::ordered_json& jdata, con
             break;
         case VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM:
             jdata = "VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM";
+            break;
+        case VK_PIPELINE_CREATE_2_INSTRUMENT_SHADERS_BIT_ARM:
+            jdata = "VK_PIPELINE_CREATE_2_INSTRUMENT_SHADERS_BIT_ARM";
             break;
         case VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR:
             jdata = "VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR";
@@ -8933,6 +8948,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkShaderCreateFlagBitsEXT&
         case VK_SHADER_CREATE_DESCRIPTOR_HEAP_BIT_EXT:
             jdata = "VK_SHADER_CREATE_DESCRIPTOR_HEAP_BIT_EXT";
             break;
+        case VK_SHADER_CREATE_INSTRUMENT_SHADER_BIT_ARM:
+            jdata = "VK_SHADER_CREATE_INSTRUMENT_SHADER_BIT_ARM";
+            break;
         case VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT:
             jdata = "VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT";
             break;
@@ -9569,6 +9587,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES";
             break;
@@ -9583,9 +9604,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
             jdata = "VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO";
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
-            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES";
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES";
@@ -10786,6 +10804,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
             jdata = "VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM";
             break;
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
             jdata = "VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT";
@@ -12620,6 +12641,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_RENDER_PASS_PERFORMANCE_COUNTERS_BY_REGION_BEGIN_INFO_ARM:
             jdata = "VK_STRUCTURE_TYPE_RENDER_PASS_PERFORMANCE_COUNTERS_BY_REGION_BEGIN_INFO_ARM";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_FEATURES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_FEATURES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_PROPERTIES_ARM:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INSTRUMENTATION_PROPERTIES_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_SHADER_INSTRUMENTATION_CREATE_INFO_ARM:
+            jdata = "VK_STRUCTURE_TYPE_SHADER_INSTRUMENTATION_CREATE_INFO_ARM";
+            break;
+        case VK_STRUCTURE_TYPE_SHADER_INSTRUMENTATION_METRIC_DESCRIPTION_ARM:
+            jdata = "VK_STRUCTURE_TYPE_SHADER_INSTRUMENTATION_METRIC_DESCRIPTION_ARM";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_ROBUSTNESS_FEATURES_EXT";
             break;
@@ -12715,6 +12748,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT";
+            break;
+        case VK_STRUCTURE_TYPE_UBM_SURFACE_CREATE_INFO_SEC:
+            jdata = "VK_STRUCTURE_TYPE_UBM_SURFACE_CREATE_INFO_SEC";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -16598,6 +16637,8 @@ void FieldToJson(VkPipelineCreateFlags2_t, nlohmann::ordered_json& jdata, const 
                 return std::string("VK_PIPELINE_CREATE_2_DESCRIPTOR_BUFFER_BIT_EXT");
             case VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM:
                 return std::string("VK_PIPELINE_CREATE_2_DISALLOW_OPACITY_MICROMAP_BIT_ARM");
+            case VK_PIPELINE_CREATE_2_INSTRUMENT_SHADERS_BIT_ARM:
+                return std::string("VK_PIPELINE_CREATE_2_INSTRUMENT_SHADERS_BIT_ARM");
             case VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR:
                 return std::string("VK_PIPELINE_CREATE_2_CAPTURE_DATA_BIT_KHR");
             case VK_PIPELINE_CREATE_2_INDIRECT_BINDABLE_BIT_EXT:
@@ -17410,6 +17451,8 @@ void FieldToJson(VkShaderCreateFlagsEXT_t, nlohmann::ordered_json& jdata, const 
                 return std::string("VK_SHADER_CREATE_LINK_STAGE_BIT_EXT");
             case VK_SHADER_CREATE_DESCRIPTOR_HEAP_BIT_EXT:
                 return std::string("VK_SHADER_CREATE_DESCRIPTOR_HEAP_BIT_EXT");
+            case VK_SHADER_CREATE_INSTRUMENT_SHADER_BIT_ARM:
+                return std::string("VK_SHADER_CREATE_INSTRUMENT_SHADER_BIT_ARM");
             case VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT:
                 return std::string("VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT");
             case VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT:

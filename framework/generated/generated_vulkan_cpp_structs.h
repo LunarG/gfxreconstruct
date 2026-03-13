@@ -1532,6 +1532,8 @@ std::string GenerateStruct_VkFilterCubicImageViewImageFormatPropertiesEXT(std::o
 
 std::string GenerateStruct_VkPhysicalDeviceImageViewImageFormatInfoEXT(std::ostream &out, const VkPhysicalDeviceImageViewImageFormatInfoEXT* structInfo, Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkMemoryHostPointerPropertiesEXT(std::ostream &out, const VkMemoryHostPointerPropertiesEXT* structInfo, Decoded_VkMemoryHostPointerPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceExternalMemoryHostPropertiesEXT(std::ostream &out, const VkPhysicalDeviceExternalMemoryHostPropertiesEXT* structInfo, Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT* metaInfo, VulkanCppConsumerBase &consumer);
@@ -2429,6 +2431,8 @@ std::string GenerateStruct_VkComputeOccupancyPriorityParametersNV(std::ostream &
 std::string GenerateStruct_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV(std::ostream &out, const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* structInfo, Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT(std::ostream &out, const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE(std::ostream &out, const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* structInfo, Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkAccelerationStructureBuildGeometryInfoKHR(std::ostream &out, const VkAccelerationStructureBuildGeometryInfoKHR* structInfo, Decoded_VkAccelerationStructureBuildGeometryInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
 

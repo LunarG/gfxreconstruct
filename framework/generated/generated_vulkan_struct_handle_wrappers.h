@@ -49,12 +49,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)
 
-void UnwrapStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkApplicationInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkInstanceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
@@ -69,15 +63,15 @@ void UnwrapStructHandles(VkMappedMemoryRange* value, HandleUnwrapMemory* unwrap_
 
 void UnwrapStructHandles(VkMemoryAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkSparseImageMemoryBind* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkSparseImageMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkSparseMemoryBind* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkSparseBufferMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkSparseImageOpaqueMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSparseImageMemoryBind* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSparseImageMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkBindSparseInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -100,6 +94,12 @@ void UnwrapStructHandles(VkCommandBufferAllocateInfo* value, HandleUnwrapMemory*
 void UnwrapStructHandles(VkCommandBufferInheritanceInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkCommandBufferBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkEventCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -129,23 +129,23 @@ void UnwrapStructHandles(VkDescriptorSetLayoutBinding* value, HandleUnwrapMemory
 
 void UnwrapStructHandles(VkDescriptorSetLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkPipelineVertexInputStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkPipelineInputAssemblyStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkPipelineTessellationStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkPipelineViewportStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkPipelineRasterizationStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkPipelineMultisampleStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPipelineColorBlendStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPipelineDepthStencilStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkPipelineColorBlendStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkPipelineDynamicStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPipelineInputAssemblyStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPipelineMultisampleStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPipelineRasterizationStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPipelineTessellationStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPipelineVertexInputStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPipelineViewportStateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -285,6 +285,8 @@ void UnwrapStructHandles(VkPhysicalDeviceMultiviewProperties* value, HandleUnwra
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderDrawParametersFeatures* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceDriverProperties* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPhysicalDeviceVulkan11Features* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceVulkan11Properties* value, HandleUnwrapMemory* unwrap_memory);
@@ -294,8 +296,6 @@ void UnwrapStructHandles(VkPhysicalDeviceVulkan12Features* value, HandleUnwrapMe
 void UnwrapStructHandles(VkPhysicalDeviceVulkan12Properties* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkImageFormatListCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkPhysicalDeviceDriverProperties* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceVulkanMemoryModelFeatures* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -359,11 +359,11 @@ void UnwrapStructHandles(VkSubpassDescription2* value, HandleUnwrapMemory* unwra
 
 void UnwrapStructHandles(VkSubpassDependency2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkRenderPassCreateInfo2* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkSubpassBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkSubpassEndInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkRenderPassCreateInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkSubpassDescriptionDepthStencilResolve* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -375,9 +375,9 @@ void UnwrapStructHandles(VkPhysicalDeviceImagelessFramebufferFeatures* value, Ha
 
 void UnwrapStructHandles(VkFramebufferAttachmentImageInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkFramebufferAttachmentsCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkRenderPassAttachmentBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkFramebufferAttachmentsCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -509,11 +509,11 @@ void UnwrapStructHandles(VkPhysicalDeviceMaintenance5Features* value, HandleUnwr
 
 void UnwrapStructHandles(VkPhysicalDeviceMaintenance5Properties* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkSubresourceLayout2* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkImageSubresource2* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDeviceImageSubresourceInfo* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkSubresourceLayout2* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkBufferUsageFlags2CreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -1248,6 +1248,8 @@ void UnwrapStructHandles(VkPipelineRepresentativeFragmentTestStateCreateInfoNV* 
 void UnwrapStructHandles(VkPhysicalDeviceImageViewImageFormatInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkFilterCubicImageViewImageFormatPropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkImportMemoryHostPointerInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -2070,6 +2072,8 @@ void UnwrapStructHandles(VkComputeOccupancyPriorityParametersNV* value, HandleUn
 void UnwrapStructHandles(VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
 

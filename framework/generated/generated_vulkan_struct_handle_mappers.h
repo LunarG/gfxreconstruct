@@ -184,14 +184,6 @@ void MapStructHandles(Decoded_VkOffset3D* wrapper, const CommonObjectInfoTable& 
 
 void MapStructHandles(Decoded_VkRect2D* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkBufferMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkImageSubresourceRange* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkImageMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkAllocationCallbacks* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkApplicationInfo* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -234,23 +226,23 @@ void MapStructHandles(Decoded_VkMemoryAllocateInfo* wrapper, const CommonObjectI
 
 void MapStructHandles(Decoded_VkMemoryRequirements* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkImageSubresource* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSparseImageFormatProperties* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSparseImageMemoryBind* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSparseImageMemoryRequirements* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkSparseMemoryBind* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkSparseBufferMemoryBindInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkSparseImageOpaqueMemoryBindInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkImageSubresource* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkSparseImageMemoryBind* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkSparseImageFormatProperties* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkSparseImageMemoryRequirements* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkFenceCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -265,6 +257,8 @@ void MapStructHandles(Decoded_VkImageCreateInfo* wrapper, const CommonObjectInfo
 void MapStructHandles(Decoded_VkSubresourceLayout* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkComponentMapping* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkImageSubresourceRange* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImageViewCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -283,6 +277,12 @@ void MapStructHandles(Decoded_VkImageSubresourceLayers* wrapper, const CommonObj
 void MapStructHandles(Decoded_VkBufferImageCopy* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImageCopy* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBufferMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkImageMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkMemoryBarrier* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkDispatchIndirectCommand* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -328,33 +328,33 @@ void MapStructHandles(Decoded_VkDrawIndexedIndirectCommand* wrapper, const Commo
 
 void MapStructHandles(Decoded_VkDrawIndirectCommand* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkVertexInputBindingDescription* wrapper, const CommonObjectInfoTable& object_info_table);
+void MapStructHandles(Decoded_VkStencilOpState* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkVertexInputAttributeDescription* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkPipelineVertexInputStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPipelineInputAssemblyStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPipelineTessellationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+void MapStructHandles(Decoded_VkVertexInputBindingDescription* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkViewport* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPipelineViewportStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPipelineRasterizationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPipelineMultisampleStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkStencilOpState* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPipelineDepthStencilStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPipelineColorBlendAttachmentState* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPipelineColorBlendStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPipelineDepthStencilStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPipelineDynamicStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPipelineInputAssemblyStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPipelineMultisampleStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPipelineRasterizationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPipelineTessellationStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPipelineVertexInputStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPipelineViewportStateCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkGraphicsPipelineCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -364,17 +364,17 @@ void MapStructHandles(Decoded_VkAttachmentReference* wrapper, const CommonObject
 
 void MapStructHandles(Decoded_VkFramebufferCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkSubpassDescription* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkSubpassDependency* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkSubpassDescription* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkRenderPassCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkClearDepthStencilValue* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkClearAttachment* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkClearRect* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkClearAttachment* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImageBlit* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -518,19 +518,19 @@ void MapStructHandles(Decoded_VkPhysicalDeviceMultiviewProperties* wrapper, cons
 
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderDrawParametersFeatures* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkConformanceVersion* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceDriverProperties* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceVulkan11Features* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceVulkan11Properties* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceVulkan12Features* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkConformanceVersion* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkPhysicalDeviceVulkan12Properties* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImageFormatListCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPhysicalDeviceDriverProperties* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -594,11 +594,11 @@ void MapStructHandles(Decoded_VkSubpassDescription2* wrapper, const CommonObject
 
 void MapStructHandles(Decoded_VkSubpassDependency2* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkRenderPassCreateInfo2* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkSubpassBeginInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkSubpassEndInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkRenderPassCreateInfo2* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkSubpassDescriptionDepthStencilResolve* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -610,9 +610,9 @@ void MapStructHandles(Decoded_VkPhysicalDeviceImagelessFramebufferFeatures* wrap
 
 void MapStructHandles(Decoded_VkFramebufferAttachmentImageInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkFramebufferAttachmentsCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkFramebufferAttachmentsCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -746,11 +746,11 @@ void MapStructHandles(Decoded_VkPhysicalDeviceMaintenance5Features* wrapper, con
 
 void MapStructHandles(Decoded_VkPhysicalDeviceMaintenance5Properties* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkSubresourceLayout2* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkImageSubresource2* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkDeviceImageSubresourceInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkSubresourceLayout2* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkBufferUsageFlags2CreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -1559,6 +1559,8 @@ void MapStructHandles(Decoded_VkPipelineRepresentativeFragmentTestStateCreateInf
 void MapStructHandles(Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkImportMemoryHostPointerInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -2459,6 +2461,8 @@ void MapStructHandles(Decoded_VkComputeOccupancyPriorityParametersNV* wrapper, c
 void MapStructHandles(Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkAccelerationStructureBuildRangeInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
