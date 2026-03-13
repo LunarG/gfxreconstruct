@@ -39,14 +39,26 @@ class FrameLoopInfo
         loop_iterations_{ loop_iterations }
     {}
 
-    bool     IsLoopRequested() const { return loop_frame_idx_ != 0; }
+    /// Expects a 1-based frame number.
+    void SetCurrentFrameNumber(uint32_t frame_number) { current_frame_number_ = frame_number; }
+
+    /// Returns true if the current frame number matches the loop frame index.
+    bool AtLoopFrame() const { return current_frame_number_ == loop_frame_idx_; }
+
+    /// Returns true if this is the first iteration of the loop frame.
+    bool IsFirstIteration() const { return AtLoopFrame() && !IsLooping(); }
+
+    /// Returns true if currently looping on the loop frame, meaning that the loop frame
+    /// has already been played at least once and we are currently replaying it again.
     bool     IsLooping() const { return is_looping_; }
+
     void     SetLooping(bool looping) { is_looping_ = looping; }
     uint32_t GetLoopFrameIdx() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }
     void     DecrementLoopIterations() { loop_iterations_--; }
 
   private:
+    uint32_t current_frame_number_{ 0 };
     bool     is_looping_{ false };
     uint32_t loop_frame_idx_{ 0 };
     uint32_t loop_iterations_{ std::numeric_limits<uint32_t>::max() };
