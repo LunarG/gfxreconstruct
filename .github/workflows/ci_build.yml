@@ -6,6 +6,9 @@ on:
   pull_request:
     branches:
       - merge-test
+  merge_group:
+    branches:
+      - merge-test
 
 jobs:
   linux:
