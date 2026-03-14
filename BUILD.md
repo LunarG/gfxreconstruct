@@ -177,7 +177,6 @@ The following commands can be used to generate project files for different
 variations of the Visual Studio 2019 WIN32 and x64 build configurations:
 
 - 64-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16 Win64"`
-- 32-bit for VS 2019: `cmake . -Bbuild -G "Visual Studio 16"`
 
 Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
@@ -244,13 +243,6 @@ sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-de
         libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev libxcb-glx0-dev
 ```
 
-For 32-bit builds (DXVK might require 32-bit):
-```bash
-sudo apt-get install g++-multilib libx11-xcb-dev:i386 libxcb-keysyms1-dev:i386 \
-        libwayland-dev:i386 libxrandr-dev:i386 zlib1g-dev:i386 liblz4-dev:i386 \
-        libzstd-dev:i386 libxcb-glx0-dev:i386
-```
-
 For arm64 builds (cross compilation):
 
 ```bash
@@ -300,13 +292,7 @@ profiles and the `-DCMAKE_TOOLCHAIN_FILE` with a matching toolchain file
 can be changed to compile for different architectures:
 
 - 64-bit x64 Release (default): cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release
-- 32-bit x86 Debug: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
-- 32-bit x86 Release: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
-- 32-bit arm Release: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm.cmake
 - 64-bit arm Release: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm64.cmake
-
-For 32-bit builds, the 32-bit versions of the required packages specified above
-must be installed.
 
 #### Build the Project
 
@@ -513,10 +499,6 @@ This may not necessarily be the top `build.gradle` in the tree.
 ```text
 gfxreconstruct/android/tools/replay/src/main/jniLibs/
     arm64-v8a/
-        libVkLayer_khronos_validation.so
-    armeabi-v7a/
-        libVkLayer_khronos_validation.so
-    x86/
         libVkLayer_khronos_validation.so
     x86-64/
         libVkLayer_khronos_validation.so

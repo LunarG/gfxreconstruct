@@ -37,13 +37,6 @@ if (${D3D12_SUPPORT})
     set(AGILITY_SDK_LAYERS_SRC ${PROJECT_SOURCE_DIR}/external/AgilitySDK/bin/x64/d3d12SDKLayers.dll)
     set(AGILITY_SDK_RUNTIME_SRC ${PROJECT_SOURCE_DIR}/external/AgilitySDK/bin/x64/D3D12Core.dll)
 
-    # Use 32-bit binaries if needed
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set(AGILITY_SDK_CONFIG_SRC ${PROJECT_SOURCE_DIR}/external/AgilitySDK/bin/win32/d3dconfig.exe)
-        set(AGILITY_SDK_LAYERS_SRC ${PROJECT_SOURCE_DIR}/external/AgilitySDK/bin/win32/d3d12SDKLayers.dll)
-        set(AGILITY_SDK_RUNTIME_SRC ${PROJECT_SOURCE_DIR}/external/AgilitySDK/bin/win32/D3D12Core.dll)
-    endif()
-
     # Use ARM 64-bit binaries if needed
     if(GFXR_ARM_WINDOWS_BUILD)
         set(AGILITY_SDK_CONFIG_SRC ${PROJECT_SOURCE_DIR}/external/AgilitySDK/bin/arm64/d3dconfig.exe)

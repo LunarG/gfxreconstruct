@@ -29,8 +29,8 @@ software versions:
 The provided pre-compiled binaries were created for the following
 platforms:
 
-* Windows x86 and x64 architectures created with Visual Studio 2017.
-* Android armeabi-v7a and arm64-v8a architectures created with the clang compiler tool-chain targeting the android-24 platform.
+* Windows x64 architectures created with Visual Studio 2017.
+* Android arm64-v8a architectures created with the clang compiler tool-chain targeting the android-24 platform.
 
 Linux binaries for the optional dependencies are available for most Linux
 distributions through the distribution's standard package manager.

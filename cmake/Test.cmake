@@ -41,12 +41,7 @@ if (${RUN_TESTS})
     endif()
 
     # Build architecture
-    if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-        set(ARCHITECTURE "x64")
-    endif()
-    if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
-        set(ARCHITECTURE "x86")
-    endif()
+    set(ARCHITECTURE "x64")
 
     # Add test post build step to an executable test target
     function(common_test_directives TARGET)

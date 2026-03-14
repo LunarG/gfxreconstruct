@@ -177,11 +177,6 @@ const encode::OpenXrInstanceTable* OpenXrReplayConsumerBase::GetInstanceTable(Xr
     return (table != instance_tables_.end()) ? &table->second : nullptr;
 }
 
-#if defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
-// NOTE: This won't work on 32-bit builds because OpenXR defines all 32-bit
-//       handles as uint64_t breaking the type conversion on each of these
-//       override functions.
-
 // TODO: Add code generation for below
 const encode::OpenXrInstanceTable* OpenXrReplayConsumerBase::GetInstanceTable(XrSession handle) const
 {
@@ -404,14 +399,11 @@ OpenXrReplayConsumerBase::GetInstanceTable(XrEnvironmentDepthSwapchainMETA handl
     return (instance != envdepthswapchainMETA_to_instance_.end()) ? GetInstanceTable(instance->second) : nullptr;
 }
 
-#endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
-
 void OpenXrReplayConsumerBase::AssociateParent(XrSession session, XrInstance instance)
 {
     session_to_instance_[session] = instance;
 }
 
-#if defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 void OpenXrReplayConsumerBase::AssociateParent(XrSpace space, XrSession session)
 {
     space_to_instance_[space] = session_to_instance_[session];
@@ -574,8 +566,6 @@ void OpenXrReplayConsumerBase::AssociateParent(XrEnvironmentDepthSwapchainMETA e
     envdepthswapchainMETA_to_instance_[env_depth_swapchain] =
         envdepthproviderMETA_to_instance_[environment_depth_provider];
 }
-
-#endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
 void OpenXrReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 {
