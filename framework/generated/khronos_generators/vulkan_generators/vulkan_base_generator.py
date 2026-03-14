@@ -273,6 +273,9 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             },
             'VkDescriptorGetInfoEXT': {
                 'objectHandle': 'objectType'
+            },
+            'VkIndirectExecutionSetCreateInfoEXT': {
+                'objectHandle': 'objectType'
             }
         }
 
