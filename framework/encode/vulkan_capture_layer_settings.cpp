@@ -29,94 +29,101 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+// The following is defined here instead of in the capture settings now
+// that settings are generated.
+#if defined(__ANDROID__)
+const char kDefaultCaptureFileName[] = "/sdcard/gfxrecon_capture.gfxr";
+#else
+const char kDefaultCaptureFileName[] = "gfxrecon_capture.gfxr";
+#endif
+
 /// @return Capture file name extracted from `VkLayerSettingEXT` when successful, otherwise the
-/// `CaptureSettings::kDefaultCaptureFileName` default value.
+/// `kDefaultCaptureFileName` default value.
 std::string GetCaptureFileName(const VkLayerSettingEXT& setting)
 {
 
     if (setting.type != VK_LAYER_SETTING_TYPE_STRING_EXT)
     {
-        GFXRECON_LOG_ERROR("Expected setting type for '%s' to be "
+        GFXRECON_LOG_ERROR("Expected setting type for 'capture_file' to be "
                            "VK_LAYER_SETTING_TYPE_STRING_EXT, but got %d",
-                           CAPTURE_FILE_NAME_LOWER,
                            setting.type);
-        return CaptureSettings::kDefaultCaptureFileName;
+        return std::string(kDefaultCaptureFileName);
     }
     if (setting.valueCount != 1)
     {
-        GFXRECON_LOG_ERROR(
-            "Expected value count for '%s' setting to be 1, but got %d", CAPTURE_FILE_NAME_LOWER, setting.valueCount);
-        return CaptureSettings::kDefaultCaptureFileName;
+        GFXRECON_LOG_ERROR("Expected value count for 'capture_file' setting to be 1, but got %d", setting.valueCount);
+        return std::string(kDefaultCaptureFileName);
     }
     if (setting.pValues == nullptr)
     {
-        GFXRECON_LOG_ERROR("Expected non-null array of values for '%s' setting", CAPTURE_FILE_NAME_LOWER);
-        return CaptureSettings::kDefaultCaptureFileName;
+        GFXRECON_LOG_ERROR("Expected non-null array of values for 'capture_file' setting");
+        return std::string(kDefaultCaptureFileName);
     }
 
     auto* values = reinterpret_cast<const char* const*>(setting.pValues);
 
     if (values[0] == nullptr)
     {
-        GFXRECON_LOG_ERROR("Expected non-null value for '%s' setting", CAPTURE_FILE_NAME_LOWER);
-        return CaptureSettings::kDefaultCaptureFileName;
+        GFXRECON_LOG_ERROR("Expected non-null value for 'capture_file' setting");
+        return std::string(kDefaultCaptureFileName);
     }
 
     return std::string(values[0]);
 }
 
-CaptureSettings::TraceSettings GetVulkanLayerTraceSettings(const VkInstanceCreateInfo* pCreateInfo)
+bool GetVulkanLayerTraceSettings(const VkInstanceCreateInfo*     pCreateInfo,
+                                 CaptureSettings::TraceSettings* trace_settings)
 {
-    CaptureSettings::TraceSettings layer_settings;
+    bool modified_settings = false;
 
-    if (pCreateInfo == nullptr)
+    if (pCreateInfo != nullptr && trace_settings != nullptr)
     {
-        return layer_settings;
-    }
-
-    // There can be multiple VkLayerSettingsCreateInfoEXT structures in the pNext chain.
-    const VkBaseInStructure* p_next = reinterpret_cast<const VkBaseInStructure*>(pCreateInfo);
-    while (p_next != nullptr)
-    {
-        const auto* settings_create_info = graphics::vulkan_struct_get_pnext<VkLayerSettingsCreateInfoEXT>(p_next);
-        if (settings_create_info == nullptr)
+        // There can be multiple VkLayerSettingsCreateInfoEXT structures in the pNext chain.
+        const VkBaseInStructure* p_next = reinterpret_cast<const VkBaseInStructure*>(pCreateInfo);
+        while (p_next != nullptr)
         {
-            // No more to find
-            break;
-        }
-
-        if (settings_create_info->settingCount > 0 && settings_create_info->pSettings == nullptr)
-        {
-            GFXRECON_LOG_ERROR("Expected non-null pSettings for VkLayerSettingsCreateInfoEXT with settingCount > 0");
-            break;
-        }
-
-        static const char* VK_LAYER_NAME = "VK_LAYER_LUNARG_gfxreconstruct";
-        for (uint32_t i = 0; i < settings_create_info->settingCount; ++i)
-        {
-            const VkLayerSettingEXT& setting = settings_create_info->pSettings[i];
-
-            // Only add settings for the GFXReconstruct layer
-            if (setting.pLayerName != nullptr && strcmp(setting.pLayerName, VK_LAYER_NAME) == 0)
+            const auto* settings_create_info = graphics::vulkan_struct_get_pnext<VkLayerSettingsCreateInfoEXT>(p_next);
+            if (settings_create_info == nullptr)
             {
-                if (setting.pSettingName == nullptr)
-                {
-                    GFXRECON_LOG_ERROR("Setting name is null for layer '%s'", VK_LAYER_NAME);
-                    continue;
-                }
+                // No more to find
+                break;
+            }
 
-                // Get capture name setting
-                if (strcmp(setting.pSettingName, CAPTURE_FILE_NAME_LOWER) == 0)
+            if (settings_create_info->settingCount > 0 && settings_create_info->pSettings == nullptr)
+            {
+                GFXRECON_LOG_ERROR(
+                    "Expected non-null pSettings for VkLayerSettingsCreateInfoEXT with settingCount > 0");
+                break;
+            }
+
+            static const char* VK_LAYER_NAME = "VK_LAYER_LUNARG_gfxreconstruct";
+            for (uint32_t i = 0; i < settings_create_info->settingCount; ++i)
+            {
+                const VkLayerSettingEXT& setting = settings_create_info->pSettings[i];
+
+                // Only add settings for the GFXReconstruct layer
+                if (setting.pLayerName != nullptr && strcmp(setting.pLayerName, VK_LAYER_NAME) == 0)
                 {
-                    layer_settings.capture_file = GetCaptureFileName(setting);
+                    if (setting.pSettingName == nullptr)
+                    {
+                        GFXRECON_LOG_ERROR("Setting name is null for layer '%s'", VK_LAYER_NAME);
+                        continue;
+                    }
+
+                    // Get capture name setting
+                    if (strcmp(setting.pSettingName, "capture_file") == 0)
+                    {
+                        trace_settings->capture_file = GetCaptureFileName(setting);
+                        modified_settings            = true;
+                    }
                 }
             }
-        }
 
-        p_next = reinterpret_cast<const VkBaseInStructure*>(settings_create_info->pNext);
+            p_next = reinterpret_cast<const VkBaseInStructure*>(settings_create_info->pNext);
+        }
     }
 
-    return layer_settings;
+    return modified_settings;
 }
 
 GFXRECON_END_NAMESPACE(encode)

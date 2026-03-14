@@ -1,7 +1,5 @@
 /*
-** Copyright (c) 2018-2022 Valve Corporation
-** Copyright (c) 2018-2024 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,18 +20,32 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include PROJECT_VERSION_HEADER_FILE
+#ifndef GFXRECON_SETTINGS_COMMON_H
+#define GFXRECON_SETTINGS_COMMON_H
 
-#include "encode/api_capture_manager.h"
+#include "util/defines.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(settings)
 
-CaptureSettings::TraceSettings ApiCaptureManager::GetDefaultTraceSettings()
+enum class GfxrToolType
 {
-    // Return default trace settings.
-    return CaptureSettings::TraceSettings();
-}
+    kUndefined = 0,
+    kCapture_Library,
+    kReplay_Tool,
+    kInfo_Tool,
+    kCompress_Tool,
+    kConvert_Tool,
+    kExtract_Tool,
+    kOptimize_Tool,
+    kToCpp_Tool,
 
-GFXRECON_END_NAMESPACE(encode)
+    kTest = 0XFFFF
+};
+
+GFXRECON_END_NAMESPACE(settings)
+GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_SETTINGS_COMMON_H
