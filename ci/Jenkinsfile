@@ -9,7 +9,7 @@ pipeline {
         stage('Start Notification') {
             steps {
                 googlechatnotification(
-                    url: 'id:google-chat-webhook',
+                    url: 'id:Google-Chat-Beau-Brad',
                     message: "Build started: ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
                 )
             }
