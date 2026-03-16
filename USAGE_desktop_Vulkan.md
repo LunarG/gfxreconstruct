@@ -635,7 +635,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
                         [--deduplicate-device]
                         [--wait-before-first-submit MILLISECONDS]
-                        [--idle-before-submit]
+                        [--idle-before-submit] [--serialize-render-passes]
 
 
 Required arguments:
@@ -876,6 +876,8 @@ Optional arguments:
               Wait for the specified amount of milliseconds before processing the first submit.
   --idle-before-submit
               Wait for the GPU to become idle before each submit.
+  --serialize-render-passes
+              Serialize render passes by injecting execution barriers before render pass begin during replay
 ```
 
 ### Key Controls

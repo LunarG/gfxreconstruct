@@ -795,6 +795,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--screenshot-ignore-FrameBoundaryANDROID]
                           [--wait-before-first-submit MILLISECONDS]
                           [--idle-before-submit]
+                          [--serialize-render-passes]
                           [file]
 
 Launch the replay tool.
@@ -1008,6 +1009,8 @@ options:
                         processing the first submit. (forwarded to replay tool)
   --idle-before-submit  Wait for the GPU to become idle before each submit.
                         (forwarded to replay tool)
+  --serialize-render-passes
+                        Serialize render passes by injecting execution barriers before render pass begin during replay. (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

@@ -144,6 +144,7 @@ def CreateReplayParser():
     parser.add_argument('--screenshot-ignore-FrameBoundaryANDROID', action='store_true', default=False, help='If set, frames switced with vkFrameBoundANDROID will be ignored from the screenshot handler.')
     parser.add_argument('--wait-before-first-submit', metavar='MILLISECONDS', help='Wait for the specified amount of milliseconds before processing the first submit. (forwarded to replay tool)')
     parser.add_argument('--idle-before-submit', action='store_true', default=False, help='Wait for the GPU to become idle before each submit. (forwarded to replay tool)')
+    parser.add_argument('--serialize-render-passes', action='store_true', default=False, help='Serialize render passes by injecting execution barriers before render pass begin during replay. (forwarded to replay tool)')
 
     return parser
 
@@ -329,6 +330,9 @@ def MakeExtrasString(args):
 
     if args.idle_before_submit:
         arg_list.append('--idle-before-submit')
+
+    if args.serialize_render_passes:
+        arg_list.append('--serialize-render-passes')
 
     if args.file:
         arg_list.append(args.file)
