@@ -585,9 +585,12 @@ class TransferDumpingContext
             BuildAccelerationStructure(TransferCommandTypes               t,
                                        bool                               hb,
                                        const graphics::VulkanDeviceTable& dt,
-                                       const VulkanDeviceInfo*            pdi) :
+                                       const VulkanDeviceInfo*            pdi,
+                                       uint32_t                           build_count) :
                 TransferParamsBase(t, hb, dt, pdi)
-            {}
+            {
+                build_infos.reserve(build_count);
+            }
 
             ~BuildAccelerationStructure()
             {
@@ -800,14 +803,15 @@ class TransferDumpingContext
         TransferParams(const graphics::VulkanDeviceTable& dt,
                        const VulkanDeviceInfo*            pdi,
                        bool                               bc,
-                       TransferCommandTypes               t) :
-            params(std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi))
+                       TransferCommandTypes               t,
+                       uint32_t                           count) :
+            params(std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi, count))
         {
             GFXRECON_ASSERT(t == TransferCommandTypes::kCmdBuildAccelerationStructures);
 
             if (bc)
             {
-                before_params = std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi);
+                before_params = std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi, count);
             }
         }
 

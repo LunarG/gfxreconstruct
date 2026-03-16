@@ -148,6 +148,7 @@ const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
+const char kIdleBeforeSubmit[]                    = "--idle-before-submit";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -1241,6 +1242,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
+    replay_options.idle_before_submit = arg_parser.IsOptionSet(kIdleBeforeSubmit);
 
     return replay_options;
 }

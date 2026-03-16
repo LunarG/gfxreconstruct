@@ -41,7 +41,6 @@ pipeline {
     }
 
     options {
-        disableConcurrentBuilds(abortPrevious: true)
         buildDiscarder(logRotator(
             daysToKeepStr: '7',
             numToKeepStr: '20',
@@ -80,7 +79,7 @@ pipeline {
                                         params.TEST_BRANCH,
                                         params.TEST_SUITE_REPO,
                                         params.TEST_SUITE_BRANCH),
-                            'Linux Nnvidia Rel64': runJob.gfxrTestLinuxManual('Linux Nvidia Rel64', runJob.LinuxNvidiaLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                            'Linux Nvidia Rel64': runJob.gfxrTestLinuxManual('Linux Nvidia Rel64', runJob.LinuxNvidiaLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
                                         params.PROJECT_REPO,
                                         params.PROJECT_BRANCH,
                                         params.TEST_REPO,

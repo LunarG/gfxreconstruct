@@ -685,6 +685,38 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_D
                     offset += sizeof(*subobject);
                     break;
                 }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER1:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12Rasterizer1Subobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12Rasterizer2Subobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12DepthStencil2Subobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SERIALIZED_ROOT_SIGNATURE:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12SerializedRootSignatureSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
                 default:
                     // Type is unrecognized.  Write an invalid enum value so the decoder know the data is incomplete,
                     // and log a warning.

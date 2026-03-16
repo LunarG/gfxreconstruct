@@ -2387,11 +2387,11 @@ HRESULT Dx12ReplayConsumerBase::OverrideEnqueueMakeResident(DxObjectInfo*       
 }
 
 HRESULT
-Dx12ReplayConsumerBase::Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddress(DxObjectInfo* replay_object_info,
-                                                                                    HRESULT       original_result,
-                                                                                    uint64_t      allocation_id,
-                                                                                    Decoded_GUID  riid,
-                                                                                    HandlePointerDecoder<void*>* heap)
+Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddress(DxObjectInfo*                replay_object_info,
+                                                            HRESULT                      original_result,
+                                                            uint64_t                     allocation_id,
+                                                            Decoded_GUID                 riid,
+                                                            HandlePointerDecoder<void*>* heap)
 {
     assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (heap != nullptr));
 
