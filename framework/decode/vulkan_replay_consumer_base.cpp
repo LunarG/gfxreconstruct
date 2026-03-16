@@ -2647,10 +2647,11 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 filename_prefix += "_frame_";
                 filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
 
-                VkFormat image_format = swapchain_info->format;
-                VkImage  image        = swapchain_info->images[image_index];
-                uint32_t image_width  = swapchain_info->width;
-                uint32_t image_height = swapchain_info->height;
+                VkFormat      image_format = swapchain_info->format;
+                VkImageLayout image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                VkImage       image        = swapchain_info->images[image_index];
+                uint32_t      image_width  = swapchain_info->width;
+                uint32_t      image_height = swapchain_info->height;
 
                 // apply swapchain-image override, if any
                 if (present_override_image_id_ != format::kNullHandleId)
@@ -2664,6 +2665,9 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image        = override_img_info->handle;
                         image_width  = override_img_info->extent.width;
                         image_height = override_img_info->extent.height;
+                        image_layout = override_img_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
+                                           ? override_img_info->current_layout
+                                           : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
                     }
                 }
 
@@ -2687,7 +2691,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                                 image_width,
                                                 image_height,
                                                 screenshot_scale,
-                                                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+                                                image_layout);
             }
         }
     }
