@@ -10578,6 +10578,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
+        util::BeginInjectedCommands();
         swapchain_->PresentImageAdHoc(device_info,
                                       semaphore_info,
                                       image_info,
@@ -10586,6 +10587,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                                       device_table,
                                       application_.get(),
                                       {});
+        util::EndInjectedCommands();
     }
     else
     {

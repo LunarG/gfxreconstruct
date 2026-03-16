@@ -196,6 +196,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     struct OFBSwapchainImageData
     {
         VkImage         image{ VK_NULL_HANDLE };
+        VkImageLayout   image_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
         VkCommandBuffer command_buffer{ VK_NULL_HANDLE };
         VkSemaphore     semaphore{ VK_NULL_HANDLE };
         VkFence         fence{ VK_NULL_HANDLE };

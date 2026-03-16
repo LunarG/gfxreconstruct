@@ -1245,8 +1245,6 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         return;
     }
 
-    // util::BeginInjectedCommands();
-
     // Create a new surface if necessary
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
     auto& ofb_data = ofb_data_[device];
@@ -1481,13 +1479,50 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         constexpr VkOffset3D         zero_offset  = { 0, 0, 0 };
         constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
 
+        // initial layout-transition
+        if (image_data.image_layout == VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            image_data.image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+            VkImageMemoryBarrier memory_barrier;
+            memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            memory_barrier.pNext                           = nullptr;
+            memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
+            memory_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT;
+            memory_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+            memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+            memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+            memory_barrier.image                           = image_data.image;
+            memory_barrier.subresourceRange.aspectMask     = aspect_color;
+            memory_barrier.subresourceRange.baseMipLevel   = 0;
+            memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+            memory_barrier.subresourceRange.baseArrayLayer = 0;
+            memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+
+            device_table_->CmdPipelineBarrier(image_data.command_buffer,
+                                              VK_PIPELINE_STAGE_NONE,
+                                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &memory_barrier);
+        }
+
+        auto src_layout = image_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
+                              ? image_info->current_layout
+                              : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
         ofb_data.copy_util->BlitImage(image_data.command_buffer,
                                       image,
                                       image_data.image,
                                       image_info->extent,
                                       { current_window_size.width, current_window_size.height, 1 },
-                                      image_info->current_layout,
-                                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                      src_layout,
+                                      image_data.image_layout,
                                       aspect_color,
                                       zero_offset,
                                       zero_offset,
@@ -1536,8 +1571,6 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     }
 
     result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);
-
-    // util::EndInjectedCommands();
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
