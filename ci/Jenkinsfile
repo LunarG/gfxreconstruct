@@ -12,7 +12,7 @@ pipeline {
                     node {
                         googlechatnotification(
                             url: 'id:Google-Chat-Beau-Brad',
-                            message: "Build started: ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
+                            message: "Build started: <${env.BUILD_URL}|${env.BRANCH_NAME} #${env.BUILD_NUMBER}>"
                         )
                     }
                 }
@@ -81,6 +81,22 @@ pipeline {
                           wait: false,
                           propagate: false,
                           quietPeriod: quietPeriodSeconds
+                }
+            }
+        }
+
+        post {
+            failure {
+                script {
+                    if (env.BRANCH_NAME == 'dev') {
+                        node {
+                            googlechatnotification(
+                                url: 'id:Google-Chat-GFXR',
+                                message: "Build failed: <${env.BUILD_URL}|${env.BRANCH_NAME} #${env.BUILD_NUMBER}>",
+                                notifyFailure: false,
+                            )
+                        }
+                    }
                 }
             }
         }
