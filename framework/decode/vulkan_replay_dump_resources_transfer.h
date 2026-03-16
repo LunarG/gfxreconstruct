@@ -812,6 +812,12 @@ class TransferDumpingContext
   private:
     void GetDispatchTables(format::HandleId device_id);
 
+    VkResult HandleImageTransfer(VkCommandBuffer              command_buffer,
+                                 const VulkanImageInfo*       src_image,
+                                 VkImageLayout                src_image_layout,
+                                 VkImageAspectFlags           aspects,
+                                 TransferParams::CopiedImage& dst_image);
+
     std::map<uint64_t, TransferParams> transfer_params_;
 
     CommandIndices                                    transfer_indices_;
