@@ -8,10 +8,12 @@ pipeline {
     stages {
         stage('Start Notification') {
             steps {
-                googlechatnotification(
-                    url: 'id:Google-Chat-Beau-Brad',
-                    message: "Build started: ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
-                )
+                node {
+                    googlechatnotification(
+                        url: 'id:Google-Chat-Beau-Brad',
+                        message: "Build started: ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
+                    )
+                }
             }
         }
 
