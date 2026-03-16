@@ -189,33 +189,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                       uint32_t                                image_index,
                                       uint32_t                                image_count);
 
-    // TODO: consolidate with resource-util
-    void BlitHelper(VkCommandBuffer     command_buffer,
-                    VkImage             src_image,
-                    VkImage             dst_image,
-                    const VkExtent3D&   src_extent,
-                    const VkExtent3D&   dst_extent,
-                    uint32_t            mip_levels,
-                    uint32_t            array_layers,
-                    VkImageAspectFlags  aspect,
-                    VkOffset3D          src_offset,
-                    VkOffset3D          dst_offset,
-                    std::array<bool, 3> flip_axis) const;
-
-    // TODO: consolidate with resource-util
-    void TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
-                                          VkImage            image,
-                                          VkImageLayout      current_layout,
-                                          VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect) const;
-
-    // TODO: consolidate with resource-util
-    void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
-                                            VkImage            image,
-                                            VkImageLayout      old_layout,
-                                            VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect) const;
-
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
 
@@ -223,9 +196,9 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     struct OFBSwapchainImageData
     {
         VkImage         image{ VK_NULL_HANDLE };
-        VkCommandBuffer copy_command_buffer{ VK_NULL_HANDLE };
-        VkSemaphore     copy_semaphore{ VK_NULL_HANDLE };
-        VkFence         copy_fence{ VK_NULL_HANDLE };
+        VkCommandBuffer command_buffer{ VK_NULL_HANDLE };
+        VkSemaphore     semaphore{ VK_NULL_HANDLE };
+        VkFence         fence{ VK_NULL_HANDLE };
     };
 
     // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
@@ -243,6 +216,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         uint32_t                 acquire_index{ 0 };
 
         std::vector<OFBSwapchainImageData> image_data{};
+
+        std::unique_ptr<graphics::VulkanResourcesUtil> copy_util;
     };
 
     std::unordered_map<VkDevice, OFBData>  ofb_data_;

@@ -48,11 +48,11 @@ class VulkanResourcesUtil
   public:
     VulkanResourcesUtil() = delete;
 
-    VulkanResourcesUtil(VkDevice                                device,
-                        VkPhysicalDevice                        physical_device,
-                        const VulkanDeviceTable&                device_table,
-                        const VulkanInstanceTable&              instance_table,
-                        const VkPhysicalDeviceMemoryProperties& memory_properties);
+    VulkanResourcesUtil(VkDevice                                               device,
+                        VkPhysicalDevice                                       physical_device,
+                        const VulkanDeviceTable&                               device_table,
+                        const VulkanInstanceTable&                             instance_table,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     ~VulkanResourcesUtil();
 
@@ -195,7 +195,19 @@ class VulkanResourcesUtil
                    VkImageAspectFlags  aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
                    VkOffset3D          src_offset = { 0, 0, 0 },
                    VkOffset3D          dst_offset = { 0, 0, 0 },
-                   std::array<bool, 3> flip_axis  = { false, false, false });
+                   const std::array<bool, 3> &flip_axis  = { false, false, false });
+
+    void BlitImage(VkCommandBuffer     command_buffer,
+                   VkImage             src_img,
+                   VkImage             dst_img,
+                   VkExtent3D          src_extent,
+                   VkExtent3D          dst_extent,
+                   VkImageLayout       src_layout,
+                   VkImageLayout       dst_layout,
+                   VkImageAspectFlags  aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
+                   VkOffset3D          src_offset = { 0, 0, 0 },
+                   VkOffset3D          dst_offset = { 0, 0, 0 },
+                   const std::array<bool, 3> &flip_axis  = { false, false, false });
 
   private:
 
@@ -295,7 +307,7 @@ class VulkanResourcesUtil
                     VkImageAspectFlags  aspect,
                     VkOffset3D          src_offset,
                     VkOffset3D          dst_offset,
-                    std::array<bool, 3> flip_axis);
+                    std::array<bool, 3> flip_axis) const;
 
     struct StagingBufferContext
     {
@@ -308,11 +320,13 @@ class VulkanResourcesUtil
         void*                 mapped_ptr            = nullptr;
     };
 
-    VkDevice                                device_;
-    const VulkanDeviceTable&                device_table_;
-    VkPhysicalDevice                        physical_device_;
-    const VulkanInstanceTable&              instance_table_;
-    const VkPhysicalDeviceMemoryProperties& memory_properties_;
+    VkDevice                   device_;
+    const VulkanDeviceTable&   device_table_;
+    VkPhysicalDevice           physical_device_;
+    const VulkanInstanceTable& instance_table_;
+
+    // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
+    std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
 
     struct command_assets_t
     {

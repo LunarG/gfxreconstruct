@@ -48,19 +48,19 @@ void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device, const graphic
 
         for (auto& img_data : ofb_data.image_data)
         {
-            if (img_data.copy_command_buffer != VK_NULL_HANDLE)
+            if (img_data.command_buffer != VK_NULL_HANDLE)
             {
-                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &img_data.copy_command_buffer);
+                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &img_data.command_buffer);
             }
 
-            if (img_data.copy_semaphore != VK_NULL_HANDLE)
+            if (img_data.semaphore != VK_NULL_HANDLE)
             {
-                device_table->DestroySemaphore(device, img_data.copy_semaphore, nullptr);
+                device_table->DestroySemaphore(device, img_data.semaphore, nullptr);
             }
 
-            if (img_data.copy_fence != VK_NULL_HANDLE)
+            if (img_data.fence != VK_NULL_HANDLE)
             {
-                device_table->DestroyFence(device, img_data.copy_fence, nullptr);
+                device_table->DestroyFence(device, img_data.fence, nullptr);
             }
         }
 
@@ -683,158 +683,6 @@ VkResult VulkanVirtualSwapchain::TransitionSwapchainImage(VkDevice              
     return result;
 }
 
-void VulkanVirtualSwapchain::BlitHelper(VkCommandBuffer     command_buffer,
-                                        VkImage             src_image,
-                                        VkImage             dst_image,
-                                        const VkExtent3D&   src_extent,
-                                        const VkExtent3D&   dst_extent,
-                                        uint32_t            mip_levels,
-                                        uint32_t            array_layers,
-                                        VkImageAspectFlags  aspect,
-                                        VkOffset3D          src_offset,
-                                        VkOffset3D          dst_offset,
-                                        std::array<bool, 3> flip_axis) const
-{
-    VkImageBlit blit_region;
-    blit_region.srcOffsets[0] = src_offset;
-    blit_region.dstOffsets[0] = dst_offset;
-
-    GFXRECON_ASSERT(mip_levels);
-    std::vector<VkImageBlit> blit_regions(mip_levels);
-    const VkImageAspectFlags aspectMask = aspect;
-
-    for (uint32_t i = 0; i < mip_levels; ++i)
-    {
-        blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(src_extent.width) >> i, 1);
-        blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(src_extent.height) >> i, 1);
-        blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(src_extent.depth) >> i, 1);
-        blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
-
-        blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(dst_extent.width) >> i, 1);
-        blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(dst_extent.height) >> i, 1);
-        blit_region.dstOffsets[1].z = std::max(static_cast<int32_t>(dst_extent.depth) >> i, 1);
-        blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
-
-        blit_regions[i] = blit_region;
-
-        if (flip_axis[0])
-        {
-            std::swap(blit_regions[i].dstOffsets[0].x, blit_regions[i].dstOffsets[1].x);
-        }
-        if (flip_axis[1])
-        {
-            std::swap(blit_regions[i].dstOffsets[0].y, blit_regions[i].dstOffsets[1].y);
-        }
-        if (flip_axis[2])
-        {
-            std::swap(blit_regions[i].dstOffsets[0].z, blit_regions[i].dstOffsets[1].z);
-        }
-    }
-
-    auto src_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-    auto dst_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-    // transition src-layout
-    TransitionImageToTransferOptimal(
-        command_buffer, src_image, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
-
-    // transition dst-layout
-    TransitionImageToTransferOptimal(
-        command_buffer, dst_image, dst_layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, aspect);
-
-    device_table_->CmdBlitImage(command_buffer,
-                                src_image,
-                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                dst_image,
-                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                static_cast<uint32_t>(blit_regions.size()),
-                                blit_regions.data(),
-                                VK_FILTER_NEAREST);
-
-    // transition src-layout
-    TransitionImageFromTransferOptimal(
-        command_buffer, src_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL, aspect);
-
-    // transition dst-layout
-    TransitionImageFromTransferOptimal(
-        command_buffer, dst_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
-}
-
-void VulkanVirtualSwapchain::TransitionImageToTransferOptimal(VkCommandBuffer    command_buffer,
-                                                              VkImage            image,
-                                                              VkImageLayout      current_layout,
-                                                              VkImageLayout      destination_layout,
-                                                              VkImageAspectFlags aspect) const
-{
-    GFXRECON_ASSERT(image != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
-
-    VkImageMemoryBarrier memory_barrier;
-    memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    memory_barrier.pNext                           = nullptr;
-    memory_barrier.srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
-    memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-    memory_barrier.oldLayout                       = current_layout;
-    memory_barrier.newLayout                       = destination_layout;
-    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    memory_barrier.image                           = image;
-    memory_barrier.subresourceRange.aspectMask     = aspect;
-    memory_barrier.subresourceRange.baseMipLevel   = 0;
-    memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-    memory_barrier.subresourceRange.baseArrayLayer = 0;
-    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
-
-    device_table_->CmdPipelineBarrier(command_buffer,
-                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      0,
-                                      0,
-                                      nullptr,
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &memory_barrier);
-}
-
-void VulkanVirtualSwapchain::TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
-                                                                VkImage            image,
-                                                                VkImageLayout      old_layout,
-                                                                VkImageLayout      new_layout,
-                                                                VkImageAspectFlags aspect) const
-{
-    GFXRECON_ASSERT(image != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
-
-    VkImageMemoryBarrier memory_barrier;
-    memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    memory_barrier.pNext                           = nullptr;
-    memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-    memory_barrier.image                           = image;
-    memory_barrier.subresourceRange.aspectMask     = aspect;
-    memory_barrier.subresourceRange.baseMipLevel   = 0;
-    memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-    memory_barrier.subresourceRange.baseArrayLayer = 0;
-    memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
-
-    memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-    memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
-    memory_barrier.oldLayout     = old_layout;
-    memory_barrier.newLayout     = new_layout;
-
-    device_table_->CmdPipelineBarrier(command_buffer,
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                      0,
-                                      0,
-                                      nullptr,
-                                      0,
-                                      nullptr,
-                                      1,
-                                      &memory_barrier);
-}
-
 VkResult VulkanVirtualSwapchain::GetSwapchainImagesKHR(VkResult                    original_result,
                                                        PFN_vkGetSwapchainImagesKHR func,
                                                        const VulkanDeviceInfo*     device_info,
@@ -1427,14 +1275,19 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         ofb_data.surface_ptr.SetHandleLength(1);
         ofb_data.surface_ptr.SetConsumerData(0, &ofb_data.surface_info);
 
-        // TODO: automatic wsi deduction not good enough? maybe select a matching wsi (providing required surface-format)
-        std::string wsi_extension;// = "VK_KHR_wayland_surface";
+        // TODO: automatic wsi deduction not good enough? maybe select a matching wsi (providing required
+        // surface-format)
+        std::string wsi_extension; // = "VK_KHR_wayland_surface";
 
         result = CreateSurface(
             VK_SUCCESS, instance_info, wsi_extension, 0, &ofb_data.surface_ptr, instance_table, application);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         ofb_data.surface_info.handle = *ofb_data.surface_ptr.GetHandlePointer();
+
+        // create a copy-util, used for image-transitions and blits (leave out memory-properties, no allocation needed)
+        ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
+            device, device_info->parent, *device_table, *instance_table);
     }
 
     // derive output-size and orientation from provided scale
@@ -1470,7 +1323,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         swapchain_create_info.flags                 = 0;
         swapchain_create_info.surface               = ofb_data.surface_info.handle;
         swapchain_create_info.minImageCount         = 3;
-        swapchain_create_info.imageFormat           = image_info->format;//VK_FORMAT_B8G8R8A8_UNORM
+        swapchain_create_info.imageFormat           = image_info->format; // VK_FORMAT_B8G8R8A8_UNORM
         swapchain_create_info.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         swapchain_create_info.imageExtent.width     = current_window_size.width;
         swapchain_create_info.imageExtent.height    = current_window_size.height;
@@ -1525,9 +1378,9 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             }
             for (auto& image_data : ofb_data.image_data)
             {
-                device_table->DestroySemaphore(device, image_data.copy_semaphore, nullptr);
-                device_table->DestroyFence(device, image_data.copy_fence, nullptr);
-                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &image_data.copy_command_buffer);
+                device_table->DestroySemaphore(device, image_data.semaphore, nullptr);
+                device_table->DestroyFence(device, image_data.fence, nullptr);
+                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &image_data.command_buffer);
             }
             device_table->DestroySwapchainKHR(device, ofb_data.swapchain, nullptr);
 
@@ -1575,15 +1428,14 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
             result = device_table->CreateSemaphore(
-                device, &semaphore_create_info, nullptr, &ofb_data.image_data[i].copy_semaphore);
+                device, &semaphore_create_info, nullptr, &ofb_data.image_data[i].semaphore);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            result = device_table->CreateFence(
-                device, &fence_create_info, nullptr, &ofb_data.image_data[i].copy_fence);
+            result = device_table->CreateFence(device, &fence_create_info, nullptr, &ofb_data.image_data[i].fence);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
             result = device_table->AllocateCommandBuffers(
-                device, &command_buffer_alloc_info, &ofb_data.image_data[i].copy_command_buffer);
+                device, &command_buffer_alloc_info, &ofb_data.image_data[i].command_buffer);
             GFXRECON_ASSERT(result == VK_SUCCESS);
         }
     }
@@ -1608,14 +1460,13 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     // blit image into swapchain-image
     if (!swapchain_options_.virtual_swapchain_skip_blit)
     {
-        result =
-            device_table->WaitForFences(device, 1, &image_data.copy_fence, true, std::numeric_limits<uint64_t>::max());
+        result = device_table->WaitForFences(device, 1, &image_data.fence, true, std::numeric_limits<uint64_t>::max());
         GFXRECON_ASSERT(result == VK_SUCCESS);
-        result = device_table->ResetFences(device, 1, &image_data.copy_fence);
+        result = device_table->ResetFences(device, 1, &image_data.fence);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         // Record command buffer for copy
-        result = device_table->ResetCommandBuffer(image_data.copy_command_buffer, 0);
+        result = device_table->ResetCommandBuffer(image_data.command_buffer, 0);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         VkCommandBufferBeginInfo command_buffer_begin_info;
@@ -1624,25 +1475,25 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
 
-        result = device_table->BeginCommandBuffer(image_data.copy_command_buffer, &command_buffer_begin_info);
+        result = device_table->BeginCommandBuffer(image_data.command_buffer, &command_buffer_begin_info);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         constexpr VkOffset3D         zero_offset  = { 0, 0, 0 };
         constexpr VkImageAspectFlags aspect_color = VK_IMAGE_ASPECT_COLOR_BIT;
 
-        BlitHelper(image_data.copy_command_buffer,
-                   image,
-                   image_data.image,
-                   image_info->extent,
-                   { current_window_size.width, current_window_size.height, 1 },
-                   1,
-                   1,
-                   aspect_color,
-                   zero_offset,
-                   zero_offset,
-                   { flip_x, flip_y, false });
+        ofb_data.copy_util->BlitImage(image_data.command_buffer,
+                                      image,
+                                      image_data.image,
+                                      image_info->extent,
+                                      { current_window_size.width, current_window_size.height, 1 },
+                                      image_info->current_layout,
+                                      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                      aspect_color,
+                                      zero_offset,
+                                      zero_offset,
+                                      { flip_x, flip_y, false });
 
-        result = device_table->EndCommandBuffer(image_data.copy_command_buffer);
+        result = device_table->EndCommandBuffer(image_data.command_buffer);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         // Submit copy command buffer
@@ -1656,11 +1507,11 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
         submit_info.pWaitDstStageMask    = submit_wait_stages.data();
         submit_info.commandBufferCount   = 1;
-        submit_info.pCommandBuffers      = &image_data.copy_command_buffer;
+        submit_info.pCommandBuffers      = &image_data.command_buffer;
         submit_info.signalSemaphoreCount = 1;
-        submit_info.pSignalSemaphores    = &image_data.copy_semaphore;
+        submit_info.pSignalSemaphores    = &image_data.semaphore;
 
-        result = device_table->QueueSubmit(ofb_data.queue, 1, &submit_info, image_data.copy_fence);
+        result = device_table->QueueSubmit(ofb_data.queue, 1, &submit_info, image_data.fence);
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 
@@ -1681,7 +1532,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     else
     {
         present_info.waitSemaphoreCount = 1;
-        present_info.pWaitSemaphores    = &image_data.copy_semaphore;
+        present_info.pWaitSemaphores    = &image_data.semaphore;
     }
 
     result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);

@@ -286,9 +286,6 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // free replacer internal vulkan-resources
     _device_address_replacers.clear();
 
-    // free vulkan-resources related to present-image overrides
-    present_override_state_ = {};
-
     // process queued async tasks
     background_queue_.join_all();
     main_thread_queue_.poll();
@@ -2656,9 +2653,9 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 uint32_t image_height = swapchain_info->height;
 
                 // apply swapchain-image override, if any
-                if (present_override_state_.image_id != format::kNullHandleId)
+                if (present_override_image_id_ != format::kNullHandleId)
                 {
-                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_state_.image_id);
+                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_);
                     GFXRECON_ASSERT(override_img_info != nullptr);
 
                     if (override_img_info != nullptr)
@@ -7474,7 +7471,7 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
                     GFXRECON_LOG_INFO("Replay is using swapchain-image override: %s - handle-id: %" PRIu64 "",
                                       info->pObjectName,
                                       handle_id);
-                    present_override_state_.image_id = handle_id;
+                    present_override_image_id_ = handle_id;
                 }
             }
         }
@@ -8594,11 +8591,11 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 modified_image_indices_[i]  = replay_image_index;
 
                 // present override-image in a dedicated swapchain
-                if (present_override_state_.image_id != format::kNullHandleId)
+                if (present_override_image_id_ != format::kNullHandleId)
                 {
                     GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
 
-                    if (auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_state_.image_id))
+                    if (auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_))
                     {
                         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
 
@@ -8627,7 +8624,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                         GFXRECON_LOG_WARNING("could not retrieve image for  --present-override '%s' "
                                              "override-image-id: %" PRIu64 "",
                                              options_.swapchain_override_image_name.c_str(),
-                                             present_override_state_.image_id);
+                                             present_override_image_id_);
                     }
                 }
             }

@@ -859,18 +859,17 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
     return result;
 }
 
-VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                device,
-                                         VkPhysicalDevice                        physical_device,
-                                         const graphics::VulkanDeviceTable&      device_table,
-                                         const graphics::VulkanInstanceTable&    instance_table,
-                                         const VkPhysicalDeviceMemoryProperties& memory_properties) :
-    device_(device),
-    device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
+VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                               device,
+                                         VkPhysicalDevice                                       physical_device,
+                                         const graphics::VulkanDeviceTable&                     device_table,
+                                         const graphics::VulkanInstanceTable&                   instance_table,
+                                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
+    device_(device), device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
     memory_properties_(memory_properties)
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(memory_properties.memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
-    GFXRECON_ASSERT(memory_properties.memoryTypeCount <= VK_MAX_MEMORY_TYPES);
+    GFXRECON_ASSERT(!memory_properties || memory_properties->memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
+    GFXRECON_ASSERT(!memory_properties || memory_properties->memoryTypeCount <= VK_MAX_MEMORY_TYPES);
 
     set_debug_utils_object_name_fn_ = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(
         device_table_.GetDeviceProcAddr(device_, "vkSetDebugUtilsObjectNameEXT"));
@@ -1001,6 +1000,7 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
 
 VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
 {
+    GFXRECON_ASSERT(memory_properties_);
     GFXRECON_ASSERT(size > 0);
 
     if (staging_buffer_.buffer != VK_NULL_HANDLE)
@@ -1034,7 +1034,7 @@ VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
 
         device_table_.GetBufferMemoryRequirements(device_, staging_buffer_.buffer, &memory_requirements);
 
-        bool found = FindMemoryTypeIndex(memory_properties_,
+        bool found = FindMemoryTypeIndex(*memory_properties_,
                                          memory_requirements.memoryTypeBits,
                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
                                          &memory_type_index,
@@ -1042,7 +1042,7 @@ VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
         if (!found)
         {
             // If we are here it is likely that we lack support for HOST_CACHED, fallback to COHERENT
-            found = FindMemoryTypeIndex(memory_properties_,
+            found = FindMemoryTypeIndex(*memory_properties_,
                                         memory_requirements.memoryTypeBits,
                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                         &memory_type_index,
@@ -1579,6 +1579,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                                            VkImage*          resolved_image,
                                            VkDeviceMemory*   resolved_image_memory)
 {
+    GFXRECON_ASSERT(memory_properties_);
     GFXRECON_ASSERT((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
 
     VkFormatProperties format_properties{};
@@ -1623,7 +1624,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
 
     device_table_.GetImageMemoryRequirements(device_, *resolved_image, &memory_requirements);
 
-    bool found = FindMemoryTypeIndex(memory_properties_,
+    bool found = FindMemoryTypeIndex(*memory_properties_,
                                      memory_requirements.memoryTypeBits,
                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                      &memory_type_index,
@@ -2708,27 +2709,52 @@ void VulkanResourcesUtil::CopyImage(VkImage            source_img,
     SubmitCommandBuffer(command_buffer, GetQueue(0, 0));
 }
 
-void VulkanResourcesUtil::BlitImage(VkImage             src_img,
-                                    VkImage             dst_img,
-                                    VkExtent3D          src_extent,
-                                    VkExtent3D          dst_extent,
-                                    VkImageLayout       src_layout,
-                                    VkImageLayout       dst_layout,
-                                    VkImageAspectFlags  aspect,
-                                    VkOffset3D          src_offset,
-                                    VkOffset3D          dst_offset,
-                                    std::array<bool, 3> flip_axis)
+void VulkanResourcesUtil::BlitImage(VkImage                    src_img,
+                                    VkImage                    dst_img,
+                                    VkExtent3D                 src_extent,
+                                    VkExtent3D                 dst_extent,
+                                    VkImageLayout              src_layout,
+                                    VkImageLayout              dst_layout,
+                                    VkImageAspectFlags         aspect,
+                                    VkOffset3D                 src_offset,
+                                    VkOffset3D                 dst_offset,
+                                    const std::array<bool, 3>& flip_axis)
 {
     constexpr uint32_t queue_family_index = 0;
     constexpr uint32_t queue_index        = 0;
 
     auto command_buffer = CreateCommandBufferAndBegin(queue_family_index);
+    BlitImage(command_buffer,
+              src_img,
+              dst_img,
+              src_extent,
+              dst_extent,
+              src_layout,
+              dst_layout,
+              aspect,
+              src_offset,
+              dst_offset,
+              flip_axis);
+    SubmitCommandBuffer(command_buffer, GetQueue(queue_family_index, queue_index));
+}
 
+void VulkanResourcesUtil::BlitImage(VkCommandBuffer            command_buffer,
+                                    VkImage                    src_img,
+                                    VkImage                    dst_img,
+                                    VkExtent3D                 src_extent,
+                                    VkExtent3D                 dst_extent,
+                                    VkImageLayout              src_layout,
+                                    VkImageLayout              dst_layout,
+                                    VkImageAspectFlags         aspect,
+                                    VkOffset3D                 src_offset,
+                                    VkOffset3D                 dst_offset,
+                                    const std::array<bool, 3>& flip_axis)
+{
     // transition src-layout
     TransitionImageToTransferOptimal(command_buffer, src_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
 
     // transition dst-layout
-    TransitionImageToTransferOptimal(command_buffer, dst_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
+    TransitionImageToTransferOptimal(command_buffer, dst_img, dst_layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, aspect);
 
     BlitHelper(
         command_buffer, src_img, dst_img, src_extent, dst_extent, 1, 1, aspect, src_offset, dst_offset, flip_axis);
@@ -2738,9 +2764,8 @@ void VulkanResourcesUtil::BlitImage(VkImage             src_img,
         command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_layout, aspect);
 
     // transition dst-layout
-    TransitionImageFromTransferOptimal(command_buffer, dst_img, dst_layout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aspect);
-
-    SubmitCommandBuffer(command_buffer, GetQueue(queue_family_index, queue_index));
+    TransitionImageFromTransferOptimal(
+        command_buffer, dst_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
 }
 
 VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
@@ -2807,7 +2832,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     VkMemoryRequirements scaled_image_mem_requirements;
     uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
     device_table_.GetImageMemoryRequirements(device_, scaled_image, &scaled_image_mem_requirements);
-    bool found = FindMemoryTypeIndex(memory_properties_,
+    bool found = FindMemoryTypeIndex(*memory_properties_,
                                      scaled_image_mem_requirements.memoryTypeBits,
                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                      &memory_type_index,
@@ -2931,7 +2956,7 @@ void VulkanResourcesUtil::BlitHelper(VkCommandBuffer     command_buffer,
                                      VkImageAspectFlags  aspect,
                                      VkOffset3D          src_offset,
                                      VkOffset3D          dst_offset,
-                                     std::array<bool, 3> flip_axis)
+                                     std::array<bool, 3> flip_axis) const
 {
     VkImageBlit blit_region;
     blit_region.srcOffsets[0] = src_offset;
