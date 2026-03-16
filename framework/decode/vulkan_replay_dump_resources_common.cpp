@@ -1213,30 +1213,6 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     // VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR
     for (uint32_t i = 0; i < query_count; ++i)
     {
-        GFXRECON_ASSERT(acceleration_structure->as_info != nullptr);
-        const VkBufferMemoryBarrier as_buf_mem_barrier = {
-            VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-            nullptr,
-            VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            acceleration_structure->as_info->buffer,
-            0,
-            VK_WHOLE_SIZE
-        };
-        device_table.CmdPipelineBarrier(
-            cmd_buffer,
-            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VkDependencyFlagBits(0),
-            0,
-            nullptr,
-            1,
-            &as_buf_mem_barrier,
-            0,
-            nullptr);
-
         device_table.CmdWriteAccelerationStructuresPropertiesKHR(
             cmd_buffer,
             1,
