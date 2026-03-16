@@ -96,8 +96,8 @@ const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeTh
     { VK_NOT_READY, VK_SUCCESS },
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
     { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
-{ VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
-{ VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
+    { VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
+    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -7470,8 +7470,8 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
                 img_info->debug_utils_name = info->pObjectName;
 
                 // hook for identifying potential swapchain-override VkImage
-                if (!options_.swapchain_override_image_name.empty() &&
-                    strstr(info->pObjectName, options_.swapchain_override_image_name.c_str()) &&
+                if (!options_.present_override_image_name.empty() &&
+                    strstr(info->pObjectName, options_.present_override_image_name.c_str()) &&
                     !vkuFormatIsDepthOrStencil(img_info->format))
                 {
                     if (present_override_image_id_ != format::kNullHandleId)
@@ -8627,7 +8627,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     {
                         GFXRECON_LOG_WARNING("could not retrieve image for  --present-override '%s' "
                                              "override-image-id: %" PRIu64 "",
-                                             options_.swapchain_override_image_name.c_str(),
+                                             options_.present_override_image_name.c_str(),
                                              present_override_image_id_);
                     }
                 }

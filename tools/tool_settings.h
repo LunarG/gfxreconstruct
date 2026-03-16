@@ -1168,7 +1168,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 
     if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
     {
-        replay_options.swapchain_override_image_name = override_name;
+        replay_options.present_override_image_name = override_name;
     }
 
     if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))

@@ -177,40 +177,30 @@ class VulkanResourcesUtil
                             const VkExtent3D& extent,
                             float             scale) const;
 
-    void CopyImage(VkImage            source_img,
-                   VkImage            destination_img,
-                   VkExtent3D         extent,
-                   VkImageLayout      src_layout,
-                   VkImageLayout      dst_layout,
-                   VkImageAspectFlags aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
-                   VkOffset3D         src_offset = { 0, 0, 0 },
-                   VkOffset3D         dst_offset = { 0, 0, 0 });
+    void BlitImage(VkImage                    src_img,
+                   VkImage                    dst_img,
+                   VkExtent3D                 src_extent,
+                   VkExtent3D                 dst_extent,
+                   VkImageLayout              src_layout,
+                   VkImageLayout              dst_layout,
+                   VkImageAspectFlags         aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
+                   VkOffset3D                 src_offset = { 0, 0, 0 },
+                   VkOffset3D                 dst_offset = { 0, 0, 0 },
+                   const std::array<bool, 3>& flip_axis  = { false, false, false });
 
-    void BlitImage(VkImage             src_img,
-                   VkImage             dst_img,
-                   VkExtent3D          src_extent,
-                   VkExtent3D          dst_extent,
-                   VkImageLayout       src_layout,
-                   VkImageLayout       dst_layout,
-                   VkImageAspectFlags  aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
-                   VkOffset3D          src_offset = { 0, 0, 0 },
-                   VkOffset3D          dst_offset = { 0, 0, 0 },
-                   const std::array<bool, 3> &flip_axis  = { false, false, false });
-
-    void BlitImage(VkCommandBuffer     command_buffer,
-                   VkImage             src_img,
-                   VkImage             dst_img,
-                   VkExtent3D          src_extent,
-                   VkExtent3D          dst_extent,
-                   VkImageLayout       src_layout,
-                   VkImageLayout       dst_layout,
-                   VkImageAspectFlags  aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
-                   VkOffset3D          src_offset = { 0, 0, 0 },
-                   VkOffset3D          dst_offset = { 0, 0, 0 },
-                   const std::array<bool, 3> &flip_axis  = { false, false, false });
+    void BlitImage(VkCommandBuffer            command_buffer,
+                   VkImage                    src_img,
+                   VkImage                    dst_img,
+                   VkExtent3D                 src_extent,
+                   VkExtent3D                 dst_extent,
+                   VkImageLayout              src_layout,
+                   VkImageLayout              dst_layout,
+                   VkImageAspectFlags         aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
+                   VkOffset3D                 src_offset = { 0, 0, 0 },
+                   VkOffset3D                 dst_offset = { 0, 0, 0 },
+                   const std::array<bool, 3>& flip_axis  = { false, false, false });
 
   private:
-
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
     void ResetCommandBuffer(VkCommandBuffer command_buffer);
@@ -255,16 +245,6 @@ class VulkanResourcesUtil
                     uint64_t        size,
                     uint64_t        src_offset,
                     uint64_t        dst_offset);
-
-    void CopyImage(VkCommandBuffer    command_buffer,
-                   VkImage            src_img,
-                   VkImage            dst_img,
-                   VkExtent3D         extent,
-                   VkImageLayout      src_layout,
-                   VkImageLayout      dst_layout,
-                   VkImageAspectFlags aspect,
-                   VkOffset3D         src_offset,
-                   VkOffset3D         dst_offset);
 
     VkResult ResolveImage(VkCommandBuffer   command_buffer,
                           VkImage           image,

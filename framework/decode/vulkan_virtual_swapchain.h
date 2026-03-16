@@ -209,6 +209,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         const VulkanInstanceInfo*          instance_info{ nullptr };
         VulkanSurfaceKHRInfo               surface_info{};
         HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
+        std::unordered_set<VkFormat>       surface_formats{};
         VkQueue                            queue{ VK_NULL_HANDLE };
         VkCommandPool                      command_pool{ VK_NULL_HANDLE };
         VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };

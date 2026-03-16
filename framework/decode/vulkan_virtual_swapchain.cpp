@@ -1274,13 +1274,25 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         ofb_data.surface_ptr.SetConsumerData(0, &ofb_data.surface_info);
 
         // empty -> automatic wsi deduction
-        std::string wsi_extension; // = "VK_KHR_wayland_surface";
+        std::string wsi_extension;
 
         result = CreateSurface(
             VK_SUCCESS, instance_info, wsi_extension, 0, &ofb_data.surface_ptr, instance_table, application);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         ofb_data.surface_info.handle = *ofb_data.surface_ptr.GetHandlePointer();
+
+        // query available surface formats
+        uint32_t format_count = 0;
+        instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
+            device_info->parent, ofb_data.surface_info.handle, &format_count, nullptr);
+        std::vector<VkSurfaceFormatKHR> surface_formats(format_count);
+        instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
+            device_info->parent, ofb_data.surface_info.handle, &format_count, surface_formats.data());
+        for (const auto& [format, colorspace] : surface_formats)
+        {
+            ofb_data.surface_formats.insert(format);
+        }
 
         // create a copy-util, used for image-transitions and blits (leave out memory-properties, no allocation needed)
         ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
@@ -1319,13 +1331,22 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         // mandatory to query window-size again
         current_window_size = ofb_data.surface_info.window->GetSize();
 
+        VkFormat surface_format = image_info->format;
+        if (!ofb_data.surface_formats.contains(image_info->format))
+        {
+            GFXRECON_LOG_WARNING("%s: surface-format not available: %d", __func__, image_info->format);
+
+            // fallback surface-format
+            surface_format = VK_FORMAT_B8G8R8A8_UNORM;
+        }
+
         VkSwapchainCreateInfoKHR swapchain_create_info;
         swapchain_create_info.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         swapchain_create_info.pNext                 = nullptr;
         swapchain_create_info.flags                 = 0;
         swapchain_create_info.surface               = ofb_data.surface_info.handle;
         swapchain_create_info.minImageCount         = 3;
-        swapchain_create_info.imageFormat           = image_info->format; // VK_FORMAT_B8G8R8A8_UNORM
+        swapchain_create_info.imageFormat           = surface_format;
         swapchain_create_info.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         swapchain_create_info.imageExtent.width     = current_window_size.width;
         swapchain_create_info.imageExtent.height    = current_window_size.height;

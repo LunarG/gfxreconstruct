@@ -111,7 +111,7 @@ struct VulkanReplayOptions : public ReplayOptions
     bool                    virtual_swapchain_skip_blit{ false };
 
     // optionally override swapchain-images by providing an image debug-utils name
-    std::string swapchain_override_image_name;
+    std::string present_override_image_name;
 
     int32_t                             override_gpu_group_index{ -1 };
     int32_t                             surface_index{ -1 };

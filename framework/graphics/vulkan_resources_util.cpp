@@ -864,8 +864,10 @@ VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               
                                          const graphics::VulkanDeviceTable&                     device_table,
                                          const graphics::VulkanInstanceTable&                   instance_table,
                                          const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
-    device_(device), device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
+    device_(device),
+    device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
     memory_properties_(memory_properties)
+
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
     GFXRECON_ASSERT(!memory_properties || memory_properties->memoryHeapCount <= VK_MAX_MEMORY_HEAPS);
@@ -1443,62 +1445,6 @@ void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
                                      &barrier,
                                      0,
                                      nullptr);
-}
-
-void VulkanResourcesUtil::CopyImage(VkCommandBuffer    command_buffer,
-                                    VkImage            src_img,
-                                    VkImage            dst_img,
-                                    VkExtent3D         extent,
-                                    VkImageLayout      src_layout,
-                                    VkImageLayout      dst_layout,
-                                    VkImageAspectFlags aspect,
-                                    VkOffset3D         src_offset,
-                                    VkOffset3D         dst_offset)
-{
-    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(src_img != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(dst_img != VK_NULL_HANDLE);
-
-    // transition src-layout
-    TransitionImageToTransferOptimal(command_buffer, src_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
-
-    // transition dst-layout
-    TransitionImageToTransferOptimal(command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
-
-    // copy src-image -> dst-image
-    VkImageCopy2 region                  = {};
-    region.sType                         = VK_STRUCTURE_TYPE_IMAGE_COPY_2;
-    region.extent                        = extent;
-    region.srcOffset                     = src_offset;
-    region.dstOffset                     = dst_offset;
-    region.srcSubresource.aspectMask     = aspect;
-    region.srcSubresource.baseArrayLayer = 0;
-    region.srcSubresource.layerCount     = 1;
-    region.srcSubresource.mipLevel       = 0;
-
-    region.dstSubresource.aspectMask     = aspect;
-    region.dstSubresource.baseArrayLayer = 0;
-    region.dstSubresource.layerCount     = 1;
-    region.dstSubresource.mipLevel       = 0;
-
-    VkCopyImageInfo2 copy_info = {};
-    copy_info.sType            = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2;
-    copy_info.regionCount      = 1;
-    copy_info.pRegions         = &region;
-    copy_info.srcImage         = src_img;
-    copy_info.srcImageLayout   = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    copy_info.dstImage         = dst_img;
-    copy_info.dstImageLayout   = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-    // actual copy command
-    device_table_.CmdCopyImage2(command_buffer, &copy_info);
-
-    // transition src-layout
-    TransitionImageFromTransferOptimal(
-        command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_layout, aspect);
-
-    // transition dst-layout
-    TransitionImageFromTransferOptimal(command_buffer, dst_img, dst_layout, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, aspect);
 }
 
 VkQueue VulkanResourcesUtil::GetQueue(uint32_t queue_family_index, uint32_t queue_index)
@@ -2691,22 +2637,6 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
     }
 
     return scale == 1.0f || is_blit_supported;
-}
-
-void VulkanResourcesUtil::CopyImage(VkImage            source_img,
-                                    VkImage            destination_img,
-                                    VkExtent3D         extent,
-                                    VkImageLayout      src_layout,
-                                    VkImageLayout      dst_layout,
-                                    VkImageAspectFlags aspect,
-                                    VkOffset3D         src_offset,
-                                    VkOffset3D         dst_offset)
-{
-    uint32_t queue_family_index = 0;
-    auto     command_buffer     = CreateCommandBufferAndBegin(queue_family_index);
-    CopyImage(
-        command_buffer, source_img, destination_img, extent, src_layout, dst_layout, aspect, src_offset, dst_offset);
-    SubmitCommandBuffer(command_buffer, GetQueue(0, 0));
 }
 
 void VulkanResourcesUtil::BlitImage(VkImage                    src_img,
