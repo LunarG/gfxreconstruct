@@ -277,17 +277,17 @@ class VulkanResourcesUtil
                        VkImage&              scaled_image,
                        VkDeviceMemory&       scaled_image_mem);
 
-    void BlitHelper(VkCommandBuffer     command_buffer,
-                    VkImage             src_image,
-                    VkImage             dst_image,
-                    const VkExtent3D&   src_extent,
-                    const VkExtent3D&   dst_extent,
-                    uint32_t            mip_levels,
-                    uint32_t            array_layers,
-                    VkImageAspectFlags  aspect,
-                    VkOffset3D          src_offset,
-                    VkOffset3D          dst_offset,
-                    std::array<bool, 3> flip_axis) const;
+    void BlitHelper(VkCommandBuffer            command_buffer,
+                    VkImage                    src_image,
+                    VkImage                    dst_image,
+                    const VkExtent3D&          src_extent,
+                    const VkExtent3D&          dst_extent,
+                    uint32_t                   mip_levels,
+                    uint32_t                   array_layers,
+                    VkImageAspectFlags         aspect,
+                    VkOffset3D                 src_offset,
+                    VkOffset3D                 dst_offset,
+                    const std::array<bool, 3>& flip_axis) const;
 
     struct StagingBufferContext
     {
