@@ -84,18 +84,18 @@ pipeline {
                 }
             }
         }
+    }
 
-        post {
-            failure {
-                script {
-                    if (env.BRANCH_NAME == 'dev') {
-                        node {
-                            googlechatnotification(
-                                url: 'id:Google-Chat-GFXR',
-                                message: "Build failed: <${env.BUILD_URL}|${env.BRANCH_NAME} #${env.BUILD_NUMBER}>",
-                                notifyFailure: false,
-                            )
-                        }
+    post {
+        failure {
+            script {
+                if (env.BRANCH_NAME == 'dev') {
+                    node {
+                        googlechatnotification(
+                            url: 'id:Google-Chat-GFXR',
+                            message: "Build failed: <${env.BUILD_URL}|${env.BRANCH_NAME} #${env.BUILD_NUMBER}>",
+                            notifyFailure: false,
+                        )
                     }
                 }
             }
