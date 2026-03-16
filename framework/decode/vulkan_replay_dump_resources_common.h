@@ -159,33 +159,6 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
 
 std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
 
-struct TemporaryCommandBuffer
-{
-    TemporaryCommandBuffer() = default;
-    TemporaryCommandBuffer(const TemporaryCommandBuffer& other)
-    {
-        device_info    = other.device_info;
-        device_table   = other.device_table;
-        command_pool   = other.command_pool;
-        command_buffer = other.command_buffer;
-        queue          = other.queue;
-    }
-
-    const VulkanDeviceInfo*            device_info{ nullptr };
-    const graphics::VulkanDeviceTable* device_table{ nullptr };
-
-    VkCommandPool   command_pool   = VK_NULL_HANDLE;
-    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-    VkQueue         queue          = VK_NULL_HANDLE;
-};
-
-VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp  queue_finder_fp,
-                                     const VulkanDeviceInfo*            device_info,
-                                     const graphics::VulkanDeviceTable& device_table,
-                                     TemporaryCommandBuffer&            cmd_buf_objects);
-
-VkResult SubmitAndDestroyCommandBuffer(const TemporaryCommandBuffer& cmd_buf_objects);
-
 // Inject a CmdCopyBuffer(command_buffer, src, dst, regions.count(), regions.size()) into the provided command buffer
 // followed by the appropriate pipeline barrier
 void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
@@ -269,15 +242,13 @@ enum class DumpResourcesCommandBufferLevel
 // Wrapper class for VkFence. Either holds an existing VkFence or creates and handles destruction of one
 struct TemporaryFence
 {
-    TemporaryFence(VkFence other, VkDevice device, const graphics::VulkanDeviceTable* dt) :
+    TemporaryFence(VkFence other, VkDevice device, const graphics::VulkanDeviceTable& dt) :
         handle(other), parent_device(device), device_table(dt)
     {
-        GFXRECON_ASSERT(dt != nullptr);
-
         if (other == VK_NULL_HANDLE)
         {
             VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-            const VkResult    res      = device_table->CreateFence(parent_device, &fence_ci, nullptr, &handle);
+            const VkResult    res      = device_table.CreateFence(parent_device, &fence_ci, nullptr, &handle);
             needs_cleanup              = (res == VK_SUCCESS);
             if (res != VK_SUCCESS)
             {
@@ -291,7 +262,7 @@ struct TemporaryFence
         }
     }
 
-    TemporaryFence(VkDevice device, const graphics::VulkanDeviceTable* dt) : TemporaryFence(VK_NULL_HANDLE, device, dt)
+    TemporaryFence(VkDevice device, const graphics::VulkanDeviceTable& dt) : TemporaryFence(VK_NULL_HANDLE, device, dt)
     {}
 
     VkResult Wait()
@@ -300,7 +271,7 @@ struct TemporaryFence
         GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
 
         // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
-        VkResult res = device_table->WaitForFences(parent_device, 1, &handle, VK_TRUE, 10000000000);
+        VkResult res = device_table.WaitForFences(parent_device, 1, &handle, VK_TRUE, 10000000000);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("WaitForFences failed with %s", util::ToString(res).c_str());
@@ -314,7 +285,7 @@ struct TemporaryFence
         GFXRECON_ASSERT(parent_device != VK_NULL_HANDLE);
         GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
 
-        VkResult res = device_table->ResetFences(parent_device, 1, &handle);
+        VkResult res = device_table.ResetFences(parent_device, 1, &handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("ResetFences failed with %s", util::ToString(res).c_str());
@@ -329,16 +300,40 @@ struct TemporaryFence
         {
             GFXRECON_ASSERT(parent_device != VK_NULL_HANDLE);
             GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
-            GFXRECON_ASSERT(device_table != nullptr);
 
-            device_table->DestroyFence(parent_device, handle, nullptr);
+            device_table.DestroyFence(parent_device, handle, nullptr);
         }
     }
 
     VkFence                            handle;
     VkDevice                           parent_device;
-    const graphics::VulkanDeviceTable* device_table;
+    const graphics::VulkanDeviceTable& device_table;
     bool                               needs_cleanup;
+};
+
+struct TemporaryCommandBuffer
+{
+    TemporaryCommandBuffer(const VulkanDeviceInfo& dev_info, const graphics::VulkanDeviceTable& dev_table) :
+        device_info(dev_info), device_table(dev_table)
+    {}
+
+    ~TemporaryCommandBuffer()
+    {
+        if (command_pool != VK_NULL_HANDLE)
+        {
+            device_table.DestroyCommandPool(device_info.handle, command_pool, nullptr);
+        }
+    };
+
+    VkResult CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp);
+
+    VkResult SubmitAndDestroy();
+
+    const VulkanDeviceInfo&            device_info{ nullptr };
+    const graphics::VulkanDeviceTable& device_table{ nullptr };
+    VkCommandPool                      command_pool{ VK_NULL_HANDLE };
+    VkCommandBuffer                    command_buffer{ VK_NULL_HANDLE };
+    VkQueue                            queue{ VK_NULL_HANDLE };
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon) GFXRECON_END_NAMESPACE(decode)

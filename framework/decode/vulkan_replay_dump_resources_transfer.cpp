@@ -143,12 +143,11 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         const auto* img_info = object_info_table_.GetVkImageInfo(image_id);
         const auto* dev_info = object_info_table_.GetVkDeviceInfo(device_id);
 
-        TemporaryCommandBuffer temp_command_buffer;
+        TemporaryCommandBuffer temp_command_buffer(*dev_info, *device_table_);
         VkCommandBuffer        cmd_buf;
         if (command_buffer == VK_NULL_HANDLE)
         {
-            VkResult res = CreateAndBeginCommandBuffer(
-                graphics::FindComputeQueueFamilyIndex, dev_info, *device_table_, temp_command_buffer);
+            VkResult res = temp_command_buffer.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
             if (res != VK_SUCCESS)
             {
                 return res;
@@ -295,7 +294,11 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
 
         if (command_buffer == VK_NULL_HANDLE)
         {
-            SubmitAndDestroyCommandBuffer(temp_command_buffer);
+            VkResult res = temp_command_buffer.SubmitAndDestroy();
+            if (res != VK_SUCCESS)
+            {
+                return res;
+            }
         }
     }
 
@@ -1186,15 +1189,12 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 object_info_table_.GetVkAccelerationStructureKHRInfo(p_infos_meta[i].srcAccelerationStructure);
 
             VkResult               res;
-            TemporaryCommandBuffer temp_command_buffer;
+            TemporaryCommandBuffer temp_command_buffer(*device_info_, *device_table_);
 
             // NULL command buffer means that this is coming from the state setup section
             if (commandBuffer == VK_NULL_HANDLE)
             {
-                res = CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex,
-                                                  object_info_table_.GetVkDeviceInfo(dst_as->parent_id),
-                                                  *device_table_,
-                                                  temp_command_buffer);
+                res = temp_command_buffer.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
                 if (res != VK_SUCCESS)
                 {
                     return res;
@@ -1320,7 +1320,11 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
 
             if (commandBuffer == VK_NULL_HANDLE)
             {
-                SubmitAndDestroyCommandBuffer(temp_command_buffer);
+                VkResult res = temp_command_buffer.SubmitAndDestroy();
+                if (res != VK_SUCCESS)
+                {
+                    return res;
+                }
             }
         }
     }

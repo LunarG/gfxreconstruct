@@ -1012,87 +1012,74 @@ bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
 
     return false;
 }
-VkResult CreateAndBeginCommandBuffer(graphics::FindQueueFamilyIndex_fp  queue_finder_fp,
-                                     const VulkanDeviceInfo*            device_info,
-                                     const graphics::VulkanDeviceTable& device_table,
-                                     TemporaryCommandBuffer&            cmd_buf_objects)
-{
-    GFXRECON_ASSERT(device_info != nullptr);
 
-    const uint32_t compute_queue_index = queue_finder_fp(device_info->enabled_queue_family_flags);
-    GFXRECON_ASSERT(compute_queue_index != VK_QUEUE_FAMILY_IGNORED);
+VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp)
+{
+    const uint32_t queue_index = queue_finder_fp(device_info.enabled_queue_family_flags);
+    GFXRECON_ASSERT(queue_index != VK_QUEUE_FAMILY_IGNORED);
 
     const VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                                                        nullptr,
                                                        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                                                       compute_queue_index };
-    VkResult                      res =
-        device_table.CreateCommandPool(device_info->handle, &pool_create_info, nullptr, &cmd_buf_objects.command_pool);
+                                                       queue_index };
+    VkResult res = device_table.CreateCommandPool(device_info.handle, &pool_create_info, nullptr, &command_pool);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s() CreateCommandPool failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    const VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                                                     nullptr,
-                                                     cmd_buf_objects.command_pool,
-                                                     VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                                                     1 };
-    res = device_table.AllocateCommandBuffers(device_info->handle, &alloc_info, &cmd_buf_objects.command_buffer);
+    const VkCommandBufferAllocateInfo alloc_info = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, nullptr, command_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1
+    };
+    res = device_table.AllocateCommandBuffers(device_info.handle, &alloc_info, &command_buffer);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s() AllocateCommandBuffers failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    device_table.GetDeviceQueue(device_info->handle, compute_queue_index, 0, &cmd_buf_objects.queue);
+    device_table.GetDeviceQueue(device_info.handle, queue_index, 0, &queue);
 
-    device_table.ResetCommandBuffer(cmd_buf_objects.command_buffer, VkCommandBufferResetFlagBits(0));
+    device_table.ResetCommandBuffer(command_buffer, VkCommandBufferResetFlagBits(0));
 
     const VkCommandBufferBeginInfo begin_info = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr
     };
 
-    res = device_table.BeginCommandBuffer(cmd_buf_objects.command_buffer, &begin_info);
+    res = device_table.BeginCommandBuffer(command_buffer, &begin_info);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s() BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    cmd_buf_objects.device_info  = device_info;
-    cmd_buf_objects.device_table = &device_table;
-
     return VK_SUCCESS;
 }
 
-VkResult SubmitAndDestroyCommandBuffer(const TemporaryCommandBuffer& cmd_buf_objects)
+VkResult TemporaryCommandBuffer::SubmitAndDestroy()
 {
-    GFXRECON_ASSERT(cmd_buf_objects.device_table != nullptr);
-    GFXRECON_ASSERT(cmd_buf_objects.device_info != nullptr);
-    GFXRECON_ASSERT(cmd_buf_objects.command_buffer != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(cmd_buf_objects.queue != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(cmd_buf_objects.command_pool != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(queue != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_pool != VK_NULL_HANDLE);
 
-    TemporaryFence fence(cmd_buf_objects.device_info->handle, cmd_buf_objects.device_table);
+    TemporaryFence fence(device_info.handle, device_table);
 
-    cmd_buf_objects.device_table->EndCommandBuffer(cmd_buf_objects.command_buffer);
+    device_table.EndCommandBuffer(command_buffer);
 
-    const VkSubmitInfo submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO,   nullptr, 0,      nullptr, nullptr, 1,
-                                       &cmd_buf_objects.command_buffer, 0,       nullptr };
-    cmd_buf_objects.device_table->QueueSubmit(cmd_buf_objects.queue, 1, &submit_info, fence.handle);
+    const VkSubmitInfo submit_info = {
+        VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &command_buffer, 0, nullptr
+    };
+    device_table.QueueSubmit(queue, 1, &submit_info, fence.handle);
 
-    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or
-    // crash.
     VkResult res = fence.Wait();
     if (res != VK_SUCCESS)
     {
         return res;
     }
 
-    cmd_buf_objects.device_table->DestroyCommandPool(
-        cmd_buf_objects.device_info->handle, cmd_buf_objects.command_pool, nullptr);
+    device_table.DestroyCommandPool(device_info.handle, command_pool, nullptr);
+    command_pool = VK_NULL_HANDLE;
 
     return VK_SUCCESS;
 }
@@ -1218,7 +1205,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         return VK_ERROR_UNKNOWN;
     }
 
-    TemporaryFence fence(device, &device_table);
+    TemporaryFence fence(device, device_table);
 
     const VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &cmd_buffer, 0, nullptr };
     res                   = device_table.QueueSubmit(compute_queue, 1, &si, fence.handle);
