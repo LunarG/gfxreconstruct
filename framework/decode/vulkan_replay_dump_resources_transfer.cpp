@@ -1248,8 +1248,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                  VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
                                      VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
                                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                                 &new_build_info.vk_objects.buffer,
-                                 &new_build_info.vk_objects.memory);
+                                 &new_build_info.vk_objects.as_info.buffer,
+                                 &new_build_info.vk_objects.as_memory);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR(
@@ -1262,14 +1262,14 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
                 nullptr,
                 VkAccelerationStructureCreateFlagBitsKHR(0),
-                new_build_info.vk_objects.buffer,
+                new_build_info.vk_objects.as_info.buffer,
                 0,
                 dst_as->size,
                 dst_as->type,
                 0
             };
             res = device_table_->CreateAccelerationStructureKHR(
-                device_info_->handle, &as_ci, nullptr, &new_build_info.vk_objects.as);
+                device_info_->handle, &as_ci, nullptr, &new_build_info.vk_objects.as_info.handle);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("%s(): CreateAccelerationStructureKHR failed with %s",
@@ -1277,9 +1277,6 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                    util::ToString<VkResult>(res).c_str());
                 return res;
             }
-
-            // Update cloned VulkanAccelerationStructureKHRInfo
-            new_build_info.vk_objects.UpdateAccelerationStructureInfo();
 
             // Wait for original build to complete / flush any pending writes to destination
             VkBufferMemoryBarrier dst_buf_mem_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1311,7 +1308,7 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 command_buffer,
                 *device_table_,
                 dst_as->buffer,
-                new_build_info.vk_objects.buffer,
+                new_build_info.vk_objects.as_info.buffer,
                 region,
                 VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
                 VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
@@ -1402,8 +1399,8 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                       VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
                                           VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
                                           VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                      &copy_as_params->vk_objects.buffer,
-                                      &copy_as_params->vk_objects.memory);
+                                      &copy_as_params->vk_objects.as_info.buffer,
+                                      &copy_as_params->vk_objects.as_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("%s(): CreateVkBuffer failed with %s", __func__, util::ToString<VkResult>(res).c_str());
@@ -1413,23 +1410,20 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
         const VkAccelerationStructureCreateInfoKHR as_ci = { VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
                                                              nullptr,
                                                              VkAccelerationStructureCreateFlagBitsKHR(0),
-                                                             copy_as_params->vk_objects.buffer,
+                                                             copy_as_params->vk_objects.as_info.buffer,
                                                              0,
                                                              dst_as->size,
                                                              dst_as->type,
                                                              0 };
         // Create the cloned AS
         res = device_table_->CreateAccelerationStructureKHR(
-            device_info_->handle, &as_ci, nullptr, &copy_as_params->vk_objects.as);
+            device_info_->handle, &as_ci, nullptr, &copy_as_params->vk_objects.as_info.handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
                 "%s(): CreateAccelerationStructureKHR failed with %s", __func__, util::ToString<VkResult>(res).c_str());
             return res;
         }
-
-        // Update cloned VulkanAccelerationStructureKHRInfo
-        copy_as_params->vk_objects.UpdateAccelerationStructureInfo();
 
         // Wait for original build to complete / flush any pending writes to destination
         const VkBufferMemoryBarrier dst_buf_mem_barrier = {
@@ -1460,7 +1454,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
         CopyBufferAndBarrier(commandBuffer,
                              *device_table_,
                              dst_as->buffer,
-                             copy_as_params->vk_objects.buffer,
+                             copy_as_params->vk_objects.as_info.buffer,
                              region,
                              VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
                              VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,

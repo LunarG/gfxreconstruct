@@ -553,30 +553,45 @@ class TransferDumpingContext
                                         const VulkanPerDeviceAddressTrackers&     at,
                                         const VulkanAccelerationStructureKHRInfo* asi) :
                 as_context(&as_info, dt, oit, at),
-                as(VK_NULL_HANDLE), buffer(VK_NULL_HANDLE), memory(VK_NULL_HANDLE)
+                as_memory(VK_NULL_HANDLE), device_table(dt)
             {
                 // Clone information stored in the destination as info. Later this will need to be updated with
                 // the new objects
                 GFXRECON_ASSERT(asi != nullptr);
                 as_info = *asi;
+
+                const auto* parent_device_info = oit.GetVkDeviceInfo(asi->parent_id);
+                GFXRECON_ASSERT(parent_device_info != nullptr);
+                parent_device = parent_device_info->handle;
+            }
+
+            ~CopiedAccelerationStructure()
+            {
+                if (as_info.handle != VK_NULL_HANDLE)
+                {
+                    device_table.DestroyAccelerationStructureKHR(parent_device, as_info.handle, nullptr);
+                }
+
+                if (as_info.buffer != VK_NULL_HANDLE)
+                {
+                    device_table.DestroyBuffer(parent_device, as_info.buffer, nullptr);
+                }
+
+                if (as_memory != VK_NULL_HANDLE)
+                {
+                    device_table.FreeMemory(parent_device, as_memory, nullptr);
+                }
             }
 
             // Cloned AS and backing memory
-            VkAccelerationStructureKHR         as;
-            VkBuffer                           buffer;
-            VkDeviceMemory                     memory;
+            VkDeviceMemory                     as_memory;
             VulkanAccelerationStructureKHRInfo as_info;
 
             // Cloned build input buffers
             AccelerationStructureDumpResourcesContext as_context;
 
-            void UpdateAccelerationStructureInfo()
-            {
-                GFXRECON_ASSERT(as != VK_NULL_HANDLE);
-                GFXRECON_ASSERT(buffer != VK_NULL_HANDLE);
-                as_info.handle = as;
-                as_info.buffer = buffer;
-            }
+            VkDevice                           parent_device;
+            const graphics::VulkanDeviceTable& device_table;
         };
 
         // CmdBuildAccelerationStructuresKHR
@@ -590,28 +605,6 @@ class TransferDumpingContext
                 TransferParamsBase(t, hb, dt, pdi)
             {
                 build_infos.reserve(build_count);
-            }
-
-            ~BuildAccelerationStructure()
-            {
-                for (const auto& build_info : build_infos)
-                {
-                    if (build_info.vk_objects.as != VK_NULL_HANDLE)
-                    {
-                        device_table_.DestroyAccelerationStructureKHR(
-                            parent_device_info_->handle, build_info.vk_objects.as, nullptr);
-                    }
-
-                    if (build_info.vk_objects.buffer != VK_NULL_HANDLE)
-                    {
-                        device_table_.DestroyBuffer(parent_device_info_->handle, build_info.vk_objects.buffer, nullptr);
-                    }
-
-                    if (build_info.vk_objects.memory != VK_NULL_HANDLE)
-                    {
-                        device_table_.FreeMemory(parent_device_info_->handle, build_info.vk_objects.memory, nullptr);
-                    }
-                }
             }
 
             struct BuildInfo
@@ -655,24 +648,6 @@ class TransferDumpingContext
                 TransferParamsBase(t, hb, dt, pdi),
                 src_as(s), dst_as(d->capture_id), mode(m), vk_objects(dt, oit, at, d)
             {}
-
-            ~CopyAccelerationStructure()
-            {
-                if (vk_objects.as != VK_NULL_HANDLE)
-                {
-                    device_table_.DestroyAccelerationStructureKHR(parent_device_info_->handle, vk_objects.as, nullptr);
-                }
-
-                if (vk_objects.buffer != VK_NULL_HANDLE)
-                {
-                    device_table_.DestroyBuffer(parent_device_info_->handle, vk_objects.buffer, nullptr);
-                }
-
-                if (vk_objects.memory != VK_NULL_HANDLE)
-                {
-                    device_table_.FreeMemory(parent_device_info_->handle, vk_objects.memory, nullptr);
-                }
-            }
 
             format::HandleId                   src_as;
             format::HandleId                   dst_as;
