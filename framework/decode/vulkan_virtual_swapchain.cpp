@@ -1273,8 +1273,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         ofb_data.surface_ptr.SetHandleLength(1);
         ofb_data.surface_ptr.SetConsumerData(0, &ofb_data.surface_info);
 
-        // TODO: automatic wsi deduction not good enough? maybe select a matching wsi (providing required
-        // surface-format)
+        // empty -> automatic wsi deduction
         std::string wsi_extension; // = "VK_KHR_wayland_surface";
 
         result = CreateSurface(
@@ -1303,12 +1302,17 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         flip_y        = scale.value()[1] < 0.f;
     }
 
+    // avoid: wl_surface#63: error 2: Buffer size (902x451) must be an integer multiple of the buffer_scale (2).
+    window_width += window_width % 2;
+    window_height += window_height % 2;
+
     VkExtent2D current_window_size = ofb_data.surface_info.window->GetSize();
 
     // Create/Re-create a swapchain if necessary
     if (window_width != current_window_size.width || window_height != current_window_size.height ||
         ofb_data.swapchain == VK_NULL_HANDLE)
     {
+        ofb_data.surface_info.window->SetTitle("GFXReconstruct Replay - " + image_info->debug_utils_name);
         ofb_data.surface_info.window->SetSize(window_width, window_height);
 
         // NOTE: compensate sporadic 1px size-mismatches after window-resize (image_info->extent != window_size)

@@ -7452,13 +7452,13 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     VkDebugUtilsObjectNameInfoEXT* info = meta_info->decoded_value;
     GFXRECON_ASSERT(info != nullptr);
 
-    // hook for identifying potential swapchain-override VkImage
-    if (!options_.swapchain_override_image_name.empty() && info->objectType == VK_OBJECT_TYPE_IMAGE &&
-        strstr(info->pObjectName, options_.swapchain_override_image_name.c_str()))
+    // for images, extract debug-name, potentially use image as present-override
+    if (info->objectType == VK_OBJECT_TYPE_IMAGE)
     {
         // correct referenced handle in info
         MapStructHandles(meta_info, GetObjectInfoTable());
 
+        // reverse lookup of handle-id
         if (auto img_id_it = image_handle_id_map_.find((VkImage)info->objectHandle);
             img_id_it != image_handle_id_map_.end())
         {
@@ -7466,8 +7466,20 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
 
             if (auto* img_info = object_info_table_->GetVkImageInfo(handle_id))
             {
-                if (!vkuFormatIsDepthOrStencil(img_info->format))
+                // keep track of debug-utils name
+                img_info->debug_utils_name = info->pObjectName;
+
+                // hook for identifying potential swapchain-override VkImage
+                if (!options_.swapchain_override_image_name.empty() &&
+                    strstr(info->pObjectName, options_.swapchain_override_image_name.c_str()) &&
+                    !vkuFormatIsDepthOrStencil(img_info->format))
                 {
+                    if (present_override_image_id_ != format::kNullHandleId)
+                    {
+                        // wait for existing present-override
+                        WaitDevicesIdle();
+                    }
+
                     GFXRECON_LOG_INFO("Replay is using swapchain-image override: %s - handle-id: %" PRIu64 "",
                                       info->pObjectName,
                                       handle_id);
@@ -7512,20 +7524,18 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
         };
         return original_result;
     }
-    else
+
+    // correct referenced handle in info
+    MapStructHandles(meta_info, GetObjectInfoTable());
+
+    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+    if (allocator_data != 0)
     {
-        // correct referenced handle in info
-        MapStructHandles(meta_info, GetObjectInfoTable());
-
-        uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
-
-        if (allocator_data != 0)
-        {
-            // depending on which allocator is used, the call might get deferred until resources are actually bound
-            return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
-        }
-        return func(device_info->handle, info);
+        // depending on which allocator is used, the call might get deferred until resources are actually bound
+        return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
     }
+    return func(device_info->handle, info);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
@@ -8033,10 +8043,6 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
             uint32_t count = *replay_image_count;
 
             swapchain_info->acquired_indices.resize(count);
-
-            // store handle-ids
-            swapchain_info->image_handle_ids = { pSwapchainImages->GetPointer(),
-                                                 pSwapchainImages->GetPointer() + count };
 
             for (uint32_t i = 0; i < count; ++i)
             {
@@ -8593,8 +8599,6 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 // present override-image in a dedicated swapchain
                 if (present_override_image_id_ != format::kNullHandleId)
                 {
-                    GFXRECON_ASSERT(swapchain_info->image_handle_ids.size() > replay_image_index);
-
                     if (auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_))
                     {
                         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
