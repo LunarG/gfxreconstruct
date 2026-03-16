@@ -552,13 +552,12 @@ class TransferDumpingContext
                                         const CommonObjectInfoTable&              oit,
                                         const VulkanPerDeviceAddressTrackers&     at,
                                         const VulkanAccelerationStructureKHRInfo* asi) :
-                as_context(&as_info, dt, oit, at),
-                as_memory(VK_NULL_HANDLE), device_table(dt)
+                as_info(std::make_shared<VulkanAccelerationStructureKHRInfo>()),
+                as_context(as_info.get(), dt, oit, at), as_memory(VK_NULL_HANDLE), device_table(dt)
             {
-                // Clone information stored in the destination as info. Later this will need to be updated with
-                // the new objects
+                // Clone information stored in the destination as info. Later this will be updated with the new objects
                 GFXRECON_ASSERT(asi != nullptr);
-                as_info = *asi;
+                *as_info = *asi;
 
                 const auto* parent_device_info = oit.GetVkDeviceInfo(asi->parent_id);
                 GFXRECON_ASSERT(parent_device_info != nullptr);
@@ -567,14 +566,14 @@ class TransferDumpingContext
 
             ~CopiedAccelerationStructure()
             {
-                if (as_info.handle != VK_NULL_HANDLE)
+                if (as_info->handle != VK_NULL_HANDLE)
                 {
-                    device_table.DestroyAccelerationStructureKHR(parent_device, as_info.handle, nullptr);
+                    device_table.DestroyAccelerationStructureKHR(parent_device, as_info->handle, nullptr);
                 }
 
-                if (as_info.buffer != VK_NULL_HANDLE)
+                if (as_info->buffer != VK_NULL_HANDLE)
                 {
-                    device_table.DestroyBuffer(parent_device, as_info.buffer, nullptr);
+                    device_table.DestroyBuffer(parent_device, as_info->buffer, nullptr);
                 }
 
                 if (as_memory != VK_NULL_HANDLE)
@@ -584,8 +583,8 @@ class TransferDumpingContext
             }
 
             // Cloned AS and backing memory
-            VkDeviceMemory                     as_memory;
-            VulkanAccelerationStructureKHRInfo as_info;
+            VkDeviceMemory                                      as_memory;
+            std::shared_ptr<VulkanAccelerationStructureKHRInfo> as_info;
 
             // Cloned build input buffers
             AccelerationStructureDumpResourcesContext as_context;
@@ -600,12 +599,9 @@ class TransferDumpingContext
             BuildAccelerationStructure(TransferCommandTypes               t,
                                        bool                               hb,
                                        const graphics::VulkanDeviceTable& dt,
-                                       const VulkanDeviceInfo*            pdi,
-                                       uint32_t                           build_count) :
+                                       const VulkanDeviceInfo*            pdi) :
                 TransferParamsBase(t, hb, dt, pdi)
-            {
-                build_infos.reserve(build_count);
-            }
+            {}
 
             struct BuildInfo
             {
@@ -778,15 +774,14 @@ class TransferDumpingContext
         TransferParams(const graphics::VulkanDeviceTable& dt,
                        const VulkanDeviceInfo*            pdi,
                        bool                               bc,
-                       TransferCommandTypes               t,
-                       uint32_t                           count) :
-            params(std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi, count))
+                       TransferCommandTypes               t) :
+            params(std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi))
         {
             GFXRECON_ASSERT(t == TransferCommandTypes::kCmdBuildAccelerationStructures);
 
             if (bc)
             {
-                before_params = std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi, count);
+                before_params = std::make_unique<BuildAccelerationStructure>(t, bc, dt, pdi);
             }
         }
 
