@@ -6,6 +6,15 @@ pipeline {
     }
 
     stages {
+        stage('Start Notification') {
+            steps {
+                googlechatnotification(
+                    url: 'id:google-chat-webhook',
+                    message: "Build started: ${env.BRANCH_NAME} #${env.BUILD_NUMBER}"
+                )
+            }
+        }
+
         stage('Per Commit Tests') {
             steps {
                 script {
