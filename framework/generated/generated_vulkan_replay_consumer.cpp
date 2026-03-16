@@ -3398,15 +3398,15 @@ void VulkanReplayConsumer::Process_vkCmdBeginRendering(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkRenderingInfo* in_pRenderingInfo = pRenderingInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pRenderingInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdBeginRendering(in_commandBuffer, in_pRenderingInfo);
+    OverrideCmdBeginRendering(GetDeviceTable(in_commandBuffer->handle)->CmdBeginRendering, in_commandBuffer, pRenderingInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBeginRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRendering, in_commandBuffer, pRenderingInfo);
+        resource_dumper_->Process_vkCmdBeginRendering(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRendering, in_commandBuffer->handle, pRenderingInfo);
     }
 }
 
@@ -4799,15 +4799,15 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkRenderingInfo* in_pRenderingInfo = pRenderingInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pRenderingInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdBeginRenderingKHR(in_commandBuffer, in_pRenderingInfo);
+    OverrideCmdBeginRendering(GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderingKHR, in_commandBuffer, pRenderingInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBeginRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRenderingKHR, in_commandBuffer, pRenderingInfo);
+        resource_dumper_->Process_vkCmdBeginRenderingKHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderingKHR, in_commandBuffer->handle, pRenderingInfo);
     }
 }
 

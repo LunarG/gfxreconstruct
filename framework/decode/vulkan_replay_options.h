@@ -178,6 +178,9 @@ struct VulkanReplayOptions : public ReplayOptions
     /// Wait for the GPU to become idle before each submit.
     bool idle_before_submit{ false };
 
+    /// Serialize render passes by injecting an execution barrier before each render pass begin.
+    bool serialize_render_passes{ false };
+
     void MaybeWaitBeforeFirstSubmit() const;
 };
 

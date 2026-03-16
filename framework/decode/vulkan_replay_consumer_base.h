@@ -1390,6 +1390,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
                                     VkSubpassContents                                    contents);
 
+    void OverrideCmdBeginRendering(PFN_vkCmdBeginRendering                        func,
+                                   VulkanCommandBufferInfo*                       command_buffer_info,
+                                   StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder);
+
     void
     OverrideCmdTraceRaysKHR(PFN_vkCmdTraceRaysKHR                                          func,
                             VulkanCommandBufferInfo*                                       command_buffer_info,
@@ -1852,6 +1856,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult SetDuplicateDeviceInfo(VkDevice*         replay_device,
                                     VulkanDeviceInfo* device_info,
                                     VulkanDeviceInfo* extant_device_info);
+
+    /**
+     * @brief If the option to serialize render passes is enabled, inject an execution barrier before each
+     * render pass begin to ensure render passes execute in the same order as they were captured.
+     */
+    void MaybeInjectExecutionBarrier(const VulkanCommandBufferInfo* command_buffer_info) const;
 
   private:
     struct HardwareBufferInfo

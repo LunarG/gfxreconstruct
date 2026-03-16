@@ -10166,12 +10166,43 @@ void VulkanReplayConsumerBase::OverrideCmdPushConstants2(
     func(command_buffer, push_constants_info);
 }
 
+void VulkanReplayConsumerBase::MaybeInjectExecutionBarrier(const VulkanCommandBufferInfo* command_buffer_info) const
+{
+    if (!options_.serialize_render_passes)
+    {
+        return;
+    }
+
+    util::BeginInjectedCommands();
+
+    const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+    GFXRECON_ASSERT(device_table != nullptr);
+
+    // Make sure graphics work before this barrier is completed before doing other graphics work.
+    device_table->CmdPipelineBarrier(command_buffer_info->handle,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr);
+
+    util::EndInjectedCommands();
+}
+
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
     VulkanCommandBufferInfo*                             command_buffer_info,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     VkSubpassContents                                    contents)
 {
+    MaybeInjectExecutionBarrier(command_buffer_info);
+
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
@@ -10228,6 +10259,8 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    subpass_begin_info_decode)
 {
+    MaybeInjectExecutionBarrier(command_buffer_info);
+
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
@@ -10259,6 +10292,16 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     VkCommandBuffer command_buffer = command_buffer_info->handle;
 
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
+    PFN_vkCmdBeginRendering                        func,
+    VulkanCommandBufferInfo*                       command_buffer_info,
+    StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder)
+{
+    MaybeInjectExecutionBarrier(command_buffer_info);
+
+    func(command_buffer_info->handle, rendering_info_decoder->GetPointer());
 }
 
 void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
