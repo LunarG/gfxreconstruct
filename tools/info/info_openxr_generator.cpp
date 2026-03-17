@@ -25,15 +25,13 @@
 
 #include "info_openxr_generator.h"
 
+#include "util/module_registry.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-// Static boolean that runs a lambda to automatically create and register this class with the
-// base class RegisterGenerator method.
-static bool sRegisterThisGenerator = []() {
-    InfoApiGenerator::RegisterGenerator([]() { return std::make_unique<InfoOpenXrGenerator>(); });
-    return true;
-}();
+// Register this class as a module in a module registry
+GFXR_UTIL_REGISTER_MODULE(InfoOpenXrGenerator)
 
 std::string InfoOpenXrGenerator::ApiCompiledHeaderVersionString() const
 {

@@ -42,19 +42,6 @@ GFXRECON_BEGIN_NAMESPACE(info)
 class InfoApiGenerator
 {
   public:
-    // Static methods for handling an automatic mechanism for registering
-    // child classes with this base class.
-
-    // Define a method that can be used casts a child unique_ptr to parent
-    // so it can be included in a std::vector we'll call the registry.
-    using BaseApiGeneratorPtr = std::function<std::unique_ptr<InfoApiGenerator>()>;
-    static void RegisterGenerator(BaseApiGeneratorPtr gen_ptr) { GetRegisteredGenerators().push_back(gen_ptr); }
-    static std::vector<BaseApiGeneratorPtr>& GetRegisteredGenerators()
-    {
-        static std::vector<BaseApiGeneratorPtr> registered_Generators_;
-        return registered_Generators_;
-    }
-
     enum class OutputSelectionFlags : std::uint32_t
     {
         kNoInfo          = 0x00000000,
