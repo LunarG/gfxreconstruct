@@ -2652,6 +2652,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 VkImage       image        = swapchain_info->images[image_index];
                 uint32_t      image_width  = swapchain_info->width;
                 uint32_t      image_height = swapchain_info->height;
+                uint32_t      image_layer  = 0;
 
                 // apply swapchain-image override, if any
                 if (present_override_image_id_ != format::kNullHandleId)
@@ -2690,6 +2691,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                                                 image_format,
                                                 image_width,
                                                 image_height,
+                                                image_layer,
                                                 screenshot_scale,
                                                 image_layout);
             }
@@ -2767,6 +2769,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                                                     image_info->format,
                                                     image_info->extent.width,
                                                     image_info->extent.height,
+                                                    0,
                                                     screenshot_scale,
                                                     image_info->current_layout);
                 }
@@ -2828,6 +2831,7 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                                             image_info->format,
                                             image_info->extent.width,
                                             image_info->extent.height,
+                                            0,
                                             screenshot_scale,
                                             image_info->current_layout);
         }
@@ -10561,6 +10565,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                                             image_info->format,
                                             image_info->extent.width,
                                             image_info->extent.height,
+                                            0,
                                             screenshot_scale,
                                             image_info->current_layout);
         }

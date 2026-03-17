@@ -76,6 +76,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                    VkFormat                                   format,
                                    uint32_t                                   width,
                                    uint32_t                                   height,
+                                   uint32_t                                   layer,
                                    const std::optional<std::array<float, 2>>& copy_scale,
                                    VkImageLayout                              image_layout)
 {
@@ -211,21 +212,21 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
             {
                 auto image_aspect_mask = graphics::GetFormatAspects(format);
 
-                // Transition source image from image_layout to the TRANSFER_DST layout.
-                VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-                image_barrier.pNext                           = nullptr;
-                image_barrier.srcAccessMask                   = 0;
-                image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-                image_barrier.oldLayout                       = image_layout;
-                image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                image_barrier.image                           = image;
-                image_barrier.subresourceRange.aspectMask     = image_aspect_mask;
-                image_barrier.subresourceRange.baseArrayLayer = 0;
-                image_barrier.subresourceRange.layerCount     = 1;
-                image_barrier.subresourceRange.baseMipLevel   = 0;
-                image_barrier.subresourceRange.levelCount     = 1;
+                // Transition source image from image_layout to the TRANSFER_SRC layout.
+                VkImageMemoryBarrier src_image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+                src_image_barrier.pNext                           = nullptr;
+                src_image_barrier.srcAccessMask                   = 0;
+                src_image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+                src_image_barrier.oldLayout                       = image_layout;
+                src_image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                src_image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                src_image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                src_image_barrier.image                           = image;
+                src_image_barrier.subresourceRange.aspectMask     = image_aspect_mask;
+                src_image_barrier.subresourceRange.baseArrayLayer = layer;
+                src_image_barrier.subresourceRange.layerCount     = 1;
+                src_image_barrier.subresourceRange.baseMipLevel   = 0;
+                src_image_barrier.subresourceRange.levelCount     = 1;
 
                 device_table->CmdPipelineBarrier(command_buffer,
                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
@@ -236,7 +237,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                                  0,
                                                  nullptr,
                                                  1,
-                                                 &image_barrier);
+                                                 &src_image_barrier);
 
                 // The 'copy_image' is the image to be used with the image to buffer copy.
                 VkImage copy_image             = image;
@@ -277,7 +278,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                     VkImageBlit blit_region;
                     blit_region.srcSubresource.aspectMask     = image_aspect_mask;
                     blit_region.srcSubresource.mipLevel       = 0;
-                    blit_region.srcSubresource.baseArrayLayer = 0;
+                    blit_region.srcSubresource.baseArrayLayer = layer;
                     blit_region.srcSubresource.layerCount     = 1;
                     blit_region.srcOffsets[0].x               = 0;
                     blit_region.srcOffsets[0].y               = 0;
@@ -343,12 +344,12 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                                    &copy_region);
 
                 // Transition source image back to image_layout after the screenshot.
-                image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-                image_barrier.dstAccessMask       = 0;
-                image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                image_barrier.newLayout           = image_layout;
-                image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-                image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                src_image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+                src_image_barrier.dstAccessMask       = 0;
+                src_image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                src_image_barrier.newLayout           = image_layout;
+                src_image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                src_image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
                 device_table->CmdPipelineBarrier(command_buffer,
                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -359,7 +360,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                                  0,
                                                  nullptr,
                                                  1,
-                                                 &image_barrier);
+                                                 &src_image_barrier);
 
                 device_table->EndCommandBuffer(command_buffer);
 
@@ -423,11 +424,7 @@ void ScreenshotHandler::WriteImage(const std::string&                         fi
                                 1, &invalidate_range, &copy_resource.buffer_memory_data);
                         }
 
-                        WriteImageFile(filename_prefix,
-                                       screenshot_format_,
-                                       copy_width,
-                                       copy_height,
-                                       data);
+                        WriteImageFile(filename_prefix, screenshot_format_, copy_width, copy_height, data);
 
                         allocator->UnmapResourceMemoryDirect(copy_resource.buffer_data);
                     }

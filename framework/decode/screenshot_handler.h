@@ -65,6 +65,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
                     VkFormat                                   format,
                     uint32_t                                   width,
                     uint32_t                                   height,
+                    uint32_t                                   layer,
                     const std::optional<std::array<float, 2>>& copy_scale,
                     VkImageLayout                              image_layout);
 
