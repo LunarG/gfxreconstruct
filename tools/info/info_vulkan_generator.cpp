@@ -23,14 +23,14 @@
 
 #include "info_vulkan_generator.h"
 
-#include "util/module_registry.h"
+#include "util/feature_module_registry.h"
 #include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-// Register this class as a module in a module registry
-GFXR_UTIL_REGISTER_MODULE(InfoVulkanGenerator)
+// Register this class as a feature in a module registry
+GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoApiGenerator, InfoVulkanGenerator)
 
 std::string InfoVulkanGenerator::ApiCompiledHeaderVersionString() const
 {
