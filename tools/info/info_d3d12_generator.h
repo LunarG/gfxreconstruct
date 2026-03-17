@@ -77,6 +77,7 @@ class InfoD3d12Generator : public InfoApiGenerator
     nlohmann::json GetSwapchainInfoJson();
     nlohmann::json GetDxrEiInfoJson();
 
+    bool                                    output_enum_gpu_indices_{ false };
     gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer_;
     gfxrecon::decode::Dx12StatsConsumer     dx12_consumer_;
     gfxrecon::decode::Dx12Decoder           dx12_decoder_;

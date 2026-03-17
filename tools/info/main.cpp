@@ -157,13 +157,20 @@ class InfoGenerator
         }
     };
 
-    gfxrecon::info::InfoApiGenerator::OutputSelectionFlags output_flags_{
-        gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kDefaultInfo
+    struct OutputSelections
+    {
+        bool output_nothing{ false };
+        bool file_info{ false };
+        bool exe_info{ false };
+        bool environment_info{ false };
+        bool general_info{ true };
+        bool api_specific_info{ false };
     };
 
     std::string                                                    app_name_;
     std::vector<std::unique_ptr<gfxrecon::info::InfoApiGenerator>> api_generators_;
     std::vector<std::string>                                       detected_apis_;
+    OutputSelections                                               output_selections_;
     uint32_t                                                       blank_frame_count_{ 0 };
     uint32_t                                                       start_frame_{ 0 };
     bool                                                           use_single_line_frame_output_{ false };
@@ -220,13 +227,16 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
     if (argument_parser_->IsOptionSet(kHelpShortOption) || argument_parser_->IsOptionSet(kHelpLongOption))
     {
         PrintUsage();
-        output_flags_ = gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo;
+        output_selections_.output_nothing = true;
+        output_selections_.general_info   = false;
         return true;
     }
     else if (argument_parser_->IsOptionSet(kVersionOption))
     {
         PrintVersion();
-        output_flags_ = gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo;
+        output_selections_.output_nothing = true;
+        output_selections_.general_info   = false;
+        return true;
         return true;
     }
     else if (argument_parser_->IsInvalid() || (argument_parser_->GetPositionalArgumentsCount() != 1))
@@ -234,7 +244,9 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
         GFXRECON_LOG_ERROR("Missing required capture file name");
 
         PrintUsage();
-        output_flags_ = gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo;
+        output_selections_.output_nothing = true;
+        output_selections_.general_info   = false;
+        return true;
         return false;
     }
 
@@ -252,20 +264,25 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
 
     if (argument_parser_->IsOptionSet(kExeInfoOnlyOption))
     {
-        output_flags_ = gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kExeInfo;
+        output_selections_.general_info = false;
+        output_selections_.exe_info     = true;
     }
     else if (argument_parser_->IsOptionSet(kEnvVarsOnlyOption))
     {
-        output_flags_ = gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kEnvironmentInfo;
+        output_selections_.general_info     = false;
+        output_selections_.environment_info = true;
     }
     else if (argument_parser_->IsOptionSet(kFileFormatOnlyOption))
     {
-        output_flags_ = gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kFileInfo;
+        output_selections_.general_info = false;
+        output_selections_.file_info    = true;
     }
     else if (argument_parser_->IsOptionSet(kVerboseOption))
     {
-        output_flags_       = gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kAllInfo;
-        output_json_format_ = true;
+        output_selections_.exe_info         = true;
+        output_selections_.file_info        = true;
+        output_selections_.environment_info = true;
+        output_json_format_                 = true;
     }
 
     // Check for API-specific items
@@ -276,8 +293,12 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
             PrintUsage();
             return false;
         }
-
-        api_gen->SetOutputFlags(output_flags_);
+        if (api_gen->RestrictingOutput())
+        {
+            output_selections_                   = {};
+            output_selections_.general_info      = false;
+            output_selections_.api_specific_info = true;
+        }
     }
 
     if (argument_parser_->IsArgumentSet(kOutputFileArgument))
@@ -296,7 +317,7 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
 
 bool InfoGenerator::ProcessCapture()
 {
-    if (output_flags_ != gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+    if (!output_selections_.output_nothing)
     {
         const std::vector<std::string>& positional_arguments = argument_parser_->GetPositionalArguments();
         std::string                     input_filename       = positional_arguments[0];
@@ -309,8 +330,8 @@ bool InfoGenerator::ProcessCapture()
             file_processor_.AddDecoder(&info_decoder_);
             file_processor_.SetAnnotationProcessor(&annotation_recorder_);
 
-            // For only file info, we want to do a simpler pass.
-            if (output_flags_ == gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kFileInfo)
+            // For only some of the shortcut command-line options, we want to do a simpler pass.
+            if (output_selections_.file_info || output_selections_.environment_info || output_selections_.exe_info)
             {
                 if (!file_processor_.ProcessNextFrame())
                 {
@@ -322,17 +343,11 @@ bool InfoGenerator::ProcessCapture()
                 }
             }
             // For everything else, we want to parse the entire file.
-            else
+            else if (output_selections_.general_info || output_selections_.api_specific_info)
             {
-                // Also add the API-specific components if we're doing any kind of output
-                // that requires it.
-                if ((output_flags_ & gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kRequiresApiInfo) !=
-                    gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+                for (auto& api_gen : api_generators_)
                 {
-                    for (auto& api_gen : api_generators_)
-                    {
-                        api_gen->RegisterApiDecodeComponents(file_processor_);
-                    }
+                    api_gen->RegisterApiDecodeComponents(file_processor_);
                 }
 
                 file_processor_.ProcessAllFrames();
@@ -347,8 +362,7 @@ bool InfoGenerator::ProcessCapture()
             // Look to see what APIs we detected.  If none were found, we want to output
             // whatever we can from every possible API since we might have just failed to
             // detect it manually.
-            if ((output_flags_ & gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kRequiresApiInfo) !=
-                gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+            if (output_selections_.general_info || output_selections_.api_specific_info)
             {
                 std::string driver_info = "Driver info not available.";
                 if (gfxrecon::util::platform::StringLength(info_consumer_.GetDriverDesc()) > 0)
@@ -399,8 +413,7 @@ bool InfoGenerator::ProcessCapture()
 
 bool InfoGenerator::OutputContent()
 {
-    if ((output_flags_ & gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kExeInfo) !=
-        gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+    if (output_selections_.exe_info)
     {
         if (output_json_format_)
         {
@@ -411,8 +424,7 @@ bool InfoGenerator::OutputContent()
             PrintExeInfo();
         }
     }
-    if ((output_flags_ & gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kEnvironmentInfo) !=
-        gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+    if (output_selections_.environment_info)
     {
         if (output_json_format_)
         {
@@ -423,8 +435,7 @@ bool InfoGenerator::OutputContent()
             PrintEnvironmentVariableInfo();
         }
     }
-    if ((output_flags_ & gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kFileInfo) !=
-        gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+    if (output_selections_.file_info)
     {
         if (output_json_format_)
         {
@@ -435,8 +446,7 @@ bool InfoGenerator::OutputContent()
             PrintFileFormatInfoText();
         }
     }
-    if ((output_flags_ & gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kApiAgnosticInfo) !=
-        gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+    if (output_selections_.general_info || output_selections_.api_specific_info)
     {
         if (output_json_format_)
         {
@@ -451,11 +461,7 @@ bool InfoGenerator::OutputContent()
         {
             PrintApiAgnosticStatsText();
         }
-    }
 
-    if ((output_flags_ & gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kRequiresApiInfo) !=
-        gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo)
-    {
         for (auto& api_gen : api_generators_)
         {
             if ((api_gen->ApiWasDetected() || force_all_api_output_))
@@ -494,7 +500,7 @@ bool InfoGenerator::OutputContent()
         }
     }
 
-    if (output_flags_ != gfxrecon::info::InfoApiGenerator::OutputSelectionFlags::kNoInfo && output_json_format_)
+    if (!output_selections_.output_nothing && output_json_format_)
     {
         WriteOutput(json_base_.dump(4, ' ', true).c_str());
     }
