@@ -40,6 +40,8 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
         error_state_ = CheckFileStatus();
         return;
     }
+
+    GFXRECON_ASSERT(advance_to_next_frame_);
     if (!advance_to_next_frame_)
     {
         return;
@@ -72,6 +74,13 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
 
     // Use kAlways decompression policy to move the maximum amount of work outside the measurement loop
     auto save_decompression_policy = block_parser_->GetDecompressionPolicy();
+
+    // Use kAlways when preloading for frame looping.
+    // This is required not only to move decompression work out of the measurement loop,
+    // but also to ensure queued blocks have stable decompressed argument data for replay.
+    // If decompression were deferred to replay, dispatch args for compressed blocks could
+    // point into the temporary working decompression store, which is overwritten/resized
+    // by subsequent decompressions, leading to invalid or stale pointers.
     block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
 
     // Multiple appended preload not supported.
@@ -236,7 +245,7 @@ bool PreloadFileProcessor::IsFileValid() const
     else
     {
         // When not advancing frames, ensure there is at least one preloaded frame to replay
-        return !preload_head_;
+        return preload_head_ && replay_cursor_;
     }
 }
 

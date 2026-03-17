@@ -41,7 +41,8 @@ class PreloadFileProcessor : public FileProcessor
     // Returns true if there are more frames to process, false if all frames have been processed or an error has occured
     bool ProcessNextFrame() override;
 
-    // Preloads *count* frames to continuous, expandable memory buffer
+    /// Preloads `count` frames to continuous, expandable memory buffer.
+    /// Precondition of this function is that `advance_to_next_frame_` is enabled.
     void PreloadNextFrames(size_t count);
 
     /// If true, after replaying a preloaded frame, advance to the next preloaded frame.
