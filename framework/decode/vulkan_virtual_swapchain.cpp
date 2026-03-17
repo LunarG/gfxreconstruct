@@ -1541,17 +1541,17 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
                               ? image_info->current_layout
                               : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        ofb_data.copy_util->BlitImage(image_data.command_buffer,
-                                      image,
-                                      image_data.image,
-                                      image_info->extent,
-                                      { current_window_size.width, current_window_size.height, 1 },
-                                      src_layout,
-                                      image_data.image_layout,
-                                      aspect_color,
-                                      zero_offset,
-                                      zero_offset,
-                                      { flip_x, flip_y, false });
+        graphics::VulkanResourcesUtil::blit_image_params_t blit_params = {};
+        blit_params.src_img                                            = image;
+        blit_params.dst_img                                            = image_data.image;
+        blit_params.src_extent                                         = image_info->extent;
+        blit_params.src_img                                            = image;
+        blit_params.dst_extent = { current_window_size.width, current_window_size.height, 1 };
+        blit_params.src_layout = src_layout;
+        blit_params.dst_layout = image_data.image_layout;
+        blit_params.flip_axis  = { flip_x, flip_y, false };
+
+        ofb_data.copy_util->BlitImage(image_data.command_buffer, blit_params);
 
         result = device_table->EndCommandBuffer(image_data.command_buffer);
         GFXRECON_ASSERT(result == VK_SUCCESS);

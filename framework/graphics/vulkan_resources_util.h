@@ -177,28 +177,26 @@ class VulkanResourcesUtil
                             const VkExtent3D& extent,
                             float             scale) const;
 
-    void BlitImage(VkImage                    src_img,
-                   VkImage                    dst_img,
-                   VkExtent3D                 src_extent,
-                   VkExtent3D                 dst_extent,
-                   VkImageLayout              src_layout,
-                   VkImageLayout              dst_layout,
-                   VkImageAspectFlags         aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
-                   VkOffset3D                 src_offset = { 0, 0, 0 },
-                   VkOffset3D                 dst_offset = { 0, 0, 0 },
-                   const std::array<bool, 3>& flip_axis  = { false, false, false });
+    struct blit_image_params_t
+    {
+        VkImage             src_img     = VK_NULL_HANDLE;
+        VkImage             dst_img     = VK_NULL_HANDLE;
+        VkExtent3D          src_extent  = {};
+        VkExtent3D          dst_extent  = {};
+        VkImageLayout       src_layout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageLayout       dst_layout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageAspectFlags  aspect      = VK_IMAGE_ASPECT_COLOR_BIT;
+        VkOffset3D          src_offset  = { 0, 0, 0 };
+        VkOffset3D          dst_offset  = { 0, 0, 0 };
+        uint32_t            base_layer  = 0;
+        uint32_t            layer_count = 1;
+        uint32_t            mip_levels  = 1;
+        std::array<bool, 3> flip_axis   = { false, false, false };
+    };
 
-    void BlitImage(VkCommandBuffer            command_buffer,
-                   VkImage                    src_img,
-                   VkImage                    dst_img,
-                   VkExtent3D                 src_extent,
-                   VkExtent3D                 dst_extent,
-                   VkImageLayout              src_layout,
-                   VkImageLayout              dst_layout,
-                   VkImageAspectFlags         aspect     = VK_IMAGE_ASPECT_COLOR_BIT,
-                   VkOffset3D                 src_offset = { 0, 0, 0 },
-                   VkOffset3D                 dst_offset = { 0, 0, 0 },
-                   const std::array<bool, 3>& flip_axis  = { false, false, false });
+    void BlitImage(const blit_image_params_t& blit_image_params);
+
+    void BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params);
 
   private:
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
@@ -277,17 +275,7 @@ class VulkanResourcesUtil
                        VkImage&              scaled_image,
                        VkDeviceMemory&       scaled_image_mem);
 
-    void BlitHelper(VkCommandBuffer            command_buffer,
-                    VkImage                    src_image,
-                    VkImage                    dst_image,
-                    const VkExtent3D&          src_extent,
-                    const VkExtent3D&          dst_extent,
-                    uint32_t                   mip_levels,
-                    uint32_t                   array_layers,
-                    VkImageAspectFlags         aspect,
-                    VkOffset3D                 src_offset,
-                    VkOffset3D                 dst_offset,
-                    const std::array<bool, 3>& flip_axis) const;
+    void BlitHelper(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params) const;
 
     struct StagingBufferContext
     {

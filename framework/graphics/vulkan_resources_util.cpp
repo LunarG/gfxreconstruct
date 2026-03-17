@@ -2639,63 +2639,47 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
     return scale == 1.0f || is_blit_supported;
 }
 
-void VulkanResourcesUtil::BlitImage(VkImage                    src_img,
-                                    VkImage                    dst_img,
-                                    VkExtent3D                 src_extent,
-                                    VkExtent3D                 dst_extent,
-                                    VkImageLayout              src_layout,
-                                    VkImageLayout              dst_layout,
-                                    VkImageAspectFlags         aspect,
-                                    VkOffset3D                 src_offset,
-                                    VkOffset3D                 dst_offset,
-                                    const std::array<bool, 3>& flip_axis)
+void VulkanResourcesUtil::BlitImage(const blit_image_params_t& blit_image_params)
 {
     constexpr uint32_t queue_family_index = 0;
     constexpr uint32_t queue_index        = 0;
 
     auto command_buffer = CreateCommandBufferAndBegin(queue_family_index);
-    BlitImage(command_buffer,
-              src_img,
-              dst_img,
-              src_extent,
-              dst_extent,
-              src_layout,
-              dst_layout,
-              aspect,
-              src_offset,
-              dst_offset,
-              flip_axis);
+    BlitImage(command_buffer, blit_image_params);
     SubmitCommandBuffer(command_buffer, GetQueue(queue_family_index, queue_index));
 }
 
-void VulkanResourcesUtil::BlitImage(VkCommandBuffer            command_buffer,
-                                    VkImage                    src_img,
-                                    VkImage                    dst_img,
-                                    VkExtent3D                 src_extent,
-                                    VkExtent3D                 dst_extent,
-                                    VkImageLayout              src_layout,
-                                    VkImageLayout              dst_layout,
-                                    VkImageAspectFlags         aspect,
-                                    VkOffset3D                 src_offset,
-                                    VkOffset3D                 dst_offset,
-                                    const std::array<bool, 3>& flip_axis)
+void VulkanResourcesUtil::BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params)
 {
     // transition src-layout
-    TransitionImageToTransferOptimal(command_buffer, src_img, src_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, aspect);
+    TransitionImageToTransferOptimal(command_buffer,
+                                     blit_image_params.src_img,
+                                     blit_image_params.src_layout,
+                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                     blit_image_params.aspect);
 
     // transition dst-layout
-    TransitionImageToTransferOptimal(command_buffer, dst_img, dst_layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, aspect);
+    TransitionImageToTransferOptimal(command_buffer,
+                                     blit_image_params.dst_img,
+                                     blit_image_params.dst_layout,
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                     blit_image_params.aspect);
 
-    BlitHelper(
-        command_buffer, src_img, dst_img, src_extent, dst_extent, 1, 1, aspect, src_offset, dst_offset, flip_axis);
+    BlitHelper(command_buffer, blit_image_params);
 
     // transition src-layout
-    TransitionImageFromTransferOptimal(
-        command_buffer, src_img, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, src_layout, aspect);
+    TransitionImageFromTransferOptimal(command_buffer,
+                                       blit_image_params.src_img,
+                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                       blit_image_params.src_layout,
+                                       blit_image_params.aspect);
 
     // transition dst-layout
-    TransitionImageFromTransferOptimal(
-        command_buffer, dst_img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_layout, aspect);
+    TransitionImageFromTransferOptimal(command_buffer,
+                                       blit_image_params.dst_img,
+                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                       blit_image_params.dst_layout,
+                                       blit_image_params.aspect);
 }
 
 VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
@@ -2876,58 +2860,48 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     return VK_SUCCESS;
 }
 
-void VulkanResourcesUtil::BlitHelper(VkCommandBuffer            command_buffer,
-                                     VkImage                    src_image,
-                                     VkImage                    dst_image,
-                                     const VkExtent3D&          src_extent,
-                                     const VkExtent3D&          dst_extent,
-                                     uint32_t                   mip_levels,
-                                     uint32_t                   array_layers,
-                                     VkImageAspectFlags         aspect,
-                                     VkOffset3D                 src_offset,
-                                     VkOffset3D                 dst_offset,
-                                     const std::array<bool, 3>& flip_axis) const
+void VulkanResourcesUtil::BlitHelper(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params) const
 {
     VkImageBlit blit_region;
-    blit_region.srcOffsets[0] = src_offset;
-    blit_region.dstOffsets[0] = dst_offset;
+    blit_region.srcOffsets[0] = blit_image_params.src_offset;
+    blit_region.dstOffsets[0] = blit_image_params.dst_offset;
 
-    GFXRECON_ASSERT(mip_levels);
-    std::vector<VkImageBlit> blit_regions(mip_levels);
-    const VkImageAspectFlags aspectMask = aspect;
+    GFXRECON_ASSERT(blit_image_params.mip_levels);
+    std::vector<VkImageBlit> blit_regions(blit_image_params.mip_levels);
+    const VkImageAspectFlags aspectMask = blit_image_params.aspect;
 
-    for (uint32_t i = 0; i < mip_levels; ++i)
+    for (uint32_t i = 0; i < blit_image_params.mip_levels; ++i)
     {
-        blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(src_extent.width) >> i, 1);
-        blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(src_extent.height) >> i, 1);
-        blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(src_extent.depth) >> i, 1);
-        blit_region.srcSubresource  = { aspectMask, i, 0, array_layers };
+        blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(blit_image_params.src_extent.width) >> i, 1);
+        blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(blit_image_params.src_extent.height) >> i, 1);
+        blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(blit_image_params.src_extent.depth) >> i, 1);
+        blit_region.srcSubresource  = { aspectMask, i, 0, blit_image_params.layer_count };
 
-        blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(dst_extent.width) >> i, 1);
-        blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(dst_extent.height) >> i, 1);
-        blit_region.dstOffsets[1].z = std::max(static_cast<int32_t>(dst_extent.depth) >> i, 1);
-        blit_region.dstSubresource  = { aspectMask, i, 0, array_layers };
+        blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(blit_image_params.dst_extent.width) >> i, 1);
+        blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(blit_image_params.dst_extent.height) >> i, 1);
+        blit_region.dstOffsets[1].z = std::max(static_cast<int32_t>(blit_image_params.dst_extent.depth) >> i, 1);
+        blit_region.dstSubresource  = { aspectMask, i, 0, blit_image_params.layer_count };
 
         blit_regions[i] = blit_region;
 
-        if (flip_axis[0])
+        if (blit_image_params.flip_axis[0])
         {
             std::swap(blit_regions[i].dstOffsets[0].x, blit_regions[i].dstOffsets[1].x);
         }
-        if (flip_axis[1])
+        if (blit_image_params.flip_axis[1])
         {
             std::swap(blit_regions[i].dstOffsets[0].y, blit_regions[i].dstOffsets[1].y);
         }
-        if (flip_axis[2])
+        if (blit_image_params.flip_axis[2])
         {
             std::swap(blit_regions[i].dstOffsets[0].z, blit_regions[i].dstOffsets[1].z);
         }
     }
 
     device_table_.CmdBlitImage(command_buffer,
-                               src_image,
+                               blit_image_params.src_img,
                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                               dst_image,
+                               blit_image_params.dst_img,
                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                static_cast<uint32_t>(blit_regions.size()),
                                blit_regions.data(),
