@@ -28,8 +28,8 @@
 #define GFXR_HIDE_PRINT_USAGE_DEFINE
 #include "tool_settings.h"
 
+#include "util/feature_module_registry.h"
 #include "util/logging.h"
-#include "util/module_registry.h"
 
 #include <algorithm>
 #include <format>
@@ -63,7 +63,7 @@ InfoGenerator::InfoGenerator()
     // call each generator here and put the unique_ptr into our
     // internal unique_ptr vector.
     for (const auto& registered_creator :
-         gfxrecon::util::ModuleRegistry<InfoApiGenerator>::GetSingleton().GetRegisteredModules())
+         gfxrecon::util::FeatureModuleRegistry<InfoApiGenerator>::GetSingleton().GetRegisteredFeatureCreators())
     {
         api_generators_.push_back(std::move(registered_creator()));
     }
