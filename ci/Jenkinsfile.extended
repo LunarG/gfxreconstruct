@@ -34,4 +34,19 @@ pipeline {
             }
         }
     }
+
+    post {
+        failure {
+            script {
+                node {
+                    googlechatnotification(
+                        url: 'id:Google-Chat-GFXR',
+                        message: "Build failed: <${env.BUILD_URL}|Extended #${env.BUILD_NUMBER}>",
+                        notifyFailure: false,
+                    )
+                }
+            }
+        }
+    }
+
 }
