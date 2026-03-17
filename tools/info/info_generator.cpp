@@ -23,12 +23,13 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 
-#include "util/logging.h"
-
 #include "info_generator.h"
 
 #define GFXR_HIDE_PRINT_USAGE_DEFINE
 #include "tool_settings.h"
+
+#include "util/logging.h"
+#include "util/module_registry.h"
 
 #include <algorithm>
 #include <format>
@@ -58,12 +59,13 @@ InfoGenerator::InfoGenerator()
 {
     gfxrecon::util::Log::Init();
 
-    // Query the base InfoApiGenerator class which should have a vector
-    // of all child classes that registered with it.
-    // They are unique_ptrs so we need to move control to our list.
-    for (const auto& registered_type : InfoApiGenerator::GetRegisteredGenerators())
+    // Query the module registry for registered modules, and
+    // call each generator here and put the unique_ptr into our
+    // internal unique_ptr vector.
+    for (const auto& registered_creator :
+         gfxrecon::util::ModuleRegistry<InfoApiGenerator>::GetSingleton().GetRegisteredModules())
     {
-        api_generators_.push_back(std::move(registered_type()));
+        api_generators_.push_back(std::move(registered_creator()));
     }
 }
 
