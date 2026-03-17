@@ -42,35 +42,6 @@ GFXRECON_BEGIN_NAMESPACE(info)
 class InfoApiGenerator
 {
   public:
-    enum class OutputSelectionFlags : std::uint32_t
-    {
-        kNoInfo          = 0x00000000,
-        kFileInfo        = 0x00000001,
-        kExeInfo         = 0x00000002,
-        kEnvironmentInfo = 0x00000004,
-        kApiAgnosticInfo = 0x00000008,
-        kApiGeneralInfo  = 0x00000010,
-
-        kDefaultInfo = kApiAgnosticInfo | kApiGeneralInfo,
-
-        // API-specific reserved section
-        kApiSpecific_Begin = 0x00010000,
-        kApiSpecific_1     = kApiSpecific_Begin, // Reserved and used
-        kApiSpecific_2     = kApiSpecific_Begin | 0x0001,
-        kApiSpecific_3     = kApiSpecific_Begin | 0x0002,
-        kApiSpecific_4     = kApiSpecific_Begin | 0x0004,
-        kApiSpecific_5     = kApiSpecific_Begin | 0x0008,
-        kApiSpecific_6     = kApiSpecific_Begin | 0x0010,
-        kApiSpecific_7     = kApiSpecific_Begin | 0x0020,
-        kApiSpecific_8     = kApiSpecific_Begin | 0x0040,
-        kApiSpecific_9     = kApiSpecific_Begin | 0x0080,
-
-        kAllInfo = 0xFFFFFFFF,
-
-        // We require API info if not outputting only file, exe, and/or environment info.
-        kRequiresApiInfo = (kAllInfo & ~(kFileInfo | kExeInfo | kEnvironmentInfo))
-    };
-
     virtual ~InfoApiGenerator() = default;
 
     // Simple "getter" style methods
@@ -83,7 +54,7 @@ class InfoApiGenerator
     virtual bool                ApiDesiresSingleLineFrameOutput() const { return false; }
 
     // A few "setter" style methods
-    virtual void SetFrameMarkerUsage(bool uses) { uses_frame_markers_ = uses; }
+    virtual void SetFrameMarkerUsage(bool found) { uses_frame_markers_ = found; }
     virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
 
     // API-specific command-line methods (default is do nothing and return true if required)
@@ -103,53 +74,18 @@ class InfoApiGenerator
     // FileProcessor
     virtual void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) = 0;
 
+    // Indicates that this API generator requires an API-specific output
+    bool RestrictingOutput() { return restricting_output_; }
+
     // Output methods
-    void                   SetOutputFlags(OutputSelectionFlags flags) { output_flags_ = flags; }
     virtual std::string    GenerateText() = 0;
     virtual nlohmann::json GenerateJson() = 0;
 
   protected:
-    OutputSelectionFlags output_flags_{ OutputSelectionFlags::kDefaultInfo };
-    bool                 uses_frame_markers_{ false };
-    std::string          driver_info_;
+    bool        uses_frame_markers_{ false };
+    std::string driver_info_;
+    bool        restricting_output_{ false };
 };
-
-constexpr InfoApiGenerator::OutputSelectionFlags operator|(InfoApiGenerator::OutputSelectionFlags a,
-                                                           InfoApiGenerator::OutputSelectionFlags b)
-{
-    return static_cast<InfoApiGenerator::OutputSelectionFlags>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-}
-
-constexpr InfoApiGenerator::OutputSelectionFlags operator&(InfoApiGenerator::OutputSelectionFlags a,
-                                                           InfoApiGenerator::OutputSelectionFlags b)
-{
-    return static_cast<InfoApiGenerator::OutputSelectionFlags>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
-}
-
-constexpr InfoApiGenerator::OutputSelectionFlags operator^(InfoApiGenerator::OutputSelectionFlags a,
-                                                           InfoApiGenerator::OutputSelectionFlags b)
-{
-    return static_cast<InfoApiGenerator::OutputSelectionFlags>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b));
-}
-
-constexpr InfoApiGenerator::OutputSelectionFlags operator~(InfoApiGenerator::OutputSelectionFlags a)
-{
-    return static_cast<InfoApiGenerator::OutputSelectionFlags>(~static_cast<uint32_t>(a));
-}
-
-constexpr InfoApiGenerator::OutputSelectionFlags& operator|=(InfoApiGenerator::OutputSelectionFlags& a,
-                                                             InfoApiGenerator::OutputSelectionFlags  b)
-{
-    a = a | b;
-    return a;
-}
-
-constexpr InfoApiGenerator::OutputSelectionFlags& operator&=(InfoApiGenerator::OutputSelectionFlags& a,
-                                                             InfoApiGenerator::OutputSelectionFlags  b)
-{
-    a = a & b;
-    return a;
-}
 
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)

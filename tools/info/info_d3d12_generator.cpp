@@ -63,7 +63,10 @@ bool InfoD3d12Generator::CheckCommandLine(util::ArgumentParser* arg_parser)
 {
     if (arg_parser->IsOptionSet(kEnumGpuIndices))
     {
-        output_flags_ = InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1;
+        // This API Generator is requiring a restricted output that is specific to
+        // this generator.
+        restricting_output_      = true;
+        output_enum_gpu_indices_ = true;
     }
     return true;
 }
@@ -350,15 +353,11 @@ std::string InfoD3d12Generator::GenerateText()
 {
     std::string return_val = "";
 
-    if ((output_flags_ & InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1) !=
-        InfoApiGenerator::OutputSelectionFlags::kNoInfo)
+    if (restricted_output_ && output_enum_gpu_indices_)
     {
         return_val = GetEnumGpuIndicesText();
     }
-
-    // Output everything else, unless we're only supposed to output the
-    // enum gpu indicies only.
-    if (output_flags_ != InfoApiGenerator::OutputSelectionFlags::kApiSpecific_1)
+    else
     {
         if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
         {
