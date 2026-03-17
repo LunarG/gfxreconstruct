@@ -7466,7 +7466,7 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     GFXRECON_ASSERT(info != nullptr);
 
     // for images, extract debug-name, potentially use image as present-override
-    if (info->objectType == VK_OBJECT_TYPE_IMAGE)
+    if (info->objectType == VK_OBJECT_TYPE_IMAGE && info->pObjectName != nullptr)
     {
         // correct referenced handle in info
         MapStructHandles(meta_info, GetObjectInfoTable());

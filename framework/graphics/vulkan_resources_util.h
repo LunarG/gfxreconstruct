@@ -194,8 +194,6 @@ class VulkanResourcesUtil
         std::array<bool, 3> flip_axis   = { false, false, false };
     };
 
-    void BlitImage(const blit_image_params_t& blit_image_params);
-
     void BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params);
 
   private:

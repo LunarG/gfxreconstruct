@@ -1270,8 +1270,8 @@ void VulkanResourcesUtil::TransitionImageToTransferOptimal(VkCommandBuffer    co
     VkImageMemoryBarrier memory_barrier;
     memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     memory_barrier.pNext                           = nullptr;
-    memory_barrier.srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
-    memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+    memory_barrier.srcAccessMask                   = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
     memory_barrier.oldLayout                       = current_layout;
     memory_barrier.newLayout                       = destination_layout;
     memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
@@ -1316,7 +1316,7 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
     memory_barrier.subresourceRange.baseArrayLayer = 0;
     memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 
-    memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
     memory_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
     memory_barrier.oldLayout     = old_layout;
     memory_barrier.newLayout     = new_layout;
@@ -2637,16 +2637,6 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
     }
 
     return scale == 1.0f || is_blit_supported;
-}
-
-void VulkanResourcesUtil::BlitImage(const blit_image_params_t& blit_image_params)
-{
-    constexpr uint32_t queue_family_index = 0;
-    constexpr uint32_t queue_index        = 0;
-
-    auto command_buffer = CreateCommandBufferAndBegin(queue_family_index);
-    BlitImage(command_buffer, blit_image_params);
-    SubmitCommandBuffer(command_buffer, GetQueue(queue_family_index, queue_index));
 }
 
 void VulkanResourcesUtil::BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params)

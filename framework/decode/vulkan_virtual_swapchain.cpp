@@ -1596,6 +1596,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     }
 
     result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
