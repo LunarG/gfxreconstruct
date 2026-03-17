@@ -2652,7 +2652,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 VkImage       image        = swapchain_info->images[image_index];
                 uint32_t      image_width  = swapchain_info->width;
                 uint32_t      image_height = swapchain_info->height;
-                uint32_t      image_layer  = 0;
+                uint32_t      num_layers   = 1;
 
                 // apply swapchain-image override, if any
                 if (present_override_image_id_ != format::kNullHandleId)
@@ -2666,6 +2666,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         image        = override_img_info->handle;
                         image_width  = override_img_info->extent.width;
                         image_height = override_img_info->extent.height;
+                        num_layers   = override_img_info->layer_count;
                         image_layout = override_img_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
                                            ? override_img_info->current_layout
                                            : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
@@ -2682,18 +2683,22 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                     };
                 }
 
-                screenshot_handler_->WriteImage(filename_prefix,
-                                                device_info,
-                                                GetDeviceTable(device_info->handle),
-                                                memory_properties,
-                                                device_info->allocator.get(),
-                                                image,
-                                                image_format,
-                                                image_width,
-                                                image_height,
-                                                image_layer,
-                                                screenshot_scale,
-                                                image_layout);
+                for (uint32_t layer = 0; layer < num_layers; ++layer)
+                {
+                    screenshot_handler_->WriteImage(num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer)
+                                                                   : filename_prefix,
+                                                    device_info,
+                                                    GetDeviceTable(device_info->handle),
+                                                    memory_properties,
+                                                    device_info->allocator.get(),
+                                                    image,
+                                                    image_format,
+                                                    image_width,
+                                                    image_height,
+                                                    layer,
+                                                    screenshot_scale,
+                                                    image_layout);
+                }
             }
         }
     }
