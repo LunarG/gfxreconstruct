@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_UTIL_MODULE_REGISTRY_H
-#define GFXRECON_UTIL_MODULE_REGISTRY_H
+#ifndef GFXRECON_UTIL_FEATURE_MODULE_REGISTRY_H
+#define GFXRECON_UTIL_FEATURE_MODULE_REGISTRY_H
 
 #include "util/defines.h"
 
@@ -35,31 +35,31 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
 template <typename T>
-class ModuleRegistry
+class FeatureModuleRegistry
 {
   public:
-    static ModuleRegistry& GetSingleton()
+    static FeatureModuleRegistry& GetSingleton()
     {
-        std::call_once(singleton_flag_, [&]() { singleton_.reset(new ModuleRegistry<T>()); });
+        std::call_once(singleton_flag_, [&]() { singleton_.reset(new FeatureModuleRegistry<T>()); });
         return *singleton_;
     }
 
-    ~ModuleRegistry() = default;
+    ~FeatureModuleRegistry() = default;
 
     // Define a method that can be used to create and cast a child unique_ptr
     // to the base type so it can be registered.
     using funcCreator = std::function<std::unique_ptr<T>()>;
-    void RegisterModule(funcCreator creator)
+    void RegisterFeatureCreator(funcCreator creator)
     {
         const std::lock_guard<std::mutex> lock(target_mut_);
         registered_modules_.push_back(creator);
     }
-    std::vector<funcCreator>& GetRegisteredModules() { return registered_modules_; }
+    std::vector<funcCreator>& GetRegisteredFeatureCreators() { return registered_modules_; }
 
   private:
-    inline static std::unique_ptr<ModuleRegistry> singleton_;
-    inline static std::once_flag                  singleton_flag_;
-    inline static std::mutex                      target_mut_;
+    inline static std::unique_ptr<FeatureModuleRegistry> singleton_;
+    inline static std::once_flag                         singleton_flag_;
+    inline static std::mutex                             target_mut_;
 
     std::vector<funcCreator> registered_modules_;
 };
@@ -67,10 +67,11 @@ class ModuleRegistry
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#define GFXR_UTIL_REGISTER_MODULE(T)                                                                              \
-    inline static const bool __registered_##T = []() {                                                            \
-        gfxrecon::util::ModuleRegistry<T>::GetSingleton().RegisterModule([]() { return std::make_unique<T>(); }); \
-        return true;                                                                                              \
+#define GFXR_UTIL_REGISTER_FEATURE_CREATOR(B, T)                                         \
+    inline static const bool __registered_##T = []() {                                   \
+        gfxrecon::util::FeatureModuleRegistry<B>::GetSingleton().RegisterFeatureCreator( \
+            []() { return std::make_unique<T>(); });                                     \
+        return true;                                                                     \
     }();
 
-#endif // GFXRECON_UTIL_MODULE_REGISTRY_H
+#endif // GFXRECON_UTIL_FEATURE_MODULE_REGISTRY_H
