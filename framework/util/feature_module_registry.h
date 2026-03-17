@@ -54,7 +54,11 @@ class FeatureModuleRegistry
         const std::lock_guard<std::mutex> lock(target_mut_);
         registered_modules_.push_back(creator);
     }
-    std::vector<funcCreator>& GetRegisteredFeatureCreators() { return registered_modules_; }
+    const std::vector<funcCreator>& GetRegisteredFeatureCreators()
+    {
+        const std::lock_guard<std::mutex> lock(target_mut_);
+        return registered_modules_;
+    }
 
   private:
     inline static std::unique_ptr<FeatureModuleRegistry> singleton_;
@@ -68,7 +72,7 @@ GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #define GFXR_UTIL_REGISTER_FEATURE_CREATOR(B, T)                                         \
-    inline static const bool __registered_##T = []() {                                   \
+    inline static const bool gfxr_registered_##T = []() {                                \
         gfxrecon::util::FeatureModuleRegistry<B>::GetSingleton().RegisterFeatureCreator( \
             []() { return std::make_unique<T>(); });                                     \
         return true;                                                                     \

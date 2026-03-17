@@ -20,12 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_OPENXR_GENERATOR_H
-#define GFXRECON_INFO_OPENXR_GENERATOR_H
+#ifndef GFXRECON_INFO_OPENXR_FEATURE_H
+#define GFXRECON_INFO_OPENXR_FEATURE_H
 
 #if ENABLE_OPENXR_SUPPORT
 
-#include "info_api_generator.h"
+#include "info_feature.h"
 
 #include "decode/openxr_detection_consumer.h"
 #include "decode/openxr_stats_consumer.h"
@@ -34,21 +34,20 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoOpenXrGenerator : public InfoApiGenerator
+class InfoOpenXrFeature : public InfoFeature
 {
   public:
-    InfoOpenXrGenerator() : openxr_detection_consumer_() {}
-    virtual ~InfoOpenXrGenerator() = default;
+    InfoOpenXrFeature() : openxr_detection_consumer_() {}
+    virtual ~InfoOpenXrFeature() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_OpenXR; }
-    std::string         ApiLabel() const override { return "OpenXR"; }
-    bool                ApiWasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() const override;
+    std::string Label() const override { return "OpenXR"; }
+    bool        WasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
+    std::string CompiledHeaderVersionString() const override;
 
-    // Method to register this API's decoder elements with the containers
+    // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods
     std::string    GenerateText() override;
@@ -67,4 +66,4 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // ENABLE_OPENXR_SUPPORT
 
-#endif // GFXRECON_INFO_OPENXR_GENERATOR_H
+#endif // GFXRECON_INFO_OPENXR_FEATURE_H
