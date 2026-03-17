@@ -49,7 +49,6 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/driver_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/driver_info.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/feature_module_registry.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hash.h

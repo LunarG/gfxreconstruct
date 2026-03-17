@@ -20,12 +20,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_D3D12_GENERATOR_H
-#define GFXRECON_INFO_D3D12_GENERATOR_H
+#ifndef GFXRECON_INFO_D3D12_FEATURE_H
+#define GFXRECON_INFO_D3D12_FEATURE_H
 
 #if defined(D3D12_SUPPORT)
 
-#include "info_api_generator.h"
+#include "info_feature.h"
 
 #include "decode/dx12_detection_consumer.h"
 #include "decode/dx12_stats_consumer.h"
@@ -35,27 +35,26 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoD3d12Generator : public InfoApiGenerator
+class InfoD3d12Feature : public InfoFeature
 {
   public:
-    InfoD3d12Generator() : dx12_detection_consumer_(gfxrecon::decode::Dx12DetectionConsumer::kNoBlockLimit) {}
-    virtual ~InfoD3d12Generator() = default;
+    InfoD3d12Feature() : dx12_detection_consumer_(gfxrecon::decode::Dx12DetectionConsumer::kNoBlockLimit) {}
+    virtual ~InfoD3d12Feature() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_D3D12; }
-    std::string         ApiLabel() const override { return "D3D12"; }
-    bool                ApiWasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() const override;
-    uint32_t            GetBlankFrameCount() override;
+    std::string Label() const override { return "D3D12"; }
+    bool        WasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
+    std::string CompiledHeaderVersionString() const override;
+    uint32_t    GetBlankFrameCount() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
     void        UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
     std::string GetCommandLineUsage() override;
     bool        CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser) override;
 
-    // Method to register this API's decoder elements with the containers
+    // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods
     std::string    GenerateText() override;
@@ -77,6 +76,7 @@ class InfoD3d12Generator : public InfoApiGenerator
     nlohmann::json GetSwapchainInfoJson();
     nlohmann::json GetDxrEiInfoJson();
 
+    bool                                    output_enum_gpu_indices_{ false };
     gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer_;
     gfxrecon::decode::Dx12StatsConsumer     dx12_consumer_;
     gfxrecon::decode::Dx12Decoder           dx12_decoder_;
@@ -87,4 +87,4 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // D3D12_SUPPORT
 
-#endif // GFXRECON_INFO_D3D12_GENERATOR_H
+#endif // GFXRECON_INFO_D3D12_FEATURE_H
