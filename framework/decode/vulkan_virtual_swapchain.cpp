@@ -41,26 +41,29 @@ void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device, const graphic
     {
         const auto& ofb_data = it->second;
 
-        for (auto semaphore : ofb_data.acquire_semaphores)
+        for (const auto& [cmd_buf, fence, semaphore] : ofb_data.frame_data)
         {
-            device_table->DestroySemaphore(device, semaphore, nullptr);
+            if (cmd_buf != VK_NULL_HANDLE)
+            {
+                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &cmd_buf);
+            }
+
+            if (fence != VK_NULL_HANDLE)
+            {
+                device_table->DestroyFence(device, fence, nullptr);
+            }
+
+            if (cmd_buf != VK_NULL_HANDLE)
+            {
+                device_table->DestroySemaphore(device, semaphore, nullptr);
+            }
         }
 
         for (auto& img_data : ofb_data.image_data)
         {
-            if (img_data.command_buffer != VK_NULL_HANDLE)
-            {
-                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &img_data.command_buffer);
-            }
-
             if (img_data.semaphore != VK_NULL_HANDLE)
             {
                 device_table->DestroySemaphore(device, img_data.semaphore, nullptr);
-            }
-
-            if (img_data.fence != VK_NULL_HANDLE)
-            {
-                device_table->DestroyFence(device, img_data.fence, nullptr);
             }
         }
 
@@ -1395,19 +1398,20 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             result = device_table->QueueWaitIdle(ofb_data.queue);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            for (VkSemaphore acquire_semaphore : ofb_data.acquire_semaphores)
+            for (const auto& [cmd_buf, fence, acquire_semaphore] : ofb_data.frame_data)
             {
+                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &cmd_buf);
+                device_table->DestroyFence(device, fence, nullptr);
                 device_table->DestroySemaphore(device, acquire_semaphore, nullptr);
             }
+
             for (auto& image_data : ofb_data.image_data)
             {
                 device_table->DestroySemaphore(device, image_data.semaphore, nullptr);
-                device_table->DestroyFence(device, image_data.fence, nullptr);
-                device_table->FreeCommandBuffers(device, ofb_data.command_pool, 1, &image_data.command_buffer);
             }
             device_table->DestroySwapchainKHR(device, ofb_data.swapchain, nullptr);
 
-            ofb_data.acquire_semaphores.clear();
+            ofb_data.frame_data.clear();
             ofb_data.image_data.clear();
         }
 
@@ -1422,7 +1426,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         result = device_table->GetSwapchainImagesKHR(device, ofb_data.swapchain, &image_count, swapchain_images.data());
         GFXRECON_ASSERT((result == VK_SUCCESS) && (swapchain_images.size() == image_count));
 
-        ofb_data.acquire_semaphores.resize(image_count);
+        ofb_data.frame_data.resize(image_count);
         ofb_data.image_data.resize(image_count);
 
         VkSemaphoreCreateInfo semaphore_create_info;
@@ -1446,33 +1450,40 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         {
             ofb_data.image_data[i].image = swapchain_images[i];
 
-            result =
-                device_table->CreateSemaphore(device, &semaphore_create_info, nullptr, &ofb_data.acquire_semaphores[i]);
+            result = device_table->CreateFence(device, &fence_create_info, nullptr, &ofb_data.frame_data[i].fence);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            result = device_table->CreateSemaphore(
+                device, &semaphore_create_info, nullptr, &ofb_data.frame_data[i].acquire_semaphore);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
             result = device_table->CreateSemaphore(
                 device, &semaphore_create_info, nullptr, &ofb_data.image_data[i].semaphore);
             GFXRECON_ASSERT(result == VK_SUCCESS);
 
-            result = device_table->CreateFence(device, &fence_create_info, nullptr, &ofb_data.image_data[i].fence);
-            GFXRECON_ASSERT(result == VK_SUCCESS);
-
             result = device_table->AllocateCommandBuffers(
-                device, &command_buffer_alloc_info, &ofb_data.image_data[i].command_buffer);
+                device, &command_buffer_alloc_info, &ofb_data.frame_data[i].command_buffer);
             GFXRECON_ASSERT(result == VK_SUCCESS);
         }
     }
 
+    // wait for previous frame
+    const auto& frame_data = ofb_data.frame_data[ofb_data.acquire_index];
+    result = device_table->WaitForFences(device, 1, &frame_data.fence, true, std::numeric_limits<uint64_t>::max());
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+    result = device_table->ResetFences(device, 1, &frame_data.fence);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
     // Acquire next image from the swapchain
-    VkSemaphore& acquire_semaphore     = ofb_data.acquire_semaphores[ofb_data.acquire_index];
-    uint32_t     swapchain_image_index = 0;
+    VkSemaphore acquire_semaphore     = frame_data.acquire_semaphore;
+    uint32_t    swapchain_image_index = 0;
 
     result = device_table->AcquireNextImageKHR(
         device, ofb_data.swapchain, UINT64_MAX, acquire_semaphore, VK_NULL_HANDLE, &swapchain_image_index);
 
     auto& image_data = ofb_data.image_data[swapchain_image_index];
 
-    ofb_data.acquire_index = (ofb_data.acquire_index + 1) % ofb_data.acquire_semaphores.size();
+    ofb_data.acquire_index = (ofb_data.acquire_index + 1) % ofb_data.frame_data.size();
 
     std::vector<VkSemaphore> submit_wait_semaphores = { acquire_semaphore };
     if (semaphore != VK_NULL_HANDLE)
@@ -1483,13 +1494,8 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     // blit image into swapchain-image
     if (!swapchain_options_.virtual_swapchain_skip_blit)
     {
-        result = device_table->WaitForFences(device, 1, &image_data.fence, true, std::numeric_limits<uint64_t>::max());
-        GFXRECON_ASSERT(result == VK_SUCCESS);
-        result = device_table->ResetFences(device, 1, &image_data.fence);
-        GFXRECON_ASSERT(result == VK_SUCCESS);
-
         // Record command buffer for copy
-        result = device_table->ResetCommandBuffer(image_data.command_buffer, 0);
+        result = device_table->ResetCommandBuffer(frame_data.command_buffer, 0);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         VkCommandBufferBeginInfo command_buffer_begin_info;
@@ -1498,7 +1504,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         command_buffer_begin_info.flags            = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         command_buffer_begin_info.pInheritanceInfo = nullptr;
 
-        result = device_table->BeginCommandBuffer(image_data.command_buffer, &command_buffer_begin_info);
+        result = device_table->BeginCommandBuffer(frame_data.command_buffer, &command_buffer_begin_info);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         constexpr VkOffset3D         zero_offset  = { 0, 0, 0 };
@@ -1525,7 +1531,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             memory_barrier.subresourceRange.baseArrayLayer = 0;
             memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 
-            device_table_->CmdPipelineBarrier(image_data.command_buffer,
+            device_table_->CmdPipelineBarrier(frame_data.command_buffer,
                                               VK_PIPELINE_STAGE_NONE,
                                               VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                               0,
@@ -1551,9 +1557,9 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         blit_params.dst_layout = image_data.image_layout;
         blit_params.flip_axis  = { flip_x, flip_y, false };
 
-        ofb_data.copy_util->BlitImage(image_data.command_buffer, blit_params);
+        ofb_data.copy_util->BlitImage(frame_data.command_buffer, blit_params);
 
-        result = device_table->EndCommandBuffer(image_data.command_buffer);
+        result = device_table->EndCommandBuffer(frame_data.command_buffer);
         GFXRECON_ASSERT(result == VK_SUCCESS);
 
         // Submit copy command buffer
@@ -1567,11 +1573,11 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         submit_info.pWaitSemaphores      = submit_wait_semaphores.data();
         submit_info.pWaitDstStageMask    = submit_wait_stages.data();
         submit_info.commandBufferCount   = 1;
-        submit_info.pCommandBuffers      = &image_data.command_buffer;
+        submit_info.pCommandBuffers      = &frame_data.command_buffer;
         submit_info.signalSemaphoreCount = 1;
         submit_info.pSignalSemaphores    = &image_data.semaphore;
 
-        result = device_table->QueueSubmit(ofb_data.queue, 1, &submit_info, image_data.fence);
+        result = device_table->QueueSubmit(ofb_data.queue, 1, &submit_info, frame_data.fence);
         GFXRECON_ASSERT(result == VK_SUCCESS);
     }
 

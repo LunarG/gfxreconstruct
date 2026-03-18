@@ -195,11 +195,16 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     // This structure contains the data tied to a swapchain image created for presenting offscreen frame boundaries
     struct OFBSwapchainImageData
     {
-        VkImage         image{ VK_NULL_HANDLE };
-        VkImageLayout   image_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
-        VkCommandBuffer command_buffer{ VK_NULL_HANDLE };
-        VkSemaphore     semaphore{ VK_NULL_HANDLE };
-        VkFence         fence{ VK_NULL_HANDLE };
+        VkImage       image{ VK_NULL_HANDLE };
+        VkImageLayout image_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+        VkSemaphore   semaphore{ VK_NULL_HANDLE };
+    };
+
+    struct OFBSwapchainFrameData
+    {
+        VkCommandBuffer command_buffer    = VK_NULL_HANDLE;
+        VkFence         fence             = VK_NULL_HANDLE;
+        VkSemaphore     acquire_semaphore = VK_NULL_HANDLE;
     };
 
     // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
@@ -214,8 +219,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         VkCommandPool                      command_pool{ VK_NULL_HANDLE };
         VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };
 
-        std::vector<VkSemaphore> acquire_semaphores{};
-        uint32_t                 acquire_index{ 0 };
+        std::vector<OFBSwapchainFrameData> frame_data;
+        uint32_t                           acquire_index{ 0 };
 
         std::vector<OFBSwapchainImageData> image_data{};
 
