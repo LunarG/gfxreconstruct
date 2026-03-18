@@ -544,7 +544,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 }
 
                 default:
-                    GFXRECON_LOG_WARNING("Ingoring unrecognized descriptor type %d", writes[i].descriptorType);
+                    GFXRECON_LOG_WARNING("Ignoring unrecognized descriptor type %d", writes[i].descriptorType);
                     break;
             }
         }
