@@ -817,9 +817,6 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
             const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
-            GFXRECON_ASSERT(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
-                            wrapper->queue_family_creation_flags.end());
-            wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
             wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
     }
