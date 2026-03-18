@@ -717,56 +717,57 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
     end_frame   = std::numeric_limits<uint32_t>::max();
 
     const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
-    if (!value.empty())
+    if (value.empty())
     {
-        std::vector<std::string> values  = gfxrecon::util::strings::SplitString(value, '-');
-        bool                     invalid = false;
+        return false;
+    }
 
-        if (values.size() != 2)
+    std::vector<std::string> values = gfxrecon::util::strings::SplitString(value, '-');
+
+    if (values.size() != 2)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
+                           value.c_str());
+        std::abort();
+    }
+
+    for (std::string& num : values)
+    {
+        gfxrecon::util::strings::RemoveWhitespace(num);
+
+        // Check that the range string only contains numbers.
+        const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
+        if (count != num.length())
         {
-            GFXRECON_LOG_WARNING(
-                "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
-                value.c_str());
-            invalid = true;
-        }
-
-        for (std::string& num : values)
-        {
-            gfxrecon::util::strings::RemoveWhitespace(num);
-
-            // Check that the range string only contains numbers.
-            const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
-            if (count != num.length())
-            {
-                GFXRECON_LOG_WARNING(
-                    "Ignoring invalid measurement frame range \"%s\", which contains non-numeric values",
-                    value.c_str());
-                invalid = true;
-                break;
-            }
-        }
-
-        if (!invalid)
-        {
-            uint32_t start_frame_arg = std::stoi(values[0]);
-            uint32_t end_frame_arg   = std::stoi(values[1]);
-
-            if (start_frame_arg >= end_frame_arg)
-            {
-                GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
-                                     "greater than or equal to the last frame",
-                                     value.c_str());
-
-                return false;
-            }
-
-            start_frame = start_frame_arg;
-            end_frame   = end_frame_arg;
-            return true;
+            GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", which contains non-numeric values",
+                               value.c_str());
+            std::abort();
         }
     }
 
-    return false;
+    uint32_t start_frame_arg = std::stoi(values[0]);
+    uint32_t end_frame_arg   = std::stoi(values[1]);
+
+    if (start_frame_arg >= end_frame_arg)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is greater than or equal "
+                           "to the last frame",
+                           value.c_str());
+        std::abort();
+    }
+
+    if (start_frame_arg == 0)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is 0 which is invalid in "
+                           "GFXReconstruct (frame count starts at 1)",
+                           value.c_str());
+        std::abort();
+    }
+
+    start_frame = start_frame_arg;
+    end_frame   = end_frame_arg;
+
+    return true;
 }
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
