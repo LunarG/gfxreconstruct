@@ -45,7 +45,7 @@ def is_mac():
     '''
     return 'darwin' == platform.system().lower()
 
-ARCHITECTURES = ['x64', 'x86', 'arm', 'arm64']
+ARCHITECTURES = ['x64', 'arm64']
 if is_mac():
     ARCHITECTURES = ['universal', 'x64', 'arm64']
 DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
@@ -262,8 +262,6 @@ def cmake_generate_build_files(args):
     if 'windows' == system:
         if 'x64' == args.architecture:
             cmake_generate_args.extend(['-A', 'x64'])
-        elif 'x86' == args.architecture:
-            cmake_generate_args.extend(['-A', 'Win32'])
         elif 'arm64' == args.architecture:
             cmake_generate_args.extend(['-A', 'ARM64'])
     elif 'darwin' == system:
@@ -282,10 +280,7 @@ def cmake_generate_build_files(args):
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
-        if 'x86' == args.architecture:
-            toolchain_path = os.path.join(BUILD_ROOT, "cmake", "toolchain", "linux_x86_32.cmake")
-            cmake_generate_args.append('-DCMAKE_TOOLCHAIN_FILE={}'.format(toolchain_path))
-        elif 'arm' == args.architecture:
+        if 'arm' == args.architecture:
             toolchain_path = os.path.join(BUILD_ROOT, "cmake", "toolchain", "linux_arm.cmake")
             cmake_generate_args.append('-DCMAKE_TOOLCHAIN_FILE={}'.format(toolchain_path))
         elif 'arm64' == args.architecture:

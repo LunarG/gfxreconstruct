@@ -39,12 +39,7 @@ target_sources(gfxrecon-info
 
 if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
-    # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-      target_link_options(gfxrecon-info PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-    else()
-      target_link_options(gfxrecon-info PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
-    endif()
+    target_link_options(gfxrecon-info PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
 endif()
 
 target_include_directories(gfxrecon-info PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/..)

@@ -219,10 +219,6 @@ inline const OpenXrInstanceTable* GetInstanceTable(XrInstance handle)
     return &wrapper->layer_table;
 }
 
-#if defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
-// NOTE: This won't work on 32-bit builds because OpenXR defines all 32-bit
-//       handles as uint64_t breaking the type conversion on each of these
-//       override functions.
 inline const OpenXrInstanceTable* GetInstanceTable(XrSession handle)
 {
     assert(handle != XR_NULL_HANDLE);
@@ -470,7 +466,6 @@ inline const OpenXrInstanceTable* GetInstanceTable(XrSpatialGraphNodeBindingMSFT
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
-#endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
 // Wrapper for create wrapper template instantiations that do not make use of all handle parameters.
 struct NoParentWrapper : public HandleWrapper<void*>

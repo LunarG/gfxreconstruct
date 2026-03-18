@@ -32,11 +32,7 @@ if (LZ4_ROOT)
 endif()
 
 # Normal search.
-set(_LZ4_x86 "(x86)")
-set(_LZ4_SEARCH_NORMAL
-    PATHS "$ENV{ProgramFiles}/lz4"
-          "$ENV{ProgramFiles${_LZ4_x86}}/lz4")
-unset(_LZ4_x86)
+set(_LZ4_SEARCH_NORMAL PATHS "$ENV{ProgramFiles}/lz4")
 list(APPEND _LZ4_SEARCH_PATH _LZ4_SEARCH_NORMAL)
 
 set(LZ4_NAMES lz4 lz4_static liblz4 liblz4_static)

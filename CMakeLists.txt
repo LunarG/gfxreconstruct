@@ -64,6 +64,10 @@ if (NOT DEFINED HEADLESS)
     set(HEADLESS TRUE)
 endif ()
 
+if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    message(FATAL_ERROR "32-bit builds are not supported")
+endif()
+
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 git_get_exact_tag(GIT_TAG)
@@ -200,9 +204,6 @@ if (MSVC)
 
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
     set(PRECOMPILED_ARCH "64")
-    if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set(PRECOMPILED_ARCH "32")
-    endif (CMAKE_SIZEOF_VOID_P EQUAL 4)
 
     if (GFXR_ARM_WINDOWS_BUILD)
         set(PRECOMPILED_ARCH "64-arm")
@@ -264,24 +265,19 @@ if (MSVC)
 
     if (${D3D12_SUPPORT})
         if (${GFXRECON_AGS_SUPPORT})
-            if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-                find_package(AGS)
-                if (AGS_FOUND)
-                    add_definitions(-DGFXRECON_AGS_SUPPORT)
+            find_package(AGS)
+            if (AGS_FOUND)
+                add_definitions(-DGFXRECON_AGS_SUPPORT)
 
-                    set(D3D12_INCLUDE_DIRECTORIES ${D3D12_INCLUDE_DIRECTORIES} ${AGS_INCLUDE_DIR})
+                set(D3D12_INCLUDE_DIRECTORIES ${D3D12_INCLUDE_DIRECTORIES} ${AGS_INCLUDE_DIR})
 
-                    # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
-                    # to determine the final result.
-                    set(GFXRECON_AGS_SUPPORT_FINAL ON)
-                else ()
-                    message(WARNING "GFXRECON_AGS_SUPPORT was requested but the required dependencies were not found. "
-                            "AGS support will be disabled.")
-                endif () # AGS_FOUND
+                # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
+                # to determine the final result.
+                set(GFXRECON_AGS_SUPPORT_FINAL ON)
             else ()
-                message(WARNING "GFXRECON_AGS_SUPPORT was requested but is not supported. An x64 build is required. "
+                message(WARNING "GFXRECON_AGS_SUPPORT was requested but the required dependencies were not found. "
                         "AGS support will be disabled.")
-            endif () # CMAKE_SIZEOF_VOID_P EQUAL 8
+            endif () # AGS_FOUND
         endif () # GFXRECON_AGS_SUPPORT
     endif () # D3D12_SUPPORT
 

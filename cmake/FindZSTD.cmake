@@ -32,11 +32,7 @@ if (ZSTD_ROOT)
 endif()
 
 # Normal search.
-set(_ZSTD_x86 "(x86)")
-set(_ZSTD_SEARCH_NORMAL
-    PATHS "$ENV{ProgramFiles}/zstd"
-          "$ENV{ProgramFiles${_ZSTD_x86}}/zstd")
-unset(_ZSTD_x86)
+set(_ZSTD_SEARCH_NORMAL PATHS "$ENV{ProgramFiles}/zstd")
 list(APPEND _ZSTD_SEARCH_PATH _ZSTD_SEARCH_NORMAL)
 
 set(ZSTD_NAMES zstd zstd_static libzstd libzstd_static)

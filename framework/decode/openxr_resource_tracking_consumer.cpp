@@ -97,11 +97,6 @@ const encode::OpenXrInstanceTable* OpenXrResourceTrackingConsumer::GetInstanceTa
     return (table != instance_tables_.end()) ? &table->second : nullptr;
 }
 
-#if defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
-// NOTE: This won't work on 32-bit builds because OpenXR defines all 32-bit
-//       handles as uint64_t breaking the type conversion on each of these
-//       override functions.
-//
 // TODO: Add code generation for below
 const encode::OpenXrInstanceTable* OpenXrResourceTrackingConsumer::GetInstanceTable(XrSession handle) const
 {
@@ -295,7 +290,6 @@ const encode::OpenXrInstanceTable* OpenXrResourceTrackingConsumer::GetInstanceTa
     assert(instance != facetracker2FB_to_instance_.end());
     return (instance != facetracker2FB_to_instance_.end()) ? GetInstanceTable(instance->second) : nullptr;
 }
-#endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
 void OpenXrResourceTrackingConsumer::Process_xrCreateInstance(
     const ApiCallInfo&                                  call_info,
