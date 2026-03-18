@@ -542,6 +542,24 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                     }
                     break;
                 }
+                case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                {
+                    const auto* tensor_writes =
+                        GetPNextMetaStruct<Decoded_VkWriteDescriptorSetTensorARM>(meta_writes[i].pNext);
+                    if (tensor_writes != nullptr)
+                    {
+                        const auto& tensor_views = tensor_writes->pTensorViews;
+                        if (!tensor_views.IsNull() && tensor_views.HasData())
+                        {
+                            AddResourcesToContainer(meta_writes[i].dstSet,
+                                                    writes[i].dstBinding,
+                                                    writes[i].dstArrayElement,
+                                                    writes[i].descriptorCount,
+                                                    tensor_views.GetPointer());
+                        }
+                    }
+                    break;
+                }
 
                 default:
                     GFXRECON_LOG_WARNING("Ignoring unrecognized descriptor type %d", writes[i].descriptorType);
