@@ -99,7 +99,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
     if (unreferenced_ids_.contains(args.buffer_id))
     {
         return WriteAnnotation(format::kAnnotationLabelRemovedResource,
-                               std::string("Removed buffer {}") + std::to_string(args.buffer_id))
+                               std::string("Removed buffer ") + std::to_string(args.buffer_id))
                    ? kSuccess
                    : kError;
     }
@@ -117,7 +117,7 @@ decode::FileTransformer::VisitResult FileOptimizer::FilterMetaData(const decode:
         // replaying an optimized trimmed capture in in alignment with the block index calculated
         // at capture time
         return WriteAnnotation(format::kAnnotationLabelRemovedResource,
-                               std::string("Removed subresource from image {}") + std::to_string(args.image_id))
+                               std::string("Removed subresource from image ") + std::to_string(args.image_id))
                    ? kSuccess
                    : kError;
     }
