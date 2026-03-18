@@ -36,6 +36,7 @@
 #include "decode/decode_allocator.h"
 #include "util/logging.h"
 #include "util/file_input_stream.h"
+#include "util/thread_safe_queue.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -103,6 +104,7 @@ class FileProcessor
 
   public:
     constexpr static uint32_t kFirstFrame = 0;
+    constexpr static uint64_t kMaxFrame   = std::numeric_limits<uint64_t>::max();
 
     FileProcessor();
 
@@ -113,6 +115,10 @@ class FileProcessor
     void WaitDecodersIdle();
 
     void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
+
+    void StartAsyncProcessing();
+    void SetPreloadFrameRange(std::optional<std::pair<uint64_t, uint64_t>> frame_range);
+    void SetQuitBeforeFrame(uint64_t frame_number);
 
     void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
 
@@ -130,17 +136,19 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
+    bool ContinueBlockProcessing(); // Check process_block_index_ against block_limit_
+    bool ContinueBlockDecoding();   // Check dispatch_block_index_ against the decoder completion state
+
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
-    uint64_t GetCurrentFrameNumber() const { return current_frame_number_; }
+    // Application facing interface returns the *dispatched* frame and block index, to preserve expected semantics.
+    uint64_t GetCurrentFrameNumber() const noexcept { return dispatch_frame_number_; }
+    uint64_t GetCurrentBlockIndex() const noexcept { return dispatch_block_index_; }
 
-    uint64_t GetCurrentBlockIndex() const { return block_index_; }
-
-    bool GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
-
+    // These have "process_" side semantic semantics process_
+    bool         GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
     uint64_t GetNumBytesRead() const { return bytes_read_; }
-
-    BlockIOError GetErrorState() const { return error_state_; }
+    BlockIOError GetErrorState() const { return dispatch_error_state_; }
 
     bool EntireFileWasProcessed() const
     {
@@ -176,7 +184,7 @@ class FileProcessor
   protected:
     using BlockProcessor = std::function<bool()>;
 
-    bool ContinueDecoding(uint64_t block_index, bool check_decoders);
+    // Read from active file
     bool ReadBytes(void* buffer, size_t buffer_size);
 
     // Reads block header, from input stream.
@@ -206,16 +214,57 @@ class FileProcessor
     ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
 
   protected:
-    uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
-    AnnotationHandler*       annotation_handler_;
-    BlockIOError             error_state_;
-    uint64_t                 bytes_read_;
+    AnnotationHandler*       annotation_handler_{ nullptr };
+    uint64_t                 bytes_read_{ 0 };
 
+    /// @brief The error state set during block processing.
+    BlockIOError process_error_state_{ kErrorInvalidFileDescriptor };
+    /// @brief The error state set during block dispatch.
+    BlockIOError dispatch_error_state_{ kErrorNone };
+    /// @brief Incremented at the end of every frame successfully processed.
+    uint64_t process_frame_number_{ kFirstFrame };
+    /// @brief Incremented at the end of every frame successfully dispatched.
+    uint64_t dispatch_frame_number_{ kFirstFrame };
     /// @brief Incremented at the end of every block successfully processed.
-    uint64_t block_index_;
+    uint64_t process_block_index_{ 0 };
+    /// @brief Incremented at the end of every block successfully dispatched.
+    uint64_t dispatch_block_index_{ 0 };
+
+    // Only used for async processing, but we need it to pause async processing at the end of the preload frame range,
+    void                                         ProcessBlocksAsync();
+    bool                                         async_processing_{ false };
+    std::optional<std::pair<uint64_t, uint64_t>> async_preload_frame_range_;
+    uint64_t                                     async_quit_before_frame_{ kMaxFrame };
+    std::thread                                  async_thread_;
+
+    struct ProcessBlocksResult
+    {
+        uint64_t          frame_number;
+        ProcessBlockState state{ ProcessBlockState::kRunning }; // final ProcessBlocks return value.
+        BlockIOError      error{ BlockIOError::kErrorNone };    // snap shot of the process_error_state_, if any.
+    };
+    using ProcessedBlockItem       = std::variant<BlockBatch::BatchPtr, ProcessBlocksResult>;
+    using AsyncProcessedBlockQueue = util::ThreadSafeQueue<ProcessedBlockItem>;
+    using BlockQueueItem           = typename AsyncProcessedBlockQueue::pop_type;
+    using ItemRetirementProc       = std::function<void(ProcessedBlockItem&&)>;
+
+    template <typename Queue>
+    ProcessBlockState ReplayOneFrame(Queue& queue, ItemRetirementProc* retirement_proc = nullptr)
+    {
+        ProcessBlockState state = ProcessBlockState::kRunning;
+        SetDecoderFrameNumber(dispatch_frame_number_);
+        while (state == ProcessBlockState::kRunning)
+        {
+            state = ReplayBlockQueueItem(queue.pop(), retirement_proc);
+        }
+        return state;
+    }
 
   protected:
+    ProcessBlockState ReplayBlockQueueItem(BlockQueueItem&& item_opt, ItemRetirementProc* retirement_proc);
+    ProcessBlockState ReplayBlockBatch(BlockBatch::BatchPtr& batch);
+
     bool         IsFileValid() const;
     BlockIOError CheckFileStatus() const
     {
@@ -249,7 +298,7 @@ class FileProcessor
     // Dispatch function is allowed to modify the ParsedBlock as needed before processing
     // including decompression, or even stealing the contents for deferred processing.
     using DispatchFunction = std::function<ProcessBlockState(uint64_t, ParsedBlock&)>;
-    ProcessBlockState ProcessBlocks(DispatchFunction& dispatch, bool check_decoder_completeness);
+    ProcessBlockState ProcessBlocks(DispatchFunction& dispatch);
 
     void SetDecoderFrameNumber(uint64_t frame_number);
 
@@ -305,8 +354,9 @@ class FileProcessor
       private:
         const std::vector<ApiDecoder*>& decoders_;
         AnnotationHandler*              annotation_handler_;
-        uint64_t                        block_index_;
+        uint64_t                        block_index_{ 0 };
     };
+    ProcessBlockState DispatchBlock(uint64_t block_index, DispatchVisitor& dispatch_visitor, ParsedBlock& block);
 
   private:
     class ProcessVisitor
@@ -413,7 +463,7 @@ class FileProcessor
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     std::vector<uint8_t>                uncompressed_buffer_;
-    uint64_t                            block_limit_;
+    uint64_t                            block_limit_{ 0 }; // No block limit by default
     bool                                pending_capture_uses_frame_markers_{ false };
     bool                                capture_uses_frame_markers_{ false };
     bool                                file_supports_frame_markers_{ false };
@@ -421,10 +471,15 @@ class FileProcessor
     bool                                enable_print_block_info_{ false };
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
-    bool                                loading_trimmed_capture_state_;
+    bool                                loading_trimmed_capture_state_{ false };
 
     std::string        absolute_path_;
     format::FileHeader file_header_;
+
+    // Working store for replay time decompression
+    // Working store for replay time decompression
+    constexpr static size_t kWorkingStoreInitialSize = 4096;
+    util::HeapBuffer        working_uncompressed_store_;
 
   protected:
     std::unique_ptr<util::Compressor> compressor_;
