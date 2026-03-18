@@ -1875,11 +1875,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
                 depth_attachment_layout = VK_IMAGE_LAYOUT_GENERAL;
             }
 
-            dc_context->BeginRendering(color_attachments,
-                                       color_attachment_layouts,
-                                       depth_attachment,
-                                       depth_attachment_layout,
-                                       pRenderingInfo->GetPointer()->renderArea);
+            dc_context->BeginRendering(
+                color_attachments, color_attachment_layouts, depth_attachment, depth_attachment_layout);
         }
 
         CommandBufferIterator first, last;
