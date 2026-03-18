@@ -36,14 +36,13 @@
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
-#include "decode/vulkan_resource_tracking_consumer.h"
-#include "decode/vulkan_resource_initializer.h"
 #include "decode/vulkan_swapchain.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_replay_dump_resources.h"
+#include "graphics/vulkan_resources_util.h"
 #include "graphics/fps_info.h"
 #include "util/defines.h"
 #include "util/logging.h"
@@ -1976,6 +1975,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // faked extensions is a list of currently bypassed extensions.
     // goal is to allow replay when 'benign' extensions are missing during replay.
     std::vector<const char*> faked_extensions_;
+
+    // option to override swapchain-image via debug-name
+    format::HandleId present_override_image_id_ = format::kNullHandleId;
+
+    // required for reverse lookup of handle-ids
+    std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
 
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:

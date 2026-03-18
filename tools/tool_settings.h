@@ -125,6 +125,7 @@ const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
 const char kPresentModeOption[]                  = "--present-mode";
+const char kPresentOverrideImageArgument[]       = "--present-override";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
@@ -635,26 +636,37 @@ static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, 
     }
 }
 
-static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
+static std::optional<std::array<float, 2>> GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotScaleArgument);
-
-    float scale = 0.0f;
 
     if (!value.empty())
     {
         try
         {
-            scale = std::stof(value);
+            std::array<float, 2> scale = { 1.0f, 1.0f };
+            std::size_t          pos   = 0;
+            scale[0]                   = std::stof(value, &pos);
+
+            // skip comma separator
+            if (pos < value.size() && value[pos] == ',')
+            {
+                scale[1] = std::stof(value.substr(pos + 1));
+            }
+            else
+            {
+                // single value provided — apply uniformly
+                scale[1] = scale[0];
+            }
+            return scale;
         }
         catch (std::exception&)
         {
             GFXRECON_LOG_WARNING(
-                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [x,y]");
         }
     }
-
-    return scale;
+    return {};
 }
 
 static std::vector<gfxrecon::decode::ScreenshotRange>
@@ -1153,6 +1165,12 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
     replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
+
+    if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
+    {
+        replay_options.present_override_image_name = override_name;
+    }
+
     if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))
     {
         replay_options.screenshot_ignore_frameBoundaryAndroid = true;

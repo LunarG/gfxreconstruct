@@ -45,7 +45,6 @@
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
-#include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "graphics/vulkan_struct_extract_handles.h"
@@ -96,7 +95,9 @@ const std::unordered_map<VkResult, VkResult> kResultValuesAllowedDifferentCodeTh
     { VK_TIMEOUT, VK_SUCCESS },
     { VK_NOT_READY, VK_SUCCESS },
     { VK_ERROR_OUT_OF_DATE_KHR, VK_SUCCESS },
-    { VK_SUBOPTIMAL_KHR, VK_SUCCESS }
+    { VK_SUBOPTIMAL_KHR, VK_SUCCESS },
+    { VK_ERROR_FORMAT_NOT_SUPPORTED, VK_SUCCESS },
+    { VK_ERROR_OUT_OF_POOL_MEMORY, VK_SUCCESS }
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
@@ -2613,7 +2614,7 @@ void VulkanReplayConsumerBase::InitializeScreenshotHandler()
 
 void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const
 {
-    if ((meta_info != nullptr) && (meta_info->decoded_value != nullptr) && !meta_info->pSwapchains.IsNull())
+    if (meta_info != nullptr && meta_info->decoded_value != nullptr && !meta_info->pSwapchains.IsNull())
     {
         auto present_info  = meta_info->decoded_value;
         auto swapchain_ids = meta_info->pSwapchains.GetPointer();
@@ -2621,8 +2622,8 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
         for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
         {
             auto swapchain_info = object_info_table_->GetVkSwapchainKHRInfo(swapchain_ids[i]);
-            if ((swapchain_info != nullptr) && (swapchain_info->device_info != nullptr) &&
-                (swapchain_info->images.size() > 0))
+            if (swapchain_info != nullptr && swapchain_info->device_info != nullptr &&
+                swapchain_info->images.size() > 0)
             {
                 auto     device_info = swapchain_info->device_info;
                 uint32_t image_index = present_info->pImageIndices[i];
@@ -2646,29 +2647,58 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                 filename_prefix += "_frame_";
                 filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
 
-                // If both copy_scale and copy_width are provided, use copy_scale.
-                const uint32_t screenshot_width =
-                    options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->width)
-                        : (options_.screenshot_width ? options_.screenshot_width : swapchain_info->width);
+                VkFormat      image_format = swapchain_info->format;
+                VkImageLayout image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                VkImage       image        = swapchain_info->images[image_index];
+                uint32_t      image_width  = swapchain_info->width;
+                uint32_t      image_height = swapchain_info->height;
+                uint32_t      num_layers   = 1;
 
-                const uint32_t screenshot_height =
-                    options_.screenshot_scale
-                        ? static_cast<uint32_t>(options_.screenshot_scale * swapchain_info->height)
-                        : (options_.screenshot_height ? options_.screenshot_height : swapchain_info->height);
+                // apply swapchain-image override, if any
+                if (present_override_image_id_ != format::kNullHandleId)
+                {
+                    auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_);
+                    GFXRECON_ASSERT(override_img_info != nullptr);
 
-                screenshot_handler_->WriteImage(filename_prefix,
-                                                device_info,
-                                                GetDeviceTable(device_info->handle),
-                                                memory_properties,
-                                                device_info->allocator.get(),
-                                                swapchain_info->images[image_index],
-                                                swapchain_info->format,
-                                                swapchain_info->width,
-                                                swapchain_info->height,
-                                                screenshot_width,
-                                                screenshot_height,
-                                                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+                    if (override_img_info != nullptr)
+                    {
+                        image_format = override_img_info->format;
+                        image        = override_img_info->handle;
+                        image_width  = override_img_info->extent.width;
+                        image_height = override_img_info->extent.height;
+                        num_layers   = override_img_info->layer_count;
+                        image_layout = override_img_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
+                                           ? override_img_info->current_layout
+                                           : VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+                    }
+                }
+
+                // NOTE: optional scale takes precedence over explicit screenshot width/height
+                auto screenshot_scale = options_.screenshot_scale;
+                if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
+                {
+                    screenshot_scale = {
+                        static_cast<float>(options_.screenshot_width) / static_cast<float>(image_width),
+                        static_cast<float>(options_.screenshot_height) / static_cast<float>(image_height)
+                    };
+                }
+
+                for (uint32_t layer = 0; layer < num_layers; ++layer)
+                {
+                    screenshot_handler_->WriteImage(num_layers > 1 ? filename_prefix + "_layer_" + std::to_string(layer)
+                                                                   : filename_prefix,
+                                                    device_info,
+                                                    GetDeviceTable(device_info->handle),
+                                                    memory_properties,
+                                                    device_info->allocator.get(),
+                                                    image,
+                                                    image_format,
+                                                    image_width,
+                                                    image_height,
+                                                    layer,
+                                                    screenshot_scale,
+                                                    image_layout);
+                }
             }
         }
     }
@@ -2725,16 +2755,15 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                         filename_prefix += std::to_string(j);
                     }
 
-                    // If both copy_scale and copy_width are provided, use copy_scale.
-                    const uint32_t screenshot_width =
-                        options_.screenshot_scale
-                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
-                            : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
-
-                    const uint32_t screenshot_height =
-                        options_.screenshot_scale
-                            ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
-                            : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
+                    // NOTE: optional scale takes precedence over explicit screenshot width/height
+                    auto screenshot_scale = options_.screenshot_scale;
+                    if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
+                    {
+                        screenshot_scale = { static_cast<float>(options_.screenshot_width) /
+                                                 static_cast<float>(image_info->extent.width),
+                                             static_cast<float>(options_.screenshot_height) /
+                                                 static_cast<float>(image_info->extent.height) };
+                    }
 
                     screenshot_handler_->WriteImage(filename_prefix,
                                                     device_info,
@@ -2745,8 +2774,8 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(
                                                     image_info->format,
                                                     image_info->extent.width,
                                                     image_info->extent.height,
-                                                    screenshot_width,
-                                                    screenshot_height,
+                                                    0,
+                                                    screenshot_scale,
                                                     image_info->current_layout);
                 }
             }
@@ -2788,15 +2817,15 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
             const format::HandleId handleId   = frame_boundary->pImages.GetPointer()[i];
             const VulkanImageInfo* image_info = GetObjectInfoTable().GetVkImageInfo(handleId);
 
-            const uint32_t screenshot_width =
-                options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
-                    : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
-
-            const uint32_t screenshot_height =
-                options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
-                    : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
+            // NOTE: optional scale takes precedence over explicit screenshot width/height
+            auto screenshot_scale = options_.screenshot_scale;
+            if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
+            {
+                screenshot_scale = {
+                    static_cast<float>(options_.screenshot_width) / static_cast<float>(image_info->extent.width),
+                    static_cast<float>(options_.screenshot_height) / static_cast<float>(image_info->extent.height)
+                };
+            }
 
             screenshot_handler_->WriteImage(filename_prefix,
                                             device_info,
@@ -2807,8 +2836,8 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const VulkanDevic
                                             image_info->format,
                                             image_info->extent.width,
                                             image_info->extent.height,
-                                            screenshot_width,
-                                            screenshot_height,
+                                            0,
+                                            screenshot_scale,
                                             image_info->current_layout);
         }
     }
@@ -6299,6 +6328,9 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
     if (result == VK_SUCCESS && *replay_image != VK_NULL_HANDLE)
     {
+        // store handle-id for reverse lookups
+        image_handle_id_map_[*replay_image] = capture_id;
+
         auto image_info = reinterpret_cast<VulkanImageInfo*>(pImage->GetConsumerData(0));
         GFXRECON_ASSERT(image_info != nullptr);
 
@@ -6371,6 +6403,9 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
         allocator_data = image_info->allocator_data;
 
         image_info->allocator_data = 0;
+
+        // remove from handle-id map
+        image_handle_id_map_.erase(image);
     }
 
     allocator->DestroyImage(image, GetAllocationCallbacks(pAllocator), allocator_data);
@@ -7430,6 +7465,43 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     VkDebugUtilsObjectNameInfoEXT* info = meta_info->decoded_value;
     GFXRECON_ASSERT(info != nullptr);
 
+    // for images, extract debug-name, potentially use image as present-override
+    if (info->objectType == VK_OBJECT_TYPE_IMAGE && info->pObjectName != nullptr)
+    {
+        // correct referenced handle in info
+        MapStructHandles(meta_info, GetObjectInfoTable());
+
+        // reverse lookup of handle-id
+        if (auto img_id_it = image_handle_id_map_.find((VkImage)info->objectHandle);
+            img_id_it != image_handle_id_map_.end())
+        {
+            format::HandleId handle_id = img_id_it->second;
+
+            if (auto* img_info = object_info_table_->GetVkImageInfo(handle_id))
+            {
+                // keep track of debug-utils name
+                img_info->debug_utils_name = info->pObjectName;
+
+                // hook for identifying potential swapchain-override VkImage
+                if (!options_.present_override_image_name.empty() &&
+                    strstr(info->pObjectName, options_.present_override_image_name.c_str()) &&
+                    !vkuFormatIsDepthOrStencil(img_info->format))
+                {
+                    if (present_override_image_id_ != format::kNullHandleId)
+                    {
+                        // wait for existing present-override
+                        WaitDevicesIdle();
+                    }
+
+                    GFXRECON_LOG_INFO("Replay is using swapchain-image override: %s - handle-id: %" PRIu64 "",
+                                      info->pObjectName,
+                                      handle_id);
+                    present_override_image_id_ = handle_id;
+                }
+            }
+        }
+    }
+
     // a VkPipeline is currently being compiled asynchronously -> defer setting the debug-name
     if (info->objectType == VK_OBJECT_TYPE_PIPELINE && IsUsedByAsyncTask(meta_info->objectHandle))
     {
@@ -7465,20 +7537,18 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
         };
         return original_result;
     }
-    else
+
+    // correct referenced handle in info
+    MapStructHandles(meta_info, GetObjectInfoTable());
+
+    uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
+
+    if (allocator_data != 0)
     {
-        // correct referenced handle in info
-        MapStructHandles(meta_info, GetObjectInfoTable());
-
-        uintptr_t allocator_data = GetObjectAllocatorData(info->objectType, meta_info->objectHandle);
-
-        if (allocator_data != 0)
-        {
-            // depending on which allocator is used, the call might get deferred until resources are actually bound
-            return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
-        }
-        return func(device_info->handle, info);
+        // depending on which allocator is used, the call might get deferred until resources are actually bound
+        return allocator->SetDebugUtilsObjectNameEXT(device_info->handle, info, allocator_data);
     }
+    return func(device_info->handle, info);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
@@ -7980,17 +8050,17 @@ VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapch
 
         // If replay_image_count isn't full image count, it will return VK_INCOMPLETE.
         // Their image infos should also be initialized, even if it's VK_INCOMPLETE.
-        if ((result == VK_SUCCESS || result == VK_INCOMPLETE) && (replay_images != nullptr) &&
-            (replay_image_count != nullptr))
+        if ((result == VK_SUCCESS || result == VK_INCOMPLETE) && replay_images != nullptr &&
+            replay_image_count != nullptr)
         {
-            uint32_t count = (*replay_image_count);
+            uint32_t count = *replay_image_count;
 
             swapchain_info->acquired_indices.resize(count);
 
             for (uint32_t i = 0; i < count; ++i)
             {
-                auto image_info = reinterpret_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
-                assert(image_info != nullptr);
+                auto* image_info = static_cast<VulkanImageInfo*>(pSwapchainImages->GetConsumerData(i));
+                GFXRECON_ASSERT(image_info != nullptr);
 
                 image_info->format             = swapchain_info->format;
                 image_info->extent             = { swapchain_info->width, swapchain_info->height, 1 };
@@ -8538,6 +8608,42 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 }
                 uint32_t replay_image_index = swapchain_info->acquired_indices[capture_image_index].index;
                 modified_image_indices_[i]  = replay_image_index;
+
+                // present override-image in a dedicated swapchain
+                if (present_override_image_id_ != format::kNullHandleId)
+                {
+                    if (auto* override_img_info = object_info_table_->GetVkImageInfo(present_override_image_id_))
+                    {
+                        CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
+
+                        VulkanPhysicalDeviceInfo* physical_device_info =
+                            object_info_table.GetVkPhysicalDeviceInfo(swapchain_info->device_info->parent_id);
+                        GFXRECON_ASSERT(physical_device_info != nullptr);
+
+                        VulkanInstanceInfo* instance_info =
+                            object_info_table.GetVkInstanceInfo(physical_device_info->parent_id);
+                        GFXRECON_ASSERT(instance_info != nullptr);
+
+                        const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
+                        auto* device_table = GetDeviceTable(swapchain_info->device_info->handle);
+
+                        swapchain_->PresentImageAdHoc(swapchain_info->device_info,
+                                                      nullptr,
+                                                      override_img_info,
+                                                      instance_info,
+                                                      instance_table,
+                                                      device_table,
+                                                      application_.get(),
+                                                      options_.screenshot_scale);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("could not retrieve image for  --present-override '%s' "
+                                             "override-image-id: %" PRIu64 "",
+                                             options_.present_override_image_name.c_str(),
+                                             present_override_image_id_);
+                    }
+                }
             }
         }
 
@@ -8553,7 +8659,7 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     util::EndInjectedCommands();
 
     // Only attempt to find imported or shadow semaphores if we know at least one around.
-    if ((!have_imported_semaphores_) && (shadow_semaphores_.empty()) && (modified_present_info.swapchainCount != 0))
+    if (!have_imported_semaphores_ && shadow_semaphores_.empty() && modified_present_info.swapchainCount != 0)
     {
         result = swapchain_->QueuePresentKHR(
             original_result, func, capture_image_indices_, swapchain_infos_, queue_info, &modified_present_info);
@@ -10439,21 +10545,21 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
             const std::string filename_prefix =
                 screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
 
-            const uint32_t screenshot_width =
-                options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
-                    : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
-
-            const uint32_t screenshot_height =
-                options_.screenshot_scale
-                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
-                    : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
-
             auto instance_table = GetInstanceTable(device_info->parent);
             GFXRECON_ASSERT(instance_table != nullptr);
 
             VkPhysicalDeviceMemoryProperties memory_properties;
             instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+
+            // NOTE: optional scale takes precedence over explicit screenshot width/height
+            auto screenshot_scale = options_.screenshot_scale;
+            if (!screenshot_scale && options_.screenshot_width > 0 && options_.screenshot_height > 0)
+            {
+                screenshot_scale = {
+                    static_cast<float>(options_.screenshot_width) / static_cast<float>(image_info->extent.width),
+                    static_cast<float>(options_.screenshot_height) / static_cast<float>(image_info->extent.height)
+                };
+            }
 
             screenshot_handler_->WriteImage(filename_prefix,
                                             device_info,
@@ -10464,8 +10570,8 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
                                             image_info->format,
                                             image_info->extent.width,
                                             image_info->extent.height,
-                                            screenshot_width,
-                                            screenshot_height,
+                                            0,
+                                            screenshot_scale,
                                             image_info->current_layout);
         }
 
@@ -10477,6 +10583,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
     // TODO: merged in PR #2623 but causing issues in extended CI -> debug remaining issues and enable this again
     // related issue: https://github.com/LunarG/gfxreconstruct/issues/2660
     if constexpr (false)
+    // if (options_.swapchain_option == util::SwapchainOption::kVirtual)
     {
         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
 
@@ -10489,14 +10596,16 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
 
         const graphics::VulkanInstanceTable* instance_table = GetInstanceTable(instance_info->handle);
 
-        swapchain_->FrameBoundaryANDROID(func,
-                                         device_info,
-                                         semaphore_info,
-                                         image_info,
-                                         instance_info,
-                                         instance_table,
-                                         device_table,
-                                         application_.get());
+        util::BeginInjectedCommands();
+        swapchain_->PresentImageAdHoc(device_info,
+                                      semaphore_info,
+                                      image_info,
+                                      instance_info,
+                                      instance_table,
+                                      device_table,
+                                      application_.get(),
+                                      {});
+        util::EndInjectedCommands();
     }
     else
     {

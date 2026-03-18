@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
 
 #include "decode/vulkan_swapchain.h"
+#include "graphics/vulkan_resources_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -111,14 +112,14 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
-    virtual void FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
-                                      const VulkanDeviceInfo*              device_info,
-                                      const VulkanSemaphoreInfo*           semaphore_info,
-                                      const VulkanImageInfo*               image_info,
-                                      VulkanInstanceInfo*                  instance_info,
-                                      const graphics::VulkanInstanceTable* instance_table,
-                                      const graphics::VulkanDeviceTable*   device_table,
-                                      application::Application*            application) override;
+    void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+                           const VulkanSemaphoreInfo*                 semaphore_info,
+                           const VulkanImageInfo*                     image_info,
+                           VulkanInstanceInfo*                        instance_info,
+                           const graphics::VulkanInstanceTable*       instance_table,
+                           const graphics::VulkanDeviceTable*         device_table,
+                           application::Application*                  application,
+                           const std::optional<std::array<float, 2>>& scale) override;
 
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
@@ -194,25 +195,36 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     // This structure contains the data tied to a swapchain image created for presenting offscreen frame boundaries
     struct OFBSwapchainImageData
     {
-        VkImage         image{ VK_NULL_HANDLE };
-        VkCommandBuffer copy_command_buffer{ VK_NULL_HANDLE };
-        VkSemaphore     copy_semaphore{ VK_NULL_HANDLE };
+        VkImage       image{ VK_NULL_HANDLE };
+        VkImageLayout image_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+        VkSemaphore   semaphore{ VK_NULL_HANDLE };
+    };
+
+    struct OFBSwapchainFrameData
+    {
+        VkCommandBuffer command_buffer    = VK_NULL_HANDLE;
+        VkFence         fence             = VK_NULL_HANDLE;
+        VkSemaphore     acquire_semaphore = VK_NULL_HANDLE;
     };
 
     // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
     // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
     struct OFBData
     {
+        const VulkanInstanceInfo*          instance_info{ nullptr };
         VulkanSurfaceKHRInfo               surface_info{};
         HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
+        std::unordered_set<VkFormat>       surface_formats{};
         VkQueue                            queue{ VK_NULL_HANDLE };
         VkCommandPool                      command_pool{ VK_NULL_HANDLE };
         VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };
 
-        std::vector<VkSemaphore> acquire_semaphores{};
-        uint32_t                 acquire_index{ 0 };
+        std::vector<OFBSwapchainFrameData> frame_data;
+        uint32_t                           acquire_index{ 0 };
 
-        std::vector<OFBSwapchainImageData> image_datas{};
+        std::vector<OFBSwapchainImageData> image_data{};
+
+        std::unique_ptr<graphics::VulkanResourcesUtil> copy_util;
     };
 
     std::unordered_map<VkDevice, OFBData>  ofb_data_;

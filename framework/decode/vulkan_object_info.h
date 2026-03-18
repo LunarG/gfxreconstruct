@@ -465,6 +465,9 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 
     VkDeviceSize size{ 0 };
+
+    // contains a debug-utils name, if any
+    std::string debug_utils_name;
 };
 
 struct VulkanPipelineCacheData

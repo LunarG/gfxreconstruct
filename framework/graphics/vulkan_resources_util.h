@@ -48,11 +48,11 @@ class VulkanResourcesUtil
   public:
     VulkanResourcesUtil() = delete;
 
-    VulkanResourcesUtil(VkDevice                                device,
-                        VkPhysicalDevice                        physical_device,
-                        const VulkanDeviceTable&                device_table,
-                        const VulkanInstanceTable&              instance_table,
-                        const VkPhysicalDeviceMemoryProperties& memory_properties);
+    VulkanResourcesUtil(VkDevice                                               device,
+                        VkPhysicalDevice                                       physical_device,
+                        const VulkanDeviceTable&                               device_table,
+                        const VulkanInstanceTable&                             instance_table,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     ~VulkanResourcesUtil();
 
@@ -177,6 +177,25 @@ class VulkanResourcesUtil
                             const VkExtent3D& extent,
                             float             scale) const;
 
+    struct blit_image_params_t
+    {
+        VkImage             src_img     = VK_NULL_HANDLE;
+        VkImage             dst_img     = VK_NULL_HANDLE;
+        VkExtent3D          src_extent  = {};
+        VkExtent3D          dst_extent  = {};
+        VkImageLayout       src_layout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageLayout       dst_layout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageAspectFlags  aspect      = VK_IMAGE_ASPECT_COLOR_BIT;
+        VkOffset3D          src_offset  = { 0, 0, 0 };
+        VkOffset3D          dst_offset  = { 0, 0, 0 };
+        uint32_t            base_layer  = 0;
+        uint32_t            layer_count = 1;
+        uint32_t            mip_levels  = 1;
+        std::array<bool, 3> flip_axis   = { false, false, false };
+    };
+
+    void BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params);
+
   private:
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
@@ -196,15 +215,13 @@ class VulkanResourcesUtil
                                           VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect,
-                                          uint32_t           queue_family_index);
+                                          VkImageAspectFlags aspect);
 
     void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
                                             VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect,
-                                            uint32_t           queue_family_index);
+                                            VkImageAspectFlags aspect);
 
     void CopyImageBuffer(VkCommandBuffer              command_buffer,
                          VkImage                      image,
@@ -256,6 +273,8 @@ class VulkanResourcesUtil
                        VkImage&              scaled_image,
                        VkDeviceMemory&       scaled_image_mem);
 
+    void BlitHelper(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params) const;
+
     struct StagingBufferContext
     {
         StagingBufferContext() = default;
@@ -267,11 +286,13 @@ class VulkanResourcesUtil
         void*                 mapped_ptr            = nullptr;
     };
 
-    VkDevice                                device_;
-    const VulkanDeviceTable&                device_table_;
-    VkPhysicalDevice                        physical_device_;
-    const VulkanInstanceTable&              instance_table_;
-    const VkPhysicalDeviceMemoryProperties& memory_properties_;
+    VkDevice                   device_;
+    const VulkanDeviceTable&   device_table_;
+    VkPhysicalDevice           physical_device_;
+    const VulkanInstanceTable& instance_table_;
+
+    // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
+    std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
 
     struct command_assets_t
     {

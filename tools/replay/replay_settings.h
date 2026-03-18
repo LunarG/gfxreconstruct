@@ -42,7 +42,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit,--idle-before-submit";
+    "present-mode,--wait-before-first-submit,--idle-before-submit,--present-override";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -154,10 +154,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tPrefix to apply to the screenshot file name.  Default is ");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot\", producing file names similar to");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot_frame_8049.bmp\".");
-    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>");
-    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a decimal factor which will determine screenshot sizes.");
-    GFXRECON_WRITE_CONSOLE("          \t\tThe factor will be multiplied with the swapchain images");
-    GFXRECON_WRITE_CONSOLE("          \t\tdimension to determine the screenshot dimensions. Default is 1.0.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>[,<factor_y>]");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify one or two float scale factors to resize screenshot output.");
+    GFXRECON_WRITE_CONSOLE("          \t\tUse --screenshot-scale <factor_x>,<factor_y> for non-uniform scaling.");
+    GFXRECON_WRITE_CONSOLE("          \t\tA negative scale factor flips the output on that axis.");
+    GFXRECON_WRITE_CONSOLE("          \t\te.g. --screenshot-scale 0.5, --screenshot-scale 1.0,-1.0 (flip Y).");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault: 1.0 (original size).");
     GFXRECON_WRITE_CONSOLE("  --screenshot-size <width>x<height>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
     GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
@@ -266,6 +268,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_MAILBOX_KHR", kPresentModeMailbox);
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_KHR", kPresentModeFifo);
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_RELAXED_KHR", kPresentModeFifoRelaxed);
+    GFXRECON_WRITE_CONSOLE("  --present-override <debug-name>");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tPresent an image identified by its debug-utils name.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tUseful for capturing specific render targets.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tThe specified image will be presented and used for screenshot operations");
     GFXRECON_WRITE_CONSOLE("  --vssb");
     GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
