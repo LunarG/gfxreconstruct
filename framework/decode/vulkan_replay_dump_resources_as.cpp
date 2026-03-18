@@ -112,11 +112,10 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
     // kVulkanBuildAccelerationStructuresCommand will not have a command buffer like
     // vkCmdBuildAccelerationStructuresKHR. We create one so we can submit our commands.
-    TemporaryCommandBuffer temp_cmd_buff;
+    TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table);
     if (original_command_buffer == VK_NULL_HANDLE)
     {
-        CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
-        GFXRECON_ASSERT(temp_cmd_buff.command_buffer != VK_NULL_HANDLE);
+        temp_cmd_buff.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
     }
 
     const VkDevice        device = device_info->handle;
@@ -533,12 +532,13 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
         }
     }
 
+    VkResult res = VK_SUCCESS;
     if (original_command_buffer == nullptr)
     {
-        SubmitAndDestroyCommandBuffer(temp_cmd_buff);
+        res = temp_cmd_buff.SubmitAndDestroy();
     }
 
-    return VK_SUCCESS;
+    return res;
 }
 
 VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStructuresInputBuffers(
@@ -554,10 +554,10 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
     // kVulkanCopyAccelerationStructuresCommand will not have a command buffer like
     // vkCmdCopyAccelerationStructure. We create one so we can submit our commands.
-    TemporaryCommandBuffer temp_cmd_buff;
+    TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table);
     if (original_command_buffer == VK_NULL_HANDLE)
     {
-        CreateAndBeginCommandBuffer(graphics::FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
+        temp_cmd_buff.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
         GFXRECON_ASSERT(temp_cmd_buff.command_buffer != VK_NULL_HANDLE);
     }
 
@@ -743,12 +743,13 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
         }
     }
 
+    VkResult res = VK_SUCCESS;
     if (original_command_buffer == nullptr)
     {
-        SubmitAndDestroyCommandBuffer(temp_cmd_buff);
+        res = temp_cmd_buff.SubmitAndDestroy();
     }
 
-    return VK_SUCCESS;
+    return res;
 }
 
 void AccelerationStructureDumpResourcesContext::ReleaseSerializedResources()
