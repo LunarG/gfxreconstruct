@@ -283,6 +283,17 @@ class VulkanAddressReplacer
                                      const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
+     * @brief   ProcessGeneratedCommandsInfoEXT will check
+     *          and potentially correct device addresses in VkGeneratedCommandsInfoEXT
+     *
+     * @param   pGeneratedCommandsInfo  structure to replace device addresses in
+     * @param   address_tracker         const reference to a VulkanDeviceAddressTracker,
+     *                                  used for mapping device-addresses
+     */
+    void ProcessGeneratedCommandsInfoEXT(VkGeneratedCommandsInfoEXT*               pGeneratedCommandsInfo,
+                                         const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
      * @brief   ProcessGetQueryPoolResults will check for running queries and attempt to extract information
      *          about acceleration-structure compactions-sizes.
      *

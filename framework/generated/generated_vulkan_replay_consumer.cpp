@@ -11694,16 +11694,16 @@ void VulkanReplayConsumer::Process_vkCmdPreprocessGeneratedCommandsEXT(
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
     format::HandleId                            stateCommandBuffer)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
-    MapStructHandles(pGeneratedCommandsInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    VkCommandBuffer in_stateCommandBuffer = MapHandle<VulkanCommandBufferInfo>(stateCommandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdPreprocessGeneratedCommandsEXT(in_commandBuffer, in_pGeneratedCommandsInfo, in_stateCommandBuffer);
+    MapStructHandles(pGeneratedCommandsInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    auto in_stateCommandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(stateCommandBuffer);
+
+    OverrideCmdPreprocessGeneratedCommandsEXT(GetDeviceTable(in_commandBuffer->handle)->CmdPreprocessGeneratedCommandsEXT, in_commandBuffer, pGeneratedCommandsInfo, in_stateCommandBuffer);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPreprocessGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdPreprocessGeneratedCommandsEXT, in_commandBuffer, in_pGeneratedCommandsInfo, in_stateCommandBuffer);
+        resource_dumper_->Process_vkCmdPreprocessGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPreprocessGeneratedCommandsEXT, in_commandBuffer->handle, pGeneratedCommandsInfo->GetPointer(), in_stateCommandBuffer->handle);
     }
 }
 
@@ -11713,15 +11713,15 @@ void VulkanReplayConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
     VkBool32                                    isPreprocessed,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pGeneratedCommandsInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdExecuteGeneratedCommandsEXT(in_commandBuffer, isPreprocessed, in_pGeneratedCommandsInfo);
+    OverrideCmdExecuteGeneratedCommandsEXT(GetDeviceTable(in_commandBuffer->handle)->CmdExecuteGeneratedCommandsEXT, in_commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdExecuteGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteGeneratedCommandsEXT, in_commandBuffer, isPreprocessed, in_pGeneratedCommandsInfo);
+        resource_dumper_->Process_vkCmdExecuteGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdExecuteGeneratedCommandsEXT, in_commandBuffer->handle, isPreprocessed, pGeneratedCommandsInfo->GetPointer());
     }
 }
 
@@ -11770,18 +11770,17 @@ void VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectExecutionSetEXT>* pIndirectExecutionSet)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkIndirectExecutionSetCreateInfoEXT* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
     if (!pIndirectExecutionSet->IsNull()) { pIndirectExecutionSet->SetHandleLength(1); }
-    VkIndirectExecutionSetEXT* out_pIndirectExecutionSet = pIndirectExecutionSet->GetHandlePointer();
+    VulkanIndirectExecutionSetEXTInfo handle_info;
+    pIndirectExecutionSet->SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(pIndirectExecutionSet->GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateIndirectExecutionSetEXT(in_device, in_pCreateInfo, in_pAllocator, out_pIndirectExecutionSet);
+    VkResult replay_result = OverrideCreateIndirectExecutionSetEXT(GetDeviceTable(in_device->handle)->CreateIndirectExecutionSetEXT, returnValue, in_device, pCreateInfo, pAllocator, pIndirectExecutionSet);
     CheckResult("vkCreateIndirectExecutionSetEXT", returnValue, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanIndirectExecutionSetEXTInfo>(device, pIndirectExecutionSet->GetPointer(), out_pIndirectExecutionSet, &CommonObjectInfoTable::AddVkIndirectExecutionSetEXTInfo);
+    AddHandle<VulkanIndirectExecutionSetEXTInfo>(device, pIndirectExecutionSet->GetPointer(), pIndirectExecutionSet->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkIndirectExecutionSetEXTInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(

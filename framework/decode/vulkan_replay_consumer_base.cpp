@@ -13185,5 +13185,81 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineBinariesKHR(
     return replay_result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateIndirectExecutionSetEXT(
+    PFN_vkCreateIndirectExecutionSetEXT                                func,
+    VkResult                                                           original_result,
+    const VulkanDeviceInfo*                                            device_info,
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetCreateInfoEXT>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*               pAllocator,
+    HandlePointerDecoder<VkIndirectExecutionSetEXT>*                   pIndirectExecutionSet)
+{
+    GFXRECON_ASSERT(func != nullptr && device_info != nullptr && pCreateInfo != nullptr &&
+                    pIndirectExecutionSet != nullptr);
+
+    Decoded_VkIndirectExecutionSetCreateInfoEXT* meta_create_info = pCreateInfo->GetMetaStructPointer();
+
+    switch (meta_create_info->decoded_value->type)
+    {
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            MapStructHandles(meta_create_info->info->pPipelineInfo->GetMetaStructPointer(), GetObjectInfoTable());
+            break;
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            MapStructHandles(meta_create_info->info->pShaderInfo->GetMetaStructPointer(), GetObjectInfoTable());
+            break;
+        default:
+            break;
+    }
+
+    return func(device_info->handle,
+                pCreateInfo->GetPointer(),
+                GetAllocationCallbacks(pAllocator),
+                pIndirectExecutionSet->GetHandlePointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdPreprocessGeneratedCommandsEXT(
+    PFN_vkCmdPreprocessGeneratedCommandsEXT                   func,
+    const VulkanCommandBufferInfo*                            command_buffer_info,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
+    const VulkanCommandBufferInfo*                            state_command_buffer_info)
+{
+    GFXRECON_ASSERT(func != nullptr && command_buffer_info != nullptr && pGeneratedCommandsInfo != nullptr &&
+                    state_command_buffer_info != nullptr);
+
+    VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+
+    VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
+
+    if (UseAddressReplacement(device_info))
+    {
+        auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessGeneratedCommandsInfoEXT(in_pGeneratedCommandsInfo, address_tracker);
+    }
+
+    func(command_buffer_info->handle, in_pGeneratedCommandsInfo, state_command_buffer_info->handle);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdExecuteGeneratedCommandsEXT(
+    PFN_vkCmdExecuteGeneratedCommandsEXT                      func,
+    const VulkanCommandBufferInfo*                            command_buffer_info,
+    VkBool32                                                  isPreprocessed,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
+{
+    GFXRECON_ASSERT(func != nullptr && command_buffer_info != nullptr && pGeneratedCommandsInfo != nullptr);
+
+    VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+
+    VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
+
+    if (UseAddressReplacement(device_info))
+    {
+        auto& address_tracker  = GetDeviceAddressTracker(device_info);
+        auto& address_replacer = GetDeviceAddressReplacer(device_info);
+        address_replacer.ProcessGeneratedCommandsInfoEXT(in_pGeneratedCommandsInfo, address_tracker);
+    }
+
+    func(command_buffer_info->handle, isPreprocessed, in_pGeneratedCommandsInfo);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
