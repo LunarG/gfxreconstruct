@@ -1518,7 +1518,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             // NOTE: this is avoiding an unmotivated segfault on android
             if (ofb_data.surface_info.window->GetWsiExtension() != VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)
             {
-                VkImageMemoryBarrier memory_barrier;
+                VkImageMemoryBarrier memory_barrier{};
                 memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
                 memory_barrier.pNext                           = nullptr;
                 memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
