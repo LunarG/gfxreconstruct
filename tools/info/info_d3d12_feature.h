@@ -25,7 +25,7 @@
 
 #if defined(D3D12_SUPPORT)
 
-#include "info_api_generator.h"
+#include "info_feature.h"
 
 #include "decode/dx12_detection_consumer.h"
 #include "decode/dx12_stats_consumer.h"

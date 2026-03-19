@@ -25,7 +25,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
-#include "info_api_generator.h"
+#include "info_feature.h"
 
 #include "decode/openxr_detection_consumer.h"
 #include "decode/openxr_stats_consumer.h"

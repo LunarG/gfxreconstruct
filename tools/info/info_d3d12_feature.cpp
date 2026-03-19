@@ -23,7 +23,7 @@
 
 #if defined(D3D12_SUPPORT)
 
-#include "info_d3d12_generator.h"
+#include "info_d3d12_feature.h"
 
 #include "util/feature_module_registry.h"
 #include "util/to_string.h"

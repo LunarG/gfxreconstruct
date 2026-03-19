@@ -23,7 +23,7 @@
 #ifndef GFXRECON_INFO_VULKAN_GENERATOR_H
 #define GFXRECON_INFO_VULKAN_GENERATOR_H
 
-#include "info_api_generator.h"
+#include "info_feature.h"
 
 #include "decode/vulkan_detection_consumer.h"
 #include "decode/vulkan_stats_consumer.h"

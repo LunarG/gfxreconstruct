@@ -23,7 +23,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
-#include "info_openxr_generator.h"
+#include "info_openxr_feature.h"
 
 #include "util/feature_module_registry.h"
 
