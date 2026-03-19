@@ -118,6 +118,8 @@ void FpsInfo::EndFrame(uint64_t frame)
             GFXRECON_WRITE_CONSOLE("================== End timer (Frame: %llu) ==================", frame);
         }
     }
+
+    SetFirstSubmitDone(false);
 }
 
 bool FpsInfo::ShouldWaitIdleAfterFrame(uint64_t frame)

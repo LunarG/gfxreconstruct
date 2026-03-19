@@ -878,6 +878,13 @@ Optional arguments:
               Wait for the GPU to become idle before each submit.
   --serialize-render-passes
               Serialize render passes by injecting execution barriers before render pass begin during replay
+  --frame-warm-up-spirv <spirv-file>
+              Specify a SPIR-V file for the compute warm-up pass.
+              Warm-up runs only when this option and a non-zero
+              --frame-warm-up-load are both provided.
+  --frame-warm-up-load <load>
+              Specify workload scale factor for a compute dispatch warm-up pass
+              run before each frame replay. Default is 0 (disabled).
 ```
 
 ### Key Controls
