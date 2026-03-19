@@ -10623,10 +10623,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
         util::EndInjectedCommands();
     }
 
-    // TODO: merged in PR #2623 but causing issues in extended CI -> debug remaining issues and enable this again
-    // related issue: https://github.com/LunarG/gfxreconstruct/issues/2660
-    if constexpr (false)
-    // if (options_.swapchain_option == util::SwapchainOption::kVirtual)
+    if (options_.swapchain_option == util::SwapchainOption::kVirtual)
     {
         CommonObjectInfoTable& object_info_table = GetObjectInfoTable();
 
