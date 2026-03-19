@@ -38,7 +38,7 @@
 #include "format/format_util.h"
 #include "util/feature_module_registry.h"
 
-#include "info_api_generator.h"
+#include "info_feature.h"
 
 #include <nlohmann/json.hpp>
 

@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "info_vulkan_generator.h"
+#include "info_vulkan_feature.h"
 
 #include "util/feature_module_registry.h"
 #include "util/to_string.h"
