@@ -176,6 +176,7 @@ class ApiCaptureManager
     }
 
     bool GetIUnknownWrappingSetting() const { return common_manager_->GetIUnknownWrappingSetting(); }
+    int64_t& AvoidApiCallLock() { return common_manager_->AvoidApiCallLock(); }
     auto GetForceCommandSerialization() const { return common_manager_->GetForceCommandSerialization(); }
     auto GetQueueZeroOnly() const { return common_manager_->GetQueueZeroOnly(); }
     auto GetAllowPipelineCompileRequired() const { return common_manager_->GetAllowPipelineCompileRequired(); }
