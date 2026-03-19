@@ -1515,32 +1515,36 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         {
             image_data.image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-            VkImageMemoryBarrier memory_barrier;
-            memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            memory_barrier.pNext                           = nullptr;
-            memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
-            memory_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT;
-            memory_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-            memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-            memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-            memory_barrier.image                           = image_data.image;
-            memory_barrier.subresourceRange.aspectMask     = aspect_color;
-            memory_barrier.subresourceRange.baseMipLevel   = 0;
-            memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-            memory_barrier.subresourceRange.baseArrayLayer = 0;
-            memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+            // NOTE: this is avoiding an unmotivated segfault on android
+            if (ofb_data.surface_info.window->GetWsiExtension() != VK_KHR_ANDROID_SURFACE_EXTENSION_NAME)
+            {
+                VkImageMemoryBarrier memory_barrier;
+                memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                memory_barrier.pNext                           = nullptr;
+                memory_barrier.srcAccessMask                   = VK_ACCESS_NONE;
+                memory_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT;
+                memory_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+                memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                memory_barrier.image                           = image_data.image;
+                memory_barrier.subresourceRange.aspectMask     = aspect_color;
+                memory_barrier.subresourceRange.baseMipLevel   = 0;
+                memory_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+                memory_barrier.subresourceRange.baseArrayLayer = 0;
+                memory_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
 
-            device_table_->CmdPipelineBarrier(frame_data.command_buffer,
-                                              VK_PIPELINE_STAGE_NONE,
-                                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &memory_barrier);
+                device_table_->CmdPipelineBarrier(frame_data.command_buffer,
+                                                  VK_PIPELINE_STAGE_NONE,
+                                                  VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                                  0,
+                                                  0,
+                                                  nullptr,
+                                                  0,
+                                                  nullptr,
+                                                  1,
+                                                  &memory_barrier);
+            }
         }
 
         auto src_layout = image_info->current_layout != VK_IMAGE_LAYOUT_UNDEFINED
@@ -1602,7 +1606,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     }
 
     result = device_table->QueuePresentKHR(ofb_data.queue, &present_info);
-    GFXRECON_ASSERT(result == VK_SUCCESS);
+    GFXRECON_ASSERT(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const VulkanDeviceInfo*  device_info,
