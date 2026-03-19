@@ -41,8 +41,19 @@ class PreloadFileProcessor : public FileProcessor
     // Returns true if there are more frames to process, false if all frames have been processed or an error has occured
     bool ProcessNextFrame() override;
 
-    // Preloads *count* frames to continuous, expandable memory buffer
+    /// Preloads `count` frames to continuous, expandable memory buffer.
+    /// Precondition of this function is that `advance_to_next_frame_` is enabled.
     void PreloadNextFrames(size_t count);
+
+    /// If true, after replaying a preloaded frame, advance to the next preloaded frame.
+    /// Otherwise, remain on the current preloaded frame so that it can be replayed again.
+    void SetAdvanceToNextFrame(bool advance) { advance_to_next_frame_ = advance; };
+
+    /// Skips all blocks before a `StateEndMarker` from preloaded frames.
+    void SkipStateBlocks();
+
+  protected:
+    bool IsFileValid() const override;
 
   private:
     constexpr static size_t kWorkingStoreInitialSize = 4096;
@@ -51,6 +62,7 @@ class PreloadFileProcessor : public FileProcessor
     ProcessBlockState PreloadBlocksOneFrame();
     ProcessBlockState ReplayOneFrame();
     void              EnqueueBatch(BlockBatch::BatchPtr&& batch);
+    bool              AdvanceToNextFrame(ProcessBlockState process_result);
 
     util::HeapBuffer     working_uncompressed_store_;
     BlockBatch::iterator preload_head_;
@@ -59,6 +71,8 @@ class PreloadFileProcessor : public FileProcessor
 
     ProcessBlockState final_process_state_{ ProcessBlockState::kError }; // How the last frame preload ended
     bool              preload_contains_frame_stutter_ = false; // Tells replay to ignore first frame boundary block
+
+    bool advance_to_next_frame_ = true;
 };
 
 GFXRECON_END_NAMESPACE(decode)

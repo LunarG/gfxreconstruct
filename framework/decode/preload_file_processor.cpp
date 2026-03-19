@@ -41,6 +41,12 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
         return;
     }
 
+    GFXRECON_ASSERT(advance_to_next_frame_);
+    if (!advance_to_next_frame_)
+    {
+        return;
+    }
+
     // Block processing will update current_frame_number_, so save and restore it,
     // as callers rely on it remaining unchanged by preload.
     const uint64_t save_current_frame = current_frame_number_;
@@ -68,18 +74,25 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
 
     // Use kAlways decompression policy to move the maximum amount of work outside the measurement loop
     auto save_decompression_policy = block_parser_->GetDecompressionPolicy();
+
+    // Use kAlways when preloading for frame looping.
+    // This is required not only to move decompression work out of the measurement loop,
+    // but also to ensure queued blocks have stable decompressed argument data for replay.
+    // If decompression were deferred to replay, dispatch args for compressed blocks could
+    // point into the temporary working decompression store, which is overwritten/resized
+    // by subsequent decompressions, leading to invalid or stale pointers.
     block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
 
     // Multiple appended preload not supported.
     GFXRECON_ASSERT(!preload_head_);
     ResetPreload();
 
-    ProcessBlockState preload_result = ProcessBlockState::kFrameBoundary;
+    ProcessBlockState preload_result        = ProcessBlockState::kFrameBoundary;
     bool              first_preloaded_frame = true;
     while ((count != 0U) && (preload_result == ProcessBlockState::kFrameBoundary))
     {
-        uint64_t         current_preload_frame = current_frame_number_;
-        preload_result                         = PreloadBlocksOneFrame();
+        uint64_t current_preload_frame = current_frame_number_;
+        preload_result                 = PreloadBlocksOneFrame();
 
         if (preload_result != ProcessBlockState::kError)
         {
@@ -176,29 +189,70 @@ bool PreloadFileProcessor::ProcessNextFrame()
     }
 
     ProcessBlockState process_result = ReplayOneFrame();
+    return AdvanceToNextFrame(process_result);
+}
 
-    const bool at_end = (!replay_cursor_);
-    if (at_end)
+bool PreloadFileProcessor::AdvanceToNextFrame(ProcessBlockState process_result)
+{
+    if (advance_to_next_frame_)
     {
-        if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+        const bool at_end = (!replay_cursor_);
+        if (at_end)
         {
-            // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+            if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+            {
+                // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+                current_frame_number_++;
+            }
+            // Return true only if both the replay and preload are in a continue state
+            return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
+        }
+
+        if (IsFrameBoundary(process_result))
+        {
             current_frame_number_++;
         }
-        // Return true only if both the replay and preload are in a continue state
-        return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
     }
 
-    if (IsFrameBoundary(process_result))
-    {
-        current_frame_number_++;
-    }
     return ContinueProcessing(process_result);
+}
+
+void PreloadFileProcessor::SkipStateBlocks()
+{
+    GFXRECON_ASSERT(replay_cursor_);
+    for (auto drop_cursor = replay_cursor_; drop_cursor; ++drop_cursor)
+    {
+        ParsedBlock& block = *drop_cursor;
+        if (block.Holds<StateEndMarkerArgs>())
+        {
+            ++drop_cursor;
+            auto blocks_skipped = std::distance(replay_cursor_, drop_cursor);
+            GFXRECON_LOG_INFO("Skipped %" PRIu64 " state blocks from preloaded frame %" PRIu64,
+                              blocks_skipped,
+                              current_frame_number_);
+            replay_cursor_ = drop_cursor;
+            break;
+        }
+    }
+}
+
+bool PreloadFileProcessor::IsFileValid() const
+{
+    if (advance_to_next_frame_)
+    {
+        return FileProcessor::IsFileValid();
+    }
+    else
+    {
+        // When not advancing frames, ensure there is at least one preloaded frame to replay
+        return preload_head_ && replay_cursor_;
+    }
 }
 
 FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
 {
     GFXRECON_ASSERT(replay_cursor_);
+    auto current_cursor = replay_cursor_;
 
     BlockParser&    block_parser = GetBlockParser();
     DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
@@ -207,8 +261,8 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
     ProcessBlockState process_state = ProcessBlockState::kRunning;
     while (process_state == ProcessBlockState::kRunning)
     {
-        ParsedBlock& queued_block = *replay_cursor_;
-        uint64_t block_index = queued_block.GetBlockIndex();
+        ParsedBlock& queued_block = *current_cursor;
+        uint64_t     block_index  = queued_block.GetBlockIndex();
         if (!ContinueDecoding(block_index, true /* check decoder completion */))
         {
             process_state = ProcessBlockState::kEndProcessing;
@@ -264,14 +318,19 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
         }
 
         // Advance
-        ++replay_cursor_;
+        ++current_cursor;
 
-        if ((process_state == ProcessBlockState::kRunning) && !replay_cursor_)
+        if ((process_state == ProcessBlockState::kRunning) && !current_cursor)
         {
             // We did not end on a frame boundary, but that's okay if preloading end frame is beyond last complete frame
             // and there is a last incomplete frame, because of interrupt during record
             process_state = ProcessBlockState::kEndProcessing;
         }
+    }
+
+    if (advance_to_next_frame_)
+    {
+        replay_cursor_ = current_cursor;
     }
 
     return process_state;
