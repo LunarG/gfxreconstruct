@@ -80,8 +80,8 @@ void InfoD3d12Feature::RegisterApiDecodeComponents(decode::FileProcessor& file_p
 
 std::string InfoD3d12Feature::GetEnumGpuIndicesText()
 {
-    IDXGIFactory1* factory1   = nullptr;
-    std::string    return_val = "";
+    gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1   = nullptr;
+    std::string                                   return_val = "";
 
     HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
@@ -98,7 +98,8 @@ std::string InfoD3d12Feature::GetEnumGpuIndicesText()
             {
                 if (index == adapter.second.adapter_idx)
                 {
-                    std::string replay_adapter_str = util::WCharArrayToString(adapter.second.internal_desc.Description);
+                    std::string replay_adapter_str =
+                        gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
 
                     return_val += util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +
                                   replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId) +
