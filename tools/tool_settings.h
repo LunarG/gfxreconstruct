@@ -1351,6 +1351,16 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
     replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
+
+    replay_options.replace_shader_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
+    if (!replay_options.replace_shader_dir.empty())
+    {
+        GFXRECON_LOG_WARNING("The replacement shader bytecode must be compatible with the original shader's "
+                             "input/output signatures and pipeline layout.");
+        GFXRECON_LOG_WARNING(
+            "Incompatible replacements may cause replay failures, driver crashes, or rendering errors.");
+    }
+
     return replay_options;
 }
 #endif
