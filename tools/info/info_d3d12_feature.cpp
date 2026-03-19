@@ -32,11 +32,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
 // Register this class as a feature in a module registry
-GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoApiGenerator, InfoD3d12Generator)
+GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoD3d12Feature)
 
 const char kEnumGpuIndices[] = "--enum-gpu-indices";
 
-std::string InfoD3d12Generator::ApiCompiledHeaderVersionString() const
+std::string InfoD3d12Feature::ApiCompiledHeaderVersionString() const
 {
 #if defined(D3D12SDKVersion)
     return std::string("  D3D12 SDK Version      ") + D3D12SDKVersion;
@@ -45,13 +45,13 @@ std::string InfoD3d12Generator::ApiCompiledHeaderVersionString() const
 #endif
 }
 
-void InfoD3d12Generator::UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
+void InfoD3d12Feature::UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
 {
     options += " ";
     options += kEnumGpuIndices;
 }
 
-std::string InfoD3d12Generator::GetCommandLineUsage()
+std::string InfoD3d12Feature::GetCommandLineUsage()
 {
     std::string return_val = "\n// D3D12-specific\n  ";
     return_val += kEnumGpuIndices;
@@ -59,7 +59,7 @@ std::string InfoD3d12Generator::GetCommandLineUsage()
     return return_val;
 }
 
-bool InfoD3d12Generator::CheckCommandLine(util::ArgumentParser* arg_parser)
+bool InfoD3d12Feature::CheckCommandLine(util::ArgumentParser* arg_parser)
 {
     if (arg_parser->IsOptionSet(kEnumGpuIndices))
     {
@@ -71,14 +71,14 @@ bool InfoD3d12Generator::CheckCommandLine(util::ArgumentParser* arg_parser)
     return true;
 }
 
-void InfoD3d12Generator::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoD3d12Feature::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     dx12_decoder_.AddConsumer(&dx12_detection_consumer_);
     dx12_decoder_.AddConsumer(&dx12_consumer_);
     file_processor.AddDecoder(&dx12_decoder_);
 }
 
-std::string InfoD3d12Generator::GetEnumGpuIndicesText()
+std::string InfoD3d12Feature::GetEnumGpuIndicesText()
 {
     IDXGIFactory1* factory1   = nullptr;
     std::string    return_val = "";
@@ -115,7 +115,7 @@ std::string InfoD3d12Generator::GetEnumGpuIndicesText()
     return return_val;
 }
 
-std::string InfoD3d12Generator::GetDriverInfoString()
+std::string InfoD3d12Feature::GetDriverInfoString()
 {
     if (!driver_info_.empty())
     {
@@ -127,7 +127,7 @@ std::string InfoD3d12Generator::GetDriverInfoString()
     }
 }
 
-std::string InfoD3d12Generator::GetDriverInfoText()
+std::string InfoD3d12Feature::GetDriverInfoText()
 {
     std::string return_val = "\nDriver info:\n";
     if (driver_info_.length())
@@ -141,7 +141,7 @@ std::string InfoD3d12Generator::GetDriverInfoText()
     return return_val;
 }
 
-std::string InfoD3d12Generator::AdapterTypeToString(format::AdapterType type)
+std::string InfoD3d12Feature::AdapterTypeToString(format::AdapterType type)
 {
     switch (type)
     {
@@ -156,7 +156,7 @@ std::string InfoD3d12Generator::AdapterTypeToString(format::AdapterType type)
     }
 }
 
-std::string InfoD3d12Generator::GetRuntimeInfoText()
+std::string InfoD3d12Feature::GetRuntimeInfoText()
 {
     format::Dx12RuntimeInfo runtime_info = dx12_consumer_.GetDx12RuntimeInfo();
 
@@ -176,7 +176,7 @@ std::string InfoD3d12Generator::GetRuntimeInfoText()
     return return_val;
 }
 
-nlohmann::json InfoD3d12Generator::GetRuntimeInfoJson()
+nlohmann::json InfoD3d12Feature::GetRuntimeInfoJson()
 {
     format::Dx12RuntimeInfo runtime_info = dx12_consumer_.GetDx12RuntimeInfo();
 
@@ -196,7 +196,7 @@ nlohmann::json InfoD3d12Generator::GetRuntimeInfoJson()
     };
 }
 
-std::string InfoD3d12Generator::GetAdapterInfoText()
+std::string InfoD3d12Feature::GetAdapterInfoText()
 {
     std::string return_val = "D3D12 adapter info:\n";
 
@@ -248,7 +248,7 @@ std::string InfoD3d12Generator::GetAdapterInfoText()
     return return_val;
 }
 
-nlohmann::json InfoD3d12Generator::GetAdapterInfoJson()
+nlohmann::json InfoD3d12Feature::GetAdapterInfoJson()
 {
     const auto&    adapters      = dx12_consumer_.GetAdapters();
     nlohmann::json adapters_json = nlohmann::json::array();
@@ -299,7 +299,7 @@ nlohmann::json InfoD3d12Generator::GetAdapterInfoJson()
     return adapters_json;
 }
 
-std::string InfoD3d12Generator::GetSwapchainInfoText()
+std::string InfoD3d12Feature::GetSwapchainInfoText()
 {
     std::string return_val = "D3D12 swapchain info:\n";
 
@@ -315,13 +315,13 @@ std::string InfoD3d12Generator::GetSwapchainInfoText()
     return return_val;
 }
 
-nlohmann::json InfoD3d12Generator::GetSwapchainInfoJson()
+nlohmann::json InfoD3d12Feature::GetSwapchainInfoJson()
 {
     auto [width, height] = dx12_consumer_.GetSwapchainDimensions();
     return { "dimensions", { { "width", width }, { "height", height } } };
 }
 
-std::string InfoD3d12Generator::GetDxrEiInfoText()
+std::string InfoD3d12Feature::GetDxrEiInfoText()
 {
     std::string return_val = "D3D12 EI workload: ";
     return_val += std::string(dx12_consumer_.ContainsEiWorkload() ? "yes" : "no") + "\n";
@@ -336,7 +336,7 @@ std::string InfoD3d12Generator::GetDxrEiInfoText()
     return return_val;
 }
 
-nlohmann::json InfoD3d12Generator::GetDxrEiInfoJson()
+nlohmann::json InfoD3d12Feature::GetDxrEiInfoJson()
 {
     return {
         { "ei-workload", dx12_consumer_.ContainsEiWorkload() ? "yes" : "no" },
@@ -349,7 +349,7 @@ nlohmann::json InfoD3d12Generator::GetDxrEiInfoJson()
     };
 }
 
-std::string InfoD3d12Generator::GenerateText()
+std::string InfoD3d12Feature::GenerateText()
 {
     std::string return_val = "";
 
@@ -373,7 +373,7 @@ std::string InfoD3d12Generator::GenerateText()
     return return_val;
 }
 
-nlohmann::json InfoD3d12Generator::GenerateJson()
+nlohmann::json InfoD3d12Feature::GenerateJson()
 {
     nlohmann::json d3d12_json;
 
@@ -394,7 +394,7 @@ nlohmann::json InfoD3d12Generator::GenerateJson()
     return d3d12_json;
 }
 
-uint32_t InfoD3d12Generator::GetBlankFrameCount()
+uint32_t InfoD3d12Feature::GetBlankFrameCount()
 {
     return dx12_consumer_.GetDummyFrameCount();
 }

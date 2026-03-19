@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_OPENXR_GENERATOR_H
-#define GFXRECON_INFO_OPENXR_GENERATOR_H
+#ifndef GFXRECON_INFO_OPENXR_FEATURE_H
+#define GFXRECON_INFO_OPENXR_FEATURE_H
 
 #if ENABLE_OPENXR_SUPPORT
 
@@ -34,11 +34,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoOpenXrGenerator : public InfoApiGenerator
+class InfoOpenXrFeature : public InfoFeature
 {
   public:
-    InfoOpenXrGenerator() : openxr_detection_consumer_() {}
-    virtual ~InfoOpenXrGenerator() = default;
+    InfoOpenXrFeature() : openxr_detection_consumer_() {}
+    virtual ~InfoOpenXrFeature() = default;
 
     // Simple "getter" style methods
     format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_OpenXR; }
@@ -67,4 +67,4 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // ENABLE_OPENXR_SUPPORT
 
-#endif // GFXRECON_INFO_OPENXR_GENERATOR_H
+#endif // GFXRECON_INFO_OPENXR_FEATURE_H

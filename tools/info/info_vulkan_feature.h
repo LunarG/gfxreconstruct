@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_VULKAN_GENERATOR_H
-#define GFXRECON_INFO_VULKAN_GENERATOR_H
+#ifndef GFXRECON_INFO_VULKAN_FEATURE_H
+#define GFXRECON_INFO_VULKAN_FEATURE_H
 
 #include "info_feature.h"
 
@@ -32,11 +32,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoVulkanGenerator : public InfoApiGenerator
+class InfoVulkanFeature : public InfoFeature
 {
   public:
-    InfoVulkanGenerator() : vulkan_detection_consumer_(gfxrecon::decode::VulkanDetectionConsumer::kNoBlockLimit) {}
-    virtual ~InfoVulkanGenerator() = default;
+    InfoVulkanFeature() : vulkan_detection_consumer_(gfxrecon::decode::VulkanDetectionConsumer::kNoBlockLimit) {}
+    virtual ~InfoVulkanFeature() = default;
 
     // Simple "getter" style methods
     format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_Vulkan; }
@@ -74,4 +74,4 @@ class InfoVulkanGenerator : public InfoApiGenerator
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_INFO_VULKAN_GENERATOR_H
+#endif // GFXRECON_INFO_VULKAN_FEATURE_H

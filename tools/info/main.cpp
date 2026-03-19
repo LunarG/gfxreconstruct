@@ -168,7 +168,7 @@ class InfoGenerator
     };
 
     std::string                                                    app_name_;
-    std::vector<std::unique_ptr<gfxrecon::info::InfoApiGenerator>> api_generators_;
+    std::vector<std::unique_ptr<gfxrecon::info::InfoFeature>>      info_features_;
     std::vector<std::string>                                       detected_apis_;
     OutputSelections                                               output_selections_;
     uint32_t                                                       blank_frame_count_{ 0 };
@@ -196,10 +196,10 @@ InfoGenerator::InfoGenerator()
     // call each generator here and put the unique_ptr into our
     // internal unique_ptr vector.
     for (const auto& registered_creator :
-         gfxrecon::util::FeatureModuleRegistry<gfxrecon::info::InfoApiGenerator>::GetSingleton()
+         gfxrecon::util::FeatureModuleRegistry<gfxrecon::info::InfoFeature>::GetSingleton()
              .GetRegisteredFeatureCreators())
     {
-        api_generators_.push_back(std::move(registered_creator()));
+        info_features_.push_back(std::move(registered_creator()));
     }
 }
 
@@ -216,7 +216,7 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
     // Add any API-specific command-line arguments/options
     std::string arguments = kArguments;
     std::string options   = kOptions;
-    for (auto& api_gen : api_generators_)
+    for (auto& api_gen : info_features_)
     {
         api_gen->UpdateValidCommandLineOptionsArgs(options, arguments);
     }
@@ -286,7 +286,7 @@ bool InfoGenerator::ProcessCommandLine(int32_t argc, const char** argv)
     }
 
     // Check for API-specific items
-    for (auto& api_gen : api_generators_)
+    for (auto& api_gen : info_features_)
     {
         if (!api_gen->CheckCommandLine(argument_parser_.get()))
         {
@@ -345,7 +345,7 @@ bool InfoGenerator::ProcessCapture()
             // For everything else, we want to parse the entire file.
             else if (output_selections_.general_info || output_selections_.api_specific_info)
             {
-                for (auto& api_gen : api_generators_)
+                for (auto& api_gen : info_features_)
                 {
                     api_gen->RegisterApiDecodeComponents(file_processor_);
                 }
@@ -371,7 +371,7 @@ bool InfoGenerator::ProcessCapture()
                 }
 
                 bool api_found = false;
-                for (auto& api_gen : api_generators_)
+                for (auto& api_gen : info_features_)
                 {
                     if (api_gen->ApiWasDetected())
                     {
@@ -462,7 +462,7 @@ bool InfoGenerator::OutputContent()
             PrintApiAgnosticStatsText();
         }
 
-        for (auto& api_gen : api_generators_)
+        for (auto& api_gen : info_features_)
         {
             if ((api_gen->ApiWasDetected() || force_all_api_output_))
             {
@@ -532,7 +532,7 @@ void InfoGenerator::PrintUsage()
     WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
     WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
 
-    for (auto& api_gen : api_generators_)
+    for (auto& api_gen : info_features_)
     {
         WriteOutput(api_gen->GetCommandLineUsage());
     }
@@ -541,7 +541,7 @@ void InfoGenerator::PrintUsage()
 void InfoGenerator::PrintVersion()
 {
     WriteOutput((app_name_ + " version info:\n  GFXReconstruct Version " + GetProjectVersionString()).c_str());
-    for (auto& api_gen : api_generators_)
+    for (auto& api_gen : info_features_)
     {
         WriteOutput(api_gen->ApiCompiledHeaderVersionString());
     }

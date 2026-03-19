@@ -30,23 +30,23 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
 // Register this class as a feature in a module registry
-GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoApiGenerator, InfoVulkanGenerator)
+GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoVulkanFeature)
 
-std::string InfoVulkanGenerator::ApiCompiledHeaderVersionString() const
+std::string InfoVulkanFeature::ApiCompiledHeaderVersionString() const
 {
     return std::string("  Vulkan Header Version  ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
            "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 }
 
-void InfoVulkanGenerator::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoVulkanFeature::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     vulkan_decoder_.AddConsumer(&vulkan_detection_consumer_);
     vulkan_decoder_.AddConsumer(&vulkan_stats_consumer_);
     file_processor.AddDecoder(&vulkan_decoder_);
 }
 
-std::string InfoVulkanGenerator::GetVersionString(uint32_t api_version)
+std::string InfoVulkanFeature::GetVersionString(uint32_t api_version)
 {
     uint32_t major = VK_API_VERSION_MAJOR(api_version);
     uint32_t minor = VK_API_VERSION_MINOR(api_version);
@@ -55,7 +55,7 @@ std::string InfoVulkanGenerator::GetVersionString(uint32_t api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
-std::string InfoVulkanGenerator::GenerateText()
+std::string InfoVulkanFeature::GenerateText()
 {
     std::string return_val = "\nVulkan application info:\n";
 
@@ -163,7 +163,7 @@ std::string InfoVulkanGenerator::GenerateText()
     return return_val;
 }
 
-std::string InfoVulkanGenerator::GetDeviceTypeString(VkPhysicalDeviceType device_type)
+std::string InfoVulkanFeature::GetDeviceTypeString(VkPhysicalDeviceType device_type)
 {
     switch (device_type)
     {
@@ -188,12 +188,12 @@ std::string InfoVulkanGenerator::GetDeviceTypeString(VkPhysicalDeviceType device
     }
 }
 
-nlohmann::json InfoVulkanGenerator::GetDeviceMemoryStatsJson(uint64_t alloc_count,
-                                                             uint64_t min_alloc,
-                                                             uint64_t max_alloc,
-                                                             uint64_t gfx_pipelines,
-                                                             uint64_t comp_pipelines,
-                                                             uint64_t rt_pipelines)
+nlohmann::json InfoVulkanFeature::GetDeviceMemoryStatsJson(uint64_t alloc_count,
+                                                           uint64_t min_alloc,
+                                                           uint64_t max_alloc,
+                                                           uint64_t gfx_pipelines,
+                                                           uint64_t comp_pipelines,
+                                                           uint64_t rt_pipelines)
 {
     return {
         { "memory-alloc",
@@ -211,7 +211,7 @@ nlohmann::json InfoVulkanGenerator::GetDeviceMemoryStatsJson(uint64_t alloc_coun
     };
 }
 
-nlohmann::json InfoVulkanGenerator::GenerateJson()
+nlohmann::json InfoVulkanFeature::GenerateJson()
 {
     nlohmann::json vulkan_stats;
 
@@ -290,7 +290,7 @@ nlohmann::json InfoVulkanGenerator::GenerateJson()
     return vulkan_stats;
 }
 
-uint32_t InfoVulkanGenerator::GetFrameStart() const
+uint32_t InfoVulkanFeature::GetFrameStart() const
 {
     return vulkan_stats_consumer_.GetTrimmedStartFrame();
 }

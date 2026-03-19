@@ -31,23 +31,23 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
 // Register this class as a feature in a module registry
-GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoApiGenerator, InfoOpenXrGenerator)
+GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoOpenXrFeature)
 
-std::string InfoOpenXrGenerator::ApiCompiledHeaderVersionString() const
+std::string InfoOpenXrFeature::ApiCompiledHeaderVersionString() const
 {
     return std::string("  OpenXR Header Version  ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
            std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
            std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 }
 
-void InfoOpenXrGenerator::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoOpenXrFeature::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
 {
     openxr_decoder_.AddConsumer(&openxr_detection_consumer_);
     openxr_decoder_.AddConsumer(&openxr_stats_consumer_);
     file_processor.AddDecoder(&openxr_decoder_);
 }
 
-std::string InfoOpenXrGenerator::GetVersionString(XrVersion api_version)
+std::string InfoOpenXrFeature::GetVersionString(XrVersion api_version)
 {
     uint32_t major = XR_VERSION_MAJOR(api_version);
     uint32_t minor = XR_VERSION_MINOR(api_version);
@@ -56,7 +56,7 @@ std::string InfoOpenXrGenerator::GetVersionString(XrVersion api_version)
     return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
 }
 
-std::string InfoOpenXrGenerator::GenerateText()
+std::string InfoOpenXrFeature::GenerateText()
 {
     std::string return_val    = "\nOpenXR info:\n";
     auto        instance_info = openxr_stats_consumer_.GetInstanceInfo();
@@ -77,7 +77,7 @@ std::string InfoOpenXrGenerator::GenerateText()
     return return_val;
 }
 
-nlohmann::json InfoOpenXrGenerator::GenerateJson()
+nlohmann::json InfoOpenXrFeature::GenerateJson()
 {
     auto instance_info = openxr_stats_consumer_.GetInstanceInfo();
 
