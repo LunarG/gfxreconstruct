@@ -20,8 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_INFO_API_GENERATOR_H
-#define GFXRECON_INFO_API_GENERATOR_H
+#ifndef GFXRECON_INFO_FEATURE_H
+#define GFXRECON_INFO_FEATURE_H
 
 #include "decode/file_processor.h"
 #include "format/format.h"
@@ -39,10 +39,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
-class InfoApiGenerator
+class InfoFeature
 {
   public:
-    virtual ~InfoApiGenerator() = default;
+    virtual ~InfoFeature() = default;
 
     // Simple "getter" style methods
     virtual format::ApiFamilyId ApiFamilyId() const = 0;
@@ -90,4 +90,4 @@ class InfoApiGenerator
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_INFO_API_GENERATOR_H
+#endif // GFXRECON_INFO_FEATURE_H
