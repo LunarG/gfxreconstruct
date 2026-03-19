@@ -437,7 +437,6 @@ A json example specifying the above options:
 {
   "DumpResourcesOptions": {
       "Scale": 0.2,
-      "OutputDir": "",
       "ColorAttachmentIndex": -1,
       "OutputDir": "",
       "ImageFormat": "png",
