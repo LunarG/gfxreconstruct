@@ -149,14 +149,15 @@ It is possible to dump the depth and color attachments of all `vkCmdDraw` comman
 
 An example involving secondary command buffers
 
+```json
 {"index":754,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":230 ... }}},
 {"index":761,"function":{"name":"vkCmdDrawIndexed","args":{"commandBuffer":230, ...}}}
-
 {"index":736,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":226, ...}}},
 {"index":3948,"function":{"name":"vkCmdBeginRenderPass","args":{"commandBuffer":226, ...}}},
 {"index":3949,"function":{"name":"vkCmdExecuteCommands","args":{"commandBuffer":226,"commandBufferCount":357,"pCommandBuffers":[227,230,232,233,...]}}}
 {"index":3950,"function":{"name":"vkCmdEndRenderPass","args":{"commandBuffer":226}}}
 {"index":3952,"function":{"name":"vkQueueSubmit","args":{"queue":6,"submitCount":1,"pSubmits":[{"commandBufferCount":1,"pCommandBuffers":[226]}...]...}}}
+```
 
 In order to dump the draw call from the secondary command buffer `230` the following json input file should be provided:
 
