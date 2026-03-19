@@ -173,28 +173,31 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             util::Log::Init();
         }
 
-        // NOTE: FIRST Api Instance is used for settings -- actual multiple simulatenous API support will need to
-        // resolve. Get capture settings which can be different per capture manager.
-        default_settings_ = api_capture_singleton->GetDefaultTraceSettings();
-        capture_settings_ = api_capture_singleton->GetDefaultTraceSettings();
+        if (capture_settings_ == nullptr)
+        {
+            // NOTE: FIRST Api Instance is used for settings -- actual multiple simultaneous API support will need to
+            // resolve. Get capture settings which can be different per capture manager.
+            capture_settings_ = api_capture_singleton->GetCaptureSettings();
+        }
 
         if (initialize_log_)
         {
             // Load log settings.
-            CaptureSettings::LoadLogSettings(&capture_settings_);
+            CaptureSettings::LoadLogSettings(capture_settings_);
 
             // And then update the log with those settings
-            util::Log::UpdateWithSettings(capture_settings_.GetLogSettings());
+            util::Log::UpdateWithSettings(capture_settings_->GetLogSettings());
         }
 
         // Load all settings with final logging settings active.
-        CaptureSettings::LoadSettings(&capture_settings_, initialize_log_);
+        CaptureSettings::LoadAllSettings(capture_settings_, initialize_log_);
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
         GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GetProjectVersionString());
 
-        CaptureSettings::TraceSettings trace_settings = capture_settings_.GetTraceSettings();
+        CaptureSettings::TraceSettings trace_settings = capture_settings_->GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
+
         // Initialize capture manager with default settings.
         success = Initialize(api_capture_singleton->GetApiFamily(), base_filename, trace_settings);
         if (!success)
@@ -826,9 +829,8 @@ bool CommonCaptureManager::IsTrimHotkeyPressed()
 
 bool CommonCaptureManager::RuntimeTriggerEnabled()
 {
-    CaptureSettings settings;
-    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
+    CaptureSettings::LoadDynamicSettings(capture_settings_);
+    CaptureSettings::RuntimeTriggerState state = capture_settings_->GetTraceSettings().runtime_capture_trigger;
 
     bool result = (state == CaptureSettings::RuntimeTriggerState::kEnabled &&
                    (previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kDisabled ||
@@ -841,9 +843,8 @@ bool CommonCaptureManager::RuntimeTriggerEnabled()
 
 bool CommonCaptureManager::RuntimeTriggerDisabled()
 {
-    CaptureSettings settings;
-    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
+    CaptureSettings::LoadDynamicSettings(capture_settings_);
+    CaptureSettings::RuntimeTriggerState state = capture_settings_->GetTraceSettings().runtime_capture_trigger;
 
     bool result = ((state == CaptureSettings::RuntimeTriggerState::kDisabled ||
                     state == CaptureSettings::RuntimeTriggerState::kNotUsed) &&
@@ -882,9 +883,8 @@ bool CommonCaptureManager::ExternalTriggerDisabled()
 
 bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
 {
-    CaptureSettings settings;
-    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-    bool write_assets = settings.GetTraceSettings().runtime_write_assets;
+    CaptureSettings::LoadDynamicSettings(capture_settings_);
+    bool write_assets = capture_settings_->GetTraceSettings().runtime_write_assets;
 
     if (previous_write_assets_ != write_assets)
     {
@@ -1317,7 +1317,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         // Gather environment variables in format::kEnvironmentStringDelimeter -delimited string
         std::string env_vars;
 
-        for (const auto& name : capture_settings_.GetTraceSettings().capture_environment)
+        for (const auto& name : capture_settings_->GetTraceSettings().capture_environment)
         {
             const auto value = util::platform::GetEnv(name.c_str());
             if (!value.empty())
@@ -1703,10 +1703,10 @@ void CommonCaptureManager::AtExit()
 
 void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation)
 {
-    CaptureSettings::TraceSettings default_settings = default_settings_.GetTraceSettings();
+    CaptureSettings::TraceSettings trace_settings = capture_settings_->GetTraceSettings();
     std::string                    buffer;
 
-    if (force_file_flush_ != default_settings.force_flush)
+    if (force_file_flush_ != trace_settings.force_flush)
     {
         buffer += "\n    \"file-flush\": ";
         buffer += force_file_flush_ ? "true," : "false,";
@@ -1723,17 +1723,17 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     else
     {
         std::string page_guard_options_buffer;
-        if (page_guard_copy_on_map_ != default_settings.page_guard_copy_on_map)
+        if (page_guard_copy_on_map_ != trace_settings.page_guard_copy_on_map)
         {
             page_guard_options_buffer += "\n    \"page-guard-copy-on-map\": ";
             page_guard_options_buffer += page_guard_copy_on_map_ ? "true," : "false,";
         }
-        if (page_guard_separate_read_ != default_settings.page_guard_separate_read)
+        if (page_guard_separate_read_ != trace_settings.page_guard_separate_read)
         {
             page_guard_options_buffer += "\n    \"page-guard-separate-read\": ";
             page_guard_options_buffer += page_guard_separate_read_ ? "true," : "false,";
         }
-        if (page_guard_external_memory_ != default_settings.page_guard_external_memory)
+        if (page_guard_external_memory_ != trace_settings.page_guard_external_memory)
         {
             page_guard_options_buffer += "\n    \"page-guard-external-memory\": ";
             page_guard_options_buffer += page_guard_external_memory_ ? "true," : "false,";
@@ -1744,23 +1744,23 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
             page_guard_options_buffer +=
                 (page_guard_memory_mode_ == PageGuardMemoryMode::kMemoryModeShadowPersistent) ? "true," : "false,";
         }
-        if (page_guard_align_buffer_sizes_ != default_settings.page_guard_align_buffer_sizes)
+        if (page_guard_align_buffer_sizes_ != trace_settings.page_guard_align_buffer_sizes)
         {
             page_guard_options_buffer += "\n    \"page-guard-align-buffer-sizes\": ";
             page_guard_options_buffer += page_guard_align_buffer_sizes_ ? "true," : "false,";
         }
-        if (page_guard_unblock_sigsegv_ != default_settings.page_guard_unblock_sigsegv)
+        if (page_guard_unblock_sigsegv_ != trace_settings.page_guard_unblock_sigsegv)
         {
             page_guard_options_buffer += "\n    \"page-guard-unblock-sigsegv\": ";
             page_guard_options_buffer += page_guard_unblock_sigsegv_ ? "true," : "false,";
         }
-        if (page_guard_signal_handler_watcher_ != default_settings.page_guard_signal_handler_watcher)
+        if (page_guard_signal_handler_watcher_ != trace_settings.page_guard_signal_handler_watcher)
         {
             page_guard_options_buffer += "\n    \"page-guard-signal-handler-watcher\": ";
             page_guard_options_buffer += page_guard_signal_handler_watcher_ ? "true," : "false,";
         }
         if (page_guard_signal_handler_watcher_max_restores_ !=
-            default_settings.page_guard_signal_handler_watcher_max_restores)
+            trace_settings.page_guard_signal_handler_watcher_max_restores)
         {
             page_guard_options_buffer += "\n    \"page-guard-signal-handler-watcher-max-restores\": " +
                                          std::to_string(page_guard_signal_handler_watcher_max_restores_) + ',';
@@ -1773,18 +1773,18 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
         }
     }
 
-    if (force_command_serialization_ != default_settings.force_command_serialization)
+    if (force_command_serialization_ != trace_settings.force_command_serialization)
     {
         buffer += "\n    \"force-command-serialization\": ";
         buffer += force_command_serialization_ ? "true," : "false,";
     }
 
-    if (queue_zero_only_ != default_settings.queue_zero_only)
+    if (queue_zero_only_ != trace_settings.queue_zero_only)
     {
         buffer += "\n    \"queue-zero-only\": ";
         buffer += queue_zero_only_ ? "true," : "false,";
     }
-    if (force_fifo_present_mode_ != default_settings.force_fifo_present_mode)
+    if (force_fifo_present_mode_ != trace_settings.force_fifo_present_mode)
     {
         buffer += "\n    \"force-fifo-present-mode\": ";
         buffer += force_fifo_present_mode_ ? "true," : "false,";

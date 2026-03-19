@@ -1,0 +1,1214 @@
+{
+    "file_format_version": "0.0.1",
+    "settings":
+        [
+            {
+                "key": "accel_struct_padding",
+                "label": "Acceleration Struct Size Padding",
+                "description":
+                    "Increase the required acceleration structure size that is reported to the application by calls to `GetRaytracingAccelerationStructurePrebuildInfo`. This can enable replay in environments with increased acceleration structure size requirements. The value should be specified as a percent of size increase. For example, a value of `5` would increase the reported acceleration structure sizes by `5%`.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "type": {
+                    "primitive": "UINT",
+                    "default": 0
+                }
+            },
+            {
+                "key": "allow_pipeline_compile_required",
+                "label": "Allow Application Compiled Pipeline Behavior",
+                "description":
+                    "The default behavior forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "VULKAN"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "capture_android_dump_assets",
+                "label": " Capture Dump Android Assets",
+                "description":
+                    "Setting this triggers a dump of all assets into the asset file. Since Android options cannot be set by the layer, dumping is done whenever this option switches between from `false` to `true` or from `true` to `false`. [Deprecated, please use 'capture_dynamic_trigger_dump_assets']",
+                "deprecated": true,
+                "platforms": [
+                    "ANDROID"
+                ],
+                "tools": [
+                    "CAPTURE"
+                ],
+                "dynamic": true,
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "capture_android_trigger",
+                "label": " Capture Trigger For Android",
+                "description":
+                    "Set during runtime to `true` to start capturing and to `false` to stop. If not set at all then it is disabled (non-trimmed capture). [Deprecated, please use 'capture_dynamic_trigger']",
+                "deprecated": true,
+                "platforms": [
+                    "ANDROID"
+                ],
+                "tools": [
+                    "CAPTURE"
+                ],
+                "dynamic": true,
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "capture_compression_type",
+                "label": "Capture File Compression Format",
+                "description":
+                    "Compression format to use with the capture file. Valid values are: LZ4, ZLIB, ZSTD, and NONE.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "capture_file"
+                },
+                "type": {
+                    "primitive": "ENUM",
+                    "flags": [
+                        {
+                            "key": "LZ4",
+                            "label": "LZ4",
+                            "description":
+                                "Fastest compression algorithm that favors performance over compression ratio."
+                        },
+                        {
+                            "key": "ZLIB",
+                            "label": "ZLIB",
+                            "description":
+                                "Widely used compression algorithm with better compression ratio than LZ4 but worse performance."
+                        },
+                        {
+                            "key": "ZSTD",
+                            "label": "ZSTD",
+                            "description":
+                                "Newer compression algorithm with better compression ratio and performance than ZLIB, though not as fast as LZ4."
+                        },
+                        {
+                            "key": "NONE",
+                            "label": "NONE",
+                            "description": "No compression"
+                        }
+                    ],
+                    "default": "LZ4"
+                }
+            },
+            {
+                "key": "capture_environment",
+                "label": "Capture Environment",
+                "description":
+                    "Comma delimited list of environment variables to store in the capture file. These can optionally be restored during replay to their capture-time values with the `gfxrecon-replay-renamed.py` utility.",
+                "platforms": [
+                    "LINUX",
+                    "MACOS",
+                    "WINDOWS"
+                ],
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "LIST",
+                    "default": []
+                }
+            },
+            {
+                "key": "capture_draw_calls",
+                "label": "Capture Specific Draw Calls",
+                "description":
+                    "Specify one index or a range indices drawcalls(include dispatch) based on a ExecuteCommandList index and a CommandList index to capture. The index is 0-based. The args are one submit index, one command index, one or a range indices of draw calls, one or a range indices of bundle draw calls(option), like `0,0,0` or `0,0,0-2` or `0,0,0-2,0`. The forth arg is an option for bundle case. If the the 3rd arg is a bundle commandlist, but it doesn't set the 4th arg, it will set 0 as default. If not defined, all drawcalls are captured.",
+                "apis": [
+                    "D3D12"
+                ],
+                "parent": {
+                    "key": "capture_restrictions"
+                },
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "capture_file",
+                "label": "Capture File Name",
+                "description":
+                    "Path to use when creating the capture file. Supports variable patterns for dynamic file paths, such as `${AppName}` (the application or executable name).",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "SAVE_FILE",
+                    "filter": "*.gfxr",
+                    "android-base": "/sdcard/",
+                    "default": "gfxrecon_capture.gfxr"
+                }
+            },
+            {
+                "key": "capture_file_flush",
+                "label": "Capture File Flush After Write",
+                "description": "Flush output stream after each packet is written to the capture file.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "capture_file"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "capture_file_timestamp",
+                "label": "Capture File Name with Timestamp",
+                "description": "Add a timestamp (yyyymmddThhmmss) postfix to the capture file name.",
+                "parent": {
+                    "key": "capture_file"
+                },
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "capture_frames",
+                "label": "Capture Specific Frames",
+                "description":
+                    "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. If not defined, all frames are captured.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "capture_restrictions"
+                },
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "capture_iunknown_wrapping",
+                "label": "Capture IID_IUnknown Wrapping",
+                "description":
+                    "If GFXRECON_CAPTURE_IUNKNOWN_WRAPPING is enabled detect when applications call QueryInterface(IID_IUnknown) and switch IID_IUnknown to original IID, so that GFXR returns original interface wrapper.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "capture_process_name",
+                "label": "Capture Specific Process Name",
+                "description":
+                    "The name of the process to capture content from, all other processes will be ignored.  All valid API processes are captured otherwise.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "capture_restrictions"
+                },
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "capture_queue_submits",
+                "label": "Capture Specific GPU Queue Submits",
+                "description":
+                    "Specify one or more comma-separated GPU queue submit call ranges to capture.  Queue submit calls are `vkQueueSubmit` for Vulkan and `ID3D12CommandQueue::ExecuteCommandLists` for DX12. Queue submit ranges work as described for `capture_frames` but on GPU queue submit calls instead of frames. The index is 0-based. Default is all queue submits are captured.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "capture_restrictions"
+                },
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "capture_restrictions",
+                "label": "Capture Restrictions",
+                "description": "Restrictions That Can Be Placed on Capture",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "GROUP"
+                }
+            },
+            {
+                "key": "hotkeys",
+                "label": "Hot Keys",
+                "description": "Hot Keys for Dynamic Capture",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "GROUP"
+                },
+                "parent": {
+                    "key": "capture_restrictions"
+                }
+            },
+            {
+                "key": "capture_trigger",
+                "label": "Hotkey Capture Trigger",
+                "description":
+                    "Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses.   This, in effect, toggles `capture_dynamic_trigger`.",
+                "platforms": [
+                    "LINUX",
+                    "MACOS",
+                    "WINDOWS"
+                ],
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "hotkeys"
+                },
+                "type": {
+                    "primitive": "ENUM",
+                    "flags": [
+                        {
+                            "key": "",
+                            "label": "None",
+                            "description": "None (Default)"
+                        },
+                        {
+                            "key": "F1",
+                            "label": "F1",
+                            "description": "F1 Key"
+                        },
+                        {
+                            "key": "F2",
+                            "label": "F2",
+                            "description": "F2 Key"
+                        },
+                        {
+                            "key": "F3",
+                            "label": "F3",
+                            "description": "F3 Key"
+                        },
+                        {
+                            "key": "F4",
+                            "label": "F4",
+                            "description": "F4 Key"
+                        },
+                        {
+                            "key": "F5",
+                            "label": "F5",
+                            "description": "F5 Key"
+                        },
+                        {
+                            "key": "F6",
+                            "label": "F6",
+                            "description": "F6 Key"
+                        },
+                        {
+                            "key": "F7",
+                            "label": "F7",
+                            "description": "F7 Key"
+                        },
+                        {
+                            "key": "F8",
+                            "label": "F8",
+                            "description": "F8 Key"
+                        },
+                        {
+                            "key": "F9",
+                            "label": "F9",
+                            "description": "F9 Key"
+                        },
+                        {
+                            "key": "F10",
+                            "label": "F10",
+                            "description": "F10 Key"
+                        },
+                        {
+                            "key": "F11",
+                            "label": "F11",
+                            "description": "F11 Key"
+                        },
+                        {
+                            "key": "F12",
+                            "label": "F12",
+                            "description": "F12 Key"
+                        },
+                        {
+                            "key": "TAB",
+                            "label": "TAB",
+                            "description": "TAB Key"
+                        },
+                        {
+                            "key": "CONTROL",
+                            "label": "CONTROL",
+                            "description": "CONTROL Key"
+                        }
+                    ],
+                    "default": ""
+                }
+            },
+            {
+                "key": "capture_dynamic_trigger",
+                "label": " Dynamic Capture Trigger",
+                "description":
+                    "Set during runtime to `true` to start capturing and to `false` to stop. If not set at all then it is disabled (non-trimmed capture). [Replaces 'capture_android_trigger']",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "hotkeys"
+                },
+                "dynamic": true,
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "capture_dynamic_trigger_dump_assets",
+                "label": " Dynamic Capture Trigger Dump Assets",
+                "description":
+                    "Setting this triggers a dump of all assets into the asset file. Dumping is done whenever this option switches between from `false` to `true` or from `true` to `false`. [Replaces 'capture_android_dump_assets']",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "hotkeys"
+                },
+                "dynamic": true,
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "capture_trigger_frames",
+                "label": "Hotkey Capture Frame Limit",
+                "description":
+                    "Specify a limit on the number of frames to be captured via hotkey. Example: `1` will capture exactly one frame when the trigger key is pressed. If not defined, then there is no limit",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "hotkeys"
+                },
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "capture_use_asset_file",
+                "label": "Use Asset File",
+                "description":
+                    "When set to `true` assets (images, buffers and descriptors) will be stored separately into an asset file instead of the capture file.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "debug_device_lost",
+                "label": "Debug Device Lost",
+                "description":
+                    "Enables automatic injection of breadcrumbs into command buffers and page fault reporting. Used to debug device removed problems.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "debug_layer",
+                "label": "Enable Debug Layer",
+                "description": "Enable the Direct3D debug layer for Direct3D 12 application captures.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "disable_dxr",
+                "label": "Disable DXR Support",
+                "description":
+                    "Override the result of `CheckFeatureSupport` to report the `RaytracingTier` as `D3D12_RAYTRACING_TIER_NOT_SUPPORTED`.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "disable_meta_command",
+                "label": "Disable MetaCommmand Support",
+                "description":
+                    "Override the result of `CheckFeatureSupport` to report the D3D12_FEATURE_QUERY_META_COMMAND is invalid. Some games might use DirectStorage to improve performance, GFXR could not fully support the feature. By using this option, could bypass the feature and force game to use regular I/O to read from harddisk.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "force_command_serialization",
+                "label": "Force Command Serialization",
+                "description":
+                    "Sets exclusive locks (unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "capture_restrictions"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "force_fifo_present_mode",
+                "label": "Force FIFO Present Mode",
+                "description":
+                    "When the `force_fifo_present_mode` is enabled, force all present modes in vkGetPhysicalDeviceSurfacePresentModesKHR to VK_PRESENT_MODE_FIFO_KHR, app present mode is set in vkCreateSwapchain to VK_PRESENT_MODE_FIFO_KHR. Otherwise the original present mode will be used.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "VULKAN"
+                ],
+                 "parent": {
+                    "key": "capture_restrictions"
+                },
+               "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "ignore_frame_boundary_android",
+                "label": "Ignore vkFrameBoundaryANDROID",
+                "description":
+                    "Ignore any calls to vkFrameBoundaryANDROID when determining frame boundaries.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "VULKAN"
+                ],
+                "platforms": [
+                    "ANDROID"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "log",
+                "label": "Log",
+                "description": "Control log messages.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "GROUP"
+                }
+            },
+            {
+                "key": "log_allow_indents",
+                "label": "Log Apply Additional Indentation",
+                "description": "Apply additional indentation formatting to log messages.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "log_break_on_error",
+                "label": "Log Break on Error",
+                "description": "Trigger a debug break when logging an error.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "log_detailed",
+                "label": "Log Name and Line Number",
+                "description": "Include name and line number from the file responsible for the log message.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "log_errors_to_stderr",
+                "label": "Log Errors to StdError",
+                "description": "Log any errors that occur to stderr.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "log_file",
+                "label": "Log File",
+                "description": "When set, log messages will be written to a file at the specified location.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "SAVE_FILE",
+                    "filter": "*.txt",
+                    "default": ""
+                }
+            },
+            {
+                "key": "log_file_create_new",
+                "label": "Log File Overwrite",
+                "description":
+                    "Specifies that log file initialization should overwrite an existing file when `true`, or append to an existing file when `false`.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log_file"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "log_file_flush_after_write",
+                "label": "Log File Flush After Write",
+                "description": "Flush the log file to disk after each write when true.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log_file"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "log_file_keep_open",
+                "label": "Log File Keep Open",
+                "description":
+                    "Keep the log file open between log messages when true, or close and reopen the log file for each message when false.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log_file"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "log_level",
+                "label": "Log Level",
+                "description":
+                    "Specify the highest level message to log.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "ENUM",
+                    "flags": [
+                        {
+                            "key": "debug",
+                            "label": "debug, info, warning, error, fatal",
+                            "description": "Messages with debug-severity and higher"
+                        },
+                        {
+                            "key": "info",
+                            "label": "info, warning, error, fatal",
+                            "description": "Messages with info-severity and higher"
+                        },
+                        {
+                            "key": "warning",
+                            "label": "warning, error, fatal",
+                            "description": "Messages with warning-severity and higher"
+                        },
+                        {
+                            "key": "error",
+                            "label": "error, fatal",
+                            "description": "Only Error/Fatal messages"
+                        },
+                        {
+                            "key": "fatal",
+                            "label": "fatal",
+                            "description": "Only Fatal messages"
+                        }
+                    ],
+                    "default": "info"
+                }
+            },
+            {
+                "key": "log_output_to_console",
+                "label": "Log Output to Console / stdout",
+                "description": "Log messages will be written to stdout.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "log_output_to_os_debug_string",
+                "label": "Log Output to Debug Console",
+                "description":
+                    "Log messages will be written to the Debug Console with OutputDebugStringA",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "platforms": [
+                    "WINDOWS"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "log_timestamps",
+                "label": "Log Timestamps",
+                "description": "Output a timestamp in front of each log message.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "log"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "memory_tracking_mode",
+                "label": "Memory Tracking Mode",
+                "description":
+                    "Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: page_guard, assisted, and unassisted.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "ENUM",
+                    "flags": [
+                        {
+                            "key": "page_guard",
+                            "label": "page_guard",
+                            "description":
+                                "Tracks modifications to individual memory pages, which are written to the capture file on calls to vkFlushMappedMemoryRanges, vkUnmapMemory, and vkQueueSubmit. Tracking modifications requires allocating shadow memory for all mapped memory."
+                        },
+                        {
+                            "key": "assisted",
+                            "label": "assisted",
+                            "description":
+                                "Expects the application to call vkFlushMappedMemoryRanges after memory is modified; the memory ranges specified to the vkFlushMappedMemoryRanges call will be written to the capture file during the call."
+                        },
+                        {
+                            "key": "unassisted",
+                            "label": "unassisted",
+                            "description":
+                                "Writes the full content of mapped memory to the capture file on calls to vkUnmapMemory and vkQueueSubmit. It is very inefficient and may be unusable with real-world applications that map large amounts of memory."
+                        }
+                    ],
+                    "default": "page_guard"
+                }
+            },
+            {
+                "key": "page_guard_align_buffer_sizes",
+                "label": "Page Guard Align Buffer Sizes",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled, this option overrides the Vulkan API calls that report buffer memory properties to report that buffer sizes and alignments must be a multiple of the system page size. This option is intended to be used with applications that perform CPU writes and GPU writes/copies to different buffers that are bound to the same page of mapped memory, which may result in data being lost when copying pages from the page_guard shadow allocation to the real allocation. This data loss can result in visible corruption during capture. Forcing buffer sizes and alignments to a multiple of the system page size prevents multiple buffers from being bound to the same page, avoiding data loss from simultaneous CPU writes to the shadow allocation and GPU writes to the real allocation for different buffers bound to the same page.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "VULKAN"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "additional_dependencies": [
+                    {
+                        "key": "page_guard_external_memory",
+                        "value": false
+                    }
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "page_guard_copy_on_map",
+                "label": "Page Guard Copy on Map",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "page_guard_external_memory",
+                "label": "Page Guard External Memory",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled, use the VK_EXT_external_memory_host extension to eliminate the need for shadow memory allocations. For each memory allocation from a host visible memory type, the capture layer will create an allocation from system memory, which it can monitor for write access, and provide that allocation to vkAllocateMemory as external memory.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "platforms": [
+                    "WINDOWS"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "page_guard_persistent_memory",
+                "label": "Page Guard Persistent Memory",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled, this option changes the way that the shadow memory used to detect modifications to mapped memory is allocated. The default behavior is to allocate and copy the mapped memory range on map and free the allocation on unmap. When this option is enabled, an allocation with a size equal to that of the object being mapped is made once on the first map and is not freed until the object is destroyed. This option is intended to be used with applications that frequently map and unmap large memory ranges, to avoid frequent allocation and copy operations that can have a negative impact on performance. This option is ignored when `page_guard_external_memory` is enabled.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "additional_dependencies": [
+                    {
+                        "key": "page_guard_external_memory",
+                        "value": false
+                    }
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "page_guard_separate_read",
+                "label": "Page Guard Separate Read Tracking",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": true
+                }
+            },
+            {
+                "key": "page_guard_signal_handler_watcher",
+                "label": "Page Guard Signal Handler Watcher",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled, setting this to `true` will spawn a thread which will will periodically reinstall the `SIGSEGV` handler if it has been replaced by the application being traced.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "page_guard_signal_handler_watcher_max_restores",
+                "label": "Page Guard Signal Handler Watcher Max Restores",
+                "description":
+                    "Sets the number of times the watcher will attempt to restore the signal handler. Setting it to a negative will make the watcher thread run indefinitely.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "type": {
+                    "primitive": "INT",
+                    "default": 1
+                }
+            },
+            {
+                "key": "page_guard_track_ahb_memory",
+                "label": "Page Guard Track AHB Memory",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled, eliminate the need for shadow memory allocations for Android Hardware Buffers.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "platforms": [
+                    "ANDROID"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "page_guard_unblock_sigsegv",
+                "label": "Page Guard Unblock SIGSEGV",
+                "description":
+                    "When the `page_guard` memory tracking mode is enabled and in the case that SIGSEGV has been marked as blocked in thread's signal mask, setting this to `true` will forcibly re-enable the signal in the thread's signal mask.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "memory_tracking_mode",
+                    "value": "page_guard"
+                },
+                "additional_dependencies": [
+                    {
+                        "key": "page_guard_external_memory",
+                        "value": false
+                    }
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "queue_zero_only",
+                "label": "Queue Zero Only",
+                "description":
+                    "Forces to using only QueueFamilyIndex: 0 and queueCount: 1 on capturing to avoid replay error for unavailable VkQueue.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent":  {
+                    "key": "capture_restrictions"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "quit_after_capture_frames",
+                "label": "Quit after capturing frame ranges",
+                "description":
+                    "Specify one or more comma-separated frame ranges to capture. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1). Example: 200,301-305 will create two capture files, one containing a single frame and one containing five frames. If not defined, all frames are captured.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "capture_frames"
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+
+            {
+                "key": "rv_annotation_descriptor",
+                "label": "Specify GPU Descriptor Handle RV Annotation",
+                "description":
+                    "By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPU descriptors. The value should be specified as a 2-byte hexadecimal string, e.g., `0xAB12` or `ab12`.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "parent": {
+                    "key": "rv_annotation_experimental",
+                    "value": true
+                },
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "rv_annotation_experimental",
+                "label": "Enable Experimental RV Search",
+                "description":
+                    "Experimental feature to help enable replay of certain DXR/ExecuteIndirect workloads. RV annotation is a capture mode which attempts to detect when applications write Resource Values (RVs) to memory. Conceptually, RVs represent different types of GPU pointers that applications write as resource data. This capture mode writes GFXR-specific identifier values into unoccupied bits of application-facing RVs and then searches for the identifier values when the application performs a memory write. This allows GFXR to better track RV locations and eventually produce an RV-optimized capture file that may be replayed. Enabling this feature introduces performance overhead during capture, and may result in unstable capture and/or replay.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "rv_annotation_gpuva",
+                "label": "Specify GPU VA RV Annotation",
+                "description":
+                    "By default, the 2-byte identifier values are hard-coded. This option forces a specific identifier value to be used for annotating GPUVAs. The value should be specified as a 2-byte hexadecimal string, e.g., `0xAB12` or `ab12`.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "parent": {
+                    "key": "rv_annotation_experimental",
+                    "value": true
+                },
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "rv_annotation_rand",
+                "label": "Use Random RV Annotation",
+                "description":
+                    "By default, the 2-byte identifier values are hard-coded. This option generates random identifier values used for annotating GPUVAs and GPU descriptors. Use this if capture-time crashes are observed.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "D3D12"
+                ],
+                "parent": {
+                    "key": "rv_annotation_experimental",
+                    "value": true
+                },
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            },
+            {
+                "key": "screenshot",
+                "label": "Screenshot",
+                "description": "Screenshot Control",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "type": {
+                    "primitive": "GROUP"
+                }
+            },
+            {
+                "key": "screenshot_dir",
+                "label": "Screenshot Directory",
+                "description": "Directory used where screenshots are saved to.  Default is the current working directory.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "screenshot"
+                },
+                "type": {
+                    "primitive": "SAVE_FOLDER",
+                    "android-base": "/sdcard",
+                    "default": ""
+                }
+            },
+            {
+                "key": "screenshot_format",
+                "label": "Screenshot Format",
+                "description": "Image file format to use when saving screenshots.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "screenshot"
+                },
+                "type": {
+                    "primitive": "ENUM",
+                    "flags": [
+                        {
+                            "key": "BMP",
+                            "label": "BMP",
+                            "description": "Bitmap File Format."
+                        },
+                        {
+                            "key": "PNG",
+                            "label": "PNG",
+                            "description": "Portable Network Graphics Format."
+                        }
+                    ],
+                    "default": "BMP"
+                }
+            },
+            {
+                "key": "screenshot_frames",
+                "label": "Screenshot Specific Frames",
+                "description":
+                    "Specify one or more comma-separated frame ranges to screenshot. Each range will be written to its own file. A frame range can be specified as a single value, to specify a single frame to capture, or as two hyphenated values, to specify the first and last frame to capture. Frame ranges should be specified in ascending order and cannot overlap. Note that frame numbering is 1-based (i.e. the first frame is frame 1).",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "screenshot"
+                },
+                "type": {
+                    "primitive": "STRING",
+                    "default": ""
+                }
+            },
+            {
+                "key": "screenshot_interval",
+                "label": "Screenshot Interval",
+                "description":
+                    "Sets the number between every screenshot taken.  1 means every frame is screenshot, 2 means every other, etc. Example: If screenshot range is 10-15 and interval is 2, screenshot will be generated for frames 10, 12 and 14.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "parent": {
+                    "key": "screenshot"
+                },
+                "type": {
+                    "primitive": "INT",
+                    "default": 1
+                }
+            },
+            {
+                "key": "skip_threads_with_invalid_data",
+                "label": "Skip Threads With Invalid Data",
+                "description":
+                    "When a thread is encountered which contains data that is unexpected, skip the data and mark the thread as skippable.  This is important especially in OpenXR where other API commands (such as Vulkan) may be generated inside of the OpenXR commands, but may still be referenced in some fashion outside of the OpenXR commands.  This results in issues during replay.  So, this option prevents those commands, and the threads containing those commands from being recorded to the capture file.",
+                "tools": [
+                    "CAPTURE"
+                ],
+                "apis": [
+                    "OPENXR"
+                ],
+                "type": {
+                    "primitive": "BOOL",
+                    "default": false
+                }
+            }
+       ]
+}

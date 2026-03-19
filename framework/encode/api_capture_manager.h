@@ -26,6 +26,7 @@
 #define GFXRECON_ENCODE_API_CAPTURE_MANAGER_H
 
 #include "encode/capture_manager.h"
+#include "encode/capture_settings.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -33,7 +34,12 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class ApiCaptureManager
 {
   public:
-    ApiCaptureManager(format::ApiFamilyId api_family) : api_family_(api_family) {}
+    ApiCaptureManager(format::ApiFamilyId api_family) : api_family_(api_family)
+    {
+        capture_settings_.SetApiFamilyId(api_family);
+    }
+    ~ApiCaptureManager() = default;
+
     void SetCommonManager(CommonCaptureManager* common_manager) { common_manager_ = common_manager; }
 
     // Forwarded Statics
@@ -54,7 +60,8 @@ class ApiCaptureManager
                              const std::string*      asset_file_name,
                              util::ThreadData*       thread_data)                                            = 0;
 
-    virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
+    CaptureSettings*               GetCaptureSettings() { return &capture_settings_; }
+    CaptureSettings::TraceSettings GetTraceSettings() { return capture_settings_.GetTraceSettings(); }
 
     format::ApiFamilyId GetApiFamily() const { return api_family_; }
     bool                IsCaptureModeTrack() const { return common_manager_->IsCaptureModeTrack(); }
@@ -256,6 +263,7 @@ class ApiCaptureManager
   protected:
     const format::ApiFamilyId api_family_;
     CommonCaptureManager*     common_manager_ = nullptr;
+    CaptureSettings           capture_settings_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
