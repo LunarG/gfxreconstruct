@@ -354,7 +354,7 @@ std::string InfoD3d12Feature::GenerateText()
 {
     std::string return_val = "";
 
-    if (restricted_output_ && output_enum_gpu_indices_)
+    if (restricting_output_ && output_enum_gpu_indices_)
     {
         return_val = GetEnumGpuIndicesText();
     }
