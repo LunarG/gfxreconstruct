@@ -24,6 +24,7 @@
 #ifndef GFXRECON_GRAPHICS_VULKAN_RESOURCES_UTIL_H
 #define GFXRECON_GRAPHICS_VULKAN_RESOURCES_UTIL_H
 
+#include "format/format.h"
 #include "util/defines.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 
@@ -33,6 +34,7 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)

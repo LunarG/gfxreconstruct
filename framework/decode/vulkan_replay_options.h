@@ -36,6 +36,7 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include <optional>
 #include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
