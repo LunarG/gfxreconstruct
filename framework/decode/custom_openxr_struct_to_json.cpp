@@ -61,8 +61,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanInstanceCr
 
         jdata["type"] = decoded_value.type;
         HandleToJson(jdata["systemId"], meta_struct.systemId);
-        jdata["createFlags"] = XrVulkanInstanceCreateFlagsKHR_t{ decoded_value.createFlags };
-        FieldToJson(jdata["pfnGetInstanceProcAddr"], meta_struct.pfnGetInstanceProcAddr);
+        jdata["createFlags"]            = XrVulkanInstanceCreateFlagsKHR_t{ decoded_value.createFlags };
+        jdata["pfnGetInstanceProcAddr"] = meta_struct.pfnGetInstanceProcAddr;
         FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo);
         FieldToJson(jdata["vulkanAllocator"], meta_struct.vulkanAllocator);
         FieldToJson(jdata["next"], meta_struct.next);
@@ -78,8 +78,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanDeviceCrea
 
         jdata["type"] = decoded_value.type;
         HandleToJson(jdata["systemId"], meta_struct.systemId);
-        jdata["createFlags"] = XrVulkanDeviceCreateFlagsKHR_t{ decoded_value.createFlags };
-        FieldToJson(jdata["pfnGetInstanceProcAddr"], meta_struct.pfnGetInstanceProcAddr);
+        jdata["createFlags"]            = XrVulkanDeviceCreateFlagsKHR_t{ decoded_value.createFlags };
+        jdata["pfnGetInstanceProcAddr"] = meta_struct.pfnGetInstanceProcAddr;
         HandleToJson(jdata["vulkanPhysicalDevice"], meta_struct.vulkanPhysicalDevice);
         FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo);
         FieldToJson(jdata["vulkanAllocator"], meta_struct.vulkanAllocator);

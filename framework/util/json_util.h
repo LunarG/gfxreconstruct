@@ -95,14 +95,6 @@ struct JsonOptions
     static bool        hex_handles;
 };
 
-void FieldToJson(nlohmann::ordered_json& jdata, const short& data);
-void FieldToJson(nlohmann::ordered_json& jdata, const int& data);
-void FieldToJson(nlohmann::ordered_json& jdata, const long& data);
-void FieldToJson(nlohmann::ordered_json& jdata, const long long& data);
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data);
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data);
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data);
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long long& data);
 void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data);
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers
@@ -167,7 +159,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const T* data, size_t num_elemen
     {
         for (size_t i = 0; i < num_elements; ++i)
         {
-            FieldToJson(jdata[i], data[i]);
+            if constexpr (std::is_integral<T>::value)
+            {
+                jdata[i] = data[i];
+            }
+            else
+            {
+                FieldToJson(jdata[i], data[i]);
+            }
         }
     }
     else

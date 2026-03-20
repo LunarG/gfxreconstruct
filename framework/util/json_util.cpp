@@ -66,12 +66,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t data[4])
 
 void FieldToJson(nlohmann::ordered_json& jdata, const LUID& data)
 {
-    FieldToJson(jdata, *reinterpret_cast<const int64_t*>(&data));
+    jdata = *reinterpret_cast<const int64_t*>(&data);
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const LARGE_INTEGER& data)
 {
-    FieldToJson(jdata["QuadPart"], data.QuadPart);
+    jdata["QuadPart"] = data.QuadPart;
 }
 
 void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle)
@@ -110,46 +110,6 @@ void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId* data, s
 void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t& data)
 {
     jdata = static_cast<bool>(data);
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const short& data)
-{
-    jdata = data;
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const int& data)
-{
-    jdata = data;
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const long& data)
-{
-    jdata = data;
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const long long& data)
-{
-    jdata = data;
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data)
-{
-    jdata = data;
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data)
-{
-    jdata = data;
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data)
-{
-    jdata = data;
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long long& data)
-{
-    jdata = data;
 }
 
 void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data)

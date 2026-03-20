@@ -934,6 +934,16 @@ class KhronosBaseGenerator(OutputGenerator):
             return True
         return False
 
+    def is_integer(self, base_type):
+        return base_type in ['int8_t', 'int16_t', 'int32_t', 'int64_t',
+                             'uint8_t', 'uint16_t', 'uint32_t', 'uint64_t',
+                             'short', 'int', 'long', 'long long',
+                             'unsigned short', 'unsigned int', 'unsigned long', 'unsigned long long',
+                             'size_t',
+                             'VkDeviceSize',
+                             'XrVersion', 'XrTime', 'XrDuration', 'XrSpaceUserIdFB',
+                             'UINT', 'D3D_FEATURE_LEVEL']
+
     def is_enum(self, base_type):
         """Check for enum type."""
         if base_type in self.enum_names:

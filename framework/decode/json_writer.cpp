@@ -148,7 +148,7 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
 
     nlohmann::ordered_json& object  = method[format::kNameObject];
     object[format::kNameObjectType] = object_type;
-    FieldToJson(object[format::kNameObjectHandle], object_id);
+    object[format::kNameObjectHandle] = object_id;
 
     return method;
 }

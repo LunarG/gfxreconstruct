@@ -152,7 +152,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateEnvironmentBlendModes(
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
         args["viewConfigurationType"] = viewConfigurationType;
-        FieldToJson(args["environmentBlendModeCapacityInput"], environmentBlendModeCapacityInput);
+        args["environmentBlendModeCapacityInput"] = environmentBlendModeCapacityInput;
         FieldToJson(args["environmentBlendModeCountOutput"], environmentBlendModeCountOutput);
         FieldToJson(args["environmentBlendModes"], environmentBlendModes);
     WriteBlockEnd();
@@ -198,7 +198,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateReferenceSpaces(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["spaceCapacityInput"], spaceCapacityInput);
+        args["spaceCapacityInput"] = spaceCapacityInput;
         FieldToJson(args["spaceCountOutput"], spaceCountOutput);
         FieldToJson(args["spaces"], spaces);
     WriteBlockEnd();
@@ -265,7 +265,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateSpace(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
         HandleToJson(args["baseSpace"], baseSpace);
-        FieldToJson(args["time"], time);
+        args["time"] = time;
         FieldToJson(args["location"], location);
     WriteBlockEnd();
 }
@@ -296,7 +296,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViewConfigurations(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["viewConfigurationTypeCapacityInput"], viewConfigurationTypeCapacityInput);
+        args["viewConfigurationTypeCapacityInput"] = viewConfigurationTypeCapacityInput;
         FieldToJson(args["viewConfigurationTypeCountOutput"], viewConfigurationTypeCountOutput);
         FieldToJson(args["viewConfigurationTypes"], viewConfigurationTypes);
     WriteBlockEnd();
@@ -336,7 +336,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViewConfigurationViews(
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
         args["viewConfigurationType"] = viewConfigurationType;
-        FieldToJson(args["viewCapacityInput"], viewCapacityInput);
+        args["viewCapacityInput"] = viewCapacityInput;
         FieldToJson(args["viewCountOutput"], viewCountOutput);
         FieldToJson(args["views"], views);
     WriteBlockEnd();
@@ -354,7 +354,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateSwapchainFormats(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["formatCapacityInput"], formatCapacityInput);
+        args["formatCapacityInput"] = formatCapacityInput;
         FieldToJson(args["formatCountOutput"], formatCountOutput);
         FieldToJson(args["formats"], formats);
     WriteBlockEnd();
@@ -530,7 +530,7 @@ void OpenXrExportJsonConsumer::Process_xrLocateViews(
         HandleToJson(args["session"], session);
         FieldToJson(args["viewLocateInfo"], viewLocateInfo);
         FieldToJson(args["viewState"], viewState);
-        FieldToJson(args["viewCapacityInput"], viewCapacityInput);
+        args["viewCapacityInput"] = viewCapacityInput;
         FieldToJson(args["viewCountOutput"], viewCountOutput);
         FieldToJson(args["views"], views);
     WriteBlockEnd();
@@ -566,7 +566,7 @@ void OpenXrExportJsonConsumer::Process_xrPathToString(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["path"], path);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -764,7 +764,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateBoundSourcesForAction(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["enumerateInfo"], enumerateInfo);
-        FieldToJson(args["sourceCapacityInput"], sourceCapacityInput);
+        args["sourceCapacityInput"] = sourceCapacityInput;
         FieldToJson(args["sourceCountOutput"], sourceCountOutput);
         HandleToJson(args["sources"], sources);
     WriteBlockEnd();
@@ -784,7 +784,7 @@ void OpenXrExportJsonConsumer::Process_xrGetInputSourceLocalizedName(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["getInfo"], getInfo);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -864,7 +864,7 @@ void OpenXrExportJsonConsumer::Process_xrSetAndroidApplicationThreadKHR(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         args["threadType"] = threadType;
-        FieldToJson(args["threadId"], threadId);
+        args["threadId"] = threadId;
     WriteBlockEnd();
 }
 
@@ -882,7 +882,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSwapchainAndroidSurfaceKHR(
         HandleToJson(args["session"], session);
         FieldToJson(args["info"], info);
         HandleToJson(args["swapchain"], swapchain);
-        FieldToJson(args["surface"], surface);
+        args["surface"] = surface;
     WriteBlockEnd();
 }
 
@@ -932,7 +932,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanInstanceExtensionsKHR(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -952,7 +952,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanDeviceExtensionsKHR(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -1054,7 +1054,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVisibilityMaskKHR(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         args["viewConfigurationType"] = viewConfigurationType;
-        FieldToJson(args["viewIndex"], viewIndex);
+        args["viewIndex"] = viewIndex;
         args["visibilityMaskType"] = visibilityMaskType;
         FieldToJson(args["visibilityMask"], visibilityMask);
     WriteBlockEnd();
@@ -1087,7 +1087,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimeToWin32PerformanceCounterKHR
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(args["time"], time);
+        args["time"] = time;
         FieldToJson(args["performanceCounter"], *performanceCounter->GetPointer());
     WriteBlockEnd();
 }
@@ -1119,7 +1119,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimeToTimespecTimeKHR(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(args["time"], time);
+        args["time"] = time;
         FieldToJson(args["timespecTime"], timespecTime);
     WriteBlockEnd();
 }
@@ -1658,7 +1658,7 @@ void OpenXrExportJsonConsumer::Process_xrLoadControllerModelMSFT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         HandleToJson(args["modelKey"], modelKey);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -1707,7 +1707,7 @@ void OpenXrExportJsonConsumer::Process_xrCreateSpatialAnchorFromPerceptionAnchor
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["perceptionAnchor"], perceptionAnchor);
+        args["perceptionAnchor"] = perceptionAnchor;
         HandleToJson(args["anchor"], anchor);
     WriteBlockEnd();
 }
@@ -1744,7 +1744,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateReprojectionModesMSFT(
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
         args["viewConfigurationType"] = viewConfigurationType;
-        FieldToJson(args["modeCapacityInput"], modeCapacityInput);
+        args["modeCapacityInput"] = modeCapacityInput;
         FieldToJson(args["modeCountOutput"], modeCountOutput);
         FieldToJson(args["modes"], modes);
     WriteBlockEnd();
@@ -1850,7 +1850,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateSceneComputeFeaturesMSFT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
         HandleToJson(args["systemId"], systemId);
-        FieldToJson(args["featureCapacityInput"], featureCapacityInput);
+        args["featureCapacityInput"] = featureCapacityInput;
         FieldToJson(args["featureCountOutput"], featureCountOutput);
         FieldToJson(args["features"], features);
     WriteBlockEnd();
@@ -2016,7 +2016,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSerializedSceneFragmentDataMSFT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["getInfo"], getInfo);
-        FieldToJson(args["countInput"], countInput);
+        args["countInput"] = countInput;
         FieldToJson(args["readOutput"], readOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -2034,7 +2034,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateDisplayRefreshRatesFB(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["displayRefreshRateCapacityInput"], displayRefreshRateCapacityInput);
+        args["displayRefreshRateCapacityInput"] = displayRefreshRateCapacityInput;
         FieldToJson(args["displayRefreshRateCountOutput"], displayRefreshRateCountOutput);
         FieldToJson(args["displayRefreshRates"], displayRefreshRates);
     WriteBlockEnd();
@@ -2080,7 +2080,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViveTrackerPathsHTCX(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(args["pathCapacityInput"], pathCapacityInput);
+        args["pathCapacityInput"] = pathCapacityInput;
         FieldToJson(args["pathCountOutput"], pathCountOutput);
         FieldToJson(args["paths"], paths);
     WriteBlockEnd();
@@ -2140,7 +2140,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateColorSpacesFB(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["colorSpaceCapacityInput"], colorSpaceCapacityInput);
+        args["colorSpaceCapacityInput"] = colorSpaceCapacityInput;
         FieldToJson(args["colorSpaceCountOutput"], colorSpaceCountOutput);
         FieldToJson(args["colorSpaces"], colorSpaces);
     WriteBlockEnd();
@@ -2216,7 +2216,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateSpaceSupportedComponentsFB(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["space"], space);
-        FieldToJson(args["componentTypeCapacityInput"], componentTypeCapacityInput);
+        args["componentTypeCapacityInput"] = componentTypeCapacityInput;
         FieldToJson(args["componentTypeCountOutput"], componentTypeCountOutput);
         FieldToJson(args["componentTypes"], componentTypes);
     WriteBlockEnd();
@@ -2337,8 +2337,8 @@ void OpenXrExportJsonConsumer::Process_xrTriangleMeshEndUpdateFB(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["mesh"], mesh);
-        FieldToJson(args["vertexCount"], vertexCount);
-        FieldToJson(args["triangleCount"], triangleCount);
+        args["vertexCount"] = vertexCount;
+        args["triangleCount"] = triangleCount;
     WriteBlockEnd();
 }
 
@@ -2540,7 +2540,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateRenderModelPathsFB(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["pathCapacityInput"], pathCapacityInput);
+        args["pathCapacityInput"] = pathCapacityInput;
         FieldToJson(args["pathCountOutput"], pathCountOutput);
         FieldToJson(args["paths"], paths);
     WriteBlockEnd();
@@ -2617,8 +2617,8 @@ void OpenXrExportJsonConsumer::Process_xrSetMarkerTrackingTimeoutVARJO(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["markerId"], markerId);
-        FieldToJson(args["timeout"], timeout);
+        args["markerId"] = markerId;
+        args["timeout"] = timeout;
     WriteBlockEnd();
 }
 
@@ -2633,7 +2633,7 @@ void OpenXrExportJsonConsumer::Process_xrSetMarkerTrackingPredictionVARJO(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["markerId"], markerId);
+        args["markerId"] = markerId;
         Bool32ToJson(args["enable"], enable);
     WriteBlockEnd();
 }
@@ -2649,7 +2649,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerSizeVARJO(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["markerId"], markerId);
+        args["markerId"] = markerId;
         FieldToJson(args["size"], size);
     WriteBlockEnd();
 }
@@ -2768,7 +2768,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkersML(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
-        FieldToJson(args["markerCapacityInput"], markerCapacityInput);
+        args["markerCapacityInput"] = markerCapacityInput;
         FieldToJson(args["markerCountOutput"], markerCountOutput);
         HandleToJson(args["markers"], markers);
     WriteBlockEnd();
@@ -2836,7 +2836,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerStringML(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["markerDetector"], markerDetector);
         HandleToJson(args["marker"], marker);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -2886,7 +2886,7 @@ void OpenXrExportJsonConsumer::Process_xrQueryLocalizationMapsML(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
         FieldToJson(args["queryInfo"], queryInfo);
-        FieldToJson(args["mapCapacityInput"], mapCapacityInput);
+        args["mapCapacityInput"] = mapCapacityInput;
         FieldToJson(args["mapCountOutput"], mapCountOutput);
         FieldToJson(args["maps"], maps);
     WriteBlockEnd();
@@ -2962,7 +2962,7 @@ void OpenXrExportJsonConsumer::Process_xrGetExportedLocalizationMapDataML(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["map"], map);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -3020,7 +3020,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumeratePersistedSpatialAnchorNamesMSF
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["spatialAnchorStore"], spatialAnchorStore);
-        FieldToJson(args["spatialAnchorNameCapacityInput"], spatialAnchorNameCapacityInput);
+        args["spatialAnchorNameCapacityInput"] = spatialAnchorNameCapacityInput;
         FieldToJson(args["spatialAnchorNameCountOutput"], spatialAnchorNameCountOutput);
         FieldToJson(args["spatialAnchorNames"], spatialAnchorNames);
     WriteBlockEnd();
@@ -3082,7 +3082,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSceneMarkerRawDataMSFT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["markerId"], markerId);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -3102,7 +3102,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSceneMarkerDecodedStringMSFT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["scene"], scene);
         FieldToJson(args["markerId"], markerId);
-        FieldToJson(args["bufferCapacityInput"], bufferCapacityInput);
+        args["bufferCapacityInput"] = bufferCapacityInput;
         FieldToJson(args["bufferCountOutput"], bufferCountOutput);
         FieldToJson(args["buffer"], buffer);
     WriteBlockEnd();
@@ -3602,7 +3602,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVirtualKeyboardDirtyTexturesMETA(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
-        FieldToJson(args["textureIdCapacityInput"], textureIdCapacityInput);
+        args["textureIdCapacityInput"] = textureIdCapacityInput;
         FieldToJson(args["textureIdCountOutput"], textureIdCountOutput);
         FieldToJson(args["textureIds"], textureIds);
     WriteBlockEnd();
@@ -3619,7 +3619,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVirtualKeyboardTextureDataMETA(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["keyboard"], keyboard);
-        FieldToJson(args["textureId"], textureId);
+        args["textureId"] = textureId;
         FieldToJson(args["textureData"], textureData);
     WriteBlockEnd();
 }
@@ -3666,7 +3666,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateExternalCamerasOCULUS(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session);
-        FieldToJson(args["cameraCapacityInput"], cameraCapacityInput);
+        args["cameraCapacityInput"] = cameraCapacityInput;
         FieldToJson(args["cameraCountOutput"], cameraCountOutput);
         FieldToJson(args["cameras"], cameras);
     WriteBlockEnd();
@@ -3684,7 +3684,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumeratePerformanceMetricsCounterPaths
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance);
-        FieldToJson(args["counterPathCapacityInput"], counterPathCapacityInput);
+        args["counterPathCapacityInput"] = counterPathCapacityInput;
         FieldToJson(args["counterPathCountOutput"], counterPathCountOutput);
         HandleToJson(args["counterPaths"], counterPaths);
     WriteBlockEnd();
@@ -4002,7 +4002,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateEnvironmentDepthSwapchainImage
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["swapchain"], swapchain);
-        FieldToJson(args["imageCapacityInput"], imageCapacityInput);
+        args["imageCapacityInput"] = imageCapacityInput;
         FieldToJson(args["imageCountOutput"], imageCountOutput);
         ParentChildFieldToJson(args["images"], images);
     WriteBlockEnd();
@@ -4238,8 +4238,8 @@ void OpenXrExportJsonConsumer::Process_xrGetPlanePolygonBufferEXT(
     jdata[NameReturn()] = returnValue;
     auto& args = jdata[NameArgs()];
         HandleToJson(args["planeDetector"], planeDetector);
-        FieldToJson(args["planeId"], planeId);
-        FieldToJson(args["polygonBufferIndex"], polygonBufferIndex);
+        args["planeId"] = planeId;
+        args["polygonBufferIndex"] = polygonBufferIndex;
         FieldToJson(args["polygonBuffer"], polygonBuffer);
     WriteBlockEnd();
 }

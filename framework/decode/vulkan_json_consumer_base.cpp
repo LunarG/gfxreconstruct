@@ -95,11 +95,11 @@ void VulkanExportJsonConsumerBase::Process_vkCmdBuildAccelerationStructuresIndir
     PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts)
 {
     WriteApiCallToFile(call_info, "vkCmdBuildAccelerationStructuresIndirectKHR", [&](nlohmann::ordered_json& function) {
-        FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
+        function[NameCommandIndex()] = GetCommandBufferRecordIndex(commandBuffer);
 
         auto& args = function[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
-        FieldToJson(args["infoCount"], infoCount);
+        args["infoCount"] = infoCount;
         FieldToJson(args["pInfos"], pInfos);
         FieldToJson(args["pIndirectDeviceAddresses"], pIndirectDeviceAddresses);
         FieldToJson(args["pIndirectStrides"], pIndirectStrides);
@@ -199,13 +199,13 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
                                                               PointerDecoder<uint8_t>* pValues)
 {
     WriteApiCallToFile(call_info, "vkCmdPushConstants", [&](nlohmann::ordered_json& function) {
-        FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
+        function[NameCommandIndex()] = GetCommandBufferRecordIndex(commandBuffer);
         auto& args = function[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
         HandleToJson(args["layout"], layout);
         args["stageFlags"] = VkShaderStageFlags_t{ stageFlags };
-        FieldToJson(args["offset"], offset);
-        FieldToJson(args["size"], size);
+        args["offset"]     = offset;
+        args["size"]       = size;
         FieldToJson(args["pValues"], pValues);
         if (pValues->IsNull())
         {
@@ -248,13 +248,13 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR
     DescriptorUpdateTemplateDecoder* pData)
 {
     auto& function = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplateKHR");
-    FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
+    function[NameCommandIndex()] = GetCommandBufferRecordIndex(commandBuffer);
 
     auto& args = function[NameArgs()];
     HandleToJson(args["commandBuffer"], commandBuffer);
     HandleToJson(args["descriptorUpdateTemplate"], descriptorUpdateTemplate);
     HandleToJson(args["layout"], layout);
-    FieldToJson(args["set"], set);
+    args["set"] = set;
     FieldToJson(args["pData"], pData);
 
     WriteBlockEnd();
@@ -266,7 +266,7 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KH
     StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo)
 {
     auto& function = WriteApiCallStart(call_info, "vkCmdPushDescriptorSetWithTemplate2KHR");
-    FieldToJson(function[NameCommandIndex()], GetCommandBufferRecordIndex(commandBuffer));
+    function[NameCommandIndex()] = GetCommandBufferRecordIndex(commandBuffer);
 
     auto&                                                                    args = function[NameArgs()];
     const StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* info = pPushDescriptorSetWithTemplateInfo;

@@ -73,8 +73,8 @@ class MetadataJsonConsumer : public Base
     {
         auto& jdata = WriteMetaCommandStart("FillMemoryCommand");
         HandleToJson(jdata["memory_id"], memory_id);
-        FieldToJson(jdata["offset"], offset);
-        FieldToJson(jdata["size"], size);
+        jdata["offset"] = offset;
+        jdata["size"]   = size;
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "fill_memory.bin", size, data);
         WriteBlockEnd();
     }
@@ -99,8 +99,8 @@ class MetadataJsonConsumer : public Base
         using namespace util;
         auto& jdata = WriteMetaCommandStart("ResizeWindowCommand");
         HandleToJson(jdata["surface_id"], surface_id);
-        FieldToJson(jdata["width"], width);
-        FieldToJson(jdata["height"], height);
+        jdata["width"]  = width;
+        jdata["height"] = height;
         WriteBlockEnd();
     }
 
@@ -111,9 +111,9 @@ class MetadataJsonConsumer : public Base
     {
         auto& jdata = WriteMetaCommandStart("ResizeWindowCommand2");
         HandleToJson(jdata["surface_id"], surface_id);
-        FieldToJson(jdata["width"], width);
-        FieldToJson(jdata["height"], height);
-        FieldToJson(jdata["pre_transform"], pre_transform);
+        jdata["width"]         = width;
+        jdata["height"]        = height;
+        jdata["pre_transform"] = pre_transform;
         WriteBlockEnd();
     }
 
@@ -133,12 +133,12 @@ class MetadataJsonConsumer : public Base
         HandleToJson(jdata["device_id"], device_id);
         HandleToJson(jdata["memory_id"], memory_id);
         HandleToJson(jdata["buffer_id"], buffer_id);
-        FieldToJson(jdata["format"], format);
-        FieldToJson(jdata["width"], width);
-        FieldToJson(jdata["height"], height);
-        FieldToJson(jdata["stride"], stride);
-        FieldToJson(jdata["usage"], usage);
-        FieldToJson(jdata["layers"], layers);
+        jdata["format"] = format;
+        jdata["width"]  = width;
+        jdata["height"] = height;
+        jdata["stride"] = stride;
+        jdata["usage"]  = usage;
+        jdata["layers"] = layers;
         WriteBlockEnd();
     }
 
@@ -160,11 +160,11 @@ class MetadataJsonConsumer : public Base
     {
         auto& jdata = WriteMetaCommandStart("SetDevicePropertiesCommand");
         HandleToJson(jdata["physical_device_id"], physical_device_id);
-        FieldToJson(jdata["api_version"], api_version);
-        FieldToJson(jdata["driver_version"], driver_version);
-        FieldToJson(jdata["vendor_id"], vendor_id);
-        FieldToJson(jdata["device_id"], device_id);
-        FieldToJson(jdata["device_type"], device_type);
+        jdata["api_version"]    = api_version;
+        jdata["driver_version"] = driver_version;
+        jdata["vendor_id"]      = vendor_id;
+        jdata["device_id"]      = device_id;
+        jdata["device_type"]    = device_type;
         FieldToJson(jdata["pipeline_cache_uuid"], util::uuid_to_string(format::kUuidSize, pipeline_cache_uuid));
         FieldToJson(jdata["device_name"], device_name);
         WriteBlockEnd();
@@ -188,7 +188,7 @@ class MetadataJsonConsumer : public Base
         auto& jdata = WriteMetaCommandStart("SetOpaqueDescriptorDataCommand");
         HandleToJson(jdata["device_id"], device_id);
         HandleToJson(jdata["object_id"], object_id);
-        FieldToJson(jdata["data_size"], data_size);
+        jdata["data_size"] = data_size;
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "opaque_descriptor_data.bin", data_size, data);
         WriteBlockEnd();
     }
@@ -201,7 +201,7 @@ class MetadataJsonConsumer : public Base
         auto& jdata = WriteMetaCommandStart("SetRayTracingShaderGroupHandlesCommand");
         HandleToJson(jdata["device_id"], device_id);
         HandleToJson(jdata["pipeline_id"], pipeline_id);
-        FieldToJson(jdata["data_size"], data_size);
+        jdata["data_size"] = data_size;
         RepresentBinaryFile(
             *(this->writer_), jdata[format::kNameData], "set_raytracing_shader_group_handles.bin", data_size, data);
         WriteBlockEnd();
@@ -216,7 +216,7 @@ class MetadataJsonConsumer : public Base
         auto& jdata = WriteMetaCommandStart("SetSwapchainImageStateCommand");
         HandleToJson(jdata["device_id"], device_id);
         HandleToJson(jdata["swapchain_id"], swapchain_id);
-        FieldToJson(jdata["last_presented_image"], last_presented_image);
+        jdata["last_presented_image"] = last_presented_image;
         FieldToJson(jdata["image_state"], "not available");
         WriteBlockEnd();
     }
@@ -226,7 +226,7 @@ class MetadataJsonConsumer : public Base
     {
         auto& jdata = WriteMetaCommandStart("InitializeMetaCommand");
         HandleToJson(jdata["MetaCommand_id"], command_header.capture_id);
-        FieldToJson(jdata["InitializationParametersDataSizeInBytes"], command_header.data_size);
+        jdata["InitializationParametersDataSizeInBytes"] = command_header.data_size;
         WriteBlockEnd();
     }
 
@@ -238,8 +238,8 @@ class MetadataJsonConsumer : public Base
         HandleToJson(jdata["device_id"], device_id);
 
         // TODO: should be "total_copy_size"
-        FieldToJson(jdata["max_resource_size"], max_resource_size);
-        FieldToJson(jdata["max_copy_size"], max_copy_size);
+        jdata["max_resource_size"] = max_resource_size;
+        jdata["max_copy_size"]     = max_copy_size;
         WriteBlockEnd();
     }
 
@@ -258,7 +258,7 @@ class MetadataJsonConsumer : public Base
         auto& jdata = WriteMetaCommandStart("InitBufferCommand");
         HandleToJson(jdata["device_id"], device_id);
         HandleToJson(jdata["buffer_id"], buffer_id);
-        FieldToJson(jdata["data_size"], data_size);
+        jdata["data_size"] = data_size;
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_buffer.bin", data_size, data);
         WriteBlockEnd();
     }
@@ -274,9 +274,9 @@ class MetadataJsonConsumer : public Base
         auto& jdata = WriteMetaCommandStart("InitImageCommand");
         HandleToJson(jdata["device_id"], device_id);
         HandleToJson(jdata["image_id"], image_id);
-        FieldToJson(jdata["data_size"], data_size);
-        FieldToJson(jdata["aspect"], aspect);
-        FieldToJson(jdata["layout"], layout);
+        jdata["data_size"] = data_size;
+        jdata["aspect"]    = aspect;
+        jdata["layout"]    = layout;
         FieldToJson(jdata["level_sizes"], "not available");
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_image.bin", data_size, data);
         WriteBlockEnd();
@@ -304,9 +304,9 @@ class MetadataJsonConsumer : public Base
 
     virtual void ProcessExecuteBlocksFromFile(uint32_t n_blocks, int64_t offset, const std::string& filename) override
     {
-        auto& jdata = WriteMetaCommandStart("ExecuteBlocksFromFile");
-        FieldToJson(jdata["n_blocks"], n_blocks);
-        FieldToJson(jdata["offset"], offset);
+        auto& jdata       = WriteMetaCommandStart("ExecuteBlocksFromFile");
+        jdata["n_blocks"] = n_blocks;
+        jdata["offset"]   = offset;
         FieldToJson(jdata["filename"], filename);
         WriteBlockEnd();
     }
@@ -317,8 +317,8 @@ class MetadataJsonConsumer : public Base
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* geometry_infos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   range_infos) override
     {
-        auto& jdata = WriteMetaCommandStart("ProcessVulkanBuildAccelerationStructuresCommand");
-        FieldToJson(jdata["infoCount"], info_count);
+        auto& jdata        = WriteMetaCommandStart("ProcessVulkanBuildAccelerationStructuresCommand");
+        jdata["infoCount"] = info_count;
         FieldToJson(jdata["pInfos"], geometry_infos);
         FieldToJson(jdata["ppBuildRangeInfos"], range_infos);
         WriteBlockEnd();
@@ -338,7 +338,7 @@ class MetadataJsonConsumer : public Base
     {
         auto& jdata = WriteMetaCommandStart("VulkanWriteAccelerationStructuresPropertiesCommand");
         HandleToJson(jdata["device_id"], device_id);
-        FieldToJson(jdata["queryType"], query_type);
+        jdata["queryType"] = query_type;
         HandleToJson(jdata["acceleration_structure_id"], acceleration_structure_id);
         WriteBlockEnd();
     }

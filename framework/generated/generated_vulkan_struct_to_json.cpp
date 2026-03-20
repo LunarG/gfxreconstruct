@@ -1311,7 +1311,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatPrope
         jdata["maxMipLevels"] = decoded_value.maxMipLevels;
         jdata["maxArrayLayers"] = decoded_value.maxArrayLayers;
         jdata["sampleCounts"] = VkSampleCountFlags_t{decoded_value.sampleCounts};
-        FieldToJson(jdata["maxResourceSize"], decoded_value.maxResourceSize);
+        jdata["maxResourceSize"] = decoded_value.maxResourceSize;
     }
 }
 
@@ -1340,7 +1340,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryHeap* data
         const VkMemoryHeap& decoded_value = *data->decoded_value;
         const Decoded_VkMemoryHeap& meta_struct = *data;
 
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         jdata["flags"] = VkMemoryHeapFlags_t{decoded_value.flags};
     }
 }
@@ -1440,8 +1440,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLi
         jdata["maxPushConstantsSize"] = decoded_value.maxPushConstantsSize;
         jdata["maxMemoryAllocationCount"] = decoded_value.maxMemoryAllocationCount;
         jdata["maxSamplerAllocationCount"] = decoded_value.maxSamplerAllocationCount;
-        FieldToJson(jdata["bufferImageGranularity"], decoded_value.bufferImageGranularity);
-        FieldToJson(jdata["sparseAddressSpaceSize"], decoded_value.sparseAddressSpaceSize);
+        jdata["bufferImageGranularity"] = decoded_value.bufferImageGranularity;
+        jdata["sparseAddressSpaceSize"] = decoded_value.sparseAddressSpaceSize;
         jdata["maxBoundDescriptorSets"] = decoded_value.maxBoundDescriptorSets;
         jdata["maxPerStageDescriptorSamplers"] = decoded_value.maxPerStageDescriptorSamplers;
         jdata["maxPerStageDescriptorUniformBuffers"] = decoded_value.maxPerStageDescriptorUniformBuffers;
@@ -1495,10 +1495,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLi
         FieldToJson(jdata["maxViewportDimensions"], &meta_struct.maxViewportDimensions);
         FieldToJson(jdata["viewportBoundsRange"], &meta_struct.viewportBoundsRange);
         jdata["viewportSubPixelBits"] = decoded_value.viewportSubPixelBits;
-        FieldToJson(jdata["minMemoryMapAlignment"], decoded_value.minMemoryMapAlignment);
-        FieldToJson(jdata["minTexelBufferOffsetAlignment"], decoded_value.minTexelBufferOffsetAlignment);
-        FieldToJson(jdata["minUniformBufferOffsetAlignment"], decoded_value.minUniformBufferOffsetAlignment);
-        FieldToJson(jdata["minStorageBufferOffsetAlignment"], decoded_value.minStorageBufferOffsetAlignment);
+        jdata["minMemoryMapAlignment"] = decoded_value.minMemoryMapAlignment;
+        jdata["minTexelBufferOffsetAlignment"] = decoded_value.minTexelBufferOffsetAlignment;
+        jdata["minUniformBufferOffsetAlignment"] = decoded_value.minUniformBufferOffsetAlignment;
+        jdata["minStorageBufferOffsetAlignment"] = decoded_value.minStorageBufferOffsetAlignment;
         jdata["minTexelOffset"] = decoded_value.minTexelOffset;
         jdata["maxTexelOffset"] = decoded_value.maxTexelOffset;
         jdata["minTexelGatherOffset"] = decoded_value.minTexelGatherOffset;
@@ -1532,9 +1532,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLi
         FieldToJson(jdata["lineWidthGranularity"], decoded_value.lineWidthGranularity);
         jdata["strictLines"] = static_cast<bool>(decoded_value.strictLines);
         jdata["standardSampleLocations"] = static_cast<bool>(decoded_value.standardSampleLocations);
-        FieldToJson(jdata["optimalBufferCopyOffsetAlignment"], decoded_value.optimalBufferCopyOffsetAlignment);
-        FieldToJson(jdata["optimalBufferCopyRowPitchAlignment"], decoded_value.optimalBufferCopyRowPitchAlignment);
-        FieldToJson(jdata["nonCoherentAtomSize"], decoded_value.nonCoherentAtomSize);
+        jdata["optimalBufferCopyOffsetAlignment"] = decoded_value.optimalBufferCopyOffsetAlignment;
+        jdata["optimalBufferCopyRowPitchAlignment"] = decoded_value.optimalBufferCopyRowPitchAlignment;
+        jdata["nonCoherentAtomSize"] = decoded_value.nonCoherentAtomSize;
     }
 }
 
@@ -1690,8 +1690,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMappedMemoryRang
 
         jdata["sType"] = decoded_value.sType;
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["offset"] = decoded_value.offset;
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -1704,7 +1704,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryAllocateIn
         const Decoded_VkMemoryAllocateInfo& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["allocationSize"], decoded_value.allocationSize);
+        jdata["allocationSize"] = decoded_value.allocationSize;
         jdata["memoryTypeIndex"] = decoded_value.memoryTypeIndex;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -1717,8 +1717,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryRequiremen
         const VkMemoryRequirements& decoded_value = *data->decoded_value;
         const Decoded_VkMemoryRequirements& meta_struct = *data;
 
-        FieldToJson(jdata["size"], decoded_value.size);
-        FieldToJson(jdata["alignment"], decoded_value.alignment);
+        jdata["size"] = decoded_value.size;
+        jdata["alignment"] = decoded_value.alignment;
         jdata["memoryTypeBits"] = decoded_value.memoryTypeBits;
     }
 }
@@ -1760,7 +1760,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemor
         FieldToJson(jdata["offset"], meta_struct.offset);
         FieldToJson(jdata["extent"], meta_struct.extent);
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset);
+        jdata["memoryOffset"] = decoded_value.memoryOffset;
         jdata["flags"] = VkSparseMemoryBindFlags_t{decoded_value.flags};
     }
 }
@@ -1787,9 +1787,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemor
 
         FieldToJson(jdata["formatProperties"], meta_struct.formatProperties);
         jdata["imageMipTailFirstLod"] = decoded_value.imageMipTailFirstLod;
-        FieldToJson(jdata["imageMipTailSize"], decoded_value.imageMipTailSize);
-        FieldToJson(jdata["imageMipTailOffset"], decoded_value.imageMipTailOffset);
-        FieldToJson(jdata["imageMipTailStride"], decoded_value.imageMipTailStride);
+        jdata["imageMipTailSize"] = decoded_value.imageMipTailSize;
+        jdata["imageMipTailOffset"] = decoded_value.imageMipTailOffset;
+        jdata["imageMipTailStride"] = decoded_value.imageMipTailStride;
     }
 }
 
@@ -1800,10 +1800,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseMemoryBind
         const VkSparseMemoryBind& decoded_value = *data->decoded_value;
         const Decoded_VkSparseMemoryBind& meta_struct = *data;
 
-        FieldToJson(jdata["resourceOffset"], decoded_value.resourceOffset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["resourceOffset"] = decoded_value.resourceOffset;
+        jdata["size"] = decoded_value.size;
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset);
+        jdata["memoryOffset"] = decoded_value.memoryOffset;
         jdata["flags"] = VkSparseMemoryBindFlags_t{decoded_value.flags};
     }
 }
@@ -1907,7 +1907,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCreateInfo
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkBufferCreateFlags_t{decoded_value.flags};
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         jdata["usage"] = VkBufferUsageFlags_t{decoded_value.usage};
         jdata["sharingMode"] = decoded_value.sharingMode;
         jdata["queueFamilyIndexCount"] = decoded_value.queueFamilyIndexCount;
@@ -1948,11 +1948,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceLayou
         const VkSubresourceLayout& decoded_value = *data->decoded_value;
         const Decoded_VkSubresourceLayout& meta_struct = *data;
 
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["size"], decoded_value.size);
-        FieldToJson(jdata["rowPitch"], decoded_value.rowPitch);
-        FieldToJson(jdata["arrayPitch"], decoded_value.arrayPitch);
-        FieldToJson(jdata["depthPitch"], decoded_value.depthPitch);
+        jdata["offset"] = decoded_value.offset;
+        jdata["size"] = decoded_value.size;
+        jdata["rowPitch"] = decoded_value.rowPitch;
+        jdata["arrayPitch"] = decoded_value.arrayPitch;
+        jdata["depthPitch"] = decoded_value.depthPitch;
     }
 }
 
@@ -2071,9 +2071,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCopy* data
         const VkBufferCopy& decoded_value = *data->decoded_value;
         const Decoded_VkBufferCopy& meta_struct = *data;
 
-        FieldToJson(jdata["srcOffset"], decoded_value.srcOffset);
-        FieldToJson(jdata["dstOffset"], decoded_value.dstOffset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["srcOffset"] = decoded_value.srcOffset;
+        jdata["dstOffset"] = decoded_value.dstOffset;
+        jdata["size"] = decoded_value.size;
     }
 }
 
@@ -2098,7 +2098,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferImageCopy*
         const VkBufferImageCopy& decoded_value = *data->decoded_value;
         const Decoded_VkBufferImageCopy& meta_struct = *data;
 
-        FieldToJson(jdata["bufferOffset"], decoded_value.bufferOffset);
+        jdata["bufferOffset"] = decoded_value.bufferOffset;
         jdata["bufferRowLength"] = decoded_value.bufferRowLength;
         jdata["bufferImageHeight"] = decoded_value.bufferImageHeight;
         FieldToJson(jdata["imageSubresource"], meta_struct.imageSubresource);
@@ -2135,8 +2135,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarr
         jdata["srcQueueFamilyIndex"] = decoded_value.srcQueueFamilyIndex;
         jdata["dstQueueFamilyIndex"] = decoded_value.dstQueueFamilyIndex;
         HandleToJson(jdata["buffer"], meta_struct.buffer);
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["offset"] = decoded_value.offset;
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -2227,8 +2227,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferViewCreate
         jdata["flags"] = VkBufferViewCreateFlags_t{decoded_value.flags};
         HandleToJson(jdata["buffer"], meta_struct.buffer);
         jdata["format"] = decoded_value.format;
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["range"], decoded_value.range);
+        jdata["offset"] = decoded_value.offset;
+        jdata["range"] = decoded_value.range;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -2242,7 +2242,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSpecializationMa
 
         jdata["constantID"] = decoded_value.constantID;
         jdata["offset"] = decoded_value.offset;
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
     }
 }
 
@@ -2255,7 +2255,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSpecializationIn
 
         jdata["mapEntryCount"] = decoded_value.mapEntryCount;
         FieldToJson(jdata["pMapEntries"], meta_struct.pMapEntries);
-        FieldToJson(jdata["dataSize"], decoded_value.dataSize);
+        jdata["dataSize"] = decoded_value.dataSize;
         FieldToJson(jdata["pData"], meta_struct.pData);
     }
 }
@@ -2379,8 +2379,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorBuffer
         const Decoded_VkDescriptorBufferInfo& meta_struct = *data;
 
         HandleToJson(jdata["buffer"], meta_struct.buffer);
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["range"], decoded_value.range);
+        jdata["offset"] = decoded_value.offset;
+        jdata["range"] = decoded_value.range;
     }
 }
 
@@ -2953,7 +2953,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindBufferMemory
         jdata["sType"] = decoded_value.sType;
         HandleToJson(jdata["buffer"], meta_struct.buffer);
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset);
+        jdata["memoryOffset"] = decoded_value.memoryOffset;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -2968,7 +2968,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImageMemoryI
         jdata["sType"] = decoded_value.sType;
         HandleToJson(jdata["image"], meta_struct.image);
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset);
+        jdata["memoryOffset"] = decoded_value.memoryOffset;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -3664,8 +3664,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorUpdate
         jdata["dstArrayElement"] = decoded_value.dstArrayElement;
         jdata["descriptorCount"] = decoded_value.descriptorCount;
         jdata["descriptorType"] = decoded_value.descriptorType;
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["stride"], decoded_value.stride);
+        jdata["offset"] = decoded_value.offset;
+        jdata["stride"] = decoded_value.stride;
     }
 }
 
@@ -3698,7 +3698,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
 
         jdata["sType"] = decoded_value.sType;
         jdata["maxPerSetDescriptors"] = decoded_value.maxPerSetDescriptors;
-        FieldToJson(jdata["maxMemoryAllocationSize"], decoded_value.maxMemoryAllocationSize);
+        jdata["maxMemoryAllocationSize"] = decoded_value.maxMemoryAllocationSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -3979,7 +3979,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         jdata["maxMultiviewInstanceIndex"] = decoded_value.maxMultiviewInstanceIndex;
         jdata["protectedNoFault"] = static_cast<bool>(decoded_value.protectedNoFault);
         jdata["maxPerSetDescriptors"] = decoded_value.maxPerSetDescriptors;
-        FieldToJson(jdata["maxMemoryAllocationSize"], decoded_value.maxMemoryAllocationSize);
+        jdata["maxMemoryAllocationSize"] = decoded_value.maxMemoryAllocationSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -4892,11 +4892,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         jdata["integerDotProductAccumulatingSaturating64BitUnsignedAccelerated"] = static_cast<bool>(decoded_value.integerDotProductAccumulatingSaturating64BitUnsignedAccelerated);
         jdata["integerDotProductAccumulatingSaturating64BitSignedAccelerated"] = static_cast<bool>(decoded_value.integerDotProductAccumulatingSaturating64BitSignedAccelerated);
         jdata["integerDotProductAccumulatingSaturating64BitMixedSignednessAccelerated"] = static_cast<bool>(decoded_value.integerDotProductAccumulatingSaturating64BitMixedSignednessAccelerated);
-        FieldToJson(jdata["storageTexelBufferOffsetAlignmentBytes"], decoded_value.storageTexelBufferOffsetAlignmentBytes);
+        jdata["storageTexelBufferOffsetAlignmentBytes"] = decoded_value.storageTexelBufferOffsetAlignmentBytes;
         jdata["storageTexelBufferOffsetSingleTexelAlignment"] = static_cast<bool>(decoded_value.storageTexelBufferOffsetSingleTexelAlignment);
-        FieldToJson(jdata["uniformTexelBufferOffsetAlignmentBytes"], decoded_value.uniformTexelBufferOffsetAlignmentBytes);
+        jdata["uniformTexelBufferOffsetAlignmentBytes"] = decoded_value.uniformTexelBufferOffsetAlignmentBytes;
         jdata["uniformTexelBufferOffsetSingleTexelAlignment"] = static_cast<bool>(decoded_value.uniformTexelBufferOffsetSingleTexelAlignment);
-        FieldToJson(jdata["maxBufferSize"], decoded_value.maxBufferSize);
+        jdata["maxBufferSize"] = decoded_value.maxBufferSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -4988,8 +4988,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarr
         jdata["srcQueueFamilyIndex"] = decoded_value.srcQueueFamilyIndex;
         jdata["dstQueueFamilyIndex"] = decoded_value.dstQueueFamilyIndex;
         HandleToJson(jdata["buffer"], meta_struct.buffer);
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["offset"] = decoded_value.offset;
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -5105,9 +5105,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCopy2* dat
         const Decoded_VkBufferCopy2& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["srcOffset"], decoded_value.srcOffset);
-        FieldToJson(jdata["dstOffset"], decoded_value.dstOffset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["srcOffset"] = decoded_value.srcOffset;
+        jdata["dstOffset"] = decoded_value.dstOffset;
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -5171,7 +5171,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferImageCopy2
         const Decoded_VkBufferImageCopy2& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["bufferOffset"], decoded_value.bufferOffset);
+        jdata["bufferOffset"] = decoded_value.bufferOffset;
         jdata["bufferRowLength"] = decoded_value.bufferRowLength;
         jdata["bufferImageHeight"] = decoded_value.bufferImageHeight;
         FieldToJson(jdata["imageSubresource"], meta_struct.imageSubresource);
@@ -5264,7 +5264,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         const Decoded_VkPhysicalDeviceMaintenance4Properties& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["maxBufferSize"], decoded_value.maxBufferSize);
+        jdata["maxBufferSize"] = decoded_value.maxBufferSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -5552,9 +5552,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTe
         const Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["storageTexelBufferOffsetAlignmentBytes"], decoded_value.storageTexelBufferOffsetAlignmentBytes);
+        jdata["storageTexelBufferOffsetAlignmentBytes"] = decoded_value.storageTexelBufferOffsetAlignmentBytes;
         jdata["storageTexelBufferOffsetSingleTexelAlignment"] = static_cast<bool>(decoded_value.storageTexelBufferOffsetSingleTexelAlignment);
-        FieldToJson(jdata["uniformTexelBufferOffsetAlignmentBytes"], decoded_value.uniformTexelBufferOffsetAlignmentBytes);
+        jdata["uniformTexelBufferOffsetAlignmentBytes"] = decoded_value.uniformTexelBufferOffsetAlignmentBytes;
         jdata["uniformTexelBufferOffsetSingleTexelAlignment"] = static_cast<bool>(decoded_value.uniformTexelBufferOffsetSingleTexelAlignment);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -5852,8 +5852,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryMapInfo* d
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkMemoryMapFlags_t{decoded_value.flags};
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["offset"] = decoded_value.offset;
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -6071,7 +6071,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceHostM
         const Decoded_VkSubresourceHostMemcpySize& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -6722,8 +6722,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXlibSurfaceCreat
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkXlibSurfaceCreateFlagsKHR_t{decoded_value.flags};
-        FieldToJson(jdata["dpy"], meta_struct.dpy);
-        FieldToJson(jdata["window"], decoded_value.window);
+        jdata["dpy"] = meta_struct.dpy;
+        jdata["window"] = decoded_value.window;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -6737,7 +6737,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXcbSurfaceCreate
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkXcbSurfaceCreateFlagsKHR_t{decoded_value.flags};
-        FieldToJson(jdata["connection"], meta_struct.connection);
+        jdata["connection"] = meta_struct.connection;
         jdata["window"] = decoded_value.window;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -6752,8 +6752,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWaylandSurfaceCr
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkWaylandSurfaceCreateFlagsKHR_t{decoded_value.flags};
-        FieldToJson(jdata["display"], meta_struct.display);
-        FieldToJson(jdata["surface"], meta_struct.surface);
+        jdata["display"] = meta_struct.display;
+        jdata["surface"] = meta_struct.surface;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -6767,7 +6767,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidSurfaceCr
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkAndroidSurfaceCreateFlagsKHR_t{decoded_value.flags};
-        FieldToJson(jdata["window"], meta_struct.window);
+        jdata["window"] = meta_struct.window;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -6781,8 +6781,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWin32SurfaceCrea
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkWin32SurfaceCreateFlagsKHR_t{decoded_value.flags};
-        FieldToJson(jdata["hinstance"], meta_struct.hinstance);
-        FieldToJson(jdata["hwnd"], meta_struct.hwnd);
+        jdata["hinstance"] = meta_struct.hinstance;
+        jdata["hwnd"] = meta_struct.hwnd;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -6852,8 +6852,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoCapabilitie
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkVideoCapabilityFlagsKHR_t{decoded_value.flags};
-        FieldToJson(jdata["minBitstreamBufferOffsetAlignment"], decoded_value.minBitstreamBufferOffsetAlignment);
-        FieldToJson(jdata["minBitstreamBufferSizeAlignment"], decoded_value.minBitstreamBufferSizeAlignment);
+        jdata["minBitstreamBufferOffsetAlignment"] = decoded_value.minBitstreamBufferOffsetAlignment;
+        jdata["minBitstreamBufferSizeAlignment"] = decoded_value.minBitstreamBufferSizeAlignment;
         FieldToJson(jdata["pictureAccessGranularity"], meta_struct.pictureAccessGranularity);
         FieldToJson(jdata["minCodedExtent"], meta_struct.minCodedExtent);
         FieldToJson(jdata["maxCodedExtent"], meta_struct.maxCodedExtent);
@@ -6949,8 +6949,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindVideoSession
         jdata["sType"] = decoded_value.sType;
         jdata["memoryBindIndex"] = decoded_value.memoryBindIndex;
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset);
-        FieldToJson(jdata["memorySize"], decoded_value.memorySize);
+        jdata["memoryOffset"] = decoded_value.memoryOffset;
+        jdata["memorySize"] = decoded_value.memorySize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -7083,8 +7083,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeInfoK
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkVideoDecodeFlagsKHR_t{decoded_value.flags};
         HandleToJson(jdata["srcBuffer"], meta_struct.srcBuffer);
-        FieldToJson(jdata["srcBufferOffset"], decoded_value.srcBufferOffset);
-        FieldToJson(jdata["srcBufferRange"], decoded_value.srcBufferRange);
+        jdata["srcBufferOffset"] = decoded_value.srcBufferOffset;
+        jdata["srcBufferRange"] = decoded_value.srcBufferRange;
         FieldToJson(jdata["dstPictureResource"], meta_struct.dstPictureResource);
         FieldToJson(jdata["pSetupReferenceSlot"], meta_struct.pSetupReferenceSlot);
         jdata["referenceSlotCount"] = decoded_value.referenceSlotCount;
@@ -7443,7 +7443,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryWin3
 
         jdata["sType"] = decoded_value.sType;
         jdata["handleType"] = decoded_value.handleType;
-        FieldToJson(jdata["handle"], meta_struct.handle);
+        jdata["handle"] = meta_struct.handle;
         FieldToJson(jdata["name"], &meta_struct.name);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -7562,7 +7562,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportSemaphoreW
         HandleToJson(jdata["semaphore"], meta_struct.semaphore);
         jdata["flags"] = VkSemaphoreImportFlags_t{decoded_value.flags};
         jdata["handleType"] = decoded_value.handleType;
-        FieldToJson(jdata["handle"], meta_struct.handle);
+        jdata["handle"] = meta_struct.handle;
         FieldToJson(jdata["name"], &meta_struct.name);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -7706,7 +7706,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportFenceWin32
         HandleToJson(jdata["fence"], meta_struct.fence);
         jdata["flags"] = VkFenceImportFlags_t{decoded_value.flags};
         jdata["handleType"] = decoded_value.handleType;
-        FieldToJson(jdata["handle"], meta_struct.handle);
+        jdata["handle"] = meta_struct.handle;
         FieldToJson(jdata["name"], &meta_struct.name);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -8253,7 +8253,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutab
         FieldToJson(jdata["name"], &meta_struct.name);
         FieldToJson(jdata["description"], &meta_struct.description);
         jdata["isText"] = static_cast<bool>(decoded_value.isText);
-        FieldToJson(jdata["dataSize"], decoded_value.dataSize);
+        jdata["dataSize"] = decoded_value.dataSize;
         FieldToJson(jdata["pData"], meta_struct.pData);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -8310,8 +8310,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeInfoK
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkVideoEncodeFlagsKHR_t{decoded_value.flags};
         HandleToJson(jdata["dstBuffer"], meta_struct.dstBuffer);
-        FieldToJson(jdata["dstBufferOffset"], decoded_value.dstBufferOffset);
-        FieldToJson(jdata["dstBufferRange"], decoded_value.dstBufferRange);
+        jdata["dstBufferOffset"] = decoded_value.dstBufferOffset;
+        jdata["dstBufferRange"] = decoded_value.dstBufferRange;
         FieldToJson(jdata["srcPictureResource"], meta_struct.srcPictureResource);
         FieldToJson(jdata["pSetupReferenceSlot"], meta_struct.pSetupReferenceSlot);
         jdata["referenceSlotCount"] = decoded_value.referenceSlotCount;
@@ -8546,16 +8546,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTraceRaysIndirec
         const Decoded_VkTraceRaysIndirectCommand2KHR& meta_struct = *data;
 
         FieldToJson(jdata["raygenShaderRecordAddress"], to_hex_variable_width(decoded_value.raygenShaderRecordAddress));
-        FieldToJson(jdata["raygenShaderRecordSize"], decoded_value.raygenShaderRecordSize);
+        jdata["raygenShaderRecordSize"] = decoded_value.raygenShaderRecordSize;
         FieldToJson(jdata["missShaderBindingTableAddress"], to_hex_variable_width(decoded_value.missShaderBindingTableAddress));
-        FieldToJson(jdata["missShaderBindingTableSize"], decoded_value.missShaderBindingTableSize);
-        FieldToJson(jdata["missShaderBindingTableStride"], decoded_value.missShaderBindingTableStride);
+        jdata["missShaderBindingTableSize"] = decoded_value.missShaderBindingTableSize;
+        jdata["missShaderBindingTableStride"] = decoded_value.missShaderBindingTableStride;
         FieldToJson(jdata["hitShaderBindingTableAddress"], to_hex_variable_width(decoded_value.hitShaderBindingTableAddress));
-        FieldToJson(jdata["hitShaderBindingTableSize"], decoded_value.hitShaderBindingTableSize);
-        FieldToJson(jdata["hitShaderBindingTableStride"], decoded_value.hitShaderBindingTableStride);
+        jdata["hitShaderBindingTableSize"] = decoded_value.hitShaderBindingTableSize;
+        jdata["hitShaderBindingTableStride"] = decoded_value.hitShaderBindingTableStride;
         FieldToJson(jdata["callableShaderBindingTableAddress"], to_hex_variable_width(decoded_value.callableShaderBindingTableAddress));
-        FieldToJson(jdata["callableShaderBindingTableSize"], decoded_value.callableShaderBindingTableSize);
-        FieldToJson(jdata["callableShaderBindingTableStride"], decoded_value.callableShaderBindingTableStride);
+        jdata["callableShaderBindingTableSize"] = decoded_value.callableShaderBindingTableSize;
+        jdata["callableShaderBindingTableStride"] = decoded_value.callableShaderBindingTableStride;
         jdata["width"] = decoded_value.width;
         jdata["height"] = decoded_value.height;
         jdata["depth"] = decoded_value.depth;
@@ -8745,7 +8745,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineBinaryDa
         const VkPipelineBinaryDataKHR& decoded_value = *data->decoded_value;
         const Decoded_VkPipelineBinaryDataKHR& meta_struct = *data;
 
-        FieldToJson(jdata["dataSize"], decoded_value.dataSize);
+        jdata["dataSize"] = decoded_value.dataSize;
         FieldToJson(jdata["pData"], meta_struct.pData);
     }
 }
@@ -9525,8 +9525,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStridedDeviceAdd
         const Decoded_VkStridedDeviceAddressRangeKHR& meta_struct = *data;
 
         FieldToJson(jdata["address"], to_hex_variable_width(decoded_value.address));
-        FieldToJson(jdata["size"], decoded_value.size);
-        FieldToJson(jdata["stride"], decoded_value.stride);
+        jdata["size"] = decoded_value.size;
+        jdata["stride"] = decoded_value.stride;
     }
 }
 
@@ -9539,7 +9539,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryIndire
 
         FieldToJson(jdata["srcAddress"], to_hex_variable_width(decoded_value.srcAddress));
         FieldToJson(jdata["dstAddress"], to_hex_variable_width(decoded_value.dstAddress));
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
     }
 }
 
@@ -10031,8 +10031,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRo
         const Decoded_VkPhysicalDeviceRobustness2PropertiesKHR& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["robustStorageBufferAccessSizeAlignment"], decoded_value.robustStorageBufferAccessSizeAlignment);
-        FieldToJson(jdata["robustUniformBufferAccessSizeAlignment"], decoded_value.robustUniformBufferAccessSizeAlignment);
+        jdata["robustStorageBufferAccessSizeAlignment"] = decoded_value.robustStorageBufferAccessSizeAlignment;
+        jdata["robustUniformBufferAccessSizeAlignment"] = decoded_value.robustUniformBufferAccessSizeAlignment;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -10172,7 +10172,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjec
         jdata["objectType"] = decoded_value.objectType;
         jdata["object"] = decoded_value.object;
         jdata["tagName"] = decoded_value.tagName;
-        FieldToJson(jdata["tagSize"], decoded_value.tagSize);
+        jdata["tagSize"] = decoded_value.tagSize;
         FieldToJson(jdata["pTag"], meta_struct.pTag);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -10256,7 +10256,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTr
         jdata["sType"] = decoded_value.sType;
         jdata["maxTransformFeedbackStreams"] = decoded_value.maxTransformFeedbackStreams;
         jdata["maxTransformFeedbackBuffers"] = decoded_value.maxTransformFeedbackBuffers;
-        FieldToJson(jdata["maxTransformFeedbackBufferSize"], decoded_value.maxTransformFeedbackBufferSize);
+        jdata["maxTransformFeedbackBufferSize"] = decoded_value.maxTransformFeedbackBufferSize;
         jdata["maxTransformFeedbackStreamDataSize"] = decoded_value.maxTransformFeedbackStreamDataSize;
         jdata["maxTransformFeedbackBufferDataSize"] = decoded_value.maxTransformFeedbackBufferDataSize;
         jdata["maxTransformFeedbackBufferDataStride"] = decoded_value.maxTransformFeedbackBufferDataStride;
@@ -10306,7 +10306,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewAddress
 
         jdata["sType"] = decoded_value.sType;
         FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress));
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -10334,8 +10334,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderResourceUs
         jdata["numUsedVgprs"] = decoded_value.numUsedVgprs;
         jdata["numUsedSgprs"] = decoded_value.numUsedSgprs;
         jdata["ldsSizePerLocalWorkGroup"] = decoded_value.ldsSizePerLocalWorkGroup;
-        FieldToJson(jdata["ldsUsageSizeInBytes"], decoded_value.ldsUsageSizeInBytes);
-        FieldToJson(jdata["scratchMemUsageInBytes"], decoded_value.scratchMemUsageInBytes);
+        jdata["ldsUsageSizeInBytes"] = decoded_value.ldsUsageSizeInBytes;
+        jdata["scratchMemUsageInBytes"] = decoded_value.scratchMemUsageInBytes;
     }
 }
 
@@ -10432,7 +10432,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryWin3
 
         jdata["sType"] = decoded_value.sType;
         jdata["handleType"] = VkExternalMemoryHandleTypeFlagsNV_t{decoded_value.handleType};
-        FieldToJson(jdata["handle"], meta_struct.handle);
+        jdata["handle"] = meta_struct.handle;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -10493,7 +10493,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViSurfaceCreateI
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkViSurfaceCreateFlagsNN_t{decoded_value.flags};
-        FieldToJson(jdata["window"], meta_struct.window);
+        jdata["window"] = meta_struct.window;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -10533,7 +10533,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConditionalRende
 
         jdata["sType"] = decoded_value.sType;
         HandleToJson(jdata["buffer"], meta_struct.buffer);
-        FieldToJson(jdata["offset"], decoded_value.offset);
+        jdata["offset"] = decoded_value.offset;
         jdata["flags"] = VkConditionalRenderingFlagsEXT_t{decoded_value.flags};
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -10922,7 +10922,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIOSSurfaceCreate
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkIOSSurfaceCreateFlagsMVK_t{decoded_value.flags};
-        FieldToJson(jdata["pView"], meta_struct.pView);
+        jdata["pView"] = meta_struct.pView;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -10936,7 +10936,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMacOSSurfaceCrea
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkMacOSSurfaceCreateFlagsMVK_t{decoded_value.flags};
-        FieldToJson(jdata["pView"], meta_struct.pView);
+        jdata["pView"] = meta_struct.pView;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -11020,7 +11020,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsObject
         jdata["objectType"] = decoded_value.objectType;
         HandleToJson(jdata["objectHandle"], meta_struct.objectHandle);
         jdata["tagName"] = decoded_value.tagName;
-        FieldToJson(jdata["tagSize"], decoded_value.tagSize);
+        jdata["tagSize"] = decoded_value.tagSize;
         FieldToJson(jdata["pTag"], meta_struct.pTag);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -11047,7 +11047,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareB
         const Decoded_VkAndroidHardwareBufferPropertiesANDROID& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["allocationSize"], decoded_value.allocationSize);
+        jdata["allocationSize"] = decoded_value.allocationSize;
         jdata["memoryTypeBits"] = decoded_value.memoryTypeBits;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -11081,7 +11081,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportAndroidHar
         const Decoded_VkImportAndroidHardwareBufferInfoANDROID& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["buffer"], meta_struct.buffer);
+        jdata["buffer"] = meta_struct.buffer;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -11485,7 +11485,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkValidationCacheC
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkValidationCacheCreateFlagsEXT_t{decoded_value.flags};
-        FieldToJson(jdata["initialDataSize"], decoded_value.initialDataSize);
+        jdata["initialDataSize"] = decoded_value.initialDataSize;
         FieldToJson(jdata["pInitialData"], meta_struct.pInitialData);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -11649,16 +11649,16 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryTriangle
 
         jdata["sType"] = decoded_value.sType;
         HandleToJson(jdata["vertexData"], meta_struct.vertexData);
-        FieldToJson(jdata["vertexOffset"], decoded_value.vertexOffset);
+        jdata["vertexOffset"] = decoded_value.vertexOffset;
         jdata["vertexCount"] = decoded_value.vertexCount;
-        FieldToJson(jdata["vertexStride"], decoded_value.vertexStride);
+        jdata["vertexStride"] = decoded_value.vertexStride;
         jdata["vertexFormat"] = decoded_value.vertexFormat;
         HandleToJson(jdata["indexData"], meta_struct.indexData);
-        FieldToJson(jdata["indexOffset"], decoded_value.indexOffset);
+        jdata["indexOffset"] = decoded_value.indexOffset;
         jdata["indexCount"] = decoded_value.indexCount;
         jdata["indexType"] = decoded_value.indexType;
         HandleToJson(jdata["transformData"], meta_struct.transformData);
-        FieldToJson(jdata["transformOffset"], decoded_value.transformOffset);
+        jdata["transformOffset"] = decoded_value.transformOffset;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -11674,7 +11674,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryAABBNV* 
         HandleToJson(jdata["aabbData"], meta_struct.aabbData);
         jdata["numAABBs"] = decoded_value.numAABBs;
         jdata["stride"] = decoded_value.stride;
-        FieldToJson(jdata["offset"], decoded_value.offset);
+        jdata["offset"] = decoded_value.offset;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -11731,7 +11731,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         const Decoded_VkAccelerationStructureCreateInfoNV& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["compactedSize"], decoded_value.compactedSize);
+        jdata["compactedSize"] = decoded_value.compactedSize;
         FieldToJson(jdata["info"], meta_struct.info);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -11747,7 +11747,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindAcceleration
         jdata["sType"] = decoded_value.sType;
         HandleToJson(jdata["accelerationStructure"], meta_struct.accelerationStructure);
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset);
+        jdata["memoryOffset"] = decoded_value.memoryOffset;
         jdata["deviceIndexCount"] = decoded_value.deviceIndexCount;
         FieldToJson(jdata["pDeviceIndices"], meta_struct.pDeviceIndices);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
@@ -11920,7 +11920,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryHost
 
         jdata["sType"] = decoded_value.sType;
         jdata["handleType"] = decoded_value.handleType;
-        FieldToJson(jdata["pHostPointer"], meta_struct.pHostPointer);
+        jdata["pHostPointer"] = meta_struct.pHostPointer;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -11946,7 +11946,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         const Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["minImportedHostPointerAlignment"], decoded_value.minImportedHostPointerAlignment);
+        jdata["minImportedHostPointerAlignment"] = decoded_value.minImportedHostPointerAlignment;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -12142,7 +12142,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCheckpointDataNV
 
         jdata["sType"] = decoded_value.sType;
         jdata["stage"] = decoded_value.stage;
-        FieldToJson(jdata["pCheckpointMarker"], meta_struct.pCheckpointMarker);
+        jdata["pCheckpointMarker"] = meta_struct.pCheckpointMarker;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -12169,7 +12169,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCheckpointData2N
 
         jdata["sType"] = decoded_value.sType;
         jdata["stage"] = VkPipelineStageFlags2_t{decoded_value.stage};
-        FieldToJson(jdata["pCheckpointMarker"], meta_struct.pCheckpointMarker);
+        jdata["pCheckpointMarker"] = meta_struct.pCheckpointMarker;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -12499,7 +12499,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMetalSurfaceCrea
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkMetalSurfaceCreateFlagsEXT_t{decoded_value.flags};
-        FieldToJson(jdata["pLayer"], meta_struct.pLayer);
+        jdata["pLayer"] = meta_struct.pLayer;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -12892,7 +12892,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFullScree
         const Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["hmonitor"], meta_struct.hmonitor);
+        jdata["hmonitor"] = meta_struct.hmonitor;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -12970,7 +12970,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         const Decoded_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["minPlacedMemoryMapAlignment"], decoded_value.minPlacedMemoryMapAlignment);
+        jdata["minPlacedMemoryMapAlignment"] = decoded_value.minPlacedMemoryMapAlignment;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -12983,7 +12983,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryMapPlacedI
         const Decoded_VkMemoryMapPlacedInfoEXT& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["pPlacedAddress"], meta_struct.pPlacedAddress);
+        jdata["pPlacedAddress"] = meta_struct.pPlacedAddress;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -13134,7 +13134,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommands
         const Decoded_VkIndirectCommandsStreamNV& meta_struct = *data;
 
         HandleToJson(jdata["buffer"], meta_struct.buffer);
-        FieldToJson(jdata["offset"], decoded_value.offset);
+        jdata["offset"] = decoded_value.offset;
     }
 }
 
@@ -13196,12 +13196,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommand
         FieldToJson(jdata["pStreams"], meta_struct.pStreams);
         jdata["sequencesCount"] = decoded_value.sequencesCount;
         HandleToJson(jdata["preprocessBuffer"], meta_struct.preprocessBuffer);
-        FieldToJson(jdata["preprocessOffset"], decoded_value.preprocessOffset);
-        FieldToJson(jdata["preprocessSize"], decoded_value.preprocessSize);
+        jdata["preprocessOffset"] = decoded_value.preprocessOffset;
+        jdata["preprocessSize"] = decoded_value.preprocessSize;
         HandleToJson(jdata["sequencesCountBuffer"], meta_struct.sequencesCountBuffer);
-        FieldToJson(jdata["sequencesCountOffset"], decoded_value.sequencesCountOffset);
+        jdata["sequencesCountOffset"] = decoded_value.sequencesCountOffset;
         HandleToJson(jdata["sequencesIndexBuffer"], meta_struct.sequencesIndexBuffer);
-        FieldToJson(jdata["sequencesIndexOffset"], decoded_value.sequencesIndexOffset);
+        jdata["sequencesIndexOffset"] = decoded_value.sequencesIndexOffset;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -13359,7 +13359,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryRepo
         jdata["flags"] = VkDeviceMemoryReportFlagsEXT_t{decoded_value.flags};
         jdata["type"] = decoded_value.type;
         jdata["memoryObjectId"] = decoded_value.memoryObjectId;
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         jdata["objectType"] = decoded_value.objectType;
         jdata["objectHandle"] = decoded_value.objectHandle;
         jdata["heapIndex"] = decoded_value.heapIndex;
@@ -13601,7 +13601,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryLowLatencyS
         const Decoded_VkQueryLowLatencySupportNV& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["pQueriedLowLatencyData"], meta_struct.pQueriedLowLatencyData);
+        jdata["pQueriedLowLatencyData"] = meta_struct.pQueriedLowLatencyData;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -13617,36 +13617,36 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         jdata["combinedImageSamplerDescriptorSingleArray"] = static_cast<bool>(decoded_value.combinedImageSamplerDescriptorSingleArray);
         jdata["bufferlessPushDescriptors"] = static_cast<bool>(decoded_value.bufferlessPushDescriptors);
         jdata["allowSamplerImageViewPostSubmitCreation"] = static_cast<bool>(decoded_value.allowSamplerImageViewPostSubmitCreation);
-        FieldToJson(jdata["descriptorBufferOffsetAlignment"], decoded_value.descriptorBufferOffsetAlignment);
+        jdata["descriptorBufferOffsetAlignment"] = decoded_value.descriptorBufferOffsetAlignment;
         jdata["maxDescriptorBufferBindings"] = decoded_value.maxDescriptorBufferBindings;
         jdata["maxResourceDescriptorBufferBindings"] = decoded_value.maxResourceDescriptorBufferBindings;
         jdata["maxSamplerDescriptorBufferBindings"] = decoded_value.maxSamplerDescriptorBufferBindings;
         jdata["maxEmbeddedImmutableSamplerBindings"] = decoded_value.maxEmbeddedImmutableSamplerBindings;
         jdata["maxEmbeddedImmutableSamplers"] = decoded_value.maxEmbeddedImmutableSamplers;
-        FieldToJson(jdata["bufferCaptureReplayDescriptorDataSize"], decoded_value.bufferCaptureReplayDescriptorDataSize);
-        FieldToJson(jdata["imageCaptureReplayDescriptorDataSize"], decoded_value.imageCaptureReplayDescriptorDataSize);
-        FieldToJson(jdata["imageViewCaptureReplayDescriptorDataSize"], decoded_value.imageViewCaptureReplayDescriptorDataSize);
-        FieldToJson(jdata["samplerCaptureReplayDescriptorDataSize"], decoded_value.samplerCaptureReplayDescriptorDataSize);
-        FieldToJson(jdata["accelerationStructureCaptureReplayDescriptorDataSize"], decoded_value.accelerationStructureCaptureReplayDescriptorDataSize);
-        FieldToJson(jdata["samplerDescriptorSize"], decoded_value.samplerDescriptorSize);
-        FieldToJson(jdata["combinedImageSamplerDescriptorSize"], decoded_value.combinedImageSamplerDescriptorSize);
-        FieldToJson(jdata["sampledImageDescriptorSize"], decoded_value.sampledImageDescriptorSize);
-        FieldToJson(jdata["storageImageDescriptorSize"], decoded_value.storageImageDescriptorSize);
-        FieldToJson(jdata["uniformTexelBufferDescriptorSize"], decoded_value.uniformTexelBufferDescriptorSize);
-        FieldToJson(jdata["robustUniformTexelBufferDescriptorSize"], decoded_value.robustUniformTexelBufferDescriptorSize);
-        FieldToJson(jdata["storageTexelBufferDescriptorSize"], decoded_value.storageTexelBufferDescriptorSize);
-        FieldToJson(jdata["robustStorageTexelBufferDescriptorSize"], decoded_value.robustStorageTexelBufferDescriptorSize);
-        FieldToJson(jdata["uniformBufferDescriptorSize"], decoded_value.uniformBufferDescriptorSize);
-        FieldToJson(jdata["robustUniformBufferDescriptorSize"], decoded_value.robustUniformBufferDescriptorSize);
-        FieldToJson(jdata["storageBufferDescriptorSize"], decoded_value.storageBufferDescriptorSize);
-        FieldToJson(jdata["robustStorageBufferDescriptorSize"], decoded_value.robustStorageBufferDescriptorSize);
-        FieldToJson(jdata["inputAttachmentDescriptorSize"], decoded_value.inputAttachmentDescriptorSize);
-        FieldToJson(jdata["accelerationStructureDescriptorSize"], decoded_value.accelerationStructureDescriptorSize);
-        FieldToJson(jdata["maxSamplerDescriptorBufferRange"], decoded_value.maxSamplerDescriptorBufferRange);
-        FieldToJson(jdata["maxResourceDescriptorBufferRange"], decoded_value.maxResourceDescriptorBufferRange);
-        FieldToJson(jdata["samplerDescriptorBufferAddressSpaceSize"], decoded_value.samplerDescriptorBufferAddressSpaceSize);
-        FieldToJson(jdata["resourceDescriptorBufferAddressSpaceSize"], decoded_value.resourceDescriptorBufferAddressSpaceSize);
-        FieldToJson(jdata["descriptorBufferAddressSpaceSize"], decoded_value.descriptorBufferAddressSpaceSize);
+        jdata["bufferCaptureReplayDescriptorDataSize"] = decoded_value.bufferCaptureReplayDescriptorDataSize;
+        jdata["imageCaptureReplayDescriptorDataSize"] = decoded_value.imageCaptureReplayDescriptorDataSize;
+        jdata["imageViewCaptureReplayDescriptorDataSize"] = decoded_value.imageViewCaptureReplayDescriptorDataSize;
+        jdata["samplerCaptureReplayDescriptorDataSize"] = decoded_value.samplerCaptureReplayDescriptorDataSize;
+        jdata["accelerationStructureCaptureReplayDescriptorDataSize"] = decoded_value.accelerationStructureCaptureReplayDescriptorDataSize;
+        jdata["samplerDescriptorSize"] = decoded_value.samplerDescriptorSize;
+        jdata["combinedImageSamplerDescriptorSize"] = decoded_value.combinedImageSamplerDescriptorSize;
+        jdata["sampledImageDescriptorSize"] = decoded_value.sampledImageDescriptorSize;
+        jdata["storageImageDescriptorSize"] = decoded_value.storageImageDescriptorSize;
+        jdata["uniformTexelBufferDescriptorSize"] = decoded_value.uniformTexelBufferDescriptorSize;
+        jdata["robustUniformTexelBufferDescriptorSize"] = decoded_value.robustUniformTexelBufferDescriptorSize;
+        jdata["storageTexelBufferDescriptorSize"] = decoded_value.storageTexelBufferDescriptorSize;
+        jdata["robustStorageTexelBufferDescriptorSize"] = decoded_value.robustStorageTexelBufferDescriptorSize;
+        jdata["uniformBufferDescriptorSize"] = decoded_value.uniformBufferDescriptorSize;
+        jdata["robustUniformBufferDescriptorSize"] = decoded_value.robustUniformBufferDescriptorSize;
+        jdata["storageBufferDescriptorSize"] = decoded_value.storageBufferDescriptorSize;
+        jdata["robustStorageBufferDescriptorSize"] = decoded_value.robustStorageBufferDescriptorSize;
+        jdata["inputAttachmentDescriptorSize"] = decoded_value.inputAttachmentDescriptorSize;
+        jdata["accelerationStructureDescriptorSize"] = decoded_value.accelerationStructureDescriptorSize;
+        jdata["maxSamplerDescriptorBufferRange"] = decoded_value.maxSamplerDescriptorBufferRange;
+        jdata["maxResourceDescriptorBufferRange"] = decoded_value.maxResourceDescriptorBufferRange;
+        jdata["samplerDescriptorBufferAddressSpaceSize"] = decoded_value.samplerDescriptorBufferAddressSpaceSize;
+        jdata["resourceDescriptorBufferAddressSpaceSize"] = decoded_value.resourceDescriptorBufferAddressSpaceSize;
+        jdata["descriptorBufferAddressSpaceSize"] = decoded_value.descriptorBufferAddressSpaceSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -13659,7 +13659,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         const Decoded_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["combinedImageSamplerDensityMapDescriptorSize"], decoded_value.combinedImageSamplerDensityMapDescriptorSize);
+        jdata["combinedImageSamplerDensityMapDescriptorSize"] = decoded_value.combinedImageSamplerDensityMapDescriptorSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -13689,7 +13689,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorAddres
 
         jdata["sType"] = decoded_value.sType;
         FieldToJson(jdata["address"], to_hex_variable_width(decoded_value.address));
-        FieldToJson(jdata["range"], decoded_value.range);
+        jdata["range"] = decoded_value.range;
         jdata["format"] = decoded_value.format;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -13782,7 +13782,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpaqueCaptureDes
         const Decoded_VkOpaqueCaptureDescriptorDataCreateInfoEXT& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["opaqueCaptureDescriptorData"], meta_struct.opaqueCaptureDescriptorData);
+        jdata["opaqueCaptureDescriptorData"] = meta_struct.opaqueCaptureDescriptorData;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -14146,7 +14146,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultCount
         jdata["sType"] = decoded_value.sType;
         jdata["addressInfoCount"] = decoded_value.addressInfoCount;
         jdata["vendorInfoCount"] = decoded_value.vendorInfoCount;
-        FieldToJson(jdata["vendorBinarySize"], decoded_value.vendorBinarySize);
+        jdata["vendorBinarySize"] = decoded_value.vendorBinarySize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -14160,7 +14160,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultAddre
 
         jdata["addressType"] = decoded_value.addressType;
         FieldToJson(jdata["reportedAddress"], to_hex_variable_width(decoded_value.reportedAddress));
-        FieldToJson(jdata["addressPrecision"], decoded_value.addressPrecision);
+        jdata["addressPrecision"] = decoded_value.addressPrecision;
     }
 }
 
@@ -14188,7 +14188,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultInfoE
         FieldToJson(jdata["description"], &meta_struct.description);
         FieldToJson(jdata["pAddressInfos"], meta_struct.pAddressInfos);
         FieldToJson(jdata["pVendorInfos"], meta_struct.pVendorInfos);
-        FieldToJson(jdata["pVendorBinaryData"], meta_struct.pVendorBinaryData);
+        jdata["pVendorBinaryData"] = meta_struct.pVendorBinaryData;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -14251,8 +14251,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectFBSurfaceC
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkDirectFBSurfaceCreateFlagsEXT_t{decoded_value.flags};
-        FieldToJson(jdata["dfb"], meta_struct.dfb);
-        FieldToJson(jdata["surface"], meta_struct.surface);
+        jdata["dfb"] = meta_struct.dfb;
+        jdata["surface"] = meta_struct.surface;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -14382,7 +14382,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceAddressBin
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkDeviceAddressBindingFlagsEXT_t{decoded_value.flags};
         FieldToJson(jdata["baseAddress"], to_hex_variable_width(decoded_value.baseAddress));
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         jdata["bindingType"] = decoded_value.bindingType;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -14567,7 +14567,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFrameBoundaryEXT
         jdata["bufferCount"] = decoded_value.bufferCount;
         HandleToJson(jdata["pBuffers"], &meta_struct.pBuffers);
         jdata["tagName"] = decoded_value.tagName;
-        FieldToJson(jdata["tagSize"], decoded_value.tagSize);
+        jdata["tagSize"] = decoded_value.tagSize;
         FieldToJson(jdata["pTag"], meta_struct.pTag);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -14637,8 +14637,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkScreenSurfaceCre
 
         jdata["sType"] = decoded_value.sType;
         jdata["flags"] = VkScreenSurfaceCreateFlagsQNX_t{decoded_value.flags};
-        FieldToJson(jdata["context"], meta_struct.context);
-        FieldToJson(jdata["window"], meta_struct.window);
+        jdata["context"] = meta_struct.context;
+        jdata["window"] = meta_struct.window;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -14895,7 +14895,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapBuildInf
         FieldToJson(jdata["data"], meta_struct.data);
         FieldToJson(jdata["scratchData"], meta_struct.scratchData);
         FieldToJson(jdata["triangleArray"], meta_struct.triangleArray);
-        FieldToJson(jdata["triangleArrayStride"], decoded_value.triangleArrayStride);
+        jdata["triangleArrayStride"] = decoded_value.triangleArrayStride;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -14910,8 +14910,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapCreateIn
         jdata["sType"] = decoded_value.sType;
         jdata["createFlags"] = VkMicromapCreateFlagsEXT_t{decoded_value.createFlags};
         HandleToJson(jdata["buffer"], meta_struct.buffer);
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["offset"] = decoded_value.offset;
+        jdata["size"] = decoded_value.size;
         jdata["type"] = decoded_value.type;
         FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress));
         FieldToJson(jdata["pNext"], meta_struct.pNext);
@@ -15013,8 +15013,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapBuildSiz
         const Decoded_VkMicromapBuildSizesInfoEXT& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["micromapSize"], decoded_value.micromapSize);
-        FieldToJson(jdata["buildScratchSize"], decoded_value.buildScratchSize);
+        jdata["micromapSize"] = decoded_value.micromapSize;
+        jdata["buildScratchSize"] = decoded_value.buildScratchSize;
         jdata["discardable"] = static_cast<bool>(decoded_value.discardable);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -15030,7 +15030,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         jdata["sType"] = decoded_value.sType;
         jdata["indexType"] = decoded_value.indexType;
         FieldToJson(jdata["indexBuffer"], meta_struct.indexBuffer);
-        FieldToJson(jdata["indexStride"], decoded_value.indexStride);
+        jdata["indexStride"] = decoded_value.indexStride;
         jdata["baseTriangle"] = decoded_value.baseTriangle;
         jdata["usageCountsCount"] = decoded_value.usageCountsCount;
         FieldToJson(jdata["pUsageCounts"], meta_struct.pUsageCounts);
@@ -15090,14 +15090,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         jdata["displacementBiasAndScaleFormat"] = decoded_value.displacementBiasAndScaleFormat;
         jdata["displacementVectorFormat"] = decoded_value.displacementVectorFormat;
         FieldToJson(jdata["displacementBiasAndScaleBuffer"], meta_struct.displacementBiasAndScaleBuffer);
-        FieldToJson(jdata["displacementBiasAndScaleStride"], decoded_value.displacementBiasAndScaleStride);
+        jdata["displacementBiasAndScaleStride"] = decoded_value.displacementBiasAndScaleStride;
         FieldToJson(jdata["displacementVectorBuffer"], meta_struct.displacementVectorBuffer);
-        FieldToJson(jdata["displacementVectorStride"], decoded_value.displacementVectorStride);
+        jdata["displacementVectorStride"] = decoded_value.displacementVectorStride;
         FieldToJson(jdata["displacedMicromapPrimitiveFlags"], meta_struct.displacedMicromapPrimitiveFlags);
-        FieldToJson(jdata["displacedMicromapPrimitiveFlagsStride"], decoded_value.displacedMicromapPrimitiveFlagsStride);
+        jdata["displacedMicromapPrimitiveFlagsStride"] = decoded_value.displacedMicromapPrimitiveFlagsStride;
         jdata["indexType"] = decoded_value.indexType;
         FieldToJson(jdata["indexBuffer"], meta_struct.indexBuffer);
-        FieldToJson(jdata["indexStride"], decoded_value.indexStride);
+        jdata["indexStride"] = decoded_value.indexStride;
         jdata["baseTriangle"] = decoded_value.baseTriangle;
         jdata["usageCountsCount"] = decoded_value.usageCountsCount;
         FieldToJson(jdata["pUsageCounts"], meta_struct.pUsageCounts);
@@ -15132,7 +15132,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCl
         FieldToJson(jdata["maxWorkGroupCount"], &meta_struct.maxWorkGroupCount);
         FieldToJson(jdata["maxWorkGroupSize"], &meta_struct.maxWorkGroupSize);
         jdata["maxOutputClusterCount"] = decoded_value.maxOutputClusterCount;
-        FieldToJson(jdata["indirectBufferOffsetAlignment"], decoded_value.indirectBufferOffsetAlignment);
+        jdata["indirectBufferOffsetAlignment"] = decoded_value.indirectBufferOffsetAlignment;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -15307,7 +15307,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLay
         const Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["descriptorOffset"], decoded_value.descriptorOffset);
+        jdata["descriptorOffset"] = decoded_value.descriptorOffset;
         jdata["descriptorSize"] = decoded_value.descriptorSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -15458,7 +15458,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputePipelineI
 
         jdata["sType"] = decoded_value.sType;
         FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress));
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pipelineDeviceAddressCaptureReplay"], to_hex_variable_width(decoded_value.pipelineDeviceAddressCaptureReplay));
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -15513,13 +15513,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         jdata["sType"] = decoded_value.sType;
         jdata["vertexFormat"] = decoded_value.vertexFormat;
         FieldToJson(jdata["vertexData"], meta_struct.vertexData);
-        FieldToJson(jdata["vertexStride"], decoded_value.vertexStride);
+        jdata["vertexStride"] = decoded_value.vertexStride;
         jdata["radiusFormat"] = decoded_value.radiusFormat;
         FieldToJson(jdata["radiusData"], meta_struct.radiusData);
-        FieldToJson(jdata["radiusStride"], decoded_value.radiusStride);
+        jdata["radiusStride"] = decoded_value.radiusStride;
         jdata["indexType"] = decoded_value.indexType;
         FieldToJson(jdata["indexData"], meta_struct.indexData);
-        FieldToJson(jdata["indexStride"], decoded_value.indexStride);
+        jdata["indexStride"] = decoded_value.indexStride;
         jdata["indexingMode"] = decoded_value.indexingMode;
         jdata["endCapsMode"] = decoded_value.endCapsMode;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
@@ -15536,13 +15536,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         jdata["sType"] = decoded_value.sType;
         jdata["vertexFormat"] = decoded_value.vertexFormat;
         FieldToJson(jdata["vertexData"], meta_struct.vertexData);
-        FieldToJson(jdata["vertexStride"], decoded_value.vertexStride);
+        jdata["vertexStride"] = decoded_value.vertexStride;
         jdata["radiusFormat"] = decoded_value.radiusFormat;
         FieldToJson(jdata["radiusData"], meta_struct.radiusData);
-        FieldToJson(jdata["radiusStride"], decoded_value.radiusStride);
+        jdata["radiusStride"] = decoded_value.radiusStride;
         jdata["indexType"] = decoded_value.indexType;
         FieldToJson(jdata["indexData"], meta_struct.indexData);
-        FieldToJson(jdata["indexStride"], decoded_value.indexStride);
+        jdata["indexStride"] = decoded_value.indexStride;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -15999,7 +15999,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowSessi
         jdata["sType"] = decoded_value.sType;
         jdata["id"] = decoded_value.id;
         jdata["size"] = decoded_value.size;
-        FieldToJson(jdata["pPrivateData"], meta_struct.pPrivateData);
+        jdata["pPrivateData"] = meta_struct.pPrivateData;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -16154,7 +16154,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderCreateInfo
         jdata["stage"] = decoded_value.stage;
         jdata["nextStage"] = VkShaderStageFlags_t{decoded_value.nextStage};
         jdata["codeType"] = decoded_value.codeType;
-        FieldToJson(jdata["codeSize"], decoded_value.codeSize);
+        jdata["codeSize"] = decoded_value.codeSize;
         FieldToJson(jdata["pCode"], meta_struct.pCode);
         FieldToJson(jdata["pName"], &meta_struct.pName);
         jdata["setLayoutCount"] = decoded_value.setLayoutCount;
@@ -16328,7 +16328,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConvertCooperati
         const Decoded_VkConvertCooperativeVectorMatrixInfoNV& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["srcSize"], decoded_value.srcSize);
+        jdata["srcSize"] = decoded_value.srcSize;
         FieldToJson(jdata["srcData"], meta_struct.srcData);
         FieldToJson(jdata["pDstSize"], meta_struct.pDstSize);
         FieldToJson(jdata["dstData"], meta_struct.dstData);
@@ -16337,9 +16337,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConvertCooperati
         jdata["numRows"] = decoded_value.numRows;
         jdata["numColumns"] = decoded_value.numColumns;
         jdata["srcLayout"] = decoded_value.srcLayout;
-        FieldToJson(jdata["srcStride"], decoded_value.srcStride);
+        jdata["srcStride"] = decoded_value.srcStride;
         jdata["dstLayout"] = decoded_value.dstLayout;
-        FieldToJson(jdata["dstStride"], decoded_value.dstStride);
+        jdata["dstStride"] = decoded_value.dstStride;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -16365,7 +16365,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["extendedSparseAddressSpaceSize"], decoded_value.extendedSparseAddressSpaceSize);
+        jdata["extendedSparseAddressSpaceSize"] = decoded_value.extendedSparseAddressSpaceSize;
         jdata["extendedSparseImageUsageFlags"] = VkImageUsageFlags_t{decoded_value.extendedSparseImageUsageFlags};
         jdata["extendedSparseBufferUsageFlags"] = VkBufferUsageFlags_t{decoded_value.extendedSparseBufferUsageFlags};
         FieldToJson(jdata["pNext"], meta_struct.pNext);
@@ -16628,7 +16628,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelin
 
         jdata["sType"] = decoded_value.sType;
         jdata["id"] = decoded_value.id;
-        FieldToJson(jdata["pConstantData"], meta_struct.pConstantData);
+        jdata["pConstantData"] = meta_struct.pConstantData;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -16763,7 +16763,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDataGraphPip
         jdata["bindPoint"] = decoded_value.bindPoint;
         jdata["objectIndex"] = decoded_value.objectIndex;
         HandleToJson(jdata["memory"], meta_struct.memory);
-        FieldToJson(jdata["memoryOffset"], decoded_value.memoryOffset);
+        jdata["memoryOffset"] = decoded_value.memoryOffset;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -16791,7 +16791,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelin
         jdata["sType"] = decoded_value.sType;
         jdata["property"] = decoded_value.property;
         jdata["isText"] = static_cast<bool>(decoded_value.isText);
-        FieldToJson(jdata["dataSize"], decoded_value.dataSize);
+        jdata["dataSize"] = decoded_value.dataSize;
         FieldToJson(jdata["pData"], meta_struct.pData);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -17154,8 +17154,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemoryRequir
         const Decoded_VkTileMemoryRequirementsQCOM& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["size"], decoded_value.size);
-        FieldToJson(jdata["alignment"], decoded_value.alignment);
+        jdata["size"] = decoded_value.size;
+        jdata["alignment"] = decoded_value.alignment;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -17181,7 +17181,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTileMemorySizeIn
         const Decoded_VkTileMemorySizeInfoQCOM& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["size"] = decoded_value.size;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -17195,8 +17195,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDecompressMemory
 
         FieldToJson(jdata["srcAddress"], to_hex_variable_width(decoded_value.srcAddress));
         FieldToJson(jdata["dstAddress"], to_hex_variable_width(decoded_value.dstAddress));
-        FieldToJson(jdata["compressedSize"], decoded_value.compressedSize);
-        FieldToJson(jdata["decompressedSize"], decoded_value.decompressedSize);
+        jdata["compressedSize"] = decoded_value.compressedSize;
+        jdata["decompressedSize"] = decoded_value.decompressedSize;
     }
 }
 
@@ -17394,7 +17394,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStridedDeviceAdd
         const Decoded_VkStridedDeviceAddressNV& meta_struct = *data;
 
         FieldToJson(jdata["startAddress"], to_hex_variable_width(decoded_value.startAddress));
-        FieldToJson(jdata["strideInBytes"], decoded_value.strideInBytes);
+        jdata["strideInBytes"] = decoded_value.strideInBytes;
     }
 }
 
@@ -17512,9 +17512,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         const Decoded_VkAccelerationStructureBuildSizesInfoKHR& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["accelerationStructureSize"], decoded_value.accelerationStructureSize);
-        FieldToJson(jdata["updateScratchSize"], decoded_value.updateScratchSize);
-        FieldToJson(jdata["buildScratchSize"], decoded_value.buildScratchSize);
+        jdata["accelerationStructureSize"] = decoded_value.accelerationStructureSize;
+        jdata["updateScratchSize"] = decoded_value.updateScratchSize;
+        jdata["buildScratchSize"] = decoded_value.buildScratchSize;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -17631,9 +17631,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommand
         HandleToJson(jdata["indirectExecutionSet"], meta_struct.indirectExecutionSet);
         HandleToJson(jdata["indirectCommandsLayout"], meta_struct.indirectCommandsLayout);
         FieldToJson(jdata["indirectAddress"], to_hex_variable_width(decoded_value.indirectAddress));
-        FieldToJson(jdata["indirectAddressSize"], decoded_value.indirectAddressSize);
+        jdata["indirectAddressSize"] = decoded_value.indirectAddressSize;
         FieldToJson(jdata["preprocessAddress"], to_hex_variable_width(decoded_value.preprocessAddress));
-        FieldToJson(jdata["preprocessSize"], decoded_value.preprocessSize);
+        jdata["preprocessSize"] = decoded_value.preprocessSize;
         jdata["maxSequenceCount"] = decoded_value.maxSequenceCount;
         FieldToJson(jdata["sequenceCountAddress"], to_hex_variable_width(decoded_value.sequenceCountAddress));
         jdata["maxDrawCount"] = decoded_value.maxDrawCount;
@@ -17954,7 +17954,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHdrVividDynamicM
         const Decoded_VkHdrVividDynamicMetadataHUAWEI& meta_struct = *data;
 
         jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["dynamicMetadataSize"], decoded_value.dynamicMetadataSize);
+        jdata["dynamicMetadataSize"] = decoded_value.dynamicMetadataSize;
         FieldToJson(jdata["pDynamicMetadata"], meta_struct.pDynamicMetadata);
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
@@ -18038,7 +18038,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryMeta
 
         jdata["sType"] = decoded_value.sType;
         jdata["handleType"] = decoded_value.handleType;
-        FieldToJson(jdata["handle"], meta_struct.handle);
+        jdata["handle"] = meta_struct.handle;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -18477,7 +18477,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         jdata["sType"] = decoded_value.sType;
         jdata["vertexFormat"] = decoded_value.vertexFormat;
         FieldToJson(jdata["vertexData"], meta_struct.vertexData);
-        FieldToJson(jdata["vertexStride"], decoded_value.vertexStride);
+        jdata["vertexStride"] = decoded_value.vertexStride;
         jdata["maxVertex"] = decoded_value.maxVertex;
         jdata["indexType"] = decoded_value.indexType;
         FieldToJson(jdata["indexData"], meta_struct.indexData);
@@ -18495,7 +18495,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
 
         jdata["sType"] = decoded_value.sType;
         FieldToJson(jdata["data"], meta_struct.data);
-        FieldToJson(jdata["stride"], decoded_value.stride);
+        jdata["stride"] = decoded_value.stride;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -18545,8 +18545,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         jdata["sType"] = decoded_value.sType;
         jdata["createFlags"] = VkAccelerationStructureCreateFlagsKHR_t{decoded_value.createFlags};
         HandleToJson(jdata["buffer"], meta_struct.buffer);
-        FieldToJson(jdata["offset"], decoded_value.offset);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["offset"] = decoded_value.offset;
+        jdata["size"] = decoded_value.size;
         jdata["type"] = decoded_value.type;
         FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress));
         FieldToJson(jdata["pNext"], meta_struct.pNext);
@@ -18688,7 +18688,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingShader
         jdata["closestHitShader"] = decoded_value.closestHitShader;
         jdata["anyHitShader"] = decoded_value.anyHitShader;
         jdata["intersectionShader"] = decoded_value.intersectionShader;
-        FieldToJson(jdata["pShaderGroupCaptureReplayHandle"], meta_struct.pShaderGroupCaptureReplayHandle);
+        jdata["pShaderGroupCaptureReplayHandle"] = meta_struct.pShaderGroupCaptureReplayHandle;
         FieldToJson(jdata["pNext"], meta_struct.pNext);
     }
 }
@@ -18776,8 +18776,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStridedDeviceAdd
         const Decoded_VkStridedDeviceAddressRegionKHR& meta_struct = *data;
 
         FieldToJson(jdata["deviceAddress"], to_hex_variable_width(decoded_value.deviceAddress));
-        FieldToJson(jdata["stride"], decoded_value.stride);
-        FieldToJson(jdata["size"], decoded_value.size);
+        jdata["stride"] = decoded_value.stride;
+        jdata["size"] = decoded_value.size;
     }
 }
 

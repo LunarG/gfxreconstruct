@@ -76,7 +76,7 @@ void OpenXrExportJsonConsumerBase::Process_xrInitializeLoaderKHR(
     StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrInitializeLoaderKHR");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()]           = returnValue;
     auto& args = jdata[NameArgs()];
     switch (loaderInitInfo->GetPointer()->type)
     {
@@ -99,7 +99,7 @@ void OpenXrExportJsonConsumerBase::Process_xrCreateApiLayerInstance(
     HandlePointerDecoder<XrInstance>*                   instance)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateApiLayerInstance");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()]           = returnValue;
     auto& args = jdata[NameArgs()];
     FieldToJson(args["info"], info);
     FieldToJson(args["layerInfo"], layerInfo);
@@ -117,10 +117,10 @@ void OpenXrExportJsonConsumerBase::Process_xrEnumerateSwapchainImages(
     StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateSwapchainImages");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()]           = returnValue;
     auto& args = jdata[NameArgs()];
     HandleToJson(args["swapchain"], swapchain);
-    FieldToJson(args["imageCapacityInput"], imageCapacityInput);
+    args["imageCapacityInput"] = imageCapacityInput;
     FieldToJson(args["imageCountOutput"], imageCountOutput);
     if (images != nullptr && images->GetPointer() != nullptr && images->GetLength() >= 1)
     {
@@ -171,7 +171,7 @@ void OpenXrExportJsonConsumerBase::Process_xrPollEvent(const ApiCallInfo&       
                                                        StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPollEvent");
-    FieldToJson(jdata[NameReturn()], returnValue);
+    jdata[NameReturn()]           = returnValue;
     if (returnValue != XR_EVENT_UNAVAILABLE)
     {
         auto& args = jdata[NameArgs()];
@@ -303,9 +303,9 @@ void OpenXrExportJsonConsumerBase::ProcessViewRelativeLocation(format::ThreadId 
     writer_->SetCurrentBlockIndex(this->block_index_);
     auto& jdata = writer_->WriteMetaCommandStart("ViewRelativeLocation");
 
-    FieldToJson(jdata["session"], location.session_id);
-    FieldToJson(jdata["space"], location.space_id);
-    FieldToJson(jdata["flags"], location.flags);
+    jdata["session"] = location.session_id;
+    jdata["space"]   = location.space_id;
+    jdata["flags"]   = location.flags;
 
     FieldToJson(jdata["qx"], location.qx);
     FieldToJson(jdata["qy"], location.qy);

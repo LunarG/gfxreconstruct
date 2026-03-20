@@ -59,8 +59,8 @@ void Dx12JsonConsumer::Process_D3D12SerializeRootSignature(
     {
         FieldToJson(args["pRootSignature"], pRootSignature);
         args["Version"] = Version;
-        FieldToJson(args["ppBlob"], ppBlob);
-        FieldToJson(args["ppErrorBlob"], ppErrorBlob);
+        HandleToJson(args["ppBlob"], ppBlob);
+        HandleToJson(args["ppErrorBlob"], ppErrorBlob);
     }
     writer_->WriteBlockEnd();
 
@@ -81,9 +81,9 @@ void Dx12JsonConsumer::Process_D3D12CreateRootSignatureDeserializer(
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
         FieldToJson(args["pSrcData"], pSrcData);
-        FieldToJson(args["SrcDataSizeInBytes"], SrcDataSizeInBytes);
+        args["SrcDataSizeInBytes"] = SrcDataSizeInBytes;
         FieldToJson(args["pRootSignatureDeserializerInterface"], pRootSignatureDeserializerInterface);
-        FieldToJson(args["ppRootSignatureDeserializer"], ppRootSignatureDeserializer);
+        HandleToJson(args["ppRootSignatureDeserializer"], ppRootSignatureDeserializer);
     }
     writer_->WriteBlockEnd();
 
@@ -103,8 +103,8 @@ void Dx12JsonConsumer::Process_D3D12SerializeVersionedRootSignature(
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
         FieldToJson(args["pRootSignature"], pRootSignature);
-        FieldToJson(args["ppBlob"], ppBlob);
-        FieldToJson(args["ppErrorBlob"], ppErrorBlob);
+        HandleToJson(args["ppBlob"], ppBlob);
+        HandleToJson(args["ppErrorBlob"], ppErrorBlob);
     }
     writer_->WriteBlockEnd();
 
@@ -125,9 +125,9 @@ void Dx12JsonConsumer::Process_D3D12CreateVersionedRootSignatureDeserializer(
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
         FieldToJson(args["pSrcData"], pSrcData);
-        FieldToJson(args["SrcDataSizeInBytes"], SrcDataSizeInBytes);
+        args["SrcDataSizeInBytes"] = SrcDataSizeInBytes;
         FieldToJson(args["pRootSignatureDeserializerInterface"], pRootSignatureDeserializerInterface);
-        FieldToJson(args["ppRootSignatureDeserializer"], ppRootSignatureDeserializer);
+        HandleToJson(args["ppRootSignatureDeserializer"], ppRootSignatureDeserializer);
     }
     writer_->WriteBlockEnd();
 
@@ -149,7 +149,7 @@ void Dx12JsonConsumer::Process_D3D12CreateVersionedRootSignatureDeserializerFrom
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
         FieldToJson(args["pSrcData"], pSrcData);
-        FieldToJson(args["SrcDataSizeInBytes"], SrcDataSizeInBytes);
+        args["SrcDataSizeInBytes"] = SrcDataSizeInBytes;
         FieldToJson(args["RootSignatureSubobjectName"], RootSignatureSubobjectName);
         FieldToJson(args["pRootSignatureDeserializerInterface"], pRootSignatureDeserializerInterface);
         FieldToJson(args["ppRootSignatureDeserializer"], ppRootSignatureDeserializer);
@@ -172,10 +172,10 @@ void Dx12JsonConsumer::Process_D3D12CreateDevice(
     HresultToJson(function[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
-        FieldToJson(args["pAdapter"], pAdapter);
+        HandleToJson(args["pAdapter"], pAdapter);
         args["MinimumFeatureLevel"] = MinimumFeatureLevel;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppDevice"], ppDevice);
+        HandleToJson(args["ppDevice"], ppDevice);
     }
     writer_->WriteBlockEnd();
 
@@ -194,7 +194,7 @@ void Dx12JsonConsumer::Process_D3D12GetDebugInterface(
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvDebug"], ppvDebug);
+        HandleToJson(args["ppvDebug"], ppvDebug);
     }
     writer_->WriteBlockEnd();
 
@@ -214,7 +214,7 @@ void Dx12JsonConsumer::Process_D3D12EnableExperimentalFeatures(
     HresultToJson(function[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
-        FieldToJson(args["NumFeatures"], NumFeatures);
+        args["NumFeatures"] = NumFeatures;
         FieldToJson(args["pIIDs"], pIIDs);
         FieldToJson(args["pConfigurationStructs"], pConfigurationStructs);
         FieldToJson(args["pConfigurationStructSizes"], pConfigurationStructSizes);
@@ -238,7 +238,7 @@ void Dx12JsonConsumer::Process_D3D12GetInterface(
     {
         FieldToJson(args["rclsid"], rclsid);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvDebug"], ppvDebug);
+        HandleToJson(args["ppvDebug"], ppvDebug);
     }
     writer_->WriteBlockEnd();
 
@@ -280,7 +280,7 @@ void Dx12JsonConsumer::Process_ID3D12Object_SetPrivateData(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["guid"], guid);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
         FieldToJson(args["pData"], pData);
     }
     writer_->WriteBlockEnd();
@@ -300,7 +300,7 @@ void Dx12JsonConsumer::Process_ID3D12Object_SetPrivateDataInterface(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["guid"], guid);
-        FieldToJson(args["pData"], pData);
+        HandleToJson(args["pData"], pData);
     }
     writer_->WriteBlockEnd();
 }
@@ -336,7 +336,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceChild_GetDevice(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvDevice"], ppvDevice);
+        HandleToJson(args["ppvDevice"], ppvDevice);
     }
     writer_->WriteBlockEnd();
 }
@@ -410,7 +410,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_Map(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Subresource"], Subresource);
+        args["Subresource"] = Subresource;
         FieldToJson(args["pReadRange"], pReadRange);
         FieldToJson(args["ppData"], ppData);
     }
@@ -428,7 +428,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_Unmap(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "Unmap");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Subresource"], Subresource);
+        args["Subresource"] = Subresource;
         FieldToJson(args["pWrittenRange"], pWrittenRange);
     }
     writer_->WriteBlockEnd();
@@ -454,7 +454,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource_GetGPUVirtualAddress(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Resource", object_id, "GetGPUVirtualAddress");
-    FieldToJsonAsHex(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -474,10 +474,10 @@ void Dx12JsonConsumer::Process_ID3D12Resource_ReadFromSubresource(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstData"], pDstData);
-        FieldToJson(args["DstRowPitch"], DstRowPitch);
-        FieldToJson(args["DstDepthPitch"], DstDepthPitch);
-        FieldToJson(args["SrcSubresource"], SrcSubresource);
+        args["pDstData"] = pDstData;
+        args["DstRowPitch"] = DstRowPitch;
+        args["DstDepthPitch"] = DstDepthPitch;
+        args["SrcSubresource"] = SrcSubresource;
         FieldToJson(args["pSrcBox"], pSrcBox);
     }
     writer_->WriteBlockEnd();
@@ -529,7 +529,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence_GetCompletedValue(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Fence", object_id, "GetCompletedValue");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -546,8 +546,8 @@ void Dx12JsonConsumer::Process_ID3D12Fence_SetEventOnCompletion(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Value"], Value);
-        FieldToJson(args["hEvent"], hEvent);
+        args["Value"] = Value;
+        args["hEvent"] = hEvent;
     }
     writer_->WriteBlockEnd();
 }
@@ -564,7 +564,7 @@ void Dx12JsonConsumer::Process_ID3D12Fence_Signal(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Value"], Value);
+        args["Value"] = Value;
     }
     writer_->WriteBlockEnd();
 }
@@ -593,7 +593,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineState_GetCachedBlob(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ppBlob"], ppBlob);
+        HandleToJson(args["ppBlob"], ppBlob);
     }
     writer_->WriteBlockEnd();
 }
@@ -612,7 +612,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineState1_GetRootSignature(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvRootSignature"], ppvRootSignature);
+        HandleToJson(args["ppvRootSignature"], ppvRootSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -661,7 +661,7 @@ void Dx12JsonConsumer::Process_ID3D12CommandList_GetType(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandList", object_id, "GetType");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -690,8 +690,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_Reset(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pAllocator"], pAllocator);
-        FieldToJson(args["pInitialState"], pInitialState);
+        HandleToJson(args["pAllocator"], pAllocator);
+        HandleToJson(args["pInitialState"], pInitialState);
     }
     writer_->WriteBlockEnd();
 }
@@ -706,7 +706,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearState(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "ClearState");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pPipelineState"], pPipelineState);
+        HandleToJson(args["pPipelineState"], pPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -724,10 +724,10 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "DrawInstanced");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["VertexCountPerInstance"], VertexCountPerInstance);
-        FieldToJson(args["InstanceCount"], InstanceCount);
-        FieldToJson(args["StartVertexLocation"], StartVertexLocation);
-        FieldToJson(args["StartInstanceLocation"], StartInstanceLocation);
+        args["VertexCountPerInstance"] = VertexCountPerInstance;
+        args["InstanceCount"] = InstanceCount;
+        args["StartVertexLocation"] = StartVertexLocation;
+        args["StartInstanceLocation"] = StartInstanceLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -746,11 +746,11 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "DrawIndexedInstanced");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["IndexCountPerInstance"], IndexCountPerInstance);
-        FieldToJson(args["InstanceCount"], InstanceCount);
-        FieldToJson(args["StartIndexLocation"], StartIndexLocation);
-        FieldToJson(args["BaseVertexLocation"], BaseVertexLocation);
-        FieldToJson(args["StartInstanceLocation"], StartInstanceLocation);
+        args["IndexCountPerInstance"] = IndexCountPerInstance;
+        args["InstanceCount"] = InstanceCount;
+        args["StartIndexLocation"] = StartIndexLocation;
+        args["BaseVertexLocation"] = BaseVertexLocation;
+        args["StartInstanceLocation"] = StartInstanceLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -767,9 +767,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "Dispatch");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ThreadGroupCountX"], ThreadGroupCountX);
-        FieldToJson(args["ThreadGroupCountY"], ThreadGroupCountY);
-        FieldToJson(args["ThreadGroupCountZ"], ThreadGroupCountZ);
+        args["ThreadGroupCountX"] = ThreadGroupCountX;
+        args["ThreadGroupCountY"] = ThreadGroupCountY;
+        args["ThreadGroupCountZ"] = ThreadGroupCountZ;
     }
     writer_->WriteBlockEnd();
 }
@@ -788,11 +788,11 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_CopyBufferRegion(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "CopyBufferRegion");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstBuffer"], pDstBuffer);
-        FieldToJson(args["DstOffset"], DstOffset);
-        FieldToJson(args["pSrcBuffer"], pSrcBuffer);
-        FieldToJson(args["SrcOffset"], SrcOffset);
-        FieldToJson(args["NumBytes"], NumBytes);
+        HandleToJson(args["pDstBuffer"], pDstBuffer);
+        args["DstOffset"] = DstOffset;
+        HandleToJson(args["pSrcBuffer"], pSrcBuffer);
+        args["SrcOffset"] = SrcOffset;
+        args["NumBytes"] = NumBytes;
     }
     writer_->WriteBlockEnd();
 }
@@ -813,9 +813,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_CopyTextureRegion(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDst"], pDst);
-        FieldToJson(args["DstX"], DstX);
-        FieldToJson(args["DstY"], DstY);
-        FieldToJson(args["DstZ"], DstZ);
+        args["DstX"] = DstX;
+        args["DstY"] = DstY;
+        args["DstZ"] = DstZ;
         FieldToJson(args["pSrc"], pSrc);
         FieldToJson(args["pSrcBox"], pSrcBox);
     }
@@ -833,8 +833,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_CopyResource(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "CopyResource");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstResource"], pDstResource);
-        FieldToJson(args["pSrcResource"], pSrcResource);
+        HandleToJson(args["pDstResource"], pDstResource);
+        HandleToJson(args["pSrcResource"], pSrcResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -854,11 +854,11 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "CopyTiles");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pTiledResource"], pTiledResource);
+        HandleToJson(args["pTiledResource"], pTiledResource);
         FieldToJson(args["pTileRegionStartCoordinate"], pTileRegionStartCoordinate);
         FieldToJson(args["pTileRegionSize"], pTileRegionSize);
-        FieldToJson(args["pBuffer"], pBuffer);
-        FieldToJson(args["BufferStartOffsetInBytes"], BufferStartOffsetInBytes);
+        HandleToJson(args["pBuffer"], pBuffer);
+        args["BufferStartOffsetInBytes"] = BufferStartOffsetInBytes;
         args["Flags"] = D3D12_TILE_COPY_FLAGS_t{ Flags };
     }
     writer_->WriteBlockEnd();
@@ -878,10 +878,10 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "ResolveSubresource");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstResource"], pDstResource);
-        FieldToJson(args["DstSubresource"], DstSubresource);
-        FieldToJson(args["pSrcResource"], pSrcResource);
-        FieldToJson(args["SrcSubresource"], SrcSubresource);
+        HandleToJson(args["pDstResource"], pDstResource);
+        args["DstSubresource"] = DstSubresource;
+        HandleToJson(args["pSrcResource"], pSrcResource);
+        args["SrcSubresource"] = SrcSubresource;
         args["Format"] = Format;
     }
     writer_->WriteBlockEnd();
@@ -913,7 +913,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "RSSetViewports");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumViewports"], NumViewports);
+        args["NumViewports"] = NumViewports;
         FieldToJson(args["pViewports"], pViewports);
     }
     writer_->WriteBlockEnd();
@@ -930,7 +930,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "RSSetScissorRects");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumRects"], NumRects);
+        args["NumRects"] = NumRects;
         FieldToJson(args["pRects"], pRects);
     }
     writer_->WriteBlockEnd();
@@ -961,7 +961,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "OMSetStencilRef");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["StencilRef"], StencilRef);
+        args["StencilRef"] = StencilRef;
     }
     writer_->WriteBlockEnd();
 }
@@ -976,7 +976,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetPipelineState");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pPipelineState"], pPipelineState);
+        HandleToJson(args["pPipelineState"], pPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -992,7 +992,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "ResourceBarrier");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumBarriers"], NumBarriers);
+        args["NumBarriers"] = NumBarriers;
         FieldToJson(args["pBarriers"], pBarriers);
     }
     writer_->WriteBlockEnd();
@@ -1008,7 +1008,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ExecuteBundle(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "ExecuteBundle");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pCommandList"], pCommandList);
+        HandleToJson(args["pCommandList"], pCommandList);
     }
     writer_->WriteBlockEnd();
 }
@@ -1024,8 +1024,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetDescriptorHeaps");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumDescriptorHeaps"], NumDescriptorHeaps);
-        FieldToJson(args["ppDescriptorHeaps"], ppDescriptorHeaps);
+        args["NumDescriptorHeaps"] = NumDescriptorHeaps;
+        HandleToJson(args["ppDescriptorHeaps"], ppDescriptorHeaps);
     }
     writer_->WriteBlockEnd();
 }
@@ -1040,7 +1040,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignature
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetComputeRootSignature");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pRootSignature"], pRootSignature);
+        HandleToJson(args["pRootSignature"], pRootSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -1055,7 +1055,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignatur
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetGraphicsRootSignature");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pRootSignature"], pRootSignature);
+        HandleToJson(args["pRootSignature"], pRootSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -1071,7 +1071,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescripto
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetComputeRootDescriptorTable");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
+        args["RootParameterIndex"] = RootParameterIndex;
         FieldToJson(args["BaseDescriptor"], BaseDescriptor);
     }
     writer_->WriteBlockEnd();
@@ -1088,7 +1088,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescript
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetGraphicsRootDescriptorTable");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
+        args["RootParameterIndex"] = RootParameterIndex;
         FieldToJson(args["BaseDescriptor"], BaseDescriptor);
     }
     writer_->WriteBlockEnd();
@@ -1106,9 +1106,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCons
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetComputeRoot32BitConstant");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJson(args["SrcData"], SrcData);
-        FieldToJson(args["DestOffsetIn32BitValues"], DestOffsetIn32BitValues);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["SrcData"] = SrcData;
+        args["DestOffsetIn32BitValues"] = DestOffsetIn32BitValues;
     }
     writer_->WriteBlockEnd();
 }
@@ -1125,9 +1125,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCon
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetGraphicsRoot32BitConstant");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJson(args["SrcData"], SrcData);
-        FieldToJson(args["DestOffsetIn32BitValues"], DestOffsetIn32BitValues);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["SrcData"] = SrcData;
+        args["DestOffsetIn32BitValues"] = DestOffsetIn32BitValues;
     }
     writer_->WriteBlockEnd();
 }
@@ -1145,10 +1145,10 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCons
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetComputeRoot32BitConstants");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJson(args["Num32BitValuesToSet"], Num32BitValuesToSet);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["Num32BitValuesToSet"] = Num32BitValuesToSet;
         FieldToJson(args["pSrcData"], pSrcData);
-        FieldToJson(args["DestOffsetIn32BitValues"], DestOffsetIn32BitValues);
+        args["DestOffsetIn32BitValues"] = DestOffsetIn32BitValues;
     }
     writer_->WriteBlockEnd();
 }
@@ -1166,10 +1166,10 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitCon
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetGraphicsRoot32BitConstants");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJson(args["Num32BitValuesToSet"], Num32BitValuesToSet);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["Num32BitValuesToSet"] = Num32BitValuesToSet;
         FieldToJson(args["pSrcData"], pSrcData);
-        FieldToJson(args["DestOffsetIn32BitValues"], DestOffsetIn32BitValues);
+        args["DestOffsetIn32BitValues"] = DestOffsetIn32BitValues;
     }
     writer_->WriteBlockEnd();
 }
@@ -1185,8 +1185,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstantB
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetComputeRootConstantBufferView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJsonAsHex(args["BufferLocation"], BufferLocation);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["BufferLocation"] = BufferLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -1202,8 +1202,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConstant
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetGraphicsRootConstantBufferView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJsonAsHex(args["BufferLocation"], BufferLocation);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["BufferLocation"] = BufferLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -1219,8 +1219,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderRes
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetComputeRootShaderResourceView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJsonAsHex(args["BufferLocation"], BufferLocation);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["BufferLocation"] = BufferLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -1236,8 +1236,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderRe
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetGraphicsRootShaderResourceView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJsonAsHex(args["BufferLocation"], BufferLocation);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["BufferLocation"] = BufferLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -1253,8 +1253,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnordered
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetComputeRootUnorderedAccessView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJsonAsHex(args["BufferLocation"], BufferLocation);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["BufferLocation"] = BufferLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -1270,8 +1270,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnordere
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetGraphicsRootUnorderedAccessView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["RootParameterIndex"], RootParameterIndex);
-        FieldToJsonAsHex(args["BufferLocation"], BufferLocation);
+        args["RootParameterIndex"] = RootParameterIndex;
+        args["BufferLocation"] = BufferLocation;
     }
     writer_->WriteBlockEnd();
 }
@@ -1303,8 +1303,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_IASetVertexBuffers(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "IASetVertexBuffers");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["StartSlot"], StartSlot);
-        FieldToJson(args["NumViews"], NumViews);
+        args["StartSlot"] = StartSlot;
+        args["NumViews"] = NumViews;
         FieldToJson(args["pViews"], pViews);
     }
     writer_->WriteBlockEnd();
@@ -1322,8 +1322,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SOSetTargets");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["StartSlot"], StartSlot);
-        FieldToJson(args["NumViews"], NumViews);
+        args["StartSlot"] = StartSlot;
+        args["NumViews"] = NumViews;
         FieldToJson(args["pViews"], pViews);
     }
     writer_->WriteBlockEnd();
@@ -1342,7 +1342,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "OMSetRenderTargets");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumRenderTargetDescriptors"], NumRenderTargetDescriptors);
+        args["NumRenderTargetDescriptors"] = NumRenderTargetDescriptors;
         FieldToJson(args["pRenderTargetDescriptors"], pRenderTargetDescriptors);
         Bool32ToJson(args["RTsSingleHandleToDescriptorRange"], RTsSingleHandleToDescriptorRange);
         FieldToJson(args["pDepthStencilDescriptor"], pDepthStencilDescriptor);
@@ -1368,8 +1368,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView(
         FieldToJson(args["DepthStencilView"], DepthStencilView);
         args["ClearFlags"] = D3D12_CLEAR_FLAGS_t{ ClearFlags };
         FieldToJson(args["Depth"], Depth);
-        FieldToJson(args["Stencil"], Stencil);
-        FieldToJson(args["NumRects"], NumRects);
+        args["Stencil"] = Stencil;
+        args["NumRects"] = NumRects;
         FieldToJson(args["pRects"], pRects);
     }
     writer_->WriteBlockEnd();
@@ -1390,7 +1390,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView(
     {
         FieldToJson(args["RenderTargetView"], RenderTargetView);
         FieldToJson(args["ColorRGBA"], ColorRGBA);
-        FieldToJson(args["NumRects"], NumRects);
+        args["NumRects"] = NumRects;
         FieldToJson(args["pRects"], pRects);
     }
     writer_->WriteBlockEnd();
@@ -1413,9 +1413,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVie
     {
         FieldToJson(args["ViewGPUHandleInCurrentHeap"], ViewGPUHandleInCurrentHeap);
         FieldToJson(args["ViewCPUHandle"], ViewCPUHandle);
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["Values"], Values);
-        FieldToJson(args["NumRects"], NumRects);
+        args["NumRects"] = NumRects;
         FieldToJson(args["pRects"], pRects);
     }
     writer_->WriteBlockEnd();
@@ -1438,9 +1438,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessVie
     {
         FieldToJson(args["ViewGPUHandleInCurrentHeap"], ViewGPUHandleInCurrentHeap);
         FieldToJson(args["ViewCPUHandle"], ViewCPUHandle);
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["Values"], Values);
-        FieldToJson(args["NumRects"], NumRects);
+        args["NumRects"] = NumRects;
         FieldToJson(args["pRects"], pRects);
     }
     writer_->WriteBlockEnd();
@@ -1457,7 +1457,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "DiscardResource");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["pRegion"], pRegion);
     }
     writer_->WriteBlockEnd();
@@ -1475,9 +1475,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "BeginQuery");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pQueryHeap"], pQueryHeap);
+        HandleToJson(args["pQueryHeap"], pQueryHeap);
         args["Type"] = Type;
-        FieldToJson(args["Index"], Index);
+        args["Index"] = Index;
     }
     writer_->WriteBlockEnd();
 }
@@ -1494,9 +1494,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "EndQuery");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pQueryHeap"], pQueryHeap);
+        HandleToJson(args["pQueryHeap"], pQueryHeap);
         args["Type"] = Type;
-        FieldToJson(args["Index"], Index);
+        args["Index"] = Index;
     }
     writer_->WriteBlockEnd();
 }
@@ -1516,12 +1516,12 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "ResolveQueryData");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pQueryHeap"], pQueryHeap);
+        HandleToJson(args["pQueryHeap"], pQueryHeap);
         args["Type"] = Type;
-        FieldToJson(args["StartIndex"], StartIndex);
-        FieldToJson(args["NumQueries"], NumQueries);
-        FieldToJson(args["pDestinationBuffer"], pDestinationBuffer);
-        FieldToJson(args["AlignedDestinationBufferOffset"], AlignedDestinationBufferOffset);
+        args["StartIndex"] = StartIndex;
+        args["NumQueries"] = NumQueries;
+        HandleToJson(args["pDestinationBuffer"], pDestinationBuffer);
+        args["AlignedDestinationBufferOffset"] = AlignedDestinationBufferOffset;
     }
     writer_->WriteBlockEnd();
 }
@@ -1538,8 +1538,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetPredication");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pBuffer"], pBuffer);
-        FieldToJson(args["AlignedBufferOffset"], AlignedBufferOffset);
+        HandleToJson(args["pBuffer"], pBuffer);
+        args["AlignedBufferOffset"] = AlignedBufferOffset;
         args["Operation"] = Operation;
     }
     writer_->WriteBlockEnd();
@@ -1557,9 +1557,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "SetMarker");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Metadata"], Metadata);
+        args["Metadata"] = Metadata;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["Size"], Size);
+        args["Size"] = Size;
     }
     writer_->WriteBlockEnd();
 }
@@ -1576,9 +1576,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "BeginEvent");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Metadata"], Metadata);
+        args["Metadata"] = Metadata;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["Size"], Size);
+        args["Size"] = Size;
     }
     writer_->WriteBlockEnd();
 }
@@ -1608,12 +1608,12 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList_ExecuteIndirect(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList", object_id, "ExecuteIndirect");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pCommandSignature"], pCommandSignature);
-        FieldToJson(args["MaxCommandCount"], MaxCommandCount);
-        FieldToJson(args["pArgumentBuffer"], pArgumentBuffer);
-        FieldToJson(args["ArgumentBufferOffset"], ArgumentBufferOffset);
-        FieldToJson(args["pCountBuffer"], pCountBuffer);
-        FieldToJson(args["CountBufferOffset"], CountBufferOffset);
+        HandleToJson(args["pCommandSignature"], pCommandSignature);
+        args["MaxCommandCount"] = MaxCommandCount;
+        HandleToJson(args["pArgumentBuffer"], pArgumentBuffer);
+        args["ArgumentBufferOffset"] = ArgumentBufferOffset;
+        HandleToJson(args["pCountBuffer"], pCountBuffer);
+        args["CountBufferOffset"] = CountBufferOffset;
     }
     writer_->WriteBlockEnd();
 }
@@ -1634,12 +1634,12 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList1", object_id, "AtomicCopyBufferUINT");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstBuffer"], pDstBuffer);
-        FieldToJson(args["DstOffset"], DstOffset);
-        FieldToJson(args["pSrcBuffer"], pSrcBuffer);
-        FieldToJson(args["SrcOffset"], SrcOffset);
-        FieldToJson(args["Dependencies"], Dependencies);
-        FieldToJson(args["ppDependentResources"], ppDependentResources);
+        HandleToJson(args["pDstBuffer"], pDstBuffer);
+        args["DstOffset"] = DstOffset;
+        HandleToJson(args["pSrcBuffer"], pSrcBuffer);
+        args["SrcOffset"] = SrcOffset;
+        args["Dependencies"] = Dependencies;
+        HandleToJson(args["ppDependentResources"], ppDependentResources);
         FieldToJson(args["pDependentSubresourceRanges"], pDependentSubresourceRanges);
     }
     writer_->WriteBlockEnd();
@@ -1661,12 +1661,12 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList1", object_id, "AtomicCopyBufferUINT64");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstBuffer"], pDstBuffer);
-        FieldToJson(args["DstOffset"], DstOffset);
-        FieldToJson(args["pSrcBuffer"], pSrcBuffer);
-        FieldToJson(args["SrcOffset"], SrcOffset);
-        FieldToJson(args["Dependencies"], Dependencies);
-        FieldToJson(args["ppDependentResources"], ppDependentResources);
+        HandleToJson(args["pDstBuffer"], pDstBuffer);
+        args["DstOffset"] = DstOffset;
+        HandleToJson(args["pSrcBuffer"], pSrcBuffer);
+        args["SrcOffset"] = SrcOffset;
+        args["Dependencies"] = Dependencies;
+        HandleToJson(args["ppDependentResources"], ppDependentResources);
         FieldToJson(args["pDependentSubresourceRanges"], pDependentSubresourceRanges);
     }
     writer_->WriteBlockEnd();
@@ -1701,8 +1701,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList1", object_id, "SetSamplePositions");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumSamplesPerPixel"], NumSamplesPerPixel);
-        FieldToJson(args["NumPixels"], NumPixels);
+        args["NumSamplesPerPixel"] = NumSamplesPerPixel;
+        args["NumPixels"] = NumPixels;
         FieldToJson(args["pSamplePositions"], pSamplePositions);
     }
     writer_->WriteBlockEnd();
@@ -1726,12 +1726,12 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRegi
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList1", object_id, "ResolveSubresourceRegion");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstResource"], pDstResource);
-        FieldToJson(args["DstSubresource"], DstSubresource);
-        FieldToJson(args["DstX"], DstX);
-        FieldToJson(args["DstY"], DstY);
-        FieldToJson(args["pSrcResource"], pSrcResource);
-        FieldToJson(args["SrcSubresource"], SrcSubresource);
+        HandleToJson(args["pDstResource"], pDstResource);
+        args["DstSubresource"] = DstSubresource;
+        args["DstX"] = DstX;
+        args["DstY"] = DstY;
+        HandleToJson(args["pSrcResource"], pSrcResource);
+        args["SrcSubresource"] = SrcSubresource;
         FieldToJson(args["pSrcRect"], pSrcRect);
         args["Format"] = Format;
         args["ResolveMode"] = ResolveMode;
@@ -1749,7 +1749,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList1", object_id, "SetViewInstanceMask");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["Mask"], Mask);
+        args["Mask"] = Mask;
     }
     writer_->WriteBlockEnd();
 }
@@ -1766,7 +1766,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList2", object_id, "WriteBufferImmediate");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Count"], Count);
+        args["Count"] = Count;
         FieldToJson(args["pParams"], pParams);
         FieldToJson(args["pModes"], pModes);
     }
@@ -1792,12 +1792,12 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_UpdateTileMappings(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "UpdateTileMappings");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["NumResourceRegions"], NumResourceRegions);
+        HandleToJson(args["pResource"], pResource);
+        args["NumResourceRegions"] = NumResourceRegions;
         FieldToJson(args["pResourceRegionStartCoordinates"], pResourceRegionStartCoordinates);
         FieldToJson(args["pResourceRegionSizes"], pResourceRegionSizes);
-        FieldToJson(args["pHeap"], pHeap);
-        FieldToJson(args["NumRanges"], NumRanges);
+        HandleToJson(args["pHeap"], pHeap);
+        args["NumRanges"] = NumRanges;
         if (!pRangeFlags->IsNull())
         {
             args["pRangeFlags"] = D3D12_TILE_RANGE_FLAGS_t{ *pRangeFlags->GetPointer() };
@@ -1828,9 +1828,9 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_CopyTileMappings(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "CopyTileMappings");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDstResource"], pDstResource);
+        HandleToJson(args["pDstResource"], pDstResource);
         FieldToJson(args["pDstRegionStartCoordinate"], pDstRegionStartCoordinate);
-        FieldToJson(args["pSrcResource"], pSrcResource);
+        HandleToJson(args["pSrcResource"], pSrcResource);
         FieldToJson(args["pSrcRegionStartCoordinate"], pSrcRegionStartCoordinate);
         FieldToJson(args["pRegionSize"], pRegionSize);
         args["Flags"] = D3D12_TILE_MAPPING_FLAGS_t{ Flags };
@@ -1849,8 +1849,8 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_ExecuteCommandLists(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "ExecuteCommandLists");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumCommandLists"], NumCommandLists);
-        FieldToJson(args["ppCommandLists"], ppCommandLists);
+        args["NumCommandLists"] = NumCommandLists;
+        HandleToJson(args["ppCommandLists"], ppCommandLists);
     }
     writer_->WriteBlockEnd();
 }
@@ -1867,9 +1867,9 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_SetMarker(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "SetMarker");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Metadata"], Metadata);
+        args["Metadata"] = Metadata;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["Size"], Size);
+        args["Size"] = Size;
     }
     writer_->WriteBlockEnd();
 }
@@ -1886,9 +1886,9 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_BeginEvent(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12CommandQueue", object_id, "BeginEvent");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Metadata"], Metadata);
+        args["Metadata"] = Metadata;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["Size"], Size);
+        args["Size"] = Size;
     }
     writer_->WriteBlockEnd();
 }
@@ -1916,8 +1916,8 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_Signal(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pFence"], pFence);
-        FieldToJson(args["Value"], Value);
+        HandleToJson(args["pFence"], pFence);
+        args["Value"] = Value;
     }
     writer_->WriteBlockEnd();
 }
@@ -1935,8 +1935,8 @@ void Dx12JsonConsumer::Process_ID3D12CommandQueue_Wait(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pFence"], pFence);
-        FieldToJson(args["Value"], Value);
+        HandleToJson(args["pFence"], pFence);
+        args["Value"] = Value;
     }
     writer_->WriteBlockEnd();
 }
@@ -2065,7 +2065,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetNodeCount(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetNodeCount");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -2085,7 +2085,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandQueue(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppCommandQueue"], ppCommandQueue);
+        HandleToJson(args["ppCommandQueue"], ppCommandQueue);
     }
     writer_->WriteBlockEnd();
 }
@@ -2106,7 +2106,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandAllocator(
     {
         args["type"] = type;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppCommandAllocator"], ppCommandAllocator);
+        HandleToJson(args["ppCommandAllocator"], ppCommandAllocator);
     }
     writer_->WriteBlockEnd();
 }
@@ -2127,7 +2127,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateGraphicsPipelineState(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppPipelineState"], ppPipelineState);
+        HandleToJson(args["ppPipelineState"], ppPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -2148,7 +2148,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateComputePipelineState(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppPipelineState"], ppPipelineState);
+        HandleToJson(args["ppPipelineState"], ppPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -2170,12 +2170,12 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandList(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask);
+        args["nodeMask"] = nodeMask;
         args["type"] = type;
-        FieldToJson(args["pCommandAllocator"], pCommandAllocator);
-        FieldToJson(args["pInitialState"], pInitialState);
+        HandleToJson(args["pCommandAllocator"], pCommandAllocator);
+        HandleToJson(args["pInitialState"], pInitialState);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppCommandList"], ppCommandList);
+        HandleToJson(args["ppCommandList"], ppCommandList);
     }
     writer_->WriteBlockEnd();
 }
@@ -2196,7 +2196,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateDescriptorHeap(
     {
         FieldToJson(args["pDescriptorHeapDesc"], pDescriptorHeapDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvHeap"], ppvHeap);
+        HandleToJson(args["ppvHeap"], ppvHeap);
     }
     writer_->WriteBlockEnd();
 }
@@ -2210,7 +2210,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetDescriptorHandleIncrementSize(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetDescriptorHandleIncrementSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["DescriptorHeapType"] = DescriptorHeapType;
@@ -2234,11 +2234,11 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateRootSignature(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask);
+        args["nodeMask"] = nodeMask;
         FieldToJson(args["pBlobWithRootSignature"], pBlobWithRootSignature);
-        FieldToJson(args["blobLengthInBytes"], blobLengthInBytes);
+        args["blobLengthInBytes"] = blobLengthInBytes;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvRootSignature"], ppvRootSignature);
+        HandleToJson(args["ppvRootSignature"], ppvRootSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -2272,7 +2272,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateShaderResourceView(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateShaderResourceView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["DestDescriptor"], DestDescriptor);
     }
@@ -2292,8 +2292,8 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateUnorderedAccessView(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateUnorderedAccessView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["pCounterResource"], pCounterResource);
+        HandleToJson(args["pResource"], pResource);
+        HandleToJson(args["pCounterResource"], pCounterResource);
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["DestDescriptor"], DestDescriptor);
     }
@@ -2312,7 +2312,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateRenderTargetView(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateRenderTargetView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["DestDescriptor"], DestDescriptor);
     }
@@ -2331,7 +2331,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateDepthStencilView(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CreateDepthStencilView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["DestDescriptor"], DestDescriptor);
     }
@@ -2371,10 +2371,10 @@ void Dx12JsonConsumer::Process_ID3D12Device_CopyDescriptors(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CopyDescriptors");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumDestDescriptorRanges"], NumDestDescriptorRanges);
+        args["NumDestDescriptorRanges"] = NumDestDescriptorRanges;
         FieldToJson(args["pDestDescriptorRangeStarts"], pDestDescriptorRangeStarts);
         FieldToJson(args["pDestDescriptorRangeSizes"], pDestDescriptorRangeSizes);
-        FieldToJson(args["NumSrcDescriptorRanges"], NumSrcDescriptorRanges);
+        args["NumSrcDescriptorRanges"] = NumSrcDescriptorRanges;
         FieldToJson(args["pSrcDescriptorRangeStarts"], pSrcDescriptorRangeStarts);
         FieldToJson(args["pSrcDescriptorRangeSizes"], pSrcDescriptorRangeSizes);
         args["DescriptorHeapsType"] = DescriptorHeapsType;
@@ -2395,7 +2395,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CopyDescriptorsSimple(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "CopyDescriptorsSimple");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumDescriptors"], NumDescriptors);
+        args["NumDescriptors"] = NumDescriptors;
         FieldToJson(args["DestDescriptorRangeStart"], DestDescriptorRangeStart);
         FieldToJson(args["SrcDescriptorRangeStart"], SrcDescriptorRangeStart);
         args["DescriptorHeapsType"] = DescriptorHeapsType;
@@ -2417,8 +2417,8 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetResourceAllocationInfo(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask);
-        FieldToJson(args["numResourceDescs"], numResourceDescs);
+        args["visibleMask"] = visibleMask;
+        args["numResourceDescs"] = numResourceDescs;
         FieldToJson(args["pResourceDescs"], pResourceDescs);
     }
     writer_->WriteBlockEnd();
@@ -2437,7 +2437,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetCustomHeapProperties(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask);
+        args["nodeMask"] = nodeMask;
         args["heapType"] = heapType;
     }
     writer_->WriteBlockEnd();
@@ -2467,7 +2467,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommittedResource(
         args["InitialResourceState"] = D3D12_RESOURCE_STATES_t{ InitialResourceState };
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riidResource"], riidResource);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -2488,7 +2488,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateHeap(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvHeap"], ppvHeap);
+        HandleToJson(args["ppvHeap"], ppvHeap);
     }
     writer_->WriteBlockEnd();
 }
@@ -2511,13 +2511,13 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreatePlacedResource(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pHeap"], pHeap);
-        FieldToJson(args["HeapOffset"], HeapOffset);
+        HandleToJson(args["pHeap"], pHeap);
+        args["HeapOffset"] = HeapOffset;
         FieldToJson(args["pDesc"], pDesc);
         args["InitialState"] = D3D12_RESOURCE_STATES_t{ InitialState };
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -2542,7 +2542,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateReservedResource(
         args["InitialState"] = D3D12_RESOURCE_STATES_t{ InitialState };
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -2563,9 +2563,9 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateSharedHandle(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pObject"], pObject);
+        HandleToJson(args["pObject"], pObject);
         FieldToJson(args["pAttributes"], pAttributes);
-        FieldToJson(args["Access"], Access);
+        args["Access"] = Access;
         FieldToJson(args["Name"], Name);
         FieldToJson(args["pHandle"], pHandle);
     }
@@ -2586,9 +2586,9 @@ void Dx12JsonConsumer::Process_ID3D12Device_OpenSharedHandle(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NTHandle"], NTHandle);
+        args["NTHandle"] = NTHandle;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvObj"], ppvObj);
+        HandleToJson(args["ppvObj"], ppvObj);
     }
     writer_->WriteBlockEnd();
 }
@@ -2608,7 +2608,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_OpenSharedHandleByName(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Name"], Name);
-        FieldToJson(args["Access"], Access);
+        args["Access"] = Access;
         FieldToJson(args["pNTHandle"], pNTHandle);
     }
     writer_->WriteBlockEnd();
@@ -2627,8 +2627,8 @@ void Dx12JsonConsumer::Process_ID3D12Device_MakeResident(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumObjects"], NumObjects);
-        FieldToJson(args["ppObjects"], ppObjects);
+        args["NumObjects"] = NumObjects;
+        HandleToJson(args["ppObjects"], ppObjects);
     }
     writer_->WriteBlockEnd();
 }
@@ -2646,8 +2646,8 @@ void Dx12JsonConsumer::Process_ID3D12Device_Evict(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumObjects"], NumObjects);
-        FieldToJson(args["ppObjects"], ppObjects);
+        args["NumObjects"] = NumObjects;
+        HandleToJson(args["ppObjects"], ppObjects);
     }
     writer_->WriteBlockEnd();
 }
@@ -2667,10 +2667,10 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateFence(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["InitialValue"], InitialValue);
+        args["InitialValue"] = InitialValue;
         args["Flags"] = D3D12_FENCE_FLAGS_t{ Flags };
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppFence"], ppFence);
+        HandleToJson(args["ppFence"], ppFence);
     }
     writer_->WriteBlockEnd();
 }
@@ -2705,9 +2705,9 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetCopyableFootprints(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pResourceDesc"], pResourceDesc);
-        FieldToJson(args["FirstSubresource"], FirstSubresource);
-        FieldToJson(args["NumSubresources"], NumSubresources);
-        FieldToJson(args["BaseOffset"], BaseOffset);
+        args["FirstSubresource"] = FirstSubresource;
+        args["NumSubresources"] = NumSubresources;
+        args["BaseOffset"] = BaseOffset;
         FieldToJson(args["pLayouts"], pLayouts);
         FieldToJson(args["pNumRows"], pNumRows);
         FieldToJson(args["pRowSizeInBytes"], pRowSizeInBytes);
@@ -2732,7 +2732,7 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateQueryHeap(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvHeap"], ppvHeap);
+        HandleToJson(args["ppvHeap"], ppvHeap);
     }
     writer_->WriteBlockEnd();
 }
@@ -2770,9 +2770,9 @@ void Dx12JsonConsumer::Process_ID3D12Device_CreateCommandSignature(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["pRootSignature"], pRootSignature);
+        HandleToJson(args["pRootSignature"], pRootSignature);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvCommandSignature"], ppvCommandSignature);
+        HandleToJson(args["ppvCommandSignature"], ppvCommandSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -2793,12 +2793,12 @@ void Dx12JsonConsumer::Process_ID3D12Device_GetResourceTiling(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device", object_id, "GetResourceTiling");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pTiledResource"], pTiledResource);
+        HandleToJson(args["pTiledResource"], pTiledResource);
         FieldToJson(args["pNumTilesForEntireResource"], pNumTilesForEntireResource);
         FieldToJson(args["pPackedMipDesc"], pPackedMipDesc);
         FieldToJson(args["pStandardTileShapeForNonPackedMips"], pStandardTileShapeForNonPackedMips);
         FieldToJson(args["pNumSubresourceTilings"], pNumSubresourceTilings);
-        FieldToJson(args["FirstSubresourceTilingToGet"], FirstSubresourceTilingToGet);
+        args["FirstSubresourceTilingToGet"] = FirstSubresourceTilingToGet;
         FieldToJson(args["pSubresourceTilingsForNonPackedMips"], pSubresourceTilingsForNonPackedMips);
     }
     writer_->WriteBlockEnd();
@@ -2830,7 +2830,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_StorePipeline(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pName"], pName);
-        FieldToJson(args["pPipeline"], pPipeline);
+        HandleToJson(args["pPipeline"], pPipeline);
     }
     writer_->WriteBlockEnd();
 }
@@ -2853,7 +2853,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_LoadGraphicsPipeline(
         FieldToJson(args["pName"], pName);
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppPipelineState"], ppPipelineState);
+        HandleToJson(args["ppPipelineState"], ppPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -2876,7 +2876,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_LoadComputePipeline(
         FieldToJson(args["pName"], pName);
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppPipelineState"], ppPipelineState);
+        HandleToJson(args["ppPipelineState"], ppPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -2889,7 +2889,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_GetSerializedSize(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12PipelineLibrary", object_id, "GetSerializedSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -2907,7 +2907,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary_Serialize(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSizeInBytes"], DataSizeInBytes);
+        args["DataSizeInBytes"] = DataSizeInBytes;
     }
     writer_->WriteBlockEnd();
 }
@@ -2930,7 +2930,7 @@ void Dx12JsonConsumer::Process_ID3D12PipelineLibrary1_LoadPipeline(
         FieldToJson(args["pName"], pName);
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppPipelineState"], ppPipelineState);
+        HandleToJson(args["ppPipelineState"], ppPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -2951,9 +2951,9 @@ void Dx12JsonConsumer::Process_ID3D12Device1_CreatePipelineLibrary(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pLibraryBlob"], pLibraryBlob);
-        FieldToJson(args["BlobLength"], BlobLength);
+        args["BlobLength"] = BlobLength;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppPipelineLibrary"], ppPipelineLibrary);
+        HandleToJson(args["ppPipelineLibrary"], ppPipelineLibrary);
     }
     writer_->WriteBlockEnd();
 }
@@ -2974,11 +2974,11 @@ void Dx12JsonConsumer::Process_ID3D12Device1_SetEventOnMultipleFenceCompletion(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ppFences"], ppFences);
+        HandleToJson(args["ppFences"], ppFences);
         FieldToJson(args["pFenceValues"], pFenceValues);
-        FieldToJson(args["NumFences"], NumFences);
+        args["NumFences"] = NumFences;
         args["Flags"] = D3D12_MULTIPLE_FENCE_WAIT_FLAGS_t{ Flags };
-        FieldToJson(args["hEvent"], hEvent);
+        args["hEvent"] = hEvent;
     }
     writer_->WriteBlockEnd();
 }
@@ -2997,8 +2997,8 @@ void Dx12JsonConsumer::Process_ID3D12Device1_SetResidencyPriority(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumObjects"], NumObjects);
-        FieldToJson(args["ppObjects"], ppObjects);
+        args["NumObjects"] = NumObjects;
+        HandleToJson(args["ppObjects"], ppObjects);
         FieldToJson(args["pPriorities"], pPriorities);
     }
     writer_->WriteBlockEnd();
@@ -3020,7 +3020,7 @@ void Dx12JsonConsumer::Process_ID3D12Device2_CreatePipelineState(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppPipelineState"], ppPipelineState);
+        HandleToJson(args["ppPipelineState"], ppPipelineState);
     }
     writer_->WriteBlockEnd();
 }
@@ -3039,9 +3039,9 @@ void Dx12JsonConsumer::Process_ID3D12Device3_OpenExistingHeapFromAddress(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pAddress"], pAddress);
+        args["pAddress"] = pAddress;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvHeap"], ppvHeap);
+        HandleToJson(args["ppvHeap"], ppvHeap);
     }
     writer_->WriteBlockEnd();
 }
@@ -3060,9 +3060,9 @@ void Dx12JsonConsumer::Process_ID3D12Device3_OpenExistingHeapFromFileMapping(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hFileMapping"], hFileMapping);
+        args["hFileMapping"] = hFileMapping;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvHeap"], ppvHeap);
+        HandleToJson(args["ppvHeap"], ppvHeap);
     }
     writer_->WriteBlockEnd();
 }
@@ -3084,10 +3084,10 @@ void Dx12JsonConsumer::Process_ID3D12Device3_EnqueueMakeResident(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["Flags"] = D3D12_RESIDENCY_FLAGS_t{ Flags };
-        FieldToJson(args["NumObjects"], NumObjects);
-        FieldToJson(args["ppObjects"], ppObjects);
-        FieldToJson(args["pFenceToSignal"], pFenceToSignal);
-        FieldToJson(args["FenceValueToSignal"], FenceValueToSignal);
+        args["NumObjects"] = NumObjects;
+        HandleToJson(args["ppObjects"], ppObjects);
+        HandleToJson(args["pFenceToSignal"], pFenceToSignal);
+        args["FenceValueToSignal"] = FenceValueToSignal;
     }
     writer_->WriteBlockEnd();
 }
@@ -3106,7 +3106,7 @@ void Dx12JsonConsumer::Process_ID3D12ProtectedSession_GetStatusFence(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppFence"], ppFence);
+        HandleToJson(args["ppFence"], ppFence);
     }
     writer_->WriteBlockEnd();
 }
@@ -3151,11 +3151,11 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateCommandList1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask);
+        args["nodeMask"] = nodeMask;
         args["type"] = type;
         args["flags"] = D3D12_COMMAND_LIST_FLAGS_t{ flags };
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppCommandList"], ppCommandList);
+        HandleToJson(args["ppCommandList"], ppCommandList);
     }
     writer_->WriteBlockEnd();
 }
@@ -3176,7 +3176,7 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateProtectedResourceSession(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppSession"], ppSession);
+        HandleToJson(args["ppSession"], ppSession);
     }
     writer_->WriteBlockEnd();
 }
@@ -3205,9 +3205,9 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateCommittedResource1(
         FieldToJson(args["pDesc"], pDesc);
         args["InitialResourceState"] = D3D12_RESOURCE_STATES_t{ InitialResourceState };
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
-        FieldToJson(args["pProtectedSession"], pProtectedSession);
+        HandleToJson(args["pProtectedSession"], pProtectedSession);
         FieldToJson(args["riidResource"], riidResource);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -3228,9 +3228,9 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateHeap1(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["pProtectedSession"], pProtectedSession);
+        HandleToJson(args["pProtectedSession"], pProtectedSession);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvHeap"], ppvHeap);
+        HandleToJson(args["ppvHeap"], ppvHeap);
     }
     writer_->WriteBlockEnd();
 }
@@ -3255,9 +3255,9 @@ void Dx12JsonConsumer::Process_ID3D12Device4_CreateReservedResource1(
         FieldToJson(args["pDesc"], pDesc);
         args["InitialState"] = D3D12_RESOURCE_STATES_t{ InitialState };
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
-        FieldToJson(args["pProtectedSession"], pProtectedSession);
+        HandleToJson(args["pProtectedSession"], pProtectedSession);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -3277,8 +3277,8 @@ void Dx12JsonConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask);
-        FieldToJson(args["numResourceDescs"], numResourceDescs);
+        args["visibleMask"] = visibleMask;
+        args["numResourceDescs"] = numResourceDescs;
         FieldToJson(args["pResourceDescs"], pResourceDescs);
         FieldToJson(args["pResourceAllocationInfo1"], pResourceAllocationInfo1);
     }
@@ -3326,7 +3326,7 @@ void Dx12JsonConsumer::Process_ID3D12SwapChainAssistant_GetSwapChainObject(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppv"], ppv);
+        HandleToJson(args["ppv"], ppv);
     }
     writer_->WriteBlockEnd();
 }
@@ -3347,9 +3347,9 @@ void Dx12JsonConsumer::Process_ID3D12SwapChainAssistant_GetCurrentResourceAndCom
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riidResource"], riidResource);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
         FieldToJson(args["riidQueue"], riidQueue);
-        FieldToJson(args["ppvQueue"], ppvQueue);
+        HandleToJson(args["ppvQueue"], ppvQueue);
     }
     writer_->WriteBlockEnd();
 }
@@ -3378,7 +3378,7 @@ void Dx12JsonConsumer::Process_ID3D12LifetimeTracker_DestroyOwnedObject(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pObject"], pObject);
+        HandleToJson(args["pObject"], pObject);
     }
     writer_->WriteBlockEnd();
 }
@@ -3409,7 +3409,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_GetShaderStackSize(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "GetShaderStackSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pExportName"], pExportName);
@@ -3425,7 +3425,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_GetPipelineStackSize(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "GetPipelineStackSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -3439,7 +3439,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties_SetPipelineStackSize(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12StateObjectProperties", object_id, "SetPipelineStackSize");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["PipelineStackSizeInBytes"], PipelineStackSizeInBytes);
+        args["PipelineStackSizeInBytes"] = PipelineStackSizeInBytes;
     }
     writer_->WriteBlockEnd();
 }
@@ -3477,7 +3477,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties2_GetGlobalRootSignatu
     {
         FieldToJson(args["pProgramName"], pProgramName);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvRootSignature"], ppvRootSignature);
+        HandleToJson(args["ppvRootSignature"], ppvRootSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -3498,7 +3498,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectProperties2_GetGlobalRootSignatu
     {
         FieldToJson(args["pExportName"], pExportName);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvRootSignature"], ppvRootSignature);
+        HandleToJson(args["ppvRootSignature"], ppvRootSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -3511,7 +3511,7 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNumWorkGraphs(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNumWorkGraphs");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -3527,7 +3527,7 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetProgramName(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3541,7 +3541,7 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetWorkGraphIndex(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetWorkGraphIndex");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pProgramName"], pProgramName);
@@ -3558,10 +3558,10 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNumNodes(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNumNodes");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3579,8 +3579,8 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNodeID(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
-        FieldToJson(args["NodeIndex"], NodeIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
+        args["NodeIndex"] = NodeIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3595,10 +3595,10 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNodeIndex(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNodeIndex");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
         FieldToJson(args["NodeID"], NodeID);
     }
     writer_->WriteBlockEnd();
@@ -3614,11 +3614,11 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNodeLocalRootArgumen
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNodeLocalRootArgumentsTableIndex");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
-        FieldToJson(args["NodeIndex"], NodeIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
+        args["NodeIndex"] = NodeIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3632,10 +3632,10 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetNumEntrypoints(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetNumEntrypoints");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3653,8 +3653,8 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointID(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
-        FieldToJson(args["EntrypointIndex"], EntrypointIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
+        args["EntrypointIndex"] = EntrypointIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3669,10 +3669,10 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointIndex(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetEntrypointIndex");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
         FieldToJson(args["NodeID"], NodeID);
     }
     writer_->WriteBlockEnd();
@@ -3688,11 +3688,11 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointRecordSize
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetEntrypointRecordSizeInBytes");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
-        FieldToJson(args["EntrypointIndex"], EntrypointIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
+        args["EntrypointIndex"] = EntrypointIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3708,7 +3708,7 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetWorkGraphMemoryRequi
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetWorkGraphMemoryRequirements");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
         FieldToJson(args["pWorkGraphMemoryRequirements"], pWorkGraphMemoryRequirements);
     }
     writer_->WriteBlockEnd();
@@ -3724,11 +3724,11 @@ void Dx12JsonConsumer::Process_ID3D12WorkGraphProperties_GetEntrypointRecordAlig
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12WorkGraphProperties", object_id, "GetEntrypointRecordAlignmentInBytes");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WorkGraphIndex"], WorkGraphIndex);
-        FieldToJson(args["EntrypointIndex"], EntrypointIndex);
+        args["WorkGraphIndex"] = WorkGraphIndex;
+        args["EntrypointIndex"] = EntrypointIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -3747,9 +3747,9 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CreateLifetimeTracker(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pOwner"], pOwner);
+        HandleToJson(args["pOwner"], pOwner);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvTracker"], ppvTracker);
+        HandleToJson(args["ppvTracker"], ppvTracker);
     }
     writer_->WriteBlockEnd();
 }
@@ -3826,11 +3826,11 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CreateMetaCommand(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["CommandId"], CommandId);
-        FieldToJsonAsFixedWidthBinary(args["NodeMask"], NodeMask);
+        args["NodeMask"] = NodeMask;
         FieldToJson(args["pCreationParametersData"], pCreationParametersData);
-        FieldToJson(args["CreationParametersDataSizeInBytes"], CreationParametersDataSizeInBytes);
+        args["CreationParametersDataSizeInBytes"] = CreationParametersDataSizeInBytes;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppMetaCommand"], ppMetaCommand);
+        HandleToJson(args["ppMetaCommand"], ppMetaCommand);
     }
     writer_->WriteBlockEnd();
 }
@@ -3851,7 +3851,7 @@ void Dx12JsonConsumer::Process_ID3D12Device5_CreateStateObject(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppStateObject"], ppStateObject);
+        HandleToJson(args["ppStateObject"], ppStateObject);
     }
     writer_->WriteBlockEnd();
 }
@@ -4060,7 +4060,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceRemovedExtendedData2_GetDeviceState(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceRemovedExtendedData2", object_id, "GetDeviceState");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -4081,7 +4081,7 @@ void Dx12JsonConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
     {
         args["Mode"] = Mode;
         args["MeasurementsAction"] = MeasurementsAction;
-        FieldToJson(args["hEventToSignalUponCompletion"], hEventToSignalUponCompletion);
+        args["hEventToSignalUponCompletion"] = hEventToSignalUponCompletion;
         Bool32ToJson(args["pbFurtherMeasurementsDesired"], pbFurtherMeasurementsDesired);
     }
     writer_->WriteBlockEnd();
@@ -4115,9 +4115,9 @@ void Dx12JsonConsumer::Process_ID3D12Device7_AddToStateObject(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pAddition"], pAddition);
-        FieldToJson(args["pStateObjectToGrowFrom"], pStateObjectToGrowFrom);
+        HandleToJson(args["pStateObjectToGrowFrom"], pStateObjectToGrowFrom);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppNewStateObject"], ppNewStateObject);
+        HandleToJson(args["ppNewStateObject"], ppNewStateObject);
     }
     writer_->WriteBlockEnd();
 }
@@ -4138,7 +4138,7 @@ void Dx12JsonConsumer::Process_ID3D12Device7_CreateProtectedResourceSession1(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppSession"], ppSession);
+        HandleToJson(args["ppSession"], ppSession);
     }
     writer_->WriteBlockEnd();
 }
@@ -4158,8 +4158,8 @@ void Dx12JsonConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask);
-        FieldToJson(args["numResourceDescs"], numResourceDescs);
+        args["visibleMask"] = visibleMask;
+        args["numResourceDescs"] = numResourceDescs;
         FieldToJson(args["pResourceDescs"], pResourceDescs);
         FieldToJson(args["pResourceAllocationInfo1"], pResourceAllocationInfo1);
     }
@@ -4190,9 +4190,9 @@ void Dx12JsonConsumer::Process_ID3D12Device8_CreateCommittedResource2(
         FieldToJson(args["pDesc"], pDesc);
         args["InitialResourceState"] = D3D12_RESOURCE_STATES_t{ InitialResourceState };
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
-        FieldToJson(args["pProtectedSession"], pProtectedSession);
+        HandleToJson(args["pProtectedSession"], pProtectedSession);
         FieldToJson(args["riidResource"], riidResource);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -4215,13 +4215,13 @@ void Dx12JsonConsumer::Process_ID3D12Device8_CreatePlacedResource1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pHeap"], pHeap);
-        FieldToJson(args["HeapOffset"], HeapOffset);
+        HandleToJson(args["pHeap"], pHeap);
+        args["HeapOffset"] = HeapOffset;
         FieldToJson(args["pDesc"], pDesc);
         args["InitialState"] = D3D12_RESOURCE_STATES_t{ InitialState };
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -4238,8 +4238,8 @@ void Dx12JsonConsumer::Process_ID3D12Device8_CreateSamplerFeedbackUnorderedAcces
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12Device8", object_id, "CreateSamplerFeedbackUnorderedAccessView");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pTargetedResource"], pTargetedResource);
-        FieldToJson(args["pFeedbackResource"], pFeedbackResource);
+        HandleToJson(args["pTargetedResource"], pTargetedResource);
+        HandleToJson(args["pFeedbackResource"], pFeedbackResource);
         FieldToJson(args["DestDescriptor"], DestDescriptor);
     }
     writer_->WriteBlockEnd();
@@ -4263,9 +4263,9 @@ void Dx12JsonConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pResourceDesc"], pResourceDesc);
-        FieldToJson(args["FirstSubresource"], FirstSubresource);
-        FieldToJson(args["NumSubresources"], NumSubresources);
-        FieldToJson(args["BaseOffset"], BaseOffset);
+        args["FirstSubresource"] = FirstSubresource;
+        args["NumSubresources"] = NumSubresources;
+        args["BaseOffset"] = BaseOffset;
         FieldToJson(args["pLayouts"], pLayouts);
         FieldToJson(args["pNumRows"], pNumRows);
         FieldToJson(args["pRowSizeInBytes"], pRowSizeInBytes);
@@ -4288,7 +4288,7 @@ void Dx12JsonConsumer::Process_ID3D12Resource1_GetProtectedResourceSession(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppProtectedSession"], ppProtectedSession);
+        HandleToJson(args["ppProtectedSession"], ppProtectedSession);
     }
     writer_->WriteBlockEnd();
 }
@@ -4319,7 +4319,7 @@ void Dx12JsonConsumer::Process_ID3D12Heap1_GetProtectedResourceSession(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppProtectedSession"], ppProtectedSession);
+        HandleToJson(args["ppProtectedSession"], ppProtectedSession);
     }
     writer_->WriteBlockEnd();
 }
@@ -4334,7 +4334,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResourceSe
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList3", object_id, "SetProtectedResourceSession");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pProtectedResourceSession"], pProtectedResourceSession);
+        HandleToJson(args["pProtectedResourceSession"], pProtectedResourceSession);
     }
     writer_->WriteBlockEnd();
 }
@@ -4349,11 +4349,11 @@ void Dx12JsonConsumer::Process_ID3D12MetaCommand_GetRequiredParameterResourceSiz
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12MetaCommand", object_id, "GetRequiredParameterResourceSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["Stage"] = Stage;
-        FieldToJson(args["ParameterIndex"], ParameterIndex);
+        args["ParameterIndex"] = ParameterIndex;
     }
     writer_->WriteBlockEnd();
 }
@@ -4371,7 +4371,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_BeginRenderPass(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList4", object_id, "BeginRenderPass");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumRenderTargets"], NumRenderTargets);
+        args["NumRenderTargets"] = NumRenderTargets;
         FieldToJson(args["pRenderTargets"], pRenderTargets);
         FieldToJson(args["pDepthStencil"], pDepthStencil);
         args["Flags"] = D3D12_RENDER_PASS_FLAGS_t{ Flags };
@@ -4401,9 +4401,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaCommand(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList4", object_id, "InitializeMetaCommand");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pMetaCommand"], pMetaCommand);
+        HandleToJson(args["pMetaCommand"], pMetaCommand);
         FieldToJson(args["pInitializationParametersData"], pInitializationParametersData);
-        FieldToJson(args["InitializationParametersDataSizeInBytes"], InitializationParametersDataSizeInBytes);
+        args["InitializationParametersDataSizeInBytes"] = InitializationParametersDataSizeInBytes;
     }
     writer_->WriteBlockEnd();
 }
@@ -4420,9 +4420,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList4", object_id, "ExecuteMetaCommand");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pMetaCommand"], pMetaCommand);
+        HandleToJson(args["pMetaCommand"], pMetaCommand);
         FieldToJson(args["pExecutionParametersData"], pExecutionParametersData);
-        FieldToJson(args["ExecutionParametersDataSizeInBytes"], ExecutionParametersDataSizeInBytes);
+        args["ExecutionParametersDataSizeInBytes"] = ExecutionParametersDataSizeInBytes;
     }
     writer_->WriteBlockEnd();
 }
@@ -4440,7 +4440,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_BuildRaytracingAcceler
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["NumPostbuildInfoDescs"], NumPostbuildInfoDescs);
+        args["NumPostbuildInfoDescs"] = NumPostbuildInfoDescs;
         FieldToJson(args["pPostbuildInfoDescs"], pPostbuildInfoDescs);
     }
     writer_->WriteBlockEnd();
@@ -4459,7 +4459,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccelera
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["NumSourceAccelerationStructures"], NumSourceAccelerationStructures);
+        args["NumSourceAccelerationStructures"] = NumSourceAccelerationStructures;
         FieldToJsonAsHex(args["pSourceAccelerationStructureData"], pSourceAccelerationStructureData);
     }
     writer_->WriteBlockEnd();
@@ -4477,8 +4477,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccelera
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList4", object_id, "CopyRaytracingAccelerationStructure");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsHex(args["DestAccelerationStructureData"], DestAccelerationStructureData);
-        FieldToJsonAsHex(args["SourceAccelerationStructureData"], SourceAccelerationStructureData);
+        args["DestAccelerationStructureData"] = DestAccelerationStructureData;
+        args["SourceAccelerationStructureData"] = SourceAccelerationStructureData;
         args["Mode"] = Mode;
     }
     writer_->WriteBlockEnd();
@@ -4494,7 +4494,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList4_SetPipelineState1(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList4", object_id, "SetPipelineState1");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pStateObject"], pStateObject);
+        HandleToJson(args["pStateObject"], pStateObject);
     }
     writer_->WriteBlockEnd();
 }
@@ -4530,7 +4530,7 @@ void Dx12JsonConsumer::Process_ID3D12ShaderCacheSession_FindValue(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pKey"], pKey);
-        FieldToJson(args["KeySize"], KeySize);
+        args["KeySize"] = KeySize;
         FieldToJson(args["pValue"], pValue);
         FieldToJson(args["pValueSize"], pValueSize);
     }
@@ -4553,9 +4553,9 @@ void Dx12JsonConsumer::Process_ID3D12ShaderCacheSession_StoreValue(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pKey"], pKey);
-        FieldToJson(args["KeySize"], KeySize);
+        args["KeySize"] = KeySize;
         FieldToJson(args["pValue"], pValue);
-        FieldToJson(args["ValueSize"], ValueSize);
+        args["ValueSize"] = ValueSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -4598,7 +4598,7 @@ void Dx12JsonConsumer::Process_ID3D12Device9_CreateShaderCacheSession(
     {
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvSession"], ppvSession);
+        HandleToJson(args["ppvSession"], ppvSession);
     }
     writer_->WriteBlockEnd();
 }
@@ -4640,7 +4640,7 @@ void Dx12JsonConsumer::Process_ID3D12Device9_CreateCommandQueue1(
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["CreatorID"], CreatorID);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppCommandQueue"], ppCommandQueue);
+        HandleToJson(args["ppCommandQueue"], ppCommandQueue);
     }
     writer_->WriteBlockEnd();
 }
@@ -4671,11 +4671,11 @@ void Dx12JsonConsumer::Process_ID3D12Device10_CreateCommittedResource3(
         FieldToJson(args["pDesc"], pDesc);
         args["InitialLayout"] = InitialLayout;
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
-        FieldToJson(args["pProtectedSession"], pProtectedSession);
-        FieldToJson(args["NumCastableFormats"], NumCastableFormats);
+        HandleToJson(args["pProtectedSession"], pProtectedSession);
+        args["NumCastableFormats"] = NumCastableFormats;
         FieldToJson(args["pCastableFormats"], pCastableFormats);
         FieldToJson(args["riidResource"], riidResource);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -4700,15 +4700,15 @@ void Dx12JsonConsumer::Process_ID3D12Device10_CreatePlacedResource2(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pHeap"], pHeap);
-        FieldToJson(args["HeapOffset"], HeapOffset);
+        HandleToJson(args["pHeap"], pHeap);
+        args["HeapOffset"] = HeapOffset;
         FieldToJson(args["pDesc"], pDesc);
         args["InitialLayout"] = InitialLayout;
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
-        FieldToJson(args["NumCastableFormats"], NumCastableFormats);
+        args["NumCastableFormats"] = NumCastableFormats;
         FieldToJson(args["pCastableFormats"], pCastableFormats);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -4735,11 +4735,11 @@ void Dx12JsonConsumer::Process_ID3D12Device10_CreateReservedResource2(
         FieldToJson(args["pDesc"], pDesc);
         args["InitialLayout"] = InitialLayout;
         FieldToJson(args["pOptimizedClearValue"], pOptimizedClearValue);
-        FieldToJson(args["pProtectedSession"], pProtectedSession);
-        FieldToJson(args["NumCastableFormats"], NumCastableFormats);
+        HandleToJson(args["pProtectedSession"], pProtectedSession);
+        args["NumCastableFormats"] = NumCastableFormats;
         FieldToJson(args["pCastableFormats"], pCastableFormats);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvResource"], ppvResource);
+        HandleToJson(args["ppvResource"], ppvResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -4778,8 +4778,8 @@ void Dx12JsonConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
     FieldToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["visibleMask"], visibleMask);
-        FieldToJson(args["numResourceDescs"], numResourceDescs);
+        args["visibleMask"] = visibleMask;
+        args["numResourceDescs"] = numResourceDescs;
         FieldToJson(args["pResourceDescs"], pResourceDescs);
         FieldToJson(args["pNumCastableFormats"], pNumCastableFormats);
         FieldToJson(args["ppCastableFormats"], ppCastableFormats);
@@ -4803,10 +4803,10 @@ void Dx12JsonConsumer::Process_ID3D12Device13_OpenExistingHeapFromAddress1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pAddress"], pAddress);
-        FieldToJson(args["size"], size);
+        args["pAddress"] = pAddress;
+        args["size"] = size;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvHeap"], ppvHeap);
+        HandleToJson(args["ppvHeap"], ppvHeap);
     }
     writer_->WriteBlockEnd();
 }
@@ -4828,12 +4828,12 @@ void Dx12JsonConsumer::Process_ID3D12Device14_CreateRootSignatureFromSubobjectIn
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsFixedWidthBinary(args["nodeMask"], nodeMask);
+        args["nodeMask"] = nodeMask;
         FieldToJson(args["pLibraryBlob"], pLibraryBlob);
-        FieldToJson(args["blobLengthInBytes"], blobLengthInBytes);
+        args["blobLengthInBytes"] = blobLengthInBytes;
         FieldToJson(args["subobjectName"], subobjectName);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvRootSignature"], ppvRootSignature);
+        HandleToJson(args["ppvRootSignature"], ppvRootSignature);
     }
     writer_->WriteBlockEnd();
 }
@@ -4868,8 +4868,8 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_GetApplicationDesc(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["CallbackFunc"], CallbackFunc);
-        FieldToJson(args["pContext"], pContext);
+        args["CallbackFunc"] = CallbackFunc;
+        args["pContext"] = pContext;
     }
     writer_->WriteBlockEnd();
 }
@@ -4890,8 +4890,8 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_StorePipelineStateDesc(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pKey"], pKey);
-        FieldToJson(args["KeySize"], KeySize);
-        FieldToJson(args["Version"], Version);
+        args["KeySize"] = KeySize;
+        args["Version"] = Version;
         FieldToJson(args["pDesc"], pDesc);
     }
     writer_->WriteBlockEnd();
@@ -4913,9 +4913,9 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_FindPipelineStateDesc(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pKey"], pKey);
-        FieldToJson(args["KeySize"], KeySize);
-        FieldToJson(args["CallbackFunc"], CallbackFunc);
-        FieldToJson(args["pContext"], pContext);
+        args["KeySize"] = KeySize;
+        args["CallbackFunc"] = CallbackFunc;
+        args["pContext"] = pContext;
     }
     writer_->WriteBlockEnd();
 }
@@ -4938,11 +4938,11 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_StoreStateObjectDesc(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pKey"], pKey);
-        FieldToJson(args["KeySize"], KeySize);
-        FieldToJson(args["Version"], Version);
+        args["KeySize"] = KeySize;
+        args["Version"] = Version;
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["pStateObjectToGrowFromKey"], pStateObjectToGrowFromKey);
-        FieldToJson(args["StateObjectToGrowFromKeySize"], StateObjectToGrowFromKeySize);
+        args["StateObjectToGrowFromKeySize"] = StateObjectToGrowFromKeySize;
     }
     writer_->WriteBlockEnd();
 }
@@ -4963,9 +4963,9 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_FindStateObjectDesc(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pKey"], pKey);
-        FieldToJson(args["KeySize"], KeySize);
-        FieldToJson(args["CallbackFunc"], CallbackFunc);
-        FieldToJson(args["pContext"], pContext);
+        args["KeySize"] = KeySize;
+        args["CallbackFunc"] = CallbackFunc;
+        args["pContext"] = pContext;
     }
     writer_->WriteBlockEnd();
 }
@@ -4985,7 +4985,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabase_FindObjectVersion(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pKey"], pKey);
-        FieldToJson(args["KeySize"], KeySize);
+        args["KeySize"] = KeySize;
         FieldToJson(args["pVersion"], pVersion);
     }
     writer_->WriteBlockEnd();
@@ -5004,7 +5004,7 @@ void Dx12JsonConsumer::Process_ID3D12VirtualizationGuestDevice_ShareWithHost(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pObject"], pObject);
+        HandleToJson(args["pObject"], pObject);
         FieldToJson(args["pHandle"], pHandle);
     }
     writer_->WriteBlockEnd();
@@ -5024,8 +5024,8 @@ void Dx12JsonConsumer::Process_ID3D12VirtualizationGuestDevice_CreateFenceFd(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pFence"], pFence);
-        FieldToJson(args["FenceValue"], FenceValue);
+        HandleToJson(args["pFence"], pFence);
+        args["FenceValue"] = FenceValue;
         FieldToJson(args["pFenceFd"], pFenceFd);
     }
     writer_->WriteBlockEnd();
@@ -5072,7 +5072,7 @@ void Dx12JsonConsumer::Process_ID3D12Tools1_ReserveGPUVARangesAtCreate(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pRanges"], pRanges);
-        FieldToJson(args["uiNumRanges"], uiNumRanges);
+        args["uiNumRanges"] = uiNumRanges;
     }
     writer_->WriteBlockEnd();
 }
@@ -5100,8 +5100,8 @@ void Dx12JsonConsumer::Process_ID3D12Tools2_SetApplicationSpecificDriverState(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pAdapter"], pAdapter);
-        FieldToJson(args["pBlob"], pBlob);
+        HandleToJson(args["pAdapter"], pAdapter);
+        HandleToJson(args["pBlob"], pBlob);
     }
     writer_->WriteBlockEnd();
 }
@@ -5133,7 +5133,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceTools_SetNextAllocationAddress(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DeviceTools", object_id, "SetNextAllocationAddress");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJsonAsHex(args["nextAllocationVirtualAddress"], nextAllocationVirtualAddress);
+        args["nextAllocationVirtualAddress"] = nextAllocationVirtualAddress;
     }
     writer_->WriteBlockEnd();
 }
@@ -5150,7 +5150,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceTools1_GetApplicationSpecificDriverSt
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ppBlob"], ppBlob);
+        HandleToJson(args["ppBlob"], ppBlob);
     }
     writer_->WriteBlockEnd();
 }
@@ -5180,7 +5180,7 @@ void Dx12JsonConsumer::Process_ID3D12SDKConfiguration_SetSDKVersion(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["SDKVersion"], SDKVersion);
+        args["SDKVersion"] = SDKVersion;
         FieldToJson(args["SDKPath"], SDKPath);
     }
     writer_->WriteBlockEnd();
@@ -5201,10 +5201,10 @@ void Dx12JsonConsumer::Process_ID3D12SDKConfiguration1_CreateDeviceFactory(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["SDKVersion"], SDKVersion);
+        args["SDKVersion"] = SDKVersion;
         FieldToJson(args["SDKPath"], SDKPath);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvFactory"], ppvFactory);
+        HandleToJson(args["ppvFactory"], ppvFactory);
     }
     writer_->WriteBlockEnd();
 }
@@ -5288,7 +5288,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_GetConfigurationInterface(
     {
         FieldToJson(args["clsid"], clsid);
         FieldToJson(args["iid"], iid);
-        FieldToJson(args["ppv"], ppv);
+        HandleToJson(args["ppv"], ppv);
     }
     writer_->WriteBlockEnd();
 }
@@ -5308,7 +5308,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_EnableExperimentalFeatures(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumFeatures"], NumFeatures);
+        args["NumFeatures"] = NumFeatures;
         FieldToJson(args["pIIDs"], pIIDs);
         FieldToJson(args["pConfigurationStructs"], pConfigurationStructs);
         FieldToJson(args["pConfigurationStructSizes"], pConfigurationStructSizes);
@@ -5331,10 +5331,10 @@ void Dx12JsonConsumer::Process_ID3D12DeviceFactory_CreateDevice(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["adapter"], adapter);
+        HandleToJson(args["adapter"], adapter);
         args["FeatureLevel"] = FeatureLevel;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvDevice"], ppvDevice);
+        HandleToJson(args["ppvDevice"], ppvDevice);
     }
     writer_->WriteBlockEnd();
 }
@@ -5365,7 +5365,7 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_GetEnabledExperimentalF
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pGuids"], pGuids);
-        FieldToJson(args["NumGuids"], NumGuids);
+        args["NumGuids"] = NumGuids;
     }
     writer_->WriteBlockEnd();
 }
@@ -5385,8 +5385,8 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_SerializeVersionedRootS
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["ppResult"], ppResult);
-        FieldToJson(args["ppError"], ppError);
+        HandleToJson(args["ppResult"], ppResult);
+        HandleToJson(args["ppError"], ppError);
     }
     writer_->WriteBlockEnd();
 }
@@ -5407,9 +5407,9 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration_CreateVersionedRootSign
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pBlob"], pBlob);
-        FieldToJson(args["Size"], Size);
+        args["Size"] = Size;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvDeserializer"], ppvDeserializer);
+        HandleToJson(args["ppvDeserializer"], ppvDeserializer);
     }
     writer_->WriteBlockEnd();
 }
@@ -5431,10 +5431,10 @@ void Dx12JsonConsumer::Process_ID3D12DeviceConfiguration1_CreateVersionedRootSig
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pLibraryBlob"], pLibraryBlob);
-        FieldToJson(args["Size"], Size);
+        args["Size"] = Size;
         FieldToJson(args["RootSignatureSubobjectName"], RootSignatureSubobjectName);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvDeserializer"], ppvDeserializer);
+        HandleToJson(args["ppvDeserializer"], ppvDeserializer);
     }
     writer_->WriteBlockEnd();
 }
@@ -5457,7 +5457,7 @@ void Dx12JsonConsumer::Process_ID3D12StateObjectDatabaseFactory_CreateStateObjec
         FieldToJson(args["pDatabaseFile"], pDatabaseFile);
         args["flags"] = D3D12_STATE_OBJECT_DATABASE_FLAGS_t{ flags };
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvStateObjectDatabase"], ppvStateObjectDatabase);
+        HandleToJson(args["ppvStateObjectDatabase"], ppvStateObjectDatabase);
     }
     writer_->WriteBlockEnd();
 }
@@ -5489,7 +5489,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImage(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList5", object_id, "RSSetShadingRateImage");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["shadingRateImage"], shadingRateImage);
+        HandleToJson(args["shadingRateImage"], shadingRateImage);
     }
     writer_->WriteBlockEnd();
 }
@@ -5506,9 +5506,9 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList6", object_id, "DispatchMesh");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ThreadGroupCountX"], ThreadGroupCountX);
-        FieldToJson(args["ThreadGroupCountY"], ThreadGroupCountY);
-        FieldToJson(args["ThreadGroupCountZ"], ThreadGroupCountZ);
+        args["ThreadGroupCountX"] = ThreadGroupCountX;
+        args["ThreadGroupCountY"] = ThreadGroupCountY;
+        args["ThreadGroupCountZ"] = ThreadGroupCountZ;
     }
     writer_->WriteBlockEnd();
 }
@@ -5524,7 +5524,7 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList7_Barrier(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList7", object_id, "Barrier");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumBarrierGroups"], NumBarrierGroups);
+        args["NumBarrierGroups"] = NumBarrierGroups;
         FieldToJson(args["pBarrierGroups"], pBarrierGroups);
     }
     writer_->WriteBlockEnd();
@@ -5541,8 +5541,8 @@ void Dx12JsonConsumer::Process_ID3D12GraphicsCommandList8_OMSetFrontAndBackStenc
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12GraphicsCommandList8", object_id, "OMSetFrontAndBackStencilRef");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["FrontStencilRef"], FrontStencilRef);
-        FieldToJson(args["BackStencilRef"], BackStencilRef);
+        args["FrontStencilRef"] = FrontStencilRef;
+        args["BackStencilRef"] = BackStencilRef;
     }
     writer_->WriteBlockEnd();
 }
@@ -5626,10 +5626,10 @@ void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pD3D12Device"], pD3D12Device);
-        FieldToJsonAsFixedWidthBinary(args["NodeMask"], NodeMask);
+        HandleToJson(args["pD3D12Device"], pD3D12Device);
+        args["NodeMask"] = NodeMask;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvDSRDevice"], ppvDSRDevice);
+        HandleToJson(args["ppvDSRDevice"], ppvDSRDevice);
     }
     writer_->WriteBlockEnd();
 }
@@ -5648,9 +5648,9 @@ void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVEntireSubresourceState
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -5669,8 +5669,8 @@ void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVSubresourceState(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
         FieldToJson(args["pData"], pData);
     }
     writer_->WriteBlockEnd();
@@ -5689,7 +5689,7 @@ void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVResourceUniformState(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["pData"], pData);
     }
     writer_->WriteBlockEnd();
@@ -5710,7 +5710,7 @@ void Dx12JsonConsumer::Process_ID3D12GBVDiagnostics_GetGBVResourceInfo(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
+        HandleToJson(args["pResource"], pResource);
         FieldToJson(args["pResourceDesc"], pResourceDesc);
         FieldToJson(args["pResourceHash"], pResourceHash);
         FieldToJson(args["pSubresourceStatesByteOffset"], pSubresourceStatesByteOffset);
@@ -5750,7 +5750,7 @@ void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferPointer(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D10Blob", object_id, "GetBufferPointer");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -5762,7 +5762,7 @@ void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferSize(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D10Blob", object_id, "GetBufferSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -5780,8 +5780,8 @@ void Dx12JsonConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCallba
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["callbackFn"], callbackFn);
-        FieldToJson(args["pData"], pData);
+        args["callbackFn"] = callbackFn;
+        args["pData"] = pData;
         FieldToJson(args["pCallbackID"], pCallbackID);
     }
     writer_->WriteBlockEnd();
@@ -5799,7 +5799,7 @@ void Dx12JsonConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCall
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["callbackID"], callbackID);
+        args["callbackID"] = callbackID;
     }
     writer_->WriteBlockEnd();
 }
@@ -5974,7 +5974,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice1_SetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -5995,7 +5995,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -6042,7 +6042,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice_GetFeatureMask(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugDevice", object_id, "GetFeatureMask");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6079,7 +6079,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice2_SetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -6100,7 +6100,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -6119,9 +6119,9 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandQueue_AssertResourceState(
     Bool32ToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
-        FieldToJson(args["State"], State);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
+        args["State"] = State;
     }
     writer_->WriteBlockEnd();
 }
@@ -6138,8 +6138,8 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandQueue1_AssertResourceAccess(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandQueue1", object_id, "AssertResourceAccess");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
         args["Access"] = Access;
     }
     writer_->WriteBlockEnd();
@@ -6157,8 +6157,8 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandQueue1_AssertTextureLayout(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandQueue1", object_id, "AssertTextureLayout");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
         args["Layout"] = Layout;
     }
     writer_->WriteBlockEnd();
@@ -6178,9 +6178,9 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList1_AssertResourceState(
     Bool32ToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
-        FieldToJson(args["State"], State);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
+        args["State"] = State;
     }
     writer_->WriteBlockEnd();
 }
@@ -6201,7 +6201,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList1_SetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -6222,7 +6222,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -6241,9 +6241,9 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList_AssertResourceState(
     Bool32ToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
-        FieldToJson(args["State"], State);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
+        args["State"] = State;
     }
     writer_->WriteBlockEnd();
 }
@@ -6273,7 +6273,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList_GetFeatureMask(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList", object_id, "GetFeatureMask");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6293,7 +6293,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList2_SetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -6314,7 +6314,7 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
     {
         args["Type"] = Type;
         FieldToJson(args["pData"], pData);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
     }
     writer_->WriteBlockEnd();
 }
@@ -6331,8 +6331,8 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList3_AssertResourceAccess(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList3", object_id, "AssertResourceAccess");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
         args["Access"] = Access;
     }
     writer_->WriteBlockEnd();
@@ -6350,8 +6350,8 @@ void Dx12JsonConsumer::Process_ID3D12DebugCommandList3_AssertTextureLayout(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12DebugCommandList3", object_id, "AssertTextureLayout");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
         args["Layout"] = Layout;
     }
     writer_->WriteBlockEnd();
@@ -6369,9 +6369,9 @@ void Dx12JsonConsumer::Process_ID3D12SharingContract_Present(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SharingContract", object_id, "Present");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pResource"], pResource);
-        FieldToJson(args["Subresource"], Subresource);
-        FieldToJson(args["window"], window);
+        HandleToJson(args["pResource"], pResource);
+        args["Subresource"] = Subresource;
+        args["window"] = window;
     }
     writer_->WriteBlockEnd();
 }
@@ -6387,8 +6387,8 @@ void Dx12JsonConsumer::Process_ID3D12SharingContract_SharedFenceSignal(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12SharingContract", object_id, "SharedFenceSignal");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pFence"], pFence);
-        FieldToJson(args["FenceValue"], FenceValue);
+        HandleToJson(args["pFence"], pFence);
+        args["FenceValue"] = FenceValue;
     }
     writer_->WriteBlockEnd();
 }
@@ -6434,7 +6434,7 @@ void Dx12JsonConsumer::Process_ID3D12ManualWriteTrackingResource_TrackWrite(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12ManualWriteTrackingResource", object_id, "TrackWrite");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Subresource"], Subresource);
+        args["Subresource"] = Subresource;
         FieldToJson(args["pWrittenRange"], pWrittenRange);
     }
     writer_->WriteBlockEnd();
@@ -6452,7 +6452,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_SetMessageCountLimit(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["MessageCountLimit"], MessageCountLimit);
+        args["MessageCountLimit"] = MessageCountLimit;
     }
     writer_->WriteBlockEnd();
 }
@@ -6481,7 +6481,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetMessage(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["MessageIndex"], MessageIndex);
+        args["MessageIndex"] = MessageIndex;
         FieldToJson(args["pMessage"], pMessage);
         FieldToJson(args["pMessageByteLength"], pMessageByteLength);
     }
@@ -6496,7 +6496,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesAllowedByStorageFil
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesAllowedByStorageFilter");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6508,7 +6508,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesDeniedByStorageFilt
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesDeniedByStorageFilter");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6520,7 +6520,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumStoredMessages(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumStoredMessages");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6532,7 +6532,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumStoredMessagesAllowedByRetr
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumStoredMessagesAllowedByRetrievalFilter");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6544,7 +6544,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetNumMessagesDiscardedByMessageC
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetNumMessagesDiscardedByMessageCountLimit");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6556,7 +6556,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetMessageCountLimit(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetMessageCountLimit");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6665,7 +6665,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetStorageFilterStackSize(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetStorageFilterStackSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6774,7 +6774,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue_GetRetrievalFilterStackSize(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D12InfoQueue", object_id, "GetRetrievalFilterStackSize");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -6970,9 +6970,9 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_RegisterMessageCallback(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["CallbackFunc"], CallbackFunc);
+        args["CallbackFunc"] = CallbackFunc;
         args["CallbackFilterFlags"] = D3D12_MESSAGE_CALLBACK_FLAGS_t{ CallbackFilterFlags };
-        FieldToJson(args["pContext"], pContext);
+        args["pContext"] = pContext;
         FieldToJson(args["pCallbackCookie"], pCallbackCookie);
     }
     writer_->WriteBlockEnd();
@@ -6990,7 +6990,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_UnregisterMessageCallback(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["CallbackCookie"], CallbackCookie);
+        args["CallbackCookie"] = CallbackCookie;
     }
     writer_->WriteBlockEnd();
 }
@@ -7012,7 +7012,7 @@ void Dx12JsonConsumer::Process_CreateDXGIFactory(
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppFactory"], ppFactory);
+        HandleToJson(args["ppFactory"], ppFactory);
     }
     writer_->WriteBlockEnd();
 
@@ -7031,7 +7031,7 @@ void Dx12JsonConsumer::Process_CreateDXGIFactory1(
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppFactory"], ppFactory);
+        HandleToJson(args["ppFactory"], ppFactory);
     }
     writer_->WriteBlockEnd();
 
@@ -7052,7 +7052,7 @@ void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateData(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Name"], Name);
-        FieldToJson(args["DataSize"], DataSize);
+        args["DataSize"] = DataSize;
         FieldToJson(args["pData"], pData);
     }
     writer_->WriteBlockEnd();
@@ -7072,7 +7072,7 @@ void Dx12JsonConsumer::Process_IDXGIObject_SetPrivateDataInterface(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["Name"], Name);
-        FieldToJson(args["pUnknown"], pUnknown);
+        HandleToJson(args["pUnknown"], pUnknown);
     }
     writer_->WriteBlockEnd();
 }
@@ -7112,7 +7112,7 @@ void Dx12JsonConsumer::Process_IDXGIObject_GetParent(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppParent"], ppParent);
+        HandleToJson(args["ppParent"], ppParent);
     }
     writer_->WriteBlockEnd();
 }
@@ -7131,7 +7131,7 @@ void Dx12JsonConsumer::Process_IDXGIDeviceSubObject_GetDevice(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppDevice"], ppDevice);
+        HandleToJson(args["ppDevice"], ppDevice);
     }
     writer_->WriteBlockEnd();
 }
@@ -7182,7 +7182,7 @@ void Dx12JsonConsumer::Process_IDXGIResource_SetEvictionPriority(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["EvictionPriority"], EvictionPriority);
+        args["EvictionPriority"] = EvictionPriority;
     }
     writer_->WriteBlockEnd();
 }
@@ -7217,8 +7217,8 @@ void Dx12JsonConsumer::Process_IDXGIKeyedMutex_AcquireSync(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Key"], Key);
-        FieldToJson(args["dwMilliseconds"], dwMilliseconds);
+        args["Key"] = Key;
+        args["dwMilliseconds"] = dwMilliseconds;
     }
     writer_->WriteBlockEnd();
 }
@@ -7235,7 +7235,7 @@ void Dx12JsonConsumer::Process_IDXGIKeyedMutex_ReleaseSync(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Key"], Key);
+        args["Key"] = Key;
     }
     writer_->WriteBlockEnd();
 }
@@ -7271,7 +7271,7 @@ void Dx12JsonConsumer::Process_IDXGISurface_Map(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pLockedRect"], pLockedRect);
-        FieldToJson(args["MapFlags"], MapFlags);
+        args["MapFlags"] = MapFlags;
     }
     writer_->WriteBlockEnd();
 }
@@ -7337,8 +7337,8 @@ void Dx12JsonConsumer::Process_IDXGIAdapter_EnumOutputs(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Output"], Output);
-        FieldToJson(args["ppOutput"], ppOutput);
+        args["Output"] = Output;
+        HandleToJson(args["ppOutput"], ppOutput);
     }
     writer_->WriteBlockEnd();
 }
@@ -7412,7 +7412,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplayModeList(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["EnumFormat"] = EnumFormat;
-        FieldToJson(args["Flags"], Flags);
+        args["Flags"] = Flags;
         FieldToJson(args["pNumModes"], pNumModes);
         FieldToJson(args["pDesc"], pDesc);
     }
@@ -7435,7 +7435,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
     {
         FieldToJson(args["pModeToMatch"], pModeToMatch);
         FieldToJson(args["pClosestMatch"], pClosestMatch);
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice);
+        HandleToJson(args["pConcernedDevice"], pConcernedDevice);
     }
     writer_->WriteBlockEnd();
 }
@@ -7465,7 +7465,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_TakeOwnership(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
+        HandleToJson(args["pDevice"], pDevice);
         Bool32ToJson(args["Exclusive"], Exclusive);
     }
     writer_->WriteBlockEnd();
@@ -7544,7 +7544,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_SetDisplaySurface(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pScanoutSurface"], pScanoutSurface);
+        HandleToJson(args["pScanoutSurface"], pScanoutSurface);
     }
     writer_->WriteBlockEnd();
 }
@@ -7561,7 +7561,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput_GetDisplaySurfaceData(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDestination"], pDestination);
+        HandleToJson(args["pDestination"], pDestination);
     }
     writer_->WriteBlockEnd();
 }
@@ -7596,8 +7596,8 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_Present(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["SyncInterval"], SyncInterval);
-        FieldToJson(args["Flags"], Flags);
+        args["SyncInterval"] = SyncInterval;
+        args["Flags"] = Flags;
     }
     writer_->WriteBlockEnd();
 }
@@ -7616,9 +7616,9 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetBuffer(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Buffer"], Buffer);
+        args["Buffer"] = Buffer;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppSurface"], ppSurface);
+        HandleToJson(args["ppSurface"], ppSurface);
     }
     writer_->WriteBlockEnd();
 }
@@ -7637,7 +7637,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_SetFullscreenState(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         Bool32ToJson(args["Fullscreen"], Fullscreen);
-        FieldToJson(args["pTarget"], pTarget);
+        HandleToJson(args["pTarget"], pTarget);
     }
     writer_->WriteBlockEnd();
 }
@@ -7656,7 +7656,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetFullscreenState(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         Bool32ToJson(args["pFullscreen"], pFullscreen);
-        FieldToJson(args["ppTarget"], ppTarget);
+        HandleToJson(args["ppTarget"], ppTarget);
     }
     writer_->WriteBlockEnd();
 }
@@ -7694,11 +7694,11 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_ResizeBuffers(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["BufferCount"], BufferCount);
-        FieldToJson(args["Width"], Width);
-        FieldToJson(args["Height"], Height);
+        args["BufferCount"] = BufferCount;
+        args["Width"] = Width;
+        args["Height"] = Height;
         args["NewFormat"] = NewFormat;
-        FieldToJson(args["SwapChainFlags"], SwapChainFlags);
+        args["SwapChainFlags"] = SwapChainFlags;
     }
     writer_->WriteBlockEnd();
 }
@@ -7732,7 +7732,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain_GetContainingOutput(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ppOutput"], ppOutput);
+        HandleToJson(args["ppOutput"], ppOutput);
     }
     writer_->WriteBlockEnd();
 }
@@ -7784,8 +7784,8 @@ void Dx12JsonConsumer::Process_IDXGIFactory_EnumAdapters(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Adapter"], Adapter);
-        FieldToJson(args["ppAdapter"], ppAdapter);
+        args["Adapter"] = Adapter;
+        HandleToJson(args["ppAdapter"], ppAdapter);
     }
     writer_->WriteBlockEnd();
 }
@@ -7803,8 +7803,8 @@ void Dx12JsonConsumer::Process_IDXGIFactory_MakeWindowAssociation(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WindowHandle"], WindowHandle);
-        FieldToJson(args["Flags"], Flags);
+        args["WindowHandle"] = WindowHandle;
+        args["Flags"] = Flags;
     }
     writer_->WriteBlockEnd();
 }
@@ -7840,9 +7840,9 @@ void Dx12JsonConsumer::Process_IDXGIFactory_CreateSwapChain(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
+        HandleToJson(args["pDevice"], pDevice);
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["ppSwapChain"], ppSwapChain);
+        HandleToJson(args["ppSwapChain"], ppSwapChain);
     }
     writer_->WriteBlockEnd();
 }
@@ -7860,8 +7860,8 @@ void Dx12JsonConsumer::Process_IDXGIFactory_CreateSoftwareAdapter(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Module"], Module);
-        FieldToJson(args["ppAdapter"], ppAdapter);
+        args["Module"] = Module;
+        HandleToJson(args["ppAdapter"], ppAdapter);
     }
     writer_->WriteBlockEnd();
 }
@@ -7878,7 +7878,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice_GetAdapter(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pAdapter"], pAdapter);
+        HandleToJson(args["pAdapter"], pAdapter);
     }
     writer_->WriteBlockEnd();
 }
@@ -7900,10 +7900,10 @@ void Dx12JsonConsumer::Process_IDXGIDevice_CreateSurface(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["NumSurfaces"], NumSurfaces);
-        FieldToJson(args["Usage"], Usage);
+        args["NumSurfaces"] = NumSurfaces;
+        args["Usage"] = Usage;
         FieldToJson(args["pSharedResource"], pSharedResource);
-        FieldToJson(args["ppSurface"], ppSurface);
+        HandleToJson(args["ppSurface"], ppSurface);
     }
     writer_->WriteBlockEnd();
 }
@@ -7922,9 +7922,9 @@ void Dx12JsonConsumer::Process_IDXGIDevice_QueryResourceResidency(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ppResources"], ppResources);
+        HandleToJson(args["ppResources"], ppResources);
         FieldToJson(args["pResidencyStatus"], pResidencyStatus);
-        FieldToJson(args["NumResources"], NumResources);
+        args["NumResources"] = NumResources;
     }
     writer_->WriteBlockEnd();
 }
@@ -7941,7 +7941,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice_SetGPUThreadPriority(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Priority"], Priority);
+        args["Priority"] = Priority;
     }
     writer_->WriteBlockEnd();
 }
@@ -7976,8 +7976,8 @@ void Dx12JsonConsumer::Process_IDXGIFactory1_EnumAdapters1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Adapter"], Adapter);
-        FieldToJson(args["ppAdapter"], ppAdapter);
+        args["Adapter"] = Adapter;
+        HandleToJson(args["ppAdapter"], ppAdapter);
     }
     writer_->WriteBlockEnd();
 }
@@ -8023,7 +8023,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice1_SetMaximumFrameLatency(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["MaxLatency"], MaxLatency);
+        args["MaxLatency"] = MaxLatency;
     }
     writer_->WriteBlockEnd();
 }
@@ -8105,9 +8105,9 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["TimeoutInMilliseconds"], TimeoutInMilliseconds);
+        args["TimeoutInMilliseconds"] = TimeoutInMilliseconds;
         FieldToJson(args["pFrameInfo"], pFrameInfo);
-        FieldToJson(args["ppDesktopResource"], ppDesktopResource);
+        HandleToJson(args["ppDesktopResource"], ppDesktopResource);
     }
     writer_->WriteBlockEnd();
 }
@@ -8126,7 +8126,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["DirtyRectsBufferSize"], DirtyRectsBufferSize);
+        args["DirtyRectsBufferSize"] = DirtyRectsBufferSize;
         FieldToJson(args["pDirtyRectsBuffer"], pDirtyRectsBuffer);
         FieldToJson(args["pDirtyRectsBufferSizeRequired"], pDirtyRectsBufferSizeRequired);
     }
@@ -8147,7 +8147,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["MoveRectsBufferSize"], MoveRectsBufferSize);
+        args["MoveRectsBufferSize"] = MoveRectsBufferSize;
         FieldToJson(args["pMoveRectBuffer"], pMoveRectBuffer);
         FieldToJson(args["pMoveRectsBufferSizeRequired"], pMoveRectsBufferSizeRequired);
     }
@@ -8169,7 +8169,7 @@ void Dx12JsonConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["PointerShapeBufferSize"], PointerShapeBufferSize);
+        args["PointerShapeBufferSize"] = PointerShapeBufferSize;
         FieldToJson(args["pPointerShapeBuffer"], pPointerShapeBuffer);
         FieldToJson(args["pPointerShapeBufferSizeRequired"], pPointerShapeBufferSizeRequired);
         FieldToJson(args["pPointerShapeInfo"], pPointerShapeInfo);
@@ -8233,7 +8233,7 @@ void Dx12JsonConsumer::Process_IDXGISurface2_GetResource(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppParentResource"], ppParentResource);
+        HandleToJson(args["ppParentResource"], ppParentResource);
         FieldToJson(args["pSubresourceIndex"], pSubresourceIndex);
     }
     writer_->WriteBlockEnd();
@@ -8252,8 +8252,8 @@ void Dx12JsonConsumer::Process_IDXGIResource1_CreateSubresourceSurface(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["index"], index);
-        FieldToJson(args["ppSurface"], ppSurface);
+        args["index"] = index;
+        HandleToJson(args["ppSurface"], ppSurface);
     }
     writer_->WriteBlockEnd();
 }
@@ -8274,7 +8274,7 @@ void Dx12JsonConsumer::Process_IDXGIResource1_CreateSharedHandle(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["pAttributes"], pAttributes);
-        FieldToJson(args["dwAccess"], dwAccess);
+        args["dwAccess"] = dwAccess;
         FieldToJson(args["lpName"], lpName);
         FieldToJson(args["pHandle"], pHandle);
     }
@@ -8295,8 +8295,8 @@ void Dx12JsonConsumer::Process_IDXGIDevice2_OfferResources(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumResources"], NumResources);
-        FieldToJson(args["ppResources"], ppResources);
+        args["NumResources"] = NumResources;
+        HandleToJson(args["ppResources"], ppResources);
         args["Priority"] = Priority;
     }
     writer_->WriteBlockEnd();
@@ -8316,8 +8316,8 @@ void Dx12JsonConsumer::Process_IDXGIDevice2_ReclaimResources(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumResources"], NumResources);
-        FieldToJson(args["ppResources"], ppResources);
+        args["NumResources"] = NumResources;
+        HandleToJson(args["ppResources"], ppResources);
         Bool32ToJson(args["pDiscarded"], pDiscarded);
     }
     writer_->WriteBlockEnd();
@@ -8335,7 +8335,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice2_EnqueueSetEvent(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hEvent"], hEvent);
+        args["hEvent"] = hEvent;
     }
     writer_->WriteBlockEnd();
 }
@@ -8405,7 +8405,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetCoreWindow(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["refiid"], refiid);
-        FieldToJson(args["ppUnk"], ppUnk);
+        HandleToJson(args["ppUnk"], ppUnk);
     }
     writer_->WriteBlockEnd();
 }
@@ -8424,8 +8424,8 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_Present1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["SyncInterval"], SyncInterval);
-        FieldToJson(args["PresentFlags"], PresentFlags);
+        args["SyncInterval"] = SyncInterval;
+        args["PresentFlags"] = PresentFlags;
         FieldToJson(args["pPresentParameters"], pPresentParameters);
     }
     writer_->WriteBlockEnd();
@@ -8455,7 +8455,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain1_GetRestrictToOutput(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["ppRestrictToOutput"], ppRestrictToOutput);
+        HandleToJson(args["ppRestrictToOutput"], ppRestrictToOutput);
     }
     writer_->WriteBlockEnd();
 }
@@ -8557,12 +8557,12 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForHwnd(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
-        FieldToJson(args["hWnd"], hWnd);
+        HandleToJson(args["pDevice"], pDevice);
+        args["hWnd"] = hWnd;
         FieldToJson(args["pDesc"], pDesc);
         FieldToJson(args["pFullscreenDesc"], pFullscreenDesc);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput);
-        FieldToJson(args["ppSwapChain"], ppSwapChain);
+        HandleToJson(args["pRestrictToOutput"], pRestrictToOutput);
+        HandleToJson(args["ppSwapChain"], ppSwapChain);
     }
     writer_->WriteBlockEnd();
 }
@@ -8583,11 +8583,11 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForCoreWindow(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
-        FieldToJson(args["pWindow"], pWindow);
+        HandleToJson(args["pDevice"], pDevice);
+        HandleToJson(args["pWindow"], pWindow);
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput);
-        FieldToJson(args["ppSwapChain"], ppSwapChain);
+        HandleToJson(args["pRestrictToOutput"], pRestrictToOutput);
+        HandleToJson(args["ppSwapChain"], ppSwapChain);
     }
     writer_->WriteBlockEnd();
 }
@@ -8605,7 +8605,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hResource"], hResource);
+        args["hResource"] = hResource;
         FieldToJson(args["pLuid"], pLuid);
     }
     writer_->WriteBlockEnd();
@@ -8625,8 +8625,8 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WindowHandle"], WindowHandle);
-        FieldToJson(args["wMsg"], wMsg);
+        args["WindowHandle"] = WindowHandle;
+        args["wMsg"] = wMsg;
         FieldToJson(args["pdwCookie"], pdwCookie);
     }
     writer_->WriteBlockEnd();
@@ -8645,7 +8645,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hEvent"], hEvent);
+        args["hEvent"] = hEvent;
         FieldToJson(args["pdwCookie"], pdwCookie);
     }
     writer_->WriteBlockEnd();
@@ -8661,7 +8661,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_UnregisterStereoStatus(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "UnregisterStereoStatus");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["dwCookie"], dwCookie);
+        args["dwCookie"] = dwCookie;
     }
     writer_->WriteBlockEnd();
 }
@@ -8680,8 +8680,8 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["WindowHandle"], WindowHandle);
-        FieldToJson(args["wMsg"], wMsg);
+        args["WindowHandle"] = WindowHandle;
+        args["wMsg"] = wMsg;
         FieldToJson(args["pdwCookie"], pdwCookie);
     }
     writer_->WriteBlockEnd();
@@ -8700,7 +8700,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hEvent"], hEvent);
+        args["hEvent"] = hEvent;
         FieldToJson(args["pdwCookie"], pdwCookie);
     }
     writer_->WriteBlockEnd();
@@ -8716,7 +8716,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_UnregisterOcclusionStatus(
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory2", object_id, "UnregisterOcclusionStatus");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["dwCookie"], dwCookie);
+        args["dwCookie"] = dwCookie;
     }
     writer_->WriteBlockEnd();
 }
@@ -8736,10 +8736,10 @@ void Dx12JsonConsumer::Process_IDXGIFactory2_CreateSwapChainForComposition(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
+        HandleToJson(args["pDevice"], pDevice);
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput);
-        FieldToJson(args["ppSwapChain"], ppSwapChain);
+        HandleToJson(args["pRestrictToOutput"], pRestrictToOutput);
+        HandleToJson(args["ppSwapChain"], ppSwapChain);
     }
     writer_->WriteBlockEnd();
 }
@@ -8777,7 +8777,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["EnumFormat"] = EnumFormat;
-        FieldToJson(args["Flags"], Flags);
+        args["Flags"] = Flags;
         FieldToJson(args["pNumModes"], pNumModes);
         FieldToJson(args["pDesc"], pDesc);
     }
@@ -8800,7 +8800,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
     {
         FieldToJson(args["pModeToMatch"], pModeToMatch);
         FieldToJson(args["pClosestMatch"], pClosestMatch);
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice);
+        HandleToJson(args["pConcernedDevice"], pConcernedDevice);
     }
     writer_->WriteBlockEnd();
 }
@@ -8817,7 +8817,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_GetDisplaySurfaceData1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDestination"], pDestination);
+        HandleToJson(args["pDestination"], pDestination);
     }
     writer_->WriteBlockEnd();
 }
@@ -8835,8 +8835,8 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_DuplicateOutput(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
-        FieldToJson(args["ppOutputDuplication"], ppOutputDuplication);
+        HandleToJson(args["pDevice"], pDevice);
+        HandleToJson(args["ppOutputDuplication"], ppOutputDuplication);
     }
     writer_->WriteBlockEnd();
 }
@@ -8858,9 +8858,9 @@ void Dx12JsonConsumer::Process_CreateDXGIFactory2(
     HresultToJson(function[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
-        FieldToJson(args["Flags"], Flags);
+        args["Flags"] = Flags;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppFactory"], ppFactory);
+        HandleToJson(args["ppFactory"], ppFactory);
     }
     writer_->WriteBlockEnd();
 
@@ -8879,9 +8879,9 @@ void Dx12JsonConsumer::Process_DXGIGetDebugInterface1(
     HresultToJson(function[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = function[format::kNameArgs];
     {
-        FieldToJson(args["Flags"], Flags);
+        args["Flags"] = Flags;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["pDebug"], pDebug);
+        HandleToJson(args["pDebug"], pDebug);
     }
     writer_->WriteBlockEnd();
 
@@ -8910,8 +8910,8 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_SetSourceSize(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Width"], Width);
-        FieldToJson(args["Height"], Height);
+        args["Width"] = Width;
+        args["Height"] = Height;
     }
     writer_->WriteBlockEnd();
 }
@@ -8947,7 +8947,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_SetMaximumFrameLatency(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["MaxLatency"], MaxLatency);
+        args["MaxLatency"] = MaxLatency;
     }
     writer_->WriteBlockEnd();
 }
@@ -8977,7 +8977,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain2_GetFrameLatencyWaitableObject(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain2", object_id, "GetFrameLatencyWaitableObject");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -9035,7 +9035,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory3_GetCreationFlags(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIFactory3", object_id, "GetCreationFlags");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -9053,9 +9053,9 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_PresentBuffer(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["BufferToPresent"], BufferToPresent);
-        FieldToJson(args["SyncInterval"], SyncInterval);
-        FieldToJson(args["Flags"], Flags);
+        args["BufferToPresent"] = BufferToPresent;
+        args["SyncInterval"] = SyncInterval;
+        args["Flags"] = Flags;
     }
     writer_->WriteBlockEnd();
 }
@@ -9107,8 +9107,8 @@ void Dx12JsonConsumer::Process_IDXGIDecodeSwapChain_SetDestSize(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Width"], Width);
-        FieldToJson(args["Height"], Height);
+        args["Width"] = Width;
+        args["Height"] = Height;
     }
     writer_->WriteBlockEnd();
 }
@@ -9211,11 +9211,11 @@ void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateSwapChainForCompositionSu
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
-        FieldToJson(args["hSurface"], hSurface);
+        HandleToJson(args["pDevice"], pDevice);
+        args["hSurface"] = hSurface;
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput);
-        FieldToJson(args["ppSwapChain"], ppSwapChain);
+        HandleToJson(args["pRestrictToOutput"], pRestrictToOutput);
+        HandleToJson(args["ppSwapChain"], ppSwapChain);
     }
     writer_->WriteBlockEnd();
 }
@@ -9237,12 +9237,12 @@ void Dx12JsonConsumer::Process_IDXGIFactoryMedia_CreateDecodeSwapChainForComposi
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
-        FieldToJson(args["hSurface"], hSurface);
+        HandleToJson(args["pDevice"], pDevice);
+        args["hSurface"] = hSurface;
         FieldToJson(args["pDesc"], pDesc);
-        FieldToJson(args["pYuvDecodeBuffers"], pYuvDecodeBuffers);
-        FieldToJson(args["pRestrictToOutput"], pRestrictToOutput);
-        FieldToJson(args["ppSwapChain"], ppSwapChain);
+        HandleToJson(args["pYuvDecodeBuffers"], pYuvDecodeBuffers);
+        HandleToJson(args["pRestrictToOutput"], pRestrictToOutput);
+        HandleToJson(args["ppSwapChain"], ppSwapChain);
     }
     writer_->WriteBlockEnd();
 }
@@ -9276,7 +9276,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChainMedia_SetPresentDuration(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Duration"], Duration);
+        args["Duration"] = Duration;
     }
     writer_->WriteBlockEnd();
 }
@@ -9295,7 +9295,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["DesiredPresentDuration"], DesiredPresentDuration);
+        args["DesiredPresentDuration"] = DesiredPresentDuration;
         FieldToJson(args["pClosestSmallerPresentDuration"], pClosestSmallerPresentDuration);
         FieldToJson(args["pClosestLargerPresentDuration"], pClosestLargerPresentDuration);
     }
@@ -9317,7 +9317,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["EnumFormat"] = EnumFormat;
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice);
+        HandleToJson(args["pConcernedDevice"], pConcernedDevice);
         FieldToJson(args["pFlags"], pFlags);
     }
     writer_->WriteBlockEnd();
@@ -9335,7 +9335,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGISwapChain3", object_id, "GetCurrentBackBufferIndex");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -9393,13 +9393,13 @@ void Dx12JsonConsumer::Process_IDXGISwapChain3_ResizeBuffers1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["BufferCount"], BufferCount);
-        FieldToJson(args["Width"], Width);
-        FieldToJson(args["Height"], Height);
+        args["BufferCount"] = BufferCount;
+        args["Width"] = Width;
+        args["Height"] = Height;
         args["Format"] = Format;
-        FieldToJson(args["SwapChainFlags"], SwapChainFlags);
+        args["SwapChainFlags"] = SwapChainFlags;
         FieldToJsonAsFixedWidthBinary(args["pCreationNodeMask"], pCreationNodeMask);
-        FieldToJson(args["ppPresentQueue"], ppPresentQueue);
+        HandleToJson(args["ppPresentQueue"], ppPresentQueue);
     }
     writer_->WriteBlockEnd();
 }
@@ -9421,7 +9421,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
     {
         args["Format"] = Format;
         args["ColorSpace"] = ColorSpace;
-        FieldToJson(args["pConcernedDevice"], pConcernedDevice);
+        HandleToJson(args["pConcernedDevice"], pConcernedDevice);
         FieldToJson(args["pFlags"], pFlags);
     }
     writer_->WriteBlockEnd();
@@ -9443,7 +9443,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory4_EnumAdapterByLuid(
     {
         FieldToJson(args["AdapterLuid"], AdapterLuid);
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvAdapter"], ppvAdapter);
+        HandleToJson(args["ppvAdapter"], ppvAdapter);
     }
     writer_->WriteBlockEnd();
 }
@@ -9462,7 +9462,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory4_EnumWarpAdapter(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvAdapter"], ppvAdapter);
+        HandleToJson(args["ppvAdapter"], ppvAdapter);
     }
     writer_->WriteBlockEnd();
 }
@@ -9480,7 +9480,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtectionTe
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hEvent"], hEvent);
+        args["hEvent"] = hEvent;
         FieldToJson(args["pdwCookie"], pdwCookie);
     }
     writer_->WriteBlockEnd();
@@ -9496,7 +9496,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterHardwareContentProtection
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "UnregisterHardwareContentProtectionTeardownStatus");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["dwCookie"], dwCookie);
+        args["dwCookie"] = dwCookie;
     }
     writer_->WriteBlockEnd();
 }
@@ -9515,7 +9515,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NodeIndex"], NodeIndex);
+        args["NodeIndex"] = NodeIndex;
         args["MemorySegmentGroup"] = MemorySegmentGroup;
         FieldToJson(args["pVideoMemoryInfo"], pVideoMemoryInfo);
     }
@@ -9536,9 +9536,9 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_SetVideoMemoryReservation(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NodeIndex"], NodeIndex);
+        args["NodeIndex"] = NodeIndex;
         args["MemorySegmentGroup"] = MemorySegmentGroup;
-        FieldToJson(args["Reservation"], Reservation);
+        args["Reservation"] = Reservation;
     }
     writer_->WriteBlockEnd();
 }
@@ -9556,7 +9556,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNoti
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hEvent"], hEvent);
+        args["hEvent"] = hEvent;
         FieldToJson(args["pdwCookie"], pdwCookie);
     }
     writer_->WriteBlockEnd();
@@ -9572,7 +9572,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNo
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IDXGIAdapter3", object_id, "UnregisterVideoMemoryBudgetChangeNotification");
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["dwCookie"], dwCookie);
+        args["dwCookie"] = dwCookie;
     }
     writer_->WriteBlockEnd();
 }
@@ -9597,11 +9597,11 @@ void Dx12JsonConsumer::Process_IDXGIOutput5_DuplicateOutput1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["pDevice"], pDevice);
-        FieldToJson(args["Flags"], Flags);
-        FieldToJson(args["SupportedFormatsCount"], SupportedFormatsCount);
+        HandleToJson(args["pDevice"], pDevice);
+        args["Flags"] = Flags;
+        args["SupportedFormatsCount"] = SupportedFormatsCount;
         FieldToJson(args["pSupportedFormats"], pSupportedFormats);
-        FieldToJson(args["ppOutputDuplication"], ppOutputDuplication);
+        HandleToJson(args["ppOutputDuplication"], ppOutputDuplication);
     }
     writer_->WriteBlockEnd();
 }
@@ -9621,7 +9621,7 @@ void Dx12JsonConsumer::Process_IDXGISwapChain4_SetHDRMetaData(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["Type"] = Type;
-        FieldToJson(args["Size"], Size);
+        args["Size"] = Size;
         FieldToJson(args["pMetaData"], pMetaData);
     }
     writer_->WriteBlockEnd();
@@ -9642,10 +9642,10 @@ void Dx12JsonConsumer::Process_IDXGIDevice4_OfferResources1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumResources"], NumResources);
-        FieldToJson(args["ppResources"], ppResources);
+        args["NumResources"] = NumResources;
+        HandleToJson(args["ppResources"], ppResources);
         args["Priority"] = Priority;
-        FieldToJson(args["Flags"], Flags);
+        args["Flags"] = Flags;
     }
     writer_->WriteBlockEnd();
 }
@@ -9664,8 +9664,8 @@ void Dx12JsonConsumer::Process_IDXGIDevice4_ReclaimResources1(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["NumResources"], NumResources);
-        FieldToJson(args["ppResources"], ppResources);
+        args["NumResources"] = NumResources;
+        HandleToJson(args["ppResources"], ppResources);
         FieldToJson(args["pResults"], pResults);
     }
     writer_->WriteBlockEnd();
@@ -9756,10 +9756,10 @@ void Dx12JsonConsumer::Process_IDXGIFactory6_EnumAdapterByGpuPreference(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["Adapter"], Adapter);
+        args["Adapter"] = Adapter;
         args["GpuPreference"] = GpuPreference;
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvAdapter"], ppvAdapter);
+        HandleToJson(args["ppvAdapter"], ppvAdapter);
     }
     writer_->WriteBlockEnd();
 }
@@ -9777,7 +9777,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["hEvent"], hEvent);
+        args["hEvent"] = hEvent;
         FieldToJson(args["pdwCookie"], pdwCookie);
     }
     writer_->WriteBlockEnd();
@@ -9795,7 +9795,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
     HresultToJson(method[format::kNameReturn], return_value);
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
-        FieldToJson(args["dwCookie"], dwCookie);
+        args["dwCookie"] = dwCookie;
     }
     writer_->WriteBlockEnd();
 }
@@ -9818,7 +9818,7 @@ void Dx12JsonConsumer::Process_IUnknown_QueryInterface(
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         FieldToJson(args["riid"], riid);
-        FieldToJson(args["ppvObject"], ppvObject);
+        HandleToJson(args["ppvObject"], ppvObject);
     }
     writer_->WriteBlockEnd();
 }
@@ -9831,7 +9831,7 @@ void Dx12JsonConsumer::Process_IUnknown_AddRef(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IUnknown", object_id, "AddRef");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 
@@ -9843,7 +9843,7 @@ void Dx12JsonConsumer::Process_IUnknown_Release(
     using namespace gfxrecon::util;
 
     nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "IUnknown", object_id, "Release");
-    FieldToJson(method[format::kNameReturn], return_value);
+    method[format::kNameReturn] = return_value;
     writer_->WriteBlockEnd();
 }
 

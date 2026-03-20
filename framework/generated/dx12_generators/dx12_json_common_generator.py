@@ -56,12 +56,11 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
                 return "FieldToJsonAsHex"
             if "BOOL" in value_info.base_type:
                 return "Bool32ToJson"
-            if self.is_handle(value_info.base_type):
+            if self.is_handle(value_info.base_type) or self.is_class(value_info):
                 return "HandleToJson"
             if("HRESULT" in value_info.base_type):
                 return "HresultToJson"
             if  self.is_raw_bitflags(value_info):
                 return "FieldToJsonAsFixedWidthBinary"
         return "FieldToJson"
-    pass
 

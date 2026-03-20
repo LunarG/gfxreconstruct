@@ -143,6 +143,10 @@ class KhronosExportJsonConsumerBodyGenerator():
                     to_json = 'HandleToJson(args["{0}"], {0})'
                 elif self.is_enum(value.base_type) and not (value.is_pointer or value.is_array):
                     to_json = 'args["{0}"] = {0}'
+                elif self.is_integer(value.base_type) and not (value.is_pointer or value.is_array):
+                    to_json = 'args["{0}"] = {0}'
+                elif value.base_type == 'void' and value.is_pointer and value.pointer_count == 1 and not value.is_array:
+                    to_json = 'args["{0}"] = {0}'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flags_type_aliases:
                         flagsEnumType = self.flags_type_aliases[value.base_type

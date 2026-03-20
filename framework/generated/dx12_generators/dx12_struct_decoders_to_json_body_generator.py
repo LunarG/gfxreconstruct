@@ -110,21 +110,21 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             /** @{ */
             static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS& data)
             {
-                FieldToJson(jdata["AdditionalWidth"],  data.AdditionalWidth);
-                FieldToJson(jdata["AdditionalHeight"], data.AdditionalHeight);
+                jdata["AdditionalWidth"] = data.AdditionalWidth;
+                jdata["AdditionalHeight"] = data.AdditionalHeight;
             }
 
             static void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS& data)
             {
-                FieldToJson(jdata["AdditionalWidth"], data.AdditionalWidth);
-                FieldToJson(jdata["AdditionalHeight"], data.AdditionalHeight);
+                jdata["AdditionalWidth"] = data.AdditionalWidth;
+                jdata["AdditionalHeight"] = data.AdditionalHeight;
             }
 
             /// Manual raw struct functon to be used for Decoded_D3D12_CLEAR_VALUE conversion.
             void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_DEPTH_STENCIL_VALUE& obj)
             {
                 FieldToJson(jdata["Depth"], obj.Depth);
-                FieldToJson(jdata["Stencil"], obj.Stencil);
+                jdata["Stencil"] = obj.Stencil;
             }
             /** @} */
 
@@ -178,6 +178,10 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     field_to_json = f'        jdata["{value_info.name}"] = {value_info.base_type}_t{{ decoded_value.{value_info.name} }};'
                 elif self.is_enum(value_info.base_type) and not (value_info.is_pointer or value_info.is_array):
                     field_to_json = f'        jdata["{value_info.name}"] = decoded_value.{value_info.name};'
+                elif self.is_integer(value_info.base_type) and not (value_info.is_pointer or value_info.is_array):
+                    field_to_json = f'        jdata["{value_info.name}"] = decoded_value.{value_info.name};'
+                elif value_info.base_type == "void" and not value_info.is_array:
+                    field_to_json = f'        jdata["{value_info.name}"] = meta_struct.{value_info.name};'
                 elif (name, value_info.name) in self.binary_blobs:
                     field_to_json  = '        static thread_local uint64_t {0}_{1}_counter{{ 0 }};\n'
                     field_to_json += '        const bool written = RepresentBinaryFile(jdata["{1}"], "{0}.{1}", {0}_{1}_counter, meta_struct.{1});\n'
@@ -295,7 +299,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 field_to_json = '''
                     if(decoded_value.Flags & D3D12_SAMPLER_FLAG_UINT_BORDER_COLOR)
                     {
-                        FieldToJson(jdata["UintBorderColor"], decoded_value.UintBorderColor);
+                        jdata["UintBorderColor"] = decoded_value.UintBorderColor;
                     }
                     else
                     {
@@ -354,7 +358,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         default:
                         {
                             FieldToJson(jdata[format::kNameWarning], "ViewDimension with unknown value. Is struct corrupted?");
-                            FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension));
+                            jdata["Unknown value"] = uint32_t(decoded_value.ViewDimension);
                             break;
                         }
                     }
@@ -411,7 +415,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         default:
                         {
                             FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RTV_DIMENSION in D3D12_RENDER_TARGET_VIEW_DESC. Corrupt struct?");
-                            FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension));
+                            jdata["Unknown value"] = uint32_t(decoded_value.ViewDimension);
                             break;
                         }
                     }
@@ -458,7 +462,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         default:
                         {
                             FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_DSV_DIMENSION in D3D12_DEPTH_STENCIL_VIEW_DESC. Corrupt struct?");
-                            FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ViewDimension));
+                            jdata["Unknown value"] = uint32_t(decoded_value.ViewDimension);
                             break;
                         }
                     }
@@ -487,7 +491,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     default:
                     {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_ROOT_PARAMETER_TYPE in D3D12_ROOT_PARAMETER1.");
-                        FieldToJson(jdata["Unknown value"], uint32_t(decoded_value.ParameterType));
+                        jdata["Unknown value"] = uint32_t(decoded_value.ParameterType);
                         break;
                     }
                 }
@@ -515,6 +519,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     default:
                     {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D_ROOT_SIGNATURE_VERSION in D3D12_VERSIONED_ROOT_SIGNATURE_DESC.");
+                        jdata["Unknown value"] = uint32_t(decoded_value.Version);
                         break;
                     }
                 }
@@ -533,7 +538,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     case D3D12_INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW:
                     {
                         auto& vb = jdata["VertexBuffer"];
-                        FieldToJson(vb["Slot"], decoded_value.VertexBuffer.Slot);
+                        vb["Slot"] = decoded_value.VertexBuffer.Slot;
                         break;
                     }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW:
@@ -545,27 +550,27 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     case D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT:
                     {
                         auto& c = jdata["Constant"];
-                        FieldToJson(c["RootParameterIndex"], decoded_value.Constant.RootParameterIndex);
-                        FieldToJson(c["DestOffsetIn32BitValues"], decoded_value.Constant.DestOffsetIn32BitValues);
-                        FieldToJson(c["Num32BitValuesToSet"], decoded_value.Constant.Num32BitValuesToSet);
+                        c["RootParameterIndex"] = decoded_value.Constant.RootParameterIndex;
+                        c["DestOffsetIn32BitValues"] = decoded_value.Constant.DestOffsetIn32BitValues;
+                        c["Num32BitValuesToSet"] = decoded_value.Constant.Num32BitValuesToSet;
                         break;
                     }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW:
                     {
                         auto& cbv = jdata["ConstantBufferView"];
-                        FieldToJson(cbv["RootParameterIndex"], decoded_value.ConstantBufferView.RootParameterIndex);
+                        cbv["RootParameterIndex"] = decoded_value.ConstantBufferView.RootParameterIndex;
                         break;
                     }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW:
                     {
                         auto& srv = jdata["ShaderResourceView"];
-                        FieldToJson(srv["RootParameterIndex"], decoded_value.ShaderResourceView.RootParameterIndex);
+                        srv["RootParameterIndex"] = decoded_value.ShaderResourceView.RootParameterIndex;
                         break;
                     }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW:
                     {
                         auto& uav = jdata["UnorderedAccessView"];
-                        FieldToJson(uav["RootParameterIndex"], decoded_value.UnorderedAccessView.RootParameterIndex);
+                        uav["RootParameterIndex"] = decoded_value.UnorderedAccessView.RootParameterIndex;
                         break;
                     }
                     case D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH_RAYS:
@@ -809,7 +814,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 {
                     case D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX:
                     {
-                        FieldToJson(jdata["SubresourceIndex"], decoded_value.SubresourceIndex);
+                        jdata["SubresourceIndex"] = decoded_value.SubresourceIndex;
                         break;
                     }
                     case D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT:
@@ -908,7 +913,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     }
                     case D3D12_DISPATCH_MODE_NODE_GPU_INPUT:
                     {
-                        FieldToJson(jdata["NodeGPUInput"], decoded_value.NodeGPUInput);
+                        jdata["NodeGPUInput"] = decoded_value.NodeGPUInput;
                         break;
                     }
                     case D3D12_DISPATCH_MODE_MULTI_NODE_CPU_INPUT:
@@ -918,7 +923,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     }
                     case D3D12_DISPATCH_MODE_MULTI_NODE_GPU_INPUT:
                     {
-                        FieldToJson(jdata["MultiNodeGPUInput"], decoded_value.MultiNodeGPUInput);
+                        jdata["MultiNodeGPUInput"] = decoded_value.MultiNodeGPUInput;
                         break;
                     }
                     default:
@@ -931,28 +936,28 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             case "D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT":
                 if union_index == 0:
                     field_to_json = '''
-                    FieldToJson(jdata["CompilerVersion.Version"], decoded_value.CompilerVersion.Version);
+                    jdata["CompilerVersion.Version"] = decoded_value.CompilerVersion.Version;
                     '''
                 elif union_index == 1:
                     field_to_json = '''
-                    FieldToJson(jdata["ApplicationProfileVersion.Version"], decoded_value.ApplicationProfileVersion.Version);
+                    jdata["ApplicationProfileVersion.Version"] = decoded_value.ApplicationProfileVersion.Version;
                     '''
             case "D3D12_APPLICATION_DESC":
                 if union_index == 0:
                     field_to_json = '''
-                    FieldToJson(jdata["Version.Version"], decoded_value.Version.Version);
+                    jdata["Version.Version"] = decoded_value.Version.Version;
                     '''
                 elif union_index == 1:
                     field_to_json = '''
-                    FieldToJson(jdata["EngineVersion.Version"], decoded_value.EngineVersion.Version);
+                    jdata["EngineVersion.Version"] = decoded_value.EngineVersion.Version;
                     '''                
             case "D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC":
                 field_to_json = '''
-                FieldToJson(jdata["NumBottomLevelAccelerationStructurePointers"], decoded_value.NumBottomLevelAccelerationStructurePointers);
+                jdata["NumBottomLevelAccelerationStructurePointers"] = decoded_value.NumBottomLevelAccelerationStructurePointers;
                 '''
             case "D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1":
                 field_to_json = '''
-                FieldToJson(jdata["NumBlocks"], decoded_value.NumBlocks);
+                jdata["NumBlocks"] = decoded_value.NumBlocks;
                 '''
             case _:
                 print(message)
@@ -975,7 +980,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 if (data && data->decoded_value)
                 {
                     const LARGE_INTEGER& decoded_value = *data->decoded_value;
-                    FieldToJson(jdata, decoded_value.QuadPart);
+                    jdata = decoded_value.QuadPart;
                 }
             }
 
@@ -1000,7 +1005,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 {
                     const D3D12_PIPELINE_STATE_STREAM_DESC& decoded_value = *data->decoded_value;
                     const Decoded_D3D12_PIPELINE_STATE_STREAM_DESC& meta_struct = *data;
-                    FieldToJson(jdata["SizeInBytes"], decoded_value.SizeInBytes); // Basic data plumbs to raw struct.
+                    jdata["SizeInBytes"] = decoded_value.SizeInBytes; // Basic data plumbs to raw struct.
                     //FieldToJson(jdata["root_signature_ptr"], meta_struct.root_signature_ptr);
                     FieldToJson(jdata[format::kNameWarning], "D3D12_PIPELINE_STATE_STREAM_DESC.root_signature_ptr is not supported.");
                     FieldToJson(jdata["root_signature_ptr"], "@todo Get this field to convert cleanly.");
@@ -1032,7 +1037,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                 {
                     const D3D12_STATE_SUBOBJECT& decoded_value = *data->decoded_value;
                     const Decoded_D3D12_STATE_SUBOBJECT& meta_struct = *data;
-                    FieldToJson(jdata["Type"], decoded_value.Type);
+                    jdata["Type"] = decoded_value.Type;
                     switch(decoded_value.Type)
                     {
                         case D3D12_STATE_SUBOBJECT_TYPE_STATE_OBJECT_CONFIG:
@@ -1087,8 +1092,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     const D3D12_CPU_DESCRIPTOR_HANDLE& decoded_value = *data->decoded_value;
                     const Decoded_D3D12_CPU_DESCRIPTOR_HANDLE& meta_struct = *data;
                     // FieldToJson(jdata[format::kNameInfo], "heap_id and index were copied out of ptr by a custom encoder at capture time, and ptr was never stored in the capture file.");
-                    FieldToJson(jdata["heap_id"], meta_struct.heap_id);
-                    FieldToJson(jdata["index"], meta_struct.index);
+                    jdata["heap_id"] = meta_struct.heap_id;
+                    jdata["index"] = meta_struct.index;
                 }
             }
 
