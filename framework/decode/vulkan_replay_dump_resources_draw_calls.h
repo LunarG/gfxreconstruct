@@ -779,8 +779,6 @@ class DrawCallsDumpingContext
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors_;
 
-    VkCommandBuffer                 aux_command_buffer_;
-    VkFence                         aux_fence_;
     DumpResourcesCommandBufferLevel command_buffer_level_;
 
     const graphics::VulkanDeviceTable*      device_table_;
