@@ -29,18 +29,15 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "graphics/vulkan_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <limits>
-#include <memory>
 #include <tuple>
-#include <unordered_map>
-#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -58,12 +55,12 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
-    bcb_index_(bcb_index), qs_index_(qs_index), current_cb_index_(0), dc_subresources_(dc_subresources),
-    bound_gr_pipeline_{ nullptr }, delegate_(delegate), options_(options), compressor_(compressor),
-    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), aux_command_buffer_(VK_NULL_HANDLE),
-    aux_fence_(VK_NULL_HANDLE), device_table_(nullptr), instance_table_(nullptr), object_info_table_(object_info_table),
-    replay_device_phys_mem_props_(nullptr), acceleration_structures_context_(acceleration_structures_context),
-    address_trackers_(address_trackers), inside_renderpass_(false)
+    bcb_index_(bcb_index), qs_index_(qs_index), current_cb_index_(0),
+    dc_subresources_(dc_subresources), bound_gr_pipeline_{ nullptr }, delegate_(delegate), options_(options),
+    compressor_(compressor), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr),
+    instance_table_(nullptr), object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
+    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers),
+    inside_renderpass_(false)
 {
     if (draw_indices != nullptr)
     {
@@ -193,17 +190,6 @@ void DrawCallsDumpingContext::Release()
                                               command_buffers_.data());
         }
         command_buffers_.clear();
-
-        if (aux_command_buffer_ != VK_NULL_HANDLE)
-        {
-            device_table_->FreeCommandBuffers(device, pool_info->handle, 1, &aux_command_buffer_);
-            aux_command_buffer_ = VK_NULL_HANDLE;
-        }
-
-        if (aux_fence_ != VK_NULL_HANDLE)
-        {
-            device_table_->DestroyFence(device, aux_fence_, nullptr);
-        }
 
         DestroyMutableResourceBackups();
         ReleaseIndirectParams();
@@ -1024,8 +1010,6 @@ void DrawCallsDumpingContext::SnapshotState(DrawCallParams& dc_params)
     // Copy vertex input information
     CopyVertexInputStateInfo(
         dc_params, bound_gr_pipeline_, dynamic_vertex_input_state_, bound_vertex_buffers_, bound_index_buffer_);
-
-    // NOTE: for indirect draws, we defer copying the indirect command-buffer until FinalizeCommandBuffer
 }
 
 void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::DrawCallParams* dc_params)
@@ -1352,8 +1336,12 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
         return VK_SUCCESS;
     }
 
-    const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
-    VkResult                       res = device_table_->BeginCommandBuffer(aux_command_buffer_, &bi);
+    const auto* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    TemporaryCommandBuffer temp_cmd_buf(*device_info, *device_table_);
+
+    VkResult res = temp_cmd_buf.CreateAndBegin(graphics::FindGraphicsQueueFamilyIndex);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR(
@@ -1371,7 +1359,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.subresourceRange    = {
-        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     for (size_t i = 0; i < render_targets.color_att_imgs.size(); ++i)
@@ -1408,7 +1396,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
 
     if (!img_barriers.empty())
     {
-        device_table_->CmdPipelineBarrier(aux_command_buffer_,
+        device_table_->CmdPipelineBarrier(temp_cmd_buf.command_buffer,
                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
                                           VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
                                           0,
@@ -1419,51 +1407,9 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
                                           GFXRECON_NARROWING_CAST(uint32_t, img_barriers.size()),
                                           img_barriers.data());
 
-        res = device_table_->EndCommandBuffer(aux_command_buffer_);
+        res = temp_cmd_buf.SubmitAndDestroy();
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR(
-                "(%s:%u) EndCommandBuffer failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-            return res;
-        }
-
-        VkSubmitInfo si;
-        si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        si.pNext                = nullptr;
-        si.waitSemaphoreCount   = 0;
-        si.pWaitSemaphores      = nullptr;
-        si.pWaitDstStageMask    = nullptr;
-        si.commandBufferCount   = 1;
-        si.pCommandBuffers      = &aux_command_buffer_;
-        si.signalSemaphoreCount = 0;
-        si.pSignalSemaphores    = nullptr;
-
-        const VulkanDeviceInfo* device_info =
-            object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
-        assert(device_info);
-
-        res = device_table_->ResetFences(device_info->handle, 1, &aux_fence_);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR(
-                "(%s:%u) EndCommandBuffer failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-            return res;
-        }
-
-        res = device_table_->QueueSubmit(queue, 1, &si, aux_fence_);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR(
-                "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-            return res;
-        }
-
-        // Wait
-        res = device_table_->WaitForFences(device_info->handle, 1, &aux_fence_, VK_TRUE, ~0UL);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR(
-                "(%s:%u) WaitForFences failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
             return res;
         }
     }
@@ -2737,22 +2683,6 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
     assert(phys_dev_info->replay_device_info);
     assert(phys_dev_info->replay_device_info->memory_properties);
     replay_device_phys_mem_props_ = &phys_dev_info->replay_device_info->memory_properties.value();
-
-    // Allocate auxiliary command buffer
-    VkResult res = device_table_->AllocateCommandBuffers(dev_info->handle, &ai, &aux_command_buffer_);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
-    }
-
-    const VkFenceCreateInfo ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-    res                        = device_table_->CreateFence(dev_info->handle, &ci, nullptr, &aux_fence_);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
-    }
 
     return VK_SUCCESS;
 }
