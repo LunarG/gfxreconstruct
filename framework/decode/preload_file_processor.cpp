@@ -112,9 +112,9 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
                     // This is really part of the non-preloaded previous (first) frame,
                     // so immediately replay it to complete that frame
                     block_parser_->GetBlockAllocator().FlushBatch();
-                    ProcessBlockState replay_result = ReplayOneFrame();
+                    ReplayFrameResult replay_result = ReplayOneFrame();
                     ResetPreload();
-                    GFXRECON_ASSERT(replay_result == ProcessBlockState::kFrameBoundary);
+                    GFXRECON_ASSERT(replay_result.process_state == ProcessBlockState::kFrameBoundary);
                 }
                 else
                 {
@@ -188,33 +188,35 @@ bool PreloadFileProcessor::ProcessNextFrame()
         return FileProcessor::ProcessNextFrame();
     }
 
-    ProcessBlockState process_result = ReplayOneFrame();
-    return AdvanceToNextFrame(process_result);
+    ReplayFrameResult replay_result = ReplayOneFrame();
+    return AdvanceToNextFrame(replay_result);
 }
 
-bool PreloadFileProcessor::AdvanceToNextFrame(ProcessBlockState process_result)
+bool PreloadFileProcessor::AdvanceToNextFrame(ReplayFrameResult replay_result)
 {
     if (advance_to_next_frame_)
     {
+        replay_cursor_ = replay_result.next_frame_cursor;
+
         const bool at_end = (!replay_cursor_);
         if (at_end)
         {
-            if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+            if (IsFrameBoundary(replay_result.process_state) && IsFrameBoundary(final_process_state_))
             {
                 // If we reached the end of preloaded frames on a frame boundary, increment the frame number
                 current_frame_number_++;
             }
             // Return true only if both the replay and preload are in a continue state
-            return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
+            return ContinueProcessing(replay_result.process_state) && ContinueProcessing(final_process_state_);
         }
 
-        if (IsFrameBoundary(process_result))
+        if (IsFrameBoundary(replay_result.process_state))
         {
             current_frame_number_++;
         }
     }
 
-    return ContinueProcessing(process_result);
+    return ContinueProcessing(replay_result.process_state);
 }
 
 void PreloadFileProcessor::SkipStateBlocks()
@@ -249,7 +251,7 @@ bool PreloadFileProcessor::IsFileValid() const
     }
 }
 
-FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
+PreloadFileProcessor::ReplayFrameResult PreloadFileProcessor::ReplayOneFrame()
 {
     GFXRECON_ASSERT(replay_cursor_);
     auto current_cursor = replay_cursor_;
@@ -328,12 +330,7 @@ FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
         }
     }
 
-    if (advance_to_next_frame_)
-    {
-        replay_cursor_ = current_cursor;
-    }
-
-    return process_state;
+    return ReplayFrameResult{ process_state, current_cursor };
 }
 
 void PreloadFileProcessor::EnqueueBatch(BlockBatch::BatchPtr&& batch)
