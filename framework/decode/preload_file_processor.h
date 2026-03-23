@@ -58,11 +58,17 @@ class PreloadFileProcessor : public FileProcessor
   private:
     constexpr static size_t kWorkingStoreInitialSize = 4096;
 
+    struct ReplayFrameResult
+    {
+        ProcessBlockState    process_state{ ProcessBlockState::kError };
+        BlockBatch::iterator next_frame_cursor;
+    };
+
     void              ResetPreload();
     ProcessBlockState PreloadBlocksOneFrame();
-    ProcessBlockState ReplayOneFrame();
+    ReplayFrameResult ReplayOneFrame();
     void              EnqueueBatch(BlockBatch::BatchPtr&& batch);
-    bool              AdvanceToNextFrame(ProcessBlockState process_result);
+    bool              AdvanceToNextFrame(ReplayFrameResult replay_result);
 
     util::HeapBuffer     working_uncompressed_store_;
     BlockBatch::iterator preload_head_;
