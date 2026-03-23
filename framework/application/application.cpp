@@ -196,15 +196,18 @@ void Application::Run()
                     frame_loop_info_->SetLooping(true);
                 }
 
-                auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
-                GFXRECON_ASSERT(preload_processor)
-                preload_processor->WaitDecodersIdle();
+                if (frame_loop_info_->IsLooping())
+                {
+                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
+                    GFXRECON_ASSERT(preload_processor)
+                    preload_processor->WaitDecodersIdle();
 
-                // When replaying a frame again, skip any state blocks to avoid reapplying them again.
-                preload_processor->SkipStateBlocks();
+                    // When replaying a frame again, skip any state blocks to avoid reapplying them again.
+                    preload_processor->SkipStateBlocks();
 
-                GFXRECON_LOG_INFO("Looping frame (%i iterations remaining)", frame_loop_info_->GetLoopIterations());
-                frame_loop_info_->DecrementLoopIterations();
+                    GFXRECON_LOG_INFO("Looping frame (%i iterations remaining)", frame_loop_info_->GetLoopIterations());
+                    frame_loop_info_->DecrementLoopIterations();
+                }
             }
 
             if (fps_info_ != nullptr)
