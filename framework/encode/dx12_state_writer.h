@@ -101,6 +101,7 @@ class Dx12StateWriter
         StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
         WriteAddRefAndReleaseCommands(wrapper);
         WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+        WritePrivateDataInterface(wrapper->GetCaptureId(), *wrapper_info.get());
     }
 
     void StandardCreateWrite(format::HandleId object_id, const DxWrapperInfo& wrapper_info);
@@ -135,6 +136,8 @@ class Dx12StateWriter
     void WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper);
 
     void WritePrivateData(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
+
+    void WritePrivateDataInterface(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
 
     void WriteResidencyPriority(const Dx12StateTable& state_table);
 
