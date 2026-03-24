@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2026 LunarG, Inc.
-# Copyright (c) 2022-2023 Advanced Micro Devices, Inc.
+# Copyright (c) 2022-2026 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -65,6 +65,7 @@ target_link_libraries(gfxrecon-optimize
                           gfxrecon_format
                           platform_specific
                           project_version
+                          gfxrecon_util
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
                           $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)

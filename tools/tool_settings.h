@@ -161,6 +161,7 @@ const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
 const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
 const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
+const char kDisableProcessNameOverride[]       = "--disable-process-name-override";
 #endif
 
 const char kDumpResourcesArgument[]    = "--dump-resources";

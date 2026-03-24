@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2022-2023 Valve Corporation
+** Copyright (c) 2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -143,6 +144,8 @@ inline std::string HandleIdToString(format::HandleId handleId)
 {
     return std::to_string(handleId);
 }
+
+std::wstring StringToWideString(const std::string& str);
 
 #if defined(WIN32)
 inline std::string WCharArrayToString(const wchar_t* pStr)

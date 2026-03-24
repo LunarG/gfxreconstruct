@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -84,12 +84,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) override
     {
+        if (process_name_callback_ != nullptr)
+        {
+            process_name_callback_(info_record.AppName, strnlen(info_record.AppName, sizeof(info_record.AppName)));
+        }
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler);
 
     void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
+
+    void SetProcessNameCallback(application::ProcessNameOverrideCallbackFunc callback)
+    {
+        if (callback != nullptr)
+        {
+            process_name_callback_ = callback;
+        }
+    }
 
     virtual void WaitDevicesIdle() override;
 
@@ -1935,6 +1947,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<VulkanSwapchain>                                         swapchain_;
     std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
+    application::ProcessNameOverrideCallbackFunc                             process_name_callback_{nullptr};
 
     VulkanPerDeviceAddressTrackers  _device_address_trackers;
     VulkanPerDeviceAddressReplacers _device_address_replacers;

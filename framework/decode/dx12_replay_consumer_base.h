@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2026 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2023-2025 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -64,8 +64,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual ~Dx12ReplayConsumerBase() override;
 
+    void SetProcessNameCallback(application::ProcessNameOverrideCallbackFunc callback)
+    { 
+        if (callback != nullptr)
+        {
+            process_name_callback_ = callback; 
+        }
+    }
+
     virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record)
     {
+        if (process_name_callback_ != nullptr)
+        {
+            process_name_callback_(info_record.AppName, strnlen(info_record.AppName, sizeof(info_record.AppName)));
+        }
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
 
@@ -1339,6 +1351,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };
 #endif
+    application::ProcessNameOverrideCallbackFunc          process_name_callback_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)
