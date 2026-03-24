@@ -372,8 +372,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tSerialize render passes by injecting execution barriers before render pass");
     GFXRECON_WRITE_CONSOLE("          \t\tbegin during replay.");
     GFXRECON_WRITE_CONSOLE("  --frame-warm-up-spirv <spirv-file>");
-    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a SPIR-V file for the compute warm-up pass. Warm-up runs only when");
-    GFXRECON_WRITE_CONSOLE("          \t\tthis option and a non-zero `--frame-warm-up-load` are both provided.");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a user-provided SPIR-V compute shader for the warm-up pass.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe shader must use entry point `main` and set 0, binding 0 as a");
+    GFXRECON_WRITE_CONSOLE("          \t\tstorage buffer. Warm-up runs before the first submit of each replayed");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe only when this option and a non-zero `--frame-warm-up-load`");
+    GFXRECON_WRITE_CONSOLE("          \t\tare both provided.");
     GFXRECON_WRITE_CONSOLE("  --frame-warm-up-load <load>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify workload scale factor for a compute dispatch warm-up pass");
     GFXRECON_WRITE_CONSOLE("          \t\trun before each frame replay. Default is 0 (disabled).");
