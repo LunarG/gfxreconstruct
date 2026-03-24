@@ -79,6 +79,18 @@ VulkanRebindAllocator::VulkanRebindAllocator() :
     capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}, replay_memory_properties_{}
 {}
 
+std::mutex& VulkanRebindAllocator::GetOrCreateBlockMutex(VkDeviceMemory device_memory)
+{
+    std::lock_guard guard(block_mutexes_guard_);
+    auto&           mutex_ptr = block_mutexes_[device_memory];
+
+    if (!mutex_ptr)
+    {
+        mutex_ptr = std::make_unique<std::mutex>();
+    }
+    return *mutex_ptr;
+}
+
 VkResult VulkanRebindAllocator::Initialize(uint32_t                                api_version,
                                            VkInstance                              instance,
                                            VkPhysicalDevice                        physical_device,
@@ -224,6 +236,11 @@ void VulkanRebindAllocator::Destroy()
     {
         vmaDestroyAllocator(allocator_);
         allocator_ = VK_NULL_HANDLE;
+    }
+
+    {
+        std::lock_guard guard(block_mutexes_guard_);
+        block_mutexes_.clear();
     }
 
     device_ = VK_NULL_HANDLE;
@@ -1169,7 +1186,11 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
                         // This lock is important so that we don't call vkBind... and/or vkMap... simultaneously
                         // on the same VkDeviceMemory from multiple threads.
-                        VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                        std::unique_lock lock(GetOrCreateBlockMutex(pBlock->GetDeviceMemory()), std::defer_lock);
+                        if (allocator_->m_UseMutex)
+                        {
+                            lock.lock();
+                        }
                         result = functions_.bind_video_session_memory(device_, video_session, 1, &modified_bind_info);
                         break;
                     }
@@ -2521,7 +2542,11 @@ void VulkanRebindAllocator::GetDeviceMemoryCommitment(VkDeviceMemory memory,
                 VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "GetDeviceMemoryCommitment to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                std::unique_lock lock(GetOrCreateBlockMutex(pBlock->GetDeviceMemory()), std::defer_lock);
+                if (allocator_->m_UseMutex)
+                {
+                    lock.lock();
+                }
                 functions_.get_device_memory_commitment(device_, modified_mem, committed_memory_in_bytes);
                 break;
             }
@@ -2560,7 +2585,11 @@ void VulkanRebindAllocator::SetDeviceMemoryPriority(VkDeviceMemory memory, float
                 VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "SetDeviceMemoryPriority to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                std::unique_lock lock(GetOrCreateBlockMutex(pBlock->GetDeviceMemory()), std::defer_lock);
+                if (allocator_->m_UseMutex)
+                {
+                    lock.lock();
+                }
                 functions_.set_device_memory_priority(device_, modified_mem, priority);
                 break;
             }
@@ -2604,7 +2633,11 @@ VulkanRebindAllocator::GetMemoryRemoteAddressNV(const VkMemoryGetRemoteAddressIn
                 VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "GetMemoryRemoteAddressNV to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                std::unique_lock lock(GetOrCreateBlockMutex(pBlock->GetDeviceMemory()), std::defer_lock);
+                if (allocator_->m_UseMutex)
+                {
+                    lock.lock();
+                }
                 result = functions_.get_memory_remote_address_nv(device_, &modified_get_mem_remote_addr_info, address);
                 break;
             }
@@ -2692,7 +2725,11 @@ VulkanRebindAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int*
                 VmaDeviceMemoryBlock* const pBlock = mem_info->allocation->GetBlock();
                 VMA_ASSERT(pBlock && "GetMemoryFd to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                std::unique_lock lock(GetOrCreateBlockMutex(pBlock->GetDeviceMemory()), std::defer_lock);
+                if (allocator_->m_UseMutex)
+                {
+                    lock.lock();
+                }
                 result = functions_.get_memory_fd(device_, &modified_get_fd_info, pFd);
                 break;
             }
@@ -2776,7 +2813,7 @@ void VulkanRebindAllocator::RebindSparseMemory(const T&                     orig
                                                T&                           modified_memory_bind,
                                                ResourceAllocInfo*           res_alloc_info,
                                                MemoryAllocInfo*             mem_alloc_info,
-                                               S                            vma_mem_blocks,
+                                               S&                           vma_mem_blocks,
                                                std::vector<VmaMemoryInfo*>& vma_memory_infos,
                                                VkBuffer                     buffer,
                                                VkImage                      image,
@@ -2873,16 +2910,12 @@ void VulkanRebindAllocator::RebindSparseMemory(const T&                     orig
             GetRebindOffsetFromOriginalDeviceMemory(original_memory_bind.memoryOffset, *vma_mem_info);
     }
 
-    if (allocator_->m_UseMutex && vma_mem_info != nullptr && vma_mem_info->allocation != nullptr &&
+    if (vma_mem_info != nullptr && vma_mem_info->allocation != nullptr &&
         vma_mem_info->allocation->GetType() == VmaAllocation_T::ALLOCATION_TYPE_BLOCK)
     {
         VmaDeviceMemoryBlock* const pBlock = vma_mem_info->allocation->GetBlock();
         VMA_ASSERT(pBlock && "QueueBindSparse to allocation that doesn't belong to any block.");
-
-        if (vma_mem_blocks.find(pBlock) == vma_mem_blocks.end())
-        {
-            vma_mem_blocks.insert(pBlock);
-        }
+        vma_mem_blocks.insert(pBlock->GetDeviceMemory());
     }
 }
 
@@ -2916,8 +2949,8 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
     std::vector<std::vector<VkSparseMemoryBind>>      memory_binds;
     std::vector<std::vector<VkSparseImageMemoryBind>> image_memory_binds;
 
-    std::unordered_set<VmaDeviceMemoryBlock*> vma_mem_blocks;
-    std::vector<VmaMemoryInfo*>               vma_memory_infos;
+    std::unordered_set<VkDeviceMemory> vma_mem_blocks;
+    std::vector<VmaMemoryInfo*>        vma_memory_infos;
 
     uint32_t alc_buf_i    = 0;
     uint32_t alc_img_op_i = 0;
@@ -2953,7 +2986,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                 const VkSparseMemoryBind& original_memory_bind = original_buffer_bind_info.pBinds[buf_mem_i];
                 MemoryAllocInfo*          mem_alloc_info =
                     reinterpret_cast<MemoryAllocInfo*>(allocator_buf_mem_datas[alc_buf_mem_i]);
-                RebindSparseMemory<VkSparseMemoryBind, std::unordered_set<VmaDeviceMemoryBlock*>>(
+                RebindSparseMemory<VkSparseMemoryBind, std::unordered_set<VkDeviceMemory>>(
                     original_memory_bind,
                     memory_binds.back()[buf_mem_i],
                     reinterpret_cast<ResourceAllocInfo*>(allocator_buf_datas[alc_buf_i]),
@@ -2987,7 +3020,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
             {
                 const VkSparseMemoryBind& original_memory_bind = original_image_opaque_bind_info.pBinds[img_op_mem_i];
                 auto* mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_op_mem_datas[alc_img_op_mem_i]);
-                RebindSparseMemory<VkSparseMemoryBind, std::unordered_set<VmaDeviceMemoryBlock*>>(
+                RebindSparseMemory<VkSparseMemoryBind, std::unordered_set<VkDeviceMemory>>(
                     original_memory_bind,
                     memory_binds.back()[img_op_mem_i],
                     reinterpret_cast<ResourceAllocInfo*>(allocator_img_op_datas[alc_img_op_i]),
@@ -3019,7 +3052,7 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
                 const VkSparseImageMemoryBind& original_memory_bind = original_image_bind_info.pBinds[img_mem_i];
                 auto* mem_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_img_mem_datas[alc_img_mem_i]);
 
-                RebindSparseMemory<VkSparseImageMemoryBind, std::unordered_set<VmaDeviceMemoryBlock*>>(
+                RebindSparseMemory<VkSparseImageMemoryBind, std::unordered_set<VkDeviceMemory>>(
                     original_memory_bind,
                     image_memory_binds.back()[img_mem_i],
                     reinterpret_cast<ResourceAllocInfo*>(allocator_img_datas[alc_img_i]),
@@ -3045,18 +3078,20 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
         modified_bind_info.pImageBinds          = modified_image_bind_infos[i].data();
     }
 
-    for (VmaDeviceMemoryBlock* block : vma_mem_blocks)
+    std::vector<std::unique_lock<std::mutex>> block_locks;
+    if (allocator_->m_UseMutex)
     {
-        block->m_MapAndBindMutex.Lock();
+        block_locks.reserve(vma_mem_blocks.size());
+        for (VkDeviceMemory mem : vma_mem_blocks)
+        {
+            block_locks.emplace_back(GetOrCreateBlockMutex(mem));
+        }
     }
 
     result = functions_.queue_bind_sparse(
         queue, GFXRECON_NARROWING_CAST(uint32_t, modified_bind_infos.size()), modified_bind_infos.data(), fence);
 
-    for (VmaDeviceMemoryBlock* block : vma_mem_blocks)
-    {
-        block->m_MapAndBindMutex.Unlock();
-    }
+    block_locks.clear();
 
     if (result == VK_SUCCESS)
     {
@@ -3186,7 +3221,11 @@ uint64_t VulkanRebindAllocator::GetDeviceMemoryOpaqueCaptureAddress(const VkDevi
                 VMA_ASSERT(pBlock &&
                            "GetDeviceMemoryOpaqueCaptureAddress to allocation that doesn't belong to any block.");
 
-                VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                std::unique_lock lock(GetOrCreateBlockMutex(pBlock->GetDeviceMemory()), std::defer_lock);
+                if (allocator_->m_UseMutex)
+                {
+                    lock.lock();
+                }
                 result = functions_.get_device_memory_opaque_capture_address(device_, &modified_info);
                 break;
             }
