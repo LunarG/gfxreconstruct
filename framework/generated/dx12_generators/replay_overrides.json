@@ -46,7 +46,8 @@
     },
     "ID3D12Device3": {
       "EnqueueMakeResident": "OverrideEnqueueMakeResident",
-      "OpenExistingHeapFromAddress": "OverrideOpenExistingHeapFromAddress"
+      "OpenExistingHeapFromAddress": "OverrideOpenExistingHeapFromAddress",
+      "OpenExistingHeapFromFileMapping": "OverrideOpenExistingHeapFromFileMapping"
     },
     "ID3D12Device4": {
       "CreateReservedResource1": "OverrideCreateReservedResource1",
@@ -73,6 +74,9 @@
       "CreateCommittedResource3": "OverrideCreateCommittedResource3",
       "CreatePlacedResource2": "OverrideCreatePlacedResource2",
       "CreateReservedResource2": "OverrideCreateReservedResource2"
+    },
+    "ID3D12Device13": {
+      "OpenExistingHeapFromAddress1": "OverrideOpenExistingHeapFromAddress1"
     },
     "ID3D12DescriptorHeap": {
       "GetCPUDescriptorHandleForHeapStart": "OverrideGetCPUDescriptorHandleForHeapStart",
