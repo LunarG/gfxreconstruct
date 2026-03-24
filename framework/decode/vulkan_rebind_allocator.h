@@ -408,6 +408,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     void ClearStagingResources() override;
 
   private:
+    // VMA hook to clean our internal state (mutexes) when VMA clears blocks of memory
+    friend void VKAPI_CALL OnVmaFreeDeviceMemory(VmaAllocator, uint32_t, VkDeviceMemory, VkDeviceSize, void*);
+
     struct MemoryAllocInfo;
 
     struct SubresourceLayouts
@@ -537,7 +540,6 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkFence            staging_fence;
     };
 
-  private:
     void WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
                             VmaMemoryInfo*     bound_memory_info,
                             VkDeviceSize       src_offset,
@@ -689,7 +691,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     // returns a mutex associated with the given VkDeviceMemory block, creating one if needed.
     // used to replicate the synchronization previously provided by VmaDeviceMemoryBlock::m_MapAndBindMutex,
-    // which became private in VMA 3.4.0. Entries persist until Destroy() is called.
+    // which became private in VMA 3.3.0.
     std::mutex& GetOrCreateBlockMutex(VkDeviceMemory device_memory);
 
     VkDevice                         device_ = VK_NULL_HANDLE;
@@ -708,7 +710,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     std::vector<StagingResources> staging_resources_{};
 
-    // external per-block mutexes replacing VmaDeviceMemoryBlock::m_MapAndBindMutex (now private in VMA 3.4.0).
+    // external per-block mutexes replacing VmaDeviceMemoryBlock::m_MapAndBindMutex (now private in VMA 3.3.0).
     // use VkDeviceMemory-handles as key to cover all allocations sharing the same block.
     std::mutex                                                      block_mutexes_guard_;
     std::unordered_map<VkDeviceMemory, std::unique_ptr<std::mutex>> block_mutexes_;

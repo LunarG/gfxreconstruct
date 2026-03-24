@@ -74,6 +74,19 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 constexpr format::HandleId kPlaceholderHandleId = static_cast<format::HandleId>(~0ul);
 constexpr uintptr_t        kPlaceholderAddress  = static_cast<uintptr_t>(~0ul);
 
+// Called by VMA before vkFreeMemory on each internally managed VkDeviceMemory block.
+// Removes the corresponding external mutex so block_mutexes_ doesn't grow unbounded.
+extern VKAPI_ATTR void VKAPI_CALL OnVmaFreeDeviceMemory(
+    VmaAllocator allocator, uint32_t memory_type, VkDeviceMemory memory, VkDeviceSize size, void* user_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator);
+    GFXRECON_UNREFERENCED_PARAMETER(memory_type);
+
+    auto*           self = static_cast<VulkanRebindAllocator*>(user_data);
+    std::lock_guard guard(self->block_mutexes_guard_);
+    self->block_mutexes_.erase(memory);
+}
+
 VulkanRebindAllocator::VulkanRebindAllocator() :
     device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), vma_functions_{},
     capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}, replay_memory_properties_{}
@@ -148,6 +161,10 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         create_info.pVulkanFunctions = &vma_functions_;
         create_info.instance         = instance;
         create_info.vulkanApiVersion = api_version;
+
+        // register our custom handler, invoked when blocks are freed
+        const VmaDeviceMemoryCallbacks block_lifetime_callbacks = { nullptr, &OnVmaFreeDeviceMemory, this };
+        create_info.pDeviceMemoryCallbacks                      = &block_lifetime_callbacks;
 
         uint32_t queue_family_count = 0;
         functions_.get_physical_device_queue_family_properties(physical_device, &queue_family_count, nullptr);
