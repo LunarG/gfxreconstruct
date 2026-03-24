@@ -155,10 +155,7 @@ void Application::Run()
                 if (frame_loop_info_->IsFirstIteration())
                 {
                     // Preload the next frame and make sure we don't advance to the next one.
-                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
-                    GFXRECON_ASSERT(preload_processor)
-                    preload_processor->PreloadNextFrames(1);
-                    preload_processor->SetAdvanceToNextFrame(false);
+                    GetPreloadFileProcessor()->PreloadNextFrames(1);
                 }
             }
 
@@ -178,9 +175,7 @@ void Application::Run()
                 auto preload_frames_count = fps_info_->ShouldPreloadFrames(frame_number);
                 if (preload_frames_count > 0U)
                 {
-                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
-                    GFXRECON_ASSERT(preload_processor)
-                    preload_processor->PreloadNextFrames(preload_frames_count);
+                    GetPreloadFileProcessor()->PreloadNextFrames(preload_frames_count);
                 }
 
                 fps_info_->BeginFrame(frame_number);
@@ -198,8 +193,7 @@ void Application::Run()
 
                 if (frame_loop_info_->IsLooping())
                 {
-                    auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
-                    GFXRECON_ASSERT(preload_processor)
+                    auto* preload_processor = GetPreloadFileProcessor();
                     preload_processor->WaitDecodersIdle();
 
                     // When replaying a frame again, skip any state blocks to avoid reapplying them again.
@@ -247,7 +241,15 @@ bool Application::PlaySingleFrame()
 
     if (file_processor_)
     {
-        success = file_processor_->ProcessNextFrame();
+        if (frame_loop_info_ != nullptr && (frame_loop_info_->IsFirstIteration() || frame_loop_info_->IsLooping()))
+        {
+            // When looping, replay the current preloaded frame without advancing.
+            success = GetPreloadFileProcessor()->ReplayCurrentPreloadedFrame();
+        }
+        else
+        {
+            success = file_processor_->ProcessNextFrame();
+        }
 
         if (success)
         {

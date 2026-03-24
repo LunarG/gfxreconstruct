@@ -26,6 +26,7 @@
 
 #include "application/wsi_context.h"
 #include "decode/file_processor.h"
+#include "decode/preload_file_processor.h"
 #include "decode/window.h"
 #include "util/defines.h"
 #include "util/date_time.h"
@@ -88,7 +89,10 @@ class Application final
     void InitializeDx12WsiContext();
 #endif
 
-    void StopRunning() { running_ = false; }
+    void StopRunning()
+    {
+        running_ = false;
+    }
 
     uint32_t GetCurrentFrameNumber() const
     {
@@ -96,6 +100,13 @@ class Application final
     }
 
   private:
+    decode::PreloadFileProcessor* GetPreloadFileProcessor()
+    {
+        auto* preload_processor = dynamic_cast<decode::PreloadFileProcessor*>(file_processor_);
+        GFXRECON_ASSERT(preload_processor);
+        return preload_processor;
+    }
+
     // clang-format off
     std::string                                                  name_;              ///< Application name to display in window title bar.
     decode::FileProcessor*                                       file_processor_;    ///< The FileProcessor object responsible for decoding and processing capture file data.
