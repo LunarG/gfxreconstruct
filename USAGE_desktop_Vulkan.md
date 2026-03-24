@@ -879,13 +879,96 @@ Optional arguments:
   --serialize-render-passes
               Serialize render passes by injecting execution barriers before render pass begin during replay
   --frame-warm-up-spirv <spirv-file>
-              Specify a SPIR-V file for the compute warm-up pass.
-              Warm-up runs only when this option and a non-zero
-              --frame-warm-up-load are both provided.
+              Specify a user-provided SPIR-V compute shader for the warm-up pass.
+              The shader must use entry point `main` and set 0, binding 0 as a
+              storage buffer. Warm-up runs before the first submit of each replayed
+              frame only when this option and a non-zero --frame-warm-up-load are
+              both provided.
   --frame-warm-up-load <load>
               Specify workload scale factor for a compute dispatch warm-up pass
               run before each frame replay. Default is 0 (disabled).
 ```
+
+### Frame Warm-Up
+
+The `--frame-warm-up-spirv` option lets replay submit a user-provided compute
+workload before replaying a frame. The intent is to ramp or stabilize GPU state,
+such as clocks, before the frame work that you want to measure.
+
+The warm-up shader is intentionally loaded from an external file instead of being
+embedded in `gfxreconstruct`. There is no single compute workload that is known to
+be a good warm-up on every GPU, driver, and profiling setup, so replay leaves the
+choice of shader to the user.
+
+Current shader requirements:
+
+- The file must contain valid SPIR-V for a compute shader.
+- The entry point must be named `main`.
+- The shader must be compatible with a pipeline layout containing one descriptor
+  set layout entry: set `0`, binding `0`, descriptor type
+  `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER`.
+- The shader must not require additional descriptors or push constants.
+- Warm-up runs before the first submit of each replayed frame, not before every
+  submit in the frame.
+
+Current implementation notes:
+
+- Replay creates the warm-up command pool and retrieves the queue from queue
+  family `0`, queue `0`.
+- Replay currently records a fixed dispatch of
+  `vkCmdDispatch(frame_warm_up_load * 64, 1, 1)`.
+- The example below uses `local_size_x = 64` because it matches the current
+  documented dispatch shape.
+
+Example compute shader:
+
+```glsl
+#version 450
+
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, set = 0, binding = 0) buffer DataBuffer {
+    float data[];
+};
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    float value = data[index];
+
+    // Example-only warm-up workload. This is not intended to be a universally
+    // optimal shader for every GPU or tool configuration.
+    for (int i = 0; i < 1000; ++i) {
+        value = sin(value) * 0.999 + cos(float(i)) * 0.001;
+    }
+
+    data[index] = value;
+}
+```
+
+Compile the shader to SPIR-V with `glslangValidator`:
+
+```bash
+glslangValidator -V -S comp frame_warm_up.comp -o frame_warm_up.spv
+```
+
+If `spirv-val` is available, validate the result before replaying:
+
+```bash
+spirv-val --target-env vulkan1.1 frame_warm_up.spv
+```
+
+Example replay command:
+
+```bash
+gfxrecon-replay \
+  --frame-warm-up-spirv frame_warm_up.spv \
+  --frame-warm-up-load 4 \
+  capture.gfxr
+```
+
+`--frame-warm-up-load` scales the number of workgroups dispatched. Larger values
+produce more synthetic work, which may be useful when a small dispatch is not
+sufficient to reach a stable GPU frequency on the replay system.
 
 ### Key Controls
 
