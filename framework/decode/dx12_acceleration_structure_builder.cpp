@@ -42,6 +42,7 @@ void UpdateBufferSize(ID3D12Device*                         device,
     // Create an upload resource of the required size.
     if (!buffer || (buffer_size < required_size))
     {
+        buffer = nullptr;
         buffer = graphics::dx12::CreateBufferResource(device, required_size, heap_type, initial_state, flags);
         if (!buffer)
         {
@@ -81,27 +82,31 @@ Dx12AccelerationStructureBuilder::Dx12AccelerationStructureBuilder(graphics::dx1
     queue_desc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queue_desc.Type                     = list_type;
     result                              = device5_->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_));
+
     if (SUCCEEDED(result))
     {
         result = device5_->CreateCommandAllocator(list_type, IID_PPV_ARGS(&command_allocator_));
-        if (SUCCEEDED(result))
-        {
-            graphics::dx12::ID3D12GraphicsCommandListComPtr command_list;
-            result =
-                device5_->CreateCommandList(0, list_type, command_allocator_, nullptr, IID_PPV_ARGS(&command_list));
-            if (SUCCEEDED(result))
-            {
-                result = command_list->Close();
-                if (SUCCEEDED(result))
-                {
-                    result = command_list->QueryInterface(IID_PPV_ARGS(&command_list4_));
-                    if (SUCCEEDED(result))
-                    {
-                        result = device5_->CreateFence(fence_value_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
-                    }
-                }
-            }
-        }
+    }
+
+    graphics::dx12::ID3D12GraphicsCommandListComPtr command_list;
+    if (SUCCEEDED(result))
+    {
+        result = device5_->CreateCommandList(0, list_type, command_allocator_, nullptr, IID_PPV_ARGS(&command_list));
+    }
+
+    if (SUCCEEDED(result))
+    {
+        result = command_list->Close();
+    }
+
+    if (SUCCEEDED(result))
+    {
+        result = command_list->QueryInterface(IID_PPV_ARGS(&command_list4_));
+    }
+
+    if (SUCCEEDED(result))
+    {
+        result = device5_->CreateFence(fence_value_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
     }
 
     if (FAILED(result))

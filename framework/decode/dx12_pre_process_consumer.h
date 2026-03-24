@@ -539,7 +539,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 param.cmd_bind_type      = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
                 it->second.current_graphics_root_parameters[RootParameterIndex] = param;
             }
-        }  
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants(const ApiCallInfo& call_info,
@@ -577,7 +577,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 param.cmd_bind_type      = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
                 it->second.current_graphics_root_parameters[RootParameterIndex] = param;
             }
-        }  
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView(
@@ -596,7 +596,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 param.cmd_bind_captured_buffer_location                        = BufferLocation;
                 it->second.current_compute_root_parameters[RootParameterIndex] = param;
             }
-        }  
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView(
@@ -615,7 +615,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 param.cmd_bind_captured_buffer_location                         = BufferLocation;
                 it->second.current_graphics_root_parameters[RootParameterIndex] = param;
             }
-        }  
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView(
@@ -634,7 +634,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 param.cmd_bind_captured_buffer_location                        = BufferLocation;
                 it->second.current_compute_root_parameters[RootParameterIndex] = param;
             }
-        } 
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView(
@@ -653,7 +653,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 param.cmd_bind_captured_buffer_location                         = BufferLocation;
                 it->second.current_graphics_root_parameters[RootParameterIndex] = param;
             }
-        }  
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView(
@@ -667,12 +667,12 @@ class Dx12PreProcessConsumer : public Dx12Consumer
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
-                TrackRootParameter param                                        = {};
-                param.cmd_bind_type                                             = D3D12_ROOT_PARAMETER_TYPE_UAV;
-                param.cmd_bind_captured_buffer_location                         = BufferLocation;
-                it->second.current_compute_root_parameters[RootParameterIndex]  = param;
+                TrackRootParameter param                                       = {};
+                param.cmd_bind_type                                            = D3D12_ROOT_PARAMETER_TYPE_UAV;
+                param.cmd_bind_captured_buffer_location                        = BufferLocation;
+                it->second.current_compute_root_parameters[RootParameterIndex] = param;
             }
-        } 
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView(
@@ -691,7 +691,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 param.cmd_bind_captured_buffer_location                         = BufferLocation;
                 it->second.current_graphics_root_parameters[RootParameterIndex] = param;
             }
-        } 
+        }
     }
 
     virtual void Process_ID3D12GraphicsCommandList_DrawInstanced(const ApiCallInfo& call_info,
@@ -991,7 +991,6 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                 track_draw_call.graphics_root_parameters         = it->second.current_graphics_root_parameters;
                 track_draw_call.compute_root_signature_handle_id = it->second.current_compute_root_signature_handle_id;
                 track_draw_call.compute_root_parameters          = it->second.current_compute_root_parameters;
- 
 
                 it->second.track_dump_draw_calls.emplace_back(
                     std::make_shared<TrackDumpDrawCall>(std::move(track_draw_call)));

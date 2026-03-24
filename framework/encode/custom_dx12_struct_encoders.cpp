@@ -510,7 +510,6 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value
     encoder->EncodeUInt64Value(value.EngineVersion.Version);
 }
 
-
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
 {
     encoder->EncodeInt64Value(value.QuadPart);

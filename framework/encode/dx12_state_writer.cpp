@@ -122,7 +122,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     WriteHeapState(state_table);
 
     // Root signatures
-    StandardCreateWrite<ID3D12RootSignature_Wrapper>(state_table);
+    WriteCreateRootSignatureState(state_table);
     StandardCreateWrite<ID3D12RootSignatureDeserializer_Wrapper>(state_table);
     StandardCreateWrite<ID3D12VersionedRootSignatureDeserializer_Wrapper>(state_table);
 
@@ -394,6 +394,100 @@ void Dx12StateWriter::WriteRootSignatureBlobState(const Dx12StateTable& state_ta
     });
 }
 
+void Dx12StateWriter::WriteCreateRootSignatureState(const Dx12StateTable& state_table)
+{
+    state_table.VisitWrappers([&](const ID3D12RootSignature_Wrapper* wrapper) {
+        assert(wrapper != nullptr);
+        assert(wrapper->GetObjectInfo() != nullptr);
+
+        auto wrapper_info = wrapper->GetObjectInfo();
+        if (wrapper_info->blob_value.size() != 0)
+        {
+            const void* blobData = wrapper_info->blob_value.data();
+            SIZE_T      blobSize = static_cast<SIZE_T>(wrapper_info->blob_value.size());
+
+            graphics::dx12::ID3D12VersionedRootSignatureDeserializerComPtr deserializer = nullptr;
+            auto                                                           result =
+                D3D12CaptureManager::Get()->GetD3D12DispatchTable().D3D12CreateVersionedRootSignatureDeserializer(
+                    blobData, blobSize, IID_PPV_ARGS(&deserializer));
+            if (FAILED(result))
+            {
+                GFXRECON_LOG_ERROR("Failed to create root signature deserializer for root signature blob (error = %d)",
+                                   result);
+                return;
+            }
+
+            auto root_signature_desc = deserializer->GetUnconvertedRootSignatureDesc();
+            if (root_signature_desc == nullptr)
+            {
+                GFXRECON_LOG_ERROR("Failed to get root signature description from deserializer");
+                return;
+            }
+
+            ID3D10Blob* ppBlob      = nullptr;
+            ID3D10Blob* ppErrorBlob = nullptr;
+            result = D3D12CaptureManager::Get()->GetD3D12DispatchTable().D3D12SerializeVersionedRootSignature(
+                root_signature_desc, &ppBlob, &ppErrorBlob);
+            if (FAILED(result) || (ppBlob == nullptr))
+            {
+                GFXRECON_LOG_ERROR("Failed to serialize root signature (error = %d)", result);
+                return;
+            }
+
+            auto buffer_size = ppBlob->GetBufferSize();
+            auto buffer_ptr  = ppBlob->GetBufferPointer();
+
+            WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(&ppBlob), nullptr);
+            WrapObject(IID_ID3D10Blob, reinterpret_cast<void**>(&ppErrorBlob), nullptr);
+
+            EncodeStructPtr(&encoder_, root_signature_desc);
+            encoder_.EncodeObjectPtr(reinterpret_cast<void**>(&ppBlob));
+            encoder_.EncodeObjectPtr(reinterpret_cast<void**>(&ppErrorBlob));
+            encoder_.EncodeInt32Value(result);
+            WriteFunctionCall(format::ApiCallId::ApiCall_D3D12SerializeVersionedRootSignature, &parameter_stream_);
+            parameter_stream_.Clear();
+
+            auto blob_wrapper = reinterpret_cast<ID3D10Blob_Wrapper*>(ppBlob);
+            blob_wrapper->MakeRefInternal();
+
+            encoder_.EncodeSizeTValue(buffer_size);
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_ID3D10Blob_GetBufferSize, blob_wrapper->GetCaptureId(), &parameter_stream_);
+            parameter_stream_.Clear();
+
+            encoder_.EncodeVoidPtr(buffer_ptr);
+            WriteMethodCall(format::ApiCallId::ApiCall_ID3D10Blob_GetBufferPointer,
+                            blob_wrapper->GetCaptureId(),
+                            &parameter_stream_);
+            parameter_stream_.Clear();
+
+            StandardCreateWrite(wrapper);
+
+            ULONG return_value = 0;
+            encoder_.EncodeInt32Value(return_value);
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_IUnknown_Release, blob_wrapper->GetCaptureId(), &parameter_stream_);
+            parameter_stream_.Clear();
+
+            if (ppErrorBlob != nullptr)
+            {
+                auto error_blob_wrapper = reinterpret_cast<ID3D10Blob_Wrapper*>(ppErrorBlob);
+                error_blob_wrapper->MakeRefInternal();
+
+                encoder_.EncodeInt32Value(return_value);
+                WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release,
+                                error_blob_wrapper->GetCaptureId(),
+                                &parameter_stream_);
+                parameter_stream_.Clear();
+            }
+        }
+        else
+        {
+            StandardCreateWrite(wrapper);
+        }
+    });
+}
+
 void Dx12StateWriter::WriteCachedPSOBlobState(const Dx12StateTable& state_table)
 {
     std::set<util::MemoryOutputStream*> processed;
@@ -420,6 +514,18 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
             {
                 GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
                                    "ID3D12Device3::OpenExistingHeapFromAddress (error = %d)",
+                                   GetLastError());
+            }
+        }
+        if (wrapper_info->open_existing_handle != nullptr)
+        {
+            HANDLE hFileHandle = reinterpret_cast<HANDLE>(const_cast<void*>(wrapper_info->open_existing_handle));
+            void*  pAddress    = MapViewOfFile(hFileHandle, FILE_MAP_READ, 0, 0, 0);
+
+            if ((pAddress == nullptr) || !WriteCreateHeapAllocationCmd(pAddress))
+            {
+                GFXRECON_LOG_ERROR("Failed to retrieve memory information for handle specified to "
+                                   "ID3D12Device3::OpenExistingHeapFromFileMapping (error = %d)",
                                    GetLastError());
             }
         }
@@ -591,6 +697,27 @@ void Dx12StateWriter::WritePrivateData(format::HandleId handle_id, const DxWrapp
         else
         {
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData, handle_id, &parameter_stream_);
+        }
+        parameter_stream_.Clear();
+    }
+}
+
+void Dx12StateWriter::WritePrivateDataInterface(format::HandleId handle_id, const DxWrapperInfo& wrapper_info)
+{
+    for (auto& data : wrapper_info.private_data_interface)
+    {
+        EncodeStruct(&encoder_, data.first);
+        encoder_.EncodeObjectValue(data.second.GetInterfacePtr());
+        encoder_.EncodeInt32Value(S_OK);
+        if (wrapper_info.IsDxgi())
+        {
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface, handle_id, &parameter_stream_);
+        }
+        else
+        {
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface, handle_id, &parameter_stream_);
         }
         parameter_stream_.Clear();
     }
@@ -790,7 +917,7 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
         for (auto wrapper : metacommand_wrappers)
         {
             // Write the meta command init call.
-            auto                          wrapper_info = wrapper->GetObjectInfo();
+            auto wrapper_info = wrapper->GetObjectInfo();
             if (wrapper_info->was_initialized == true)
             {
                 format::InitializeMetaCommand init_meta_command;
@@ -846,13 +973,13 @@ void Dx12StateWriter::WriteResourceSnapshots(
             begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                 format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kBeginResourceInitCommand);
-            begin_cmd.thread_id       = thread_id_;
-            begin_cmd.device_id       = device_id;
+            begin_cmd.thread_id = thread_id_;
+            begin_cmd.device_id = device_id;
 
             // TODO: adjust to hold sum of resource-sizes
             begin_cmd.total_copy_size = max_resource_size;
 
-            begin_cmd.max_copy_size   = max_resource_size;
+            begin_cmd.max_copy_size = max_resource_size;
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
 
@@ -1919,6 +2046,7 @@ void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& stat
         }
 
         WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+        WritePrivateDataInterface(wrapper->GetCaptureId(), *wrapper_info.get());
         WriteAddRefAndReleaseCommands(wrapper);
     });
 }
