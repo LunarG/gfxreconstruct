@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -28,6 +28,11 @@
 
 #if defined(D3D12_SUPPORT)
 #include "dx12_optimize_util.h"
+#endif
+
+// Process name override
+#if _WIN32
+#include "util/process_name_override.h"
 #endif
 
 #include "decode/decode_api_detection.h"
@@ -58,8 +63,8 @@ extern "C"
 }
 #endif
 
-constexpr char kOptions[] =
-    "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--d3d12-resource-removal,--dxr,--dxr-experimental";
+constexpr char kOptions[] = 
+    "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--d3d12-resource-removal,--dxr,--dxr-experimental,--disable-process-name-override";
 constexpr char kArguments[] = "--gpu";
 
 constexpr char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
@@ -84,7 +89,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--d3d12-pso-removal] [--d3d12-resource-removal] [--dxr] "
-                           "[--gpu <index>] <input-file> <output-file>",
+                           "[--gpu <index>] [--disable-process-name-override] <input-file> <output-file>",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
@@ -112,6 +117,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Note: running without optional arguments will instruct the optimizer to detect API and run "
                            "all available optimizations.");
+    GFXRECON_WRITE_CONSOLE("  --disable-process-name-override\tDisable process name override (Windows only).");
 #endif
 }
 
@@ -279,6 +285,12 @@ int main(int argc, const char** argv)
 
     try
     {
+#if _WIN32
+        if(!arg_parser.IsOptionSet(kDisableProcessNameOverride))
+        {
+            gfxrecon::util::InitializeProcessNameOverride();
+        }
+#endif
         std::string                     input_filename;
         std::string                     output_filename;
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();

@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2018-2026 LunarG, Inc.
-# Copyright (c) 2020-2022 Advanced Micro Devices, Inc.
+# Copyright (c) 2020-2026 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -53,6 +53,7 @@ target_link_libraries(gfxrecon-replay
                           gfxrecon_format
                           platform_specific
                           project_version
+                          gfxrecon_util # required for process name override
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
                           $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)

@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2025 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -59,6 +59,10 @@
 #endif
 #include "parse_dump_resources_cli.h"
 #include "replay_pre_processing.h"
+
+#if _WIN32
+#include "util/process_name_override.h"
+#endif
 
 // Includes for recapture
 #include "encode/vulkan_capture_manager.h"
@@ -127,6 +131,13 @@ int main(int argc, const char** argv)
     {
         ProcessDisableDebugPopup(arg_parser);
     }
+
+#if _WIN32
+    if(!arg_parser.IsOptionSet(kDisableProcessNameOverride))
+    {
+        gfxrecon::util::InitializeProcessNameOverride();
+    }
+#endif
 
     // Update logging with values retrieved from command line arguments
     gfxrecon::util::Log::Settings log_settings;
@@ -240,6 +251,10 @@ int main(int argc, const char** argv)
                                                           gfxrecon::vulkan_recapture::dispatch_CreateDevice);
             }
 
+#if _WIN32
+            vulkan_replay_consumer.SetProcessNameCallback(gfxrecon::util::ProcessNameOverrideCallback);
+#endif
+
             ApiReplayOptions  api_replay_options;
             ApiReplayConsumer api_replay_consumer;
             api_replay_options.vk_replay_options   = &vulkan_replay_options;
@@ -292,6 +307,10 @@ int main(int argc, const char** argv)
                 dx12_replay_consumer.SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
                 dx12_replay_consumer.SetFpsInfo(&fps_info);
+
+#if _WIN32       
+                dx12_replay_consumer.SetProcessNameCallback(gfxrecon::util::ProcessNameOverrideCallback);
+#endif
 
                 // check for user option if first pass tracking is enabled
                 if (dx_replay_options.enable_d3d12_two_pass_replay)
