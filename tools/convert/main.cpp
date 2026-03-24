@@ -58,7 +58,8 @@ using Dx12JsonConsumer =
     gfxrecon::decode::MetadataJsonConsumer<gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>>;
 #endif
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
+const char kOptions[] =
+    "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags,--async-processing";
 
 const char kArguments[] = "--output,--format,--log-level,--frame-range";
 
@@ -103,6 +104,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                  \tExample: 0-2,5,8-10 will generate data for 7 frames.");
     GFXRECON_WRITE_CONSOLE("  --log-level <level>\tSpecify highest level message to log. Options are:");
     GFXRECON_WRITE_CONSOLE("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
+    GFXRECON_WRITE_CONSOLE("  %s\tEnable asynchronous file input and processing.", kAsyncProcessingOption);
 
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
@@ -252,6 +254,7 @@ int main(int argc, const char** argv)
     bool                  dump_binaries  = arg_parser.IsOptionSet(kIncludeBinariesOption);
     bool                  expand_flags   = arg_parser.IsOptionSet(kExpandFlagsOption);
     bool                  file_per_frame = arg_parser.IsOptionSet(kFilePerFrameOption);
+    bool                  async_processing = arg_parser.IsOptionSet(kAsyncProcessingOption);
     std::vector<uint32_t> frame_indices;
     bool                  frame_range_option = GetFrameIndices(arg_parser, frame_indices);
 
@@ -401,6 +404,15 @@ int main(int argc, const char** argv)
                                                                      : gfxrecon::util::kToString_Unformatted;
             dx12_json_consumer.Initialize(&json_writer);
 #endif
+
+            if (async_processing)
+            {
+                if (frame_range_option)
+                {
+                    file_processor.SetQuitBeforeFrame(frame_indices.front() + 1);
+                }
+                file_processor.StartAsyncProcessing();
+            }
 
             while (success)
             {
