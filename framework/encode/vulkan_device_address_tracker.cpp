@@ -52,6 +52,14 @@ void encode::VulkanDeviceAddressTracker::TrackBuffer(const vulkan_wrappers::Buff
     if (wrapper != nullptr && wrapper->handle != VK_NULL_HANDLE && wrapper->address != 0 && wrapper->size != 0)
     {
         std::unique_lock lock(mutex_);
+        std::map<VkDeviceAddress, buffer_item_t>::iterator iter = buffer_addresses_.find(wrapper->address);
+        if (iter != buffer_addresses_.end())
+        {
+            GFXRECON_LOG_DEBUG("[VulkanDeviceAddressTracker] Buffer already exists for address: %llu. Replacing old buffer: %p with new buffer: %p",
+                                wrapper->address,
+                                iter->second.handle,
+                                wrapper->handle);
+        }
         buffer_addresses_[wrapper->address] = { wrapper->handle, wrapper->size };
     }
 }
@@ -61,7 +69,24 @@ void VulkanDeviceAddressTracker::RemoveBuffer(const vulkan_wrappers::BufferWrapp
     if (wrapper != nullptr)
     {
         std::unique_lock lock(mutex_);
-        buffer_addresses_.erase(wrapper->address);
+        std::map<VkDeviceAddress, buffer_item_t>::iterator iter = buffer_addresses_.find(wrapper->address);
+
+        // If existing buffer found in the map is different from the wrapped buffer, do not remove the mapping. 
+        // This can happen if two different vkBuffers have the same backing vkDeviceMemory at the same offset and hence same device address.
+        // So when the app calls vkDestroyBuffer on the older buffer, we should not remove the mapping for its address
+        // because that would invalidate the mapping for the newer buffer that is still alive.
+        if (iter != buffer_addresses_.end())
+        {
+            if (iter->second.handle != wrapper->handle)
+            {
+                GFXRECON_LOG_DEBUG("[VulkanDeviceAddressTracker] Cannot remove buffer %p with address: %llu because another buffer: %p with same device address exists", wrapper->handle, wrapper->address, iter->second.handle);
+            }
+            else
+            {
+                // Remove the mapping only if the handles match
+                buffer_addresses_.erase(wrapper->address);    
+            }
+        }
     }
 }
 
