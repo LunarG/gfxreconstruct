@@ -424,8 +424,8 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
                  const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData,
                  const util::JsonOptions&                                 options)
 {
-    FieldToJson(jdata["type"], pData->decoded_type, options);
-    switch (pData->decoded_type)
+    FieldToJson(jdata["type"], pData->decoded_value->type, options);
+    switch (pData->decoded_value->type)
     {
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
             FieldToJson(jdata["info"], pData->info->pPipelineInfo, options);
@@ -442,8 +442,8 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
                  const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData,
                  const util::JsonOptions&                              options)
 {
-    FieldToJson(jdata["type"], pData->decoded_type, options);
-    switch (pData->decoded_type)
+    FieldToJson(jdata["type"], pData->decoded_value->type, options);
+    switch (pData->decoded_value->type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
