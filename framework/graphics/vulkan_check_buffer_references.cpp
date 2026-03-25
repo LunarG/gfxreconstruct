@@ -66,8 +66,8 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                 else
                 {
                     // check potentially inlined spirv
-                    if (auto module_create_info =
-                            vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(pCreateInfos->GetPointer()->pStages + s))
+                    if (auto module_create_info = vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(
+                            pCreateInfos->GetPointer()[i].pStages + s))
                     {
                         graphics::vulkan_check_buffer_references(
                             module_create_info->pCode, module_create_info->codeSize, pipeline_info);
@@ -121,7 +121,7 @@ void populate_shader_stages(
         {
             // check potentially inlined spirv
             auto module_create_info =
-                vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&pCreateInfos->GetPointer()->stage);
+                vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&pCreateInfos->GetPointer()[i].stage);
             if (module_create_info != nullptr)
             {
                 graphics::vulkan_check_buffer_references(
