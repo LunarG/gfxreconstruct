@@ -704,8 +704,7 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
         auto it = descriptor_set_info->descriptors.find(buffer_ref_info.binding);
         if (it == descriptor_set_info->descriptors.end())
         {
-            GFXRECON_LOG_WARNING_ONCE("VulkanAddressReplacer::ProcessCmdBindDescriptorSets: could not find a "
-                                      "descriptor while sanitizing buffer-references.");
+            // NOTE: this can be a legit case, e.g. when a shader-module contains multiple entry-points
             continue;
         }
         auto& descriptor_set_binding_info = it->second;

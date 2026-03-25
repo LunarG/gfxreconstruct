@@ -62,10 +62,12 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
                         pipeline_info->buffer_reference_infos.insert(module_info->buffer_reference_infos.begin(),
                                                                      module_info->buffer_reference_infos.end());
                     }
-
+                }
+                else
+                {
                     // check potentially inlined spirv
-                    if (auto module_create_info =
-                            vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(pCreateInfos->GetPointer()->pStages + s))
+                    if (auto module_create_info = vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(
+                            pCreateInfos->GetPointer()[i].pStages + s))
                     {
                         graphics::vulkan_check_buffer_references(
                             module_create_info->pCode, module_create_info->codeSize, pipeline_info);
@@ -106,27 +108,24 @@ void populate_shader_stages(
         {
             const decode::VulkanShaderModuleInfo* module_info =
                 object_info_table.GetVkShaderModuleInfo(stage_info_meta->module);
-            GFXRECON_ASSERT(pipeline_info);
+            GFXRECON_ASSERT(module_info);
 
-            if (module_info != nullptr)
+            if (pipeline_info != nullptr && module_info != nullptr)
             {
                 // extract information about buffer-references, present in shadermodule-info structs
                 pipeline_info->buffer_reference_infos.insert(module_info->buffer_reference_infos.begin(),
                                                              module_info->buffer_reference_infos.end());
             }
-
+        }
+        else
+        {
             // check potentially inlined spirv
             auto module_create_info =
-                vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&pCreateInfos->GetPointer()->stage);
+                vulkan_struct_get_pnext<VkShaderModuleCreateInfo>(&pCreateInfos->GetPointer()[i].stage);
             if (module_create_info != nullptr)
             {
                 graphics::vulkan_check_buffer_references(
                     module_create_info->pCode, module_create_info->codeSize, pipeline_info);
-            }
-
-            if (module_info == nullptr && module_create_info == nullptr)
-            {
-                GFXRECON_LOG_WARNING("No spirv available");
             }
         }
     }
