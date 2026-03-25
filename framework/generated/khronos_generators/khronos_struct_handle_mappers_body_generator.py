@@ -50,10 +50,12 @@ class KhronosStructHandleMappersBodyGenerator():
             child_has_handles = self.child_struct_has_handles(struct)
             if (child_has_handles or self.struct_might_have_handles(struct)):
                 handle_members = list()
+                handle_member_names = set()
                 generic_handle_members = dict()
 
                 if struct in self.structs_with_handles:
                     handle_members = self.structs_with_handles[struct].copy()
+                    handle_member_names = {member.name for member in handle_members}
 
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
@@ -61,8 +63,9 @@ class KhronosStructHandleMappersBodyGenerator():
                 if struct in self.all_possible_extendable_structs:
                     for member in self.all_struct_members[struct]:
                         if ((self.is_extended_struct_definition(member) or member.base_type in self.all_possible_extendable_structs)
-                            and (member not in handle_members)):
+                            and (member.name not in handle_member_names)):
                             handle_members.append(member)
+                            handle_member_names.add(member.name)
 
                 # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
                 # and does not need a temporary variable referencing the struct value.

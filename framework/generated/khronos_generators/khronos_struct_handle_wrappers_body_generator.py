@@ -77,18 +77,21 @@ class KhronosStructHandleWrappersBodyGenerator():
         for struct in self.get_all_filtered_struct_names():
             if ((self.child_struct_has_handles(struct) or self.struct_might_have_handles(struct))) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = []
+                handle_member_names = set()
                 generic_handle_members = dict()
 
                 if struct in self.structs_with_handles:
                     handle_members = self.structs_with_handles[struct]
+                    handle_member_names = {member.name for member in handle_members}
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
                                                                          ]
                 if struct in self.all_possible_extendable_structs:
                     for member in self.all_struct_members[struct]:
                         if ((self.is_extended_struct_definition(member) or member.base_type in self.all_possible_extendable_structs)
-                            and (member not in handle_members)):
+                            and (member.name not in handle_member_names)):
                             handle_members.append(member)
+                            handle_member_names.add(member.name)
 
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
@@ -96,7 +99,6 @@ class KhronosStructHandleWrappersBodyGenerator():
                 )
                 
                 body += '{\n'
-
                 unwrapping = self.generate_parent_child_handling(api_data, struct)
                 unwrapping += self.make_struct_handle_unwrappings(api_data, struct, handle_members, generic_handle_members)
                 
