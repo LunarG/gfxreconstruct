@@ -6322,6 +6322,7 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
             // In this case, the image has been sampled at capture time and format is now RGBA8_UNORM.
             modified_create_info.format     = VK_FORMAT_R8G8B8A8_UNORM;
             external_format->externalFormat = 0;
+            has_external_format             = false;
         }
 
         if (external_memory->handleTypes & VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT)
