@@ -45,12 +45,12 @@ class InfoFeature
     virtual ~InfoFeature() = default;
 
     // Simple "getter" style methods
-    virtual std::string         Label() const = 0;
-    virtual bool                WasDetected() = 0;
-    virtual std::string         CompiledHeaderVersionString() const { return ""; }
-    virtual uint32_t            GetBlankFrameCount() { return 0; }
-    virtual uint32_t            GetFrameStart() const { return 0; }
-    virtual bool                DesiresSingleLineFrameOutput() const { return false; }
+    virtual std::string Label() const = 0;
+    virtual bool        WasDetected() = 0;
+    virtual std::string CompiledHeaderVersionString() const { return ""; }
+    virtual uint32_t    GetBlankFrameCount() { return 0; }
+    virtual uint32_t    GetFrameStart() const { return 0; }
+    virtual bool        DesiresSingleLineFrameOutput() const { return false; }
 
     // A few "setter" style methods
     virtual void SetFrameMarkerUsage(bool found) { uses_frame_markers_ = found; }
