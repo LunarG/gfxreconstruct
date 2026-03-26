@@ -25,38 +25,16 @@
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 #include "tool_settings.h"
+
 #include "decode/json_writer.h" /// @todo move to util?
 #include "decode/decode_api_detection.h"
-#include "format/format.h"
 #include "util/file_output_stream.h"
 #include "util/file_path.h"
-#include "util/platform.h"
+#include "util/feature_module_registry.h"
 
-#if ENABLE_OPENXR_SUPPORT
-#include "generated/generated_openxr_json_consumer.h"
-#endif
-
-#include "generated/generated_vulkan_json_consumer.h"
-#include "decode/marker_json_consumer.h"
-#include "decode/metadata_json_consumer.h"
-#if defined(D3D12_SUPPORT)
-#include "generated/generated_dx12_json_consumer.h"
-#endif
+#include "convert_feature.h"
 
 using gfxrecon::util::JsonFormat;
-
-#if ENABLE_OPENXR_SUPPORT
-using OpenXrJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
-    gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::OpenXrExportJsonConsumer>>;
-#endif
-
-using VulkanJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
-    gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::VulkanExportJsonConsumer>>;
-
-#if defined(D3D12_SUPPORT)
-using Dx12JsonConsumer =
-    gfxrecon::decode::MetadataJsonConsumer<gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>>;
-#endif
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
@@ -204,9 +182,20 @@ std::string FormatFrameNumber(uint32_t frame_number)
 
 int main(int argc, const char** argv)
 {
-    int ret_code = 0;
+    int                                                             ret_code = 0;
+    std::vector<std::unique_ptr<gfxrecon::convert::ConvertFeature>> convert_features;
 
     gfxrecon::util::Log::Init();
+
+    // Query the module registry for registered modules, and
+    // call each generator here and put the unique_ptr into our
+    // internal unique_ptr vector.
+    for (const auto& registered_creator :
+         gfxrecon::util::FeatureModuleRegistry<gfxrecon::convert::ConvertFeature>::GetSingleton()
+             .GetRegisteredFeatureCreators())
+    {
+        convert_features.push_back(std::move(registered_creator()));
+    }
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
@@ -328,19 +317,13 @@ int main(int argc, const char** argv)
         }
         else
         {
+            bool                                   success = true;
             gfxrecon::util::FileNoLockOutputStream out_stream{ out_file_handle, false };
 
-            VulkanJsonConsumer              vulkan_json_consumer;
-            gfxrecon::decode::VulkanDecoder vulkan_decoder;
-            vulkan_decoder.AddConsumer(&vulkan_json_consumer);
-            file_processor.AddDecoder(&vulkan_decoder);
-
-#if ENABLE_OPENXR_SUPPORT
-            OpenXrJsonConsumer              openxr_json_consumer;
-            gfxrecon::decode::OpenXrDecoder openxr_decoder;
-            openxr_decoder.AddConsumer(&openxr_json_consumer);
-            file_processor.AddDecoder(&openxr_decoder);
-#endif
+            for (auto& feature : convert_features)
+            {
+                feature->RegisterDecodeComponents(file_processor);
+            }
 
             gfxrecon::util::JsonOptions::root_dir      = output_dir;
             gfxrecon::util::JsonOptions::data_sub_dir  = filename_stem;
@@ -352,18 +335,10 @@ int main(int argc, const char** argv)
             gfxrecon::decode::JsonWriter json_writer{ GetProjectVersionString(), input_filename };
             file_processor.SetAnnotationProcessor(&json_writer);
 
-            bool              success = true;
-            const std::string vulkan_version{ std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                              std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                              std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
-            vulkan_json_consumer.Initialize(&json_writer, vulkan_version);
-
-#if ENABLE_OPENXR_SUPPORT
-            const std::string openxr_version{ std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
-                                              std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
-                                              std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION)) };
-            openxr_json_consumer.Initialize(&json_writer, openxr_version);
-#endif
+            for (auto& feature : convert_features)
+            {
+                feature->RegisterJsonWriter(&json_writer);
+            }
 
             json_writer.StartStream(&out_stream);
 
@@ -389,18 +364,6 @@ int main(int argc, const char** argv)
                     out_stream.Reset(tmp_file_handle);
                 }
             }
-
-#ifdef D3D12_SUPPORT
-            // If D3D12_SUPPORT was set, then add DX12 consumer/decoder
-            Dx12JsonConsumer              dx12_json_consumer;
-            gfxrecon::decode::Dx12Decoder dx12_decoder;
-
-            dx12_decoder.AddConsumer(&dx12_json_consumer);
-            file_processor.AddDecoder(&dx12_decoder);
-            auto dx12_json_flags = output_format == JsonFormat::JSON ? gfxrecon::util::kToString_Formatted
-                                                                     : gfxrecon::util::kToString_Unformatted;
-            dx12_json_consumer.Initialize(&json_writer);
-#endif
 
             while (success)
             {
@@ -458,16 +421,10 @@ int main(int argc, const char** argv)
                 }
             }
 
-            vulkan_json_consumer.Destroy();
-
-#if ENABLE_OPENXR_SUPPORT
-            openxr_json_consumer.Destroy();
-#endif
-
-            // If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
-#ifdef D3D12_SUPPORT
-            dx12_json_consumer.Destroy();
-#endif
+            for (auto& feature : convert_features)
+            {
+                feature->UnregisterJsonWriter();
+            }
 
             if (tmp_file_handle != nullptr)
             {
@@ -488,7 +445,7 @@ int main(int argc, const char** argv)
             }
         }
     }
-    goto exit; // The other goto is inside an #ifdef and if compiled-out an unreferenced label warning results.
+
 exit:
     gfxrecon::util::Log::Release();
     return ret_code;
