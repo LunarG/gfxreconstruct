@@ -145,6 +145,8 @@ def CreateReplayParser():
     parser.add_argument('--wait-before-first-submit', metavar='MILLISECONDS', help='Wait for the specified amount of milliseconds before processing the first submit. (forwarded to replay tool)')
     parser.add_argument('--idle-before-submit', action='store_true', default=False, help='Wait for the GPU to become idle before each submit. (forwarded to replay tool)')
     parser.add_argument('--serialize-render-passes', action='store_true', default=False, help='Serialize render passes by injecting execution barriers before render pass begin during replay. (forwarded to replay tool)')
+    parser.add_argument('--frame-warm-up-spirv', metavar='DEVICE_FILE', help='Specify a user-provided SPIR-V compute shader for the warm-up pass. The shader must use entry point main and set 0, binding 0 as a storage buffer. Warm-up runs before the first submit of each replayed frame only when this option and a non-zero --frame-warm-up-load are both provided. (forwarded to replay tool)')
+    parser.add_argument('--frame-warm-up-load', metavar='LOAD', default=0, help='Specify workload scale factor for a compute dispatch warm-up pass run before each frame replay. Default is 0 (disabled). (forwarded to replay tool)')
 
     return parser
 
@@ -333,6 +335,14 @@ def MakeExtrasString(args):
 
     if args.serialize_render_passes:
         arg_list.append('--serialize-render-passes')
+
+    if args.frame_warm_up_spirv:
+        arg_list.append('--frame-warm-up-spirv')
+        arg_list.append('{}'.format(args.frame_warm_up_spirv))
+
+    if args.frame_warm_up_load:
+        arg_list.append('--frame-warm-up-load')
+        arg_list.append('{}'.format(args.frame_warm_up_load))
 
     if args.file:
         arg_list.append(args.file)

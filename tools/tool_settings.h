@@ -165,6 +165,8 @@ const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 
 const char kDumpResourcesArgument[]    = "--dump-resources";
 const char kDumpResourcesDirArgument[] = "--dump-resources-dir";
+const char kFrameWarmUpSpirv[]         = "--frame-warm-up-spirv";
+const char kFrameWarmUpLoad[]          = "--frame-warm-up-load";
 
 enum class WsiPlatform
 {
@@ -907,6 +909,47 @@ static void GetWaitBeforeFirstSubmit(const gfxrecon::util::ArgumentParser& arg_p
     }
 }
 
+static void GetFrameWarmUpLoad(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_warm_up_load)
+{
+    const auto& value = arg_parser.GetArgumentValue(kFrameWarmUpLoad);
+
+    if (!value.empty())
+    {
+        try
+        {
+            frame_warm_up_load = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid frame warm up load option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
+    }
+}
+
+static void GetFrameWarmUpOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+                                  std::string&                          frame_warm_up_spirv,
+                                  uint32_t&                             frame_warm_up_load)
+{
+    frame_warm_up_spirv = arg_parser.GetArgumentValue(kFrameWarmUpSpirv);
+    GetFrameWarmUpLoad(arg_parser, frame_warm_up_load);
+
+    if (frame_warm_up_load > 0 && frame_warm_up_spirv.empty())
+    {
+        GFXRECON_LOG_FATAL(
+            "Frame warm up load option is set to %u, but no SPIR-V file is specified. Expected format is "
+            "--frame-warm-up-spirv [spirv-file]",
+            frame_warm_up_load);
+    }
+    else if (!frame_warm_up_spirv.empty() && frame_warm_up_load == 0)
+    {
+        GFXRECON_LOG_WARNING("Frame warm up SPIR-V file is specified as \"%s\", but frame warm up is disabled because "
+                             "`--frame-warm-up-load` is 0. Specify a non-zero load to enable frame warm up.",
+                             frame_warm_up_spirv.c_str());
+    }
+}
+
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
                              const gfxrecon::util::ArgumentParser& arg_parser,
                              const std::string&                    filename)
@@ -1263,6 +1306,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
     replay_options.idle_before_submit = arg_parser.IsOptionSet(kIdleBeforeSubmit);
     replay_options.serialize_render_passes = arg_parser.IsOptionSet(kSerializeRenderPasses);
+
+    GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);
 
     return replay_options;
 }

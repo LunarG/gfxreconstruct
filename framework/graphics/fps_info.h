@@ -59,6 +59,9 @@ class FpsInfo
     void                   ProcessStateEndMarker(uint64_t file_processor_frame);
     [[nodiscard]] uint64_t ShouldPreloadFrames(uint64_t current_frame) const;
 
+    [[nodiscard]] bool IsFirstSubmitDone() const { return first_submit_done_; }
+    void               SetFirstSubmitDone(bool first_submit_done) { first_submit_done_ = first_submit_done; }
+
   private:
     uint64_t start_time_;
 
@@ -97,6 +100,10 @@ class FpsInfo
 
     bool     quit_after_frame_;
     uint64_t quit_frame_;
+
+    /// Tracks whether the first submit of the frame has been done. It is reset at the
+    /// end of each frame, and set to true when the first submit of the frame is done.
+    bool first_submit_done_{ false };
 };
 
 GFXRECON_END_NAMESPACE(graphics)

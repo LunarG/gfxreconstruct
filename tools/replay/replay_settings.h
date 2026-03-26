@@ -42,7 +42,8 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit,--idle-before-submit,--present-override,--serialize-render-passes";
+    "present-mode,--wait-before-first-submit,--idle-before-submit,--present-override,--serialize-render-passes,--frame-"
+    "warm-up-spirv,--frame-warm-up-load";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -81,6 +82,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--wait-before-first-submit <milliseconds>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--frame-warm-up-spirv <spirv-file>] [--frame-warm-up-load <load>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--idle-before-submit] [--pbi-all] [--pbis <index1,index2>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--serialize-render-passes]");
 #if !defined(WIN32)
@@ -368,6 +371,15 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --serialize-render-passes");
     GFXRECON_WRITE_CONSOLE("          \t\tSerialize render passes by injecting execution barriers before render pass");
     GFXRECON_WRITE_CONSOLE("          \t\tbegin during replay.");
+    GFXRECON_WRITE_CONSOLE("  --frame-warm-up-spirv <spirv-file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a user-provided SPIR-V compute shader for the warm-up pass.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe shader must use entry point `main` and set 0, binding 0 as a");
+    GFXRECON_WRITE_CONSOLE("          \t\tstorage buffer. Warm-up runs before the first submit of each replayed");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe only when this option and a non-zero `--frame-warm-up-load`");
+    GFXRECON_WRITE_CONSOLE("          \t\tare both provided.");
+    GFXRECON_WRITE_CONSOLE("  --frame-warm-up-load <load>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify workload scale factor for a compute dispatch warm-up pass");
+    GFXRECON_WRITE_CONSOLE("          \t\trun before each frame replay. Default is 0 (disabled).");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")

@@ -268,7 +268,6 @@ void UnwrapStructHandles(VkCommandBufferBeginInfo* value, HandleUnwrapMemory* un
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pInheritanceInfo = UnwrapStructPtrHandles(value->pInheritanceInfo, unwrap_memory);
     }
 }
 
@@ -368,7 +367,6 @@ void UnwrapStructHandles(VkComputePipelineCreateInfo* value, HandleUnwrapMemory*
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        UnwrapStructHandles(&value->stage, unwrap_memory);
         UnwrapStructHandles(&value->stage, unwrap_memory);
     }
 }
@@ -555,7 +553,6 @@ void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
         value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
         value->pVertexInputState = UnwrapStructPtrHandles(value->pVertexInputState, unwrap_memory);
         value->pInputAssemblyState = UnwrapStructPtrHandles(value->pInputAssemblyState, unwrap_memory);
@@ -1986,8 +1983,6 @@ void UnwrapStructHandles(VkDependencyInfo* value, HandleUnwrapMemory* unwrap_mem
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
         value->pMemoryBarriers = UnwrapStructArrayHandles(value->pMemoryBarriers, value->memoryBarrierCount, unwrap_memory);
-        value->pBufferMemoryBarriers = UnwrapStructArrayHandles(value->pBufferMemoryBarriers, value->bufferMemoryBarrierCount, unwrap_memory);
-        value->pImageMemoryBarriers = UnwrapStructArrayHandles(value->pImageMemoryBarriers, value->imageMemoryBarrierCount, unwrap_memory);
     }
 }
 
@@ -2021,9 +2016,6 @@ void UnwrapStructHandles(VkSubmitInfo2* value, HandleUnwrapMemory* unwrap_memory
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pWaitSemaphoreInfos = UnwrapStructArrayHandles(value->pWaitSemaphoreInfos, value->waitSemaphoreInfoCount, unwrap_memory);
-        value->pCommandBufferInfos = UnwrapStructArrayHandles(value->pCommandBufferInfos, value->commandBufferInfoCount, unwrap_memory);
-        value->pSignalSemaphoreInfos = UnwrapStructArrayHandles(value->pSignalSemaphoreInfos, value->signalSemaphoreInfoCount, unwrap_memory);
         value->pWaitSemaphoreInfos = UnwrapStructArrayHandles(value->pWaitSemaphoreInfos, value->waitSemaphoreInfoCount, unwrap_memory);
         value->pCommandBufferInfos = UnwrapStructArrayHandles(value->pCommandBufferInfos, value->commandBufferInfoCount, unwrap_memory);
         value->pSignalSemaphoreInfos = UnwrapStructArrayHandles(value->pSignalSemaphoreInfos, value->signalSemaphoreInfoCount, unwrap_memory);
@@ -2434,9 +2426,6 @@ void UnwrapStructHandles(VkRenderingInfo* value, HandleUnwrapMemory* unwrap_memo
         value->pColorAttachments = UnwrapStructArrayHandles(value->pColorAttachments, value->colorAttachmentCount, unwrap_memory);
         value->pDepthAttachment = UnwrapStructPtrHandles(value->pDepthAttachment, unwrap_memory);
         value->pStencilAttachment = UnwrapStructPtrHandles(value->pStencilAttachment, unwrap_memory);
-        value->pColorAttachments = UnwrapStructArrayHandles(value->pColorAttachments, value->colorAttachmentCount, unwrap_memory);
-        value->pDepthAttachment = UnwrapStructPtrHandles(value->pDepthAttachment, unwrap_memory);
-        value->pStencilAttachment = UnwrapStructPtrHandles(value->pStencilAttachment, unwrap_memory);
     }
 }
 
@@ -2792,10 +2781,6 @@ void UnwrapStructHandles(VkBindDescriptorSetsInfo* value, HandleUnwrapMemory* un
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
     }
 }
 
@@ -2803,10 +2788,6 @@ void UnwrapStructHandles(VkPushConstantsInfo* value, HandleUnwrapMemory* unwrap_
 {
     if (value != nullptr)
     {
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
         if (value->pNext != nullptr)
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
@@ -2823,10 +2804,6 @@ void UnwrapStructHandles(VkPushDescriptorSetInfo* value, HandleUnwrapMemory* unw
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
         value->pDescriptorWrites = UnwrapStructArrayHandles(value->pDescriptorWrites, value->descriptorWriteCount, unwrap_memory);
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
     }
 }
 
@@ -3270,7 +3247,6 @@ void UnwrapStructHandles(VkVideoReferenceSlotInfoKHR* value, HandleUnwrapMemory*
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pPictureResource = UnwrapStructPtrHandles(value->pPictureResource, unwrap_memory);
     }
 }
 
@@ -3339,7 +3315,6 @@ void UnwrapStructHandles(VkVideoBeginCodingInfoKHR* value, HandleUnwrapMemory* u
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
     }
 }
 
@@ -3395,9 +3370,6 @@ void UnwrapStructHandles(VkVideoDecodeInfoKHR* value, HandleUnwrapMemory* unwrap
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        UnwrapStructHandles(&value->dstPictureResource, unwrap_memory);
-        value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
-        value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
         UnwrapStructHandles(&value->dstPictureResource, unwrap_memory);
         value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
         value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
@@ -4280,9 +4252,6 @@ void UnwrapStructHandles(VkVideoEncodeInfoKHR* value, HandleUnwrapMemory* unwrap
         UnwrapStructHandles(&value->srcPictureResource, unwrap_memory);
         value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
         value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
-        UnwrapStructHandles(&value->srcPictureResource, unwrap_memory);
-        value->pSetupReferenceSlot = UnwrapStructPtrHandles(value->pSetupReferenceSlot, unwrap_memory);
-        value->pReferenceSlots = UnwrapStructArrayHandles(value->pReferenceSlots, value->referenceSlotCount, unwrap_memory);
     }
 }
 
@@ -5111,10 +5080,6 @@ void UnwrapStructHandles(VkSetDescriptorBufferOffsetsInfoEXT* value, HandleUnwra
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
     }
 }
 
@@ -5122,10 +5087,6 @@ void UnwrapStructHandles(VkBindDescriptorBufferEmbeddedSamplersInfoEXT* value, H
 {
     if (value != nullptr)
     {
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
         if (value->pNext != nullptr)
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
@@ -6534,7 +6495,6 @@ void UnwrapStructHandles(VkRayTracingPipelineCreateInfoNV* value, HandleUnwrapMe
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
         value->pGroups = UnwrapStructArrayHandles(value->pGroups, value->groupCount, unwrap_memory);
     }
 }
@@ -6591,7 +6551,6 @@ void UnwrapStructHandles(VkAccelerationStructureInfoNV* value, HandleUnwrapMemor
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pGeometries = UnwrapStructArrayHandles(value->pGeometries, value->geometryCount, unwrap_memory);
     }
 }
 
@@ -6604,7 +6563,6 @@ void UnwrapStructHandles(VkAccelerationStructureCreateInfoNV* value, HandleUnwra
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        UnwrapStructHandles(&value->info, unwrap_memory);
     }
 }
 
@@ -7554,7 +7512,6 @@ void UnwrapStructHandles(VkGraphicsShaderGroupCreateInfoNV* value, HandleUnwrapM
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
         value->pVertexInputState = UnwrapStructPtrHandles(value->pVertexInputState, unwrap_memory);
         value->pTessellationState = UnwrapStructPtrHandles(value->pTessellationState, unwrap_memory);
     }
@@ -7569,7 +7526,6 @@ void UnwrapStructHandles(VkGraphicsPipelineShaderGroupsCreateInfoNV* value, Hand
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pGroups = UnwrapStructArrayHandles(value->pGroups, value->groupCount, unwrap_memory);
     }
 }
 
@@ -7597,7 +7553,6 @@ void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoNV* value, HandleUnwr
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pTokens = UnwrapStructArrayHandles(value->pTokens, value->tokenCount, unwrap_memory);
     }
 }
 
@@ -9141,7 +9096,6 @@ void UnwrapStructHandles(VkRenderPassStripeSubmitInfoARM* value, HandleUnwrapMem
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pStripeSemaphoreInfos = UnwrapStructArrayHandles(value->pStripeSemaphoreInfos, value->stripeSemaphoreInfoCount, unwrap_memory);
     }
 }
 
@@ -10025,10 +9979,6 @@ void UnwrapStructHandles(VkDataGraphPipelineCreateInfoARM* value, HandleUnwrapMe
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
         value->pResourceInfos = UnwrapStructArrayHandles(value->pResourceInfos, value->resourceInfoCount, unwrap_memory);
     }
 }
@@ -10682,7 +10632,6 @@ void UnwrapStructHandles(VkIndirectExecutionSetShaderInfoEXT* value, HandleUnwra
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        value->pSetLayoutInfos = UnwrapStructArrayHandles(value->pSetLayoutInfos, value->shaderCount, unwrap_memory);
     }
 }
 
@@ -10712,10 +10661,6 @@ void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoEXT* value, HandleUnw
 {
     if (value != nullptr)
     {
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
         if (value->pNext != nullptr)
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
@@ -11270,10 +11215,6 @@ void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value,
         {
             value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
     }
 }
 
@@ -11430,13 +11371,7 @@ void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapM
         }
         value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
         value->pLibraryInfo = UnwrapStructPtrHandles(value->pLibraryInfo, unwrap_memory);
-        if (value->pNext != nullptr)
-        {
-            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
-        }
-        value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
         value->pGroups = UnwrapStructArrayHandles(value->pGroups, value->groupCount, unwrap_memory);
-        value->pLibraryInfo = UnwrapStructPtrHandles(value->pLibraryInfo, unwrap_memory);
         value->pLibraryInterface = UnwrapStructPtrHandles(value->pLibraryInterface, unwrap_memory);
         value->pDynamicState = UnwrapStructPtrHandles(value->pDynamicState, unwrap_memory);
     }
