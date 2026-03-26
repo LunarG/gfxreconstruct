@@ -45,13 +45,12 @@ class InfoFeature
     virtual ~InfoFeature() = default;
 
     // Simple "getter" style methods
-    virtual format::ApiFamilyId ApiFamilyId() const = 0;
-    virtual std::string         ApiLabel() const    = 0;
-    virtual bool                ApiWasDetected()    = 0;
-    virtual std::string         ApiCompiledHeaderVersionString() const { return ""; }
+    virtual std::string         Label() const = 0;
+    virtual bool                WasDetected() = 0;
+    virtual std::string         CompiledHeaderVersionString() const { return ""; }
     virtual uint32_t            GetBlankFrameCount() { return 0; }
     virtual uint32_t            GetFrameStart() const { return 0; }
-    virtual bool                ApiDesiresSingleLineFrameOutput() const { return false; }
+    virtual bool                DesiresSingleLineFrameOutput() const { return false; }
 
     // A few "setter" style methods
     virtual void SetFrameMarkerUsage(bool found) { uses_frame_markers_ = found; }
@@ -70,9 +69,9 @@ class InfoFeature
         return true;
     }
 
-    // Method to register this API's decoder elements with the containers
+    // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    virtual void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) = 0;
+    virtual void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) = 0;
 
     // Indicates that this API generator requires an API-specific output
     bool RestrictingOutput() { return restricting_output_; }

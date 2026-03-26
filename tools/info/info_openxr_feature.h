@@ -41,14 +41,13 @@ class InfoOpenXrFeature : public InfoFeature
     virtual ~InfoOpenXrFeature() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_OpenXR; }
-    std::string         ApiLabel() const override { return "OpenXR"; }
-    bool                ApiWasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() const override;
+    std::string Label() const override { return "OpenXR"; }
+    bool        WasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
+    std::string CompiledHeaderVersionString() const override;
 
-    // Method to register this API's decoder elements with the containers
+    // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods
     std::string    GenerateText() override;

@@ -32,14 +32,14 @@ GFXRECON_BEGIN_NAMESPACE(info)
 // Register this class as a feature in a module registry
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoVulkanFeature)
 
-std::string InfoVulkanFeature::ApiCompiledHeaderVersionString() const
+std::string InfoVulkanFeature::CompiledHeaderVersionString() const
 {
     return std::string("  Vulkan Header Version  ") + std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) +
            "." + std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 }
 
-void InfoVulkanFeature::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoVulkanFeature::RegisterDecodeComponents(decode::FileProcessor& file_processor)
 {
     vulkan_decoder_.AddConsumer(&vulkan_detection_consumer_);
     vulkan_decoder_.AddConsumer(&vulkan_stats_consumer_);

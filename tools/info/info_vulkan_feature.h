@@ -39,15 +39,14 @@ class InfoVulkanFeature : public InfoFeature
     virtual ~InfoVulkanFeature() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_Vulkan; }
-    std::string         ApiLabel() const override { return "Vulkan"; }
-    bool                ApiWasDetected() override { return vulkan_detection_consumer_.WasVulkanAPIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() const override;
-    bool                ApiDesiresSingleLineFrameOutput() const override { return true; }
+    std::string Label() const override { return "Vulkan"; }
+    bool        WasDetected() override { return vulkan_detection_consumer_.WasVulkanAPIDetected(); }
+    std::string CompiledHeaderVersionString() const override;
+    bool        DesiresSingleLineFrameOutput() const override { return true; }
 
-    // Method to register this API's decoder elements with the containers
+    // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods
     std::string    GenerateText() override;

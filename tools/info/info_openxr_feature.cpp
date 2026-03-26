@@ -33,14 +33,14 @@ GFXRECON_BEGIN_NAMESPACE(info)
 // Register this class as a feature in a module registry
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoOpenXrFeature)
 
-std::string InfoOpenXrFeature::ApiCompiledHeaderVersionString() const
+std::string InfoOpenXrFeature::CompiledHeaderVersionString() const
 {
     return std::string("  OpenXR Header Version  ") + std::to_string(XR_VERSION_MAJOR(XR_CURRENT_API_VERSION)) + "." +
            std::to_string(XR_VERSION_MINOR(XR_CURRENT_API_VERSION)) + "." +
            std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 }
 
-void InfoOpenXrFeature::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoOpenXrFeature::RegisterDecodeComponents(decode::FileProcessor& file_processor)
 {
     openxr_decoder_.AddConsumer(&openxr_detection_consumer_);
     openxr_decoder_.AddConsumer(&openxr_stats_consumer_);

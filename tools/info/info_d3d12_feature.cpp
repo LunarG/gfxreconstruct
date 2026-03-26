@@ -36,7 +36,7 @@ GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoD3d12Feature)
 
 const char kEnumGpuIndices[] = "--enum-gpu-indices";
 
-std::string InfoD3d12Feature::ApiCompiledHeaderVersionString() const
+std::string InfoD3d12Feature::CompiledHeaderVersionString() const
 {
 #if defined(D3D12SDKVersion)
     return std::string("  D3D12 SDK Version      ") + D3D12SDKVersion;
@@ -71,7 +71,7 @@ bool InfoD3d12Feature::CheckCommandLine(util::ArgumentParser* arg_parser)
     return true;
 }
 
-void InfoD3d12Feature::RegisterApiDecodeComponents(decode::FileProcessor& file_processor)
+void InfoD3d12Feature::RegisterDecodeComponents(decode::FileProcessor& file_processor)
 {
     dx12_decoder_.AddConsumer(&dx12_detection_consumer_);
     dx12_decoder_.AddConsumer(&dx12_consumer_);

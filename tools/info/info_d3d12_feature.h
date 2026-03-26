@@ -42,20 +42,19 @@ class InfoD3d12Feature : public InfoFeature
     virtual ~InfoD3d12Feature() = default;
 
     // Simple "getter" style methods
-    format::ApiFamilyId ApiFamilyId() const override { return format::ApiFamilyId::ApiFamily_D3D12; }
-    std::string         ApiLabel() const override { return "D3D12"; }
-    bool                ApiWasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
-    std::string         ApiCompiledHeaderVersionString() const override;
-    uint32_t            GetBlankFrameCount() override;
+    std::string Label() const override { return "D3D12"; }
+    bool        WasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
+    std::string CompiledHeaderVersionString() const override;
+    uint32_t    GetBlankFrameCount() override;
 
     // API-specific command-line methods (default is do nothing and return true if required)
     void        UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
     std::string GetCommandLineUsage() override;
     bool        CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser) override;
 
-    // Method to register this API's decoder elements with the containers
+    // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterApiDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
 
     // Output methods
     std::string    GenerateText() override;
