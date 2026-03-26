@@ -87,7 +87,7 @@ class KhronosStructHandleWrappersBodyGenerator():
                 if struct in self.all_possible_extendable_structs:
                     for member in self.all_struct_members[struct]:
                         if ((self.is_extended_struct_definition(member) or member.base_type in self.all_possible_extendable_structs)
-                            and (member not in handle_members)):
+                            and (not self.member_in_member_list(member, handle_members))):
                             handle_members.append(member)
 
                 body = '\n'

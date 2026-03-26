@@ -2459,6 +2459,13 @@ class KhronosBaseGenerator(OutputGenerator):
                     return member
         return None
 
+    def member_in_member_list(self, member, member_list):
+        for list_member in member_list:
+            if (list_member.name == member.name and
+                list_member.full_type == member.full_type):
+                return True
+        return False
+
     def add_extension_handles(self, struct_name):
         added = False
         ext_var_name = self.get_extended_struct_var_name()
