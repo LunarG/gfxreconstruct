@@ -174,6 +174,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_UNORDERED_ACCESS_VIEW_D
         case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
             EncodeStruct(encoder, value.Texture2DArray);
             break;
+        case D3D12_UAV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
         case D3D12_UAV_DIMENSION_TEXTURE3D:
             EncodeStruct(encoder, value.Texture3D);
             break;
