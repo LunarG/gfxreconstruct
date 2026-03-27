@@ -511,6 +511,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
             wrapper->AABBs->decoded_value = &(value->AABBs);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AABBs);
             break;
+        case D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES:
+            wrapper->OmmTriangles = DecodeAllocator::Allocate<Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC>();
+            wrapper->OmmTriangles->decoded_value = &(value->OmmTriangles);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->OmmTriangles);
+            break;
     }
 
     return bytes_read;
@@ -554,6 +559,12 @@ size_t DecodeStruct(const uint8_t*                                              
                     value->ppGeometryDescs = wrapper->ppGeometryDescs->GetPointer();
                     break;
             }
+            break;
+        case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+            wrapper->pOpacityMicromapArrayDesc =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC>>();
+            bytes_read += wrapper->pOpacityMicromapArrayDesc->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pOpacityMicromapArrayDesc = wrapper->pOpacityMicromapArrayDesc->GetPointer();
             break;
     }
 
@@ -1392,6 +1403,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STA
             value->pDesc = wrapper->depth_stencil_desc2->GetPointer();
             break;
         case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
+            break;
+        default:
+            GFXRECON_LOG_WARNING("Pipeline state subobject decoding encountered unrecognized subobject type "
+                                 "D3D12_STATE_SUBOBJECT_TYPE = %d, which may cause replay to fail.",
+                                 value->Type);
             break;
     }
 

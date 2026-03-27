@@ -167,17 +167,19 @@ struct Decoded_D3D12_INDIRECT_ARGUMENT_DESC
 struct Decoded_D3D12_RAYTRACING_GEOMETRY_DESC
 {
     using struct_type = D3D12_RAYTRACING_GEOMETRY_DESC;
-    D3D12_RAYTRACING_GEOMETRY_DESC*                   decoded_value{ nullptr };
-    Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC* Triangles{ nullptr };
-    Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC*     AABBs{ nullptr };
+    D3D12_RAYTRACING_GEOMETRY_DESC*                       decoded_value{ nullptr };
+    Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC*     Triangles{ nullptr };
+    Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC*         AABBs{ nullptr };
+    Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC* OmmTriangles{ nullptr };
 };
 
 struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS
 {
     using struct_type = D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS*          decoded_value{ nullptr };
-    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC>*  pGeometryDescs{ nullptr };
-    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC*>* ppGeometryDescs{ nullptr };
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS*                       decoded_value{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC>*               pGeometryDescs{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC*>*              ppGeometryDescs{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC>* pOpacityMicromapArrayDesc{ nullptr };
 };
 
 struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA
