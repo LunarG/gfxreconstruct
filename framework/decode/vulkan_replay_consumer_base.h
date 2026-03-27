@@ -1967,8 +1967,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
 
-    VulkanPerDeviceAddressTrackers  _device_address_trackers;
-    VulkanPerDeviceAddressReplacers _device_address_replacers;
+    VulkanPerDeviceAddressTrackers  device_address_trackers_;
+    VulkanPerDeviceAddressReplacers device_address_replacers_;
     VulkanPerDeviceFrameWarmUp      device_frame_warmups_;
 
     util::ThreadPool main_thread_queue_;
