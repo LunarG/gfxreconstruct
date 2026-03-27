@@ -56,21 +56,20 @@ bool VulkanSubmitJobPlan::HasJobsForIndex(uint32_t submit_index) const
 
 void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo> submit_infos)
 {
-    GFXRECON_ASSERT(original_wait_semaphores_.empty());
-    GFXRECON_ASSERT(injected_wait_semaphores_.empty());
+    // Ensure that InjectBefore is not called multiple times for the same submit infos.
+    GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo& info) {
+        return !original_wait_semaphores_.contains(&info) && !injected_wait_semaphores_.contains(&info);
+    }));
 
     // Gather original wait-semaphores for each submit and prepare storage for injected wait-semaphores.
     auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_infos.size(); ++submit_index)
     {
-        original_wait_semaphores_.emplace_back();
-        injected_wait_semaphores_.emplace_back();
-
         // Only gather original wait-semaphores if there are jobs to execute for this submit.
         if (plan.HasJobsForIndex(submit_index))
         {
-            original_wait_semaphores_[submit_index].semaphores =
-                graphics::StripWaitSemaphores(&submit_infos[submit_index]);
+            VkSubmitInfo& submit_info                          = submit_infos[submit_index];
+            original_wait_semaphores_[&submit_info].semaphores = graphics::StripWaitSemaphores(&submit_info);
         }
     }
 
@@ -82,8 +81,9 @@ void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<V
         // Only execute jobs if there are functions to execute for this submit.
         if (plan.HasJobsForIndex(submit_index))
         {
-            auto& original_wait_semaphores = original_wait_semaphores_[submit_index].semaphores;
-            auto& injected_wait_semaphores = injected_wait_semaphores_[submit_index];
+            VkSubmitInfo& submit_info              = submit_infos[submit_index];
+            auto&         original_wait_semaphores = original_wait_semaphores_[&submit_info].semaphores;
+            auto&         injected_wait_semaphores = injected_wait_semaphores_[&submit_info];
 
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)
@@ -94,7 +94,6 @@ void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<V
             }
 
             // Inject wait-semaphore into submit-info.
-            auto& submit_info              = submit_infos[submit_index];
             submit_info.waitSemaphoreCount = static_cast<uint32_t>(injected_wait_semaphores.size());
             submit_info.pWaitSemaphores    = injected_wait_semaphores.data();
 
@@ -115,21 +114,23 @@ void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<V
 
 void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo2> submit_infos)
 {
-    GFXRECON_ASSERT(original_wait_semaphores_.empty());
-    GFXRECON_ASSERT(injected_wait_semaphore_infos_.empty());
+    // Ensure that InjectBefore is not called multiple times for the same submit infos.
+    GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo2& info) {
+        return !original_wait_semaphores_.contains(&info) && !injected_wait_semaphore_infos_.contains(&info);
+    }));
 
     // Gather original wait-semaphores for each submit and prepare storage for injected wait-semaphores.
     auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_infos.size(); ++submit_index)
     {
-        original_wait_semaphores_.emplace_back();
-        injected_wait_semaphore_infos_.emplace_back();
+        VkSubmitInfo2& submit_info                   = submit_infos[submit_index];
+        auto&          original_wait_semaphores      = original_wait_semaphores_[&submit_info].semaphores;
+        auto&          injected_wait_semaphore_infos = injected_wait_semaphore_infos_[&submit_info];
 
         // Only gather original wait-semaphores if there are jobs to execute for this submit.
         if (plan.HasJobsForIndex(submit_index))
         {
-            original_wait_semaphores_[submit_index].semaphores =
-                graphics::StripWaitSemaphores(&submit_infos[submit_index]);
+            original_wait_semaphores = graphics::StripWaitSemaphores(&submit_info);
         }
     }
 
@@ -141,8 +142,9 @@ void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<V
         // Only execute jobs if there are functions to execute for this submit.
         if (plan.HasJobsForIndex(submit_index))
         {
-            auto& original_wait_semaphores      = original_wait_semaphores_[submit_index].semaphores;
-            auto& injected_wait_semaphore_infos = injected_wait_semaphore_infos_[submit_index];
+            VkSubmitInfo2& submit_info                   = submit_infos[submit_index];
+            auto&          original_wait_semaphores      = original_wait_semaphores_[&submit_info].semaphores;
+            auto&          injected_wait_semaphore_infos = injected_wait_semaphore_infos_[&submit_info];
 
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)
@@ -159,10 +161,84 @@ void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<V
             }
 
             // Inject wait-semaphore into submit-info.
-            auto& submit_info                  = submit_infos[submit_index];
             submit_info.waitSemaphoreInfoCount = static_cast<uint32_t>(injected_wait_semaphore_infos.size());
             submit_info.pWaitSemaphoreInfos    = injected_wait_semaphore_infos.data();
         }
+    }
+}
+
+std::vector<VkSemaphore>& VulkanSubmitJobExecutor::GetWaitSemaphores(VkSubmitInfo& submit_info)
+{
+    if (!injected_wait_semaphores_.contains(&submit_info))
+    {
+        injected_wait_semaphores_[&submit_info] =
+            std::vector(submit_info.pWaitSemaphores, submit_info.pWaitSemaphores + submit_info.waitSemaphoreCount);
+    }
+    return injected_wait_semaphores_[&submit_info];
+}
+
+std::vector<VkSemaphoreSubmitInfo>& VulkanSubmitJobExecutor::GetWaitSemaphores(VkSubmitInfo2& submit_info2)
+{
+    if (!injected_wait_semaphore_infos_.contains(&submit_info2))
+    {
+        injected_wait_semaphore_infos_[&submit_info2] = std::vector(
+            submit_info2.pWaitSemaphoreInfos, submit_info2.pWaitSemaphoreInfos + submit_info2.waitSemaphoreInfoCount);
+    }
+    return injected_wait_semaphore_infos_[&submit_info2];
+}
+
+void VulkanSubmitJobExecutor::SerializeExecution(std::span<VkSubmitInfo> submit_infos)
+{
+    // Each submit info should wait on semaphores signaled by the previous submit.
+    std::span<const VkSemaphore> previous_submit_signal_semaphores = {};
+
+    for (VkSubmitInfo& submit_info : submit_infos)
+    {
+        if (!previous_submit_signal_semaphores.empty())
+        {
+            // This should work nicely with `InjectBefore` and just get the corresponding vector of injected semaphores.
+            // If `InjectBefore` was not called, this will create a new entry with the current semaphores.
+            auto& wait_semaphores = GetWaitSemaphores(submit_info);
+
+            // Append previous submit signal semaphores to the wait semaphores of the current submit.
+            wait_semaphores.insert(wait_semaphores.end(),
+                                   previous_submit_signal_semaphores.begin(),
+                                   previous_submit_signal_semaphores.end());
+
+            // Update submit info with the new wait semaphores pointer and count.
+            submit_info.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size());
+            submit_info.pWaitSemaphores    = wait_semaphores.data();
+        }
+
+        previous_submit_signal_semaphores = std::span(submit_info.pSignalSemaphores, submit_info.signalSemaphoreCount);
+    }
+}
+
+void VulkanSubmitJobExecutor::SerializeExecution(std::span<VkSubmitInfo2> submit_infos2)
+{
+    // Each submit info should wait on semaphores signaled by the previous submit.
+    std::span<const VkSemaphoreSubmitInfo> previous_submit_signal_semaphores = {};
+
+    for (VkSubmitInfo2& submit_info : submit_infos2)
+    {
+        if (!previous_submit_signal_semaphores.empty())
+        {
+            // This should work nicely with `InjectBefore` and just get the corresponding vector of injected semaphore
+            // infos. If `InjectBefore` was not called, this will create a new entry with the current semaphores.
+            auto& wait_semaphore_infos = GetWaitSemaphores(submit_info);
+
+            // Append previous submit signal semaphore infos to the wait semaphore infos of the current submit.
+            wait_semaphore_infos.insert(wait_semaphore_infos.end(),
+                                        previous_submit_signal_semaphores.begin(),
+                                        previous_submit_signal_semaphores.end());
+
+            // Update submit info with the new wait semaphore infos pointer and count.
+            submit_info.waitSemaphoreInfoCount = static_cast<uint32_t>(wait_semaphore_infos.size());
+            submit_info.pWaitSemaphoreInfos    = wait_semaphore_infos.data();
+        }
+
+        previous_submit_signal_semaphores =
+            std::span(submit_info.pSignalSemaphoreInfos, submit_info.signalSemaphoreInfoCount);
     }
 }
 
