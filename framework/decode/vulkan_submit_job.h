@@ -28,6 +28,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "graphics/vulkan_semaphore_util.h"
+#include "decode/common_object_info_table.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -103,10 +104,16 @@ struct VulkanSubmitSemaphores
 };
 
 /**
- * @brief   Executes submit jobs and injects produced wait-semaphores into submit infos.
+ * @brief   An executor for Vulkan submit jobs.
  *
- * This object owns backing storage for pointers written into submit structs (semaphores).
- * It must outlive the queue submit that consumes those structs.
+ * This is useful for both injecting new jobs and serializing submit entries within a single
+ * `vkQueueSubmit()`/`vkQueueSubmit2()` call by making each `VkSubmitInfo`/`VkSubmitInfo2` wait on semaphores
+ * signaled by the previous submit.
+ *
+ * It does not preserve state across separate queue-submit calls.
+ *
+ * @note This object owns backing storage for pointers written into submit structs (semaphores).
+ *       It must outlive the queue submit that consumes those structs.
  */
 class VulkanSubmitJobExecutor
 {
@@ -127,16 +134,62 @@ class VulkanSubmitJobExecutor
      */
     void InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo2> submit_infos2);
 
+    /**
+     * @brief   Access mutable wait-semaphore storage for one VkSubmitInfo.
+     *
+     * If executor-owned storage has not been created for this submit yet, the current wait semaphores from
+     * `submit_info` are copied into internal backing storage first.
+     *
+     * @param   submit_info      submit struct whose wait-semaphore storage should be accessed.
+     * @return  mutable vector owned by this executor and suitable for rewriting `submit_info` wait semaphores.
+     */
+    std::vector<VkSemaphore>& GetWaitSemaphores(VkSubmitInfo& submit_info);
+
+    /**
+     * @brief   Access mutable wait-semaphore-info storage for one VkSubmitInfo2.
+     *
+     * If executor-owned storage has not been created for this submit yet, the current wait semaphore infos from
+     * `submit_info` are copied into internal backing storage first.
+     *
+     * @param   submit_info      submit struct whose wait-semaphore-info storage should be accessed.
+     * @return  mutable vector owned by this executor and suitable for rewriting `submit_info` wait semaphore infos.
+     */
+    std::vector<VkSemaphoreSubmitInfo>& GetWaitSemaphores(VkSubmitInfo2& submit_info);
+
+    /**
+     * @brief  SerializeExecution submit entries within one queue-submit call.
+     *
+     * Make each submit wait on semaphores signaled by the previous submit in the same
+     * `vkQueueSubmit()` call. This mutates the provided submit array to insert the
+     * necessary wait semaphores.
+     *
+     * @param  submit_infos     submit array to mutate in place.
+     */
+    void SerializeExecution(std::span<VkSubmitInfo> submit_infos);
+
+    /**
+     * @brief  SerializeExecution submit entries within one queue-submit call.
+     *
+     * Make each submit wait on semaphores signaled by the previous submit in the same
+     * `vkQueueSubmit2()` call. This mutates the provided submit2 array to insert the
+     * necessary wait semaphore infos.
+     *
+     * @param  submit_infos2    submit2 array to mutate in place.
+     */
+    void SerializeExecution(std::span<VkSubmitInfo2> submit_infos2);
+
   private:
-    // Original waits stripped from each submit before injection.
-    std::vector<VulkanSubmitSemaphores> original_wait_semaphores_;
+    /// Original waits stripped from each submit before injection, keyed by either `VkSubmitInfo*` or `VkSubmitInfo2*`.
+    std::unordered_map<void*, VulkanSubmitSemaphores> original_wait_semaphores_;
 
-    // Injected waits for VkSubmitInfo (binary semaphore handles).
-    std::vector<std::vector<VkSemaphore>> injected_wait_semaphores_;
+    /// Injected waits for VkSubmitInfo (binary semaphore handles), keyed by `VkSubmitInfo*`.
+    std::unordered_map<VkSubmitInfo*, std::vector<VkSemaphore>> injected_wait_semaphores_;
 
-    // Injected waits for VkSubmitInfo2 (binary or timeline semaphore submit infos).
-    std::vector<std::vector<VkSemaphoreSubmitInfo>> injected_wait_semaphore_infos_;
+    /// Injected waits for VkSubmitInfo2 (binary or timeline semaphore submit infos), keyed by `VkSubmitInfo2*`.
+    std::unordered_map<VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>> injected_wait_semaphore_infos_;
 };
+
+using VulkanPerDeviceSubmitJobExecutors = std::unordered_map<const VulkanDeviceInfo*, VulkanSubmitJobExecutor>;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
