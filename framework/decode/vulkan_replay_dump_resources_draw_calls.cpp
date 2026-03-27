@@ -1090,7 +1090,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue queue, const VkSubmitInf
     const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
     GFXRECON_ASSERT(device_info);
 
-    TemporaryFence submission_fence(device_info->handle, device_table_);
+    TemporaryFence submission_fence(device_info->handle, *device_table_);
 
     // Dump render targets
     for (size_t cb = 0; cb < n_drawcalls; ++cb)

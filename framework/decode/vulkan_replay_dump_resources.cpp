@@ -1896,7 +1896,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         // VkSubmitInfo. If none is provided then we will create one.
         const bool     last_submit_info  = (&si == &submit_infos.back());
         const bool     create_temp_fence = (!last_submit_info) || (last_submit_info && (fence == VK_NULL_HANDLE));
-        TemporaryFence submission_fence(create_temp_fence ? VK_NULL_HANDLE : fence, queue_info->parent, &device_table);
+        TemporaryFence submission_fence(create_temp_fence ? VK_NULL_HANDLE : fence, queue_info->parent, device_table);
 
         VkSubmitInfo modified_submit_info = si;
         for (uint32_t cb = 0; cb < si.commandBufferCount; ++cb)
