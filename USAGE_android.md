@@ -797,6 +797,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--idle-before-submit]
                           [--serialize-render-passes]
                           [--wait-before-frame MILLISECONDS]
+                          [--serialize-queue-submissions]
                           [file]
 
 Launch the replay tool.
@@ -1027,6 +1028,11 @@ options:
                         Wait for the specified amount of milliseconds before starting
                         to replay each frame. Default is 0 (no wait). (forwarded to
                         replay tool)
+  --serialize-queue-submissions
+                        Serialize submit entries within one `vkQueueSubmit` or
+                        `vkQueueSubmit2` call by adding semaphores between
+                        consecutive submits during replay.
+                        (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

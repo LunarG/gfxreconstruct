@@ -637,6 +637,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--wait-before-first-submit MILLISECONDS]
                         [--idle-before-submit] [--serialize-render-passes]
                         [--wait-before-frame MILLISECONDS]
+                        [--serialize-queue-submissions]
 
 
 Required arguments:
@@ -890,6 +891,10 @@ Optional arguments:
               run before each frame replay. Default is 0 (disabled).
   --wait-before-frame <milliseconds>
               Specify a wait time in milliseconds before starting replay of each frame. Default is 0 (disabled).
+  --serialize-queue-submissions
+              Serialize submit entries within one `vkQueueSubmit` or
+              `vkQueueSubmit2` call by adding semaphores between consecutive
+              submits during replay.
 ```
 
 ### Frame Warm-Up
