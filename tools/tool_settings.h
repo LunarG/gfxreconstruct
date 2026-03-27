@@ -166,10 +166,11 @@ const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-st
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 #endif
 
-const char kDumpResourcesArgument[]    = "--dump-resources";
-const char kDumpResourcesDirArgument[] = "--dump-resources-dir";
-const char kFrameWarmUpSpirv[]         = "--frame-warm-up-spirv";
-const char kFrameWarmUpLoad[]          = "--frame-warm-up-load";
+const char kDumpResourcesArgument[]     = "--dump-resources";
+const char kDumpResourcesDirArgument[]  = "--dump-resources-dir";
+const char kFrameWarmUpSpirv[]          = "--frame-warm-up-spirv";
+const char kFrameWarmUpLoad[]           = "--frame-warm-up-load";
+const char kSerializeQueueSubmissions[] = "--serialize-queue-submissions";
 
 enum class WsiPlatform
 {
@@ -1383,8 +1384,9 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
-    replay_options.idle_before_submit = arg_parser.IsOptionSet(kIdleBeforeSubmit);
-    replay_options.serialize_render_passes = arg_parser.IsOptionSet(kSerializeRenderPasses);
+    replay_options.idle_before_submit          = arg_parser.IsOptionSet(kIdleBeforeSubmit);
+    replay_options.serialize_render_passes     = arg_parser.IsOptionSet(kSerializeRenderPasses);
+    replay_options.serialize_queue_submissions = arg_parser.IsOptionSet(kSerializeQueueSubmissions);
 
     GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);
     GetWaitBeforeFrame(arg_parser, replay_options.wait_before_frame);

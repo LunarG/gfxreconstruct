@@ -4309,8 +4309,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
     }
 
-    VulkanSubmitJobPlan     plan;
-    VulkanSubmitJobExecutor executor;
+    VulkanSubmitJobPlan plan;
 
     if (options_.frame_warm_up_load != 0 && !fps_info_->IsFirstSubmitDone())
     {
@@ -4343,7 +4342,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         }
     }
 
+    VulkanSubmitJobExecutor executor;
     executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
+
+    if (options_.serialize_queue_submissions)
+    {
+        executor.SerializeExecution(pSubmits->GetSpan());
+    }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
@@ -4544,8 +4549,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
     }
 
-    VulkanSubmitJobPlan     plan;
-    VulkanSubmitJobExecutor executor;
+    VulkanSubmitJobPlan plan;
 
     if (options_.frame_warm_up_load != 0 && !fps_info_->IsFirstSubmitDone())
     {
@@ -4578,7 +4582,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         }
     }
 
+    VulkanSubmitJobExecutor executor;
     executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
+
+    if (options_.serialize_queue_submissions)
+    {
+        executor.SerializeExecution(pSubmits->GetSpan());
+    }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
