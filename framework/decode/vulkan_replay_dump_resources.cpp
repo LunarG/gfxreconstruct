@@ -1887,21 +1887,21 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     }
 
     const size_t submit_count = submit_infos.size();
-    for (size_t si = 0; si < submit_count; ++si)
+    for (const auto& si : submit_infos)
     {
         std::vector<VkCommandBuffer> submit_cbs;
-        VkResult                     res;
+        VkResult                     res = VK_SUCCESS;
 
         // For each VkSubmitInfo we shall create a different fence. The provided fence will be used only in the last
         // VkSubmitInfo. If none is provided then we will create one.
-        const bool     last_submit_info  = (si == submit_count - 1);
+        const bool     last_submit_info  = (&si == &submit_infos.back());
         const bool     create_temp_fence = (!last_submit_info) || (last_submit_info && (fence == VK_NULL_HANDLE));
         TemporaryFence submission_fence(create_temp_fence ? VK_NULL_HANDLE : fence, queue_info->parent, &device_table);
 
-        VkSubmitInfo modified_submit_info = submit_infos[si];
-        for (uint32_t cb = 0; cb < submit_infos[si].commandBufferCount; ++cb)
+        VkSubmitInfo modified_submit_info = si;
+        for (uint32_t cb = 0; cb < si.commandBufferCount; ++cb)
         {
-            const VkCommandBuffer command_buffer = submit_infos[si].pCommandBuffers[cb];
+            const VkCommandBuffer command_buffer = si.pCommandBuffers[cb];
 
             if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
             {
@@ -1910,20 +1910,27 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             else
             {
                 bool has_transfer_or_dispatch = false;
+
+                // Handle Transfer commands
                 if (auto transfer_context = FindTransferContext(command_buffer, qs_index))
                 {
                     transfer_contexts.push_back(transfer_context);
+                    // Transfer context does not use a clone command buffer. We submit the original one.
                     submit_cbs.push_back(command_buffer);
                     has_transfer_or_dispatch = true;
                 }
 
+                // Handle Dispatch/TraceRays commands
                 if (auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index))
                 {
                     dispatch_contexts.push_back(dispatch_context);
+                    // Dispatch/RayTracing context uses a clone command buffer. We submit that one instead of the
+                    // original.
                     submit_cbs.push_back(dispatch_context->GetDispatchRaysCommandBuffer());
                     has_transfer_or_dispatch = true;
                 }
 
+                // Handle Draw commands
                 if (auto dc_context = FindDrawCallContext(command_buffer, qs_index))
                 {
                     // Submit previous command buffers from this VkSubmitInfo before dumping draw calls
@@ -1935,9 +1942,12 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                             queue_info->handle, 1, &modified_submit_info, submission_fence.handle);
                         CHECK_VK_ERROR(res, "QueueSubmit")
 
-                        // The fence will be reused
+                        // The fence might be reused. Wait and reset
                         res = submission_fence.Wait();
                         CHECK_VK_ERROR(res, "WaitForFences")
+
+                        res = submission_fence.Reset();
+                        CHECK_VK_ERROR(res, "ResetFences")
 
                         // The semaphores have been used up by the submission. Don't use them again.
                         modified_submit_info.waitSemaphoreCount   = 0;
@@ -1960,9 +1970,6 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                     // then the command buffer has already been submitted
                     if (!has_transfer_or_dispatch)
                     {
-                        res = submission_fence.Reset();
-                        CHECK_VK_ERROR(res, "ResetFences")
-
                         GFXRECON_ASSERT(submit_cbs.empty());
                         submit_cbs.push_back(command_buffer);
                     }
@@ -1975,24 +1982,22 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             modified_submit_info.commandBufferCount = static_cast<uint32_t>(submit_cbs.size());
             modified_submit_info.pCommandBuffers    = submit_cbs.data();
             res = device_table.QueueSubmit(queue_info->handle, 1, &modified_submit_info, submission_fence.handle);
+            CHECK_VK_ERROR(res, "QueueSubmit")
+
+            res = submission_fence.Wait();
+            CHECK_VK_ERROR(res, "WaitForFences")
+
             submit_cbs.clear();
         }
-
-        CHECK_VK_ERROR(res, "QueueSubmit")
-
-        // We need to wait for the fence in for VkSubmitInfos. Either there are transfer/dispatch dumped resources
-        // or we just need to wait before destroying it (prevent use after free)
-        res = submission_fence.Wait();
-        CHECK_VK_ERROR(res, "WaitForFences")
     }
 
-    for (auto transfer_context : transfer_contexts)
+    for (auto& transfer_context : transfer_contexts)
     {
         VkResult res = transfer_context->DumpTransferCommands();
         CHECK_VK_ERROR(res, "DumpTransferCommands")
     }
 
-    for (auto disp_context : dispatch_contexts)
+    for (auto& disp_context : dispatch_contexts)
     {
         VkResult res = disp_context->DumpDispatchTraceRays();
         CHECK_VK_ERROR(res, "DumpDispatchTraceRays")
