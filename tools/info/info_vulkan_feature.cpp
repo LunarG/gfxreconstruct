@@ -59,10 +59,9 @@ std::string InfoVulkanFeature::GenerateText()
 {
     std::string return_val = "\nVulkan application info:\n";
 
-    uint32_t inst_count    = vulkan_stats_consumer_.GetInstanceCount();
-    auto     instance_info = vulkan_stats_consumer_.GetInstanceInfo();
-    auto     pd_info       = vulkan_stats_consumer_.GetPhysicalDeviceInfo();
-    auto     dev_info      = vulkan_stats_consumer_.GetDeviceInfo();
+    auto instance_info = vulkan_stats_consumer_.GetInstanceInfo();
+    auto pd_info       = vulkan_stats_consumer_.GetPhysicalDeviceInfo();
+    auto dev_info      = vulkan_stats_consumer_.GetDeviceInfo();
 
     // Find the best instance (use the last one if nothing else looks good)
     VkInstance best_instance = vulkan_stats_consumer_.GetLastCreatedInstance();
@@ -169,22 +168,16 @@ std::string InfoVulkanFeature::GetDeviceTypeString(VkPhysicalDeviceType device_t
     {
         case VK_PHYSICAL_DEVICE_TYPE_OTHER:
             return "VK_PHYSICAL_DEVICE_TYPE_OTHER";
-            break;
         case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
             return "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU";
-            break;
         case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
             return "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU";
-            break;
         case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
             return "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU";
-            break;
         case VK_PHYSICAL_DEVICE_TYPE_CPU:
             return "VK_PHYSICAL_DEVICE_TYPE_CPU";
-            break;
         default:
             return std::string("Unknown (") + std::to_string(device_type) + ")";
-            break;
     }
 }
 
@@ -215,18 +208,15 @@ nlohmann::json InfoVulkanFeature::GenerateJson()
 {
     nlohmann::json vulkan_stats;
 
-    uint32_t inst_count    = vulkan_stats_consumer_.GetInstanceCount();
-    auto     instance_info = vulkan_stats_consumer_.GetInstanceInfo();
-    auto     pd_info       = vulkan_stats_consumer_.GetPhysicalDeviceInfo();
-    auto     dev_info      = vulkan_stats_consumer_.GetDeviceInfo();
+    auto instance_info = vulkan_stats_consumer_.GetInstanceInfo();
+    auto pd_info       = vulkan_stats_consumer_.GetPhysicalDeviceInfo();
+    auto dev_info      = vulkan_stats_consumer_.GetDeviceInfo();
 
     vulkan_stats["header-version"] = std::to_string(VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                      std::to_string(VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                      std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
     auto& instances_json = vulkan_stats["instances"] = nlohmann::json::array();
 
-    uint32_t       inst_index = 0;
-    nlohmann::json instance_array;
     for (auto& it : instance_info)
     {
         nlohmann::json instance_json;

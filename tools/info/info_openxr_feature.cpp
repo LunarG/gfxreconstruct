@@ -61,18 +61,21 @@ std::string InfoOpenXrFeature::GenerateText()
     std::string return_val    = "\nOpenXR info:\n";
     auto        instance_info = openxr_stats_consumer_.GetInstanceInfo();
 
-    return_val += "\tHeader Version:             " + GetVersionString(XR_CURRENT_API_VERSION) + "\n";
+    if (instance_info.size() > 0)
+    {
+        return_val += "\tHeader Version:             " + GetVersionString(XR_CURRENT_API_VERSION) + "\n";
 
-    return_val += "\tNumber of OpenXR Instances: " + std::to_string(instance_info.size()) + "\n";
+        return_val += "\tNumber of OpenXR Instances: " + std::to_string(instance_info.size()) + "\n";
 
-    // For non-verbose standard output, just print first application/instance info
-    return_val += "\nOpenXR application info:";
-    return_val += "\tApplication name:    " + instance_info[0].app_name + "\n";
-    return_val += "\tApplication version: " + std::to_string(instance_info[0].app_version) + "\n";
-    return_val += "\tEngine name:         " + instance_info[0].engine_name + "\n";
-    return_val += "\tEngine version:      " + std::to_string(instance_info[0].engine_version) + "\n";
-    return_val += "\tTarget API version:  " + std::to_string(instance_info[0].api_version) + " (" +
-                  GetVersionString(instance_info[0].api_version) + ")" + "\n\n";
+        // For non-verbose standard output, just print first application/instance info
+        return_val += "\nOpenXR application info:\n";
+        return_val += "\tApplication name:    " + instance_info[0].app_name + "\n";
+        return_val += "\tApplication version: " + std::to_string(instance_info[0].app_version) + "\n";
+        return_val += "\tEngine name:         " + instance_info[0].engine_name + "\n";
+        return_val += "\tEngine version:      " + std::to_string(instance_info[0].engine_version) + "\n";
+        return_val += "\tTarget API version:  " + std::to_string(instance_info[0].api_version) + " (" +
+                      GetVersionString(instance_info[0].api_version) + ")" + "\n\n";
+    }
 
     return return_val;
 }
@@ -86,8 +89,6 @@ nlohmann::json InfoOpenXrFeature::GenerateJson()
     openxr_stats["header-version"] = GetVersionString(XR_CURRENT_API_VERSION);
     auto& instances_json = openxr_stats["instances"] = nlohmann::json::array();
 
-    uint32_t       inst_index = 0;
-    nlohmann::json instance_array;
     for (auto& it : instance_info)
     {
         nlohmann::json instance_json;
