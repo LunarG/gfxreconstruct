@@ -1901,6 +1901,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         VkSubmitInfo modified_submit_info = si;
         for (uint32_t cb = 0; cb < si.commandBufferCount; ++cb)
         {
+            const bool            last_cmd_buf   = (cb == si.commandBufferCount - 1);
             const VkCommandBuffer command_buffer = si.pCommandBuffers[cb];
 
             if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
@@ -1946,8 +1947,14 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                         res = submission_fence.Wait();
                         CHECK_VK_ERROR(res, "WaitForFences")
 
-                        res = submission_fence.Reset();
-                        CHECK_VK_ERROR(res, "ResetFences")
+                        // If there's nothing else to submit then don't reset the fence in case this is the fence
+                        // provided in the original QueueSubmit and the application will do a wait on the fence after
+                        // the submit
+                        if (!last_submit_info || (last_submit_info && !last_cmd_buf))
+                        {
+                            res = submission_fence.Reset();
+                            CHECK_VK_ERROR(res, "ResetFences")
+                        }
 
                         // The semaphores have been used up by the submission. Don't use them again.
                         modified_submit_info.waitSemaphoreCount   = 0;
