@@ -40,6 +40,8 @@
     "vkCmdBindIndexBuffer2KHR": "OverrideCmdBindIndexBuffer2KHR",
     "vkEndCommandBuffer": "OverrideEndCommandBuffer",
     "vkCmdExecuteCommands": "OverrideCmdExecuteCommands",
+    "vkCmdBeginQuery": "OverrideCmdBeginQuery",
+    "vkCmdEndQuery": "OverrideCmdEndQuery",
     "vkCmdCopyBuffer": "OverrideCmdCopyBuffer",
     "vkCmdCopyBuffer2": "OverrideCmdCopyBuffer2",
     "vkCmdCopyBuffer2KHR": "OverrideCmdCopyBuffer2KHR",

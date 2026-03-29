@@ -112,6 +112,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 std::forward_as_tuple(bcb_index, qs_index),
                 std::forward_as_tuple(std::make_unique<DrawCallsDumpingContext>(&options.Draw_Indices[i],
                                                                                 &options.RenderPass_Indices[i],
+                                                                                bcb_index,
+                                                                                qs_index,
                                                                                 options.DrawSubresources,
                                                                                 *object_info_table,
                                                                                 options,
@@ -133,6 +135,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                (options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
                                                    ? &options.TraceRays_Indices[i]
                                                    : nullptr,
+                                               bcb_index,
+                                               qs_index,
                                                options.TraceRaysSubresources,
                                                *object_info_table_,
                                                options,
@@ -148,6 +152,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                 std::piecewise_construct,
                 std::forward_as_tuple(bcb_index, qs_index),
                 std::forward_as_tuple(std::make_unique<TransferDumpingContext>(&options.Transfer_Indices[i],
+                                                                               bcb_index,
+                                                                               qs_index,
                                                                                *object_info_table_,
                                                                                instance_tables,
                                                                                device_tables,
@@ -197,6 +203,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                         std::forward_as_tuple(std::make_unique<DrawCallsDumpingContext>(
                                                             nullptr,
                                                             &options.RenderPass_Indices[i],
+                                                            bcb_index,
+                                                            qs_index,
                                                             options.DrawSubresources,
                                                             *object_info_table,
                                                             options,
@@ -240,6 +248,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                 std::make_unique<DispatchTraceRaysDumpingContext>(nullptr,
                                                                                   options.DispatchSubresources,
                                                                                   nullptr,
+                                                                                  bcb_index,
+                                                                                  qs_index,
                                                                                   options.TraceRaysSubresources,
                                                                                   *object_info_table_,
                                                                                   options,
@@ -508,6 +518,27 @@ void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(MapOfContexts& contex
     });
     GFXRECON_ASSERT(count <= active_contexts_);
     active_contexts_ -= count;
+}
+
+void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(decode::Index qs_index)
+{
+    ReleaseDumpingContexts(draw_call_contexts_, qs_index);
+    ReleaseDumpingContexts(dispatch_ray_contexts_, qs_index);
+    ReleaseDumpingContexts(transfer_contexts_, qs_index);
+
+    BeginCommandBufferQueueSubmit_Indices_.erase(
+        std::remove_if(
+            BeginCommandBufferQueueSubmit_Indices_.begin(),
+            BeginCommandBufferQueueSubmit_Indices_.end(),
+            [qs_index](const BeginCmdBufQueueSubmitPair& index_pair) { return index_pair.second == qs_index; }),
+        BeginCommandBufferQueueSubmit_Indices_.end());
+
+    // Once all submissions are complete release resources
+    if (BeginCommandBufferQueueSubmit_Indices_.empty())
+    {
+        GFXRECON_ASSERT(!active_contexts_);
+        Release();
+    }
 }
 
 VkResult VulkanReplayDumpResourcesBase::BeginCommandBuffer(uint64_t                 bcb_index,
@@ -815,7 +846,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
 
                 const auto num_attachments =
                     GFXRECON_NARROWING_CAST(uint32_t, attachment_begin_info->pAttachments.GetLength());
-                const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
+                const format::HandleId* handle_ids = attachment_begin_info->pAttachments.GetPointer();
 
                 GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
                 render_pass_info->begin_renderpass_override_attachments.assign(handle_ids,
@@ -887,7 +918,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
 
                 const auto num_attachments =
                     GFXRECON_NARROWING_CAST(uint32_t, attachment_begin_info->pAttachments.GetLength());
-                const format::HandleId* handle_ids      = attachment_begin_info->pAttachments.GetPointer();
+                const format::HandleId* handle_ids = attachment_begin_info->pAttachments.GetPointer();
 
                 GFXRECON_ASSERT(num_attachments == render_pass_info->attachment_description_final_layouts.size());
                 render_pass_info->begin_renderpass_override_attachments.assign(handle_ids,
@@ -1837,152 +1868,146 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                                                     const graphics::VulkanDeviceTable& device_table,
                                                     const VulkanQueueInfo*             queue_info,
                                                     VkFence                            fence,
-                                                    uint64_t                           index)
+                                                    uint64_t                           qs_index)
 {
-    bool pre_submit = false;
-    bool submitted  = false;
-
-    // First do a submission with all command buffer except the ones we are interested in
-    std::vector<VkSubmitInfo>                 modified_submit_infos = submit_infos;
-    std::vector<std::vector<VkCommandBuffer>> modified_command_buffer_handles(modified_submit_infos.size());
-    for (size_t s = 0; s < modified_submit_infos.size(); s++)
-    {
-        size_t     command_buffer_count   = modified_submit_infos[s].commandBufferCount;
-        const auto command_buffer_handles = modified_submit_infos[s].pCommandBuffers;
-
-        for (uint32_t o = 0; o < command_buffer_count; ++o)
-        {
-            if (cb_bcb_map_.find(command_buffer_handles[o]) == cb_bcb_map_.end() ||
-                FindTransferContext(command_buffer_handles[o], index))
-            {
-                pre_submit = true;
-                modified_command_buffer_handles[s].push_back(command_buffer_handles[o]);
-            }
-        }
-
-        if (modified_command_buffer_handles[s].size())
-        {
-            GFXRECON_NARROWING_ASSIGN(modified_submit_infos[s].commandBufferCount,
-                                      modified_command_buffer_handles[s].size());
-            modified_submit_infos[s].pCommandBuffers    = modified_command_buffer_handles[s].data();
-        }
-        else
-        {
-            modified_submit_infos[s].commandBufferCount = 0;
-            modified_submit_infos[s].pCommandBuffers    = nullptr;
-        }
+#define CHECK_VK_ERROR(_res_, _func_)                                                                               \
+    if (_res_ != VK_SUCCESS)                                                                                        \
+    {                                                                                                               \
+        GFXRECON_LOG_ERROR("[%s:%u] %s failed with %s", __FILE__, __LINE__, _func_, util::ToString(_res_).c_str()); \
+        Release();                                                                                                  \
+        return _res_;                                                                                               \
     }
+
+    std::vector<std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
+    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
 
     if (!output_json_per_command)
     {
         active_delegate_->DumpStart();
     }
 
-    if (pre_submit)
+    const size_t submit_count = submit_infos.size();
+    for (const auto& si : submit_infos)
     {
-        VkResult res = device_table.QueueSubmit(queue_info->handle,
-                                                GFXRECON_NARROWING_CAST(uint32_t, modified_submit_infos.size()),
-                                                modified_submit_infos.data(),
-                                                fence);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR(
-                "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-            Release();
-            return res;
-        }
+        std::vector<VkCommandBuffer> submit_cbs;
+        VkResult                     res = VK_SUCCESS;
 
-        // Wait
-        res = device_table.QueueWaitIdle(queue_info->handle);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("QueueWaitIdle failed with %s", util::ToString<VkResult>(res).c_str());
-            Release();
-            return res;
-        }
+        // For each VkSubmitInfo we shall create a different fence. The provided fence will be used only in the last
+        // VkSubmitInfo. If none is provided then we will create one.
+        const bool     last_submit_info  = (&si == &submit_infos.back());
+        const bool     create_temp_fence = (!last_submit_info) || (last_submit_info && (fence == VK_NULL_HANDLE));
+        TemporaryFence submission_fence(create_temp_fence ? VK_NULL_HANDLE : fence, queue_info->parent, device_table);
 
-        for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
+        VkSubmitInfo modified_submit_info = si;
+        for (uint32_t cb = 0; cb < si.commandBufferCount; ++cb)
         {
-            if (bcb_qs_pair.second == index)
+            const bool            last_cmd_buf   = (cb == si.commandBufferCount - 1);
+            const VkCommandBuffer command_buffer = si.pCommandBuffers[cb];
+
+            if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
             {
-                res       = transf_context->DumpTransferCommands(bcb_qs_pair.first, index);
-                submitted = true;
-                if (res != VK_SUCCESS)
+                submit_cbs.push_back(command_buffer);
+            }
+            else
+            {
+                bool has_transfer_or_dispatch = false;
+
+                // Handle Transfer commands
+                if (auto transfer_context = FindTransferContext(command_buffer, qs_index))
                 {
-                    Release();
-                    RaiseFatalError(("Dumping transfer failed (" + util::ToString<VkResult>(res) + ")").c_str());
-                    return res;
+                    transfer_contexts.push_back(transfer_context);
+                    // Transfer context does not use a clone command buffer. We submit the original one.
+                    submit_cbs.push_back(command_buffer);
+                    has_transfer_or_dispatch = true;
+                }
+
+                // Handle Dispatch/TraceRays commands
+                if (auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index))
+                {
+                    dispatch_contexts.push_back(dispatch_context);
+                    // Dispatch/RayTracing context uses a clone command buffer. We submit that one instead of the
+                    // original.
+                    submit_cbs.push_back(dispatch_context->GetDispatchRaysCommandBuffer());
+                    has_transfer_or_dispatch = true;
+                }
+
+                // Handle Draw commands
+                if (auto dc_context = FindDrawCallContext(command_buffer, qs_index))
+                {
+                    // Submit previous command buffers from this VkSubmitInfo before dumping draw calls
+                    if (!submit_cbs.empty())
+                    {
+                        modified_submit_info.commandBufferCount = static_cast<uint32_t>(submit_cbs.size());
+                        modified_submit_info.pCommandBuffers    = submit_cbs.data();
+                        res                                     = device_table.QueueSubmit(
+                            queue_info->handle, 1, &modified_submit_info, submission_fence.handle);
+                        CHECK_VK_ERROR(res, "QueueSubmit")
+
+                        // The fence might be reused. Wait and reset
+                        res = submission_fence.Wait();
+                        CHECK_VK_ERROR(res, "WaitForFences")
+
+                        // If there's nothing else to submit then don't reset the fence in case this is the fence
+                        // provided in the original QueueSubmit and the application will do a wait on the fence after
+                        // the submit
+                        if (!last_submit_info || (last_submit_info && !last_cmd_buf))
+                        {
+                            res = submission_fence.Reset();
+                            CHECK_VK_ERROR(res, "ResetFences")
+                        }
+
+                        // The semaphores have been used up by the submission. Don't use them again.
+                        modified_submit_info.waitSemaphoreCount   = 0;
+                        modified_submit_info.pWaitSemaphores      = nullptr;
+                        modified_submit_info.signalSemaphoreCount = 0;
+                        modified_submit_info.pSignalSemaphores    = nullptr;
+                        submit_cbs.clear();
+                    }
+
+                    res = dc_context->DumpDrawCalls(queue_info->handle, modified_submit_info);
+                    CHECK_VK_ERROR(res, "DumpDrawCalls")
+
+                    // The semaphores have been used up by the submission. Don't use them again.
+                    modified_submit_info.waitSemaphoreCount   = 0;
+                    modified_submit_info.pWaitSemaphores      = nullptr;
+                    modified_submit_info.signalSemaphoreCount = 0;
+                    modified_submit_info.pSignalSemaphores    = nullptr;
+
+                    // Insert original command buffer in the vector for submission. If has_transfer_or_dispatch is true
+                    // then the command buffer has already been submitted
+                    if (!has_transfer_or_dispatch)
+                    {
+                        GFXRECON_ASSERT(submit_cbs.empty());
+                        submit_cbs.push_back(command_buffer);
+                    }
                 }
             }
         }
 
-        if (submitted)
+        if (!submit_cbs.empty())
         {
-            // Keep track of active contexts.
-            ReleaseDumpingContexts(transfer_contexts_, index);
+            modified_submit_info.commandBufferCount = static_cast<uint32_t>(submit_cbs.size());
+            modified_submit_info.pCommandBuffers    = submit_cbs.data();
+            res = device_table.QueueSubmit(queue_info->handle, 1, &modified_submit_info, submission_fence.handle);
+            CHECK_VK_ERROR(res, "QueueSubmit")
+
+            res = submission_fence.Wait();
+            CHECK_VK_ERROR(res, "WaitForFences")
+
+            submit_cbs.clear();
         }
     }
 
-    for (size_t s = 0; s < submit_infos.size(); s++)
+    for (auto& transfer_context : transfer_contexts)
     {
-        size_t     command_buffer_count   = submit_infos[s].commandBufferCount;
-        const auto command_buffer_handles = submit_infos[s].pCommandBuffers;
+        VkResult res = transfer_context->DumpTransferCommands();
+        CHECK_VK_ERROR(res, "DumpTransferCommands")
+    }
 
-        for (size_t o = 0; o < command_buffer_count; ++o)
-        {
-            if (pre_submit)
-            {
-                // These semaphores have already been handled. Do not bother with them
-                modified_submit_infos[s].waitSemaphoreCount   = 0;
-                modified_submit_infos[s].signalSemaphoreCount = 0;
-            }
-
-            std::shared_ptr<DrawCallsDumpingContext> dc_context = FindDrawCallContext(command_buffer_handles[o], index);
-            if (dc_context != nullptr)
-            {
-                VkResult res = dc_context->DumpDrawCalls(
-                    queue_info->handle, index, cb_bcb_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
-                if (res != VK_SUCCESS)
-                {
-                    Release();
-                    RaiseFatalError(("Dumping draw calls failed (" + util::ToString<VkResult>(res) + ")").c_str());
-                    return res;
-                }
-
-                // Keep track of active contexts.
-                ReleaseDumpingContexts(draw_call_contexts_, index);
-
-                submitted = true;
-            }
-
-            std::shared_ptr<DispatchTraceRaysDumpingContext> dr_context =
-                FindDispatchTraceRaysContext(command_buffer_handles[o], index);
-            if (dr_context != nullptr)
-            {
-                VkResult res = dr_context->DumpDispatchTraceRays(queue_info->handle,
-                                                                 index,
-                                                                 cb_bcb_map_[command_buffer_handles[o]],
-                                                                 modified_submit_infos[s],
-                                                                 fence,
-                                                                 !submitted);
-                if (res != VK_SUCCESS)
-                {
-                    Release();
-                    RaiseFatalError(
-                        ("Dumping dispatch/ray tracing failed (" + util::ToString<VkResult>(res) + ")").c_str());
-                    return res;
-                }
-
-                // Keep track of active contexts.
-                ReleaseDumpingContexts(dispatch_ray_contexts_, index);
-
-                submitted = true;
-            }
-
-            // In case we are dumping multiple command buffers from the same submission
-            modified_submit_infos[s].waitSemaphoreCount   = 0;
-            modified_submit_infos[s].signalSemaphoreCount = 0;
-        }
+    for (auto& disp_context : dispatch_contexts)
+    {
+        VkResult res = disp_context->DumpDispatchTraceRays();
+        CHECK_VK_ERROR(res, "DumpDispatchTraceRays")
     }
 
     if (!output_json_per_command)
@@ -1990,34 +2015,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         active_delegate_->DumpEnd();
     }
 
-    // Looks like we didn't submit anything. Do the submission as it would have been done
-    // without further modifications
-    if (!submitted)
-    {
-        VkResult res = device_table.QueueSubmit(
-            queue_info->handle, GFXRECON_NARROWING_CAST(uint32_t, submit_infos.size()), submit_infos.data(), fence);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR(
-                "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-        }
-    }
-    else
-    {
-        BeginCommandBufferQueueSubmit_Indices_.erase(
-            std::remove_if(
-                BeginCommandBufferQueueSubmit_Indices_.begin(),
-                BeginCommandBufferQueueSubmit_Indices_.end(),
-                [index](const BeginCmdBufQueueSubmitPair& index_pair) { return index_pair.second == index; }),
-            BeginCommandBufferQueueSubmit_Indices_.end());
-
-        // Once all submissions are complete release resources
-        if (BeginCommandBufferQueueSubmit_Indices_.empty())
-        {
-            GFXRECON_ASSERT(!active_contexts_);
-            Release();
-        }
-    }
+    ReleaseDumpingContexts(qs_index);
 
     return VK_SUCCESS;
 }
@@ -2125,7 +2123,7 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
         if (pipeline_library_info != nullptr)
         {
             const auto library_count = GFXRECON_NARROWING_CAST(uint32_t, pipeline_library_info->pLibraries.GetLength());
-            const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
+            const format::HandleId* ppl_ids = pipeline_library_info->pLibraries.GetPointer();
 
             for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
             {
@@ -3236,7 +3234,7 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
     std::shared_ptr<TransferDumpingContext> transfer_context = FindTransferContextBcbQsIndex(0, 0);
     if (transfer_context != nullptr)
     {
-        VkResult res = transfer_context->DumpTransferCommands(0, 0);
+        VkResult res = transfer_context->DumpTransferCommands();
         if (res != VK_SUCCESS)
         {
             Release();
@@ -3248,6 +3246,63 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
         // ProcessStateEndMarker marks the end of the state setup section. If a TransferDumpingContext was assigned to
         // dump transfer commands from there then now it becomes inactive.
         ReleaseDumpingContexts(transfer_contexts_, 0);
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdBeginQuery(const ApiCallInfo&         call_info,
+                                                          PFN_vkCmdBeginQuery        func,
+                                                          VkCommandBuffer            original_command_buffer,
+                                                          const VulkanQueryPoolInfo* queryPool,
+                                                          uint32_t                   query,
+                                                          VkQueryControlFlags        flags)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(original_command_buffer);
+        for (auto dc_context : dc_contexts)
+        {
+            dc_context->CmdBeginQuery(queryPool->handle, query);
+        }
+
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, query, flags);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdEndQuery(const ApiCallInfo&         call_info,
+                                                        PFN_vkCmdEndQuery          func,
+                                                        VkCommandBuffer            original_command_buffer,
+                                                        const VulkanQueryPoolInfo* queryPool,
+                                                        uint32_t                   query)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+            FindDrawCallDumpingContexts(original_command_buffer);
+        for (auto dc_context : dc_contexts)
+        {
+            dc_context->CmdEndQuery(queryPool->handle, query);
+        }
+
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, query);
+            }
+        }
     }
 }
 

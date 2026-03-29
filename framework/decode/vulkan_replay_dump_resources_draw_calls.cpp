@@ -48,6 +48,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 DrawCallsDumpingContext::DrawCallsDumpingContext(
     const CommandIndices*                             draw_indices,
     const RenderPassIndices*                          renderpass_indices,
+    decode::Index                                     bcb_index,
+    decode::Index                                     qs_index,
     const CommandImageSubresource&                    dc_subresources,
     CommonObjectInfoTable&                            object_info_table,
     const VulkanReplayOptions&                        options,
@@ -56,10 +58,10 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
-    current_cb_index_(0), dc_subresources_(dc_subresources), active_renderpass_(nullptr),
-    active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0), current_subpass_(0),
-    delegate_(delegate), options_(options), compressor_(compressor), current_render_pass_type_(kNone),
-    aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
+    bcb_index_(bcb_index), qs_index_(qs_index), current_cb_index_(0), dc_subresources_(dc_subresources),
+    active_renderpass_(nullptr), active_framebuffer_(nullptr), bound_gr_pipeline_{ nullptr }, current_renderpass_(0),
+    current_subpass_(0), delegate_(delegate), options_(options), compressor_(compressor),
+    current_render_pass_type_(kNone), aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
     object_info_table_(object_info_table),
     replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false },
@@ -958,6 +960,14 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     GFXRECON_ASSERT(!RP_indices_.empty());
 
+    for (const auto& [key, inside_renderpass] : active_queries_)
+    {
+        if (inside_renderpass)
+        {
+            device_table_->CmdEndQuery(current_command_buffer, key.first, key.second);
+        }
+    }
+
     if (current_render_pass_type_ == RenderPassType::kRenderPass)
     {
         device_table_->CmdEndRenderPass(current_command_buffer);
@@ -1005,6 +1015,14 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
                     cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 }
             }
+        }
+    }
+
+    for (const auto& [key, inside_renderpass] : active_queries_)
+    {
+        if (!inside_renderpass)
+        {
+            device_table_->CmdEndQuery(current_command_buffer, key.first, key.second);
         }
     }
 
@@ -1065,17 +1083,21 @@ bool DrawCallsDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
     return secondaries_.find(index) != secondaries_.end();
 }
 
-VkResult DrawCallsDumpingContext::DumpDrawCalls(
-    VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence)
+VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue queue, const VkSubmitInfo& submit_info)
 {
     const size_t n_drawcalls = command_buffers_.size();
+
+    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
+    GFXRECON_ASSERT(device_info);
+
+    TemporaryFence submission_fence(device_info->handle, *device_table_);
 
     // Dump render targets
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
         VkSubmitInfo si;
         si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        si.pNext                = nullptr;
+        si.pNext                = submit_info.pNext;
         si.waitSemaphoreCount   = !cb ? submit_info.waitSemaphoreCount : 0;
         si.pWaitSemaphores      = !cb ? submit_info.pWaitSemaphores : nullptr;
         si.pWaitDstStageMask    = !cb ? submit_info.pWaitDstStageMask : nullptr;
@@ -1084,29 +1106,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         si.signalSemaphoreCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreCount : 0;
         si.pSignalSemaphores    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphores : nullptr;
 
-        const VulkanDeviceInfo* device_info =
-            object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
-        assert(device_info);
-
-        const VkFenceCreateInfo ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-        VkFence                 submission_fence;
-        if (fence == VK_NULL_HANDLE)
-        {
-            VkResult res = device_table_->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
-            if (res != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
-                return res;
-            }
-        }
-        else
-        {
-            submission_fence = fence;
-        }
-
-        device_table_->ResetFences(device_info->handle, 1, &submission_fence);
-
-        VkResult res = device_table_->QueueSubmit(queue, 1, &si, submission_fence);
+        VkResult res = device_table_->QueueSubmit(queue, 1, &si, submission_fence.handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1115,17 +1115,17 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
 
         // Wait
-        res = device_table_->WaitForFences(device_info->handle, 1, &submission_fence, VK_TRUE, ~0UL);
+        res = submission_fence.Wait();
         if (res != VK_SUCCESS)
         {
-            device_table_->DestroyFence(device_info->handle, submission_fence, nullptr);
-            GFXRECON_LOG_ERROR("WaitForFences failed with %s", util::ToString<VkResult>(res).c_str());
             return res;
         }
 
-        if (fence == VK_NULL_HANDLE)
+        // Reset fence for next submission
+        res = submission_fence.Reset();
+        if (res != VK_SUCCESS)
         {
-            device_table_->DestroyFence(device_info->handle, submission_fence, nullptr);
+            return res;
         }
 
         const size_t                dc_index = dc_indices_[CmdBufToDCVectorIndex(cb)];
@@ -1152,7 +1152,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         // Dump vertex/index buffers
         if (options_.dump_resources_dump_vertex_index_buffer && is_before_command)
         {
-            res = DumpVertexIndexBuffers(qs_index, bcb_index, dc_index);
+            res = DumpVertexIndexBuffers(dc_index);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping vertex/index buffers failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -1161,7 +1161,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
 
         // Dump render targets
-        res = DumpRenderTargetAttachments(cb, rp, sp, qs_index, bcb_index);
+        res = DumpRenderTargetAttachments(cb, rp, sp);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping render target attachments failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -1171,7 +1171,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         // Dump immutable resources
         if (options_.dump_all_descriptors && is_before_command)
         {
-            res = DumpDescriptors(qs_index, bcb_index, dc_index, rp);
+            res = DumpDescriptors(dc_index, rp);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -1353,8 +1353,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
-    uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index)
+VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t cmd_buf_index, uint64_t rp, uint64_t sp)
 {
     assert(device_table_ != nullptr);
 
@@ -1368,9 +1367,9 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     auto            dc_params_entry = draw_call_params_.find(dc_index);
     DrawCallParams& dc_params       = *dc_params_entry->second;
 
-    dc_params.dumped_resources.bcb_index = bcb_index;
+    dc_params.dumped_resources.bcb_index = bcb_index_;
     dc_params.dumped_resources.cmd_index = dc_index;
-    dc_params.dumped_resources.qs_index  = qs_index;
+    dc_params.dumped_resources.qs_index  = qs_index_;
 
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
@@ -1396,9 +1395,9 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         const VulkanImageInfo* image_info     = render_targets_[rp][sp].color_att_imgs[i];
         const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info->parent, image_info);
         auto&                  dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kRtv,
-                                                                              bcb_index,
+                                                                              bcb_index_,
                                                                               dc_index,
-                                                                              qs_index,
+                                                                              qs_index_,
                                                                               rp,
                                                                               sp,
                                                                               static_cast<uint32_t>(i),
@@ -1468,9 +1467,9 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         // The "before" depth target will be at the back() of the vector
         GFXRECON_ASSERT(image_info != nullptr);
         auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(DumpResourceType::kDsv,
-                                                                              bcb_index,
+                                                                              bcb_index_,
                                                                               dc_index,
-                                                                              qs_index,
+                                                                              qs_index_,
                                                                               rp,
                                                                               sp,
                                                                               DEPTH_ATTACHMENT,
@@ -1534,7 +1533,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp)
+VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp)
 {
     assert(rp < render_pass_dumped_descriptors_.size());
     assert(draw_call_params_.find(dc_index) != draw_call_params_.end());
@@ -1599,9 +1598,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                             auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                                 DumpResourceType::kImageDescriptor,
-                                bcb_index,
+                                bcb_index_,
                                 dc_index,
-                                qs_index,
+                                qs_index_,
                                 rp,
                                 static_cast<uint64_t>(current_subpass_),
                                 desc_binding.stage_flags,
@@ -1701,9 +1700,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                         auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                             DumpResourceType::kBufferDescriptor,
-                            bcb_index,
+                            bcb_index_,
                             dc_index,
-                            qs_index,
+                            qs_index_,
                             rp,
                             static_cast<uint64_t>(current_subpass_),
                             desc_binding.stage_flags,
@@ -1784,9 +1783,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                         auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                             DumpResourceType::kBufferDescriptor,
-                            bcb_index,
+                            bcb_index_,
                             dc_index,
-                            qs_index,
+                            qs_index_,
                             rp,
                             static_cast<uint64_t>(current_subpass_),
                             desc_binding.stage_flags,
@@ -1851,9 +1850,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
 
                     auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                         DumpResourceType::kInlineUniformBufferDescriptor,
-                        bcb_index,
+                        bcb_index_,
                         dc_index,
-                        qs_index,
+                        qs_index_,
                         rp,
                         static_cast<uint64_t>(current_subpass_),
                         desc_binding.stage_flags,
@@ -1883,9 +1882,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t qs_index, uint64_t bc
                         GFXRECON_ASSERT(as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
                         auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                             DumpResourceType::kAccelerationStructure,
-                            bcb_index,
+                            bcb_index_,
                             dc_index,
-                            qs_index,
+                            qs_index_,
                             desc_binding.stage_flags,
                             desc_binding.desc_type,
                             desc_set_index,
@@ -2121,7 +2120,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index)
+VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t dc_index)
 {
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
@@ -2265,9 +2264,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
             auto& new_dumped_index_buffer = dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(
                 DumpResourceType::kIndex,
-                bcb_index,
+                bcb_index_,
                 dc_index,
-                qs_index,
+                qs_index_,
                 index_type,
                 dc_params.referenced_index_buffer.buffer_info->handle,
                 dc_params.referenced_index_buffer.buffer_info->capture_id,
@@ -2519,9 +2518,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
                 auto& new_dumped_vertex_buffer = dc_params.dumped_resources.dumped_vertex_index_buffers.emplace_back(
                     DumpResourceType::kVertex,
-                    bcb_index,
+                    bcb_index_,
                     dc_index,
-                    qs_index,
+                    qs_index_,
                     binding_index,
                     vb_entry.buffer_info->handle,
                     vb_entry.buffer_info->capture_id,
@@ -2800,17 +2799,17 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const VkRenderPassCreateInfo* 
         new_subp_desc       = original_render_pass_ci->pSubpasses[sub];
 
         VkRenderPassCreateInfo ci;
-        ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        ci.flags           = original_render_pass_ci->flags;
+        ci.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        ci.flags = original_render_pass_ci->flags;
         GFXRECON_NARROWING_ASSIGN(ci.attachmentCount, modified_attachments.size());
-        ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
+        ci.pAttachments = modified_attachments.empty() ? nullptr : modified_attachments.data();
 
         assert(subpass_descs.size() == sub + 1);
         ci.subpassCount = sub + 1;
         ci.pSubpasses   = subpass_descs.data();
 
         GFXRECON_NARROWING_ASSIGN(ci.dependencyCount, modified_dependencies.size());
-        ci.pDependencies   = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
+        ci.pDependencies = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
 
         ci.pNext = original_render_pass_ci->pNext;
 
@@ -2955,17 +2954,17 @@ VkResult DrawCallsDumpingContext::CloneRenderPass2(const VulkanRenderPassInfo*  
         VkRenderPassCreateInfo2 ci;
         // VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2 and VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR are equal so
         // it doesn't matter which one we use
-        ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
-        ci.flags           = original_render_pass_ci->flags;
+        ci.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
+        ci.flags = original_render_pass_ci->flags;
         GFXRECON_NARROWING_ASSIGN(ci.attachmentCount, modified_attachments.size());
-        ci.pAttachments    = modified_attachments.empty() ? nullptr : modified_attachments.data();
+        ci.pAttachments = modified_attachments.empty() ? nullptr : modified_attachments.data();
 
         assert(subpass_descs.size() == sub + 1);
         ci.subpassCount = sub + 1;
         ci.pSubpasses   = subpass_descs.data();
 
         GFXRECON_NARROWING_ASSIGN(ci.dependencyCount, modified_dependencies.size());
-        ci.pDependencies   = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
+        ci.pDependencies = modified_dependencies.empty() ? nullptr : modified_dependencies.data();
 
         ci.correlatedViewMaskCount = original_render_pass_ci->correlatedViewMaskCount;
         ci.pCorrelatedViewMasks    = original_render_pass_ci->pCorrelatedViewMasks;
@@ -3396,6 +3395,7 @@ void DrawCallsDumpingContext::EndRenderPass()
 
     ++current_renderpass_;
 
+    active_renderpass_        = nullptr;
     current_render_pass_type_ = kNone;
 }
 
@@ -3523,6 +3523,16 @@ void DrawCallsDumpingContext::BindIndexBuffer(
     bound_index_buffer_.offset      = offset;
     bound_index_buffer_.index_type  = index_type;
     bound_index_buffer_.size        = index_buffer_size;
+}
+
+void DrawCallsDumpingContext::CmdBeginQuery(VkQueryPool queryPool, uint32_t query)
+{
+    active_queries_[{ queryPool, query }] = active_renderpass_ != nullptr;
+}
+
+void DrawCallsDumpingContext::CmdEndQuery(VkQueryPool queryPool, uint32_t query)
+{
+    active_queries_.erase({ queryPool, query });
 }
 
 void DrawCallsDumpingContext::SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,

@@ -46,6 +46,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 TransferDumpingContext::TransferDumpingContext(
     const CommandIndices*                             transfer_indices,
+    decode::Index                                     bcb_index,
+    decode::Index                                     qs_index,
     CommonObjectInfoTable&                            object_info_table,
     const graphics::InstanceDispatchTablesMap&        instance_tables,
     const graphics::DeviceDispatchTablesMap&          device_tables,
@@ -55,9 +57,10 @@ TransferDumpingContext::TransferDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const util::Compressor*                           compressor) :
     object_info_table_(object_info_table),
-    instance_tables_(instance_tables), device_tables_(device_tables), options_(options), delegate_(delegate),
-    address_trackers_(address_trackers), acceleration_structures_context_(acceleration_structures_context),
-    compressor_(compressor), device_table_(nullptr), device_info_(nullptr)
+    bcb_index_(bcb_index), qs_index_(qs_index), instance_tables_(instance_tables), device_tables_(device_tables),
+    options_(options), delegate_(delegate), address_trackers_(address_trackers),
+    acceleration_structures_context_(acceleration_structures_context), compressor_(compressor), device_table_(nullptr),
+    device_info_(nullptr)
 {
     if (transfer_indices != nullptr)
     {
@@ -1226,9 +1229,9 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
     return VK_SUCCESS;
 }
 
-VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64_t qs_index)
+VkResult TransferDumpingContext::DumpTransferCommands()
 {
-    if (!qs_index)
+    if (!qs_index_)
     {
         delegate_.DumpStart();
     }
@@ -1240,9 +1243,9 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
         auto& host_data      = std::get<VulkanDelegateTransferCommandDumpedData>(res_info.dumped_data);
 
         TransferParams::TransferParamsBase* base_transfer_cmd = cmd.params.get();
-        base_transfer_cmd->dumped_resources.bcb_index         = bcb_index;
+        base_transfer_cmd->dumped_resources.bcb_index         = bcb_index_;
         base_transfer_cmd->dumped_resources.cmd_index         = cmd_index;
-        base_transfer_cmd->dumped_resources.qs_index          = qs_index;
+        base_transfer_cmd->dumped_resources.qs_index          = qs_index_;
 
         switch (base_transfer_cmd->type)
         {
@@ -1252,7 +1255,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = init_buffer->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kInitBufferMetaCommand,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             init_buffer->dst_buffer,
                                                             init_buffer->data.size());
                 auto& new_dumped_init_buffer =
@@ -1273,7 +1276,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = init_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kInitImageMetaCommand,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             init_image->dst_image,
                                                             &init_image->copied_image.image_info);
 
@@ -1322,7 +1325,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = copy_buffer->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyBuffer,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             copy_buffer->src_buffer,
                                                             copy_buffer->dst_buffer,
                                                             copy_buffer->has_before_command);
@@ -1400,7 +1403,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = copy_buffer_to_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyBufferToImage,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             copy_buffer_to_image->src_buffer,
                                                             copy_buffer_to_image->dst_image,
                                                             copy_buffer_to_image->has_before_command);
@@ -1520,7 +1523,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = copy_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyImage,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             copy_image->src_image,
                                                             copy_image->dst_image,
                                                             copy_image->has_before_command);
@@ -1638,7 +1641,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = copy_image_to_buffer->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyImageToBuffer,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             copy_image_to_buffer->src_image,
                                                             copy_image_to_buffer->dst_buffer,
                                                             copy_image_to_buffer->has_before_command);
@@ -1716,7 +1719,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = blit_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kBlitImage,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             blit_image->src_image,
                                                             blit_image->dst_image,
                                                             blit_image->filter,
@@ -1832,7 +1835,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = build_as->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kBuildAccelerationStructure,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             build_as->has_before_command);
                 auto& new_dumped_build_as =
                     std::get<DumpedBuildAccelerationStructure>(new_dumped_transfer_cmd->dumped_resource);
@@ -1922,7 +1925,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                 auto& new_dumped_transfer_cmd = copy_as->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyAccelerationStructure,
                                                             cmd_index,
-                                                            qs_index,
+                                                            qs_index_,
                                                             copy_as->src_as,
                                                             copy_as->dst_as,
                                                             copy_as->mode,
@@ -2000,7 +2003,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
         delegate_.DumpDrawCallInfo(transfer_info);
     }
 
-    if (!qs_index)
+    if (!qs_index_)
     {
         delegate_.DumpEnd();
     }

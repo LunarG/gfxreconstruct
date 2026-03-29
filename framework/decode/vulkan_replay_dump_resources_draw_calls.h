@@ -65,6 +65,8 @@ class DrawCallsDumpingContext
 
     DrawCallsDumpingContext(const CommandIndices*                             dc_indices,
                             const RenderPassIndices*                          rp_indices,
+                            decode::Index                                     bcb_index,
+                            decode::Index                                     qs_index,
                             const CommandImageSubresource&                    dc_subresources,
                             CommonObjectInfoTable&                            object_info_table,
                             const VulkanReplayOptions&                        options,
@@ -194,20 +196,22 @@ class DrawCallsDumpingContext
                          VkIndexType             index_type,
                          VkDeviceSize            size = 0);
 
+    void CmdBeginQuery(VkQueryPool queryPool, uint32_t query);
+
+    void CmdEndQuery(VkQueryPool queryPool, uint32_t query);
+
     // When this is called for a command buffer that corresponds to a before command, dc_params should be null
     void FinalizeCommandBuffer(DrawCallParams* dc_params = nullptr);
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
-    VkResult
-    DumpDrawCalls(VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
+    VkResult DumpDrawCalls(VkQueue queue, const VkSubmitInfo& submit_info);
 
-    VkResult DumpRenderTargetAttachments(
-        uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index);
+    VkResult DumpRenderTargetAttachments(uint64_t cmd_buf_index, uint64_t rp, uint64_t sp);
 
-    VkResult DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
+    VkResult DumpDescriptors(uint64_t dc_index, uint64_t rp);
 
-    VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index);
+    VkResult DumpVertexIndexBuffers(uint64_t dc_index);
 
     void Release();
 
@@ -281,6 +285,8 @@ class DrawCallsDumpingContext
     VkResult RevertRenderTargetImageLayouts(VkQueue queue, uint64_t dc_index);
 
     VulkanCommandBufferInfo*     original_command_buffer_info_;
+    decode::Index                bcb_index_;
+    decode::Index                qs_index_;
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
     CommandIndices               dc_indices_;
@@ -764,6 +770,8 @@ class DrawCallsDumpingContext
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
     const VulkanPerDeviceAddressTrackers& address_trackers_;
+
+    std::map<std::pair<VkQueryPool, uint32_t>, bool> active_queries_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,
