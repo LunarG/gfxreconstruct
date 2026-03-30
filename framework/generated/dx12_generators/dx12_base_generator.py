@@ -1474,23 +1474,6 @@ class Dx12BaseGenerator():
                 return m[2]
         return ''
 
-    def is_integer(self, type):
-        return type in ['int8_t', 'int16_t', 'int32_t', 'int64_t',
-                        'uint8_t', 'uint16_t', 'uint32_t', 'uint64_t',
-                        'short', 'int', 'long', 'long long',
-                        'unsigned short', 'unsigned int', 'unsigned long', 'unsigned long long',
-                        'size_t',
-                        'VkDeviceSize',
-                        'XrVersion', 'XrTime', 'XrDuration', 'XrSpaceUserIdFB',
-                        'BYTE', 'DWORD', 'LONG',
-                        'INT', 'INT8', 'INT16', 'INT32', 'INT64',
-                        'UINT', 'UINT8', 'UINT16', 'UINT32', 'UINT64',
-                        'D3D_FEATURE_LEVEL', 'SIZE_T',
-                        'D3D12ApplicationDescFunc', 'D3D12PipelineStateFunc', 'D3D12StateObjectFunc', 'D3D12MessageFunc', 'PFN_DESTRUCTION_CALLBACK',
-                        'D3D12_GPU_VIRTUAL_ADDRESS',
-                        'DXGI_USAGE', 'LONG_PTR', 'ULONG']
-
-
     def is_enum(self, type):
         """Method override."""
         enum_dict = self.source_dict['enum_dict']

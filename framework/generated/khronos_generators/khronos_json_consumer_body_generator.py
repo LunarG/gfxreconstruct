@@ -123,10 +123,9 @@ class KhronosExportJsonConsumerBodyGenerator():
             for value in values:
                 flagsEnumType = value.base_type
 
-                # Default to letting the right function overload to be resolved based on argument types,
-                # including enums, strings ints, floats etc.:
-                # Note there are overloads for scalars and pointers/arrays.
-                to_json = 'FieldToJson(args["{0}"], {0})'
+                # Default to directly asigning the value to JSON, but override
+                # for special cases such as handles, structs, and pointers
+                to_json = 'args["{0}"] = {0}'
 
                 # Special cases:
                 if self.has_special_case_json_export(value.base_type):
@@ -141,12 +140,14 @@ class KhronosExportJsonConsumerBodyGenerator():
                     to_json = 'FieldToJsonAsHex(args["{0}"], {0})'
                 elif self.decode_as_handle(value):
                     to_json = 'HandleToJson(args["{0}"], {0})'
-                elif self.is_enum(value.base_type) and not (value.is_pointer or value.is_array):
-                    to_json = 'args["{0}"] = {0}'
-                elif self.is_integer(value.base_type) and not (value.is_pointer or value.is_array):
-                    to_json = 'args["{0}"] = {0}'
-                elif value.base_type == 'void' and value.is_pointer and value.pointer_count == 1 and not value.is_array:
-                    to_json = 'args["{0}"] = {0}'
+                elif self.is_struct(value.base_type):
+                    to_json = 'FieldToJson(args["{0}"], {0})'
+                elif value.is_pointer and (value.pointer_count > 1 or value.base_type != "void"):
+                    to_json = 'FieldToJson(args["{0}"], {0})'
+                elif value.is_array:
+                    to_json = 'FieldToJson(args["{0}"], {0})'
+                elif value.base_type == 'float':
+                    to_json = 'FieldToJson(args["{0}"], {0})'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flags_type_aliases:
                         flagsEnumType = self.flags_type_aliases[value.base_type

@@ -148,7 +148,7 @@ class KhronosStructToJsonBodyGenerator():
                 continue
 
             # Default to getting the data from the native Vulkan struct:
-            to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0})'
+            to_json = 'jdata["{0}"] = decoded_value.{0}'
 
             if (
                 self.is_function_ptr(value_type)
@@ -195,12 +195,14 @@ class KhronosStructToJsonBodyGenerator():
                             flagsEnumType = self.flags_type_aliases[
                                 value_type]
                         to_json = 'jdata["{0}"] = {2}_t{{decoded_value.{0}}}'
-                    elif self.is_enum(value_type):
-                        to_json = 'jdata["{0}"] = decoded_value.{0}'
                     elif self.is_boolean_type(value_type):
                         to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
-                    elif self.is_integer(value_type):
-                        to_json = 'jdata["{0}"] = decoded_value.{0}'
+                    elif value.base_type == 'float':
+                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0})'
+                    elif value.base_type == 'LUID':
+                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0})'
+                    elif value.base_type == 'MLCoordinateFrameUID':
+                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0})'
 
             to_json = to_json.format(
                 value.name, value_type, flagsEnumType

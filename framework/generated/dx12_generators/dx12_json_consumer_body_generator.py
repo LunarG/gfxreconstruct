@@ -111,19 +111,12 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     def make_return(self, func_type, return_value):
         if(None == return_value):
             return ""
-        function_name = self.choose_field_to_json_name(return_value)
+        if function_name := self.choose_field_to_json_name(return_value):
+            return f'{function_name}({func_type}[format::kNameReturn], return_value);\n'
         if self.is_bitflags(return_value):
             function_arg = f'{return_value.base_type}_t{{{{ return_value }}}}'
-            ret_line = f'{func_type}[format::kNameReturn] = {function_arg};\n'
-        elif self.is_enum(return_value.base_type) or self.is_integer(return_value.base_type):
-            ret_line = f'{func_type}[format::kNameReturn] = return_value;\n'
-        elif return_value.base_type == 'void' and return_value.pointer_count == 1 and not return_value.is_array:
-            ret_line = f'{func_type}[format::kNameReturn] = return_value;\n'
-        else:
-            function_arg = 'return_value'
-            ret_line = f'{function_name}({func_type}[format::kNameReturn], {function_arg});\n'
-
-        return ret_line
+            return f'{func_type}[format::kNameReturn] = {function_arg};\n'
+        return f'{func_type}[format::kNameReturn] = return_value;\n'
 
     def make_consumer_func_body(self, method_info, return_type, return_value):
         # Deal with the function's returned value:
@@ -192,28 +185,21 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
 
     ## @param value_info A ValueInfo object from base_generator.py.
     def make_field_to_json(self, parent_name, value_info):
-        function_name = self.choose_field_to_json_name(value_info)
-        src = value_info.name
-        if src == 'callbackFn':
-            print(value_info.base_type)
         if self.is_bitflags(value_info):
+            src = value_info.name
             # Special case for pointers to flag sets defined by enums:
             # (easier than having pointer decoder versions of each flagset type's FieldToString)
             if value_info.is_pointer:
                 src = f'*{src}->GetPointer()'
             # Flag types get passed as a type-safe enum to help with overlaod resolution
             src = f'{value_info.base_type}_t{{{{ {src} }}}}'
-            field_to_json = '{1}["{2}"] = {3};'.format(
-                function_name, parent_name, value_info.name, src)
-        elif self.is_enum(value_info.base_type) and not (value_info.is_pointer or value_info.is_array):
             field_to_json = f'{parent_name}["{value_info.name}"] = {src};'
-        elif self.is_integer(value_info.base_type) and not (value_info.is_pointer or value_info.is_array):
-            field_to_json = f'{parent_name}["{value_info.name}"] = {src};'
-        elif value_info.base_type == 'void' and value_info.pointer_count == 1 and not value_info.is_array:
-            field_to_json = f'{parent_name}["{value_info.name}"] = {src};'
+        elif function_name := self.choose_field_to_json_name(value_info):
+            # Complex types get converted to JSON using a special function
+            field_to_json = f'{function_name}({parent_name}["{value_info.name}"], {value_info.name});'
         else:
-            field_to_json = '{0}({1}["{2}"], {3});'.format(
-                function_name, parent_name, value_info.name, src)
+            # Basic types can be directly assigned to JSON fields
+            field_to_json = f'{parent_name}["{value_info.name}"] = {value_info.name};'
         if "anon-union" in value_info.base_type:
             field_to_json += "// [anon-union] "
             print("ALERT: anon union " + value_info.name + " in " + parent_name)

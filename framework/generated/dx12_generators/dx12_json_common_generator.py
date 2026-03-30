@@ -60,7 +60,16 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
                 return "HandleToJson"
             if("HRESULT" in value_info.base_type):
                 return "HresultToJson"
-            if  self.is_raw_bitflags(value_info):
+            if self.is_raw_bitflags(value_info):
                 return "FieldToJsonAsFixedWidthBinary"
-        return "FieldToJson"
+            if value_info.base_type.lower() == 'float':
+                return "FieldToJson"
+            if self.is_struct(value_info.base_type):
+                return "FieldToJson"
+            if value_info.is_array:
+                return "FieldToJson"
+            if value_info.is_pointer and (value_info.pointer_count > 1 or value_info.base_type != "void"):
+                return "FieldToJson"
+        # This type does not require a special function to convert to JSON
+        return None
 
