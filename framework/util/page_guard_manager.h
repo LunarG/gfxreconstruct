@@ -242,6 +242,8 @@ class PageGuardManager
     typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
 
   private:
+    void ResetAllWriteWatch();
+
     size_t GetSystemPagePotShift() const;
     void   InitializeSystemExceptionContext();
     void   ReleaseTrackedMemory(const MemoryInfo* memory_info);

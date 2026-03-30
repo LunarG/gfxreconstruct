@@ -774,7 +774,7 @@ void PageGuardManager::LoadActiveWriteStates(MemoryInfo* memory_info)
     ULONG_PTR modified_count     = memory_info->total_pages;
     DWORD     granularity        = 0;
 
-    if (GetWriteWatch(WRITE_WATCH_FLAG_RESET,
+    if (GetWriteWatch(0,
                       memory_info->aligned_address,
                       memory_info->mapped_range + memory_info->aligned_offset,
                       modified_addresses,
@@ -1325,6 +1325,17 @@ void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
     }
 }
 
+void PageGuardManager::ResetAllWriteWatch()
+{
+#if defined(WIN32)
+    for (auto& entry : memory_info_)
+    {
+        auto& info = entry.second;
+        ResetWriteWatch(info.aligned_address, info.mapped_range + info.aligned_offset);
+    }
+#endif
+}
+
 void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
@@ -1351,6 +1362,8 @@ void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_mod
             ProcessEntry(entry->first, memory_info, handle_modified);
         }
     }
+
+    ResetAllWriteWatch();
 
     // Unblock threads
     if (protection_mode_ == kUserFaultFdMode)
