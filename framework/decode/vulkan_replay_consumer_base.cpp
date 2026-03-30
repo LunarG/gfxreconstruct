@@ -4245,12 +4245,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         }
     }
 
-    VulkanSubmitJobExecutor executor;
-    executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
+    VulkanSubmitJobExecution execution = GetDeviceSubmitJobExecutor(device_info).CreateExecution();
+    execution.InjectBefore(std::move(plan), pSubmits->GetSpan());
 
     if (options_.serialize_queue_submissions)
     {
-        executor.SerializeExecution(pSubmits->GetSpan());
+        execution.SerializeExecution(pSubmits->GetSpan());
     }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
@@ -4485,12 +4485,12 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         }
     }
 
-    VulkanSubmitJobExecutor executor;
-    executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
+    VulkanSubmitJobExecution execution = GetDeviceSubmitJobExecutor(device_info).CreateExecution();
+    execution.InjectBefore(std::move(plan), pSubmits->GetSpan());
 
     if (options_.serialize_queue_submissions)
     {
-        executor.SerializeExecution(pSubmits->GetSpan());
+        execution.SerializeExecution(pSubmits->GetSpan());
     }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
@@ -11372,6 +11372,19 @@ VulkanFrameWarmUp& VulkanReplayConsumerBase::GetDeviceFrameWarmUp(const VulkanDe
                                                                               *object_info_table_,
                                                                               options_.frame_warm_up_spirv_path,
                                                                               options_.frame_warm_up_load) });
+    GFXRECON_ASSERT(success);
+    return new_it->second;
+}
+
+VulkanSubmitJobExecutor& VulkanReplayConsumerBase::GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info)
+{
+    if (auto it = device_submit_job_executors_.find(device_info); it != device_submit_job_executors_.end())
+    {
+        return it->second;
+    }
+
+    auto [new_it, success] = device_submit_job_executors_.insert(
+        { device_info, VulkanSubmitJobExecutor(device_info, GetDeviceTable(device_info->handle)) });
     GFXRECON_ASSERT(success);
     return new_it->second;
 }

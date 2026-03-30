@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_submit_job.h"
 #include "graphics/vulkan_struct_get_pnext.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -54,7 +55,7 @@ bool VulkanSubmitJobPlan::HasJobsForIndex(uint32_t submit_index) const
     return jobs_for_index && !jobs_for_index->jobs.empty();
 }
 
-void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo> submit_infos)
+void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo> submit_infos)
 {
     // Ensure that InjectBefore is not called multiple times for the same submit infos.
     GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo& info) {
@@ -112,7 +113,7 @@ void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<V
     }
 }
 
-void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo2> submit_infos)
+void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo2> submit_infos)
 {
     // Ensure that InjectBefore is not called multiple times for the same submit infos.
     GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo2& info) {
@@ -167,7 +168,7 @@ void VulkanSubmitJobExecutor::InjectBefore(VulkanSubmitJobPlan plan, std::span<V
     }
 }
 
-std::vector<VkSemaphore>& VulkanSubmitJobExecutor::GetWaitSemaphores(VkSubmitInfo& submit_info)
+std::vector<VkSemaphore>& VulkanSubmitJobExecution::GetWaitSemaphores(VkSubmitInfo& submit_info)
 {
     if (!injected_wait_semaphores_.contains(&submit_info))
     {
@@ -177,7 +178,7 @@ std::vector<VkSemaphore>& VulkanSubmitJobExecutor::GetWaitSemaphores(VkSubmitInf
     return injected_wait_semaphores_[&submit_info];
 }
 
-std::vector<VkSemaphoreSubmitInfo>& VulkanSubmitJobExecutor::GetWaitSemaphores(VkSubmitInfo2& submit_info2)
+std::vector<VkSemaphoreSubmitInfo>& VulkanSubmitJobExecution::GetWaitSemaphores(VkSubmitInfo2& submit_info2)
 {
     if (!injected_wait_semaphore_infos_.contains(&submit_info2))
     {
@@ -187,17 +188,29 @@ std::vector<VkSemaphoreSubmitInfo>& VulkanSubmitJobExecutor::GetWaitSemaphores(V
     return injected_wait_semaphore_infos_[&submit_info2];
 }
 
-void VulkanSubmitJobExecutor::SerializeExecution(std::span<VkSubmitInfo> submit_infos)
+void VulkanSubmitJobExecution::SerializeExecution(std::span<VkSubmitInfo> submit_infos)
 {
     // Each submit info should wait on semaphores signaled by the previous submit.
     std::span<const VkSemaphore> previous_submit_signal_semaphores = {};
 
     for (VkSubmitInfo& submit_info : submit_infos)
     {
+        // Ensure this submit signals at least one semaphore so the next submit can wait on it.
+        if (submit_info.signalSemaphoreCount == 0 || submit_info.pSignalSemaphores == nullptr)
+        {
+            VkSemaphore dummy_semaphore = executor_.CreateSemaphore();
+
+            // Store the injected signal semaphore so it remains alive until executor cleanup.
+            auto& injected_signal_semaphore = injected_signal_semaphores_[&submit_info];
+            injected_signal_semaphore.push_back(dummy_semaphore);
+
+            submit_info.signalSemaphoreCount = static_cast<uint32_t>(injected_signal_semaphore.size());
+            submit_info.pSignalSemaphores    = injected_signal_semaphore.data();
+        }
+
+        // If the previous submit signaled semaphores, append them to this submit's wait list.
         if (!previous_submit_signal_semaphores.empty())
         {
-            // This should work nicely with `InjectBefore` and just get the corresponding vector of injected semaphores.
-            // If `InjectBefore` was not called, this will create a new entry with the current semaphores.
             auto& wait_semaphores = GetWaitSemaphores(submit_info);
 
             // Append previous submit signal semaphores to the wait semaphores of the current submit.
@@ -208,23 +221,41 @@ void VulkanSubmitJobExecutor::SerializeExecution(std::span<VkSubmitInfo> submit_
             // Update submit info with the new wait semaphores pointer and count.
             submit_info.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size());
             submit_info.pWaitSemaphores    = wait_semaphores.data();
+
+            // Ensure wait dst stage mask points to valid storage.
+            static VkPipelineStageFlags wait_stage_mask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            submit_info.pWaitDstStageMask               = &wait_stage_mask;
         }
 
         previous_submit_signal_semaphores = std::span(submit_info.pSignalSemaphores, submit_info.signalSemaphoreCount);
     }
 }
 
-void VulkanSubmitJobExecutor::SerializeExecution(std::span<VkSubmitInfo2> submit_infos2)
+void VulkanSubmitJobExecution::SerializeExecution(std::span<VkSubmitInfo2> submit_infos2)
 {
     // Each submit info should wait on semaphores signaled by the previous submit.
     std::span<const VkSemaphoreSubmitInfo> previous_submit_signal_semaphores = {};
 
     for (VkSubmitInfo2& submit_info : submit_infos2)
     {
+        // Ensure this submit signals at least one semaphore so the next submit can wait on it.
+        if (submit_info.signalSemaphoreInfoCount == 0 || submit_info.pSignalSemaphoreInfos == nullptr)
+        {
+            VkSemaphoreSubmitInfo dummy_semaphore_info = { VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO };
+            dummy_semaphore_info.semaphore             = executor_.CreateSemaphore();
+            dummy_semaphore_info.value                 = 1;
+            dummy_semaphore_info.stageMask             = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+            auto& injected_signal_semaphore_infos = injected_signal_semaphore_infos_[&submit_info];
+            injected_signal_semaphore_infos.push_back(dummy_semaphore_info);
+
+            submit_info.signalSemaphoreInfoCount = static_cast<uint32_t>(injected_signal_semaphore_infos.size());
+            submit_info.pSignalSemaphoreInfos    = injected_signal_semaphore_infos.data();
+        }
+
+        // If the previous submit signaled semaphores, append them to this submit's wait list.
         if (!previous_submit_signal_semaphores.empty())
         {
-            // This should work nicely with `InjectBefore` and just get the corresponding vector of injected semaphore
-            // infos. If `InjectBefore` was not called, this will create a new entry with the current semaphores.
             auto& wait_semaphore_infos = GetWaitSemaphores(submit_info);
 
             // Append previous submit signal semaphore infos to the wait semaphore infos of the current submit.
@@ -239,6 +270,42 @@ void VulkanSubmitJobExecutor::SerializeExecution(std::span<VkSubmitInfo2> submit
 
         previous_submit_signal_semaphores =
             std::span(submit_info.pSignalSemaphoreInfos, submit_info.signalSemaphoreInfoCount);
+    }
+}
+
+VulkanSubmitJobExecutor::VulkanSubmitJobExecutor(const VulkanDeviceInfo*            device_info,
+                                                 const graphics::VulkanDeviceTable* device_table) :
+    device_info_(device_info),
+    device_table_(device_table)
+{
+    GFXRECON_ASSERT(device_info_ != nullptr);
+    GFXRECON_ASSERT(device_table_ != nullptr);
+}
+
+VulkanSubmitJobExecutor::~VulkanSubmitJobExecutor()
+{
+    for (VkSemaphore semaphore : semaphores_)
+    {
+        device_table_->DestroySemaphore(device_info_->handle, semaphore, nullptr);
+    }
+    semaphores_.clear();
+}
+
+VkSemaphore VulkanSubmitJobExecutor::CreateSemaphore()
+{
+    VkSemaphoreCreateInfo semaphore_create_info{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+    VkSemaphore           semaphore = VK_NULL_HANDLE;
+
+    VkResult result = device_table_->CreateSemaphore(device_info_->handle, &semaphore_create_info, nullptr, &semaphore);
+    if (result != VK_SUCCESS) [[unlikely]]
+    {
+        GFXRECON_LOG_ERROR("Failed to create semaphore for submit job execution: %s", util::ToString(result).c_str());
+        return VK_NULL_HANDLE;
+    }
+    else [[likely]]
+    {
+        semaphores_.push_back(semaphore);
+        return semaphore;
     }
 }
 
