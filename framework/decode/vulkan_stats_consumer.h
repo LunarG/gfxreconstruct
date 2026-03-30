@@ -526,6 +526,40 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         ++total_draw_count_;
     }
 
+    virtual void Process_vkCmdDrawMeshTasksEXT(const gfxrecon::decode::ApiCallInfo& call_info,
+                                               gfxrecon::format::HandleId,
+                                               uint32_t,
+                                               uint32_t,
+                                               uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectEXT(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                       gfxrecon::format::HandleId,
+                                                       gfxrecon::format::HandleId,
+                                                       VkDeviceSize,
+                                                       uint32_t,
+                                                       uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                            gfxrecon::format::HandleId,
+                                                            gfxrecon::format::HandleId,
+                                                            VkDeviceSize,
+                                                            gfxrecon::format::HandleId,
+                                                            VkDeviceSize,
+                                                            uint32_t,
+                                                            uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
     virtual void Process_vkCmdDrawMeshTasksNV(const gfxrecon::decode::ApiCallInfo& call_info,
                                               gfxrecon::format::HandleId,
                                               uint32_t,
