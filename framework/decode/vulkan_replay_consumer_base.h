@@ -37,6 +37,7 @@
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
+#include "decode/vulkan_submit_job.h"
 #include "decode/vulkan_swapchain.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
@@ -1816,6 +1817,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
     VulkanFrameWarmUp&                  GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info);
+    VulkanSubmitJobExecutor&            GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info);
 
     /**
      * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
@@ -1958,9 +1960,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
 
-    VulkanPerDeviceAddressTrackers  device_address_trackers_;
-    VulkanPerDeviceAddressReplacers device_address_replacers_;
-    VulkanPerDeviceFrameWarmUp      device_frame_warmups_;
+    VulkanPerDeviceAddressTrackers    device_address_trackers_;
+    VulkanPerDeviceAddressReplacers   device_address_replacers_;
+    VulkanPerDeviceFrameWarmUp        device_frame_warmups_;
+    VulkanPerDeviceSubmitJobExecutors device_submit_job_executors_;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
