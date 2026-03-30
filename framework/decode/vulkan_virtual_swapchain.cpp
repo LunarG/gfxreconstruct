@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_virtual_swapchain.h"
 
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/decoder_util.h"
 #include "util/callbacks.h"
@@ -1340,7 +1341,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             GFXRECON_LOG_WARNING("%s: surface-format not available: %d", __func__, image_info->format);
 
             // fallback surface-format
-            surface_format = VK_FORMAT_B8G8R8A8_UNORM;
+            surface_format = vkuFormatIsSRGB(image_info->format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
         }
 
         VkSwapchainCreateInfoKHR swapchain_create_info;
