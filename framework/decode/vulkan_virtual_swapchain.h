@@ -207,22 +207,52 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         VkSemaphore     acquire_semaphore = VK_NULL_HANDLE;
     };
 
+    struct AdhocSwapChain
+    {
+        AdhocSwapChain() = default;
+        ~AdhocSwapChain();
+
+        AdhocSwapChain(const AdhocSwapChain&)            = delete;
+        AdhocSwapChain& operator=(const AdhocSwapChain&) = delete;
+
+        // required for lifetime-management
+        VkDevice                           device{ VK_NULL_HANDLE };
+        const graphics::VulkanDeviceTable* device_table{ nullptr };
+        const VulkanInstanceInfo*          instance_info{ nullptr };
+        VulkanSwapchain*                   owner{ nullptr };
+
+        // non-owning handle
+        VkCommandPool command_pool{ VK_NULL_HANDLE };
+
+        // contains window
+        VulkanSurfaceKHRInfo               surface_info{};
+        HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
+
+        VkQueue                      queue{ VK_NULL_HANDLE };
+        std::unordered_set<VkFormat> surface_formats{};
+        uint32_t                     acquire_index{ 0 };
+
+        VkSwapchainKHR handle{ VK_NULL_HANDLE };
+
+        std::vector<OFBSwapchainFrameData> frame_data{};
+        std::vector<OFBSwapchainImageData> image_data{};
+
+        // destroy swapchain and per-frame resources, keep surface
+        void DestroySwapchain();
+    };
+
     // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
     // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
     struct OFBData
     {
-        const VulkanInstanceInfo*          instance_info{ nullptr };
-        VulkanSurfaceKHRInfo               surface_info{};
-        HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
-        std::unordered_set<VkFormat>       surface_formats{};
-        VkQueue                            queue{ VK_NULL_HANDLE };
-        VkCommandPool                      command_pool{ VK_NULL_HANDLE };
-        VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };
+        // command-pool for all AdhocSwapChains
+        VkCommandPool command_pool{ VK_NULL_HANDLE };
 
-        std::vector<OFBSwapchainFrameData> frame_data;
-        uint32_t                           acquire_index{ 0 };
+        VkQueue queue{ VK_NULL_HANDLE };
 
-        std::vector<OFBSwapchainImageData> image_data{};
+        // TODO: support multiple windows
+        // std::vector<AdhocSwapChain> swapchains;
+        AdhocSwapChain swapchain;
 
         std::unique_ptr<graphics::VulkanResourcesUtil> copy_util;
     };
