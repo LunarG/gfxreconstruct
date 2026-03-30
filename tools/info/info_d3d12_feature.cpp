@@ -261,7 +261,7 @@ nlohmann::json InfoD3d12Feature::GetAdapterInfoJson()
 
         for (const auto& adapter : adapters)
         {
-            const int64_t luid = (adapter.LuidHighPart << 32) | adapter.LuidLowPart;
+            const int64_t luid = (static_cast<uint64_t>(adapter.LuidHighPart) << 32) | adapter.LuidLowPart;
 
             std::string adapter_workload_pct = "";
 
