@@ -28,6 +28,7 @@
 #include "util/callbacks.h"
 #include "graphics/vulkan_resources_util.h"
 #include "vulkan/vulkan_core.h"
+#include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
