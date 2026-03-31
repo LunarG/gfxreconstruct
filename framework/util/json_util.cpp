@@ -370,7 +370,7 @@ static bool WriteBinaryFile(const std::string& filename, uint64_t data_size, con
     }
     else
     {
-        GFXRECON_LOG_ERROR("Failed to open file %s for writing.", filename.c_str());
+        GFXRECON_LOG_ERROR("Failed to open file %s for writing: %s.", filename.c_str(), strerror(errno));
     }
     return written_all;
 }

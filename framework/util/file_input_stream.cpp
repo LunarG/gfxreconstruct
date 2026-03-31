@@ -107,6 +107,7 @@ bool FStreamFileInputStream::Open(const std::string& filename)
     }
     else
     {
+        GFXRECON_LOG_ERROR("Failed to open file '%s': %s", filename.c_str(), strerror(errno));
         last_read_status_ = util::platform::FileReadStatus::kError;
     }
 #endif
