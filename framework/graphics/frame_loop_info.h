@@ -33,10 +33,10 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 class FrameLoopInfo
 {
   public:
-    explicit FrameLoopInfo(uint32_t loop_frame_idx  = 0,
-                           uint32_t loop_iterations = std::numeric_limits<uint32_t>::max()) :
-        loop_frame_idx_{ loop_frame_idx },
-        loop_iterations_{ loop_iterations }
+    constexpr static uint32_t INFINITE_ITERATIONS = std::numeric_limits<uint32_t>::max();
+
+    explicit FrameLoopInfo(uint32_t loop_frame_idx = 0, uint32_t loop_iterations = INFINITE_ITERATIONS) :
+        loop_frame_idx_{ loop_frame_idx }, loop_iterations_{ loop_iterations }
     {}
 
     /// Expects a 1-based frame number.
@@ -50,18 +50,27 @@ class FrameLoopInfo
 
     /// Returns true if currently looping on the loop frame, meaning that the loop frame
     /// has already been played at least once and we are currently replaying it again.
-    bool     IsLooping() const { return is_looping_; }
+    bool IsLooping() const { return is_looping_; }
 
     void     SetLooping(bool looping) { is_looping_ = looping; }
     uint32_t GetLoopFrameIdx() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }
-    void     DecrementLoopIterations() { loop_iterations_--; }
+
+    /// Decrements the number of loop iterations remaining.
+    /// If the number of iterations is infinite, this has no effect.
+    void DecrementLoopIterations()
+    {
+        if (loop_iterations_ != INFINITE_ITERATIONS)
+        {
+            --loop_iterations_;
+        }
+    }
 
   private:
     uint32_t current_frame_number_{ 0 };
     bool     is_looping_{ false };
     uint32_t loop_frame_idx_{ 0 };
-    uint32_t loop_iterations_{ std::numeric_limits<uint32_t>::max() };
+    uint32_t loop_iterations_{ INFINITE_ITERATIONS };
 };
 
 GFXRECON_END_NAMESPACE(graphics)

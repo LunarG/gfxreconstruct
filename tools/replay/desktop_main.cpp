@@ -141,7 +141,7 @@ int main(int argc, const char** argv)
         std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
         uint32_t loop_frame        = 0;
-        uint32_t loop_count        = std::numeric_limits<uint32_t>::max();
+        uint32_t loop_count        = gfxrecon::graphics::FrameLoopInfo::INFINITE_ITERATIONS;
         bool     enable_frame_loop = GetLoopFrame(arg_parser, loop_frame);
         GetLoopCount(arg_parser, loop_count);
 
