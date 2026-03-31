@@ -32,75 +32,21 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanVirtualSwapchain::AdhocSwapChain::DestroySwapchain()
-{
-    if (handle != VK_NULL_HANDLE)
-    {
-        if (queue != VK_NULL_HANDLE)
-        {
-            device_table->QueueWaitIdle(queue);
-        }
-
-        for (auto& [cmd_buf, fence, acquire_semaphore] : frame_data)
-        {
-            if (cmd_buf != VK_NULL_HANDLE)
-            {
-                device_table->FreeCommandBuffers(device, command_pool, 1, &cmd_buf);
-            }
-            if (fence != VK_NULL_HANDLE)
-            {
-                device_table->DestroyFence(device, fence, nullptr);
-            }
-            if (acquire_semaphore != VK_NULL_HANDLE)
-            {
-                device_table->DestroySemaphore(device, acquire_semaphore, nullptr);
-            }
-        }
-        frame_data.clear();
-
-        for (const auto& img_data : image_data)
-        {
-            if (img_data.semaphore != VK_NULL_HANDLE)
-            {
-                device_table->DestroySemaphore(device, img_data.semaphore, nullptr);
-            }
-        }
-        image_data.clear();
-
-        device_table->DestroySwapchainKHR(device, handle, nullptr);
-        handle = VK_NULL_HANDLE;
-    }
-}
-
-VulkanVirtualSwapchain::AdhocSwapChain::~AdhocSwapChain()
-{
-    if (device != VK_NULL_HANDLE)
-    {
-        DestroySwapchain();
-
-        if (surface_info.handle != VK_NULL_HANDLE)
-        {
-            owner->DestroySurface(nullptr, instance_info, &surface_info, nullptr);
-        }
-    }
-}
-
 void VulkanVirtualSwapchain::CleanDeviceResources(VkDevice device, const graphics::VulkanDeviceTable* device_table)
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
     GFXRECON_ASSERT(device_table != nullptr);
 
-    if (const auto it = ofb_data_.find(device); it != ofb_data_.end())
+    if (const auto it = adhoc_device_data_.find(device); it != adhoc_device_data_.end())
     {
-        // keep handle before erase: ~AdhocSwapChain (triggered by erase) frees command buffers
-        // from this pool while it is still a live Vulkan object.
-        VkCommandPool command_pool = it->second.command_pool;
+        auto& adhoc_data = it->second;
 
-        ofb_data_.erase(it);
+        // free swapchains before command-pool
+        adhoc_data.swapchains.clear();
 
-        if (command_pool != VK_NULL_HANDLE)
+        if (adhoc_data.command_pool != VK_NULL_HANDLE)
         {
-            device_table->DestroyCommandPool(device, command_pool, nullptr);
+            device_table->DestroyCommandPool(device, adhoc_data.command_pool, nullptr);
         }
     }
 }
@@ -1248,6 +1194,59 @@ void VulkanVirtualSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
     func(command_buffer, pDependencyInfo);
 }
 
+void VulkanVirtualSwapchain::AdhocSwapChain::DestroySwapchain()
+{
+    if (handle != VK_NULL_HANDLE)
+    {
+        if (queue != VK_NULL_HANDLE)
+        {
+            device_table->QueueWaitIdle(queue);
+        }
+
+        for (auto& [cmd_buf, fence, acquire_semaphore] : frame_data)
+        {
+            if (cmd_buf != VK_NULL_HANDLE)
+            {
+                device_table->FreeCommandBuffers(device, command_pool, 1, &cmd_buf);
+            }
+            if (fence != VK_NULL_HANDLE)
+            {
+                device_table->DestroyFence(device, fence, nullptr);
+            }
+            if (acquire_semaphore != VK_NULL_HANDLE)
+            {
+                device_table->DestroySemaphore(device, acquire_semaphore, nullptr);
+            }
+        }
+        frame_data.clear();
+
+        for (const auto& img_data : image_data)
+        {
+            if (img_data.semaphore != VK_NULL_HANDLE)
+            {
+                device_table->DestroySemaphore(device, img_data.semaphore, nullptr);
+            }
+        }
+        image_data.clear();
+
+        device_table->DestroySwapchainKHR(device, handle, nullptr);
+        handle = VK_NULL_HANDLE;
+    }
+}
+
+VulkanVirtualSwapchain::AdhocSwapChain::~AdhocSwapChain()
+{
+    if (device != VK_NULL_HANDLE)
+    {
+        DestroySwapchain();
+
+        if (surface_info.handle != VK_NULL_HANDLE)
+        {
+            owner->DestroySurface(nullptr, instance_info, &surface_info, nullptr);
+        }
+    }
+}
+
 void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
                                                const VulkanSemaphoreInfo*                 semaphore_info,
                                                const VulkanImageInfo*                     image_info,
@@ -1273,7 +1272,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
     // retrieve device-context, create if necessary
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
-    auto& ofb_data = ofb_data_[device];
+    auto& ofb_data = adhoc_device_data_[device];
 
     // init OFBData
     if (ofb_data.command_pool == VK_NULL_HANDLE)
@@ -1314,6 +1313,8 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
     // avoid: wl_surface#63: error 2: Buffer size (902x451) must be an integer multiple of the buffer_scale (2).
     window_width += window_width % 2;
     window_height += window_height % 2;
+
+    uint32_t window_offset_x = 0, window_offset_y = 0;
 
     // support multiple image-layers by presenting on multiple windows
     const uint32_t layer_count = image_info->layer_count;
@@ -1364,8 +1365,21 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
         if (window_width != current_window_size.width || window_height != current_window_size.height ||
             swapchain.handle == VK_NULL_HANDLE)
         {
-            swapchain.surface_info.window->SetTitle("GFXReconstruct Replay - " + image_info->debug_utils_name);
+            {
+                std::stringstream title_ss;
+                title_ss << image_info->debug_utils_name;
+                title_ss << " - " << window_width << " x " << window_height;
+                if (layer_count > 1)
+                {
+                    title_ss << " - layer: " << (layer + 1) << " / " << layer_count;
+                }
+                swapchain.surface_info.window->SetTitle(title_ss.str());
+            }
+
+            // position and size, tile multiple windows
             swapchain.surface_info.window->SetSize(window_width, window_height);
+            swapchain.surface_info.window->SetPosition(window_offset_x, window_offset_y);
+            window_offset_x += window_width;
 
             // NOTE: compensate sporadic 1px size-mismatches after window-resize (image_info->extent != window_size)
             // mandatory to query window-size again
