@@ -193,14 +193,14 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
 
     // This structure contains the data tied to a swapchain image created for presenting offscreen frame boundaries
-    struct OFBSwapchainImageData
+    struct AdhocSwapChainImageData
     {
         VkImage       image{ VK_NULL_HANDLE };
         VkImageLayout image_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
         VkSemaphore   semaphore{ VK_NULL_HANDLE };
     };
 
-    struct OFBSwapchainFrameData
+    struct AdhocSwapChainFrameData
     {
         VkCommandBuffer command_buffer    = VK_NULL_HANDLE;
         VkFence         fence             = VK_NULL_HANDLE;
@@ -260,32 +260,29 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
 
         VkSwapchainKHR handle{ VK_NULL_HANDLE };
 
-        std::vector<OFBSwapchainFrameData> frame_data{};
-        std::vector<OFBSwapchainImageData> image_data{};
+        std::vector<AdhocSwapChainFrameData> frame_data{};
+        std::vector<AdhocSwapChainImageData> image_data{};
 
         // destroy swapchain and per-frame resources, keep surface
         void DestroySwapchain();
     };
 
-    // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
-    // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
-    struct OFBData
+    // This structure groups device-specific, custom/adhoc surfaces/swapchains and shared resources for those.
+    struct AdhocDeviceData
     {
         // command-pool for all AdhocSwapChains
         VkCommandPool command_pool{ VK_NULL_HANDLE };
 
         VkQueue queue{ VK_NULL_HANDLE };
 
-        // TODO: support multiple windows
         std::vector<AdhocSwapChain> swapchains;
-        // AdhocSwapChain swapchain;
 
         std::unique_ptr<graphics::VulkanResourcesUtil> copy_util;
     };
 
-    std::unordered_map<VkDevice, OFBData>  ofb_data_;
-    std::unordered_map<VkDevice, uint32_t> copy_queue_family_index_;
-    std::unordered_map<VkDevice, VkQueue>  initial_copy_queue_;
+    std::unordered_map<VkDevice, AdhocDeviceData> adhoc_device_data_;
+    std::unordered_map<VkDevice, uint32_t>        copy_queue_family_index_;
+    std::unordered_map<VkDevice, VkQueue>         initial_copy_queue_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
