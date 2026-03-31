@@ -102,6 +102,9 @@ class ApiCaptureManager
     }
     void EndApiCallCapture() { common_manager_->EndApiCallCapture(); }
 
+    void SavePreCallData(format::ApiCallId call_id) { common_manager_->SavePreCallData(call_id); }
+    void ClearPreCallData() { common_manager_->ClearPreCallData(); }
+
     void EndMethodCallCapture() { common_manager_->EndMethodCallCapture(); }
 
     void WriteFrameMarker(format::MarkerType marker_type) { common_manager_->WriteFrameMarker(marker_type); }

@@ -115,6 +115,7 @@ const char kIgnoreFrameBoundaryAndroidEnvVar[]               = GFXRECON_OPTION_S
 const char kSkipThreadsWithInvalidDataEnvVar[]               = GFXRECON_OPTION_STR(SKIP_THREADS_WITH_INVALID_DATA);
 const char kCaptureEnvironmentEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_ENVIRONMENT);
 const char kCaptureProcessNameEnvVar[]                       = GFXRECON_OPTION_STR(CAPTURE_PROCESS_NAME);
+const char kCaptureCrashCommandEnvVar[]                      = GFXRECON_OPTION_STR(CAPTURE_CRASH_COMMAND);
 
 #if defined(__ANDROID__)
 // Android-specific capture options
@@ -180,6 +181,7 @@ const std::string kOptionIgnoreFrameBoundaryAndroid                  = std::stri
 const std::string kOptionSkipThreadsWithInvalidData                  = std::string(kSettingsFilter) + std::string(SKIP_THREADS_WITH_INVALID_DATA_LOWER);
 const std::string kOptionCaptureEnvironment                          = std::string(kSettingsFilter) + std::string(CAPTURE_ENVIRONMENT_LOWER);
 const std::string kOptionCaptureProcessName                          = std::string(kSettingsFilter) + std::string(CAPTURE_PROCESS_NAME_LOWER);
+const std::string kOptionCaptureCrashCommand                         = std::string(kSettingsFilter) + std::string(CAPTURE_CRASH_COMMAND_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -362,6 +364,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options, bool load_log_setti
 
     LoadSingleOptionEnvVar(options, kCaptureEnvironmentEnvVar, kOptionCaptureEnvironment);
     LoadSingleOptionEnvVar(options, kCaptureProcessNameEnvVar, kOptionCaptureProcessName);
+    LoadSingleOptionEnvVar(options, kCaptureCrashCommandEnvVar, kOptionCaptureCrashCommand);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -603,6 +606,9 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         util::strings::SplitString(FindOption(options, kOptionCaptureEnvironment), ',');
     settings->trace_settings_.capture_process_name =
         FindOption(options, kOptionCaptureProcessName, settings->trace_settings_.capture_process_name);
+
+    settings->trace_settings_.capture_crash_command = ParseBoolString(
+        FindOption(options, kOptionCaptureCrashCommand), settings->trace_settings_.capture_crash_command);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
