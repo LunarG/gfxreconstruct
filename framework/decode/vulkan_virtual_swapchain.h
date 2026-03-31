@@ -215,6 +215,32 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         AdhocSwapChain(const AdhocSwapChain&)            = delete;
         AdhocSwapChain& operator=(const AdhocSwapChain&) = delete;
 
+        // idiomatic copy & swap
+        AdhocSwapChain(AdhocSwapChain&& other) noexcept : AdhocSwapChain() { swap(*this, other); }
+        AdhocSwapChain& operator=(AdhocSwapChain other) noexcept
+        {
+            swap(*this, other);
+            return *this;
+        }
+
+        friend void swap(AdhocSwapChain& lhs, AdhocSwapChain& rhs) noexcept
+        {
+            using std::swap;
+            swap(lhs.device, rhs.device);
+            swap(lhs.device_table, rhs.device_table);
+            swap(lhs.instance_info, rhs.instance_info);
+            swap(lhs.owner, rhs.owner);
+            swap(lhs.command_pool, rhs.command_pool);
+            swap(lhs.surface_info, rhs.surface_info);
+            swap(lhs.surface_ptr, rhs.surface_ptr);
+            swap(lhs.queue, rhs.queue);
+            swap(lhs.surface_formats, rhs.surface_formats);
+            swap(lhs.acquire_index, rhs.acquire_index);
+            swap(lhs.handle, rhs.handle);
+            swap(lhs.frame_data, rhs.frame_data);
+            swap(lhs.image_data, rhs.image_data);
+        }
+
         // required for lifetime-management
         VkDevice                           device{ VK_NULL_HANDLE };
         const graphics::VulkanDeviceTable* device_table{ nullptr };
@@ -251,8 +277,8 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
         VkQueue queue{ VK_NULL_HANDLE };
 
         // TODO: support multiple windows
-        // std::vector<AdhocSwapChain> swapchains;
-        AdhocSwapChain swapchain;
+        std::vector<AdhocSwapChain> swapchains;
+        // AdhocSwapChain swapchain;
 
         std::unique_ptr<graphics::VulkanResourcesUtil> copy_util;
     };
