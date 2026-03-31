@@ -29,6 +29,8 @@
 #include "format/format.h"
 #include "util/defines.h"
 
+#include <atomic>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -68,6 +70,13 @@ class ThreadData
     std::unique_ptr<encode::ParameterEncoder> parameter_encoder_;
     std::vector<uint8_t>                      compressed_buffer_;
     encode::HandleUnwrapMemory                handle_unwrap_memory_;
+
+    // Pre-call crash capture: stores encoded input parameters before the driver call.
+    // If the driver crashes, the signal handler writes this buffer to the capture file.
+    std::atomic<format::ApiCallId>            inflight_call_id_{ format::ApiCallId::ApiCall_Unknown };
+    std::vector<uint8_t>                      precall_buffer_;
+    size_t                                    precall_data_size_{ 0 };
+    bool                                      crash_capture_registered_{ false };
 
   private:
     static format::ThreadId GetThreadId();
