@@ -61,7 +61,7 @@
                     "label": "Allow Application Compiled Pipeline Behavior",
                     "description": "[Vulkan Only] The default behavior forces VK_PIPELINE_COMPILE_REQUIRED to be returned from Create*Pipelines calls which have VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT set, and skips dispatching and recording the calls. This forces applications to fallback to recompiling pipelines without caching, the Vulkan calls for which will be captured. Enabling this option causes capture to record the application's calls and implementation's return values unmodified, but the resulting captures are fragile to changes in Vulkan implementations if they use pipeline caching.",
                     "type": "BOOL",
-                    "default": false
+                    "default": true
                 },
                 {
                     "key": "capture_android_dump_assets",

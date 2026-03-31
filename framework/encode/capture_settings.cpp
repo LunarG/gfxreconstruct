@@ -206,14 +206,14 @@ void CaptureSettings::LoadGeneralSettings(CaptureSettings* settings, bool proces
 
     if (!settings_struct->capture_settings.capture_queue_submits.empty())
     {
-        if (!settings->trace_settings_.trim_ranges.empty())
+        if (settings->trace_settings_.trim_ranges.empty())
         {
             ParseUintRangeList(settings_struct->capture_settings.capture_queue_submits,
                                &settings->trace_settings_.trim_ranges,
                                "capture queue submits",
                                true,
                                true);
-            if (settings->trace_settings_.trim_ranges.empty())
+            if (!settings->trace_settings_.trim_ranges.empty())
             {
                 settings->trace_settings_.trim_boundary = TrimBoundary::kQueueSubmits;
             }

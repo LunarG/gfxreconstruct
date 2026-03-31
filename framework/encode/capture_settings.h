@@ -155,6 +155,7 @@ class CaptureSettings
 
     void SetApiFamilyId(format::ApiFamilyId api_family);
 
+    const TraceSettings& GetDefaultTraceSettings() const { return default_trace_settings_; }
     const TraceSettings& GetTraceSettings() const { return trace_settings_; }
     TraceSettings*       GetAdjustableTraceSettings() { return &trace_settings_; }
 
@@ -198,6 +199,7 @@ class CaptureSettings
     static util::ScreenshotFormat ParseScreenshotFormatString(const std::string&     value_string,
                                                               util::ScreenshotFormat default_value);
 
+    TraceSettings       default_trace_settings_;
     TraceSettings       trace_settings_;
     util::Log::Settings log_settings_;
 };

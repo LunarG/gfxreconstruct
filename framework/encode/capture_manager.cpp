@@ -1703,10 +1703,10 @@ void CommonCaptureManager::AtExit()
 
 void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation)
 {
-    CaptureSettings::TraceSettings trace_settings = capture_settings_->GetTraceSettings();
+    CaptureSettings::TraceSettings default_settings = capture_settings_->GetDefaultTraceSettings();
     std::string                    buffer;
 
-    if (force_file_flush_ != trace_settings.force_flush)
+    if (force_file_flush_ != default_settings.force_flush)
     {
         buffer += "\n    \"file-flush\": ";
         buffer += force_file_flush_ ? "true," : "false,";
@@ -1723,17 +1723,17 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     else
     {
         std::string page_guard_options_buffer;
-        if (page_guard_copy_on_map_ != trace_settings.page_guard_copy_on_map)
+        if (page_guard_copy_on_map_ != default_settings.page_guard_copy_on_map)
         {
             page_guard_options_buffer += "\n    \"page-guard-copy-on-map\": ";
             page_guard_options_buffer += page_guard_copy_on_map_ ? "true," : "false,";
         }
-        if (page_guard_separate_read_ != trace_settings.page_guard_separate_read)
+        if (page_guard_separate_read_ != default_settings.page_guard_separate_read)
         {
             page_guard_options_buffer += "\n    \"page-guard-separate-read\": ";
             page_guard_options_buffer += page_guard_separate_read_ ? "true," : "false,";
         }
-        if (page_guard_external_memory_ != trace_settings.page_guard_external_memory)
+        if (page_guard_external_memory_ != default_settings.page_guard_external_memory)
         {
             page_guard_options_buffer += "\n    \"page-guard-external-memory\": ";
             page_guard_options_buffer += page_guard_external_memory_ ? "true," : "false,";
@@ -1744,23 +1744,23 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
             page_guard_options_buffer +=
                 (page_guard_memory_mode_ == PageGuardMemoryMode::kMemoryModeShadowPersistent) ? "true," : "false,";
         }
-        if (page_guard_align_buffer_sizes_ != trace_settings.page_guard_align_buffer_sizes)
+        if (page_guard_align_buffer_sizes_ != default_settings.page_guard_align_buffer_sizes)
         {
             page_guard_options_buffer += "\n    \"page-guard-align-buffer-sizes\": ";
             page_guard_options_buffer += page_guard_align_buffer_sizes_ ? "true," : "false,";
         }
-        if (page_guard_unblock_sigsegv_ != trace_settings.page_guard_unblock_sigsegv)
+        if (page_guard_unblock_sigsegv_ != default_settings.page_guard_unblock_sigsegv)
         {
             page_guard_options_buffer += "\n    \"page-guard-unblock-sigsegv\": ";
             page_guard_options_buffer += page_guard_unblock_sigsegv_ ? "true," : "false,";
         }
-        if (page_guard_signal_handler_watcher_ != trace_settings.page_guard_signal_handler_watcher)
+        if (page_guard_signal_handler_watcher_ != default_settings.page_guard_signal_handler_watcher)
         {
             page_guard_options_buffer += "\n    \"page-guard-signal-handler-watcher\": ";
             page_guard_options_buffer += page_guard_signal_handler_watcher_ ? "true," : "false,";
         }
         if (page_guard_signal_handler_watcher_max_restores_ !=
-            trace_settings.page_guard_signal_handler_watcher_max_restores)
+            default_settings.page_guard_signal_handler_watcher_max_restores)
         {
             page_guard_options_buffer += "\n    \"page-guard-signal-handler-watcher-max-restores\": " +
                                          std::to_string(page_guard_signal_handler_watcher_max_restores_) + ',';
@@ -1773,18 +1773,18 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
         }
     }
 
-    if (force_command_serialization_ != trace_settings.force_command_serialization)
+    if (force_command_serialization_ != default_settings.force_command_serialization)
     {
         buffer += "\n    \"force-command-serialization\": ";
         buffer += force_command_serialization_ ? "true," : "false,";
     }
 
-    if (queue_zero_only_ != trace_settings.queue_zero_only)
+    if (queue_zero_only_ != default_settings.queue_zero_only)
     {
         buffer += "\n    \"queue-zero-only\": ";
         buffer += queue_zero_only_ ? "true," : "false,";
     }
-    if (force_fifo_present_mode_ != trace_settings.force_fifo_present_mode)
+    if (force_fifo_present_mode_ != default_settings.force_fifo_present_mode)
     {
         buffer += "\n    \"force-fifo-present-mode\": ";
         buffer += force_fifo_present_mode_ ? "true," : "false,";

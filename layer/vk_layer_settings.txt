@@ -22,8 +22,8 @@
 # calls and implementation's return values unmodified, but the resulting
 # captures are fragile to changes in Vulkan implementations if they use pipeline
 # caching.
-# Default is false
-lunarg_gfxreconstruct.allow_pipeline_compile_required = false
+# Default is true
+lunarg_gfxreconstruct.allow_pipeline_compile_required = true
 
 #  Capture Dump Android Assets
 # ===================================
@@ -122,7 +122,6 @@ lunarg_gfxreconstruct.capture_queue_submits =
 # Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to
 # start/stop capture. Example: F3 will set the capture trigger to F3 hotkey. One
 # capture file will be generated for each pair of start/stop hotkey presses.
-# This, in effect, toggles `capture_dynamic_trigger`.
 # Default is <empty>
 lunarg_gfxreconstruct.capture_trigger = 
 

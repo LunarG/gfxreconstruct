@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2025 LunarG, Inc.
+ * Copyright (c) 2025-2026 LunarG, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -91,7 +91,7 @@ struct GfxrCaptureSettingsStruct
     bool        rv_annotation_rand{false};
 
     // Vulkan-Specific
-    bool        allow_pipeline_compile_required{false};
+    bool        allow_pipeline_compile_required{true};
     bool        force_fifo_present_mode{true};
     bool        page_guard_align_buffer_sizes{true};
 #if defined(__ANDROID__)
