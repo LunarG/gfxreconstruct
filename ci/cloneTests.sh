@@ -19,20 +19,20 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-if [ -z "${TEST_COMMIT:-}" ]; then
+if [ -z "${TEST_BRANCH:-}" ]; then
   if [ -f "test.ref" ]; then
-    IFS= read -r TEST_COMMIT < test.ref
+    IFS= read -r TEST_BRANCH < test.ref
   else
-    TEST_COMMIT="master"
+    TEST_BRANCH="master"
   fi
-  export TEST_COMMIT
+  export TEST_BRANCH
 fi
 
 git clone --verbose $TEST_REPO VulkanTests
 cd VulkanTests
 git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
 git fetch origin
-git checkout $TEST_COMMIT
+git checkout $TEST_BRANCH
 git submodule update --init --recursive
 git describe --tags --always
 cd ..

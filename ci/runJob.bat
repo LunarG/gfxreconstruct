@@ -49,11 +49,11 @@ git -C ci-gfxr-suites checkout %TEST_SUITE_BRANCH% || exit /b
 git -C ci-gfxr-suites submodule update --init --recursive
 git -C ci-gfxr-suites describe --tags --always
 
-if not defined TEST_COMMIT (
+if not defined TEST_BRANCH (
     if exist test.ref (
-        set /p TEST_COMMIT=<test.ref
+        set /p TEST_BRANCH=<test.ref
     ) else (
-        set TEST_COMMIT=master
+        set TEST_BRANCH=master
     )
 )
 
@@ -72,7 +72,7 @@ goto :clone_tests
 :clone_tests_done
 git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
 git -C VulkanTests fetch origin
-git -C VulkanTests checkout %TEST_COMMIT% || exit /b
+git -C VulkanTests checkout %TEST_BRANCH% || exit /b
 git -C VulkanTests submodule update --init --recursive
 git -C VulkanTests describe --tags --always
 
