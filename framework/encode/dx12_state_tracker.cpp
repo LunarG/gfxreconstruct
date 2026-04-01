@@ -784,6 +784,22 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 build_info.is_tlas_with_array_of_pointers = true;
             }
         }
+        else if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY)
+        {
+            for (UINT i = 0; i < desc->Inputs.NumDescs; ++i)
+            {
+                build_info.inputs_omm_array_descs.push_back(desc->Inputs.pOpacityMicromapArrayDesc[i]);
+
+                for (UINT j = 0; j < desc->Inputs.pOpacityMicromapArrayDesc[i].NumOmmHistogramEntries; ++j)
+                {
+                    build_info.inputs_omm_array_histograms[i].push_back(
+                        desc->Inputs.pOpacityMicromapArrayDesc[i].pOmmHistogram[j]);
+                }
+            }
+
+            // The opacity micromap array desc pointers may be invalid when build_info is used in the future.
+            build_info.inputs.pOpacityMicromapArrayDesc = nullptr;
+        }
 
         // Compute the required inputs buffer size and entry information.
         uint64_t                                       inputs_buffer_size = 0;

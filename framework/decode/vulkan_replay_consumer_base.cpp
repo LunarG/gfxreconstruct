@@ -4182,6 +4182,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                                                        const VulkanFenceInfo*                      fence_info)
 {
     options_.MaybeWaitBeforeFirstSubmit();
+    if (!fps_info_->IsFirstSubmitDone())
+    {
+        options_.MaybeWaitBeforeFrame();
+    }
 
     assert((queue_info != nullptr) && (pSubmits != nullptr));
 
@@ -4413,6 +4417,10 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                                                         const VulkanFenceInfo*                       fence_info)
 {
     options_.MaybeWaitBeforeFirstSubmit();
+    if (!fps_info_->IsFirstSubmitDone())
+    {
+        options_.MaybeWaitBeforeFrame();
+    }
 
     GFXRECON_ASSERT((queue_info != nullptr) && (pSubmits != nullptr));
 

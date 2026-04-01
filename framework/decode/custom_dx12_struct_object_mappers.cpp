@@ -118,6 +118,9 @@ void MapStructObjects(Decoded_D3D12_RAYTRACING_GEOMETRY_DESC* wrapper,
             case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS:
                 MapStructObjects(wrapper->AABBs, object_info_table, gpu_va_map);
                 break;
+            case D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES:
+                MapStructObjects(wrapper->OmmTriangles, object_info_table, gpu_va_map);
+                break;
             default:
                 break;
         }
@@ -161,6 +164,12 @@ void MapStructObjects(Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPU
                     default:
                         break;
                 }
+                break;
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+                MapStructArrayObjects(wrapper->pOpacityMicromapArrayDesc->GetMetaStructPointer(),
+                                      wrapper->pOpacityMicromapArrayDesc->GetLength(),
+                                      object_info_table,
+                                      gpu_va_map);
                 break;
             default:
                 break;
@@ -302,6 +311,9 @@ void MapStructObjects(Decoded_D3D12_STATE_SUBOBJECT*                       wrapp
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
+                GFXRECON_LOG_WARNING("Pipeline state subobject mapping encountered unrecognized subobject type "
+                                     "D3D12_STATE_SUBOBJECT_TYPE = %d, which may cause replay to fail.",
+                                     value->Type);
                 break;
         }
     }

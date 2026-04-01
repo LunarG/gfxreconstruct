@@ -47,6 +47,8 @@ class TransferDumpingContext
 {
   public:
     TransferDumpingContext(const CommandIndices*                             transfer_indices,
+                           decode::Index                                     bcb_index,
+                           decode::Index                                     qs_index,
                            CommonObjectInfoTable&                            object_info_table,
                            const graphics::InstanceDispatchTablesMap&        instance_tables,
                            const graphics::DeviceDispatchTablesMap&          device_tables,
@@ -162,7 +164,7 @@ class TransferDumpingContext
 
     bool MustDumpTransfer(uint64_t index) const;
 
-    VkResult DumpTransferCommands(uint64_t bcb_index, uint64_t qs_index);
+    VkResult DumpTransferCommands();
 
     const CommandIndices& GetCommandIndices() const { return transfer_indices_; }
 
@@ -821,6 +823,8 @@ class TransferDumpingContext
     std::map<uint64_t, TransferParams> transfer_params_;
 
     CommandIndices                                    transfer_indices_;
+    decode::Index                                     bcb_index_;
+    decode::Index                                     qs_index_;
     CommonObjectInfoTable&                            object_info_table_;
     const graphics::InstanceDispatchTablesMap&        instance_tables_;
     const graphics::DeviceDispatchTablesMap&          device_tables_;

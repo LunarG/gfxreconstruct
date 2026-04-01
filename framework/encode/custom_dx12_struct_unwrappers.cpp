@@ -319,6 +319,9 @@ void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
+                GFXRECON_LOG_WARNING("Pipeline state subobject unwrapping encountered unrecognized subobject type "
+                                     "D3D12_STATE_SUBOBJECT_TYPE = %d, which may cause capture to fail.",
+                                     value->Type);
                 break;
         }
     }

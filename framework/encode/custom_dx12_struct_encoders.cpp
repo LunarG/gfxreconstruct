@@ -338,6 +338,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_DES
         case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS:
             EncodeStruct(encoder, value.AABBs);
             break;
+        case D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES:
+            EncodeStruct(encoder, value.OmmTriangles);
+            break;
         default:
             break;
     }
@@ -367,6 +370,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
                 default:
                     break;
             }
+            break;
+        case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+            EncodeStructArray(encoder, value.pOpacityMicromapArrayDesc, value.NumDescs);
             break;
         default:
             break;
@@ -1020,6 +1026,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
+                GFXRECON_LOG_WARNING("Pipeline state subobject encoding encountered unrecognized subobject type "
+                                     "D3D12_STATE_SUBOBJECT_TYPE = %d, which may cause capture to fail.",
+                                     value.Type);
                 break;
         }
     }

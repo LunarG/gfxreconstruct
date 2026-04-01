@@ -3575,6 +3575,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_RAYTRACING_G
                 FieldToJson(jdata["AABBs"], meta_struct.AABBs, options);
                 break;
             }
+            case D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES:
+            {
+                FieldToJson(jdata["OmmTriangles"], meta_struct.OmmTriangles, options);
+                break;
+            }
             default:
             {
                 FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC.", options);
@@ -3644,6 +3649,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_BUILD_RAYTRA
                         break;
                     }
                 }
+                break;
+            }
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+            {
+                FieldToJson(jdata["pOpacityMicromapArrayDesc"], meta_struct.pOpacityMicromapArrayDesc, options);
                 break;
             }
             default:

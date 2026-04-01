@@ -193,6 +193,10 @@ struct DxAccelerationStructureBuildInfo
     // Save a copy of the inputs' geometry descs for bottom level accel structs.
     std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> inputs_geometry_descs;
 
+    // Save a copy of the inputs' opacity micromap array descs for micromap level accel structs.
+    std::vector<D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC>                          inputs_omm_array_descs;
+    std::map<uint32_t, std::vector<D3D12_RAYTRACING_OPACITY_MICROMAP_HISTOGRAM_ENTRY>> inputs_omm_array_histograms;
+
     uint64_t                             input_data_size{ 0 };
     uint64_t                             input_data_header_size{ 0 };
     graphics::dx12::ID3D12ResourceComPtr input_data_resource{ nullptr };

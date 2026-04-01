@@ -52,6 +52,8 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     const CommandIndices*                             dispatch_indices,
     const CommandImageSubresource&                    disp_subresources,
     const CommandIndices*                             trace_rays_indices,
+    decode::Index                                     bcb_index,
+    decode::Index                                     qs_index,
     const CommandImageSubresource&                    tr_subresources,
     CommonObjectInfoTable&                            object_info_table,
     const VulkanReplayOptions&                        options,
@@ -60,13 +62,13 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const VulkanPerDeviceAddressTrackers&             address_trackers) :
     original_command_buffer_info_(nullptr),
-    DR_command_buffer_(VK_NULL_HANDLE), disp_subresources_(disp_subresources), tr_subresources_(tr_subresources),
-    delegate_(delegate), options_(options), compressor_(compressor), bound_pipeline_compute_(nullptr),
-    bound_pipeline_trace_rays_(nullptr), command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary),
-    device_table_(nullptr), parent_device_(VK_NULL_HANDLE), instance_table_(nullptr),
-    object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0),
-    current_trace_rays_index_(0), acceleration_structures_context_(acceleration_structures_context),
-    address_trackers_(address_trackers)
+    bcb_index_(bcb_index), qs_index_(qs_index), DR_command_buffer_(VK_NULL_HANDLE),
+    disp_subresources_(disp_subresources), tr_subresources_(tr_subresources), delegate_(delegate), options_(options),
+    compressor_(compressor), bound_pipeline_compute_(nullptr), bound_pipeline_trace_rays_(nullptr),
+    command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr),
+    parent_device_(VK_NULL_HANDLE), instance_table_(nullptr), object_info_table_(object_info_table),
+    replay_device_phys_mem_props_(nullptr), current_dispatch_index_(0), current_trace_rays_index_(0),
+    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
 {
     if (dispatch_indices != nullptr)
     {
@@ -1264,69 +1266,9 @@ void DispatchTraceRaysDumpingContext::ReleaseIndirectParams()
     }
 }
 
-VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue             queue,
-                                                                uint64_t            qs_index,
-                                                                uint64_t            bcb_index,
-                                                                const VkSubmitInfo& submit_info,
-                                                                VkFence             fence,
-                                                                bool                use_semaphores)
+VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays()
 {
-    VkSubmitInfo si;
-    si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    si.pNext                = nullptr;
-    si.waitSemaphoreCount   = use_semaphores ? submit_info.waitSemaphoreCount : 0;
-    si.pWaitSemaphores      = use_semaphores ? submit_info.pWaitSemaphores : nullptr;
-    si.pWaitDstStageMask    = use_semaphores ? submit_info.pWaitDstStageMask : nullptr;
-    si.commandBufferCount   = 1;
-    si.pCommandBuffers      = &DR_command_buffer_;
-    si.signalSemaphoreCount = use_semaphores ? submit_info.signalSemaphoreCount : 0;
-    si.pSignalSemaphores    = use_semaphores ? submit_info.pSignalSemaphores : nullptr;
-
-    const VulkanDeviceInfo* device_info = object_info_table_.GetVkDeviceInfo(original_command_buffer_info_->parent_id);
-    assert(device_info);
-
-    VkResult res = VK_SUCCESS;
-
-    const VkFenceCreateInfo ci               = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-    VkFence                 submission_fence = VK_NULL_HANDLE;
-    if (fence == VK_NULL_HANDLE)
-    {
-        res = device_table_->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
-            return res;
-        }
-    }
-    else
-    {
-        submission_fence = fence;
-    }
-
-    res = device_table_->QueueSubmit(queue, 1, &si, submission_fence);
-    if (res != VK_SUCCESS)
-    {
-        device_table_->DestroyFence(device_info->handle, submission_fence, nullptr);
-        GFXRECON_LOG_ERROR(
-            "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-        return res;
-    }
-
-    // Wait
-    res = device_table_->WaitForFences(device_info->handle, 1, &submission_fence, VK_TRUE, ~0UL);
-    if (res != VK_SUCCESS)
-    {
-        device_table_->DestroyFence(device_info->handle, submission_fence, nullptr);
-        GFXRECON_LOG_ERROR("WaitForFences failed with %s", util::ToString<VkResult>(res).c_str());
-        return res;
-    }
-
-    if (fence == VK_NULL_HANDLE)
-    {
-        device_table_->DestroyFence(device_info->handle, submission_fence, nullptr);
-    }
-
-    res = FetchIndirectParams();
+    VkResult res = FetchIndirectParams();
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Fetching params for indirect calls failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1337,7 +1279,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
     {
         GFXRECON_LOG_INFO("Dumping mutable resources for dispatch index %" PRIu64, disp_index);
 
-        res = DumpMutableResources(bcb_index, qs_index, disp_index, true);
+        res = DumpMutableResources(disp_index, true);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping compute mutable resources failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1346,7 +1288,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
 
         if (options_.dump_all_descriptors)
         {
-            res = DumpDescriptors(qs_index, bcb_index, disp_index, true);
+            res = DumpDescriptors(disp_index, true);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1363,7 +1305,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
     {
         GFXRECON_LOG_INFO("Dumping mutable resources for trace rays index %" PRIu64, tr_index);
 
-        res = DumpMutableResources(bcb_index, qs_index, tr_index, false);
+        res = DumpMutableResources(tr_index, false);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping ray tracing mutable resources failed. (%s)",
@@ -1373,7 +1315,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
 
         if (options_.dump_all_descriptors)
         {
-            res = DumpDescriptors(qs_index, bcb_index, tr_index, false);
+            res = DumpDescriptors(tr_index, false);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -1397,10 +1339,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(VkQueue         
     return VK_SUCCESS;
 }
 
-VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_index,
-                                                               uint64_t qs_index,
-                                                               uint64_t cmd_index,
-                                                               bool     is_dispatch)
+VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t cmd_index, bool is_dispatch)
 {
     auto dis_params = dispatch_params_.find(cmd_index);
     auto tr_params  = trace_rays_params_.find(cmd_index);
@@ -1437,9 +1376,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     DumpedResourcesInfo& dumped_resources =
         is_dispatch ? dis_params->second->dumped_resources : tr_params->second->dumped_resources;
 
-    dumped_resources.bcb_index = bcb_index;
+    dumped_resources.bcb_index = bcb_index_;
     dumped_resources.cmd_index = cmd_index;
-    dumped_resources.qs_index  = qs_index;
+    dumped_resources.qs_index  = qs_index_;
 
     assert(original_command_buffer_info_);
     assert(original_command_buffer_info_->parent_id != format::kNullHandleId);
@@ -1475,9 +1414,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
         auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
             DumpResourceType::kDispatchTraceRaysImage,
-            bcb_index,
+            bcb_index_,
             cmd_index,
-            qs_index,
+            qs_index_,
             mutable_resources_clones.images[i].stages,
             mutable_resources_clones.images[i].desc_type,
             mutable_resources_clones.images[i].desc_set,
@@ -1576,9 +1515,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
         auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
             DumpResourceType::kDispatchTraceRaysBuffer,
-            bcb_index,
+            bcb_index_,
             cmd_index,
-            qs_index,
+            qs_index_,
             mutable_resources_clones.buffers[i].stages,
             mutable_resources_clones.buffers[i].desc_type,
             mutable_resources_clones.buffers[i].desc_set,
@@ -1651,10 +1590,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
     return VK_SUCCESS;
 }
 
-VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
-                                                          uint64_t bcb_index,
-                                                          uint64_t cmd_index,
-                                                          bool     is_dispatch)
+VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bool is_dispatch)
 {
     DumpedDescriptors& dumped_descriptors = is_dispatch ? dispatch_dumped_descriptors_ : trace_rays_dumped_descriptors_;
     GFXRECON_ASSERT((dispatch_params_.find(cmd_index) != dispatch_params_.end()) ||
@@ -1724,9 +1660,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                             auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                                 DumpResourceType::kDispatchTraceRaysImageDescriptor,
-                                bcb_index,
+                                bcb_index_,
                                 cmd_index,
-                                qs_index,
+                                qs_index_,
                                 desc_binding_info.stage_flags,
                                 desc_binding_info.desc_type,
                                 desc_set_index,
@@ -1808,9 +1744,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                         auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                             DumpResourceType::kDispatchTraceRaysBufferDescriptor,
-                            bcb_index,
+                            bcb_index_,
                             cmd_index,
-                            qs_index,
+                            qs_index_,
                             desc_binding_info.stage_flags,
                             desc_binding_info.desc_type,
                             desc_set_index,
@@ -1886,9 +1822,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                         auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                             DumpResourceType::kDispatchTraceRaysBufferDescriptor,
-                            bcb_index,
+                            bcb_index_,
                             cmd_index,
-                            qs_index,
+                            qs_index_,
                             desc_binding_info.stage_flags,
                             desc_binding_info.desc_type,
                             desc_set_index,
@@ -1950,9 +1886,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
 
                     auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                         DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor,
-                        bcb_index,
+                        bcb_index_,
                         cmd_index,
-                        qs_index,
+                        qs_index_,
                         desc_binding_info.stage_flags,
                         desc_binding_info.desc_type,
                         desc_set_index,
@@ -1980,9 +1916,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t qs_index,
                         GFXRECON_ASSERT(as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
                         auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                             DumpResourceType::kAccelerationStructure,
-                            bcb_index,
+                            bcb_index_,
                             cmd_index,
-                            qs_index,
+                            qs_index_,
                             desc_binding_info.stage_flags,
                             desc_binding_info.desc_type,
                             desc_set_index,

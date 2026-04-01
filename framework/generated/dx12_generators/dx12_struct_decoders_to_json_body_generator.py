@@ -590,6 +590,11 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         FieldToJson(jdata["AABBs"], meta_struct.AABBs, options);
                         break;
                     }
+                    case D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES:
+                    {
+                        FieldToJson(jdata["OmmTriangles"], meta_struct.OmmTriangles, options);
+                        break;
+                    }
                     default:
                     {
                         FieldToJson(jdata[format::kNameWarning], "Unknown D3D12_RAYTRACING_GEOMETRY_TYPE in D3D12_RAYTRACING_GEOMETRY_DESC.", options);
@@ -621,6 +626,11 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                                 break;
                             }
                         }
+                        break;
+                    }
+                    case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+                    {
+                        FieldToJson(jdata["pOpacityMicromapArrayDesc"], meta_struct.pOpacityMicromapArrayDesc, options);
                         break;
                     }
                     default:
