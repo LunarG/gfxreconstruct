@@ -409,7 +409,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
   private:
     // VMA hook to clean our internal state (mutexes) when VMA clears blocks of memory
-    friend void VKAPI_CALL OnVmaFreeDeviceMemory(VmaAllocator, uint32_t, VkDeviceMemory, VkDeviceSize, void*);
+    friend VKAPI_ATTR void VKAPI_CALL
+    OnVmaFreeDeviceMemory(VmaAllocator, uint32_t, VkDeviceMemory, VkDeviceSize, void*);
 
     struct MemoryAllocInfo;
 
