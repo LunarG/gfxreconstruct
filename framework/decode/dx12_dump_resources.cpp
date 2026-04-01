@@ -2353,7 +2353,10 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
                                                           const TrackDumpResources& track_dump_resources)
 {
     // prepare for output data
-    util::JsonOptions::format = kDefaultDumpResourcesFileFormat;
+    util::JsonOptions::format        = kDefaultDumpResourcesFileFormat;
+    util::JsonOptions::dump_binaries = false;
+    util::JsonOptions::expand_flags  = false;
+    util::JsonOptions::hex_handles   = false;
 
     json_filename_ = util::filepath::GetFilename(capture_file_name);
 
@@ -2563,7 +2566,7 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(const CopyResourceDataPtr r
     auto* jdata_node = FindDrawCallJsonNode(resource_data->json_path);
 
     std::string prefix_file_name =
-        util::JsonOptions::data_sub_dir + "_" + Dx12ResourceTypeToString(resource_data->resource_type);
+        *util::JsonOptions::data_sub_dir + "_" + Dx12ResourceTypeToString(resource_data->resource_type);
     WriteResource(*jdata_node, prefix_file_name, resource_data, modifiableResources);
 
     if (TEST_READABLE)
@@ -2726,7 +2729,7 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
 void DefaultDx12DumpResourcesDelegate::StartFile()
 {
     num_objects_ = 0;
-    if (util::JsonOptions::format == util::JsonFormat::JSON)
+    if (*util::JsonOptions::format == util::JsonFormat::JSON)
     {
         util::platform::FilePuts("[\n", json_file_handle_);
     }
@@ -2736,7 +2739,7 @@ void DefaultDx12DumpResourcesDelegate::EndFile()
 {
     if (json_file_handle_ != nullptr)
     {
-        if (util::JsonOptions::format == util::JsonFormat::JSON)
+        if (*util::JsonOptions::format == util::JsonFormat::JSON)
         {
             util::platform::FilePuts("\n]\n", json_file_handle_);
         }
@@ -2759,12 +2762,12 @@ void DefaultDx12DumpResourcesDelegate::WriteBlockEnd()
 {
     if (num_objects_ > 1)
     {
-        util::platform::FilePuts(util::JsonOptions::format == util::JsonFormat::JSONL ? "\n" : ",\n",
+        util::platform::FilePuts(*util::JsonOptions::format == util::JsonFormat::JSONL ? "\n" : ",\n",
                                  json_file_handle_);
     }
     // Dominates profiling (2/2):
     const std::string block =
-        json_data_.dump(util::JsonOptions::format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
+        json_data_.dump(*util::JsonOptions::format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
     util::platform::FileWriteNoLock(block.data(), block.length() * sizeof(std::string::value_type), json_file_handle_);
     util::platform::FileFlush(json_file_handle_); /// @todo Implement a FileFlushNoLock() for all platforms.
 }

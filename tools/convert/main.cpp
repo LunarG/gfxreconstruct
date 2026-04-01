@@ -347,6 +347,7 @@ int main(int argc, const char** argv)
             gfxrecon::util::JsonOptions::format        = output_format;
             gfxrecon::util::JsonOptions::dump_binaries = dump_binaries;
             gfxrecon::util::JsonOptions::expand_flags  = expand_flags;
+            gfxrecon::util::JsonOptions::hex_handles   = false;
 
             gfxrecon::decode::JsonWriter json_writer{ GetProjectVersionString(), input_filename };
             file_processor.SetAnnotationProcessor(&json_writer);

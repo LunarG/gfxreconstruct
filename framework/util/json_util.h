@@ -32,6 +32,7 @@
 #include "util/to_string.h"
 #include "util/logging.h"
 #include "format/format.h"
+#include <mutex>
 
 #ifndef WIN32
 #include "format/platform_types.h"
@@ -86,13 +87,38 @@ inline JsonFormat get_json_format(std::string format)
 /// Parameters potentially required in converting our datastructures to JSON.
 struct JsonOptions
 {
-    // Fields ordered large to small for alignment/packing.
-    static std::string root_dir;
-    static std::string data_sub_dir;
-    static JsonFormat  format;
-    static bool        dump_binaries;
-    static bool        expand_flags;
-    static bool        hex_handles;
+    // Wrapper to ensure that a value is initialized exactly once and before it is read.
+    template <typename T>
+    class SetOnce
+    {
+      public:
+        SetOnce(T default_value) : value_(default_value) {}
+        const T& operator=(const T& value)
+        {
+            static std::mutex           mutex;
+            std::lock_guard<std::mutex> lock(mutex);
+            GFXRECON_ASSERT(!initialized_);
+            value_       = value;
+            initialized_ = true;
+            return value;
+        }
+        operator const T&() const
+        {
+            GFXRECON_ASSERT(initialized_);
+            return value_;
+        }
+        const T& operator*() const { return *this; }
+
+      private:
+        T    value_;
+        bool initialized_ = false;
+    };
+    static SetOnce<std::string> root_dir;
+    static SetOnce<std::string> data_sub_dir;
+    static SetOnce<JsonFormat>  format;
+    static SetOnce<bool>        dump_binaries;
+    static SetOnce<bool>        expand_flags;
+    static SetOnce<bool>        hex_handles;
 };
 
 void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data);

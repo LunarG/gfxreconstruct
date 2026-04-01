@@ -54,7 +54,7 @@ void JsonWriter::StartStream(util::OutputStream* os)
     first_ = true;
     os_    = os;
 
-    if (util::JsonOptions::format == util::JsonFormat::JSON)
+    if (*util::JsonOptions::format == util::JsonFormat::JSON)
     {
         Write(*os_, "[\n");
     }
@@ -71,7 +71,7 @@ void JsonWriter::EndStream()
 {
     if (os_ != nullptr)
     {
-        if (util::JsonOptions::format == util::JsonFormat::JSON)
+        if (*util::JsonOptions::format == util::JsonFormat::JSON)
         {
             Write(*os_, "\n]\n");
         }
@@ -105,14 +105,14 @@ void JsonWriter::WriteBlockEnd()
 {
     if (!first_)
     {
-        Write(*os_, util::JsonOptions::format == util::JsonFormat::JSONL ? "\n" : ",\n");
+        Write(*os_, *util::JsonOptions::format == util::JsonFormat::JSONL ? "\n" : ",\n");
     }
     first_ = false;
     /// @todo Hand the tree over to a backend thread which dumps it to a string and streams it
     /// while the main thread gets on with building the tree for the next block.
     // Dominates profiling (2/2):
     const std::string block =
-        json_data_.dump(util::JsonOptions::format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth,
+        json_data_.dump(*util::JsonOptions::format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth,
                         ' ',
                         false,
                         nlohmann::json::error_handler_t::replace);

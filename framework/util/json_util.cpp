@@ -42,12 +42,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-std::string JsonOptions::root_dir;
-std::string JsonOptions::data_sub_dir;
-JsonFormat  JsonOptions::format        = JsonFormat::JSON;
-bool        JsonOptions::dump_binaries = false;
-bool        JsonOptions::expand_flags  = false;
-bool        JsonOptions::hex_handles   = false;
+JsonOptions::SetOnce<std::string> JsonOptions::root_dir("");
+JsonOptions::SetOnce<std::string> JsonOptions::data_sub_dir("");
+JsonOptions::SetOnce<JsonFormat>  JsonOptions::format(JsonFormat::JSON);
+JsonOptions::SetOnce<bool>        JsonOptions::dump_binaries(false);
+JsonOptions::SetOnce<bool>        JsonOptions::expand_flags(false);
+JsonOptions::SetOnce<bool>        JsonOptions::hex_handles(false);
 
 void FieldToJson(nlohmann::ordered_json& jdata, const float data[4])
 {
