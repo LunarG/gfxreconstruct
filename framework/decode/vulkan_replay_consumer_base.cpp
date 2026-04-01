@@ -284,7 +284,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     WaitDevicesIdle();
 
     // free replacer internal vulkan-resources
-    _device_address_replacers.clear();
+    device_address_replacers_.clear();
 
     // process queued async tasks
     background_queue_.join_all();
@@ -2070,7 +2070,7 @@ void VulkanReplayConsumerBase::InitializeReplayDumpResources()
     if (resource_dumper_ == nullptr)
     {
         resource_dumper_ = std::make_unique<VulkanReplayDumpResources>(
-            options_, object_info_table_, _device_address_trackers, instance_tables_, device_tables_);
+            options_, object_info_table_, device_address_trackers_, instance_tables_, device_tables_);
         GFXRECON_ASSERT(resource_dumper_);
     }
 }
@@ -3615,7 +3615,7 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         }
 
         // free replacer internal vulkan-resources for the device
-        _device_address_replacers.erase(device_info);
+        device_address_replacers_.erase(device_info);
 
         // free potential swapchain-resources for the device
         GFXRECON_ASSERT(swapchain_)
@@ -4212,8 +4212,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
     }
 
-    VulkanSubmitJobPlan     plan;
-    VulkanSubmitJobExecutor executor;
+    VulkanSubmitJobPlan plan;
 
     if (options_.frame_warm_up_load != 0 && !fps_info_->IsFirstSubmitDone())
     {
@@ -4246,7 +4245,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         }
     }
 
-    executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
+    VulkanSubmitJobExecution execution = GetDeviceSubmitJobExecutor(device_info).CreateExecution();
+    execution.InjectBefore(std::move(plan), pSubmits->GetSpan());
+
+    if (options_.serialize_queue_submissions)
+    {
+        execution.SerializeExecution(pSubmits->GetSpan());
+    }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
@@ -4447,8 +4452,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         GetDeviceTable(device_info->handle)->DeviceWaitIdle(device_info->handle);
     }
 
-    VulkanSubmitJobPlan     plan;
-    VulkanSubmitJobExecutor executor;
+    VulkanSubmitJobPlan plan;
 
     if (options_.frame_warm_up_load != 0 && !fps_info_->IsFirstSubmitDone())
     {
@@ -4481,7 +4485,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         }
     }
 
-    executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
+    VulkanSubmitJobExecution execution = GetDeviceSubmitJobExecutor(device_info).CreateExecution();
+    execution.InjectBefore(std::move(plan), pSubmits->GetSpan());
+
+    if (options_.serialize_queue_submissions)
+    {
+        execution.SerializeExecution(pSubmits->GetSpan());
+    }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
@@ -11319,50 +11329,63 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(
 VulkanDeviceAddressTracker&
 VulkanReplayConsumerBase::GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info)
 {
-    auto it = _device_address_trackers.find(device_info);
-    if (it == _device_address_trackers.end())
+    if (auto it = device_address_trackers_.find(device_info); it != device_address_trackers_.end())
     {
-        auto [new_it, success] =
-            _device_address_trackers.insert({ device_info, VulkanDeviceAddressTracker(*object_info_table_) });
-        GFXRECON_ASSERT(success);
-        return new_it->second;
+        return it->second;
     }
-    return it->second;
+
+    auto [new_it, success] =
+        device_address_trackers_.insert({ device_info, VulkanDeviceAddressTracker(*object_info_table_) });
+    GFXRECON_ASSERT(success);
+    return new_it->second;
 }
 
 VulkanAddressReplacer& VulkanReplayConsumerBase::GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info)
 {
-    auto it = _device_address_replacers.find(device_info);
-    if (it == _device_address_replacers.end())
+    if (auto it = device_address_replacers_.find(device_info); it != device_address_replacers_.end())
     {
-        auto [new_it, success] =
-            _device_address_replacers.insert({ device_info,
-                                               VulkanAddressReplacer(device_info,
-                                                                     GetDeviceTable(device_info->handle),
-                                                                     GetInstanceTable(device_info->parent),
-                                                                     *object_info_table_) });
-        GFXRECON_ASSERT(success);
-        return new_it->second;
+        return it->second;
     }
-    return it->second;
+
+    auto [new_it, success] =
+        device_address_replacers_.insert({ device_info,
+                                           VulkanAddressReplacer(device_info,
+                                                                 GetDeviceTable(device_info->handle),
+                                                                 GetInstanceTable(device_info->parent),
+                                                                 *object_info_table_) });
+    GFXRECON_ASSERT(success);
+    return new_it->second;
 }
 
 VulkanFrameWarmUp& VulkanReplayConsumerBase::GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info)
 {
-    auto it = device_frame_warmups_.find(device_info);
-    if (it == device_frame_warmups_.end())
+    if (auto it = device_frame_warmups_.find(device_info); it != device_frame_warmups_.end())
     {
-        auto [new_it, success] = device_frame_warmups_.insert({ device_info,
-                                                                VulkanFrameWarmUp(device_info,
-                                                                                  GetDeviceTable(device_info->handle),
-                                                                                  GetInstanceTable(device_info->parent),
-                                                                                  *object_info_table_,
-                                                                                  options_.frame_warm_up_spirv_path,
-                                                                                  options_.frame_warm_up_load) });
-        GFXRECON_ASSERT(success);
-        return new_it->second;
+        return it->second;
     }
-    return it->second;
+
+    auto [new_it, success] = device_frame_warmups_.insert({ device_info,
+                                                            VulkanFrameWarmUp(device_info,
+                                                                              GetDeviceTable(device_info->handle),
+                                                                              GetInstanceTable(device_info->parent),
+                                                                              *object_info_table_,
+                                                                              options_.frame_warm_up_spirv_path,
+                                                                              options_.frame_warm_up_load) });
+    GFXRECON_ASSERT(success);
+    return new_it->second;
+}
+
+VulkanSubmitJobExecutor& VulkanReplayConsumerBase::GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info)
+{
+    if (auto it = device_submit_job_executors_.find(device_info); it != device_submit_job_executors_.end())
+    {
+        return it->second;
+    }
+
+    auto [new_it, success] = device_submit_job_executors_.insert(
+        { device_info, VulkanSubmitJobExecutor(device_info, GetDeviceTable(device_info->handle)) });
+    GFXRECON_ASSERT(success);
+    return new_it->second;
 }
 
 bool VulkanReplayConsumerBase::UseExtraDescriptorInfo(const VulkanDeviceInfo* device_info) const
