@@ -21,6 +21,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#ifndef GFXRECON_UTIL_CALLBACKS_H
+#define GFXRECON_UTIL_CALLBACKS_H
+
 #include <atomic>
 
 #include "util/defines.h"
@@ -70,3 +73,5 @@ extern "C" void SetSignalTrimmingCallbacks(PFN_EventBeginCallBack begin_fp, PFN_
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif
