@@ -1859,7 +1859,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     bool CheckPipelineCacheUUID(const VulkanDeviceInfo* device_info, const VkPipelineCacheCreateInfo* create_info);
 
-    void LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData);
+    void LoadPipelineCachesFromFile();
+    void SavePipelineCachesToFile();
     void SavePipelineCache(format::HandleId id, const VulkanDeviceInfo* device_info, VkPipelineCache pipelineCache);
     VkPipelineCache CreateNewPipelineCache(const VulkanDeviceInfo* device_info, format::HandleId id);
     void            TrackNewPipelineCache(const VulkanDeviceInfo* device_info,
@@ -1884,6 +1885,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      * render pass begin to ensure render passes execute in the same order as they were captured.
      */
     void MaybeInjectExecutionBarrier(const VulkanCommandBufferInfo* command_buffer_info) const;
+
+    void Terminate() override;
+
+    void SignalHandler(int signal);
 
   private:
     struct HardwareBufferInfo
@@ -2026,8 +2031,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     //       the initial cache data has no corresponding replay time cache data.
     bool omitted_pipeline_cache_data_;
 
-    std::unordered_map<format::HandleId, std::pair<const VulkanDeviceInfo*, VkPipelineCache>> tracked_pipeline_caches_;
-    std::unordered_map<VkPipeline, format::HandleId> pipeline_cache_correspondances_;
+    struct TrackedPipelineCache
+    {
+        const VulkanDeviceInfo* device_info{ nullptr };
+        VkPipelineCache         vk_cache{ VK_NULL_HANDLE };
+        std::vector<uint8_t>    cache_data;
+    };
+
+    std::unordered_map<format::HandleId, TrackedPipelineCache> tracked_pipeline_caches_;
+    std::unordered_map<VkPipeline, format::HandleId>           pipeline_cache_correspondances_;
+
+    const bool save_pipeline_caches_to_file;
+    const bool load_pipeline_caches_from_file;
 };
 
 GFXRECON_END_NAMESPACE(decode)
