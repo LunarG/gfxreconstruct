@@ -73,7 +73,11 @@ pipeline {
                             'Windows11 AMD Rel64': runJob.gfxrTestWindows('Win11 AMD Rel64', runJob.ReleaseMode, runJob.Win11AMDLabel, runJob.Bit64, "commit-suite.json", scm.branches),
                             'Windows11 AMD Dbg32': runJob.gfxrTestWindows('Win11 AMD Dbg32', runJob.ReleaseMode, runJob.Win11AMDLabel, runJob.Bit32, "commit-suite.json", scm.branches),
                             'Windows11 ARM Rel64': runJob.gfxrTestWindows('Win11 ARM Rel64', runJob.ReleaseMode, runJob.Win11ARMLabel, runJob.Bit64, "commit-suite.json", scm.branches),
-                            'Windows11 ARM Dbg64': runJob.gfxrTestWindows('Win11 ARM Dbg64', runJob.ReleaseMode, runJob.Win11ARMLabel, runJob.Bit64, "commit-suite.json", scm.branches)
+                            'Windows11 ARM Dbg64': runJob.gfxrTestWindows('Win11 ARM Dbg64', runJob.ReleaseMode, runJob.Win11ARMLabel, runJob.Bit64, "commit-suite.json", scm.branches),
+                            'Windows11 AMD 9070 Rel64': runJob.gfxrTestWindows('Win11 AMD 9070 Rel64', runJob.ReleaseMode, runJob.Win11AMD9070Label, runJob.Bit64, "commit-suite.json", scm.branches),
+                            'Windows11 AMD 9070 Dbg32': runJob.gfxrTestWindows('Win11 AMD 9070 Dbg32', runJob.ReleaseMode, runJob.Win11AMD9070Label, runJob.Bit32, "commit-suite.json", scm.branches),
+                            'Windows11 Nvidia 5080 Rel64': runJob.gfxrTestWindows('Win11 Nvidia 5080 Rel64', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit64, "commit-suite.json", scm.branches),
+                            'Windows11 Nvidia 5080 Dbg32': runJob.gfxrTestWindows('Win11 Nvidia 5080 Dbg32', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit32, "commit-suite.json", scm.branches),
                         ]
                     }
                     // parallel runs OUTSIDE the node block - each branch allocates its own node

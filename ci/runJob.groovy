@@ -525,6 +525,8 @@ return [
     WinNvidiaLabel : 'Windows-NVIDIA-20XX-stable',
     Win11AMDLabel : 'Windows11-AMD-6800-stable',
     Win11ARMLabel : 'Windows11-ARM-GFXR',
+    Win11AMD9070Label : 'Windows11-AMD-9070',
+    Win11Nvidia50XXLabel : 'Windows11-NVIDIA-50XX',
     WinAMDExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
     WinNvidiaExtendedLabel: 'Windows-NVIDIA-2080-stable-exclusive',
 
