@@ -167,35 +167,22 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             GFXRECON_LOG_WARNING("Failed registering atexit");
         }
 
+        capture_settings_.SetApiFamilyId(api_capture_singleton->GetApiFamily());
+        CaptureSettings::LoadAllSettings(&capture_settings_, initialize_log_);
+
         if (initialize_log_)
         {
             // Initialize logging
             util::Log::Init();
-        }
-
-        if (capture_settings_ == nullptr)
-        {
-            // NOTE: FIRST Api Instance is used for settings -- actual multiple simultaneous API support will need to
-            // resolve. Get capture settings which can be different per capture manager.
-            capture_settings_ = api_capture_singleton->GetCaptureSettings();
-        }
-
-        if (initialize_log_)
-        {
-            // Load log settings.
-            CaptureSettings::LoadLogSettings(capture_settings_);
 
             // And then update the log with those settings
-            util::Log::UpdateWithSettings(capture_settings_->GetLogSettings());
+            util::Log::UpdateWithSettings(capture_settings_.GetLogSettings());
         }
-
-        // Load all settings with final logging settings active.
-        CaptureSettings::LoadAllSettings(capture_settings_, initialize_log_);
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
         GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GetProjectVersionString());
 
-        CaptureSettings::TraceSettings trace_settings = capture_settings_->GetTraceSettings();
+        CaptureSettings::TraceSettings trace_settings = capture_settings_.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
 
         // Initialize capture manager with default settings.
@@ -310,7 +297,7 @@ bool CommonCaptureManager::ProcessMatchesCaptureName(const std::string& desired_
 
 #elif defined(WIN32)
 
-        char  ascii_name[MAX_PATH];
+        char ascii_name[MAX_PATH];
 #ifdef UNICODE
         WCHAR wide_string[MAX_PATH];
         GetModuleFileName(NULL, wide_string, MAX_PATH);
@@ -829,8 +816,8 @@ bool CommonCaptureManager::IsTrimHotkeyPressed()
 
 bool CommonCaptureManager::RuntimeTriggerEnabled()
 {
-    CaptureSettings::LoadDynamicSettings(capture_settings_);
-    CaptureSettings::RuntimeTriggerState state = capture_settings_->GetTraceSettings().runtime_capture_trigger;
+    CaptureSettings::LoadDynamicSettings(&capture_settings_);
+    CaptureSettings::RuntimeTriggerState state = capture_settings_.GetTraceSettings().runtime_capture_trigger;
 
     bool result = (state == CaptureSettings::RuntimeTriggerState::kEnabled &&
                    (previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kDisabled ||
@@ -843,8 +830,8 @@ bool CommonCaptureManager::RuntimeTriggerEnabled()
 
 bool CommonCaptureManager::RuntimeTriggerDisabled()
 {
-    CaptureSettings::LoadDynamicSettings(capture_settings_);
-    CaptureSettings::RuntimeTriggerState state = capture_settings_->GetTraceSettings().runtime_capture_trigger;
+    CaptureSettings::LoadDynamicSettings(&capture_settings_);
+    CaptureSettings::RuntimeTriggerState state = capture_settings_.GetTraceSettings().runtime_capture_trigger;
 
     bool result = ((state == CaptureSettings::RuntimeTriggerState::kDisabled ||
                     state == CaptureSettings::RuntimeTriggerState::kNotUsed) &&
@@ -883,8 +870,8 @@ bool CommonCaptureManager::ExternalTriggerDisabled()
 
 bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
 {
-    CaptureSettings::LoadDynamicSettings(capture_settings_);
-    bool write_assets = capture_settings_->GetTraceSettings().runtime_write_assets;
+    CaptureSettings::LoadDynamicSettings(&capture_settings_);
+    bool write_assets = capture_settings_.GetTraceSettings().runtime_write_assets;
 
     if (previous_write_assets_ != write_assets)
     {
@@ -1317,7 +1304,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         // Gather environment variables in format::kEnvironmentStringDelimeter -delimited string
         std::string env_vars;
 
-        for (const auto& name : capture_settings_->GetTraceSettings().capture_environment)
+        for (const auto& name : capture_settings_.GetTraceSettings().capture_environment)
         {
             const auto value = util::platform::GetEnv(name.c_str());
             if (!value.empty())
@@ -1703,7 +1690,7 @@ void CommonCaptureManager::AtExit()
 
 void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation)
 {
-    CaptureSettings::TraceSettings default_settings = capture_settings_->GetDefaultTraceSettings();
+    CaptureSettings::TraceSettings default_settings = capture_settings_.GetDefaultTraceSettings();
     std::string                    buffer;
 
     if (force_file_flush_ != default_settings.force_flush)
@@ -1810,8 +1797,7 @@ CaptureFileOutputStream::CaptureFileOutputStream(CommonCaptureManager* capture_m
                                                  const std::string&    filename,
                                                  size_t                buffer_size,
                                                  bool                  append) :
-    FileOutputStream(filename, buffer_size, append),
-    capture_manager_(capture_manager)
+    FileOutputStream(filename, buffer_size, append), capture_manager_(capture_manager)
 {}
 
 bool CaptureFileOutputStream::Write(const void* data, size_t len)

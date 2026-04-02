@@ -34,10 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class ApiCaptureManager
 {
   public:
-    ApiCaptureManager(format::ApiFamilyId api_family) : api_family_(api_family)
-    {
-        capture_settings_.SetApiFamilyId(api_family);
-    }
+    ApiCaptureManager(format::ApiFamilyId api_family) : api_family_(api_family) {}
     ~ApiCaptureManager() = default;
 
     void SetCommonManager(CommonCaptureManager* common_manager) { common_manager_ = common_manager; }
@@ -60,8 +57,8 @@ class ApiCaptureManager
                              const std::string*      asset_file_name,
                              util::ThreadData*       thread_data)                                            = 0;
 
-    CaptureSettings*               GetCaptureSettings() { return &capture_settings_; }
-    CaptureSettings::TraceSettings GetTraceSettings() { return capture_settings_.GetTraceSettings(); }
+    CaptureSettings*               GetCaptureSettings() { return common_manager_->GetCaptureSettings(); }
+    CaptureSettings::TraceSettings GetTraceSettings() { return GetCaptureSettings()->GetTraceSettings(); }
 
     format::ApiFamilyId GetApiFamily() const { return api_family_; }
     bool                IsCaptureModeTrack() const { return common_manager_->IsCaptureModeTrack(); }
@@ -263,7 +260,6 @@ class ApiCaptureManager
   protected:
     const format::ApiFamilyId api_family_;
     CommonCaptureManager*     common_manager_ = nullptr;
-    CaptureSettings           capture_settings_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
