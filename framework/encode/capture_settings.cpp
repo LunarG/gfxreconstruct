@@ -266,7 +266,7 @@ void CaptureSettings::LoadGeneralSettings(CaptureSettings* settings, bool proces
 #if defined(WIN32)
     settings->trace_settings_.page_guard_external_memory = settings_struct->capture_settings.page_guard_external_memory;
 #else
-    settings->trace_settings_.page_guard_external_memory = false;
+    settings->trace_settings_.page_guard_external_memory  = false;
 #endif
     settings->trace_settings_.page_guard_persistent_memory =
         settings_struct->capture_settings.page_guard_persistent_memory;
@@ -354,7 +354,7 @@ void CaptureSettings::LoadGeneralSettings(CaptureSettings* settings, bool proces
             util::strings::SplitString(settings_struct->capture_settings.capture_environment, ',');
     }
 #else
-    settings->log_settings_.capture_environment = false;
+    settings->log_settings_.capture_environment           = false;
 #endif // defined(__linux__) || defined(__APPLE__) || defined(WIN32)
 
     settings->trace_settings_.capture_process_name = settings_struct->capture_settings.capture_process_name;
@@ -401,7 +401,7 @@ void CaptureSettings::ProcessLogOptions(CaptureSettings* settings)
 #if defined(WIN32)
     settings->log_settings_.output_to_os_debug_string = settings_struct->capture_settings.log_output_to_os_debug_string;
 #else
-    settings->log_settings_.output_to_os_debug_string = false;
+    settings->log_settings_.output_to_os_debug_string     = false;
 #endif // WIN32
 
     settings->log_settings_.output_timestamps = settings_struct->capture_settings.log_timestamps;
