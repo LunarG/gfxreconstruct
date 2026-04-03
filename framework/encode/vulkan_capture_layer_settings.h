@@ -34,11 +34,16 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 ///
 /// @param pCreateInfo A pointer to a `VkInstanceCreateInfo` structure which might contain one or more
 ///                    `VkLayerSettingsCreateInfoEXT` structures in its `pNext` chain.
+/// @param trace_settings A pointer to the current trace settings which can be modified by the
+///                       information found in any layer settinsg extension packets in the
+///                       VkInstanceCreateInfo pNext chain.
 ///
 /// @note This function only extracts settings for `VK_LAYER_LUNARG_gfxreconstruct`.
 ///
-/// @return A `TraceSettings` object containing the extracted settings.
-CaptureSettings::TraceSettings GetVulkanLayerTraceSettings(const VkInstanceCreateInfo* pCreateInfo);
+/// @return True if layer settings were received during vkCreateInstance, False otherwise.
+bool GetVulkanLayerTraceSettings(const VkInstanceCreateInfo*     pCreateInfo,
+                                 CaptureSettings::TraceSettings* trace_settings);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

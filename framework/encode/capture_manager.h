@@ -348,6 +348,11 @@ class CommonCaptureManager
                     const CaptureSettings::TraceSettings& trace_settings);
 
   public:
+    CaptureSettings* GetCaptureSettings()
+    {
+        return &capture_settings_;
+    }
+
     bool GetForceFileFlush() const
     {
         return force_file_flush_;
@@ -561,10 +566,7 @@ class CommonCaptureManager
     using ApiCaptureManagerMap = std::unordered_map<ApiCaptureManager*, ApiInstanceRecord>;
     ApiCaptureManagerMap api_capture_managers_;
 
-    CaptureSettings default_settings_; // Default settings from the initial api singleton
-    CaptureSettings
-        capture_settings_; // Settings from the settings file and environment at capture manager creation time.
-
+    CaptureSettings                         capture_settings_;
     std::unique_ptr<util::FileOutputStream> file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;

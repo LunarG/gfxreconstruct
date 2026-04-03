@@ -1773,11 +1773,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                              const std::string*      asset_file_name,
                              util::ThreadData*       thread_data) override;
 
-    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
-    {
-        return layer_settings_;
-    }
-
   private:
     struct HardwareBufferInfo
     {
@@ -1853,8 +1848,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::mutex        fence_mutex;
     std::set<VkFence> valid_fences_;
 #endif
-
-    CaptureSettings::TraceSettings layer_settings_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
