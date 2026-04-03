@@ -78,7 +78,7 @@ std::string to_hex_fixed_width(T value, bool zero_fill = true, bool show_base = 
     {
         stream << std::setfill('0');
     }
-    stream << std::setw(sizeof(T) * 2)<< std::hex << value;
+    stream << std::setw(sizeof(T) * 2) << std::hex << value;
     return stream.str();
 }
 

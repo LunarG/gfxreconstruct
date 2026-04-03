@@ -503,6 +503,7 @@ void PrintApiAgnosticStatsText(const gfxrecon::decode::FileProcessor& file_proce
     {
         if (api_agnostic_stats.blank_frame_count)
         {
+            GFXRECON_LOG_WARNING("***** [Brainpain] Actual blank frame count is %u!!", api_agnostic_stats.blank_frame_count);
             WriteOutput("\tBlank frames: %u", api_agnostic_stats.blank_frame_count);
             WriteOutput("\tCaptured frames: %u", api_agnostic_stats.frame_count);
         }
@@ -751,6 +752,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
         }
         else
         {
+            GFXRECON_LOG_ERROR("*****  [Brainpain] ERROR WHILE PROCESSING!");
             WriteOutput("Encountered error while reading capture. Stats unavailable.");
         }
     }

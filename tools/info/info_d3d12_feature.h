@@ -43,7 +43,14 @@ class InfoD3d12Feature : public InfoFeature
 
     // Simple "getter" style methods
     std::string Label() const override { return "D3D12"; }
-    bool        WasDetected() override { return dx12_detection_consumer_.WasD3D12APIDetected(); }
+
+    bool WasDetected() override
+    {
+        GFXRECON_LOG_WARNING("*****  [Brainpain] Checking Dx12 detected %u",
+                             dx12_detection_consumer_.WasD3D12APIDetected());
+        return dx12_detection_consumer_.WasD3D12APIDetected();
+    }
+
     std::string CompiledHeaderVersionString() const override;
     uint32_t    GetBlankFrameCount() override;
 
