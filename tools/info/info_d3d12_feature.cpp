@@ -73,7 +73,6 @@ bool InfoD3d12Feature::CheckCommandLine(util::ArgumentParser* arg_parser)
 
 void InfoD3d12Feature::RegisterDecodeComponents(decode::FileProcessor& file_processor)
 {
-    GFXRECON_LOG_WARNING("*****  [Brainpain] ADDING DX12 consumer/decoder");
     dx12_decoder_.AddConsumer(&dx12_detection_consumer_);
     dx12_decoder_.AddConsumer(&dx12_consumer_);
     file_processor.AddDecoder(&dx12_decoder_);
@@ -398,7 +397,6 @@ nlohmann::json InfoD3d12Feature::GenerateJson()
 
 uint32_t InfoD3d12Feature::GetBlankFrameCount()
 {
-        GFXRECON_LOG_WARNING("***** [Brainpain] InfoD3d12Feature::GetBlankFrameCount %u!!", dx12_consumer_.GetDummyFrameCount());
     return dx12_consumer_.GetDummyFrameCount();
 }
 

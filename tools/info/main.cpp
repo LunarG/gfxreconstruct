@@ -503,16 +503,9 @@ void PrintApiAgnosticStatsText(const gfxrecon::decode::FileProcessor& file_proce
     {
         if (api_agnostic_stats.blank_frame_count)
         {
-            GFXRECON_LOG_WARNING("***** [Brainpain] Actual blank frame count is %u!!", api_agnostic_stats.blank_frame_count);
             WriteOutput("\tBlank frames: %u", api_agnostic_stats.blank_frame_count);
             WriteOutput("\tCaptured frames: %u", api_agnostic_stats.frame_count);
         }
-// Brainpain
-        else
-        {
-            GFXRECON_LOG_WARNING("***** [Brainpain] Blank frame count is 0!!");
-        }
-// Brainpain
 
         // Print out the total frames and range based on the API (since we have 2 different ways of showing it)
         if (print_single_line)
@@ -653,16 +646,16 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
 
             for (auto& feature : g_info_features)
             {
+                blank_frame_count += feature->GetBlankFrameCount();
+                uint32_t api_start_frame = feature->GetFrameStart();
+                if (api_agnostic_stats.trim_start_frame < api_start_frame)
+                {
+                    api_agnostic_stats.trim_start_frame = api_start_frame;
+                }
+
                 if (feature->WasDetected())
                 {
                     detected_apis.push_back(feature->Label());
-                    blank_frame_count += feature->GetBlankFrameCount();
-                    GFXRECON_LOG_WARNING("*****  [Brainpain] Feature %s detected! Blank frame count %d", feature->Label().c_str(), blank_frame_count);
-                    uint32_t api_start_frame = feature->GetFrameStart();
-                    if (api_agnostic_stats.trim_start_frame < api_start_frame)
-                    {
-                        api_agnostic_stats.trim_start_frame = api_start_frame;
-                    }
                     feature->SetDriverInfoString(driver_info);
 
                     // Only disable the non-single line output if this is the first
@@ -752,7 +745,6 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
         }
         else
         {
-            GFXRECON_LOG_ERROR("*****  [Brainpain] ERROR WHILE PROCESSING!");
             WriteOutput("Encountered error while reading capture. Stats unavailable.");
         }
     }
