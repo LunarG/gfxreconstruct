@@ -661,6 +661,7 @@ void Dx12StateWriter::WriteResourceCreationState(
         if (resource_desc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
         {
             D3D12_GPU_VIRTUAL_ADDRESS gpu_address = resource->GetGPUVirtualAddress();
+            RvAnnotationUtil::AddRvAnnotation(&gpu_address);
             encoder_.EncodeUInt64Value(gpu_address);
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress,
                             resource_wrapper->GetCaptureId(),

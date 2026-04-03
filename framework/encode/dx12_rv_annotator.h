@@ -53,6 +53,8 @@ class Dx12ResourceValueAnnotator
 
     void ScanForGPUVA(uint64_t memory_id, uint8_t* data, uint64_t size, uint64_t offset);
 
+    bool RestoreForGPUVA(uint64_t memory_id, uint8_t* data, uint64_t size, uint64_t offset);
+
     struct Dx12FillCommandResourceValue
     {
         uint64_t                                                   offset;
