@@ -123,6 +123,20 @@ pipeline {
                                         params.TEST_BRANCH,
                                         params.TEST_SUITE_REPO,
                                         params.TEST_SUITE_BRANCH),
+                            'Windows11 AMD 9070 Rel64': runJob.gfxrTestWindowsManual('Win11 AMD 9070 Rel64', runJob.Win11AMD9070Label, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH),
+                            'Windows11 Nvidia 50XX Rel64': runJob.gfxrTestWindowsManual('Win11 Nvidia 50XX Rel64', runJob.Win11Nvidia50XXLabel, runJob.ReleaseMode, runJob.Bit64, params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH),
                         ]
                     }
                     parallel tests
