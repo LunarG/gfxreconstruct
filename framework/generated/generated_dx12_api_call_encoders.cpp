@@ -5183,7 +5183,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICR
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC& value)
 {
     encoder->EncodeUInt32Value(value.NumOmmHistogramEntries);
-    EncodeStructPtr(encoder, value.pOmmHistogram);
+    EncodeStructArray(encoder, value.pOmmHistogram, value.NumOmmHistogramEntries);
     encoder->EncodeUInt64Value(value.InputBuffer);
     EncodeStruct(encoder, value.PerOmmDescs);
 }

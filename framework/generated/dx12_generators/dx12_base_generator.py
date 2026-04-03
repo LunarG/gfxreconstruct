@@ -248,7 +248,8 @@ class Dx12BaseGenerator():
             'ID3D12GraphicsCommandList_OMSetRenderTargets',
             'pRenderTargetDescriptors',
             '(NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0)'
-        ]
+        ],
+        ['D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC', 'pOmmHistogram', 'NumOmmHistogramEntries']
     ]
 
     RETURN_ARRAY_SIZE_LIST = [
