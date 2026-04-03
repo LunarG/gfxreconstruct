@@ -193,43 +193,96 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
 
     // This structure contains the data tied to a swapchain image created for presenting offscreen frame boundaries
-    struct OFBSwapchainImageData
+    struct AdhocSwapChainImageData
     {
         VkImage       image{ VK_NULL_HANDLE };
         VkImageLayout image_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
         VkSemaphore   semaphore{ VK_NULL_HANDLE };
     };
 
-    struct OFBSwapchainFrameData
+    struct AdhocSwapChainFrameData
     {
         VkCommandBuffer command_buffer    = VK_NULL_HANDLE;
         VkFence         fence             = VK_NULL_HANDLE;
         VkSemaphore     acquire_semaphore = VK_NULL_HANDLE;
     };
 
-    // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
-    // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
-    struct OFBData
+    struct AdhocSwapChain
     {
+        AdhocSwapChain() = default;
+        ~AdhocSwapChain();
+
+        AdhocSwapChain(const AdhocSwapChain&)            = delete;
+        AdhocSwapChain& operator=(const AdhocSwapChain&) = delete;
+
+        // idiomatic copy & swap
+        AdhocSwapChain(AdhocSwapChain&& other) noexcept : AdhocSwapChain() { swap(*this, other); }
+        AdhocSwapChain& operator=(AdhocSwapChain other) noexcept
+        {
+            swap(*this, other);
+            return *this;
+        }
+
+        friend void swap(AdhocSwapChain& lhs, AdhocSwapChain& rhs) noexcept
+        {
+            using std::swap;
+            swap(lhs.device, rhs.device);
+            swap(lhs.device_table, rhs.device_table);
+            swap(lhs.instance_info, rhs.instance_info);
+            swap(lhs.owner, rhs.owner);
+            swap(lhs.command_pool, rhs.command_pool);
+            swap(lhs.surface_info, rhs.surface_info);
+            swap(lhs.surface_ptr, rhs.surface_ptr);
+            swap(lhs.queue, rhs.queue);
+            swap(lhs.surface_formats, rhs.surface_formats);
+            swap(lhs.acquire_index, rhs.acquire_index);
+            swap(lhs.handle, rhs.handle);
+            swap(lhs.frame_data, rhs.frame_data);
+            swap(lhs.image_data, rhs.image_data);
+        }
+
+        // required for lifetime-management
+        VkDevice                           device{ VK_NULL_HANDLE };
+        const graphics::VulkanDeviceTable* device_table{ nullptr };
         const VulkanInstanceInfo*          instance_info{ nullptr };
+        VulkanSwapchain*                   owner{ nullptr };
+
+        // non-owning handle
+        VkCommandPool command_pool{ VK_NULL_HANDLE };
+
+        // contains window
         VulkanSurfaceKHRInfo               surface_info{};
         HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
-        std::unordered_set<VkFormat>       surface_formats{};
-        VkQueue                            queue{ VK_NULL_HANDLE };
-        VkCommandPool                      command_pool{ VK_NULL_HANDLE };
-        VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };
 
-        std::vector<OFBSwapchainFrameData> frame_data;
-        uint32_t                           acquire_index{ 0 };
+        VkQueue                      queue{ VK_NULL_HANDLE };
+        std::unordered_set<VkFormat> surface_formats{};
+        uint32_t                     acquire_index{ 0 };
 
-        std::vector<OFBSwapchainImageData> image_data{};
+        VkSwapchainKHR handle{ VK_NULL_HANDLE };
+
+        std::vector<AdhocSwapChainFrameData> frame_data{};
+        std::vector<AdhocSwapChainImageData> image_data{};
+
+        // destroy swapchain and per-frame resources, keep surface
+        void DestroySwapchain();
+    };
+
+    // This structure groups device-specific, custom/adhoc surfaces/swapchains and shared resources for those.
+    struct AdhocDeviceData
+    {
+        // command-pool for all AdhocSwapChains
+        VkCommandPool command_pool{ VK_NULL_HANDLE };
+
+        VkQueue queue{ VK_NULL_HANDLE };
+
+        std::vector<AdhocSwapChain> swapchains;
 
         std::unique_ptr<graphics::VulkanResourcesUtil> copy_util;
     };
 
-    std::unordered_map<VkDevice, OFBData>  ofb_data_;
-    std::unordered_map<VkDevice, uint32_t> copy_queue_family_index_;
-    std::unordered_map<VkDevice, VkQueue>  initial_copy_queue_;
+    std::unordered_map<VkDevice, AdhocDeviceData> adhoc_device_data_;
+    std::unordered_map<VkDevice, uint32_t>        copy_queue_family_index_;
+    std::unordered_map<VkDevice, VkQueue>         initial_copy_queue_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
