@@ -19,11 +19,11 @@
 @REM FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 @REM DEALINGS IN THE SOFTWARE.
 
-if not defined TEST_COMMIT (
+if not defined TEST_BRANCH (
     if exist test.ref (
-        set /p TEST_COMMIT=<test.ref
+        set /p TEST_BRANCH=<test.ref
     ) else (
-        set TEST_COMMIT=master
+        set TEST_BRANCH=master
     )
 )
 
@@ -43,7 +43,7 @@ goto :clone_tests
 cd VulkanTests
 git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
 git fetch origin
-git checkout %TEST_COMMIT% || exit /b
+git checkout %TEST_BRANCH% || exit /b
 git submodule update --init --recursive
 git describe --tags --always
 cd ..
