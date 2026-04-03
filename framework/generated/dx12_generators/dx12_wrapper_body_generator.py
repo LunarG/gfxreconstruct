@@ -966,6 +966,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                         name = 'UnwrapObjects<{}>'\
                             '({}, {}, unwrap_memory)'.format(
                                 wrappers[name].base_type, name, value.array_length)
+                    # The private data interface should be set to the wrapper object,
+                    # but not unwrapped to the original object.
+                    elif (((name == "pData") or (name == "pUnknown")) and
+                        (wrappers[name].base_type == "IUnknown")):
+                        name = '{}'.format(name)
                     else:
                         name = 'encode::GetWrappedObject<{}>({})'\
                             .format(wrappers[name].base_type, name)

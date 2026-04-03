@@ -271,6 +271,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                      Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
                                                      D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType);
 
+    void PostCall_ID3D12Object_SetPrivateDataInterface(const ApiCallInfo& call_info,
+                                                       DxObjectInfo*      object_info,
+                                                       HRESULT            original_result,
+                                                       HRESULT            replay_result,
+                                                       Decoded_GUID       guid,
+                                                       format::HandleId   data_object_id);
+
+    void PostCall_IDXGIObject_SetPrivateDataInterface(const ApiCallInfo& call_info,
+                                                      DxObjectInfo*      object_info,
+                                                      HRESULT            original_result,
+                                                      HRESULT            replay_result,
+                                                      Decoded_GUID       guid,
+                                                      format::HandleId   unknown_object_id);
+
     template <typename T>
     T* MapObject(const format::HandleId id)
     {
@@ -722,6 +736,21 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         uint64_t                     allocation_id,
                                         Decoded_GUID                 riid,
                                         HandlePointerDecoder<void*>* heap);
+
+    HRESULT
+    OverrideOpenExistingHeapFromFileMapping(DxObjectInfo*                replay_object_info,
+                                            HRESULT                      original_result,
+                                            uint64_t                     allocation_id,
+                                            Decoded_GUID                 riid,
+                                            HandlePointerDecoder<void*>* heap);
+
+    HRESULT
+    OverrideOpenExistingHeapFromAddress1(DxObjectInfo*                replay_object_info,
+                                         HRESULT                      original_result,
+                                         uint64_t                     allocation_id,
+                                         SIZE_T                       size,
+                                         Decoded_GUID                 riid,
+                                         HandlePointerDecoder<void*>* heap);
 
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,

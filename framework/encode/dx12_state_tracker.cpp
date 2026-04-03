@@ -68,6 +68,16 @@ void Dx12StateTracker::TrackOpenExistingHeapFromAddress(void** heap, const void*
     info->open_existing_address = address;
 }
 
+void Dx12StateTracker::TrackOpenExistingHeapFromFileMapping(void** heap, const void* handle)
+{
+    assert((heap != nullptr) && ((*heap) != nullptr) && (handle != nullptr));
+
+    auto heap_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(*heap);
+    auto info         = heap_wrapper->GetObjectInfo();
+    assert(info != nullptr);
+    info->open_existing_handle = handle;
+}
+
 void Dx12StateTracker::TrackFenceSetEventOnCompletion(ID3D12Fence_Wrapper* fence_wrapper, UINT64 value, HANDLE event)
 {
     assert(fence_wrapper != nullptr);
@@ -680,6 +690,18 @@ void Dx12StateTracker::TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name,
     }
 }
 
+void Dx12StateTracker::TrackPrivateDataInterface(IUnknown_Wrapper* wrapper, REFGUID name, const IUnknown* data)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    auto* info = GetWrapperInfo(wrapper);
+    if (info)
+    {
+        graphics::dx12::IUnknownComPtr private_data = const_cast<IUnknown*>(data);
+        info->private_data_interface[name]          = std::move(private_data);
+    }
+}
+
 void Dx12StateTracker::TrackResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
                                               UINT                            num_objects,
                                               ID3D12Pageable* const*          objects,
@@ -937,8 +959,8 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 // Copy the inputs data to the inputs_data_resource.
                 while (curr_entry_iter != end_entry_iter)
                 {
-                    gfxrecon::util::GpuVaRange range       = { *curr_entry_iter->desc_gpu_va,
-                                                               *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
+                    gfxrecon::util::GpuVaRange range = { *curr_entry_iter->desc_gpu_va,
+                                                         *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
                     if (DoesResourceCoverGpuVaRange(src_resource_info.get(), range))
                     {
                         auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;

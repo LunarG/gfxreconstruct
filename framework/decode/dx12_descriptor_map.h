@@ -43,12 +43,12 @@ class Dx12DescriptorMap
     static const size_t   kNullCpuAddress = 0;
     static const uint64_t kNullGpuAddress = 0;
 
-    Dx12DescriptorMap(const Dx12DescriptorMap&) = delete;
+    Dx12DescriptorMap(const Dx12DescriptorMap&)            = delete;
     Dx12DescriptorMap& operator=(const Dx12DescriptorMap&) = delete;
 
     Dx12DescriptorMap() = default;
 
-    Dx12DescriptorMap(Dx12DescriptorMap&&) noexcept = default;
+    Dx12DescriptorMap(Dx12DescriptorMap&&) noexcept            = default;
     Dx12DescriptorMap& operator=(Dx12DescriptorMap&&) noexcept = default;
 
     void AddCpuDescriptorHeap(const D3D12_CPU_DESCRIPTOR_HANDLE&     capture_cpu_start,
