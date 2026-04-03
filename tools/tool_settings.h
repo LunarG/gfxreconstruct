@@ -82,6 +82,8 @@ const char kOverrideGpuArgument[]                = "--gpu";
 const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
+const char kLoopFrameArgument[]                  = "--loop-frame";
+const char kLoopCountArgument[]                  = "--loop-count";
 const char kCaptureOption[]                      = "--capture";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
@@ -151,6 +153,7 @@ const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
 const char kIdleBeforeSubmit[]                    = "--idle-before-submit";
 const char kSerializeRenderPasses[]               = "--serialize-render-passes";
+const char kWaitBeforeFrame[]                     = "--wait-before-frame";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -315,7 +318,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
 
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    uint32_t    pause_frame = 0;
+    uint32_t    pause_frame = std::numeric_limits<uint32_t>::max();
     const auto& value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
 
     if (arg_parser.IsOptionSet(kPausedOption))
@@ -725,6 +728,62 @@ static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, 
     return false;
 }
 
+static bool GetLoopFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_number)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kLoopFrameArgument);
+
+    bool valid = !value.empty();
+
+    if (valid)
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            valid = false;
+        }
+    }
+
+    if (valid)
+    {
+        frame_number = std::stoi(value);
+        if (frame_number == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which must be greater than zero",
+                                 value.c_str());
+            valid = false;
+        }
+    }
+
+    return valid;
+}
+
+static bool GetLoopCount(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& loop_count)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kLoopCountArgument);
+    if (!value.empty())
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            return false;
+        }
+
+        uint32_t parsed_loop_count = static_cast<uint32_t>(std::stoul(value));
+        if (parsed_loop_count == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which must be greater than zero", value.c_str());
+            return false;
+        }
+
+        loop_count = parsed_loop_count;
+        return true;
+    }
+
+    return false;
+}
+
 static bool
 GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
 {
@@ -732,56 +791,57 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
     end_frame   = std::numeric_limits<uint32_t>::max();
 
     const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
-    if (!value.empty())
+    if (value.empty())
     {
-        std::vector<std::string> values  = gfxrecon::util::strings::SplitString(value, '-');
-        bool                     invalid = false;
+        return false;
+    }
 
-        if (values.size() != 2)
+    std::vector<std::string> values = gfxrecon::util::strings::SplitString(value, '-');
+
+    if (values.size() != 2)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
+                           value.c_str());
+        std::abort();
+    }
+
+    for (std::string& num : values)
+    {
+        gfxrecon::util::strings::RemoveWhitespace(num);
+
+        // Check that the range string only contains numbers.
+        const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
+        if (count != num.length())
         {
-            GFXRECON_LOG_WARNING(
-                "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
-                value.c_str());
-            invalid = true;
-        }
-
-        for (std::string& num : values)
-        {
-            gfxrecon::util::strings::RemoveWhitespace(num);
-
-            // Check that the range string only contains numbers.
-            const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
-            if (count != num.length())
-            {
-                GFXRECON_LOG_WARNING(
-                    "Ignoring invalid measurement frame range \"%s\", which contains non-numeric values",
-                    value.c_str());
-                invalid = true;
-                break;
-            }
-        }
-
-        if (!invalid)
-        {
-            uint32_t start_frame_arg = std::stoi(values[0]);
-            uint32_t end_frame_arg   = std::stoi(values[1]);
-
-            if (start_frame_arg >= end_frame_arg)
-            {
-                GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
-                                     "greater than or equal to the last frame",
-                                     value.c_str());
-
-                return false;
-            }
-
-            start_frame = start_frame_arg;
-            end_frame   = end_frame_arg;
-            return true;
+            GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", which contains non-numeric values",
+                               value.c_str());
+            std::abort();
         }
     }
 
-    return false;
+    uint32_t start_frame_arg = std::stoi(values[0]);
+    uint32_t end_frame_arg   = std::stoi(values[1]);
+
+    if (start_frame_arg >= end_frame_arg)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is greater than or equal "
+                           "to the last frame",
+                           value.c_str());
+        std::abort();
+    }
+
+    if (start_frame_arg == 0)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is 0 which is invalid in "
+                           "GFXReconstruct (frame count starts at 1)",
+                           value.c_str());
+        std::abort();
+    }
+
+    start_frame = start_frame_arg;
+    end_frame   = end_frame_arg;
+
+    return true;
 }
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
@@ -947,6 +1007,25 @@ static void GetFrameWarmUpOptions(const gfxrecon::util::ArgumentParser& arg_pars
         GFXRECON_LOG_WARNING("Frame warm up SPIR-V file is specified as \"%s\", but frame warm up is disabled because "
                              "`--frame-warm-up-load` is 0. Specify a non-zero load to enable frame warm up.",
                              frame_warm_up_spirv.c_str());
+    }
+}
+
+static void GetWaitBeforeFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& wait_before_frame)
+{
+    const auto& value = arg_parser.GetArgumentValue(kWaitBeforeFrame);
+
+    if (!value.empty())
+    {
+        try
+        {
+            wait_before_frame = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid wait before frame option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
     }
 }
 
@@ -1308,6 +1387,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.serialize_render_passes = arg_parser.IsOptionSet(kSerializeRenderPasses);
 
     GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);
+    GetWaitBeforeFrame(arg_parser, replay_options.wait_before_frame);
 
     return replay_options;
 }

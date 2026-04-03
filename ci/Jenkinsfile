@@ -21,6 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+def extendedGitCommit = null
+
 pipeline {
     agent none
 
@@ -52,7 +54,8 @@ pipeline {
 
                     // Checkout and load on any available node
                     node {
-                        checkout scm
+                        def scmVars = checkout scm
+                        extendedGitCommit = scmVars.GIT_COMMIT
                         def runJob = load 'ci/runJob.groovy'
 
                         tests = [
@@ -86,13 +89,16 @@ pipeline {
 
             steps {
                 script {
-                    def quietPeriodSeconds = calculateQuietPeriod()
+                    if (!extendedGitCommit?.trim()) {
+                        error('Unable to resolve commit SHA for extended pipeline trigger')
+                    }
+
                     build job: 'gfxr-pipelines/gfxr-extended',
                           wait: false,
                           propagate: false,
-                          quietPeriod: quietPeriodSeconds,
+                          quietPeriod: calculateQuietPeriod(),
                           parameters: [
-                              string(name: 'GIT_COMMIT', value: env.GIT_COMMIT)
+                              string(name: 'GIT_COMMIT', value: extendedGitCommit)
                           ]
                 }
             }
