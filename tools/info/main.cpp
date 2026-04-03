@@ -506,6 +506,12 @@ void PrintApiAgnosticStatsText(const gfxrecon::decode::FileProcessor& file_proce
             WriteOutput("\tBlank frames: %u", api_agnostic_stats.blank_frame_count);
             WriteOutput("\tCaptured frames: %u", api_agnostic_stats.frame_count);
         }
+// Brainpain
+        else
+        {
+            GFXRECON_LOG_WARNING("***** [Brainpain] Blank frame count is 0!!");
+        }
+// Brainpain
 
         // Print out the total frames and range based on the API (since we have 2 different ways of showing it)
         if (print_single_line)
@@ -636,7 +642,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             uint32_t                 blank_frame_count            = 0;
             bool                     force_all_api_output         = false;
             bool                     api_found                    = false;
-            bool                     use_single_line_frame_output = false;
+            bool                     use_single_line_frame_output = true;
             std::vector<std::string> detected_apis;
             std::string              driver_info = "Driver info not available.";
 
@@ -650,18 +656,22 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                 {
                     detected_apis.push_back(feature->Label());
                     blank_frame_count += feature->GetBlankFrameCount();
+                    GFXRECON_LOG_WARNING("*****  [Brainpain] Feature %s detected! Blank frame count %d", feature->Label().c_str(), blank_frame_count);
                     uint32_t api_start_frame = feature->GetFrameStart();
                     if (api_agnostic_stats.trim_start_frame < api_start_frame)
                     {
                         api_agnostic_stats.trim_start_frame = api_start_frame;
                     }
                     feature->SetDriverInfoString(driver_info);
-                    api_found = true;
 
-                    if (feature->DesiresSingleLineFrameOutput())
+                    // Only disable the non-single line output if this is the first
+                    // discovered API and it does not want it.  The only API
+                    // that really wants the multi-line output is a definite D3D capture
+                    if (!api_found && !feature->DesiresSingleLineFrameOutput())
                     {
-                        use_single_line_frame_output = true;
+                        use_single_line_frame_output = false;
                     }
+                    api_found = true;
                 }
             }
 

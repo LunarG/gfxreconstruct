@@ -60,22 +60,32 @@ std::string InfoOpenXrFeature::GenerateText()
 {
     std::string return_val    = "\nOpenXR info:\n";
     auto        instance_info = openxr_stats_consumer_.GetInstanceInfo();
-
-    if (instance_info.size() > 0)
+    std::string app_name;
+    uint32_t    app_version{ 0 };
+    std::string engine_name;
+    uint32_t    engine_version{ 0 };
+    XrVersion   api_version{ 0 };
+    uint32_t    num_instances = static_cast<uint32_t>(instance_info.size());
+    if (num_instances)
     {
-        return_val += "\tHeader Version:             " + GetVersionString(XR_CURRENT_API_VERSION) + "\n";
-
-        return_val += "\tNumber of OpenXR Instances: " + std::to_string(instance_info.size()) + "\n";
-
-        // For non-verbose standard output, just print first application/instance info
-        return_val += "\nOpenXR application info:\n";
-        return_val += "\tApplication name:    " + instance_info[0].app_name + "\n";
-        return_val += "\tApplication version: " + std::to_string(instance_info[0].app_version) + "\n";
-        return_val += "\tEngine name:         " + instance_info[0].engine_name + "\n";
-        return_val += "\tEngine version:      " + std::to_string(instance_info[0].engine_version) + "\n";
-        return_val += "\tTarget API version:  " + std::to_string(instance_info[0].api_version) + " (" +
-                      GetVersionString(instance_info[0].api_version) + ")" + "\n\n";
+        app_name       = instance_info[0].app_name;
+        app_version    = instance_info[0].app_version;
+        engine_name    = instance_info[0].engine_name;
+        engine_version = instance_info[0].engine_version;
+        api_version    = instance_info[0].api_version;
     }
+    return_val += "\tHeader Version:             " + GetVersionString(XR_CURRENT_API_VERSION) + "\n";
+
+    return_val += "\tNumber of OpenXR Instances: " + std::to_string(num_instances) + "\n";
+
+    // For non-verbose standard output, just print first application/instance info
+    return_val += "\nOpenXR application info:\n";
+    return_val += "\tApplication name:    " + app_name + "\n";
+    return_val += "\tApplication version: " + std::to_string(app_version) + "\n";
+    return_val += "\tEngine name:         " + engine_name + "\n";
+    return_val += "\tEngine version:      " + std::to_string(engine_version) + "\n";
+    return_val +=
+        "\tTarget API version:  " + std::to_string(api_version) + " (" + GetVersionString(api_version) + ")" + "\n";
 
     return return_val;
 }
