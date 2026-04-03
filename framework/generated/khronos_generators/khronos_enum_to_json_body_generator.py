@@ -106,6 +106,7 @@ class KhronosEnumToJsonBodyGenerator():
             if self.is_flags_enum_64bit(enum):
                 write(body, file=self.outFile)
             else:
+                # to_json functions for raw Vulkan enums need to be in the global namespace to be found by nlohmann::adl_serializer
                 self.genOpts.begin_end_file_data.post_namespace_code.append(body)
 
         for flag in sorted(self.flags_types):
