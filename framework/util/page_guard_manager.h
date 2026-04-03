@@ -287,6 +287,8 @@ class PageGuardManager
     bool                     enable_signal_handler_watcher_;
     int                      signal_handler_watcher_max_restores_;
 
+    std::unordered_map<void*, std::vector<MemoryInfo*>> page_to_memory_infos_;
+
     // Only applies to WIN32 builds and Linux/Android builds with PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION defined.
     const bool enable_read_write_same_page_;
 
