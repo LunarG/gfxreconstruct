@@ -81,16 +81,16 @@ class MetadataJsonConsumer : public Base
 
     virtual void Process_ExeFileInfo(const gfxrecon::util::filepath::FileInfo& info) override
     {
-        auto& jdata = WriteMetaCommandStart("ExeFileInfo");
-        FieldToJson(jdata["product_version"], info.ProductVersion);
-        FieldToJson(jdata["file_version"], info.FileVersion);
+        auto& jdata              = WriteMetaCommandStart("ExeFileInfo");
+        jdata["product_version"] = info.ProductVersion;
+        jdata["file_version"]    = info.FileVersion;
         FieldToJson(jdata["app_version"], info.AppVersion);
-        FieldToJson(jdata["app_name"], info.AppName);
-        FieldToJson(jdata["company_name"], info.CompanyName);
-        FieldToJson(jdata["file_description"], info.FileDescription);
-        FieldToJson(jdata["internal_name"], info.InternalName);
-        FieldToJson(jdata["original_filename"], info.OriginalFilename);
-        FieldToJson(jdata["product_name"], info.ProductName);
+        jdata["app_name"]          = info.AppName;
+        jdata["company_name"]      = info.CompanyName;
+        jdata["file_description"]  = info.FileDescription;
+        jdata["internal_name"]     = info.InternalName;
+        jdata["original_filename"] = info.OriginalFilename;
+        jdata["product_name"]      = info.ProductName;
         WriteBlockEnd();
     }
 

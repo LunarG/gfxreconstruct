@@ -146,8 +146,8 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
     method[format::kNameName]      = command_name;
     method[format::kNameThread]    = call_info.thread_id;
 
-    nlohmann::ordered_json& object  = method[format::kNameObject];
-    object[format::kNameObjectType] = object_type;
+    nlohmann::ordered_json& object    = method[format::kNameObject];
+    object[format::kNameObjectType]   = object_type;
     object[format::kNameObjectHandle] = object_id;
 
     return method;
@@ -228,16 +228,16 @@ void RepresentBinaryFile(JsonWriter&             writer,
         std::string filepath = gfxrecon::util::filepath::Join(util::JsonOptions::root_dir, filename);
         if (writer.WriteBinaryFile(filepath, data_size, data))
         {
-            FieldToJson(jdata, basename);
+            jdata = basename;
         }
         else
         {
-            FieldToJson(jdata, format::kValWriteFailed);
+            jdata = format::kValWriteFailed;
         }
     }
     else
     {
-        FieldToJson(jdata, format::kValBinary);
+        jdata = format::kValBinary;
     }
 }
 
