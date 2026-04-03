@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -30,6 +30,11 @@
 #include "generated/generated_dx12_replay_consumer.h"
 #include "decode/dx12_resource_value_tracker.h"
 #include "decode/file_processor.h"
+
+// Process name override
+#if _WIN32
+#include "util/process_name_override.h"
+#endif
 
 #ifdef GFXRECON_AGS_SUPPORT
 #include "decode/custom_ags_consumer_base.h"
@@ -84,6 +89,10 @@ void CreateResourceValueTrackingConsumer(
     {
         dx12_replay_consumer->EnableReplayOfResourceValueCalls(false);
     }
+
+#if _WIN32
+    dx12_replay_consumer->SetProcessNameCallback(gfxrecon::util::ProcessNameOverrideCallback);
+#endif
 }
 
 bool FileProcessorSucceeded(const decode::FileProcessor& processor)
