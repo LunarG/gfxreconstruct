@@ -107,7 +107,7 @@ bool FileProcessor::ProcessNextFrame()
     GFXRECON_ASSERT(block_parser_->GetOperationMode() == BlockParser::OperationMode::kImmediate);
     GFXRECON_ASSERT(block_parser_->GetDecompressionPolicy() == BlockParser::DecompressionPolicy::kAlways);
 
-    DispatchVisitor  dispatch_visitor(decoders_, annotation_handler_);
+    DispatchVisitor  dispatch_visitor(*this, decoders_, annotation_handler_);
     DispatchFunction dispatch = [this, &dispatch_visitor](uint64_t block_index, ParsedBlock& block) {
         dispatch_visitor.SetBlockIndex(block_index);
         std::visit(dispatch_visitor, block.GetArgs());
@@ -557,10 +557,14 @@ void FileProcessor::ProcessStateBeginMarker(const StateBeginMarkerArgs& state_be
     loading_trimmed_capture_state_ = true;
 }
 
+void FileProcessor::ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end)
+{
+    first_frame_ = state_end.frame_number;
+}
+
 void FileProcessor::ProcessStateEndMarker(const StateEndMarkerArgs& state_end)
 {
     GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, state_end.frame_number);
-    first_frame_                   = state_end.frame_number;
     loading_trimmed_capture_state_ = false;
 }
 

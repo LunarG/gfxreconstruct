@@ -250,7 +250,7 @@ PreloadFileProcessor::ReplayFrameResult PreloadFileProcessor::ReplayOneFrame()
     auto current_cursor = replay_cursor_;
 
     BlockParser&    block_parser = GetBlockParser();
-    DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
+    DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
     SetDecoderFrameNumber(current_frame_number_);
 
     ProcessBlockState process_state = ProcessBlockState::kRunning;
