@@ -23,8 +23,6 @@
 #include "graphics/vulkan_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 
-#include <vector>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
@@ -79,7 +77,7 @@ uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
     return index;
 }
 
-uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+static uint32_t FindQueueFamilyIndex(const VulkanQueueFamilyFlags& families, VkQueueFlags queue_flags)
 {
     for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
     {
@@ -88,7 +86,7 @@ uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
             const auto& flags_entry = families.queue_family_properties_flags.find(i);
             if ((flags_entry != families.queue_family_properties_flags.end()))
             {
-                if ((flags_entry->second & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
+                if ((flags_entry->second & queue_flags) == queue_flags)
                 {
                     return i;
                 }
@@ -97,6 +95,16 @@ uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
     }
 
     return VK_QUEUE_FAMILY_IGNORED;
+}
+
+uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+{
+    return FindQueueFamilyIndex(families, VK_QUEUE_COMPUTE_BIT);
+}
+
+uint32_t FindGraphicsQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+{
+    return FindQueueFamilyIndex(families, VK_QUEUE_GRAPHICS_BIT);
 }
 
 GFXRECON_END_NAMESPACE(graphics)
