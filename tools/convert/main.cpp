@@ -21,6 +21,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+#include "util/json_util.h"
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 #include "tool_settings.h"
@@ -341,14 +342,14 @@ int main(int argc, const char** argv)
             file_processor.AddDecoder(&openxr_decoder);
 #endif
 
-            gfxrecon::util::JsonOptions json_options;
-            json_options.root_dir      = output_dir;
-            json_options.data_sub_dir  = filename_stem;
-            json_options.format        = output_format;
-            json_options.dump_binaries = dump_binaries;
-            json_options.expand_flags  = expand_flags;
+            gfxrecon::util::JsonOptions::root_dir      = output_dir;
+            gfxrecon::util::JsonOptions::data_sub_dir  = filename_stem;
+            gfxrecon::util::JsonOptions::format        = output_format;
+            gfxrecon::util::JsonOptions::dump_binaries = dump_binaries;
+            gfxrecon::util::JsonOptions::expand_flags  = expand_flags;
+            gfxrecon::util::JsonOptions::hex_handles   = false;
 
-            gfxrecon::decode::JsonWriter json_writer{ json_options, GetProjectVersionString(), input_filename };
+            gfxrecon::decode::JsonWriter json_writer{ GetProjectVersionString(), input_filename };
             file_processor.SetAnnotationProcessor(&json_writer);
 
             bool              success = true;

@@ -42,7 +42,8 @@ class KhronosStructToJsonBodyGenerator():
         return self.is_handle(member.base_type)
 
     def write_body_contents(self):
-        write('using util::JsonOptions;', file=self.outFile)
+        write('using util::FieldToJson;', file=self.outFile)
+        write('using util::HandleToJson;', file=self.outFile)
         write('using util::to_hex_variable_width;', file=self.outFile)
         write('using util::uuid_to_string;', file=self.outFile)
         self.newline()
@@ -50,7 +51,7 @@ class KhronosStructToJsonBodyGenerator():
         for struct in self.get_all_filtered_struct_names():
             if self.should_decode_struct(struct):
                 body = indent_cpp_code('''
-                    void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
+                    void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data)
                     {{
                         if (data && data->decoded_value)
                         {{
@@ -78,7 +79,7 @@ class KhronosStructToJsonBodyGenerator():
         base_in_struct = self.get_base_input_structure_name()
         
         body = '''
-            void FieldToJson(nlohmann::ordered_json& jdata, const {}Node* data, const JsonOptions& options)
+            void FieldToJson(nlohmann::ordered_json& jdata, const {}Node* data)
             {{
                 if (data && data->GetPointer())
                 {{
@@ -99,8 +100,7 @@ class KhronosStructToJsonBodyGenerator():
             indent = '    ',
             decoded_value='decoded_value',
             data='data',
-            json_data='jdata',
-            json_options='options'):
+            json_data='jdata'):
         # Otherwise, we need to go through and actually decode the appropriate
         # type of the struct pointed at by the base header struct pointer.
         body = ''
@@ -117,8 +117,7 @@ class KhronosStructToJsonBodyGenerator():
             struct_type = self.struct_type_names[child]
             body += f'{indent2}case {struct_type}:\n'
             body += f'{indent2}    FieldToJson({json_data},\n'
-            body += f'{indent2}                reinterpret_cast<const Decoded_{child}*>({data}),\n'
-            body += f'{indent2}                {json_options});\n'
+            body += f'{indent2}                reinterpret_cast<const Decoded_{child}*>({data}));\n'
             body += f'{indent2}    // Return here because we processed the appropriate data in\n'
             body += f'{indent2}    // the correct structure type\n'
             body += f'{indent2}    return;\n'
@@ -149,60 +148,61 @@ class KhronosStructToJsonBodyGenerator():
                 continue
 
             # Default to getting the data from the native Vulkan struct:
-            to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
+            to_json = 'jdata["{0}"] = decoded_value.{0}'
 
             if (
                 self.is_function_ptr(value_type)
                 or ('pUserData' == value.name or 'userData' == value.name)
             ):
-                to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
+                to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}))'
             elif value.is_pointer:
                 if 'String' in type_name:
-                    to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                    to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0})'
                 elif self.is_handle_like(value_type):
-                    to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                    to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0})'
+                elif value_type == 'void' and value.pointer_count == 1 and not value.is_array:
+                    to_json = 'jdata["{0}"] = meta_struct.{0}'
                 else:
-                    to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                    to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0})'
             else:
                 if value.is_array:
                     if 'UUID' in value.array_length or 'LUID' in value.array_length:
-                        to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}), options)'
+                        to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}))'
                     elif 'String' in type_name:
-                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0})'
                     elif self.is_handle_like(value_type):
-                        to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                        to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0})'
                     elif self.is_struct(value_type):
                         # If this is a parent class, generate the parent->child conversion info
                         # appropriately
                         if value_type in self.children_structs.keys():
-                            to_json = 'ParentChildFieldToJson(args["{0}"], {0}, json_options)'
+                            to_json = 'ParentChildFieldToJson(args["{0}"], {0})'
                         else:
-                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0})'
                     elif not value.is_dynamic:
-                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0})'
                     else:
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0})'
                 else:
                     if self.decode_as_handle(name, value):
-                        to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0})'
                     elif value_type in self.formatAsHex:
-                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}), options)'
+                        to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(decoded_value.{0}))'
                     elif self.is_struct(value_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0})'
                     elif self.is_flags(value_type):
                         if value_type in self.flags_type_aliases:
                             flagsEnumType = self.flags_type_aliases[
                                 value_type]
-                        to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
-                    elif self.is_enum(value_type):
-                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
+                        to_json = 'jdata["{0}"] = {2}_t{{decoded_value.{0}}}'
                     elif self.is_boolean_type(value_type):
                         to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
-                    elif value_type in ('int8_t', 'int16_t', 'int32_t', 'int64_t',
-                        'uint8_t', 'uint16_t', 'uint32_t', 'uint64_t',
-                        'short', 'int', 'long', 'long long',
-                        'unsigned short', 'unsigned int', 'unsigned long', 'unsigned long long'):
-                        to_json = 'jdata["{0}"] = decoded_value.{0}'
+                    elif value.base_type == 'float':
+                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0})'
+                    elif value.base_type == 'LUID':
+                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0})'
+                    elif value.base_type == 'MLCoordinateFrameUID':
+                        to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0})'
 
             to_json = to_json.format(
                 value.name, value_type, flagsEnumType
@@ -211,7 +211,7 @@ class KhronosStructToJsonBodyGenerator():
 
         # Handle the extended struct last
         if has_extended_struct:
-            body += '        FieldToJson(jdata["{0}"], meta_struct.{0}, options);\n'.format(
+            body += '        FieldToJson(jdata["{0}"], meta_struct.{0});\n'.format(
                 extended_struct_var_name
             )
 
@@ -229,7 +229,7 @@ class KhronosStructToJsonBodyGenerator():
             case {1}:
             {{
                const auto* {2} = reinterpret_cast<const Decoded_{0}*>(data->GetMetaStructPointer());
-               FieldToJson(jdata, {2}, options);
+               FieldToJson(jdata, {2});
                break;
             }}
             '''.format(struct, self.struct_type_names[struct], var_name)
