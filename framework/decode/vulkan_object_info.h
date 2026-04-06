@@ -774,7 +774,7 @@ struct VulkanDescriptorSetBindingInfo
 struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
 {
     // One entry per binding
-    using VulkanDescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
+    using VulkanDescriptorBindingsInfo = std::map<uint32_t, VulkanDescriptorSetBindingInfo>;
     VulkanDescriptorBindingsInfo descriptors;
 };
 
