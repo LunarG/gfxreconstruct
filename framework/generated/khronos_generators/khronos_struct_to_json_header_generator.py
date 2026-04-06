@@ -36,11 +36,11 @@ class KhronosStructToJsonHeaderGenerator():
         struct_type = self.get_struct_type_enum_name()
         body = '\n'
         body += 'template <typename T>\n'
-        body += 'void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())\n'
+        body += 'void ParentChildFieldToJson(nlohmann::ordered_json& jdata, const T* data)\n'
         body += '{\n'
         body += '    // First read in the type to know which child we need to handle\n'
         body += f'    {struct_type} struct_type;\n'
-        body += '    FieldToJson(jdata["type"], struct_type, options);\n'
+        body += '    jdata["type"] = struct_type;\n'
         body += '\n'
         body += '    switch (struct_type)\n'
         body += '    {\n'
@@ -54,7 +54,7 @@ class KhronosStructToJsonHeaderGenerator():
                 struct_type_name = self.struct_type_names[child]
                 body += f'        case {struct_type_name}:\n'
                 body += '        {\n'
-                body += f'            FieldToJson(jdata, reinterpret_cast<const Decoded_{child}*>(data), options);\n'
+                body += f'            FieldToJson(jdata, reinterpret_cast<const Decoded_{child}*>(data));\n'
                 body += '            break;\n'
                 body += '        }\n'
         body += '    }\n'
@@ -64,7 +64,7 @@ class KhronosStructToJsonHeaderGenerator():
     def write_header_contents(self):
         for struct in self.get_all_filtered_struct_names():
             if self.should_decode_struct(struct):
-                body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const util::JsonOptions& options = util::JsonOptions());".format(struct)
+                body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data);".format(struct)
                 write(body, file=self.outFile)
         self.newline()
 
@@ -77,4 +77,4 @@ class KhronosStructToJsonHeaderGenerator():
         if len(var_name) > 0 and len(prefix) > 0:
             write(f'/// Works out the type of the struct at the end of a {var_name} pointer and dispatches', file=self.outFile)
             write('/// recursively to the FieldToJson for that.', file=self.outFile)
-            write(f'void FieldToJson(nlohmann::ordered_json& jdata, const {prefix}Node* data, const util::JsonOptions& options = util::JsonOptions());', file=self.outFile)
+            write(f'void FieldToJson(nlohmann::ordered_json& jdata, const {prefix}Node* data);', file=self.outFile)

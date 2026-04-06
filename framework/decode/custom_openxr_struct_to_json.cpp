@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "util/json_util.h"
 #if ENABLE_OPENXR_SUPPORT
 
 #include "custom_openxr_struct_to_json.h"
@@ -43,61 +44,58 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-using util::JsonOptions;
+using util::FieldToJson;
+using util::HandleToJson;
 
-void FieldToJson(nlohmann::ordered_json& jdata, const MLCoordinateFrameUID& data, const util::JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const MLCoordinateFrameUID& data)
 {
-    FieldToJson(jdata["data"], data.data, options);
+    FieldToJson(jdata["data"], data.data);
 }
 
-void FieldToJson(nlohmann::ordered_json&                      jdata,
-                 const Decoded_XrVulkanInstanceCreateInfoKHR* data,
-                 const util::JsonOptions&                     options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanInstanceCreateInfoKHR* data)
 {
     if (data && data->decoded_value)
     {
         const XrVulkanInstanceCreateInfoKHR&         decoded_value = *data->decoded_value;
         const Decoded_XrVulkanInstanceCreateInfoKHR& meta_struct   = *data;
 
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        HandleToJson(jdata["systemId"], meta_struct.systemId, options);
-        FieldToJson(jdata["createFlags"], decoded_value.createFlags, options);
-        FieldToJson(jdata["pfnGetInstanceProcAddr"], meta_struct.pfnGetInstanceProcAddr, options);
-        FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo, options);
-        FieldToJson(jdata["vulkanAllocator"], meta_struct.vulkanAllocator, options);
-        FieldToJson(jdata["next"], meta_struct.next, options);
+        jdata["type"] = decoded_value.type;
+        HandleToJson(jdata["systemId"], meta_struct.systemId);
+        jdata["createFlags"]            = XrVulkanInstanceCreateFlagsKHR_t{ decoded_value.createFlags };
+        jdata["pfnGetInstanceProcAddr"] = meta_struct.pfnGetInstanceProcAddr;
+        FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo);
+        FieldToJson(jdata["vulkanAllocator"], meta_struct.vulkanAllocator);
+        FieldToJson(jdata["next"], meta_struct.next);
     }
 }
 
-void FieldToJson(nlohmann::ordered_json&                    jdata,
-                 const Decoded_XrVulkanDeviceCreateInfoKHR* data,
-                 const util::JsonOptions&                   options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanDeviceCreateInfoKHR* data)
 {
     if (data && data->decoded_value)
     {
         const XrVulkanDeviceCreateInfoKHR&         decoded_value = *data->decoded_value;
         const Decoded_XrVulkanDeviceCreateInfoKHR& meta_struct   = *data;
 
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        HandleToJson(jdata["systemId"], meta_struct.systemId, options);
-        FieldToJson(jdata["createFlags"], decoded_value.createFlags, options);
-        FieldToJson(jdata["pfnGetInstanceProcAddr"], meta_struct.pfnGetInstanceProcAddr, options);
-        HandleToJson(jdata["vulkanPhysicalDevice"], meta_struct.vulkanPhysicalDevice, options);
-        FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo, options);
-        FieldToJson(jdata["vulkanAllocator"], meta_struct.vulkanAllocator, options);
-        FieldToJson(jdata["next"], meta_struct.next, options);
+        jdata["type"] = decoded_value.type;
+        HandleToJson(jdata["systemId"], meta_struct.systemId);
+        jdata["createFlags"]            = XrVulkanDeviceCreateFlagsKHR_t{ decoded_value.createFlags };
+        jdata["pfnGetInstanceProcAddr"] = meta_struct.pfnGetInstanceProcAddr;
+        HandleToJson(jdata["vulkanPhysicalDevice"], meta_struct.vulkanPhysicalDevice);
+        FieldToJson(jdata["vulkanCreateInfo"], meta_struct.vulkanCreateInfo);
+        FieldToJson(jdata["vulkanAllocator"], meta_struct.vulkanAllocator);
+        FieldToJson(jdata["next"], meta_struct.next);
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_timespec* data, const util::JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_timespec* data)
 {
     if (data && data->decoded_value)
     {
         const timespec&         decoded_value = *data->decoded_value;
         const Decoded_timespec& meta_struct   = *data;
 
-        FieldToJson(jdata["tv_sec"], decoded_value.tv_sec, options);
-        FieldToJson(jdata["tv_nsec"], decoded_value.tv_nsec, options);
+        jdata["tv_sec"]  = decoded_value.tv_sec;
+        jdata["tv_nsec"] = decoded_value.tv_nsec;
     }
 }
 

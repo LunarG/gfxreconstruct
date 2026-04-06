@@ -44,7 +44,7 @@ class KhronosEnumToJsonHeaderGenerator():
                 flag
             ):
                 continue
-            body = 'struct {0}_t {{ }};'
+            body = 'enum class {0}_t : {0} {{ }};'
             write(body.format(flag), file=self.outFile)
 
         for enum in sorted(self.enum_names):
@@ -53,8 +53,10 @@ class KhronosEnumToJsonHeaderGenerator():
             ):
                 continue
             if self.is_flags_enum_64bit(enum):
-                body = 'struct {0}_t {{ }};'
+                body = 'enum class {0}_t : {0} {{ }};'
                 write(body.format(enum), file=self.outFile)
+
+        global_functions = []
 
         self.newline()
         for enum in sorted(self.enum_names):
@@ -65,13 +67,21 @@ class KhronosEnumToJsonHeaderGenerator():
             processedEnums.add(enum)
             if not enum in self.enumAliases:
                 if self.is_flags_enum_64bit(enum):
-                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+                    body = 'void to_json(nlohmann::ordered_json& jdata, const {0}_t& value);'
+                    write(body.format(enum), file=self.outFile)
                 else:
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                write(body.format(enum), file=self.outFile)
+                    body = 'void to_json(nlohmann::ordered_json& jdata, const {0}& value);'
+                    # Conversion functions for raw API enums must be in the global namespace
+                    global_functions.append(body.format(enum))
 
         for flag in sorted(self.flags_types):
             if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
                 continue
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
-            write(body.format(flag, self.flags_types[flag]), file=self.outFile)
+            body = 'void to_json(nlohmann::ordered_json& jdata, const {0}_t& flags);'
+            write(body.format(flag), file=self.outFile)
+        
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('\n'.join(global_functions), file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)

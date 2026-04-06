@@ -83,33 +83,31 @@ class KhronosEnumToJsonBodyGenerator():
             processedEnums.add(enum)
 
             if self.is_flags_enum_64bit(enum):
-                body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
+                body = f'void to_json(nlohmann::ordered_json& jdata, const {enum}_t& value)\n'
+                value = f'static_cast<{enum}>(value)'
             else:
-                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-            body += '{{\n'
+                body = f'void to_json(nlohmann::ordered_json& jdata, const {enum}& value)\n'
+                value = 'value'
+            body += '{\n'
             if len(self.enumEnumerants[enum]):
-                body += '    switch (value) {{\n'
+                body += f'    switch ({value}) {{\n'
                 for enumerant in self.enumEnumerants[enum]:
-                    body += textwrap.indent(
-                        prefix='        ',
-                        text=textwrap.dedent(
-                            '''\
-                    case {0}:
-                        jdata = "{0}";
-                        break;
-                    '''.format(enumerant)
-                        )
-                    )
+                    body += f'        case {enumerant}:\n'
+                    body += f'            jdata = "{enumerant}";\n'
+                    body += f'            break;\n'
                 body += '        default:\n'
-                body += '            jdata = to_hex_fixed_width(value);\n'
+                body += f'            jdata = gfxrecon::decode::to_hex_fixed_width({value});\n'
                 body += '            break;\n'
-                body += '    }}\n'
+                body += '    }\n'
             else:
-                body += '    jdata = to_hex_fixed_width(value);\n'
+                body += f'    jdata = gfxrecon::decode::to_hex_fixed_width({value});\n'
 
-            body += '}}\n'
-            body = body.format(enum)
-            write(body, file=self.outFile)
+            body += '}\n'
+            if self.is_flags_enum_64bit(enum):
+                write(body, file=self.outFile)
+            else:
+                # to_json functions for raw Vulkan enums need to be in the global namespace to be found by nlohmann::adl_serializer
+                self.genOpts.begin_end_file_data.post_namespace_code.append(body)
 
         for flag in sorted(self.flags_types):
             if flag in self.flags_type_aliases or self.skip_generating_enum_to_json_for_type(flag):
@@ -119,15 +117,15 @@ class KhronosEnumToJsonBodyGenerator():
             if flag in self.flags_to_enum_bits:
                 bittype = self.flags_to_enum_bits[flag]
 
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
+            body = 'void to_json(nlohmann::ordered_json& jdata, const {0}_t& flags)\n'
             body += '{{\n'
             if bittype is not None and len(self.enumEnumerants[bittype]):
-                body += "    if (!options.expand_flags)\n"
+                body += "    if (!JsonOptions::expand_flags)\n"
                 body += "    {{\n"
-                body += "        jdata = to_hex_fixed_width(flags);\n"
+                body += "        jdata = to_hex_fixed_width(static_cast<{0}>(flags));\n"
                 body += "        return;\n"
                 body += "    }}\n"
-                body += "    jdata = ExpandFlags(flags, []({1} flags)\n"
+                body += "    jdata = ExpandFlags(static_cast<{0}>(flags), []({1} flags)\n"
                 body += "    {{\n"
                 body += '        switch (flags)\n'
                 body += '        {{\n'
@@ -145,7 +143,7 @@ class KhronosEnumToJsonBodyGenerator():
                 body += '        return to_hex_fixed_width(flags);\n'
                 body += '    }});\n'
             else:
-                body += '    jdata = to_hex_fixed_width(flags);\n'
+                body += '    jdata = to_hex_fixed_width(static_cast<{0}>(flags));\n'
 
             body += '}}\n'
             write(body.format(flag, self.flags_types[flag]), file=self.outFile)
