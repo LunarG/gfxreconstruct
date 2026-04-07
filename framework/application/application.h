@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
 ** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -42,6 +43,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
+
+using ProcessNameOverrideCallbackFunc = void (*)(char const* app_name, size_t app_name_size);
 
 class Application final
 {
