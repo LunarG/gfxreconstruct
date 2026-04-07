@@ -27,6 +27,7 @@
 
 #include "convert_feature.h"
 
+#include "generated/generated_dx12_decoder.h"
 #include "generated/generated_dx12_json_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
