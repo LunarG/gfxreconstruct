@@ -807,8 +807,8 @@ void PageGuardManager::LoadActiveWriteStates(MemoryInfo* memory_info)
                 if ((modified_page_address != first_page_address) && (modified_page_address != last_page_address))
                     continue;
 
-                auto it = page_to_memory_infos_.find(modified_page_address);
-                if (it == page_to_memory_infos_.end())
+                auto it = page_to_memory_infos_for_write_watch_.find(modified_page_address);
+                if (it == page_to_memory_infos_for_write_watch_.end())
                     continue;
 
                 for (auto& other_mem_info : it->second)
@@ -818,9 +818,14 @@ void PageGuardManager::LoadActiveWriteStates(MemoryInfo* memory_info)
 
                     other_mem_info->is_modified = true;
 
+                    GFXRECON_ASSERT(static_cast<uint8_t*>(modified_page_address) >=
+                                    static_cast<uint8_t*>(other_mem_info->aligned_address));
+
                     size_t other_start_offset = static_cast<uint8_t*>(modified_page_address) -
                                                 static_cast<uint8_t*>(other_mem_info->aligned_address);
+
                     size_t other_page_index = other_start_offset >> system_page_pot_shift_;
+                    GFXRECON_ASSERT(other_page_index < other_mem_info->total_pages);
 
                     other_mem_info->status_tracker.SetActiveWriteBlock(other_page_index, true);
                 }
@@ -1252,13 +1257,16 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                 }
             }
 
-            // Add memory info pointer to page map for quick lookup of memory info by page address.
-            for (uint32_t i = 0; i < total_pages; ++i)
+            if (use_write_watch && entry.second)
             {
-                auto page_address = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(aligned_address) +
-                                                            (static_cast<uintptr_t>(i) << system_page_pot_shift_));
+                // Add memory info pointer to page map for quick lookup of memory info by page address.
+                for (uint32_t i = 0; i < total_pages; ++i)
+                {
+                    auto page_address = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(aligned_address) +
+                                                                (static_cast<uintptr_t>(i) << system_page_pot_shift_));
 
-                page_to_memory_infos_[page_address].emplace_back(&entry.first->second);
+                    page_to_memory_infos_for_write_watch_[page_address].emplace_back(&entry.first->second);
+                }
             }
         }
     }
@@ -1295,16 +1303,20 @@ void PageGuardManager::RemoveTrackedMemory(uint64_t memory_id)
     if ((entry != memory_info_.end()) && (--(entry->second.ref_count) == 0))
     {
         auto& info = entry->second;
-        for (uint32_t i = 0; i < info.total_pages; ++i)
-        {
-            auto  page_address = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(info.aligned_address) +
-                                                        (static_cast<uintptr_t>(i) << system_page_pot_shift_));
-            auto& mem_list     = page_to_memory_infos_[page_address];
-            std::erase(mem_list, &info);
 
-            if (mem_list.empty())
+        if (info.use_write_watch)
+        {
+            for (uint32_t i = 0; i < info.total_pages; ++i)
             {
-                page_to_memory_infos_.erase(page_address);
+                auto  page_address = reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(info.aligned_address) +
+                                                            (static_cast<uintptr_t>(i) << system_page_pot_shift_));
+                auto& mem_list     = page_to_memory_infos_for_write_watch_[page_address];
+                std::erase(mem_list, &info);
+
+                if (mem_list.empty())
+                {
+                    page_to_memory_infos_for_write_watch_.erase(page_address);
+                }
             }
         }
 
