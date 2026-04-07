@@ -167,34 +167,24 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             GFXRECON_LOG_WARNING("Failed registering atexit");
         }
 
+        capture_settings_.SetApiFamilyId(api_capture_singleton->GetApiFamily());
+        CaptureSettings::LoadAllSettings(&capture_settings_, initialize_log_);
+
         if (initialize_log_)
         {
             // Initialize logging
             util::Log::Init();
-        }
-
-        // NOTE: FIRST Api Instance is used for settings -- actual multiple simulatenous API support will need to
-        // resolve. Get capture settings which can be different per capture manager.
-        default_settings_ = api_capture_singleton->GetDefaultTraceSettings();
-        capture_settings_ = api_capture_singleton->GetDefaultTraceSettings();
-
-        if (initialize_log_)
-        {
-            // Load log settings.
-            CaptureSettings::LoadLogSettings(&capture_settings_);
 
             // And then update the log with those settings
             util::Log::UpdateWithSettings(capture_settings_.GetLogSettings());
         }
-
-        // Load all settings with final logging settings active.
-        CaptureSettings::LoadSettings(&capture_settings_, initialize_log_);
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
         GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GetProjectVersionString());
 
         CaptureSettings::TraceSettings trace_settings = capture_settings_.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
+
         // Initialize capture manager with default settings.
         success = Initialize(api_capture_singleton->GetApiFamily(), base_filename, trace_settings);
         if (!success)
@@ -826,9 +816,8 @@ bool CommonCaptureManager::IsTrimHotkeyPressed()
 
 bool CommonCaptureManager::RuntimeTriggerEnabled()
 {
-    CaptureSettings settings;
-    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
+    CaptureSettings::LoadDynamicSettings(&capture_settings_);
+    CaptureSettings::RuntimeTriggerState state = capture_settings_.GetTraceSettings().runtime_capture_trigger;
 
     bool result = (state == CaptureSettings::RuntimeTriggerState::kEnabled &&
                    (previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kDisabled ||
@@ -841,9 +830,8 @@ bool CommonCaptureManager::RuntimeTriggerEnabled()
 
 bool CommonCaptureManager::RuntimeTriggerDisabled()
 {
-    CaptureSettings settings;
-    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
+    CaptureSettings::LoadDynamicSettings(&capture_settings_);
+    CaptureSettings::RuntimeTriggerState state = capture_settings_.GetTraceSettings().runtime_capture_trigger;
 
     bool result = ((state == CaptureSettings::RuntimeTriggerState::kDisabled ||
                     state == CaptureSettings::RuntimeTriggerState::kNotUsed) &&
@@ -882,9 +870,8 @@ bool CommonCaptureManager::ExternalTriggerDisabled()
 
 bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
 {
-    CaptureSettings settings;
-    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-    bool write_assets = settings.GetTraceSettings().runtime_write_assets;
+    CaptureSettings::LoadDynamicSettings(&capture_settings_);
+    bool write_assets = capture_settings_.GetTraceSettings().runtime_write_assets;
 
     if (previous_write_assets_ != write_assets)
     {
@@ -1703,7 +1690,7 @@ void CommonCaptureManager::AtExit()
 
 void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation)
 {
-    CaptureSettings::TraceSettings default_settings = default_settings_.GetTraceSettings();
+    CaptureSettings::TraceSettings default_settings = capture_settings_.GetDefaultTraceSettings();
     std::string                    buffer;
 
     if (force_file_flush_ != default_settings.force_flush)
