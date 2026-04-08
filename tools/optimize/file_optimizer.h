@@ -55,7 +55,7 @@ class FileOptimizer : public decode::FileTransformer
     }
 
     [[nodiscard]] bool FilterMethodCall(const decode::MethodCallArgs& args) const;
-  
+
   protected:
     const std::unordered_set<format::HandleId>& unreferenced_ids_;
     const std::unordered_set<uint64_t>&         unreferenced_blocks_;
