@@ -236,6 +236,86 @@ class ProcessVisitor
     FileProcessor& file_processor_;
 };
 
+struct ContinueProcessingPolicy
+{
+    struct BlockLimitOnly
+    {
+        constexpr static bool kCheckBlockLimit = true;
+        constexpr static bool kCheckDecoders   = false;
+    };
+    struct DecoderOnly
+    {
+        constexpr static bool kCheckBlockLimit = false;
+        constexpr static bool kCheckDecoders   = true;
+    };
+    struct CheckBoth
+    {
+        constexpr static bool kCheckBlockLimit = true;
+        constexpr static bool kCheckDecoders   = true;
+    };
+};
+
+class AsynchronousProcessPolicy
+{
+  public:
+    AsynchronousProcessPolicy(FileProcessor& file_processor, AsyncInstrumentation& async_stats) :
+        file_processor_(file_processor), async_stats_(async_stats)
+    {}
+    constexpr static bool kUpdateDispatchState = false;
+    bool                  ContinueBlockProcessing(uint64_t block_index)
+    {
+        return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::BlockLimitOnly>(block_index);
+    }
+    ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block)
+    {
+        async_stats_.AddBlock();
+        return ProcessBlockState::kRunning;
+    }
+
+  private:
+    FileProcessor&        file_processor_;
+    AsyncInstrumentation& async_stats_;
+};
+
+class SynchronousProcessPolicy
+{
+  public:
+    SynchronousProcessPolicy(FileProcessor& file_processor, DispatchVisitor& dispatch_visitor) :
+        file_processor_(file_processor), dispatch_visitor_(dispatch_visitor)
+    {}
+    constexpr static bool kUpdateDispatchState = true;
+    bool                  ContinueBlockProcessing(uint64_t block_index)
+    {
+        return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::CheckBoth>(block_index);
+    }
+    ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block)
+    {
+        dispatch_visitor_.SetBlockIndex(block_index);
+        return std::visit(dispatch_visitor_, block.GetArgs());
+    }
+
+  private:
+    FileProcessor&   file_processor_;
+    DispatchVisitor& dispatch_visitor_;
+};
+
+class PreloadProcessPolicy
+{
+  public:
+    PreloadProcessPolicy(FileProcessor& file_processor) : file_processor_(file_processor) {}
+    constexpr static bool kUpdateDispatchState = false;
+    bool                  ContinueBlockProcessing(uint64_t block_index)
+    {
+        // This is redundant when async processing is enabled, but outside of the
+        // timing loop and thus irrelevant.
+        return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::BlockLimitOnly>(block_index);
+    }
+    ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block) { return ProcessBlockState::kRunning; }
+
+  private:
+    FileProcessor& file_processor_;
+};
+
 GFXRECON_END_NAMESPACE(file_processor)
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

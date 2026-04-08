@@ -134,17 +134,14 @@ size_t PreloadFileProcessor::PreloadNextFramesSync(size_t preload_count)
     // by subsequent decompressions, leading to invalid or stale pointers.
     block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
 
-    DispatchFunction dispatch = [](uint64_t block_index, ParsedBlock& block) {
-        // NULL dispatch function.  The block batch sink will collect the parsed blocks.
-        return ProcessBlockState::kRunning;
-    };
+    file_processor::PreloadProcessPolicy process_policy{ *this };
 
     const FrameNumber end_preload_frame = dispatch_frame_number_ + preload_count;
 
     ProcessBlockState state = ProcessBlockState::kFrameBoundary;
     while ((process_frame_number_ < end_preload_frame) && (state == ProcessBlockState::kFrameBoundary))
     {
-        state = ProcessBlocks(dispatch);
+        state = ProcessBlocks(process_policy);
 
         // The index is not meaningful during synchronous processing.
         ProcessBlocksResult preload_result = { 0U, process_frame_number_, process_error_state_, state };

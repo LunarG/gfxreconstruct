@@ -164,18 +164,15 @@ bool FileProcessor::ProcessNextFrameSync()
     GFXRECON_ASSERT(block_parser_->GetDecompressionPolicy() == BlockParser::DecompressionPolicy::kAlways);
 
     DispatchVisitor  dispatch_visitor(*this, decoders_, annotation_handler_);
-    DispatchFunction dispatch = [this, &dispatch_visitor](uint64_t block_index, ParsedBlock& block) {
-        return DispatchBlock(block_index, dispatch_visitor, block);
-    };
+    file_processor::SynchronousProcessPolicy process_policy{ *this, dispatch_visitor };
 
     // This is immediate mode, process and dispatch frame numbers are matched.
     // This should be true for initialization and every frame when not replaying from preload.
     // But we don't call down this path after preloading and before replay is complete.
-    // WIP WIP WIP -- we need to split execution for Async operation above this point, but be sure WIP WIP WIP
     GFXRECON_ASSERT(dispatch_frame_number_ == process_frame_number_);
 
     SetDecoderFrameNumber(dispatch_frame_number_);
-    ProcessBlockState process_result = ProcessBlocks(dispatch);
+    ProcessBlockState process_result = ProcessBlocks(process_policy);
 
     // ProcessBlocks can update process_frame_number_, so keep them in sync here
     dispatch_frame_number_ = process_frame_number_;
@@ -184,25 +181,6 @@ bool FileProcessor::ProcessNextFrameSync()
     dispatch_error_state_ = process_error_state_;
 
     return ContinueProcessing(process_result);
-}
-
-FileProcessor::ProcessBlockState
-FileProcessor::DispatchBlock(uint64_t block_index, DispatchVisitor& dispatch_visitor, ParsedBlock& block)
-{
-    ProcessBlockState state = ProcessBlockState::kError;
-
-    // update the "dispatched" block index for the application facing interfaces and decoders
-    dispatch_block_index_ = block_index;
-    if (ContinueBlockDecoding()) // Requires the dispatch_block_index_ to be updated
-    {
-        dispatch_visitor.SetBlockIndex(block_index);
-        state = std::visit(dispatch_visitor, block.GetArgs());
-    }
-    else
-    {
-        state = ProcessBlockState::kEndProcessing;
-    }
-    return state;
 }
 
 bool FileProcessor::ProcessAllFrames()
@@ -220,27 +198,51 @@ bool FileProcessor::ProcessAllFrames()
     return (process_error_state_ == kErrorNone);
 }
 
-bool FileProcessor::ContinueBlockProcessing()
+template <typename CheckPolicy>
+bool FileProcessor::ContinueBlockProcessing(uint64_t block_index)
 {
+    bool early_exit = false;
+    // If a block limit was specified, obey it.
+    // If not (block_limit_ = 0),  then the consumer may determine early exit
 
-    if ((block_limit_ > 0) && (process_block_index_ > block_limit_))
+    // Note:
+    // The odd mix of runtime and Policy checks support the backwards compatible logic,
+    // while still allowing policy control of ContinueChecks.
+    //
+    // The historical functionality is that if block_limit_ is set decoders are *never* checked, period.
+    // With the sync/async split, this means that even in synchronous operation or during replay, when we enable
+    // checking the decoders, we still don't if block_limit_ is set.
+    if (block_limit_ > 0)
     {
-        return false;
-    }
-    return true;
-}
-
-bool FileProcessor::ContinueBlockDecoding()
-{
-    for (auto& decoder : decoders_)
-    {
-        if (!decoder->IsComplete(dispatch_block_index_))
+        if constexpr (CheckPolicy::kCheckBlockLimit)
         {
-            return true;
+            if (block_index > block_limit_)
+            {
+                early_exit = true;
+            }
+        }
+    }
+    else if constexpr (CheckPolicy::kCheckDecoders)
+    {
+        int completed_decoders = 0;
+
+        for (auto& decoder : decoders_)
+        {
+            // Note: the "decoder->IsComplete" calls may have side effects, so we cannot simply
+            // bail with early_exit = false on the first incomplete decoder.
+            if (decoder->IsComplete(block_index) == true)
+            {
+                completed_decoders++;
+            }
+        }
+
+        if (completed_decoders == decoders_.size())
+        {
+            early_exit = true;
         }
     }
 
-    return false;
+    return !early_exit;
 }
 
 bool FileProcessor::ProcessFileHeader()
@@ -329,7 +331,8 @@ void FileProcessor::DecrementRemainingCommands()
     }
 }
 
-FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& dispatch)
+template <typename ProcessPolicy>
+FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(ProcessPolicy& policy)
 {
     BlockBuffer       block_buffer;
     ProcessBlockState process_state = ProcessBlockState::kRunning;
@@ -339,7 +342,12 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
     while (process_state == ProcessBlockState::kRunning)
     {
         PrintBlockInfo();
-        bool success = ContinueBlockProcessing();
+
+        if constexpr (ProcessPolicy::kUpdateDispatchState)
+        {
+            dispatch_block_index_ = process_block_index_;
+        }
+        bool success = policy.ContinueBlockProcessing(process_block_index_);
 
         if (success)
         {
@@ -369,7 +377,7 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(DispatchFunction& 
                             success = process_visitor.IsSuccess();
                             if (success)
                             {
-                                process_state = dispatch(process_block_index_, parsed_block);
+                                process_state = policy.Dispatch(process_block_index_, parsed_block);
                                 if ((ProcessBlockState::kRunning == process_state) &&
                                     process_visitor.IsFrameDelimiter())
                                 {
@@ -454,6 +462,10 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     }
     return false;
 }
+
+template file_processor::ProcessBlockState
+FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(file_processor::PreloadProcessPolicy& policy);
+
 void FileProcessor::AsyncWaitForFrameCount(FrameCount wait_target)
 {
     std::unique_lock<std::mutex> lock(async_throttle_mutex_);
@@ -536,11 +548,7 @@ void FileProcessor::ProcessBlocksAsync()
     });
     // Start with async_thread_ doing the minimal, and adjust if it gets too far ahead
     block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
-    DispatchFunction dispatch = [this](uint64_t block_index, ParsedBlock& block) {
-        // NULL dispatch function.  The block batch sink will collect the parsed blocks.
-        async_stats_.AddBlock();
-        return ProcessBlockState::kRunning;
-    };
+    file_processor::AsynchronousProcessPolicy process_policy{ *this, async_stats_ };
 
     // As frame numbers can be non-contiguous, use a frame enqueing index for throttling math
     // Allow the *index* to be one based, counting the number of enqueued frames
@@ -562,7 +570,7 @@ void FileProcessor::ProcessBlocksAsync()
                 block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
             }
         }
-        ProcessBlockState process_state = ProcessBlocks(dispatch);
+        ProcessBlockState process_state = ProcessBlocks(process_policy);
         // Push all processed blocks onto the queue, and add the end of frame/end of process result to the queue
         ++enqueued_frames;
         block_parser_->EmplaceResultsBlock(enqueued_frames, process_frame_number_, process_error_state_, process_state);
@@ -673,7 +681,19 @@ FileProcessor::ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator b
             }
         }
 
-        state = DispatchBlock(block.GetBlockIndex(), dispatch_visitor, block);
+        // update the "dispatched" block index for the application facing interfaces and decoders
+        dispatch_block_index_ = block.GetBlockIndex();
+        if (ContinueBlockProcessing<file_processor::ContinueProcessingPolicy::DecoderOnly>(
+                dispatch_block_index_)) // Requires the dispatch_block_index_ to be updated
+        {
+            dispatch_visitor.SetBlockIndex(dispatch_block_index_);
+            state = std::visit(dispatch_visitor, block.GetArgs());
+        }
+        else
+        {
+            state = ProcessBlockState::kEndProcessing;
+        }
+
         ++it;
     }
     return it;

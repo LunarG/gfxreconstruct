@@ -55,6 +55,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(file_processor)
 class DispatchVisitor;
 class ProcessVisitor;
+class PreloadProcessPolicy;
 GFXRECON_END_NAMESPACE(file_processor)
 
 class FileProcessor
@@ -136,8 +137,8 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
-    bool ContinueBlockProcessing(); // Check process_block_index_ against block_limit_
-    bool ContinueBlockDecoding();   // Check dispatch_block_index_ against the decoder completion state
+    template <typename CheckPolicy>
+    bool ContinueBlockProcessing(uint64_t block_index); // Check process_block_index_ against block_limit_
 
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
@@ -331,10 +332,10 @@ class FileProcessor
         return file_stack_.back().active_file->IsEof();
     }
 
-    // Dispatch function is allowed to modify the ParsedBlock as needed before processing
-    // including decompression, or even stealing the contents for deferred processing.
-    using DispatchFunction = std::function<ProcessBlockState(uint64_t, ParsedBlock&)>;
-    ProcessBlockState ProcessBlocks(DispatchFunction& dispatch);
+    // Control the update, continue, and dispatch functionality from a policy
+    // appropriate to the callers requirements.
+    template <typename Policy>
+    ProcessBlockState ProcessBlocks(Policy& policy);
 
     void SetDecoderFrameNumber(uint64_t frame_number);
 
@@ -423,6 +424,9 @@ class FileProcessor
     using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
     ActiveStreamCache stream_cache_;
 };
+
+extern template file_processor::ProcessBlockState
+FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(file_processor::PreloadProcessPolicy& policy);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
