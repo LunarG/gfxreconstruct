@@ -45,7 +45,7 @@ void populate_shader_stages(const decode::StructPointerDecoder<T>*    pCreateInf
         const T* pipeline_infos_meta = pCreateInfos->GetMetaStructPointer();
         const decode::Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
             pipeline_infos_meta[i].pStages->GetMetaStructPointer();
-        const size_t stages_count = pipeline_infos_meta->pStages->GetLength();
+        const size_t stages_count = pipeline_infos_meta[i].pStages->GetLength();
 
         if (stages_info_meta != nullptr)
         {
