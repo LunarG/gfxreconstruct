@@ -68,13 +68,15 @@ class FileProcessor
         kBreak   = 2,
     };
 
-    using BlockIterator                      = file_processor::BlockIterator;
-    using DispatchVisitor                    = file_processor::DispatchVisitor;
-    using FrameNumber                        = file_processor::FrameNumber;
-    using FrameCount                         = file_processor::FrameCount;
-    using ProcessVisitor                     = file_processor::ProcessVisitor;
-    constexpr static FrameNumber kFirstFrame = 0;
-    constexpr static FrameNumber kMaxFrame   = std::numeric_limits<uint64_t>::max();
+    using BlockIterator   = file_processor::BlockIterator;
+    using DispatchVisitor = file_processor::DispatchVisitor;
+    using FrameNumber     = file_processor::FrameNumber;
+    using FrameCount      = file_processor::FrameCount;
+    using ProcessVisitor  = file_processor::ProcessVisitor;
+
+    constexpr static FrameNumber kFirstFrame     = 0;
+    constexpr static FrameNumber kMaxFrameNumber = std::numeric_limits<FrameNumber>::max();
+    constexpr static FrameCount  kMaxFrameCount  = std::numeric_limits<FrameCount>::max();
 
     // Range of frame numbers with half open [begin(), end()) semantics.
     struct FrameRange
@@ -255,7 +257,7 @@ class FileProcessor
     // preload frame range is only used for preload, but we need it to control async processing w.r.t. the preload
     // frame range.  // During preload, different rules apply. Highwater becomes "all frames in preload range" and
     // decompression policy is kAlways.
-    alignas(util::kConstructiveAlign) uint64_t async_quit_before_frame_{ kMaxFrame };
+    alignas(util::kConstructiveAlign) uint64_t async_quit_before_frame_{ kMaxFrameNumber };
     FrameRange        async_preload_frame_range_;
     std::atomic<bool> async_keep_alive_; // Thread teardown control
     FrameCount        async_max_pending_{ kAsyncInitialMaxPending };
@@ -263,6 +265,7 @@ class FileProcessor
 
     // Shared Control group: (constructive alignment)
     alignas(util::kConstructiveAlign) std::mutex async_throttle_mutex_;
+    std::atomic<FrameCount> async_wait_target_{ kMaxFrameCount };
     std::condition_variable async_throttle_cv_;
 
     // Cache line isolated
