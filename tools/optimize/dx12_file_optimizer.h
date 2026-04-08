@@ -32,9 +32,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 class Dx12FileOptimizer : public FileOptimizer
 {
   public:
-    Dx12FileOptimizer(const std::unordered_set<uint64_t>& unreferenced_blocks) :
-        FileOptimizer({}, unreferenced_blocks), fill_command_resource_values_(nullptr),
-        inject_noop_resource_value_optimization_(false), num_optimized_fill_commands_(0)
+    Dx12FileOptimizer(const std::unordered_set<format::HandleId>& unreferenced_ids,
+                      const std::unordered_set<uint64_t>&         unreferenced_blocks) :
+        FileOptimizer(unreferenced_ids, unreferenced_blocks),
+        fill_command_resource_values_(nullptr), inject_noop_resource_value_optimization_(false),
+        num_optimized_fill_commands_(0)
     {}
 
     void SetFillCommandResourceValues(const decode::Dx12FillCommandResourceValueMap* fill_command_resource_values,
@@ -43,7 +45,7 @@ class Dx12FileOptimizer : public FileOptimizer
     uint64_t GetNumOptimizedFillCommands() { return num_optimized_fill_commands_; }
 
   private:
-    bool AddFillMemoryResourceValueCommand();
+    bool AddFillMemoryResourceValueCommand(const std::vector<decode::Dx12FillCommandResourceValue>& resource_values);
 
     template <typename Args>
     decode::FileTransformer::VisitResult         VisitMetaData(const Args& args);
