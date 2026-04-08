@@ -469,10 +469,15 @@ FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(file_processo
 void FileProcessor::AsyncWaitForFrameCount(FrameCount wait_target)
 {
     std::unique_lock<std::mutex> lock(async_throttle_mutex_);
+    // We tell the consumer to only notify us when we are waiting
+    // Which means "wait_target < kMaxFrameCount".  And then only when
+    // the predicate will pass.
+    async_wait_target_.store(wait_target, std::memory_order_release);
     async_throttle_cv_.wait(lock, [this, wait_target] {
         // Start again when consumer has caught up to target
         return !async_keep_alive_ || async_dequeued_frames_.load(std::memory_order_acquire) >= wait_target;
     });
+    async_wait_target_.store(kMaxFrameCount, std::memory_order_release);
 }
 
 void FileProcessor::AsyncThrottleQueue(FrameCount enqueued_frames)
@@ -699,12 +704,19 @@ FileProcessor::ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator b
     return it;
 }
 
-void FileProcessor::NotifyIndexDequeued(FrameCount index)
+void FileProcessor::NotifyIndexDequeued(const FrameCount index)
 {
     if (async_processing_)
     {
+        // Always need to update the dequeued index s.t. the producer can throttle or wait
         async_dequeued_frames_.store(index, std::memory_order_release);
-        async_throttle_cv_.notify_one();
+        // To minimize notify calls, check that the producer is waiting for the index we have.
+        // *MUST* be done under lock
+        std::unique_lock<std::mutex> lock(async_throttle_mutex_);
+        if (index >= async_wait_target_.load(std::memory_order_acquire))
+        {
+            async_throttle_cv_.notify_one();
+        }
     }
 }
 
