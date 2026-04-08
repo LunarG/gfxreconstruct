@@ -9482,7 +9482,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
         modified_pgroups.resize(createInfoCount);
         for (uint32_t create_info_i = 0; create_info_i < createInfoCount; ++create_info_i)
         {
-            format::HandleId pipeline_capture_id = (*pPipelines[create_info_i].GetPointer());
+            format::HandleId pipeline_capture_id = pPipelines->GetPointer()[create_info_i];
 
             // Enable capture replay flag.
             modified_create_infos.push_back(in_pCreateInfos[create_info_i]);
@@ -9495,9 +9495,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
 
             if (has_data)
             {
-                assert(device_info->shader_group_handles.at(pipeline_capture_id).size() ==
-                       (device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
-                        group_info_count));
+                GFXRECON_ASSERT(device_info->shader_group_handles.at(pipeline_capture_id).size() ==
+                                (device_info->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
+                                 group_info_count));
             }
             else
             {
