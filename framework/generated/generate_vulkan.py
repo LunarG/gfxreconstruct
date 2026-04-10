@@ -93,6 +93,7 @@ generate_targets = [
     'generated_vulkan_cpp_consumer_extension.h',
     'generated_vulkan_cpp_consumer_extension.cpp',
     'generated_vulkan_stype_util.h',
+    'generated_vulkan_handle_wrapper_util.cpp'
 ]
 
 if __name__ == '__main__':
