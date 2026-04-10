@@ -203,7 +203,7 @@ void App::create_graphics_pipeline()
     pipeline_binary_create_info.sType               = VK_STRUCTURE_TYPE_PIPELINE_BINARY_CREATE_INFO_KHR;
     pipeline_binary_create_info.pNext               = nullptr;
     pipeline_binary_create_info.pKeysAndDataInfo    = nullptr;
-    pipeline_binary_create_info.pipeline            = nullptr;
+    pipeline_binary_create_info.pipeline            = VK_NULL_HANDLE;
     pipeline_binary_create_info.pPipelineCreateInfo = &pipeline_create_info;
 
     VkPipelineBinaryHandlesInfoKHR pipeline_binary_handles_info;
