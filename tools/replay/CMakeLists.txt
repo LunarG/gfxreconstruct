@@ -57,8 +57,6 @@ target_link_libraries(gfxrecon-replay
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
                           $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
 
-target_link_options(gfxrecon-replay PUBLIC "-rdynamic")
-
 if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
     # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
@@ -67,6 +65,8 @@ if (MSVC)
     else()
       target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
     endif()
+else ()
+    target_link_options(gfxrecon-replay PUBLIC "-rdynamic")
 endif()
 
 # A multithreaded Vulkan driver loaded through dlopen() mechanism
