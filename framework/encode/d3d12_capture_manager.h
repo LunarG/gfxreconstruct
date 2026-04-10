@@ -77,7 +77,7 @@ class D3D12CaptureManager : public ApiCaptureManager
     /// used by the 'wrapper' functions to invoke the 'real' D3D12 function prior
     /// to processing the function parameters for encoding.
     ///
-    /// \param dispatch_table A D3D12DispatchTable object containing the DXGI
+    /// \param dispatch_table A D3D12DispatchTable object containing the D3D12
     ///                       function pointers to be used for initialization.
     //----------------------------------------------------------------------------
     void InitD3D12DispatchTable(const D3D12DispatchTable& dispatch_table) { d3d12_dispatch_table_ = dispatch_table; }
@@ -372,6 +372,20 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_ID3D12Device3_OpenExistingHeapFromAddress(
         ID3D12Device3_Wrapper* wrapper, HRESULT result, const void* address, REFIID riid, void** heap);
 
+    void PreProcess_ID3D12Device3_OpenExistingHeapFromFileMapping(ID3D12Device3_Wrapper* wrapper,
+                                                                  HANDLE                 file_mapping,
+                                                                  REFIID                 riid,
+                                                                  void**                 heap);
+
+    void PostProcess_ID3D12Device3_OpenExistingHeapFromFileMapping(
+        ID3D12Device3_Wrapper* wrapper, HRESULT result, HANDLE file_mapping, REFIID riid, void** heap);
+
+    void PreProcess_ID3D12Device13_OpenExistingHeapFromAddress1(
+        ID3D12Device13_Wrapper* wrapper, const void* address, SIZE_T size, REFIID riid, void** heap);
+
+    void PostProcess_ID3D12Device13_OpenExistingHeapFromAddress1(
+        ID3D12Device13_Wrapper* wrapper, HRESULT result, const void* address, SIZE_T size, REFIID riid, void** heap);
+
     void PostProcess_ID3D12Device4_CreateHeap1(ID3D12Device4_Wrapper*          wrapper,
                                                HRESULT                         result,
                                                const D3D12_HEAP_DESC*          desc,
@@ -613,6 +627,9 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_SetPrivateData(
         IUnknown_Wrapper* wrapper, HRESULT result, REFGUID Name, UINT DataSize, const void* pData);
+
+    void
+    PostProcess_SetPrivateDataInterface(IUnknown_Wrapper* wrapper, HRESULT result, REFGUID Name, const IUnknown* pData);
 
     void PostProcess_ID3D12Device1_SetResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
                                                         HRESULT                         result,
@@ -858,6 +875,14 @@ class D3D12CaptureManager : public ApiCaptureManager
                                            const void*                         pInitializationParametersData,
                                            SIZE_T                              InitializationParametersDataSizeInBytes);
 
+    void PostProcess_ID3D12Device_CreateRootSignature(ID3D12Device_Wrapper* device_wrapper,
+                                                      HRESULT               result,
+                                                      UINT                  nodeMask,
+                                                      const void*           pBlobWithRootSignature,
+                                                      SIZE_T                blobLengthInBytes,
+                                                      REFIID                riid,
+                                                      void**                ppvRootSignature);
+
   protected:
     D3D12CaptureManager();
 
@@ -902,6 +927,7 @@ class D3D12CaptureManager : public ApiCaptureManager
                                       D3D12_HEAP_TYPE          heap_type,
                                       D3D12_CPU_PAGE_PROPERTY  page_property,
                                       D3D12_MEMORY_POOL        memory_pool,
+                                      D3D12_HEAP_FLAGS         heap_flags,
                                       D3D12_RESOURCE_STATES    initial_state,
                                       bool                     has_write_watch,
                                       ID3D12Heap_Wrapper*      heap_wrapper,

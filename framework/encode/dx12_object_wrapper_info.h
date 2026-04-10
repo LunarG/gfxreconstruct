@@ -91,7 +91,8 @@ struct DxWrapperInfo
     format::HandleId                     create_object_id{ format::kNullHandleId };
     std::shared_ptr<const DxWrapperInfo> create_object_info;
 
-    std::unordered_map<const GUID, std::vector<uint8_t>, GUID_Hash, GUID_Equal> private_datas;
+    std::unordered_map<const GUID, std::vector<uint8_t>, GUID_Hash, GUID_Equal>           private_datas;
+    std::unordered_map<const GUID, graphics::dx12::IUnknownComPtr, GUID_Hash, GUID_Equal> private_data_interface;
 
     std::wstring object_name{ L"" };
 
@@ -273,7 +274,9 @@ struct IDXGIFactoryInfo : public DxgiWrapperInfo
 {};
 
 struct ID3D12RootSignatureInfo : public DxWrapperInfo
-{};
+{
+    std::vector<uint8_t> blob_value;
+};
 
 struct ID3D12RootSignatureDeserializerInfo : public DxWrapperInfo
 {};
@@ -417,6 +420,7 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     D3D12_HEAP_TYPE                      heap_type{};
     D3D12_CPU_PAGE_PROPERTY              page_property{};
     D3D12_MEMORY_POOL                    memory_pool{};
+    D3D12_HEAP_FLAGS                     heap_flags{ D3D12_HEAP_FLAG_NONE };
     D3D12_RESOURCE_DIMENSION             dimension{ D3D12_RESOURCE_DIMENSION_UNKNOWN };
     D3D12_TEXTURE_LAYOUT                 layout{ D3D12_TEXTURE_LAYOUT_UNKNOWN };
     //// State tracking data:
@@ -453,6 +457,7 @@ struct ID3D12HeapInfo : public DxWrapperInfo
     D3D12_HEAP_FLAGS          heap_flags{ D3D12_HEAP_FLAG_NONE };
 
     const void* open_existing_address{ nullptr }; ///< Address used to create heap with OpenExistingHeapFromAddress.
+    const void* open_existing_handle{ nullptr };  ///< Handle used to create heap with OpenExistingHeapFromFileMapping.
 };
 
 struct ID3D12MetaCommandInfo : public DxWrapperInfo
