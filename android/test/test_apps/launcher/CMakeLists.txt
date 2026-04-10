@@ -61,7 +61,8 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-external-memory-fd-import
     gfxrecon-testapp-wait-for-present
     gfxrecon-testapp-trigger-trimming
-    gfxrecon-testapp-ahb)
+    gfxrecon-testapp-ahb
+    gfxrecon-testapp-deep-pnext-chain)
 
 target_link_libraries(${PROJECT_NAME}
                       ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})

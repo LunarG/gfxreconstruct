@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2025 LunarG, Inc.
+# Copyright (c) 2026 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,32 +21,19 @@
 # IN THE SOFTWARE.
 #
 # Author: LunarG Team
-# Description: CMake script for test apps
+# Description: CMake script for deep-pnext-chain test app
 ###############################################################################
 
-SET(GFXRECON_INSTALL_TESTAPPDIR ${GFXRECON_INSTALL_TESTDIR}/test_apps)
-set(GFXRECON_TESTAPPS_RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res)
+add_library(gfxrecon-testapp-deep-pnext-chain app.cpp)
+
+target_include_directories(gfxrecon-testapp-deep-pnext-chain
+                           PUBLIC
+                               ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(gfxrecon-testapp-deep-pnext-chain gfxrecon-testapp-base)
+
+common_build_directives(gfxrecon-testapp-deep-pnext-chain)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-    install(DIRECTORY ${GFXRECON_TESTAPPS_RES_DIR} DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+    install(TARGETS gfxrecon-testapp-deep-pnext-chain RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTAPPDIR}/deep-pnext-chain)
 endif()
-
-add_subdirectory(common)
-add_subdirectory(triangle)
-add_subdirectory(triangle-extra-device)
-add_subdirectory(multisample-depth)
-add_subdirectory(pipeline-binaries)
-add_subdirectory(host-image-copy)
-add_subdirectory(shader-objects)
-add_subdirectory(sparse-resources)
-add_subdirectory(acquired-image)
-add_subdirectory(set-environment)
-add_subdirectory(ahb)
-add_subdirectory(deep-pnext-chain)
-if(CMAKE_SYSTEM_NAME MATCHES "Linux|BSD|GNU")
-    add_subdirectory(external-memory-fd-export)
-    add_subdirectory(external-memory-fd-import)
-    add_subdirectory(wait-for-present)
-    add_subdirectory(trigger-trimming)
-endif()
-add_subdirectory(launcher)
