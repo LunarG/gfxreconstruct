@@ -352,6 +352,25 @@ class CommonCaptureManager
     {
         return force_file_flush_;
     }
+
+    bool GetCrashCommandEnabled() const
+    {
+        return crash_command_enabled_;
+    }
+
+    /// @brief Save a pre-encoded function call block for crash recovery.
+    /// Call this before dispatching to the driver. If the driver crashes,
+    /// the signal handler will write this block to the capture file.
+    void SavePreCallData(format::ApiCallId call_id);
+
+    /// @brief Clear the pre-call data after the driver call returns successfully.
+    void ClearPreCallData();
+
+    /// @brief Flush the capture file. Async-signal-safe variant uses low-level I/O.
+    void FlushCaptureFile();
+
+    /// @brief Register the thread for crash capture tracking.
+    void RegisterThreadForCrashCapture();
     CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const
     {
         return memory_tracking_mode_;
@@ -540,8 +559,14 @@ class CommonCaptureManager
 
   private:
     static void AtExit();
+    static void InstallCrashHandler();
+    static void CrashSignalHandler(int signal);
 
   private:
+    // Crash capture: track all threads that have pre-call data
+    static std::mutex                             crash_thread_lock_;
+    static std::vector<util::ThreadData*>         crash_threads_;
+    static std::atomic<bool>                      crash_handler_installed_;
     static std::mutex                                     instance_lock_;
     static CommonCaptureManager*                          singleton_;
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
@@ -614,6 +639,7 @@ class CommonCaptureManager
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;
     bool                                    skip_threads_with_invalid_data_;
+    bool                                    crash_command_enabled_;
 
     struct
     {

@@ -154,6 +154,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_ENVIRONMENT_UPPER                            "CAPTURE_ENVIRONMENT"
 #define CAPTURE_PROCESS_NAME_LOWER                           "capture_process_name"
 #define CAPTURE_PROCESS_NAME_UPPER                           "CAPTURE_PROCESS_NAME"
+#define CAPTURE_CRASH_COMMAND_LOWER                          "capture_crash_command"
+#define CAPTURE_CRASH_COMMAND_UPPER                          "CAPTURE_CRASH_COMMAND"
 // clang-format on
 
 class CaptureSettings
@@ -233,6 +235,7 @@ class CaptureSettings
         uint32_t                     trim_key_frames{ 0 };
         RuntimeTriggerState          runtime_capture_trigger{ kNotUsed };
         std::string                  capture_process_name{ "" };
+        bool                         capture_crash_command{ false };
         bool                         runtime_write_assets{ false };
         int                          page_guard_signal_handler_watcher_max_restores{ 1 };
         bool                         page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };

@@ -45,6 +45,13 @@
 #include <cstdlib>
 #include <unordered_map>
 
+#if defined(__linux__) || defined(__APPLE__)
+#include <signal.h>
+#include <unistd.h>
+#elif defined(WIN32)
+#include <windows.h>
+#endif
+
 #if defined(__unix__)
 extern char** environ;
 #endif
@@ -69,6 +76,10 @@ thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack
 static std::mutex external_trim_trigger_mutex_g;
 static bool       externally_set_trimming_state_g          = false;
 static bool       previous_externally_set_trimming_state_g = false;
+
+std::mutex                        CommonCaptureManager::crash_thread_lock_;
+std::vector<util::ThreadData*>    CommonCaptureManager::crash_threads_;
+std::atomic<bool>                 CommonCaptureManager::crash_handler_installed_{ false };
 
 extern "C"
 {
@@ -427,6 +438,15 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     use_asset_file_                  = trace_settings.use_asset_file;
     ignore_frame_boundary_android_   = trace_settings.ignore_frame_boundary_android;
     skip_threads_with_invalid_data_  = trace_settings.skip_threads_with_invalid_data;
+    crash_command_enabled_           = trace_settings.capture_crash_command;
+
+    if (crash_command_enabled_)
+    {
+        // Crash command capture requires force flush to ensure all prior calls are on disk.
+        force_file_flush_ = true;
+        GFXRECON_LOG_INFO("Crash command capture enabled. Force file flush activated.");
+        InstallCrashHandler();
+    }
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -1686,6 +1706,135 @@ void CommonCaptureManager::WriteToFile(const void* data, size_t size, util::File
 
     // Increment block index
     ++block_index_;
+}
+
+void CommonCaptureManager::InstallCrashHandler()
+{
+    bool expected = false;
+    if (!crash_handler_installed_.compare_exchange_strong(expected, true))
+    {
+        return; // Already installed.
+    }
+
+#if defined(__linux__) || defined(__APPLE__)
+    struct sigaction sa = {};
+    sa.sa_handler       = CrashSignalHandler;
+    sa.sa_flags         = SA_RESETHAND; // One-shot: restore default handler after first invocation.
+    sigemptyset(&sa.sa_mask);
+
+    sigaction(SIGSEGV, &sa, nullptr);
+    sigaction(SIGABRT, &sa, nullptr);
+    sigaction(SIGBUS, &sa, nullptr);
+    sigaction(SIGFPE, &sa, nullptr);
+    sigaction(SIGILL, &sa, nullptr);
+#elif defined(WIN32)
+    SetUnhandledExceptionFilter([](EXCEPTION_POINTERS*) -> LONG {
+        CrashSignalHandler(0);
+        return EXCEPTION_CONTINUE_SEARCH;
+    });
+#endif
+
+    GFXRECON_LOG_INFO("Crash signal handler installed for capture recovery.");
+}
+
+void CommonCaptureManager::CrashSignalHandler(int signal)
+{
+    // This runs in a signal handler context. Only async-signal-safe operations are allowed.
+    // We avoid mutexes, malloc, and logging here. We use direct file descriptor writes.
+    CommonCaptureManager* manager = singleton_;
+    if (manager == nullptr || manager->file_stream_ == nullptr)
+    {
+        return;
+    }
+
+    // First flush any buffered data from prior completed writes.
+    manager->file_stream_->Flush();
+
+    // Scan all registered threads for in-flight calls and write their pre-call buffers.
+    // Note: We don't lock crash_thread_lock_ because we're in a signal handler and the
+    // mutex may be held by the crashing thread. The vector is append-only during normal
+    // operation, so reading it without the lock is safe enough for crash recovery.
+    for (auto* thread_data : crash_threads_)
+    {
+        format::ApiCallId call_id = thread_data->inflight_call_id_.load(std::memory_order_acquire);
+        if (call_id != format::ApiCallId::ApiCall_Unknown && thread_data->precall_data_size_ > 0)
+        {
+            // Write the pre-call function call block to the capture file.
+            manager->file_stream_->Write(thread_data->precall_buffer_.data(), thread_data->precall_data_size_);
+        }
+    }
+
+    // Final flush to ensure the crash command data reaches disk.
+    manager->file_stream_->Flush();
+
+    // Re-raise the signal with default handler (SA_RESETHAND already restored it).
+#if defined(__linux__) || defined(__APPLE__)
+    raise(signal);
+#endif
+}
+
+void CommonCaptureManager::RegisterThreadForCrashCapture()
+{
+    auto thread_data = GetThreadData();
+    std::lock_guard<std::mutex> lock(crash_thread_lock_);
+    crash_threads_.push_back(thread_data);
+}
+
+void CommonCaptureManager::SavePreCallData(format::ApiCallId call_id)
+{
+    if (!crash_command_enabled_)
+    {
+        return;
+    }
+
+    auto thread_data = GetThreadData();
+
+    // Lazy-register this thread for crash capture tracking.
+    if (!thread_data->crash_capture_registered_)
+    {
+        std::lock_guard<std::mutex> lock(crash_thread_lock_);
+        crash_threads_.push_back(thread_data);
+        thread_data->crash_capture_registered_ = true;
+    }
+
+    // Build an uncompressed FunctionCallBlock for the call ID with no parameter data.
+    // This serves as a "this call was in-flight when we crashed" marker.
+    format::FunctionCallHeader header = {};
+    header.block_header.type          = format::BlockType::kFunctionCallBlock;
+    header.api_call_id                = call_id;
+    header.thread_id                  = thread_data->thread_id_;
+    header.block_header.size          = sizeof(header.api_call_id) + sizeof(header.thread_id);
+
+    size_t total_size = sizeof(header);
+    if (thread_data->precall_buffer_.size() < total_size)
+    {
+        thread_data->precall_buffer_.resize(total_size);
+    }
+    memcpy(thread_data->precall_buffer_.data(), &header, sizeof(header));
+    thread_data->precall_data_size_ = total_size;
+
+    // Mark this thread as having an in-flight call. This must be set AFTER the buffer is populated.
+    thread_data->inflight_call_id_.store(call_id, std::memory_order_release);
+}
+
+void CommonCaptureManager::ClearPreCallData()
+{
+    if (!crash_command_enabled_)
+    {
+        return;
+    }
+
+    auto thread_data = GetThreadData();
+    thread_data->inflight_call_id_.store(format::ApiCallId::ApiCall_Unknown, std::memory_order_release);
+    thread_data->precall_data_size_ = 0;
+}
+
+void CommonCaptureManager::FlushCaptureFile()
+{
+    if (file_stream_ != nullptr)
+    {
+        file_stream_->Flush();
+    }
 }
 
 void CommonCaptureManager::AtExit()

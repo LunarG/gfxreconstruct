@@ -202,6 +202,11 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
                 name, values, return_type, indent, omit_output_param
             )
 
+        # Save pre-call data for crash capture before the driver dispatch.
+        body += '\n'
+        body += indent + '{}->SavePreCallData(format::ApiCallId::ApiCall_{});\n'.format(
+            capture_manager, name
+        )
         body += '\n'
 
         if is_override:
@@ -271,6 +276,9 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
                 body += indent + '{\n'
                 body += indent + '    omit_output_data = true;\n'
                 body += indent + '}\n'
+
+        # Clear pre-call data now that the driver call returned successfully.
+        body += indent + '{}->ClearPreCallData();\n'.format(capture_manager)
 
         if encode_after:
             body += self.make_parameter_encoding(
