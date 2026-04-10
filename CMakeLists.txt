@@ -216,6 +216,10 @@ if (MSVC)
     # Enable LARGEADDRESSAWARE to increase memory address space for 32-bit executables
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
 
+    # Increase the default stack size from 1 MB to 8 MB for Debug builds to prevent
+    # stack overflow during encode/decode of deep pNext chains
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /STACK:8388608")
+
     # Add option to enable/disable D3D12 support.
     option(D3D12_SUPPORT "Build with Direct3D 12 support enabled" ON)
 
