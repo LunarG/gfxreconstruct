@@ -316,6 +316,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
 
     dumped_image.dumped_raw = (output_image_format == DumpedImageFormat::KFormatRaw);
 
+    const bool has_alpha = vkuFormatHasAlpha(image_info->format);
+
     GFXRECON_ASSERT(!dumped_image.dumped_subresources.empty());
 
     for (size_t i = 0; i < dumped_image.dumped_subresources.size(); ++i)
@@ -344,7 +346,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
 
             if (output_image_format == kFormatBMP)
             {
-                if (options_.dump_resources_dump_separate_alpha)
+                if (options_.dump_resources_dump_separate_alpha && has_alpha)
                 {
                     util::imagewriter::WriteBmpImageSeparateAlpha(filename,
                                                                   sub_res.scaled_extent.width,
@@ -361,12 +363,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                                      static_cast<const void*>(image_dumped_data[i].data()),
                                                      stride,
                                                      image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
+                                                     has_alpha);
                 }
             }
             else if (output_image_format == KFormatPNG)
             {
-                if (options_.dump_resources_dump_separate_alpha)
+                if (options_.dump_resources_dump_separate_alpha && has_alpha)
                 {
                     util::imagewriter::WritePngImageSeparateAlpha(filename,
                                                                   sub_res.scaled_extent.width,
@@ -383,7 +385,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                                      static_cast<const void*>(image_dumped_data[i].data()),
                                                      stride,
                                                      image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
+                                                     has_alpha);
                 }
             }
         }
