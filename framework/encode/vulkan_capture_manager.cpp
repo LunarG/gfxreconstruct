@@ -2315,7 +2315,6 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         image_resource.external_format      = image_wrapper->external_format;
         image_resource.size                 = image_wrapper->size;
         image_resource.aspect               = aspect;
-        image_resource.external_format      = image_wrapper->external_format;
         image_resource.all_layers_per_level = true;
 
         num_staging_bytes += image_wrapper->size;

@@ -2752,7 +2752,6 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             image_resource.sample_count                                 = image_wrapper->samples;
             image_resource.layout                                       = image_wrapper->current_layout;
             image_resource.queue_family_index                           = image_wrapper->queue_family_index;
-            image_resource.external_format                              = image_wrapper->external_format;
             image_resource.size                                         = image_wrapper->size;
             image_resource.resource_size                                = snapshot_entry.resource_size;
             image_resource.level_sizes                                  = &snapshot_entry.level_sizes;
