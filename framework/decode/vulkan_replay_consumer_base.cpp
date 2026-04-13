@@ -2909,7 +2909,8 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
     }
 
-    std::string capture_surface_extension;
+    // In case there is more than one replay surface
+    std::vector<std::string> capture_surface_extensions;
 
     // Transfer requested extensions to filtered extension
     for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
@@ -2924,9 +2925,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
             {
                 if (!override_wsi_extensions)
                 {
-                    application_->InitializeWsiContext(current_extension);
-                    capture_surface_extension = current_extension;
-                    modified_extensions.push_back(current_extension);
+                    capture_surface_extensions.push_back(current_extension);
                 }
             }
             else
@@ -2941,7 +2940,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
         // only set a wsi if there was one on the capture device
-        bool surface_at_capture_time = !capture_surface_extension.empty();
+        bool surface_at_capture_time = !capture_surface_extensions.empty();
 
         if (!override_wsi_extensions && surface_at_capture_time &&
             options_.swapchain_option != util::SwapchainOption::kOffscreen)
@@ -2951,15 +2950,20 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 application_->GetWsiContexts();
 
             // Try to use the same WSI as at capture time
-            if (graphics::feature_util::IsSupportedExtension(available_extensions, capture_surface_extension.c_str()))
+            for (auto capture_surface_extension : capture_surface_extensions)
             {
-                const auto itr_surface_extension = kSurfaceExtensions.find(capture_surface_extension);
-
-                // check if corresponding compositor exists on replay device
-                if (itr_surface_extension != kSurfaceExtensions.end() && wsi_contexts.contains(*itr_surface_extension))
+                if (graphics::feature_util::IsSupportedExtension(available_extensions,
+                                                                 capture_surface_extension.c_str()))
                 {
-                    modified_extensions.push_back(itr_surface_extension->c_str());
-                    picked_surface = true;
+                    const auto itr_surface_extension = kSurfaceExtensions.find(capture_surface_extension);
+
+                    // check if corresponding compositor exists on replay device
+                    if (wsi_contexts.find(*itr_surface_extension) != wsi_contexts.end() ||
+                        application_->InitializeWsiContext(itr_surface_extension->c_str()))
+                    {
+                        picked_surface = true;
+                        modified_extensions.push_back(itr_surface_extension->c_str());
+                    }
                 }
             }
 
@@ -2976,8 +2980,14 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                             application_->InitializeWsiContext(itr_surface_extension->c_str()))
                         {
                             modified_extensions.push_back(itr_surface_extension->c_str());
-                            GFXRECON_LOG_WARNING("--wsi auto: could not find surface: %s, instead using: %s",
-                                                 capture_surface_extension.c_str(),
+                            std::string all_capture_surface_extensions = std::string("");
+                            for (std::string ext : capture_surface_extensions)
+                            {
+                                all_capture_surface_extensions += ext;
+                                all_capture_surface_extensions += ", ";
+                            }
+                            GFXRECON_LOG_WARNING("--wsi auto: could not find surface: %sinstead using: %s",
+                                                 all_capture_surface_extensions.c_str(),
                                                  itr_surface_extension->c_str());
                             picked_surface = true;
                             break;
@@ -3000,7 +3010,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
                 "WSI was specified, but no surface was available at capture time, option will be ignored");
         }
 
-        if (surface_at_capture_time)
+        if (surface_at_capture_time || override_wsi_extensions)
         {
             // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
             // extension without having VK_KHR_surface. Check for that and fix that.
