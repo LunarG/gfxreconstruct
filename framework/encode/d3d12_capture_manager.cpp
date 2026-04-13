@@ -307,6 +307,7 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
                                                        D3D12_HEAP_TYPE          heap_type,
                                                        D3D12_CPU_PAGE_PROPERTY  page_property,
                                                        D3D12_MEMORY_POOL        memory_pool,
+                                                       D3D12_HEAP_FLAGS         heap_flags,
                                                        D3D12_RESOURCE_STATES    initial_state,
                                                        bool                     has_write_watch,
                                                        ID3D12Heap_Wrapper*      heap_wrapper,
@@ -321,6 +322,7 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     info->heap_type       = heap_type;
     info->page_property   = page_property;
     info->memory_pool     = memory_pool;
+    info->heap_flags      = heap_flags;
     info->has_write_watch = has_write_watch;
     info->dimension       = dimension;
     info->layout          = layout;
@@ -463,9 +465,7 @@ bool D3D12CaptureManager::UseWriteWatch(D3D12_HEAP_TYPE         type,
                                         D3D12_HEAP_FLAGS        flags,
                                         D3D12_CPU_PAGE_PROPERTY page_property)
 {
-    if (IsPageGuardMemoryModeExternal() &&
-        ((flags & D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) != D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH) &&
-        IsUploadResource(type, page_property))
+    if (IsPageGuardMemoryModeExternal() && IsUploadResource(type, page_property))
     {
         return true;
     }
@@ -486,7 +486,7 @@ void D3D12CaptureManager::EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_P
 
 bool D3D12CaptureManager::IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property)
 {
-    if ((type == D3D12_HEAP_TYPE_UPLOAD) ||
+    if ((type == D3D12_HEAP_TYPE_UPLOAD) || (type == D3D12_HEAP_TYPE_GPU_UPLOAD) ||
         ((type == D3D12_HEAP_TYPE_CUSTOM) && (page_property != D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE) &&
          (page_property != D3D12_CPU_PAGE_PROPERTY_UNKNOWN)))
     {
@@ -881,6 +881,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateCommittedResource(
                                      heap_properties->Type,
                                      heap_properties->CPUPageProperty,
                                      heap_properties->MemoryPoolPreference,
+                                     heap_flags,
                                      initial_resource_state,
                                      UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty),
                                      nullptr,
@@ -920,6 +921,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreatePlacedResource(ID3D12De
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
+                                     heap_info->heap_flags,
                                      initial_state,
                                      heap_info->has_write_watch,
                                      heap_wrapper,
@@ -952,6 +954,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateReservedResource(
                                      D3D12_HEAP_TYPE_DEFAULT,
                                      D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
                                      D3D12_MEMORY_POOL_UNKNOWN,
+                                     D3D12_HEAP_FLAG_NONE,
                                      initial_state,
                                      false,
                                      nullptr,
@@ -986,6 +989,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateReservedResource1(
                                      D3D12_HEAP_TYPE_DEFAULT,
                                      D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
                                      D3D12_MEMORY_POOL_UNKNOWN,
+                                     D3D12_HEAP_FLAG_NONE,
                                      initial_state,
                                      false,
                                      nullptr,
@@ -1024,6 +1028,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device10_CreateReservedResource2(
                                      D3D12_HEAP_TYPE_DEFAULT,
                                      D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
                                      D3D12_MEMORY_POOL_UNKNOWN,
+                                     D3D12_HEAP_FLAG_NONE,
                                      D3D12_RESOURCE_STATE_COMMON,
                                      false,
                                      nullptr,
@@ -1064,6 +1069,103 @@ void D3D12CaptureManager::PostProcess_ID3D12Device3_OpenExistingHeapFromAddress(
 {
     GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (IsCaptureModeTrack())
+    {
+        if (SUCCEEDED(result) && (heap != nullptr) && ((*heap) != nullptr))
+        {
+            state_tracker_->TrackOpenExistingHeapFromAddress(heap, address);
+        }
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D12Device3_OpenExistingHeapFromFileMapping(ID3D12Device3_Wrapper* wrapper,
+                                                                                   HANDLE                 file_mapping,
+                                                                                   REFIID                 riid,
+                                                                                   void**                 heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(heap);
+
+    if (IsCaptureModeWrite())
+    {
+        void* address = MapViewOfFile(file_mapping, FILE_MAP_READ, 0, 0, 0);
+        if (address != nullptr)
+        {
+            MEMORY_BASIC_INFORMATION info{};
+
+            auto result = VirtualQuery(address, &info, sizeof(info));
+            if (result > 0)
+            {
+                common_manager_->WriteCreateHeapAllocationCmd(
+                    api_family_, reinterpret_cast<uint64_t>(file_mapping), info.RegionSize);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to retrieve memory information for handle specified to "
+                                   "ID3D12Device3::OpenExistingHeapFromFileMapping (error = %d)",
+                                   GetLastError());
+            }
+            UnmapViewOfFile(address);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to map view of file for handle specified to "
+                               "ID3D12Device3::OpenExistingHeapFromFileMapping (error = %d)",
+                               GetLastError());
+        }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device3_OpenExistingHeapFromFileMapping(
+    ID3D12Device3_Wrapper* wrapper, HRESULT result, HANDLE file_mapping, REFIID riid, void** heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+
+    if (IsCaptureModeTrack())
+    {
+        if (SUCCEEDED(result) && (heap != nullptr) && ((*heap) != nullptr))
+        {
+            state_tracker_->TrackOpenExistingHeapFromFileMapping(heap, file_mapping);
+        }
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D12Device13_OpenExistingHeapFromAddress1(
+    ID3D12Device13_Wrapper* wrapper, const void* address, SIZE_T size, REFIID riid, void** heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(heap);
+
+    if (IsCaptureModeWrite())
+    {
+        MEMORY_BASIC_INFORMATION info{};
+
+        auto result = VirtualQuery(address, &info, sizeof(info));
+        if (result > 0)
+        {
+            SIZE_T region_size = std::max(info.RegionSize, size);
+            common_manager_->WriteCreateHeapAllocationCmd(
+                api_family_, reinterpret_cast<uint64_t>(address), region_size);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
+                               "ID3D12Device13::OpenExistingHeapFromAddress1 (error = %d)",
+                               GetLastError());
+        }
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device13_OpenExistingHeapFromAddress1(
+    ID3D12Device13_Wrapper* wrapper, HRESULT result, const void* address, SIZE_T size, REFIID riid, void** heap)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(riid);
+    GFXRECON_UNREFERENCED_PARAMETER(size);
 
     if (IsCaptureModeTrack())
     {
@@ -1129,6 +1231,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device4_CreateCommittedResource1(
                                      heap_properties->Type,
                                      heap_properties->CPUPageProperty,
                                      heap_properties->MemoryPoolPreference,
+                                     heap_flags,
                                      initial_resource_state,
                                      UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty),
                                      nullptr,
@@ -1167,6 +1270,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreateCommittedResource2(
                                      heap_properties->Type,
                                      heap_properties->CPUPageProperty,
                                      heap_properties->MemoryPoolPreference,
+                                     heap_flags,
                                      initial_resource_state,
                                      UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty),
                                      nullptr,
@@ -1210,6 +1314,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device10_CreateCommittedResource3(
                                      heap_properties->Type,
                                      heap_properties->CPUPageProperty,
                                      heap_properties->MemoryPoolPreference,
+                                     heap_flags,
                                      D3D12_RESOURCE_STATE_COMMON,
                                      UseWriteWatch(heap_properties->Type, heap_flags, heap_properties->CPUPageProperty),
                                      nullptr,
@@ -1250,6 +1355,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device8_CreatePlacedResource1(
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
+                                     heap_info->heap_flags,
                                      initial_state,
                                      heap_info->has_write_watch,
                                      heap_wrapper,
@@ -1293,6 +1399,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device10_CreatePlacedResource2(
                                      heap_info->heap_type,
                                      heap_info->page_property,
                                      heap_info->memory_pool,
+                                     heap_info->heap_flags,
                                      D3D12_RESOURCE_STATE_COMMON,
                                      heap_info->has_write_watch,
                                      heap_wrapper,
@@ -2103,8 +2210,8 @@ D3D12_HEAP_DESC D3D12CaptureManager::OverrideID3D12Heap_GetDesc(ID3D12Heap_Wrapp
         GFXRECON_ASSERT(info != nullptr);
         if (info->has_write_watch)
         {
-            // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at heap creation.
-            desc.Flags &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+            // Replace the custom heap flags that were set at heap creation.
+            desc.Flags = info->heap_flags;
 
             // Replace the custom heap properties that were set at heapcreation.
             desc.Properties.Type                 = info->heap_type;
@@ -2131,8 +2238,8 @@ HRESULT D3D12CaptureManager::OverrideID3D12Resource_GetHeapProperties(ID3D12Reso
         {
             if (heap_flags != nullptr)
             {
-                // Remove the D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH flag that was added at resource creation.
-                (*heap_flags) &= ~D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH;
+                // Replace the custom heap flags that were set at resource creation.
+                (*heap_flags) = info->heap_flags;
             }
 
             if (heap_properties != nullptr)
@@ -2825,6 +2932,17 @@ void D3D12CaptureManager::PostProcess_SetPrivateData(
     if (IsCaptureModeTrack())
     {
         state_tracker_->TrackPrivateData(wrapper, Name, DataSize, pData);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_SetPrivateDataInterface(IUnknown_Wrapper* wrapper,
+                                                              HRESULT           result,
+                                                              REFGUID           Name,
+                                                              const IUnknown*   pData)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackPrivateDataInterface(wrapper, Name, pData);
     }
 }
 
@@ -3819,6 +3937,28 @@ void D3D12CaptureManager::PostProcess_InitializeMetaCommand(ID3D12GraphicsComman
         metacommand_info->was_initialized = true;
         metacommand_info->initialize_parameters = std::make_unique<util::MemoryOutputStream>(
             pInitializationParametersData, InitializationParametersDataSizeInBytes);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12Device_CreateRootSignature(ID3D12Device_Wrapper* device_wrapper,
+                                                                       HRESULT               result,
+                                                                       UINT                  nodeMask,
+                                                                       const void*           pBlobWithRootSignature,
+                                                                       SIZE_T                blobLengthInBytes,
+                                                                       REFIID                riid,
+                                                                       void**                ppvRootSignature)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device_wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(nodeMask);
+
+    if (SUCCEEDED(result) && (ppvRootSignature != nullptr) && (*ppvRootSignature != nullptr))
+    {
+        auto root_signature_info = reinterpret_cast<ID3D12RootSignature_Wrapper*>(*ppvRootSignature)->GetObjectInfo();
+        if ((root_signature_info != nullptr) && (blobLengthInBytes != 0) && (pBlobWithRootSignature != nullptr))
+        {
+            root_signature_info->blob_value.resize(blobLengthInBytes);
+            std::memcpy(root_signature_info->blob_value.data(), pBlobWithRootSignature, blobLengthInBytes);
+        }
     }
 }
 

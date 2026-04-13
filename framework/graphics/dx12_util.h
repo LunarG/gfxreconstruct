@@ -56,6 +56,8 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
 #ifdef WIN32
+typedef _com_ptr_t<_com_IIID<IUnknown, &__uuidof(IUnknown)>> IUnknownComPtr;
+
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGIAdapter, &__uuidof(IDXGIAdapter)>>       IDXGIAdapterComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGIAdapter1, &__uuidof(IDXGIAdapter1)>>     IDXGIAdapter1ComPtr;
