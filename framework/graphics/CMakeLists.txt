@@ -42,6 +42,8 @@ target_sources(gfxrecon_graphics
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.h
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.h
@@ -89,6 +91,7 @@ if (${RUN_TESTS})
     add_executable(gfxrecon_graphics_test "")
     target_sources(gfxrecon_graphics_test PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/test/test_replay_event_sink.cpp
         ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
     target_link_libraries(gfxrecon_graphics_test PRIVATE gfxrecon_graphics)
     if (MSVC)

@@ -4276,6 +4276,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
 
+    uint64_t                              submit_index      = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
+    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+    if (auto event_sink = application_->GetReplayEventSink())
+    {
+        submit_index = event_sink->QueueSubmitBegin(queue_info->capture_id);
+    }
+
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
@@ -4434,6 +4441,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     fps_info_->SetFirstSubmitDone(true);
 
+    if (auto event_sink = application_->GetReplayEventSink())
+    {
+        event_sink->QueueSubmitEnd(submit_index, queue_info->capture_id, result, completion_source);
+    }
+
     return result;
 }
 
@@ -4510,6 +4522,13 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
+
+    uint64_t                              submit_index      = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
+    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+    if (auto event_sink = application_->GetReplayEventSink())
+    {
+        submit_index = event_sink->QueueSubmitBegin(queue_info->capture_id);
+    }
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
@@ -4657,6 +4676,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     fps_info_->SetFirstSubmitDone(true);
+
+    if (auto event_sink = application_->GetReplayEventSink())
+    {
+        event_sink->QueueSubmitEnd(submit_index, queue_info->capture_id, result, completion_source);
+    }
 
     return result;
 }
