@@ -4356,6 +4356,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         execution.SerializeExecution(current_submits_span);
     }
 
+    uint64_t submit_index = application_->GetReplayEventSink()->QueueSubmitBegin(queue_info->capture_id);
+
     // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
     // imported semaphore info structures.
     std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
@@ -4461,9 +4463,16 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
             queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
     }
 
+    // The result to report to the event sink might be different from the
+    // result of the actual QueueSubmit call if synchronization is enabled.
+    VkResult                              event_result      = result;
+    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
-        GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        event_result      = GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
     if (screenshot_handler_ != nullptr)
@@ -4510,6 +4519,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     }
 
     fps_info_->SetFirstSubmitDone(true);
+
+    application_->GetReplayEventSink()->QueueSubmitEnd(
+        submit_index, queue_info->capture_id, event_result, completion_source);
 
     return result;
 }
@@ -4595,6 +4607,8 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     {
         execution.SerializeExecution(current_submits_span);
     }
+
+    uint64_t submit_index = application_->GetReplayEventSink()->QueueSubmitBegin(queue_info->capture_id);
 
     // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
     // imported semaphore info structures.
@@ -4699,9 +4713,16 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     result = func(
         queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
 
+    // The result to report to the event sink might be different from the
+    // result of the actual QueueSubmit call if synchronization is enabled.
+    VkResult                              event_result      = result;
+    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
-        GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        event_result      = GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
     // Check whether any of the submitted command buffers are frame boundaries.
@@ -4738,6 +4759,9 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     fps_info_->SetFirstSubmitDone(true);
+
+    application_->GetReplayEventSink()->QueueSubmitEnd(
+        submit_index, queue_info->capture_id, event_result, completion_source);
 
     return result;
 }

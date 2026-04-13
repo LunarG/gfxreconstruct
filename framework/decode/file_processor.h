@@ -101,7 +101,6 @@ class FileProcessor
         kBreak   = 2,
     };
 
-  public:
     constexpr static uint32_t kFirstFrame = 0;
 
     FileProcessor();
