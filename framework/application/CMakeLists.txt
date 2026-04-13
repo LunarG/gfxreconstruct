@@ -73,6 +73,7 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
+                      gfxrecon_replay_plugin_loader
                       vulkan_registry
                       OpenXR
                       platform_specific
