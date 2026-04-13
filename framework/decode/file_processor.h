@@ -171,6 +171,7 @@ class FileProcessor
     bool ProcessExecuteBlocksFromFile(const ExecuteBlocksFromFileArgs& execute_blocks_info);
     void ProcessStateBeginMarker(const StateBeginMarkerArgs& state_begin);
     void ProcessStateEndMarker(const StateEndMarkerArgs& state_end);
+    void ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end);
     void ProcessAnnotation(const AnnotationArgs& annotation);
 
   protected:
@@ -271,6 +272,48 @@ class FileProcessor
         template <typename Args>
         void operator()(const Args* args)
         {
+            DispatchArgs(args);
+        }
+
+        // State Marker control
+        void operator()(const StateBeginMarkerArgs* state_begin)
+        {
+            // The block and marker type are implied by the Args type
+            file_processor_.ProcessStateBeginMarker(*state_begin);
+            DispatchArgs(state_begin);
+        }
+
+        void operator()(const StateEndMarkerArgs* state_end)
+        {
+            // The block and marker type are implied by the Args type
+            file_processor_.ProcessStateEndMarker(*state_end);
+            DispatchArgs(state_end);
+        }
+
+        void operator()(const AnnotationArgs* annotation)
+        {
+            if (annotation_handler_)
+            {
+                auto annotation_call = [this](auto&&... expanded_args) {
+                    annotation_handler_->ProcessAnnotation(std::forward<decltype(expanded_args)>(expanded_args)...);
+                };
+                std::apply(annotation_call, annotation->GetTuple());
+            }
+        }
+
+        DispatchVisitor(FileProcessor&                  file_processor,
+                        const std::vector<ApiDecoder*>& decoders,
+                        AnnotationHandler*              annotation_handler) :
+            file_processor_(file_processor),
+            decoders_(decoders), annotation_handler_(annotation_handler)
+        {}
+
+        void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }
+
+      private:
+        template <typename Args>
+        void DispatchArgs(const Args* args)
+        {
             constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
             for (auto decoder : decoders_)
             {
@@ -286,24 +329,8 @@ class FileProcessor
                 }
             }
         }
-        void operator()(const AnnotationArgs* annotation)
-        {
-            if (annotation_handler_)
-            {
-                auto annotation_call = [this](auto&&... expanded_args) {
-                    annotation_handler_->ProcessAnnotation(std::forward<decltype(expanded_args)>(expanded_args)...);
-                };
-                std::apply(annotation_call, annotation->GetTuple());
-            }
-        }
 
-        DispatchVisitor(const std::vector<ApiDecoder*>& decoders, AnnotationHandler* annotation_handler) :
-            decoders_(decoders), annotation_handler_(annotation_handler)
-        {}
-
-        void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }
-
-      private:
+        FileProcessor&                  file_processor_;
         const std::vector<ApiDecoder*>& decoders_;
         AnnotationHandler*              annotation_handler_;
         uint64_t                        block_index_;
@@ -344,21 +371,12 @@ class FileProcessor
             success            = file_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
         }
 
-        // State Marker control
-        void operator()(const StateBeginMarkerArgs* state_begin)
-        {
-            // The block and marker type are implied by the Args type
-            is_frame_delimiter = false;
-            success            = true;
-            file_processor_.ProcessStateBeginMarker(*state_begin);
-        }
-
         void operator()(const StateEndMarkerArgs* state_end)
         {
             // The block and marker type are implied by the Args type
             is_frame_delimiter = false;
             success            = true;
-            file_processor_.ProcessStateEndMarker(*state_end);
+            file_processor_.ProcessStateEndMarkerFrameState(*state_end);
         }
 
         void operator()(const AnnotationArgs* annotation)
