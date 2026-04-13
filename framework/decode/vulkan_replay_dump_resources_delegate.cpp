@@ -967,8 +967,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const 
     const std::string aspect_str = ImageAspectToStr(aspect);
     const auto&       dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
 
-    filename << "cmd_" << dumped_cmd.cmd_index << "_qs_" << dumped_cmd.qs_index << "_aspect_" << aspect_str << "_level_"
-             << mip_level << "_layer_" << layer;
+    filename << "cmd_" << dumped_cmd.cmd_index << "_qs_" << dumped_cmd.qs_index << "_bcb_" << dumped_cmd.bcb_index
+             << "_aspect_" << aspect_str << "_level_" << mip_level << "_layer_" << layer;
 
     filename << ImageFileExtension(output_image_format);
 
@@ -2611,8 +2611,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
-        filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_cmd_"
-                 << dumped_resources.cmd_index << "_dr.json";
+        filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
+                 << dumped_resources.bcb_index << "_dr.json";
 
         std::filesystem::path filedirname(options_.dump_resources_output_dir);
         std::filesystem::path filebasename(filename.str());
