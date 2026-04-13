@@ -39,7 +39,10 @@ class KhronosStructToJsonBodyGenerator():
     def decode_as_handle(self, parent_type, member):
         """ Method which may be overridden.
         Indicates that the given type should be decoded as a handle."""
-        return self.is_handle(member.base_type)
+        return (
+            self.is_handle_like(member.base_type)
+            or self.is_generic_struct_handle_value(parent_type, member.name)
+        )
 
     def write_body_contents(self):
         write('using util::FieldToJson;', file=self.outFile)

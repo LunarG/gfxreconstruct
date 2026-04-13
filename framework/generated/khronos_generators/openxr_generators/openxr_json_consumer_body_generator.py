@@ -79,9 +79,6 @@ class OpenXrExportJsonConsumerBodyGenerator(OpenXrBaseGenerator, KhronosExportJs
 
         self.formatAsHex = {}
 
-        # Parameters using this name should be output as handles even though they are uint64_t
-        self.formatAsHandle = {}
-
         self.external_structs = set(['LARGE_INTEGER', 'LUID'])
 
     def endFile(self):
@@ -100,16 +97,6 @@ class OpenXrExportJsonConsumerBodyGenerator(OpenXrBaseGenerator, KhronosExportJs
     def skip_generating_command_json(self, command):
         """Method override"""
         return self.is_manually_generated_cmd_name(command)
-
-    def decode_as_handle(self, value):
-        """Method override
-        Indicates that the given type should be decoded as a handle."""
-        return (
-            (
-                self.is_handle_like(value.base_type)
-                or value.name in self.formatAsHandle
-            )
-        )
 
     def decode_as_hex(self, value):
         """Method override"""
