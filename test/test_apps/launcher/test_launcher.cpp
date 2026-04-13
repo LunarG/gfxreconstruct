@@ -30,6 +30,7 @@
 #endif
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
+#include <debug_utils_app.h>
 #include <triangle_app.h>
 #include <triangle_extra_device_app.h>
 #include <deep_pnext_chain_app.h>
@@ -62,6 +63,7 @@ const char kArguments[] = "--wsi";
 
 static const char* kAppNames[] = {
     "acquired-image",
+    "debug-utils",
     "host-image-copy",
     "multisample-depth",
     "pipeline-binaries",
@@ -138,6 +140,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     if (app_name == "acquired-image")
     {
         app = std::make_unique<gfxrecon::test_app::acquired_image::App>();
+    }
+    else if (app_name == "debug-utils")
+    {
+        app = std::make_unique<gfxrecon::test_app::debug_utils::App>();
     }
     else if (app_name == "triangle")
     {
