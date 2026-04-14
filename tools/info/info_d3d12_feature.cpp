@@ -358,7 +358,7 @@ std::string InfoD3d12Feature::GenerateText()
     }
     else
     {
-        if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor->UsesFrameMarkers() == false)
+        if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor_->UsesFrameMarkers() == false)
         {
             return_val += "\tTest present count: " + std::to_string(dx12_consumer_.GetDXGITestPresentCount()) + "\n";
         }
@@ -376,7 +376,7 @@ nlohmann::json InfoD3d12Feature::GenerateJson()
 {
     nlohmann::json d3d12_json;
 
-    if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor->UsesFrameMarkers() == false)
+    if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor_->UsesFrameMarkers() == false)
     {
         d3d12_json["total-present-count"] = dx12_consumer_.GetDXGITestPresentCount();
     }
