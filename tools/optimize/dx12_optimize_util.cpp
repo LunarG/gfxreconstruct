@@ -32,7 +32,7 @@
 #include "decode/file_processor.h"
 
 // Process name override
-#if _WIN32
+#if defined(WIN32)
 #include "util/process_name_override.h"
 #endif
 
@@ -93,7 +93,7 @@ void CreateResourceValueTrackingConsumer(
         dx12_replay_consumer->EnableReplayOfResourceValueCalls(false);
     }
 
-#if _WIN32
+#if defined(WIN32)
     dx12_replay_consumer->SetProcessNameCallback(gfxrecon::util::ProcessNameOverrideCallback);
 #endif
 }

@@ -68,7 +68,7 @@ DWORD HookGetModuleFilenameA(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
 {
     if (hModule == nullptr && !s_app_name.empty() && nSize > 0)
     {
-        GFXRECON_LOG_INFO("Overriding process name to: %s", s_app_name.c_str());
+        GFXRECON_LOG_INFO_ONCE("Overriding process name to: %s", s_app_name.c_str());
         std::string full_app_path = GetModifiedApplicationPath(real_getmodule_filename_a, s_app_name);
 
         // If the provided buffer is too small, return the required size and set the last error to ERROR_INSUFFICIENT_BUFFER, as per the documentation for GetModuleFileNameA/W.
@@ -95,7 +95,7 @@ DWORD HookGetModuleFilenameW(HMODULE hModule, LPWSTR lpFilename, DWORD nSize)
 {
     if (hModule == nullptr && !s_app_name.empty() && nSize > 0)
     {
-        GFXRECON_LOG_INFO("Overriding process name to: %s", s_app_name.c_str());
+        GFXRECON_LOG_INFO_ONCE("Overriding process name to: %s", s_app_name.c_str());
         std::string  full_app_path = GetModifiedApplicationPath(real_getmodule_filename_a, s_app_name);
         std::wstring w_full_app_path = gfxrecon::util::StringToWideString(full_app_path); 
         if (w_full_app_path.size() >= nSize)

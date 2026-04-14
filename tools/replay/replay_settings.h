@@ -202,7 +202,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --fwo <x,y>                     \tForce windowed mode if not already, and allow setting of a custom window location.");
     GFXRECON_WRITE_CONSOLE("                                  \t(Same as --force-windowed-origin)");
     GFXRECON_WRITE_CONSOLE("  --disable-process-name-override \tDisable the process name override functionality that sets the process name");
-    GFXRECON_WRITE_CONSOLE("                                  \tto the capture application name. This is enabled by default.");
+    GFXRECON_WRITE_CONSOLE("                                  \tto the capture application name.");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("                                  \tdisplayed when abort() is called (Windows debug only).");
