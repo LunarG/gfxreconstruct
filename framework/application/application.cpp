@@ -139,24 +139,13 @@ void Application::Run()
         if (running_ && !paused_)
         {
             // Add one to match "trim frame range semantic"
-            uint32_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
+            uint64_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 
-            if (frame_loop_info_ != nullptr)
+            if ((frame_loop_info_ != nullptr) && (frame_loop_info_->ShouldStartFrameLooping(frame_number)))
             {
-                frame_loop_info_->SetCurrentFrameNumber(frame_number);
-
-                // Quit when frame looping has finished.
-                if (frame_loop_info_->GetLoopIterations() == 0)
-                {
-                    running_ = false;
-                    break;
-                }
-
-                if (frame_loop_info_->IsFirstIteration())
-                {
-                    // Preload the next frame and make sure we don't advance to the next one.
-                    GetPreloadFileProcessor()->PreloadNextFrames(1);
-                }
+                // Preload the next frame and make sure we don't advance to the next one.
+                GetPreloadFileProcessor()->PreloadLoopFrame();
+                frame_loop_info_->SetLooping(true);
             }
 
             if (fps_info_ != nullptr)
@@ -184,23 +173,14 @@ void Application::Run()
             // PlaySingleFrame() increments this->current_frame_number_ *if* there's an end-of-frame
             PlaySingleFrame();
 
-            if (frame_loop_info_ != nullptr)
+            if ((frame_loop_info_ != nullptr) && (frame_loop_info_->IsLooping()))
             {
-                if (frame_loop_info_->IsFirstIteration())
+                // Quit when frame looping has finished.
+                frame_loop_info_->DecrementLoopIterations();
+                GFXRECON_LOG_INFO("Looping frame (%i iterations remaining)", frame_loop_info_->GetLoopIterations());
+                if (frame_loop_info_->GetLoopIterations() == 0)
                 {
-                    frame_loop_info_->SetLooping(true);
-                }
-
-                if (frame_loop_info_->IsLooping())
-                {
-                    auto* preload_processor = GetPreloadFileProcessor();
-                    preload_processor->WaitDecodersIdle();
-
-                    // When replaying a frame again, skip any state blocks to avoid reapplying them again.
-                    preload_processor->SkipStateBlocks();
-
-                    GFXRECON_LOG_INFO("Looping frame (%i iterations remaining)", frame_loop_info_->GetLoopIterations());
-                    frame_loop_info_->DecrementLoopIterations();
+                    running_ = false;
                 }
             }
 
@@ -241,15 +221,7 @@ bool Application::PlaySingleFrame()
 
     if (file_processor_)
     {
-        if (frame_loop_info_ != nullptr && (frame_loop_info_->IsFirstIteration() || frame_loop_info_->IsLooping()))
-        {
-            // When looping, replay the current preloaded frame without advancing.
-            success = GetPreloadFileProcessor()->ReplayCurrentPreloadedFrame();
-        }
-        else
-        {
-            success = file_processor_->ProcessNextFrame();
-        }
+        success = file_processor_->ProcessNextFrame();
 
         if (success)
         {

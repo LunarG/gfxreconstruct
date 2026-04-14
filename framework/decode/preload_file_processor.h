@@ -41,45 +41,33 @@ class PreloadFileProcessor : public FileProcessor
     // Returns true if there are more frames to process, false if all frames have been processed or an error has occured
     bool ProcessNextFrame() override;
 
+    // Preload one frame, set looping state
+    void PreloadLoopFrame();
+
     /// Preloads `count` frames to continuous, expandable memory buffer.
-    /// Precondition of this function is that `advance_to_next_frame_` is enabled.
     void PreloadNextFrames(size_t count);
 
     /// Skips all blocks before a `StateEndMarker` from preloaded frames.
-    void SkipStateBlocks();
-
-    /// Replays the current preloaded frame without committing cursor advancement.
-    /// Call `AdvancePreloadedFrame()` afterward to move to the next frame.
-    bool ReplayCurrentPreloadedFrame();
-
-    /// Commits the cursor and frame-number advancement from the most recent `ReplayCurrentPreloadedFrame()` call.
-    bool AdvancePreloadedFrame();
+    static BlockBatch::iterator SkipStateBlocks(uint64_t frame_number, BlockBatch::iterator start);
 
   private:
     constexpr static size_t kWorkingStoreInitialSize = 4096;
 
-    struct ReplayFrameResult
-    {
-        ProcessBlockState    process_state{ ProcessBlockState::kError };
-        BlockBatch::iterator next_frame_cursor;
-    };
-
     void              ResetPreload();
     ProcessBlockState PreloadBlocksOneFrame();
-    ReplayFrameResult ReplayOneFrame();
+    ProcessBlockState ReplayOneFrame();
     void              EnqueueBatch(BlockBatch::BatchPtr&& batch);
-    bool              AdvanceToNextFrame(ReplayFrameResult replay_result);
 
     util::HeapBuffer     working_uncompressed_store_;
     BlockBatch::iterator preload_head_;
     BlockBatch*          preload_tail_ = nullptr;
     BlockBatch::iterator replay_cursor_;
 
-    /// Last result from `ReplayOneFrame()`, not yet consumed by `AdvanceToNextFrame()`.
-    std::optional<ReplayFrameResult> pending_replay_result_;
-
     ProcessBlockState final_process_state_{ ProcessBlockState::kError }; // How the last frame preload ended
     bool              preload_contains_frame_stutter_ = false; // Tells replay to ignore first frame boundary block
+
+    BlockBatch::iterator loop_reset_point_;
+    bool                 loop_replay_ = false; // Tells replay to ignore first frame boundary block
 };
 
 GFXRECON_END_NAMESPACE(decode)
