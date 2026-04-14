@@ -20,13 +20,26 @@
 # IN THE SOFTWARE.
 ###############################################################################
 
+set(GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME gfxrecon_replay_plugin_abi)
+set(GFXR_REPLAY_PLUGIN_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/public)
+set(GFXR_REPLAY_PLUGIN_PUBLIC_HEADER ${GFXR_REPLAY_PLUGIN_INCLUDE_DIR}/gfxr/replay_event_plugin.h)
+
+add_library(${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME} INTERFACE)
+target_include_directories(${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME}
+    INTERFACE
+        $<BUILD_INTERFACE:${GFXR_REPLAY_PLUGIN_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_sources(${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME}
+    INTERFACE
+        ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER})
+
 set(TARGET_NAME gfxrecon_print_replay_plugin)
-add_library(${TARGET_NAME} MODULE)
-target_sources(${TARGET_NAME}
+add_library(${TARGET_NAME} MODULE
+        ${CMAKE_CURRENT_LIST_DIR}/sample/replay_event_plugin.cpp)
+target_link_libraries(${TARGET_NAME}
     PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/replay_event_plugin.h
-        ${CMAKE_CURRENT_LIST_DIR}/replay_event_plugin.cpp)
-target_include_directories(${TARGET_NAME}
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/framework)
+        ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME})
 common_build_directives(${TARGET_NAME})
+
+install(FILES ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gfxr)

@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "replay_event_plugin.h"
+#include <gfxr/replay_event_plugin.h>
 
 #include <stdio.h>
 

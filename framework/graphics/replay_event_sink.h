@@ -24,7 +24,7 @@
 #define GFXRECON_GRAPHICS_REPLAY_EVENT_SINK_H
 
 #include <util/defines.h>
-#include <plugin/replay_event_plugin.h>
+#include <gfxr/replay_event_plugin.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
