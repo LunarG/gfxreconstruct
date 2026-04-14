@@ -55,19 +55,6 @@ class InfoFeature
     // A few "setter" style methods
     virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
 
-    // API-specific command-line methods (default is do nothing and return true if required)
-    virtual void UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
-    {
-        GFXRECON_UNREFERENCED_PARAMETER(options);
-        GFXRECON_UNREFERENCED_PARAMETER(arguments);
-    }
-    virtual std::string GetCommandLineUsage() { return ""; }
-    virtual bool        CheckCommandLine(util::ArgumentParser* arg_parser)
-    {
-        GFXRECON_UNREFERENCED_PARAMETER(arg_parser);
-        return true;
-    }
-
     // Method to register this feature's decoder elements with the containers
     // FileProcessor
     void RegisterDecodeComponents(decode::FileProcessor* file_processor)
@@ -75,9 +62,6 @@ class InfoFeature
         file_processor_ = file_processor;
         RegisterInternalDecodeComponents(file_processor);
     }
-
-    // Indicates that this API generator requires an API-specific output
-    bool RestrictingOutput() { return restricting_output_; }
 
     // Output methods
     virtual std::string    GenerateText() = 0;
@@ -88,7 +72,6 @@ class InfoFeature
 
     decode::FileProcessor* file_processor_{ nullptr };
     std::string            driver_info_;
-    bool                   restricting_output_{ false };
 };
 
 GFXRECON_END_NAMESPACE(info)

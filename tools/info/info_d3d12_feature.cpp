@@ -26,15 +26,12 @@
 #include "info_d3d12_feature.h"
 
 #include "util/feature_module_registry.h"
-#include "util/to_string.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(info)
 
 // Register this class as a feature in a module registry
 GFXR_UTIL_REGISTER_FEATURE_CREATOR(InfoFeature, InfoD3d12Feature)
-
-const char kEnumGpuIndices[] = "--enum-gpu-indices";
 
 std::string InfoD3d12Feature::CompiledHeaderVersionString() const
 {
@@ -45,73 +42,11 @@ std::string InfoD3d12Feature::CompiledHeaderVersionString() const
 #endif
 }
 
-void InfoD3d12Feature::UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments)
-{
-    options += " ";
-    options += kEnumGpuIndices;
-}
-
-std::string InfoD3d12Feature::GetCommandLineUsage()
-{
-    std::string return_val = "\n// D3D12-specific\n  ";
-    return_val += kEnumGpuIndices;
-    return_val += "\tPrint GPU indices and exit\n";
-    return return_val;
-}
-
-bool InfoD3d12Feature::CheckCommandLine(util::ArgumentParser* arg_parser)
-{
-    if (arg_parser->IsOptionSet(kEnumGpuIndices))
-    {
-        // This API Generator is requiring a restricted output that is specific to
-        // this generator.
-        restricting_output_      = true;
-        output_enum_gpu_indices_ = true;
-    }
-    return true;
-}
-
 void InfoD3d12Feature::RegisterInternalDecodeComponents(decode::FileProcessor* file_processor)
 {
     dx12_decoder_.AddConsumer(&dx12_detection_consumer_);
     dx12_decoder_.AddConsumer(&dx12_consumer_);
     file_processor->AddDecoder(&dx12_decoder_);
-}
-
-std::string InfoD3d12Feature::GetEnumGpuIndicesText()
-{
-    graphics::dx12::IDXGIFactory1ComPtr factory1   = nullptr;
-    std::string                         return_val = "";
-
-    HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
-
-    if (SUCCEEDED(result))
-    {
-        graphics::dx12::ActiveAdapterMap adapters{};
-        graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
-
-        return_val = "GPU index\tGPU name\tSubSys ID\n";
-        for (size_t index = 0; index < adapters.size(); ++index)
-        {
-            for (auto adapter : adapters)
-            {
-                if (index == adapter.second.adapter_idx)
-                {
-                    std::string replay_adapter_str = util::WCharArrayToString(adapter.second.internal_desc.Description);
-
-                    return_val += util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +
-                                  replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId) +
-                                  "\n";
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("Failed to enumerate GPU indices");
-    }
-    return return_val;
 }
 
 std::string InfoD3d12Feature::GetDriverInfoString()
@@ -352,23 +287,16 @@ std::string InfoD3d12Feature::GenerateText()
 {
     std::string return_val = "";
 
-    if (restricting_output_ && output_enum_gpu_indices_)
+    if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor_->UsesFrameMarkers() == false)
     {
-        return_val = GetEnumGpuIndicesText();
+        return_val += "\tTest present count: " + std::to_string(dx12_consumer_.GetDXGITestPresentCount()) + "\n";
     }
-    else
-    {
-        if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor_->UsesFrameMarkers() == false)
-        {
-            return_val += "\tTest present count: " + std::to_string(dx12_consumer_.GetDXGITestPresentCount()) + "\n";
-        }
 
-        return_val += GetDriverInfoText();
-        return_val += GetRuntimeInfoText();
-        return_val += GetAdapterInfoText();
-        return_val += GetSwapchainInfoText();
-        return_val += GetDxrEiInfoText();
-    }
+    return_val += GetDriverInfoText();
+    return_val += GetRuntimeInfoText();
+    return_val += GetAdapterInfoText();
+    return_val += GetSwapchainInfoText();
+    return_val += GetDxrEiInfoText();
     return return_val;
 }
 

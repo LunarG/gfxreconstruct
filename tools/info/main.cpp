@@ -120,6 +120,7 @@ struct ApiAgnosticStats
     gfxrecon::decode::BlockIOError    error_state;
     uint32_t                          blank_frame_count{ 0 };
     bool                              uses_frame_markers{ false };
+    bool                              print_single_line{ true };
 };
 
 struct FileFormatInfo
@@ -174,21 +175,6 @@ class AnnotationRecorder : public gfxrecon::decode::AnnotationHandler
     }
 };
 
-std::string AdapterTypeToString(gfxrecon::format::AdapterType type)
-{
-    switch (type)
-    {
-        case gfxrecon::format::AdapterType::kUnknownAdapter:
-            return "Unknown type (DXGI 1.0)";
-        case gfxrecon::format::AdapterType::kSoftwareAdapter:
-            return "Software";
-        case gfxrecon::format::AdapterType::kHardwareAdapter:
-            return "Hardware";
-        default:
-            return "Unknown";
-    }
-}
-
 static void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
@@ -221,27 +207,11 @@ static void PrintUsage(const char* exe_name)
         "  --output\t\tOutput generated information to the provided file. If not defined output goes to std::out");
     WriteOutput("  --log-level <level>\tSpecify highest level message to log. Options are:");
     WriteOutput("                  \t\tdebug, info, warning, error, and fatal. Default is info.");
+
+#if defined(D3D12_SUPPORT)
+    WriteOutput("  %s\tPrint GPU indices and exit", kEnumGpuIndices);
+#endif
 }
-
-static std::string GetVkVersionString(uint32_t api_version)
-{
-    uint32_t major = VK_API_VERSION_MAJOR(api_version);
-    uint32_t minor = VK_API_VERSION_MINOR(api_version);
-    uint32_t patch = VK_API_VERSION_PATCH(api_version);
-
-    return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
-}
-
-#if ENABLE_OPENXR_SUPPORT
-static std::string GetXrVersionString(XrVersion api_version)
-{
-    uint32_t major = XR_VERSION_MAJOR(api_version);
-    uint32_t minor = XR_VERSION_MINOR(api_version);
-    uint32_t patch = XR_VERSION_PATCH(api_version);
-
-    return std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch);
-}
-#endif /* ENABLE_OPENXR_SUPPORT */
 
 void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
                             gfxrecon::decode::FileProcessor& file_processor,
@@ -343,33 +313,6 @@ void PrintFileFormatInfoText(const gfxrecon::decode::FileProcessor& file_process
     WriteOutput("\tFile format version: %u.%u", file_format_info.major_version, file_format_info.minor_version);
     WriteOutput("\tFrame delimiters: %s",
                 GetFrameMarkerString(file_format_info.uses_frame_markers, file_format_info.NeedsUpdate()).c_str());
-}
-
-std::string GetDriverInfoString(const gfxrecon::decode::InfoConsumer& driver_info_consumer)
-{
-    if (gfxrecon::util::platform::StringLength(driver_info_consumer.GetDriverDesc()) > 0)
-    {
-        return driver_info_consumer.GetDriverDesc();
-    }
-    else
-    {
-        return "Not available";
-    }
-}
-
-void PrintDriverInfoText(const gfxrecon::decode::InfoConsumer& driver_info_consumer)
-{
-    WriteOutput("");
-    WriteOutput("Driver info:");
-    if (gfxrecon::util::platform::StringLength(driver_info_consumer.GetDriverDesc()) > 0)
-    {
-        WriteOutput("\t%s", driver_info_consumer.GetDriverDesc());
-    }
-    else
-    {
-        WriteOutput("\tDriver info not available.");
-        WriteOutput("");
-    }
 }
 
 nlohmann::json GetExeInfoJson(const gfxrecon::decode::InfoConsumer& info_consumer)
@@ -478,8 +421,7 @@ nlohmann::json GetApiAgnosticStatsJson(const gfxrecon::decode::FileProcessor& fi
 }
 
 void PrintApiAgnosticStatsText(const gfxrecon::decode::FileProcessor& file_processor,
-                               const ApiAgnosticStats&                api_agnostic_stats,
-                               bool                                   print_single_line)
+                               const ApiAgnosticStats&                api_agnostic_stats)
 {
     // Compression type.
     std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(api_agnostic_stats.compression_type);
@@ -506,7 +448,7 @@ void PrintApiAgnosticStatsText(const gfxrecon::decode::FileProcessor& file_proce
         }
 
         // Print out the total frames and range based on the API (since we have 2 different ways of showing it)
-        if (print_single_line)
+        if (api_agnostic_stats.print_single_line)
         {
             WriteOutput("\tTotal frames: %u (trimmed frame range %u-%u)",
                         api_agnostic_stats.frame_count,
@@ -631,10 +573,9 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
         file_processor.ProcessAllFrames();
         if (file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone)
         {
-            uint32_t                 blank_frame_count            = 0;
-            bool                     force_all_api_output         = false;
-            bool                     api_found                    = false;
-            bool                     use_single_line_frame_output = true;
+            uint32_t                 blank_frame_count    = 0;
+            bool                     force_all_api_output = false;
+            bool                     api_found            = false;
             std::vector<std::string> detected_apis;
             std::string              driver_info = "Driver info not available.";
 
@@ -661,7 +602,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                     // that really wants the multi-line output is a definite D3D capture
                     if (!api_found && !feature->DesiresSingleLineFrameOutput())
                     {
-                        use_single_line_frame_output = false;
+                        api_agnostic_stats.print_single_line = false;
                     }
                     api_found = true;
                 }
@@ -721,7 +662,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                 PrintExeInfoText(info_consumer);
                 if (api_agnostic_stats.error_state == gfxrecon::decode::BlockIOError::kErrorNone)
                 {
-                    PrintApiAgnosticStatsText(file_processor, api_agnostic_stats, use_single_line_frame_output);
+                    PrintApiAgnosticStatsText(file_processor, api_agnostic_stats);
 
                     for (auto& feature : g_info_features)
                     {
@@ -774,10 +715,11 @@ int main(int argc, const char** argv)
     // Add any API-specific command-line arguments/options
     std::string arguments = kArguments;
     std::string options   = kOptions;
-    for (auto& feature : g_info_features)
-    {
-        feature->UpdateValidCommandLineOptionsArgs(options, arguments);
-    }
+
+#if defined(D3D12_SUPPORT)
+    options += " ";
+    options += kEnumGpuIndices;
+#endif
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
@@ -814,21 +756,6 @@ int main(int argc, const char** argv)
 #endif
     }
 
-    // Check for feature-specific items
-    bool restrict_output = false;
-    for (auto& feature : g_info_features)
-    {
-        if (!feature->CheckCommandLine(&arg_parser))
-        {
-            PrintUsage(app_name.c_str());
-            exit(-1);
-        }
-        if (feature->RestrictingOutput())
-        {
-            restrict_output = true;
-        }
-    }
-
     // Update logging with values retrieved from command line arguments
     gfxrecon::util::Log::Settings log_settings;
     GetLogSettings(arg_parser, log_settings);
@@ -856,16 +783,12 @@ int main(int argc, const char** argv)
     {
         success = GatherAndPrintFileFormatInfo(input_filename);
     }
-    else if (restrict_output)
+#if defined(D3D12_SUPPORT)
+    else if (arg_parser.IsOptionSet(kEnumGpuIndices))
     {
-        for (auto& feature : g_info_features)
-        {
-            if (feature->RestrictingOutput())
-            {
-                WriteOutput(feature->GenerateText().c_str());
-            }
-        }
+        WriteOutput(GetEnumGpuIndicesText().c_str());
     }
+#endif // D3D12_SUPPORT
     else
     {
         success = GatherAndPrintAllInfo(input_filename, arg_parser.IsOptionSet(kVerboseOption));
