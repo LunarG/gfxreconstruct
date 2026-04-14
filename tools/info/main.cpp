@@ -24,24 +24,29 @@
 #include PROJECT_VERSION_HEADER_FILE
 
 #include "decode/decode_api_detection.h"
+#include "decode/info_decoder.h"
+#include "decode/info_consumer.h"
+#include "decode/file_processor.h"
 #include "decode/stat_consumer.h"
 #include "decode/stat_consumer_base.h"
 #include "decode/stat_decoder_base.h"
-#include "decode/file_processor.h"
 #include "format/format.h"
 #include "format/format_util.h"
 
-#include "decode/info_decoder.h"
-#include "decode/info_consumer.h"
+
+#if defined(D3D12_SUPPORT)
+#include "graphics/dx12_util.h"
+#endif
 
 #include "util/argument_parser.h"
 #include "util/feature_module_registry.h"
-#include "util/strings.h"
 #include "util/logging.h"
-#include "util/to_string.h"
 #include "util/platform.h"
+#include "util/strings.h"
+#include "util/to_string.h"
 
 #include "info_feature.h"
+#include "tool_settings.h"
 
 #include <cassert>
 #include <cstdarg>
@@ -54,18 +59,19 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tool_settings.h"
-
 const char kExeInfoOnlyOption[]    = "--exe-info-only";
 const char kEnvVarsOnlyOption[]    = "--env-vars-only";
 const char kFileFormatOnlyOption[] = "--file-format-only";
-const char kEnumGpuIndices[]       = "--enum-gpu-indices";
 const char kVerboseOption[]        = "--verbose";
 const char kOutputFileArgument[]   = "--output";
 
 const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--"
                           "enum-gpu-indices,--verbose";
 const char kArguments[] = "--output,--log-level";
+
+#if defined(D3D12_SUPPORT)
+const char kEnumGpuIndices[] = "--enum-gpu-indices";
+#endif
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -694,6 +700,48 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
 
     return file_processor.GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone;
 }
+
+#if defined(D3D12_SUPPORT)
+
+static std::string GetEnumGpuIndicesText()
+{
+    gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1   = nullptr;
+    std::string                                   return_val = "";
+
+    HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
+
+    if (SUCCEEDED(result))
+    {
+        gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
+        gfxrecon::graphics::dx12::TrackAdapters(
+            result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
+
+        return_val = "GPU index\tGPU name\tSubSys ID\n";
+        for (size_t index = 0; index < adapters.size(); ++index)
+        {
+            for (auto adapter : adapters)
+            {
+                if (index == adapter.second.adapter_idx)
+                {
+                    std::string replay_adapter_str =
+                        gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
+
+                    return_val +=
+                        gfxrecon::util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +
+                        replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId) + "\n";
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to enumerate GPU indices");
+    }
+    return return_val;
+}
+
+#endif // D3D12_SUPPORT
 
 int main(int argc, const char** argv)
 {

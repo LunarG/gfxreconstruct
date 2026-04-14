@@ -78,44 +78,6 @@ class InfoD3d12Feature : public InfoFeature
     decode::Dx12Decoder           dx12_decoder_;
 };
 
-const char kEnumGpuIndices[] = "--enum-gpu-indices";
-
-static std::string GetEnumGpuIndicesText()
-{
-    graphics::dx12::IDXGIFactory1ComPtr factory1   = nullptr;
-    std::string                         return_val = "";
-
-    HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
-
-    if (SUCCEEDED(result))
-    {
-        graphics::dx12::ActiveAdapterMap adapters{};
-        graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
-
-        return_val = "GPU index\tGPU name\tSubSys ID\n";
-        for (size_t index = 0; index < adapters.size(); ++index)
-        {
-            for (auto adapter : adapters)
-            {
-                if (index == adapter.second.adapter_idx)
-                {
-                    std::string replay_adapter_str = util::WCharArrayToString(adapter.second.internal_desc.Description);
-
-                    return_val += util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +
-                                  replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId) +
-                                  "\n";
-                    break;
-                }
-            }
-        }
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("Failed to enumerate GPU indices");
-    }
-    return return_val;
-}
-
 GFXRECON_END_NAMESPACE(info)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
