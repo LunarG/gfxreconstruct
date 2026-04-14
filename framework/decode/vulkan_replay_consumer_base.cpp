@@ -4276,8 +4276,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
 
-    uint64_t                              submit_index      = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
-    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+    uint64_t submit_index = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
     if (auto event_sink = application_->GetReplayEventSink())
     {
         submit_index = event_sink->QueueSubmitBegin(queue_info->capture_id);
@@ -4391,9 +4390,16 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         }
     }
 
+    // The result to report to the event sink might be different from the
+    // result of the actual QueueSubmit call if synchronization is enabled.
+    VkResult                              event_result      = result;
+    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
-        GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        event_result      = GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
     if (screenshot_handler_ != nullptr)
@@ -4443,7 +4449,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 
     if (auto event_sink = application_->GetReplayEventSink())
     {
-        event_sink->QueueSubmitEnd(submit_index, queue_info->capture_id, result, completion_source);
+        event_sink->QueueSubmitEnd(submit_index, queue_info->capture_id, event_result, completion_source);
     }
 
     return result;
@@ -4523,8 +4529,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     executor.InjectBefore(std::move(plan), pSubmits->GetSpan());
 
-    uint64_t                              submit_index      = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
-    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+    uint64_t submit_index = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
     if (auto event_sink = application_->GetReplayEventSink())
     {
         submit_index = event_sink->QueueSubmitBegin(queue_info->capture_id);
@@ -4637,9 +4642,16 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         }
     }
 
+    // The result to report to the event sink might be different from the
+    // result of the actual QueueSubmit call if synchronization is enabled.
+    VkResult                              event_result      = result;
+    GfxrReplayQueueSubmitCompletionSource completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN;
+
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
-        GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+        event_result      = GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        completion_source = GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE;
     }
 
     // Check whether any of the submitted command buffers are frame boundaries.
@@ -4679,7 +4691,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     if (auto event_sink = application_->GetReplayEventSink())
     {
-        event_sink->QueueSubmitEnd(submit_index, queue_info->capture_id, result, completion_source);
+        event_sink->QueueSubmitEnd(submit_index, queue_info->capture_id, event_result, completion_source);
     }
 
     return result;

@@ -51,8 +51,7 @@ typedef enum GfxrReplayPluginResult : uint32_t
 typedef enum GfxrReplayQueueSubmitCompletionSource : uint32_t
 {
     GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN  = 1,
-    GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_ORIGINAL_FENCE = 2,
-    GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_INJECTED_FENCE = 3,
+    GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_QUEUE_IDLE = 2,
 } GfxrReplayQueueSubmitCompletionSource;
 
 typedef struct GfxrReplayPluginCreateInfo
