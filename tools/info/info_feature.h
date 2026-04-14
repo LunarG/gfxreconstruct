@@ -53,7 +53,6 @@ class InfoFeature
     virtual bool        DesiresSingleLineFrameOutput() const { return false; }
 
     // A few "setter" style methods
-    virtual void SetFrameMarkerUsage(bool found) { uses_frame_markers_ = found; }
     virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
 
     // API-specific command-line methods (default is do nothing and return true if required)
@@ -63,7 +62,7 @@ class InfoFeature
         GFXRECON_UNREFERENCED_PARAMETER(arguments);
     }
     virtual std::string GetCommandLineUsage() { return ""; }
-    virtual bool        CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser)
+    virtual bool        CheckCommandLine(util::ArgumentParser* arg_parser)
     {
         GFXRECON_UNREFERENCED_PARAMETER(arg_parser);
         return true;
@@ -71,7 +70,11 @@ class InfoFeature
 
     // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    virtual void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) = 0;
+    void RegisterDecodeComponents(decode::FileProcessor* file_processor)
+    {
+        file_processor_ = file_processor;
+        RegisterInternalDecodeComponents(file_processor);
+    }
 
     // Indicates that this API generator requires an API-specific output
     bool RestrictingOutput() { return restricting_output_; }
@@ -81,9 +84,11 @@ class InfoFeature
     virtual nlohmann::json GenerateJson() = 0;
 
   protected:
-    bool        uses_frame_markers_{ false };
-    std::string driver_info_;
-    bool        restricting_output_{ false };
+    virtual void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) = 0;
+
+    decode::FileProcessor* file_processor_{ nullptr };
+    std::string            driver_info_;
+    bool                   restricting_output_{ false };
 };
 
 GFXRECON_END_NAMESPACE(info)

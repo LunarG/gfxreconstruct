@@ -625,7 +625,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
 
         for (auto& feature : g_info_features)
         {
-            feature->RegisterDecodeComponents(file_processor);
+            feature->RegisterDecodeComponents(&file_processor);
         }
 
         file_processor.ProcessAllFrames();

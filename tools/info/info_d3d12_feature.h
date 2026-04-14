@@ -38,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(info)
 class InfoD3d12Feature : public InfoFeature
 {
   public:
-    InfoD3d12Feature() : dx12_detection_consumer_(gfxrecon::decode::Dx12DetectionConsumer::kNoBlockLimit) {}
+    InfoD3d12Feature() : dx12_detection_consumer_(decode::Dx12DetectionConsumer::kNoBlockLimit) {}
     virtual ~InfoD3d12Feature() = default;
 
     // Simple "getter" style methods
@@ -50,18 +50,19 @@ class InfoD3d12Feature : public InfoFeature
     // API-specific command-line methods (default is do nothing and return true if required)
     void        UpdateValidCommandLineOptionsArgs(std::string& options, std::string& arguments) override;
     std::string GetCommandLineUsage() override;
-    bool        CheckCommandLine(gfxrecon::util::ArgumentParser* arg_parser) override;
-
-    // Method to register this feature's decoder elements with the containers
-    // FileProcessor
-    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
+    bool        CheckCommandLine(util::ArgumentParser* arg_parser) override;
 
     // Output methods
     std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
+  protected:
+    // Method to register this feature's decoder elements with the containers
+    // FileProcessor
+    void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) override;
+
   private:
-    std::string AdapterTypeToString(gfxrecon::format::AdapterType type);
+    std::string AdapterTypeToString(format::AdapterType type);
     std::string GetDriverInfoString();
 
     std::string GetEnumGpuIndicesText();
@@ -76,10 +77,10 @@ class InfoD3d12Feature : public InfoFeature
     nlohmann::json GetSwapchainInfoJson();
     nlohmann::json GetDxrEiInfoJson();
 
-    bool                                    output_enum_gpu_indices_{ false };
-    gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer_;
-    gfxrecon::decode::Dx12StatsConsumer     dx12_consumer_;
-    gfxrecon::decode::Dx12Decoder           dx12_decoder_;
+    bool                          output_enum_gpu_indices_{ false };
+    decode::Dx12DetectionConsumer dx12_detection_consumer_;
+    decode::Dx12StatsConsumer     dx12_consumer_;
+    decode::Dx12Decoder           dx12_decoder_;
 };
 
 GFXRECON_END_NAMESPACE(info)

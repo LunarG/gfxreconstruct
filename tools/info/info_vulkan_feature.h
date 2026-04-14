@@ -35,7 +35,7 @@ GFXRECON_BEGIN_NAMESPACE(info)
 class InfoVulkanFeature : public InfoFeature
 {
   public:
-    InfoVulkanFeature() : vulkan_detection_consumer_(gfxrecon::decode::VulkanDetectionConsumer::kNoBlockLimit) {}
+    InfoVulkanFeature() : vulkan_detection_consumer_(decode::VulkanDetectionConsumer::kNoBlockLimit) {}
     virtual ~InfoVulkanFeature() = default;
 
     // Simple "getter" style methods
@@ -44,16 +44,17 @@ class InfoVulkanFeature : public InfoFeature
     std::string CompiledHeaderVersionString() const override;
     bool        DesiresSingleLineFrameOutput() const override { return true; }
 
-    // Method to register this feature's decoder elements with the containers
-    // FileProcessor
-    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
-
     // Output methods
     std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
     // Frame-specific methods
     uint32_t GetFrameStart() const override;
+
+  protected:
+    // Method to register this feature's decoder elements with the containers
+    // FileProcessor
+    void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) override;
 
   private:
     nlohmann::json GetDeviceMemoryStatsJson(uint64_t alloc_count,
@@ -65,9 +66,9 @@ class InfoVulkanFeature : public InfoFeature
     std::string    GetDeviceTypeString(VkPhysicalDeviceType device_type);
     std::string    GetVersionString(uint32_t api_version);
 
-    gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer_;
-    gfxrecon::decode::VulkanStatsConsumer     vulkan_stats_consumer_;
-    gfxrecon::decode::VulkanDecoder           vulkan_decoder_;
+    decode::VulkanDetectionConsumer vulkan_detection_consumer_;
+    decode::VulkanStatsConsumer     vulkan_stats_consumer_;
+    decode::VulkanDecoder           vulkan_decoder_;
 };
 
 GFXRECON_END_NAMESPACE(info)

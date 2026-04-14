@@ -40,11 +40,11 @@ std::string InfoOpenXrFeature::CompiledHeaderVersionString() const
            std::to_string(XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
 }
 
-void InfoOpenXrFeature::RegisterDecodeComponents(decode::FileProcessor& file_processor)
+void InfoOpenXrFeature::RegisterInternalDecodeComponents(decode::FileProcessor* file_processor)
 {
     openxr_decoder_.AddConsumer(&openxr_detection_consumer_);
     openxr_decoder_.AddConsumer(&openxr_stats_consumer_);
-    file_processor.AddDecoder(&openxr_decoder_);
+    file_processor->AddDecoder(&openxr_decoder_);
 }
 
 std::string InfoOpenXrFeature::GetVersionString(XrVersion api_version)

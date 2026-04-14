@@ -71,25 +71,24 @@ bool InfoD3d12Feature::CheckCommandLine(util::ArgumentParser* arg_parser)
     return true;
 }
 
-void InfoD3d12Feature::RegisterDecodeComponents(decode::FileProcessor& file_processor)
+void InfoD3d12Feature::RegisterInternalDecodeComponents(decode::FileProcessor* file_processor)
 {
     dx12_decoder_.AddConsumer(&dx12_detection_consumer_);
     dx12_decoder_.AddConsumer(&dx12_consumer_);
-    file_processor.AddDecoder(&dx12_decoder_);
+    file_processor->AddDecoder(&dx12_decoder_);
 }
 
 std::string InfoD3d12Feature::GetEnumGpuIndicesText()
 {
-    gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1   = nullptr;
-    std::string                                   return_val = "";
+    graphics::dx12::IDXGIFactory1ComPtr factory1   = nullptr;
+    std::string                         return_val = "";
 
     HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
     if (SUCCEEDED(result))
     {
-        gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
-        gfxrecon::graphics::dx12::TrackAdapters(
-            result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
+        graphics::dx12::ActiveAdapterMap adapters{};
+        graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1.GetInterfacePtr()), adapters);
 
         return_val = "GPU index\tGPU name\tSubSys ID\n";
         for (size_t index = 0; index < adapters.size(); ++index)
@@ -98,8 +97,7 @@ std::string InfoD3d12Feature::GetEnumGpuIndicesText()
             {
                 if (index == adapter.second.adapter_idx)
                 {
-                    std::string replay_adapter_str =
-                        gfxrecon::util::WCharArrayToString(adapter.second.internal_desc.Description);
+                    std::string replay_adapter_str = util::WCharArrayToString(adapter.second.internal_desc.Description);
 
                     return_val += util::to_hex_fixed_width<uint32_t>(adapter.second.adapter_idx, false, false) + "\t" +
                                   replay_adapter_str + "\t" + std::to_string(adapter.second.internal_desc.SubSysId) +
@@ -360,7 +358,7 @@ std::string InfoD3d12Feature::GenerateText()
     }
     else
     {
-        if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
+        if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor->UsesFrameMarkers() == false)
         {
             return_val += "\tTest present count: " + std::to_string(dx12_consumer_.GetDXGITestPresentCount()) + "\n";
         }
@@ -378,7 +376,7 @@ nlohmann::json InfoD3d12Feature::GenerateJson()
 {
     nlohmann::json d3d12_json;
 
-    if (dx12_consumer_.GetDXGITestPresentCount() > 0 && uses_frame_markers_ == false)
+    if (dx12_consumer_.GetDXGITestPresentCount() > 0 && file_processor->UsesFrameMarkers() == false)
     {
         d3d12_json["total-present-count"] = dx12_consumer_.GetDXGITestPresentCount();
     }

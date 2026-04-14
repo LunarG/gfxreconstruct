@@ -45,20 +45,21 @@ class InfoOpenXrFeature : public InfoFeature
     bool        WasDetected() override { return openxr_detection_consumer_.WasOpenXrAPIDetected(); }
     std::string CompiledHeaderVersionString() const override;
 
-    // Method to register this feature's decoder elements with the containers
-    // FileProcessor
-    void RegisterDecodeComponents(gfxrecon::decode::FileProcessor& file_processor) override;
-
     // Output methods
     std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
+  protected:
+    // Method to register this feature's decoder elements with the containers
+    // FileProcessor
+    void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) override;
+
   private:
     std::string GetVersionString(XrVersion api_version);
 
-    gfxrecon::decode::OpenXrDetectionConsumer openxr_detection_consumer_;
-    gfxrecon::decode::OpenXrStatsConsumer     openxr_stats_consumer_;
-    gfxrecon::decode::OpenXrDecoder           openxr_decoder_;
+    decode::OpenXrDetectionConsumer openxr_detection_consumer_;
+    decode::OpenXrStatsConsumer     openxr_stats_consumer_;
+    decode::OpenXrDecoder           openxr_decoder_;
 };
 
 GFXRECON_END_NAMESPACE(info)
