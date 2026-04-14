@@ -127,5 +127,65 @@ void ReplayEventSink::FrameEnd()
     last_submit_index_  = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
 }
 
+PluginReplayEventSink::PluginReplayEventSink(util::platform::LibraryHandle library,
+                                             GfxrReplayPluginV1*           plugin,
+                                             CloseLibraryFunc              close_library) :
+    library_(library),
+    plugin_(plugin), close_library_(close_library), disabled_(false)
+{
+    GFXRECON_ASSERT(library != nullptr);
+    GFXRECON_ASSERT(plugin != nullptr);
+    GFXRECON_ASSERT(plugin->on_event != nullptr);
+    GFXRECON_ASSERT(close_library != nullptr);
+}
+
+PluginReplayEventSink::~PluginReplayEventSink()
+{
+    if (plugin_ != nullptr)
+    {
+        plugin_->destroy(plugin_);
+    }
+    if (library_ != nullptr)
+    {
+        close_library_(library_);
+    }
+}
+
+void PluginReplayEventSink::EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitFrameBegin(const GfxrReplayFrameBeginEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::EmitFrameEnd(const GfxrReplayFrameEndEvent& event)
+{
+    Forward(event.header);
+}
+
+void PluginReplayEventSink::Forward(const GfxrReplayEventHeader& event)
+{
+    if (disabled_)
+    {
+        return;
+    }
+
+    GfxrReplayPluginResult result = plugin_->on_event(plugin_, &event);
+    if (result != GFXR_REPLAY_PLUGIN_RESULT_OK)
+    {
+        GFXRECON_LOG_ERROR("Plugin event handler returned error result %u for event type %u", result, event.type);
+        GFXRECON_LOG_WARNING("Disabling plugin due to error result");
+        disabled_ = true;
+    }
+}
+
 GFXRECON_END_NAMESPACE(plugin)
 GFXRECON_END_NAMESPACE(gfxrecon)

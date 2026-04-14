@@ -73,6 +73,31 @@ class NullReplayEventSink final : public ReplayEventSink
     void EmitFrameEnd(const GfxrReplayFrameEndEvent&) override {}
 };
 
+class PluginReplayEventSink final : public ReplayEventSink
+{
+  public:
+    using CloseLibraryFunc = void (*)(util::platform::LibraryHandle library);
+
+    PluginReplayEventSink(util::platform::LibraryHandle library,
+                          GfxrReplayPluginV1*           plugin,
+                          CloseLibraryFunc              close_library = util::platform::CloseLibrary);
+    ~PluginReplayEventSink();
+
+  protected:
+    void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override;
+    void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override;
+    void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override;
+    void EmitFrameEnd(const GfxrReplayFrameEndEvent& event) override;
+
+  private:
+    void Forward(const GfxrReplayEventHeader& event);
+
+    bool                          disabled_      = false;
+    util::platform::LibraryHandle library_       = nullptr;
+    GfxrReplayPluginV1*           plugin_        = nullptr;
+    CloseLibraryFunc              close_library_ = nullptr;
+};
+
 GFXRECON_END_NAMESPACE(plugin)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

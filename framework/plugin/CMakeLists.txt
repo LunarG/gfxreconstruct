@@ -39,7 +39,9 @@ set(GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME gfxrecon_replay_plugin_loader)
 add_library(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
     STATIC
         ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.h)
+        ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.h
+        ${CMAKE_CURRENT_LIST_DIR}/replay_event_plugin_loader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/replay_event_plugin_loader.h)
 target_include_directories(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/../)
