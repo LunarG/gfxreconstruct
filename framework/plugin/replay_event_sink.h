@@ -24,6 +24,7 @@
 #define GFXRECON_PLUGIN_REPLAY_EVENT_SINK_H
 
 #include <util/defines.h>
+#include <util/platform.h>
 #include <gfxr/replay_event_plugin.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -69,6 +70,26 @@ class NullReplayEventSink final : public ReplayEventSink
     void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent&) override {}
     void EmitFrameBegin(const GfxrReplayFrameBeginEvent&) override {}
     void EmitFrameEnd(const GfxrReplayFrameEndEvent&) override {}
+};
+
+class PluginReplayEventSink final : public ReplayEventSink
+{
+  public:
+    PluginReplayEventSink(util::platform::LibraryHandle library, GfxrReplayPluginV1* plugin);
+    ~PluginReplayEventSink();
+
+  protected:
+    void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override;
+    void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override;
+    void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override;
+    void EmitFrameEnd(const GfxrReplayFrameEndEvent& event) override;
+
+  private:
+    void Forward(const GfxrReplayEventHeader& event);
+
+    bool                          disabled_ = false;
+    util::platform::LibraryHandle library_  = nullptr;
+    GfxrReplayPluginV1*           plugin_   = nullptr;
 };
 
 GFXRECON_END_NAMESPACE(plugin)
