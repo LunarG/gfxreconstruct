@@ -40,26 +40,27 @@ class FrameLoopInfo
     {}
 
     /// Expects a 1-based frame number.
-    void SetCurrentFrameNumber(uint32_t frame_number) { current_frame_number_ = frame_number; }
+    /// Returns true if the passed frame number matches the loop frame index.
+    bool AtLoopFrame(uint64_t frame_number) const { return frame_number == loop_frame_idx_; }
 
-    /// Returns true if the current frame number matches the loop frame index.
-    bool AtLoopFrame() const { return current_frame_number_ == loop_frame_idx_; }
+    /// Returns true if frame looping should be initialized.
+    bool ShouldStartFrameLooping(uint64_t frame_number) const { return AtLoopFrame(frame_number) && !IsLooping(); }
 
-    /// Returns true if this is the first iteration of the loop frame.
-    bool IsFirstIteration() const { return AtLoopFrame() && !IsLooping(); }
-
-    /// Returns true if currently looping on the loop frame, meaning that the loop frame
-    /// has already been played at least once and we are currently replaying it again.
+    /// Returns true (for application use) if looping has started
     bool IsLooping() const { return is_looping_; }
 
+    /// Returns true (for the consumer) if this is a repetition the loop frame, meaning that the loop frame
+    /// has already been played at least once and we are currently replaying it again.
+    bool IsRepetition() const { return is_repetition_; }
+
     void     SetLooping(bool looping) { is_looping_ = looping; }
-    uint32_t GetLoopFrameIdx() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }
 
     /// Decrements the number of loop iterations remaining.
     /// If the number of iterations is infinite, this has no effect.
     void DecrementLoopIterations()
     {
+        is_repetition_ = true;
         if (loop_iterations_ != INFINITE_ITERATIONS)
         {
             --loop_iterations_;
@@ -67,8 +68,8 @@ class FrameLoopInfo
     }
 
   private:
-    uint32_t current_frame_number_{ 0 };
     bool     is_looping_{ false };
+    bool     is_repetition_{ false };
     uint32_t loop_frame_idx_{ 0 };
     uint32_t loop_iterations_{ INFINITE_ITERATIONS };
 };
