@@ -25,7 +25,7 @@
 #include <util/date_time.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(graphics)
+GFXRECON_BEGIN_NAMESPACE(plugin)
 
 static size_t GetSizeOfStruct(GfxrReplayEventType type)
 {
@@ -127,5 +127,5 @@ void ReplayEventSink::FrameEnd()
     last_submit_index_  = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
 }
 
-GFXRECON_END_NAMESPACE(graphics)
+GFXRECON_END_NAMESPACE(plugin)
 GFXRECON_END_NAMESPACE(gfxrecon)

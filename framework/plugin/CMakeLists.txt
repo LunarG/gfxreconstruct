@@ -20,6 +20,7 @@
 # IN THE SOFTWARE.
 ###############################################################################
 
+# Interface
 set(GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME gfxrecon_replay_plugin_abi)
 set(GFXR_REPLAY_PLUGIN_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/public)
 set(GFXR_REPLAY_PLUGIN_PUBLIC_HEADER ${GFXR_REPLAY_PLUGIN_INCLUDE_DIR}/gfxr/replay_event_plugin.h)
@@ -33,13 +34,56 @@ target_sources(${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME}
     INTERFACE
         ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER})
 
+# Sink
+set(GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME gfxrecon_replay_plugin_loader)
+add_library(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
+    STATIC
+        ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.h)
+target_include_directories(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/../)
+target_link_libraries(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
+    PUBLIC
+        ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME}
+    PRIVATE
+        gfxrecon_util)
+
+# Tests
+if(${RUN_TESTS})
+    set(TEST_TARGET_NAME gfxrecon_replay_plugin_loader_test)
+    add_executable(${TEST_TARGET_NAME} "")
+    target_sources(${TEST_TARGET_NAME}
+        PRIVATE
+            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/../../tools/platform_debug_helper.cpp)
+    target_link_libraries(${TEST_TARGET_NAME}
+        PUBLIC
+            ${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME} vulkan_registry)
+    if(MSVC)
+        # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+        # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            target_link_options(${TEST_TARGET_NAME}
+                PUBLIC
+                    "LINKER:/Include:_gfxrecon_disable_popup_result")
+        else()
+            target_link_options(${TEST_TARGET_NAME}
+                PUBLIC
+                    "LINKER:/Include:gfxrecon_disable_popup_result")
+        endif()
+    endif()
+    common_build_directives(${TEST_TARGET_NAME})
+    common_test_directives(${TEST_TARGET_NAME})
+endif()
+
+# Sample
 set(TARGET_NAME gfxrecon_print_replay_plugin)
-add_library(${TARGET_NAME} MODULE
+add_library(${TARGET_NAME}
+    MODULE
         ${CMAKE_CURRENT_LIST_DIR}/sample/replay_event_plugin.cpp)
 target_link_libraries(${TARGET_NAME}
     PRIVATE
         ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME})
 common_build_directives(${TARGET_NAME})
-
-install(FILES ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gfxr)
+install(FILES ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gfxr)

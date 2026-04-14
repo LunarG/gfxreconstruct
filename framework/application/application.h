@@ -32,7 +32,7 @@
 #include "util/date_time.h"
 #include "graphics/fps_info.h"
 #include "graphics/frame_loop_info.h"
-#include "graphics/replay_event_sink.h"
+#include "plugin/replay_event_sink.h"
 
 #include <memory>
 #include <string>
@@ -100,7 +100,7 @@ class Application final
         return GFXRECON_NARROWING_CAST(uint32_t, file_processor_->GetCurrentFrameNumber());
     }
 
-    graphics::ReplayEventSink* GetReplayEventSink() const
+    plugin::ReplayEventSink* GetReplayEventSink() const
     {
         return replay_event_sink_.get();
     }
@@ -125,7 +125,7 @@ class Application final
     graphics::FpsInfo*                                           fps_info_;          ///< A optional FPS info object that logs the FPS across a configured framerange.
                                                                                      ///< capture file data.
 
-    std::unique_ptr<graphics::ReplayEventSink> replay_event_sink_ = std::make_unique<graphics::NullReplayEventSink>();
+    std::unique_ptr<plugin::ReplayEventSink> replay_event_sink_ = std::make_unique<plugin::NullReplayEventSink>();
     // clang-format on
 };
 

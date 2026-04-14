@@ -20,14 +20,14 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_GRAPHICS_REPLAY_EVENT_SINK_H
-#define GFXRECON_GRAPHICS_REPLAY_EVENT_SINK_H
+#ifndef GFXRECON_PLUGIN_REPLAY_EVENT_SINK_H
+#define GFXRECON_PLUGIN_REPLAY_EVENT_SINK_H
 
 #include <util/defines.h>
 #include <gfxr/replay_event_plugin.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(graphics)
+GFXRECON_BEGIN_NAMESPACE(plugin)
 
 class ReplayEventSink
 {
@@ -71,7 +71,7 @@ class NullReplayEventSink final : public ReplayEventSink
     void EmitFrameEnd(const GfxrReplayFrameEndEvent&) override {}
 };
 
-GFXRECON_END_NAMESPACE(graphics)
+GFXRECON_END_NAMESPACE(plugin)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_GRAPHICS_REPLAY_EVENT_SINK_H
+#endif // GFXRECON_PLUGIN_REPLAY_EVENT_SINK_H
