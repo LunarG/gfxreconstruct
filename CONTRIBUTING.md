@@ -392,7 +392,7 @@ python3 generate_openxr.py
 
 If you are attempting to update support for the DirectX headers or your
 branch has touched Python files related to DirectX code generation,
-you may need to run the Python 3 code generator to regenerate some Vulkan
+you may need to run the Python 3 code generator to regenerate some DirectX
 component sources.
 
 To regenerate generated source for DirectX 12, `cd` to `framework/generated` and run:
