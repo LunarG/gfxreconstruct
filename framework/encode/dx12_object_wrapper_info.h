@@ -318,7 +318,8 @@ struct AccelerationStructureBuildTrackingObjects
         graphics::dx12::ID3D12ResourceComPtr             _resource,
         graphics::dx12::ID3D12CommandAllocatorComPtr     _post_build_copy_cmd_allocator,
         graphics::dx12::ID3D12GraphicsCommandList4ComPtr _post_build_copy_cmd_list) :
-        resource(_resource), post_build_copy_cmd_allocator(_post_build_copy_cmd_allocator),
+        resource(_resource),
+        post_build_copy_cmd_allocator(_post_build_copy_cmd_allocator),
         post_build_copy_cmd_list(_post_build_copy_cmd_list)
     {}
 

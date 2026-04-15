@@ -122,7 +122,7 @@ class Dx12StatsConsumer : public Dx12Consumer
         InsertAdapter(new_adapter, gfxr_cmd_adapters_);
         format::HandleId object_id = graphics::dx12::ExtractAdapterCaptureId(new_adapter.extra_info);
 
-        const int64_t luid = pack_luid(new_adapter);
+        const int64_t luid                                         = pack_luid(new_adapter);
         adapter_submission_mapping_.adapter_to_luid_map[object_id] = luid;
     }
 
