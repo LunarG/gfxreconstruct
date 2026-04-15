@@ -370,7 +370,7 @@ git submodule update
 
 If this results in a submodule update and pulls in a new version of the
 Vulkan Headers at `external/Vulkan-Headers` or your branch has
-touched Python files related to Vulkan code generation, you may need to run the
+touched Python files related to Vulkan or Khronos code generation, you may need to run the
 Python 3 code generator to regenerate some Vulkan component sources.
 
 To regenerate generated source for Vulkan, `cd` to `framework/generated` and run:
@@ -379,9 +379,20 @@ To regenerate generated source for Vulkan, `cd` to `framework/generated` and run
 python3 generate_vulkan.py
 ```
 
+If you are attempting to update support for the OpenXR SDK or your
+branch has touched Python files related to OpenXR or Khronos code generation,
+you may need to run the Python 3 code generator to regenerate some OpenXR
+component sources.
+
+To regenerate generated source for OpenXR, `cd` to `framework/generated` and run:
+
+```bash
+python3 generate_openxr.py
+```
+
 If you are attempting to update support for the DirectX headers or your
 branch has touched Python files related to DirectX code generation,
-you may need to run the Python 3 code generator to regenerate some Vulkan
+you may need to run the Python 3 code generator to regenerate some DirectX
 component sources.
 
 To regenerate generated source for DirectX 12, `cd` to `framework/generated` and run:
