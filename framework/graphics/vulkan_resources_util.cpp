@@ -2918,12 +2918,12 @@ void VulkanResourcesUtil::BlitHelper(VkCommandBuffer command_buffer, const blit_
         blit_region.srcOffsets[1].x = std::max(static_cast<int32_t>(blit_image_params.src_extent.width) >> i, 1);
         blit_region.srcOffsets[1].y = std::max(static_cast<int32_t>(blit_image_params.src_extent.height) >> i, 1);
         blit_region.srcOffsets[1].z = std::max(static_cast<int32_t>(blit_image_params.src_extent.depth) >> i, 1);
-        blit_region.srcSubresource  = { aspectMask, i, 0, blit_image_params.layer_count };
+        blit_region.srcSubresource  = { aspectMask, i, blit_image_params.src_layer, blit_image_params.layer_count };
 
         blit_region.dstOffsets[1].x = std::max(static_cast<int32_t>(blit_image_params.dst_extent.width) >> i, 1);
         blit_region.dstOffsets[1].y = std::max(static_cast<int32_t>(blit_image_params.dst_extent.height) >> i, 1);
         blit_region.dstOffsets[1].z = std::max(static_cast<int32_t>(blit_image_params.dst_extent.depth) >> i, 1);
-        blit_region.dstSubresource  = { aspectMask, i, 0, blit_image_params.layer_count };
+        blit_region.dstSubresource  = { aspectMask, i, blit_image_params.dst_layer, blit_image_params.layer_count };
 
         blit_regions[i] = blit_region;
 
