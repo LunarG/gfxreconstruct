@@ -120,7 +120,7 @@ extern "C"
 {
 #endif
 
-    GfxrReplayPluginV1* GFXR_EXPORT gfxrCreateReplayPluginV1(const GfxrReplayPluginCreateInfo* create_info);
+    GFXR_EXPORT GfxrReplayPluginV1* gfxrCreateReplayPluginV1(const GfxrReplayPluginCreateInfo* create_info);
 
 #ifdef __cplusplus
 }

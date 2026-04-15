@@ -60,7 +60,7 @@ static GfxrReplayPluginV1 plugin = {
     on_event,
 };
 
-GfxrReplayPluginV1* gfxrCreateReplayPluginV1(const GfxrReplayPluginCreateInfo* create_info)
+GFXR_EXPORT GfxrReplayPluginV1* gfxrCreateReplayPluginV1(const GfxrReplayPluginCreateInfo* create_info)
 {
     if (create_info == NULL)
     {
