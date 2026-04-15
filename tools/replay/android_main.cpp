@@ -33,6 +33,7 @@
 #include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
 #include "graphics/frame_loop_info.h"
+#include "plugin/replay_event_plugin_loader.h"
 
 // Includes for recapture
 #include "encode/vulkan_capture_manager.h"
@@ -187,6 +188,13 @@ void android_main(struct android_app* app)
                 {
                     vulkan_replay_consumer =
                         std::make_unique<gfxrecon::decode::VulkanReplayConsumer>(application, replay_options);
+                }
+
+                if (!replay_options.replay_event_plugin_path.empty())
+                {
+                    auto replay_event_sink = gfxrecon::plugin::LoadPlugin(
+                        { replay_options.replay_event_plugin_path, replay_options.replay_event_plugin_params });
+                    application->SetReplayEventSink(std::move(replay_event_sink));
                 }
 
                 gfxrecon::decode::VulkanDecoder vulkan_decoder;

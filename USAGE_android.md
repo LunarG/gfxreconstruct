@@ -797,6 +797,8 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--idle-before-submit]
                           [--serialize-render-passes]
                           [--wait-before-frame MILLISECONDS]
+                          [--replay-event-plugin-path PATH]
+                          [--replay-event-plugin-params PARAMS]
                           [file]
 
 Launch the replay tool.
@@ -1027,6 +1029,14 @@ options:
                         Wait for the specified amount of milliseconds before starting
                         to replay each frame. Default is 0 (no wait). (forwarded to
                         replay tool)
+  --replay-event-plugin-path PATH
+                        Path to a replay event plugin library. If specified, the
+                        plugin will be loaded and used to process replay events.
+                        (forwarded to replay tool)
+  --replay-event-plugin-params PARAMS
+                        Parameters to forward to the replay event plugin. The format
+                        of the parameters is determined by the plugin and is not
+                        interpreted by the replay tool. (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay
