@@ -33,6 +33,7 @@
 
 #define GFXR_REPLAY_PLUGIN_ABI_VERSION 1u
 #define GFXR_REPLAY_INVALID_SUBMIT_INDEX UINT64_MAX
+#define GFXR_REPLAY_PLUGIN_FACTORY_NAME "gfxrCreateReplayPluginV1"
 
 typedef enum GfxrReplayEventType : uint32_t
 {

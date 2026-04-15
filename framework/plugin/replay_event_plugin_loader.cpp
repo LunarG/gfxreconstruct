@@ -20,29 +20,30 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "replay_event_sink.h"
+#include "replay_event_plugin_loader.h"
 
 #include <util/logging.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(plugin)
 
-struct ReplayEventPluginLoadInfo
-{
-    std::string library_path;
-    std::string plugin_params;
-};
-
 static bool IsValidPlugin(const GfxrReplayPluginV1* plugin)
 {
-    return plugin != nullptr &&
-           plugin->abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION &&
-           plugin->struct_size >= sizeof(GfxrReplayPluginV1) &&
-           plugin->destroy != nullptr &&
+    return plugin != nullptr && plugin->abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION &&
+           plugin->struct_size >= sizeof(GfxrReplayPluginV1) && plugin->destroy != nullptr &&
            plugin->on_event != nullptr;
 }
 
 std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& load_info)
+{
+    static ReplayEventPluginLoadOps default_ops = { util::platform::OpenLibrary,
+                                                    util::platform::GetProcAddress,
+                                                    util::platform::CloseLibrary };
+    return LoadPlugin(load_info, default_ops);
+}
+
+std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& load_info,
+                                            const ReplayEventPluginLoadOps&  ops)
 {
     if (load_info.library_path.empty())
     {
@@ -50,38 +51,39 @@ std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& loa
         return nullptr;
     }
 
-    auto library = util::platform::OpenLibrary(load_info.library_path.c_str());
+    auto library = ops.open_library(load_info.library_path.c_str());
     if (library == nullptr)
     {
         GFXRECON_LOG_ERROR("Failed to load plugin library: %s", load_info.library_path.c_str());
         return nullptr;
     }
 
-    auto create_func = reinterpret_cast<PFN_gfxrCreateReplayPluginV1>(
-        util::platform::GetProcAddress(library, "gfxrCreateReplayPluginV1"));
+    auto create_func =
+        reinterpret_cast<PFN_gfxrCreateReplayPluginV1>(ops.get_proc_address(library, GFXR_REPLAY_PLUGIN_FACTORY_NAME));
     if (create_func == nullptr)
     {
         GFXRECON_LOG_ERROR("Failed to get plugin create function: %s", load_info.library_path.c_str());
+        ops.close_library(library);
         return nullptr;
     }
 
     GfxrReplayPluginCreateInfo create_info = {};
-    create_info.abi_version              = GFXR_REPLAY_PLUGIN_ABI_VERSION;
-    create_info.struct_size              = sizeof(GfxrReplayPluginCreateInfo);
-    create_info.plugin_params            = load_info.plugin_params.c_str();
+    create_info.abi_version                = GFXR_REPLAY_PLUGIN_ABI_VERSION;
+    create_info.struct_size                = sizeof(GfxrReplayPluginCreateInfo);
+    create_info.plugin_params              = load_info.plugin_params.c_str();
 
     GfxrReplayPluginV1* plugin = create_func(&create_info);
     if (plugin == nullptr)
     {
         GFXRECON_LOG_ERROR("Failed to create plugin instance: %s", load_info.library_path.c_str());
-        util::platform::CloseLibrary(library);
+        ops.close_library(library);
         return nullptr;
     }
 
     if (!IsValidPlugin(plugin))
     {
         GFXRECON_LOG_ERROR("Invalid plugin instance: %s", load_info.library_path.c_str());
-        util::platform::CloseLibrary(library);
+        ops.close_library(library);
         return nullptr;
     }
 

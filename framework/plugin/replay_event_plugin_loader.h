@@ -28,7 +28,6 @@
 
 #include "replay_event_sink.h"
 
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(plugin)
 
@@ -39,6 +38,16 @@ struct ReplayEventPluginLoadInfo
 };
 
 std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& load_info);
+
+struct ReplayEventPluginLoadOps
+{
+    util::platform::LibraryHandle (*open_library)(const char* library_path);
+    void* (*get_proc_address)(util::platform::LibraryHandle library, const char* symbol_name);
+    void (*close_library)(util::platform::LibraryHandle library);
+};
+
+std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& load_info,
+                                            const ReplayEventPluginLoadOps&  ops);
 
 GFXRECON_END_NAMESPACE(plugin)
 GFXRECON_END_NAMESPACE(gfxrecon)
