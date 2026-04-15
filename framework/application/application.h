@@ -105,6 +105,12 @@ class Application final
         return replay_event_sink_.get();
     }
 
+    void SetReplayEventSink(std::unique_ptr<plugin::ReplayEventSink> replay_event_sink)
+    {
+        replay_event_sink_ =
+            replay_event_sink ? std::move(replay_event_sink) : std::make_unique<plugin::NullReplayEventSink>();
+    }
+
   private:
     decode::PreloadFileProcessor* GetPreloadFileProcessor()
     {

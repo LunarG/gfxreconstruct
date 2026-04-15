@@ -247,6 +247,12 @@ struct VulkanReplayOptions : public ReplayOptions
     /// Serialize submit entries within one vkQueueSubmit/vkQueueSubmit2 call by chaining them with semaphores.
     bool serialize_queue_submissions{ false };
 
+    /// Path to a replay event plugin library to load.
+    std::string replay_event_plugin_path;
+
+    /// Parameters to pass to the replay event plugin.
+    std::string replay_event_plugin_params;
+
     void MaybeWaitBeforeFirstSubmit() const;
     void MaybeWaitBeforeFrame() const;
 };

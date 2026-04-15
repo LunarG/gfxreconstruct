@@ -21,7 +21,7 @@
 ###############################################################################
 
 # Interface
-set(GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME gfxrecon_replay_plugin_abi)
+set(GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME gfxrecon_replay_event_plugin_abi)
 set(GFXR_REPLAY_PLUGIN_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/public)
 set(GFXR_REPLAY_PLUGIN_PUBLIC_HEADER ${GFXR_REPLAY_PLUGIN_INCLUDE_DIR}/gfxr/replay_event_plugin.h)
 
@@ -35,7 +35,7 @@ target_sources(${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME}
         ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER})
 
 # Sink
-set(GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME gfxrecon_replay_plugin_loader)
+set(GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME gfxrecon_replay_event_plugin_loader)
 add_library(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
     STATIC
         ${CMAKE_CURRENT_LIST_DIR}/replay_event_sink.cpp
@@ -53,7 +53,7 @@ target_link_libraries(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
 
 # Tests
 if(${RUN_TESTS})
-    set(TEST_TARGET_NAME gfxrecon_replay_plugin_loader_test)
+    set(TEST_TARGET_NAME gfxrecon_replay_event_plugin_loader_test)
     add_executable(${TEST_TARGET_NAME} "")
     target_sources(${TEST_TARGET_NAME}
         PRIVATE
@@ -87,5 +87,9 @@ add_library(${TARGET_NAME}
 target_link_libraries(${TARGET_NAME}
     PRIVATE
         ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME})
-common_build_directives(${TARGET_NAME})
+
+if(NOT ANDROID)
+    common_build_directives(${TARGET_NAME})
+endif()
+
 install(FILES ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gfxr)

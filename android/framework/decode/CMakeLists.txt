@@ -225,6 +225,7 @@ target_link_libraries(gfxrecon_decode
                       gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
+                      gfxrecon_replay_event_plugin_loader
                       vulkan_registry
                       vulkan_memory_allocator
                       platform_specific

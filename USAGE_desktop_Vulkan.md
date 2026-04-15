@@ -638,6 +638,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--idle-before-submit] [--serialize-render-passes]
                         [--wait-before-frame MILLISECONDS]
                         [--serialize-queue-submissions]
+                        [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
 
 
 Required arguments:
@@ -895,6 +896,14 @@ Optional arguments:
               Serialize submit entries within one `vkQueueSubmit` or
               `vkQueueSubmit2` call by adding semaphores between consecutive
               submits during replay.
+  --replay-event-plugin-path <path>
+              Path to a replay event plugin library. If specified, the
+              plugin will be loaded and used to process replay events.
+              (forwarded to replay tool)
+  --replay-event-plugin-params <params>
+              Parameters to forward to the replay event plugin. The format
+              of the parameters is determined by the plugin and is not
+              interpreted by the replay tool. (forwarded to replay tool)
 ```
 
 ### Frame Warm-Up

@@ -153,6 +153,8 @@ def CreateReplayParser():
     parser.add_argument('--frame-warm-up-load', metavar='LOAD', default=0, help='Specify workload scale factor for a compute dispatch warm-up pass run before each frame replay. Default is 0 (disabled). (forwarded to replay tool)')
     parser.add_argument('--wait-before-frame', metavar='MILLISECONDS', default=0, help='Wait for the specified amount of milliseconds before starting to replay each frame. Default is 0 (no wait). (forwarded to replay tool)')
     parser.add_argument('--serialize-queue-submissions', action='store_true', default=False, help='Serialize submit entries within one vkQueueSubmit or vkQueueSubmit2 call by adding semaphores between consecutive submits during replay. (forwarded to replay tool)')
+    parser.add_argument('--replay-event-plugin-path', metavar='PATH', help='Path to a replay event plugin library. If specified, the plugin will be loaded and used to process replay events. (forwarded to replay tool)')
+    parser.add_argument('--replay-event-plugin-params', metavar='PARAMS', help='Parameters to forward to the replay event plugin. The format of the parameters is determined by the plugin and is not interpreted by the replay tool. (forwarded to replay tool)')
 
     return parser
 
@@ -364,6 +366,14 @@ def MakeExtrasString(args):
     if args.wait_before_frame:
         arg_list.append('--wait-before-frame')
         arg_list.append('{}'.format(args.wait_before_frame))
+
+    if args.replay_event_plugin_path:
+        arg_list.append('--replay-event-plugin-path')
+        arg_list.append('{}'.format(args.replay_event_plugin_path))
+
+    if args.replay_event_plugin_params:
+        arg_list.append('--replay-event-plugin-params')
+        arg_list.append('{}'.format(args.replay_event_plugin_params))
 
     if args.file:
         arg_list.append(args.file)
