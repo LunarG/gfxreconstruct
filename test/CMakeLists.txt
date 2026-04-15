@@ -44,6 +44,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
 
     set(GFXRECON_TESTCASES
         test_cases/ahb.cpp
+        test_cases/debug-utils.cpp
         test_cases/triangle.cpp
         test_cases/multisample-depth.cpp
         test_cases/shader-objects.cpp

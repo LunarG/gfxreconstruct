@@ -89,11 +89,6 @@ class VulkanExportJsonConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportJs
             'VkDeviceAddress',
         }
 
-        # Parameters using this name should be output as handles even though they are uint64_t
-        self.formatAsHandle = {
-            'objectHandle',
-        }
-
         self.queueSubmit = {
             "vkQueueSubmit",
             "vkQueueSubmit2",
@@ -124,16 +119,6 @@ class VulkanExportJsonConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportJs
     def skip_generating_command_json(self, command):
         """Method override"""
         return command in self.customImplementationRequired
-
-    def decode_as_handle(self, value):
-        """Method override
-        Indicates that the given type should be decoded as a handle."""
-        return (
-            (
-                self.is_handle_like(value.base_type)
-                or value.name in self.formatAsHandle
-            )
-        )
 
     def decode_as_hex(self, value):
         """Method override"""

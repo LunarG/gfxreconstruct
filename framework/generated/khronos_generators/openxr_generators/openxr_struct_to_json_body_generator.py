@@ -82,9 +82,6 @@ class OpenXrStructToJsonBodyGenerator(OpenXrBaseGenerator, KhronosStructToJsonBo
 
         self.formatAsHex = {}
 
-        # Fields using this name should be output as handles even though they are uint64_t
-        self.formatAsHandle = {}
-
         # Struct types here do not have decoded fields.
         self.notDecoded = {}
 
@@ -95,16 +92,6 @@ class OpenXrStructToJsonBodyGenerator(OpenXrBaseGenerator, KhronosStructToJsonBo
 
     def get_local_type_var_name(self):
         return 'type'
-
-    def decode_as_handle(self, parent_type, member):
-        """Method indended to be overridden.
-        Indicates that the given type should be decoded as a handle."""
-        return (
-            (
-                self.is_handle_like(member.base_type)
-                or member.name in self.formatAsHandle
-            ) and not (parent_type in self.notDecoded)
-        )
 
     # Method override
     def endFile(self):
