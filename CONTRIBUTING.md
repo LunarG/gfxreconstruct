@@ -381,7 +381,7 @@ python3 generate_vulkan.py
 
 If you are attempting to update support for the OpenXR SDK or your
 branch has touched Python files related to OpenXR or Khronos code generation,
-you may need to run the Python 3 code generator to regenerate some Vulkan
+you may need to run the Python 3 code generator to regenerate some OpenXR
 component sources.
 
 To regenerate generated source for OpenXR, `cd` to `framework/generated` and run:
