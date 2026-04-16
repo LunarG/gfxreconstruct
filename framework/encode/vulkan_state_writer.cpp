@@ -3243,7 +3243,6 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     {
                         snapshot_info.resource_size =
                             resource_util.GetImageResourceSizesOptimal(wrapper->format,
-                                                                       wrapper->image_type,
                                                                        wrapper->extent,
                                                                        wrapper->mip_levels,
                                                                        wrapper->array_layers,

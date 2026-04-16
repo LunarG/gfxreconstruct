@@ -1237,6 +1237,11 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                     copy_region.imageSubresource.baseArrayLayer = 0;
                     copy_region.imageSubresource.layerCount     = image_info->layer_count;
 
+                    const VkDeviceSize copy_alignment =
+                        graphics::GetBufferImageCopyOffsetAlignment(image_info->format, aspect);
+                    VkDeviceSize current_offset = 0;
+                    VkDeviceSize required_size  = 0;
+
                     assert(image_info->level_count == level_sizes.size());
 
                     for (uint32_t i = 0; i < image_info->level_count; ++i)
@@ -1246,8 +1251,47 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                         copy_region.imageExtent.height        = std::max(1u, (image_info->extent.height >> i));
                         copy_region.imageExtent.depth         = std::max(1u, (image_info->extent.depth >> i));
 
+                        // Keep per-mip offsets valid even when level_sizes are tightly packed or
+                        // use non-power-of-two format alignments.
+                        //
+                        // For backward compatibility with older captures, this may be switched to
+                        // contiguous (legacy) offsets below when aligned offsets would exceed payload size.
+                        current_offset           = graphics::AlignBufferOffset(current_offset, copy_alignment);
+                        copy_region.bufferOffset = current_offset;
+
                         copy_regions.push_back(copy_region);
-                        copy_region.bufferOffset += level_sizes[i];
+                        required_size = std::max(required_size, current_offset + level_sizes[i]);
+                        current_offset += level_sizes[i];
+                    }
+
+                    if ((copy_alignment > 1) && (image_info->level_count > 1) && (required_size > data_size))
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "InitImageCommand payload may use legacy capture mip packing incompatible "
+                            "with aligned replay offsets for image (ID = %" PRIu64 ", handle = 0x%" PRIx64
+                            ", format = %s, aspect = 0x%x): payload size = %" PRIu64
+                            ", aligned bytes required = %" PRIu64 ". Falling back to legacy contiguous mip offsets.",
+                            image_id,
+                            image,
+                            util::ToString<VkFormat>(image_info->format).c_str(),
+                            aspect,
+                            data_size,
+                            required_size);
+
+                        copy_regions.clear();
+                        current_offset = 0;
+
+                        for (uint32_t i = 0; i < image_info->level_count; ++i)
+                        {
+                            copy_region.imageSubresource.mipLevel = i;
+                            copy_region.imageExtent.width         = std::max(1u, (image_info->extent.width >> i));
+                            copy_region.imageExtent.height        = std::max(1u, (image_info->extent.height >> i));
+                            copy_region.imageExtent.depth         = std::max(1u, (image_info->extent.depth >> i));
+
+                            copy_region.bufferOffset = current_offset;
+                            copy_regions.push_back(copy_region);
+                            current_offset += level_sizes[i];
+                        }
                     }
                 }
             }
