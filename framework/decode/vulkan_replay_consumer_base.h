@@ -1970,7 +1970,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<VulkanSwapchain>                                         swapchain_;
     std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
-    application::ProcessNameOverrideCallbackFunc                             process_name_callback_{nullptr};
+    application::ProcessNameOverrideCallbackFunc                             process_name_callback_{ nullptr };
 
     VulkanPerDeviceAddressTrackers  _device_address_trackers;
     VulkanPerDeviceAddressReplacers _device_address_replacers;

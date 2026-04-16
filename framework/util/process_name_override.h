@@ -22,7 +22,6 @@
 
 #include "util/defines.h"
 
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 

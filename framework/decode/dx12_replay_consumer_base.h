@@ -65,10 +65,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     virtual ~Dx12ReplayConsumerBase() override;
 
     void SetProcessNameCallback(application::ProcessNameOverrideCallbackFunc callback)
-    { 
+    {
         if (callback != nullptr)
         {
-            process_name_callback_ = callback; 
+            process_name_callback_ = callback;
         }
     }
 
@@ -1248,10 +1248,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void RaiseFatalError(const char* message) const;
 
-    uint64_t GetUniqueProxyWindowId()
-    {
-        return ++unique_proxy_window_id_counter_;
-    }
+    uint64_t GetUniqueProxyWindowId() { return ++unique_proxy_window_id_counter_; }
 
     HRESULT
     CreateSwapChainForHwnd(DxObjectInfo*                           replay_object_info,
@@ -1380,7 +1377,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };
 #endif
-    application::ProcessNameOverrideCallbackFunc          process_name_callback_{ nullptr };
+    application::ProcessNameOverrideCallbackFunc process_name_callback_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

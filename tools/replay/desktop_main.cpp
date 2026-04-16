@@ -133,7 +133,7 @@ int main(int argc, const char** argv)
     }
 
 #if _WIN32
-    if(!arg_parser.IsOptionSet(kDisableProcessNameOverride))
+    if (!arg_parser.IsOptionSet(kDisableProcessNameOverride))
     {
         gfxrecon::util::InitializeProcessNameOverride();
     }
@@ -308,7 +308,7 @@ int main(int argc, const char** argv)
                     [](const char* message) { throw std::runtime_error(message); });
                 dx12_replay_consumer.SetFpsInfo(&fps_info);
 
-#if _WIN32       
+#if _WIN32
                 dx12_replay_consumer.SetProcessNameCallback(gfxrecon::util::ProcessNameOverrideCallback);
 #endif
 

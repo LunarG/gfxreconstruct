@@ -63,8 +63,8 @@ extern "C"
 }
 #endif
 
-constexpr char kOptions[] = 
-    "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--d3d12-resource-removal,--dxr,--dxr-experimental,--disable-process-name-override";
+constexpr char kOptions[] = "-h|--help,--version,--no-debug-popup,--d3d12-pso-removal,--d3d12-resource-removal,--dxr,--"
+                            "dxr-experimental,--disable-process-name-override";
 constexpr char kArguments[] = "--gpu";
 
 constexpr char kD3d12PsoRemoval[]             = "--d3d12-pso-removal";
@@ -286,7 +286,7 @@ int main(int argc, const char** argv)
     try
     {
 #if _WIN32
-        if(!arg_parser.IsOptionSet(kDisableProcessNameOverride))
+        if (!arg_parser.IsOptionSet(kDisableProcessNameOverride))
         {
             gfxrecon::util::InitializeProcessNameOverride();
         }
