@@ -252,7 +252,7 @@ int main(int argc, const char** argv)
             }
 
 #if _WIN32
-            vulkan_replay_consumer.SetProcessNameCallback(gfxrecon::util::ProcessNameOverrideCallback);
+            vulkan_replay_consumer->SetProcessNameCallback(gfxrecon::util::ProcessNameOverrideCallback);
 #endif
 
             ApiReplayOptions  api_replay_options;
