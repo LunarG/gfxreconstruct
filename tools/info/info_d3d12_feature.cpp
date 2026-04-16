@@ -51,9 +51,10 @@ void InfoD3d12Feature::RegisterInternalDecodeComponents(decode::FileProcessor* f
 
 std::string InfoD3d12Feature::GetDriverInfoString()
 {
-    if (!driver_info_.empty())
+    std::string driver_info = info_consumer_->GetDriverDesc();
+    if (!driver_info.empty())
     {
-        return driver_info_;
+        return driver_info;
     }
     else
     {
@@ -63,10 +64,11 @@ std::string InfoD3d12Feature::GetDriverInfoString()
 
 std::string InfoD3d12Feature::GetDriverInfoText()
 {
-    std::string return_val = "\nDriver info:\n";
-    if (driver_info_.length())
+    std::string driver_info = info_consumer_->GetDriverDesc();
+    std::string return_val  = "\nDriver info:\n";
+    if (driver_info.length())
     {
-        return_val += "\t" + driver_info_ + "\n";
+        return_val += "\t" + driver_info + "\n";
     }
     else
     {

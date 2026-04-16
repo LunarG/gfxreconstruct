@@ -573,7 +573,7 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
 
         for (auto& feature : g_info_features)
         {
-            feature->RegisterDecodeComponents(&file_processor);
+            feature->RegisterDecodeComponents(&file_processor, &info_consumer);
         }
 
         file_processor.ProcessAllFrames();
@@ -583,11 +583,9 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
             bool                     force_all_api_output = false;
             bool                     api_found            = false;
             std::vector<std::string> detected_apis;
-            std::string              driver_info = "Driver info not available.";
 
             ApiAgnosticStats api_agnostic_stats = {};
             GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
-            driver_info = info_consumer.GetDriverDesc();
 
             for (auto& feature : g_info_features)
             {
@@ -601,7 +599,6 @@ bool GatherAndPrintAllInfo(const std::string& input_filename, bool output_json)
                 if (feature->WasDetected())
                 {
                     detected_apis.push_back(feature->Label());
-                    feature->SetDriverInfoString(driver_info);
 
                     // Only disable the non-single line output if this is the first
                     // discovered API and it does not want it.  The only API

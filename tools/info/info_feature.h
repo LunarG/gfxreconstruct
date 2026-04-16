@@ -23,6 +23,7 @@
 #ifndef GFXRECON_INFO_FEATURE_H
 #define GFXRECON_INFO_FEATURE_H
 
+#include "decode/info_consumer.h"
 #include "decode/file_processor.h"
 #include "format/format.h"
 #include "util/argument_parser.h"
@@ -52,14 +53,12 @@ class InfoFeature
     virtual uint32_t    GetFrameStart() const { return 0; }
     virtual bool        DesiresSingleLineFrameOutput() const { return false; }
 
-    // A few "setter" style methods
-    virtual void SetDriverInfoString(const std::string& driver_info) { driver_info_ = driver_info; }
-
     // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterDecodeComponents(decode::FileProcessor* file_processor)
+    void RegisterDecodeComponents(decode::FileProcessor* file_processor, const decode::InfoConsumer* info_consumer)
     {
         file_processor_ = file_processor;
+        info_consumer_  = info_consumer;
         RegisterInternalDecodeComponents(file_processor);
     }
 
@@ -70,8 +69,8 @@ class InfoFeature
   protected:
     virtual void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) = 0;
 
-    decode::FileProcessor* file_processor_{ nullptr };
-    std::string            driver_info_;
+    decode::FileProcessor*      file_processor_{ nullptr };
+    const decode::InfoConsumer* info_consumer_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(info)
