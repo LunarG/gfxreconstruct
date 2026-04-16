@@ -29,6 +29,13 @@ target_sources(gfxrecon-convert
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/convert_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/convert_d3d12_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/convert_d3d12_feature.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/convert_openxr_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/convert_openxr_feature.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/convert_vulkan_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/convert_vulkan_feature.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
                     $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
                     $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
