@@ -135,6 +135,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
+                    $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/process_name_override.h>                  
+                    $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_LIST_DIR}/process_name_override.cpp>
 )
 
 
