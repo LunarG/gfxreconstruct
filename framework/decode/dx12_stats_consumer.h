@@ -122,7 +122,7 @@ class Dx12StatsConsumer : public Dx12Consumer
         InsertAdapter(new_adapter, gfxr_cmd_adapters_);
         format::HandleId object_id = graphics::dx12::ExtractAdapterCaptureId(new_adapter.extra_info);
 
-        const int64_t luid = pack_luid(new_adapter);
+        const int64_t luid                                         = pack_luid(new_adapter);
         adapter_submission_mapping_.adapter_to_luid_map[object_id] = luid;
     }
 
@@ -185,10 +185,7 @@ class Dx12StatsConsumer : public Dx12Consumer
         return std::to_string(swapchain_width_) + 'x' + std::to_string(swapchain_height_);
     }
 
-    std::pair<UINT, UINT> GetSwapchainDimensions()
-    {
-        return {swapchain_width_, swapchain_height_};
-    }
+    std::pair<UINT, UINT> GetSwapchainDimensions() { return { swapchain_width_, swapchain_height_ }; }
 
     virtual void Process_IDXGIFactory_CreateSwapChain(const ApiCallInfo&                                  call_info,
                                                       format::HandleId                                    object_id,
