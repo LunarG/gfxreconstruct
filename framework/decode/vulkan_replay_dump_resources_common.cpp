@@ -1067,9 +1067,14 @@ VkResult TemporaryCommandBuffer::SubmitAndDestroy()
     const VkSubmitInfo submit_info = {
         VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &command_buffer, 0, nullptr
     };
-    device_table.QueueSubmit(queue, 1, &submit_info, fence.handle);
+    VkResult res = device_table.QueueSubmit(queue, 1, &submit_info, fence.handle);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("QueueSubmit failed with %s", util::ToString(res).c_str());
+        return res;
+    }
 
-    VkResult res = fence.Wait();
+    res = fence.Wait();
     if (res != VK_SUCCESS)
     {
         return res;
