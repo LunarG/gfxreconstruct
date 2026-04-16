@@ -125,7 +125,7 @@ void FieldToString(std::ostringstream& strStrm,
 std::wstring StringToWideString(const std::string& str)
 {
     std::wstring wstr(str.size(), L'\0');
-    std::size_t converted = std::mbstowcs(&wstr[0], str.c_str(), str.size());
+    std::size_t  converted = std::mbstowcs(&wstr[0], str.c_str(), str.size());
     if (converted != static_cast<std::size_t>(-1))
     {
         wstr.resize(converted);
