@@ -87,7 +87,7 @@ std::unique_ptr<ReplayEventSink> LoadPlugin(const ReplayEventPluginLoadInfo& loa
         return nullptr;
     }
 
-    return std::make_unique<PluginReplayEventSink>(library, plugin);
+    return std::make_unique<PluginReplayEventSink>(library, plugin, ops.close_library);
 }
 
 GFXRECON_END_NAMESPACE(plugin)

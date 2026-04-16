@@ -75,7 +75,11 @@ class NullReplayEventSink final : public ReplayEventSink
 class PluginReplayEventSink final : public ReplayEventSink
 {
   public:
-    PluginReplayEventSink(util::platform::LibraryHandle library, GfxrReplayPluginV1* plugin);
+    using CloseLibraryFunc = void (*)(util::platform::LibraryHandle library);
+
+    PluginReplayEventSink(util::platform::LibraryHandle library,
+                          GfxrReplayPluginV1*           plugin,
+                          CloseLibraryFunc              close_library = util::platform::CloseLibrary);
     ~PluginReplayEventSink();
 
   protected:
@@ -87,9 +91,10 @@ class PluginReplayEventSink final : public ReplayEventSink
   private:
     void Forward(const GfxrReplayEventHeader& event);
 
-    bool                          disabled_ = false;
-    util::platform::LibraryHandle library_  = nullptr;
-    GfxrReplayPluginV1*           plugin_   = nullptr;
+    bool                          disabled_      = false;
+    util::platform::LibraryHandle library_       = nullptr;
+    GfxrReplayPluginV1*           plugin_        = nullptr;
+    CloseLibraryFunc              close_library_ = nullptr;
 };
 
 GFXRECON_END_NAMESPACE(plugin)

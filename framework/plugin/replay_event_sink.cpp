@@ -127,12 +127,16 @@ void ReplayEventSink::FrameEnd()
     last_submit_index_  = GFXR_REPLAY_INVALID_SUBMIT_INDEX;
 }
 
-PluginReplayEventSink::PluginReplayEventSink(util::platform::LibraryHandle library, GfxrReplayPluginV1* plugin) :
-    library_(library), plugin_(plugin), disabled_(false)
+PluginReplayEventSink::PluginReplayEventSink(util::platform::LibraryHandle library,
+                                             GfxrReplayPluginV1*           plugin,
+                                             CloseLibraryFunc              close_library) :
+    library_(library),
+    plugin_(plugin), close_library_(close_library), disabled_(false)
 {
     GFXRECON_ASSERT(library != nullptr);
     GFXRECON_ASSERT(plugin != nullptr);
     GFXRECON_ASSERT(plugin->on_event != nullptr);
+    GFXRECON_ASSERT(close_library != nullptr);
 }
 
 PluginReplayEventSink::~PluginReplayEventSink()
@@ -143,7 +147,7 @@ PluginReplayEventSink::~PluginReplayEventSink()
     }
     if (library_ != nullptr)
     {
-        util::platform::CloseLibrary(library_);
+        close_library_(library_);
     }
 }
 
