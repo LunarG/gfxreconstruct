@@ -937,11 +937,9 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
 
     for (uint32_t m = 0; m < mip_levels; ++m)
     {
-        const VkExtent3D mip_extent = {
-            std::max(1u, (extent.width >> m)),
-            std::max(1u, (extent.height >> m)),
-            std::max(1u, (extent.depth >> m))
-        };
+        const VkExtent3D mip_extent = { std::max(1u, (extent.width >> m)),
+                                        std::max(1u, (extent.height >> m)),
+                                        std::max(1u, (extent.depth >> m)) };
 
         // Compute exact bytes copied for one tightly-packed region.
         VkImageToMemoryCopy copy_region{};
