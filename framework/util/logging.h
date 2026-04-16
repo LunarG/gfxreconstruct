@@ -31,6 +31,18 @@
 #include <array>
 #include <memory>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <dbghelp.h>
+#pragma comment(lib, "dbghelp.lib")
+
+// Linux, Android, Mac
+#else
+#include <unwind.h>
+#include <dlfcn.h>
+#include <cxxabi.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -202,6 +214,121 @@ class Log
 
     static LoggingSeverity GetSeverity() { return settings_.min_severity; }
 
+#ifdef _WIN32
+    static void PrintStackTrace(const size_t length_frames)
+    {
+        const size_t       skipped_frames = 1; // Skip the PrintStackTrace frame itself
+        std::vector<void*> stack(length_frames, 0);
+
+        HANDLE process = GetCurrentProcess();
+        SymInitialize(process, NULL, TRUE);
+        WORD frames = CaptureStackBackTrace(skipped_frames, length_frames, stack.data(), NULL);
+
+        const uint32_t       max_name_len = 256;
+        std::vector<uint8_t> symbol_buffer(sizeof(SYMBOL_INFO) + max_name_len * sizeof(char), 0);
+        auto                 symbol = reinterpret_cast<SYMBOL_INFO*>(symbol_buffer.data());
+        symbol->MaxNameLen          = max_name_len;
+        symbol->SizeOfStruct        = sizeof(SYMBOL_INFO);
+
+        IMAGEHLP_MODULE64 module_info = {};
+        module_info.SizeOfStruct      = sizeof(IMAGEHLP_MODULE64);
+
+        gfxrecon::util::Log::LogMessage(
+            gfxrecon::util::LoggingSeverity::kInfo,
+            __FILE__,
+            __FUNCTION__,
+            GFXRECON_STR(__LINE__),
+            "--- Stack Trace --- (Only print stack traces locally; avoid including them in the dev branch. Release "
+            "Mode mightn't be able to get readable function names.)");
+
+        for (auto i = 0; i < frames; i++)
+        {
+            std::string func_name = "[Unknown Symbol]";
+
+            if (SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol))
+            {
+                func_name = symbol->Name;
+            }
+
+            gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kInfo,
+                                            __FILE__,
+                                            __FUNCTION__,
+                                            GFXRECON_STR(__LINE__),
+                                            "%d: %s - %p",
+                                            i,
+                                            func_name.c_str(),
+                                            stack[i]);
+        }
+    }
+#else // Linux, Android, Mac
+    struct BacktraceState
+    {
+        std::vector<void*> frames;
+        uint32_t           max_count;
+    };
+
+    static _Unwind_Reason_Code UnwindCallback(struct _Unwind_Context* context, void* arg)
+    {
+        BacktraceState* state = static_cast<BacktraceState*>(arg);
+        uintptr_t       pc    = _Unwind_GetIP(context);
+        if (pc)
+        {
+            if (state->frames.size() >= state->max_count)
+            {
+                return _URC_END_OF_STACK;
+            }
+            state->frames.push_back(reinterpret_cast<void*>(pc));
+        }
+        return _URC_NO_REASON;
+    }
+
+    static void PrintStackTrace(const size_t length_frames)
+    {
+        const size_t   skipped_frames = 1; // Skip the PrintStackTrace frame itself
+        BacktraceState state;
+        state.max_count = length_frames + skipped_frames + 1; // +1 to ensure we have space for the null terminator
+
+        _Unwind_Backtrace(UnwindCallback, &state);
+
+        size_t start = std::min(state.frames.size(), skipped_frames);
+        size_t end   = std::min(state.frames.size(), length_frames + skipped_frames);
+
+        gfxrecon::util::Log::LogMessage(
+            gfxrecon::util::LoggingSeverity::kInfo,
+            __FILE__,
+            __FUNCTION__,
+            GFXRECON_STR(__LINE__),
+            "--- Stack Trace --- (Only print stack traces locally; avoid including them in the dev branch. Release "
+            "Mode mightn't be able to get readable function names.)");
+
+        for (size_t i = start; i < end; ++i)
+        {
+            std::string func_name = "[Unknown Symbol]";
+
+            Dl_info info;
+            if (dladdr(state.frames[i], &info))
+            {
+                if (info.dli_sname)
+                {
+                    int                                    status;
+                    std::unique_ptr<char, void (*)(void*)> demangled_name(
+                        abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status), std::free);
+                    func_name = (status == 0) ? demangled_name.get() : info.dli_sname;
+                }
+            }
+
+            gfxrecon::util::Log::LogMessage(gfxrecon::util::LoggingSeverity::kInfo,
+                                            __FILE__,
+                                            __FUNCTION__,
+                                            GFXRECON_STR(__LINE__),
+                                            "%d: %s - %p",
+                                            i - start,
+                                            func_name.c_str(),
+                                            state.frames[i]);
+        }
+    }
+#endif
+
   private:
     static void        UpdateLogManagerComponents(gfxrecon::util::logging::LoggingManager& log_mgr);
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);
@@ -311,6 +438,14 @@ GFXRECON_END_NAMESPACE(gfxrecon)
             log_once = false;        \
         }                            \
     }
+
+// Only print stack traces locally; avoid including them in the dev branch. Release Mode mightn't be able to get
+// readable function names.
+#define GFXRECON_LOG_STACK_TRACE()                \
+    do                                            \
+    {                                             \
+        gfxrecon::util::Log::PrintStackTrace(10); \
+    } while (0)
 
 // clang-format off
 #define GFXRECON_WRITE_CONSOLE_ONCE(message, ...) GFXRECON_LOG_ONCE(GFXRECON_WRITE_CONSOLE(message, ##__VA_ARGS__))
