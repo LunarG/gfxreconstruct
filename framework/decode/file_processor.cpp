@@ -24,6 +24,7 @@
 
 #include "decode/block_buffer.h"
 #include "decode/file_processor.h"
+#include "decode/file_processor_visitors.h"
 #include "format/format_util.h"
 #include "util/logging.h"
 
