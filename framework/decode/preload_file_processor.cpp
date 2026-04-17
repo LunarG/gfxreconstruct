@@ -23,6 +23,7 @@
 
 #include "decode/block_allocator.h"
 #include "decode/preload_file_processor.h"
+#include "decode/file_processor_visitors.h"
 #include "util/logging.h"
 
 #include <memory>

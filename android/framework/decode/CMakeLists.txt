@@ -37,6 +37,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/descriptor_update_template_decoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor_types.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor_visitors.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/preload_file_processor.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/preload_file_processor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.h
