@@ -1090,9 +1090,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                     PointerDecoder<uint8_t>* parameters_data,
                                     SIZE_T                   parameters_data_sizeinbytes);
 
-    const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
+    const Dx12ObjectInfoTable& GetObjectInfoTable() const 
+    {
+        return object_info_table_;
+    }
 
-    Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
+    Dx12ObjectInfoTable& GetObjectInfoTable() {           return object_info_table_; }
 
     DxObjectInfo* GetObjectInfo(format::HandleId id)
     {
