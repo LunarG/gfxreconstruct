@@ -1696,6 +1696,10 @@ class KhronosBaseGenerator(OutputGenerator):
             name = noneStr(elem.text)
             name_tail = noneStr(elem.tail)
 
+            # If it is deprecated as unused, don't generate it
+            if 'deprecated' in param.attrib and param.attrib.get('deprecated') == 'unused':
+               continue
+
             # Get type info
             elem = param.find('type')
             base_type = noneStr(elem.text)
