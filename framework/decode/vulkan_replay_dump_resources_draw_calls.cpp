@@ -161,7 +161,7 @@ DrawCallsDumpingContext::DrawCallParams* DrawCallsDumpingContext::InsertNewDrawP
 {
     auto [entry_it, success] = draw_call_params_.insert(
         { index,
-          std::make_unique<DrawCallParams>(
+          std::make_shared<DrawCallParams>(
               DrawCallType::kDraw, vertex_count, instance_count, first_vertex, first_instance) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
@@ -179,7 +179,7 @@ DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
 {
     auto [entry_it, success] = draw_call_params_.insert(
         { index,
-          std::make_unique<DrawCallParams>(
+          std::make_shared<DrawCallParams>(
               DrawCallType::kDrawIndexed, index_count, instance_count, first_index, vertexOffset, first_instance) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
@@ -192,7 +192,7 @@ DrawCallsDumpingContext::DrawCallParams* DrawCallsDumpingContext::InsertNewDrawI
 {
     auto [entry_it, success] = draw_call_params_.insert(
         { index,
-          std::make_unique<DrawCallParams>(DrawCallType::kDrawIndirect, buffer_info, offset, draw_count, stride) });
+          std::make_shared<DrawCallParams>(DrawCallType::kDrawIndirect, buffer_info, offset, draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
 
@@ -204,7 +204,7 @@ DrawCallsDumpingContext::DrawCallParams* DrawCallsDumpingContext::InsertNewDrawI
 {
     auto [entry_it, success] =
         draw_call_params_.insert({ index,
-                                   std::make_unique<DrawCallParams>(
+                                   std::make_shared<DrawCallParams>(
                                        DrawCallType::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
@@ -226,7 +226,7 @@ DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t              
                     drawcall_type == kDrawIndirectCountAMD);
     auto [entry_it, success] = draw_call_params_.insert(
         { index,
-          std::make_unique<DrawCallParams>(
+          std::make_shared<DrawCallParams>(
               drawcall_type, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
@@ -248,7 +248,7 @@ DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t   
                     drawcall_type == kDrawIndexedIndirectCountAMD);
     auto [entry_it, success] = draw_call_params_.insert(
         { index,
-          std::make_unique<DrawCallParams>(
+          std::make_shared<DrawCallParams>(
               drawcall_type, buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride) });
     GFXRECON_ASSERT(success);
     SnapshotState(*entry_it->second);
@@ -3906,9 +3906,9 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
         return n_command_buffers;
     }
 
-    for (auto& execute_commands : secondaries_)
+    for (const auto& execute_commands : secondaries_)
     {
-        for (auto& secondary_context : execute_commands.second)
+        for (const auto& secondary_context : execute_commands.second)
         {
             const size_t secondary_n_command_buffers = secondary_context->RecaclulateCommandBuffers();
             if (!secondary_n_command_buffers)
@@ -3919,7 +3919,7 @@ uint32_t DrawCallsDumpingContext::RecaclulateCommandBuffers()
             n_command_buffers += secondary_n_command_buffers;
 
             // Merge draw call indices into primary
-            std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
+            const std::vector<decode::Index>& secondary_dc_indices = secondary_context->GetDrawCallIndices();
             dc_indices_.reserve(n_command_buffers);
             dc_indices_.insert(dc_indices_.end(), secondary_dc_indices.begin(), secondary_dc_indices.end());
             std::sort(dc_indices_.begin(), dc_indices_.end());
@@ -4024,12 +4024,11 @@ void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& seconda
     // Move secondary draw call parameters to primary's list of draw call params.
     // When DumpDrawCalls is called it's better to have all draw call parameters available in the primary which is
     // submitted.
-    DrawCallParameters& secondary_dc_params = secondary_context.GetDrawCallParameters();
-    for (auto& secondary_dc_param : secondary_dc_params)
+    const DrawCallParameters& secondary_dc_params = secondary_context.GetDrawCallParameters();
+    for (const auto& secondary_dc_param : secondary_dc_params)
     {
         const auto new_entry =
-            draw_call_params_.insert(std::make_pair(secondary_dc_param.first, std::move(secondary_dc_param.second)));
-        GFXRECON_ASSERT(new_entry.second);
+            draw_call_params_.insert(std::make_pair(secondary_dc_param.first, secondary_dc_param.second));
 
         FinalizeCommandBuffer(new_entry.first->second.get());
 
@@ -4039,7 +4038,6 @@ void DrawCallsDumpingContext::UpdateSecondaries(DrawCallsDumpingContext& seconda
             FinalizeCommandBuffer();
         }
     }
-    secondary_dc_params.clear();
 }
 
 void DrawCallsDumpingContext::SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
@@ -4077,18 +4075,17 @@ void DrawCallsDumpingContext::SecondaryUpdateContextFromPrimary(const VulkanPipe
     // Move secondary draw call parameters to primary's list of draw call params.
     // When DumpDrawCalls is called it's better to have all draw call parameters available in the primary which is
     // submitted.
-    for (auto& execute_commands : secondaries_)
+    for (const auto& execute_commands : secondaries_)
     {
-        for (auto& secondary_context : execute_commands.second)
+        for (const auto& secondary_context : execute_commands.second)
         {
-            DrawCallParameters& secondary_dc_params = secondary_context->GetDrawCallParameters();
+            const DrawCallParameters& secondary_dc_params = secondary_context->GetDrawCallParameters();
             for (auto& secondary_dc_param : secondary_dc_params)
             {
-                const auto new_entry = draw_call_params_.insert(
-                    std::make_pair(secondary_dc_param.first, std::move(secondary_dc_param.second)));
+                const auto new_entry =
+                    draw_call_params_.insert(std::make_pair(secondary_dc_param.first, secondary_dc_param.second));
                 GFXRECON_ASSERT(new_entry.second);
             }
-            secondary_dc_params.clear();
         }
     }
 }
