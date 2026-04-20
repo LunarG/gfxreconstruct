@@ -728,7 +728,7 @@ class DrawCallsDumpingContext
 
   private:
     // One entry for each draw call. It is important that this is an ordered map
-    using DrawCallParameters = std::map<uint64_t, std::unique_ptr<DrawCallParams>>;
+    using DrawCallParameters = std::map<uint64_t, std::shared_ptr<DrawCallParams>>;
     DrawCallParameters draw_call_params_;
 
     DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
