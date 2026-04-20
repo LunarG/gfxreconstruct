@@ -2210,7 +2210,7 @@ void DispatchTraceRaysDumpingContext::InsertNewDispatchParameters(uint64_t index
                                                                   uint32_t groupCountZ)
 {
     auto new_entry = dispatch_params_.insert(
-        { index, std::make_unique<DispatchParams>(DispatchTypes::kDispatch, groupCountX, groupCountY, groupCountZ) });
+        { index, std::make_shared<DispatchParams>(DispatchTypes::kDispatch, groupCountX, groupCountY, groupCountZ) });
     assert(new_entry.second);
 
     SnapshotDispatchState(*new_entry.first->second);
@@ -2221,7 +2221,7 @@ void DispatchTraceRaysDumpingContext::InsertNewDispatchParameters(uint64_t      
                                                                   VkDeviceSize            offset)
 {
     auto new_entry = dispatch_params_.insert(
-        { index, std::make_unique<DispatchParams>(DispatchTypes::kDispatchIndirect, buffer_info, offset) });
+        { index, std::make_shared<DispatchParams>(DispatchTypes::kDispatchIndirect, buffer_info, offset) });
     GFXRECON_ASSERT(new_entry.second);
 
     SnapshotDispatchState(*new_entry.first->second);
@@ -2238,7 +2238,7 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysParameters(
     uint32_t                               depth)
 {
     auto new_entry = trace_rays_params_.insert(
-        { index, std::make_unique<TraceRaysParams>(TraceRaysTypes::kTraceRays, width, height, depth) });
+        { index, std::make_shared<TraceRaysParams>(TraceRaysTypes::kTraceRays, width, height, depth) });
     GFXRECON_ASSERT(new_entry.second);
 
     SnapshotTraceRaysState(*new_entry.first->second);
@@ -2253,7 +2253,7 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirectParameters(
     VkDeviceAddress                        indirectDeviceAddress)
 {
     auto new_entry = trace_rays_params_.insert(
-        { index, std::make_unique<TraceRaysParams>(TraceRaysTypes::kTraceRaysIndirect, indirectDeviceAddress) });
+        { index, std::make_shared<TraceRaysParams>(TraceRaysTypes::kTraceRaysIndirect, indirectDeviceAddress) });
     GFXRECON_ASSERT(new_entry.second);
 
     SnapshotTraceRaysState(*new_entry.first->second);
@@ -2263,7 +2263,7 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirect2Parameters(uint
                                                                             VkDeviceAddress indirectDeviceAddress)
 {
     auto new_entry = trace_rays_params_.insert(
-        { index, std::make_unique<TraceRaysParams>(TraceRaysTypes::kTraceRaysIndirect2, indirectDeviceAddress) });
+        { index, std::make_shared<TraceRaysParams>(TraceRaysTypes::kTraceRaysIndirect2, indirectDeviceAddress) });
     GFXRECON_ASSERT(new_entry.second);
 
     SnapshotTraceRaysState(*new_entry.first->second);
@@ -2310,23 +2310,21 @@ void DispatchTraceRaysDumpingContext::UpdateSecondaries()
     {
         for (auto& secondary_context : execute_commands.second)
         {
-            DispatchParameters& secondary_disp_params = secondary_context->GetDispatchParameters();
-            for (auto& secondary_disp_param : secondary_disp_params)
+            const DispatchParameters& secondary_disp_params = secondary_context->GetDispatchParameters();
+            for (const auto& secondary_disp_param : secondary_disp_params)
             {
-                const auto new_entry = dispatch_params_.insert(
-                    std::make_pair(secondary_disp_param.first, std::move(secondary_disp_param.second)));
+                const auto new_entry =
+                    dispatch_params_.insert(std::make_pair(secondary_disp_param.first, secondary_disp_param.second));
                 GFXRECON_ASSERT(new_entry.second);
             }
-            secondary_disp_params.clear();
 
-            TraceRaysParameters& secondary_tr_params = secondary_context->GetTraceRaysParameters();
-            for (auto& secondary_tr_param : secondary_tr_params)
+            const TraceRaysParameters& secondary_tr_params = secondary_context->GetTraceRaysParameters();
+            for (const auto& secondary_tr_param : secondary_tr_params)
             {
-                const auto new_entry = trace_rays_params_.insert(
-                    std::make_pair(secondary_tr_param.first, std::move(secondary_tr_param.second)));
+                const auto new_entry =
+                    trace_rays_params_.insert(std::make_pair(secondary_tr_param.first, secondary_tr_param.second));
                 GFXRECON_ASSERT(new_entry.second);
             }
-            secondary_tr_params.clear();
         }
     }
 }
@@ -2372,23 +2370,21 @@ void DispatchTraceRaysDumpingContext::SecondaryUpdateContextFromPrimary(
     {
         for (auto& secondary_context : execute_commands.second)
         {
-            DispatchParameters& secondary_disp_params = secondary_context->GetDispatchParameters();
-            for (auto& secondary_disp_param : secondary_disp_params)
+            const DispatchParameters& secondary_disp_params = secondary_context->GetDispatchParameters();
+            for (const auto& secondary_disp_param : secondary_disp_params)
             {
-                const auto new_entry = dispatch_params_.insert(
-                    std::make_pair(secondary_disp_param.first, std::move(secondary_disp_param.second)));
+                const auto new_entry =
+                    dispatch_params_.insert(std::make_pair(secondary_disp_param.first, secondary_disp_param.second));
                 GFXRECON_ASSERT(new_entry.second);
             }
-            secondary_disp_params.clear();
 
-            TraceRaysParameters& secondary_tr_params = secondary_context->GetTraceRaysParameters();
-            for (auto& secondary_tr_param : secondary_tr_params)
+            const TraceRaysParameters& secondary_tr_params = secondary_context->GetTraceRaysParameters();
+            for (const auto& secondary_tr_param : secondary_tr_params)
             {
-                const auto new_entry = trace_rays_params_.insert(
-                    std::make_pair(secondary_tr_param.first, std::move(secondary_tr_param.second)));
+                const auto new_entry =
+                    trace_rays_params_.insert(std::make_pair(secondary_tr_param.first, secondary_tr_param.second));
                 GFXRECON_ASSERT(new_entry.second);
             }
-            secondary_tr_params.clear();
         }
     }
 }

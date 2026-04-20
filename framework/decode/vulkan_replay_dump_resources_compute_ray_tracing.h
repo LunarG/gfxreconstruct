@@ -587,13 +587,13 @@ class DispatchTraceRaysDumpingContext
                                            const BoundDescriptorSets& tr_descriptor_sets);
 
     // One entry for each dispatch command
-    using DispatchParameters = std::unordered_map<uint64_t, std::unique_ptr<DispatchParams>>;
+    using DispatchParameters = std::unordered_map<uint64_t, std::shared_ptr<DispatchParams>>;
     DispatchParameters dispatch_params_;
 
     DispatchParameters& GetDispatchParameters() { return dispatch_params_; }
 
     // One entry for each trace rays command
-    using TraceRaysParameters = std::unordered_map<uint64_t, std::unique_ptr<TraceRaysParams>>;
+    using TraceRaysParameters = std::unordered_map<uint64_t, std::shared_ptr<TraceRaysParams>>;
     TraceRaysParameters trace_rays_params_;
 
     TraceRaysParameters& GetTraceRaysParameters() { return trace_rays_params_; }
