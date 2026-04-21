@@ -26,12 +26,19 @@
 #include "util/logging.h"
 
 #include <memory>
+#include "preload_file_processor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 PreloadFileProcessor::PreloadFileProcessor() : working_uncompressed_store_(kWorkingStoreInitialSize) {}
 
+void PreloadFileProcessor::PreloadLoopFrame()
+{
+    PreloadNextFrames(1);
+    loop_replay_      = true;
+    loop_reset_point_ = SkipStateBlocks(current_frame_number_, replay_cursor_);
+}
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {
     size_t expected_count = count;
@@ -106,9 +113,9 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
                     // This is really part of the non-preloaded previous (first) frame,
                     // so immediately replay it to complete that frame
                     block_parser_->GetBlockAllocator().FlushBatch();
-                    ReplayFrameResult replay_result = ReplayOneFrame();
+                    ProcessBlockState replay_result = ReplayOneFrame();
                     ResetPreload();
-                    GFXRECON_ASSERT(replay_result.process_state == ProcessBlockState::kFrameBoundary);
+                    GFXRECON_ASSERT(replay_result == ProcessBlockState::kFrameBoundary);
                 }
                 else
                 {
@@ -182,72 +189,58 @@ bool PreloadFileProcessor::ProcessNextFrame()
         return FileProcessor::ProcessNextFrame();
     }
 
-    ReplayCurrentPreloadedFrame();
-    return AdvancePreloadedFrame();
-}
-
-bool PreloadFileProcessor::AdvanceToNextFrame(ReplayFrameResult replay_result)
-{
-    replay_cursor_ = replay_result.next_frame_cursor;
+    ProcessBlockState process_result = ReplayOneFrame();
 
     const bool at_end = (!replay_cursor_);
+    if (loop_replay_)
+    {
+        // We're resetting the command stream, wait for all referenced resouces
+        // to be non-busy
+        WaitDecodersIdle();
+        replay_cursor_ = loop_reset_point_;
+        // We keep going as long we get the expected result
+        return process_result != ProcessBlockState::kError;
+    }
+
     if (at_end)
     {
-        if (IsFrameBoundary(replay_result.process_state) && IsFrameBoundary(final_process_state_))
+        if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
         {
             // If we reached the end of preloaded frames on a frame boundary, increment the frame number
             current_frame_number_++;
         }
         // Return true only if both the replay and preload are in a continue state
-        return ContinueProcessing(replay_result.process_state) && ContinueProcessing(final_process_state_);
+        return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
     }
 
-    if (IsFrameBoundary(replay_result.process_state))
+    if (IsFrameBoundary(process_result))
     {
         current_frame_number_++;
     }
-
-    return ContinueProcessing(replay_result.process_state);
+    return ContinueProcessing(process_result);
 }
 
-void PreloadFileProcessor::SkipStateBlocks()
+BlockBatch::iterator PreloadFileProcessor::SkipStateBlocks(uint64_t frame_number, BlockBatch::iterator start)
 {
-    GFXRECON_ASSERT(replay_cursor_);
-    for (auto drop_cursor = replay_cursor_; drop_cursor; ++drop_cursor)
+    GFXRECON_ASSERT(start);
+    for (auto drop_cursor = start; drop_cursor; ++drop_cursor)
     {
         ParsedBlock& block = *drop_cursor;
         if (block.Holds<StateEndMarkerArgs>())
         {
             ++drop_cursor;
-            auto blocks_skipped = std::distance(replay_cursor_, drop_cursor);
-            GFXRECON_LOG_INFO("Skipped %" PRIu64 " state blocks from preloaded frame %" PRIu64,
-                              blocks_skipped,
-                              current_frame_number_);
-            replay_cursor_ = drop_cursor;
-            break;
+            auto blocks_skipped = std::distance(start, drop_cursor);
+            GFXRECON_LOG_INFO(
+                "Skipped %" PRIu64 " state blocks from preloaded frame %" PRIu64, blocks_skipped, frame_number);
+            return drop_cursor;
         }
     }
+    return start;
 }
 
-bool PreloadFileProcessor::ReplayCurrentPreloadedFrame()
+FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
 {
     GFXRECON_ASSERT(replay_cursor_);
-    pending_replay_result_ = ReplayOneFrame();
-    return ContinueProcessing(pending_replay_result_->process_state);
-}
-
-bool PreloadFileProcessor::AdvancePreloadedFrame()
-{
-    GFXRECON_ASSERT(pending_replay_result_.has_value());
-    ReplayFrameResult replay_result = *pending_replay_result_;
-    pending_replay_result_.reset();
-    return AdvanceToNextFrame(replay_result);
-}
-
-PreloadFileProcessor::ReplayFrameResult PreloadFileProcessor::ReplayOneFrame()
-{
-    GFXRECON_ASSERT(replay_cursor_);
-    auto current_cursor = replay_cursor_;
 
     BlockParser&    block_parser = GetBlockParser();
     DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
@@ -256,7 +249,7 @@ PreloadFileProcessor::ReplayFrameResult PreloadFileProcessor::ReplayOneFrame()
     ProcessBlockState process_state = ProcessBlockState::kRunning;
     while (process_state == ProcessBlockState::kRunning)
     {
-        ParsedBlock& queued_block = *current_cursor;
+        ParsedBlock& queued_block = *replay_cursor_;
         uint64_t     block_index  = queued_block.GetBlockIndex();
         if (!ContinueDecoding(block_index, true /* check decoder completion */))
         {
@@ -313,9 +306,9 @@ PreloadFileProcessor::ReplayFrameResult PreloadFileProcessor::ReplayOneFrame()
         }
 
         // Advance
-        ++current_cursor;
+        ++replay_cursor_;
 
-        if ((process_state == ProcessBlockState::kRunning) && !current_cursor)
+        if ((process_state == ProcessBlockState::kRunning) && !replay_cursor_)
         {
             // We did not end on a frame boundary, but that's okay if preloading end frame is beyond last complete frame
             // and there is a last incomplete frame, because of interrupt during record
@@ -323,7 +316,7 @@ PreloadFileProcessor::ReplayFrameResult PreloadFileProcessor::ReplayOneFrame()
         }
     }
 
-    return ReplayFrameResult{ process_state, current_cursor };
+    return process_state;
 }
 
 void PreloadFileProcessor::EnqueueBatch(BlockBatch::BatchPtr&& batch)
