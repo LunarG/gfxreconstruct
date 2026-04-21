@@ -51,6 +51,19 @@ target_link_libraries(${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME}
     PRIVATE
         gfxrecon_util)
 
+# Sample
+set(TARGET_NAME gfxrecon_print_replay_plugin)
+add_library(${TARGET_NAME}
+    MODULE
+        ${CMAKE_CURRENT_LIST_DIR}/sample/replay_event_plugin.cpp)
+target_link_libraries(${TARGET_NAME}
+    PRIVATE
+        ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME})
+
+if(NOT ANDROID)
+    common_build_directives(${TARGET_NAME})
+endif()
+
 # Tests
 if(${RUN_TESTS})
     set(TEST_TARGET_NAME gfxrecon_replay_event_plugin_loader_test)
@@ -62,6 +75,9 @@ if(${RUN_TESTS})
     target_link_libraries(${TEST_TARGET_NAME}
         PUBLIC
             ${GFXR_REPLAY_PLUGIN_LOADER_TARGET_NAME} vulkan_registry)
+    target_compile_definitions(${TEST_TARGET_NAME}
+        PRIVATE
+            SAMPLE_PLUGIN_PATH="$<TARGET_FILE:gfxrecon_print_replay_plugin>")
     if(MSVC)
         # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
         # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
@@ -79,17 +95,5 @@ if(${RUN_TESTS})
     common_test_directives(${TEST_TARGET_NAME})
 endif()
 
-# Sample
-set(TARGET_NAME gfxrecon_print_replay_plugin)
-add_library(${TARGET_NAME}
-    MODULE
-        ${CMAKE_CURRENT_LIST_DIR}/sample/replay_event_plugin.cpp)
-target_link_libraries(${TARGET_NAME}
-    PRIVATE
-        ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME})
-
-if(NOT ANDROID)
-    common_build_directives(${TARGET_NAME})
-endif()
-
+# Install header
 install(FILES ${GFXR_REPLAY_PLUGIN_PUBLIC_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gfxr)

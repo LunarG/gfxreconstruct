@@ -360,3 +360,14 @@ TEST_CASE("ReplayEventPluginLoader - successful load", "[plugin]")
     auto                     plugin = LoadPlugin(load_info, ops);
     REQUIRE(plugin != nullptr);
 }
+
+TEST_CASE("ReplayEventPluginLoader - read load", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+    auto plugin = LoadPlugin({ SAMPLE_PLUGIN_PATH });
+    REQUIRE(plugin != nullptr);
+    plugin->FrameBegin(0);
+    plugin->QueueSubmitBegin(0);
+    plugin->QueueSubmitEnd(0, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    plugin->FrameEnd();
+}
