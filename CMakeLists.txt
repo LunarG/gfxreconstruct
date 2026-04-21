@@ -423,6 +423,11 @@ target_include_directories(spirv_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}
 add_library(OpenXR INTERFACE)
 if (OPENXR_SUPPORT_ENABLED)
     option(DYNAMIC_LOADER "" OFF)
+    # Tell openxr_loader to use the vendored copy of jsoncpp rather than finding system jsoncpp.
+    # When using system jsoncpp, OpenXR's fallback finder creates a local INTERFACE target
+    # that cannot be exported, causing CMake errors during install(EXPORT ...) operations.
+    option(BUILD_WITH_SYSTEM_JSONCPP "" OFF)
+
     add_subdirectory(${PROJECT_SOURCE_DIR}/external/OpenXR-SDK)
     target_include_directories(OpenXR INTERFACE ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
     target_compile_definitions(OpenXR INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)
