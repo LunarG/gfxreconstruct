@@ -184,6 +184,8 @@ void MapStructHandles(Decoded_VkOffset3D* wrapper, const CommonObjectInfoTable& 
 
 void MapStructHandles(Decoded_VkRect2D* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkBaseOutStructure* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkAllocationCallbacks* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkApplicationInfo* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -1044,6 +1046,14 @@ void MapStructHandles(Decoded_VkPhysicalDeviceFragmentShadingRateKHR* wrapper, c
 
 void MapStructHandles(Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceShaderConstantDataFeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceShaderAbortFeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceFaultShaderAbortMessageInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceShaderAbortPropertiesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkSurfaceProtectedCapabilitiesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -1089,6 +1099,42 @@ void MapStructHandles(Decoded_VkVideoEncodeQualityLevelInfoKHR* wrapper, const C
 void MapStructHandles(Decoded_VkVideoEncodeSessionParametersGetInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkVideoEncodeSessionParametersFeedbackInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceAddressRangeKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkStridedDeviceAddressRangeKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceMemoryCopyKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkCopyDeviceMemoryInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceMemoryImageCopyKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkCopyDeviceMemoryImageInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkMemoryRangeBarrierKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkMemoryRangeBarriersInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBindIndexBuffer3InfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBindVertexBuffer3InfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDrawIndirect2InfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDrawIndirectCount2InfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDispatchIndirect2InfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkConditionalRenderingBeginInfo2EXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkBindTransformFeedbackBuffer2InfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkMemoryMarkerInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkAccelerationStructureCreateInfo2KHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -1232,8 +1278,6 @@ void MapStructHandles(Decoded_VkSetDescriptorBufferOffsetsInfoEXT* wrapper, cons
 
 void MapStructHandles(Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkStridedDeviceAddressRangeKHR* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkCopyMemoryIndirectCommandKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkCopyMemoryIndirectInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -1287,6 +1331,20 @@ void MapStructHandles(Decoded_VkPhysicalDeviceLayeredApiPropertiesKHR* wrapper, 
 void MapStructHandles(Decoded_VkPhysicalDeviceLayeredApiPropertiesListKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceFaultFeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceFaultPropertiesKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceFaultAddressInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceFaultVendorInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceFaultInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceFaultDebugInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDeviceFaultVendorBinaryHeaderVersionOneKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkMemoryBarrierAccessFlags3KHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -1780,6 +1838,12 @@ void MapStructHandles(Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV* wrapp
 
 void MapStructHandles(Decoded_VkDeviceDiagnosticsConfigCreateInfoNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPerfHintInfoQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceQueuePerfHintFeaturesQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceQueuePerfHintPropertiesQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceTileShadingFeaturesQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceTileShadingPropertiesQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -1795,8 +1859,6 @@ void MapStructHandles(Decoded_VkDispatchTileInfoQCOM* wrapper, const CommonObjec
 void MapStructHandles(Decoded_VkQueryLowLatencySupportNV* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceDescriptorBufferPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceDescriptorBufferFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -1817,6 +1879,8 @@ void MapStructHandles(Decoded_VkSamplerCaptureDescriptorDataInfoEXT* wrapper, co
 void MapStructHandles(Decoded_VkOpaqueCaptureDescriptorDataCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkAccelerationStructureCaptureDescriptorDataInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -1866,13 +1930,7 @@ void MapStructHandles(Decoded_VkPhysicalDeviceFaultFeaturesEXT* wrapper, const C
 
 void MapStructHandles(Decoded_VkDeviceFaultCountsEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_VkDeviceFaultAddressInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkDeviceFaultVendorInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_VkDeviceFaultInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_VkDeviceFaultVendorBinaryHeaderVersionOneEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -2015,6 +2073,10 @@ void MapStructHandles(Decoded_VkDeviceQueueShaderCoreControlCreateInfoARM* wrapp
 void MapStructHandles(Decoded_VkPhysicalDeviceSchedulingControlsFeaturesARM* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceSchedulingControlsPropertiesARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDispatchParametersARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -2244,6 +2306,10 @@ void MapStructHandles(Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesAR
 
 void MapStructHandles(Decoded_VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkDataGraphTOSANameQualityARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkQueueFamilyDataGraphTOSAPropertiesARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2448,6 +2514,24 @@ void MapStructHandles(Decoded_VkDataGraphPipelineBuiltinModelCreateInfoQCOM* wra
 
 void MapStructHandles(Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphOpticalFlowImageFormatInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSingleNodeConnectionARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderLongVectorPropertiesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -2463,6 +2547,8 @@ void MapStructHandles(Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkAccelerationStructureBuildRangeInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 

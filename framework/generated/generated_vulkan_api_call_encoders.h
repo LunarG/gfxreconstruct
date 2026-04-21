@@ -1952,6 +1952,118 @@ VKAPI_ATTR VkResult VKAPI_CALL vkQueueSubmit2KHR(
     const VkSubmitInfo2*                        pSubmits,
     VkFence                                     fence);
 
+VKAPI_ATTR void VKAPI_CALL vkCmdBindIndexBuffer3KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkBindIndexBuffer3InfoKHR*            pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindVertexBuffers3KHR(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    const VkBindVertexBuffer3InfoKHR*           pBindingInfos);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirect2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkDrawIndirect2InfoKHR*               pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirect2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkDrawIndirect2InfoKHR*               pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDispatchIndirect2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkDispatchIndirect2InfoKHR*           pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyDeviceMemoryInfoKHR*            pCopyMemoryInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyDeviceMemoryImageInfoKHR*       pCopyMemoryInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyImageToMemoryKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyDeviceMemoryImageInfoKHR*       pCopyMemoryInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdUpdateMemoryKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkDeviceAddressRangeKHR*              pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    VkDeviceSize                                dataSize,
+    const void*                                 pData);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdFillMemoryKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkDeviceAddressRangeKHR*              pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    uint32_t                                    data);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdCopyQueryPoolResultsToMemoryKHR(
+    VkCommandBuffer                             commandBuffer,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    const VkStridedDeviceAddressRangeKHR*       pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    VkQueryResultFlags                          queryResultFlags);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectCount2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkDrawIndirectCount2InfoKHR*          pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndexedIndirectCount2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkDrawIndirectCount2InfoKHR*          pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBeginConditionalRendering2EXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkConditionalRenderingBeginInfo2EXT*  pConditionalRenderingBegin);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBindTransformFeedbackBuffers2EXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    const VkBindTransformFeedbackBuffer2InfoEXT* pBindingInfos);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdBeginTransformFeedback2EXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    firstCounterRange,
+    uint32_t                                    counterRangeCount,
+    const VkBindTransformFeedbackBuffer2InfoEXT* pCounterInfos);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdEndTransformFeedback2EXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    firstCounterRange,
+    uint32_t                                    counterRangeCount,
+    const VkBindTransformFeedbackBuffer2InfoEXT* pCounterInfos);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawIndirectByteCount2EXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    const VkBindTransformFeedbackBuffer2InfoEXT* pCounterInfo,
+    uint32_t                                    counterOffset,
+    uint32_t                                    vertexStride);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirect2EXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkDrawIndirect2InfoKHR*               pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdDrawMeshTasksIndirectCount2EXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkDrawIndirectCount2InfoKHR*          pInfo);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdWriteMarkerToMemoryAMD(
+    VkCommandBuffer                             commandBuffer,
+    const VkMemoryMarkerInfoAMD*                pInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructure2KHR(
+    VkDevice                                    device,
+    const VkAccelerationStructureCreateInfo2KHR* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkAccelerationStructureKHR*                 pAccelerationStructure);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyBuffer2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyBufferInfo2*                    pCopyBufferInfo);
@@ -2105,6 +2217,16 @@ VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryIndirectKHR(
 VKAPI_ATTR void VKAPI_CALL vkCmdCopyMemoryToImageIndirectKHR(
     VkCommandBuffer                             commandBuffer,
     const VkCopyMemoryToImageIndirectInfoKHR*   pCopyMemoryToImageIndirectInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultReportsKHR(
+    VkDevice                                    device,
+    uint64_t                                    timeout,
+    uint32_t*                                   pFaultCounts,
+    VkDeviceFaultInfoKHR*                       pFaultInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceFaultDebugInfoKHR(
+    VkDevice                                    device,
+    VkDeviceFaultDebugInfoKHR*                  pDebugInfo);
 
 VKAPI_ATTR void VKAPI_CALL vkCmdEndRendering2KHR(
     VkCommandBuffer                             commandBuffer,
@@ -2496,7 +2618,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureNV(
 VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureMemoryRequirementsNV(
     VkDevice                                    device,
     const VkAccelerationStructureMemoryRequirementsInfoNV* pInfo,
-    VkMemoryRequirements2KHR*                   pMemoryRequirements);
+    VkMemoryRequirements2*                      pMemoryRequirements);
 
 VKAPI_ATTR VkResult VKAPI_CALL vkBindAccelerationStructureMemoryNV(
     VkDevice                                    device,
@@ -2939,6 +3061,10 @@ VKAPI_ATTR void VKAPI_CALL vkGetPrivateDataEXT(
     VkPrivateDataSlot                           privateDataSlot,
     uint64_t*                                   pData);
 
+VKAPI_ATTR VkResult                   VKAPI_CALL vkQueueSetPerfHintQCOM(
+    VkQueue                                     queue,
+    const VkPerfHintInfoQCOM*                   pPerfHintInfo);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdDispatchTileQCOM(
     VkCommandBuffer                             commandBuffer,
     const VkDispatchTileInfoQCOM*               pDispatchTileInfo);
@@ -3200,6 +3326,10 @@ VKAPI_ATTR void VKAPI_CALL vkSetDeviceMemoryPriorityEXT(
     VkDevice                                    device,
     VkDeviceMemory                              memory,
     float                                       priority);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetDispatchParametersARM(
+    VkCommandBuffer                             commandBuffer,
+    const VkDispatchParametersARM*              pDispatchParameters);
 
 VKAPI_ATTR void VKAPI_CALL vkGetDescriptorSetLayoutHostMappingInfoVALVE(
     VkDevice                                    device,
@@ -3546,6 +3676,12 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEngi
     const VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM* pQueueFamilyDataGraphProcessingEngineInfo,
     VkQueueFamilyDataGraphProcessingEnginePropertiesARM* pQueueFamilyDataGraphProcessingEngineProperties);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    const VkQueueFamilyDataGraphPropertiesARM*  pQueueFamilyDataGraphProperties,
+    VkBaseOutStructure*                         pProperties);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
@@ -3655,9 +3791,21 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(
     VkCommandBuffer                             commandBuffer,
     const VkBeginCustomResolveInfoEXT*          pBeginCustomResolveInfo);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    const VkQueueFamilyDataGraphPropertiesARM*  pQueueFamilyDataGraphProperties,
+    const VkDataGraphOpticalFlowImageFormatInfoARM* pOpticalFlowImageFormatInfo,
+    uint32_t*                                   pFormatCount,
+    VkDataGraphOpticalFlowImageFormatPropertiesARM* pImageFormatProperties);
+
 VKAPI_ATTR void VKAPI_CALL vkCmdSetComputeOccupancyPriorityNV(
     VkCommandBuffer                             commandBuffer,
     const VkComputeOccupancyPriorityParametersNV* pParameters);
+
+VKAPI_ATTR void VKAPI_CALL vkCmdSetPrimitiveRestartIndexEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    primitiveRestartIndex);
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(
     VkDevice                                    device,

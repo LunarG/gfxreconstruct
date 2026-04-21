@@ -1450,6 +1450,34 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToImageKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+    GFXRECON_ASSERT(pCopyMemoryInfo != nullptr);
+
+    if (!pCopyMemoryInfo->IsNull() && (pCopyMemoryInfo->HasData()))
+    {
+        auto pCopyMemoryInfo_ptr = pCopyMemoryInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyMemoryInfo_ptr->image);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+    GFXRECON_ASSERT(pCopyMemoryInfo != nullptr);
+
+    if (!pCopyMemoryInfo->IsNull() && (pCopyMemoryInfo->HasData()))
+    {
+        auto pCopyMemoryInfo_ptr = pCopyMemoryInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyMemoryInfo_ptr->image);
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
