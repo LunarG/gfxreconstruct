@@ -380,6 +380,7 @@ size_t vulkan_struct_deep_copy(const VkDeviceCreateInfo* structs, uint32_t count
         }
         handle_pnext(base_struct, i, offset, out_data);
         handle_pointer(base_struct, base_struct.pQueueCreateInfos, base_struct.queueCreateInfoCount, i, offset, out_data);
+        handle_array_of_pointers(base_struct, base_struct.ppEnabledLayerNames, 1, i, offset, out_data);
         handle_array_of_pointers(base_struct, base_struct.ppEnabledExtensionNames, base_struct.enabledExtensionCount, i, offset, out_data);
         handle_pointer(base_struct, base_struct.pEnabledFeatures, 1, i, offset, out_data);
     }

@@ -1639,6 +1639,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceCreateInfo
         jdata["flags"] = VkDeviceCreateFlags_t{decoded_value.flags};
         jdata["queueCreateInfoCount"] = decoded_value.queueCreateInfoCount;
         FieldToJson(jdata["pQueueCreateInfos"], meta_struct.pQueueCreateInfos);
+        jdata["enabledLayerCount"] = decoded_value.enabledLayerCount;
+        FieldToJson(jdata["ppEnabledLayerNames"], &meta_struct.ppEnabledLayerNames);
         jdata["enabledExtensionCount"] = decoded_value.enabledExtensionCount;
         FieldToJson(jdata["ppEnabledExtensionNames"], &meta_struct.ppEnabledExtensionNames);
         FieldToJson(jdata["pEnabledFeatures"], meta_struct.pEnabledFeatures);

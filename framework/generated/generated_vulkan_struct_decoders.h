@@ -836,6 +836,7 @@ struct Decoded_VkDeviceCreateInfo
 
     PNextNode* pNext{ nullptr };
     StructPointerDecoder<Decoded_VkDeviceQueueCreateInfo>* pQueueCreateInfos{ nullptr };
+    StringArrayDecoder ppEnabledLayerNames;
     StringArrayDecoder ppEnabledExtensionNames;
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures>* pEnabledFeatures{ nullptr };
 };

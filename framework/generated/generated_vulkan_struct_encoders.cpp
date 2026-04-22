@@ -1150,6 +1150,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceCreateInfo& value)
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeUInt32Value(value.queueCreateInfoCount);
     EncodeStructArray(encoder, value.pQueueCreateInfos, value.queueCreateInfoCount);
+    encoder->EncodeUInt32Value(value.enabledLayerCount);
+    encoder->EncodeStringArray(value.ppEnabledLayerNames, 0);;
     encoder->EncodeUInt32Value(value.enabledExtensionCount);
     encoder->EncodeStringArray(value.ppEnabledExtensionNames, value.enabledExtensionCount);
     EncodeStructPtr(encoder, value.pEnabledFeatures);

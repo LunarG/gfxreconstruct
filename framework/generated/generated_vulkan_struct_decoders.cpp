@@ -2324,6 +2324,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceC
     wrapper->pQueueCreateInfos = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceQueueCreateInfo>>();
     bytes_read += wrapper->pQueueCreateInfos->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pQueueCreateInfos = wrapper->pQueueCreateInfos->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->enabledLayerCount));
+    bytes_read += wrapper->ppEnabledLayerNames.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->ppEnabledLayerNames = wrapper->ppEnabledLayerNames.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->enabledExtensionCount));
     bytes_read += wrapper->ppEnabledExtensionNames.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->ppEnabledExtensionNames = wrapper->ppEnabledExtensionNames.GetPointer();
