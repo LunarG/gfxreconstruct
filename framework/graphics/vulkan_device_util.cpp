@@ -94,6 +94,69 @@ static void GetPhysicalDeviceProperties(const VulkanInstanceUtilInfo& instance_i
     }
 }
 
+static bool ShouldDisableArmDescriptorBufferCaptureReplay(const VulkanInstanceUtilInfo& instance_info,
+                                                          const VulkanInstanceTable*    instance_table,
+                                                          const VkPhysicalDevice        physical_device)
+{
+    VkPhysicalDeviceProperties2      device_properties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, nullptr };
+    VkPhysicalDeviceDriverProperties driver_properties{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES, nullptr };
+    device_properties.pNext = &driver_properties;
+
+    if (instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
+    {
+        instance_table->GetPhysicalDeviceProperties2(physical_device, &device_properties);
+    }
+    else if (instance_info.IsEnabledExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+    {
+        instance_table->GetPhysicalDeviceProperties2KHR(physical_device, &device_properties);
+    }
+    else
+    {
+        instance_table->GetPhysicalDeviceProperties(physical_device, &device_properties.properties);
+        return false;
+    }
+
+    if (driver_properties.driverID != VK_DRIVER_ID_ARM_PROPRIETARY)
+    {
+        return false;
+    }
+
+    const uint32_t major = VK_VERSION_MAJOR(device_properties.properties.driverVersion);
+    const uint32_t minor = VK_VERSION_MINOR(device_properties.properties.driverVersion);
+
+    // Mali descriptor buffer fix landed in r54p4 and has been backported to r49p6.
+    if (major == 49)
+    {
+        if (minor < 6)
+        {
+            GFXRECON_LOG_WARNING(
+                "Disabling descriptorBufferCaptureReplay as a workaround due to driver version.");
+            return true;
+        }
+
+        return false;
+    }
+    if (major == 54)
+    {
+        if (minor < 4)
+        {
+            GFXRECON_LOG_WARNING(
+                "Disabling descriptorBufferCaptureReplay as a workaround due to driver version.");
+            return true;
+        }
+
+        return false;
+    }
+
+    if (major <= 54)
+    {
+        GFXRECON_LOG_WARNING("Disabling descriptorBufferCaptureReplay as a workaround due to driver version.");
+        return true;
+    }
+
+    return false;
+}
+
 template <typename T>
 VkBool32 VulkanDeviceUtil::EnableRequiredBufferDeviceAddressFeatures(const VulkanInstanceUtilInfo& instance_info,
                                                                      const VulkanInstanceTable*    instance_table,
@@ -303,7 +366,15 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                 descriptorBufferCaptureReplay_ptr      = &desc_buffer_features->descriptorBufferCaptureReplay;
                 descriptorBufferCaptureReplay_original = desc_buffer_features->descriptorBufferCaptureReplay;
 
-                if (desc_buffer_features->descriptorBuffer && !desc_buffer_features->descriptorBufferCaptureReplay)
+                const bool disable_arm_descriptor_buffer_capture_replay =
+                    desc_buffer_features->descriptorBuffer &&
+                    ShouldDisableArmDescriptorBufferCaptureReplay(instance_info, instance_table, physical_device);
+
+                if (disable_arm_descriptor_buffer_capture_replay)
+                {
+                    desc_buffer_features->descriptorBufferCaptureReplay = VK_FALSE;
+                }
+                else if (desc_buffer_features->descriptorBuffer && !desc_buffer_features->descriptorBufferCaptureReplay)
                 {
                     VkPhysicalDeviceDescriptorBufferFeaturesEXT supported_features{
                         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT, nullptr
@@ -364,6 +435,11 @@ void VulkanDeviceUtil::RestoreModifiedPhysicalDeviceFeatures()
         (*rayTracingPipelineShaderGroupHandleCaptureReplay_ptr) =
             rayTracingPipelineShaderGroupHandleCaptureReplay_original;
         rayTracingPipelineShaderGroupHandleCaptureReplay_ptr = nullptr;
+    }
+    if (descriptorBufferCaptureReplay_ptr != nullptr)
+    {
+        (*descriptorBufferCaptureReplay_ptr) = descriptorBufferCaptureReplay_original;
+        descriptorBufferCaptureReplay_ptr    = nullptr;
     }
 }
 
