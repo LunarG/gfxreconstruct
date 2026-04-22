@@ -251,6 +251,17 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
         if arg.is_pointer and arg.pointer_count > 1:
 
+            # ppEnabledLayerNames/enabledLayerCount in VkDeviceDescriptorInfo was
+            # deprecated in Vulkan-Headers 1.4.349, and at the same time the len
+            # attribute for enabledLayerCount was dropped. So the value we get for
+            # arg.array_length is None. We need to include enabledLayerCount in captures
+            # so as to maintain compatibility with prior captures. We force array_length
+            # to 0 if we weren't passed a value for array_length.
+            if arg.array_length:
+                array_length = f'{struct_prefix}{arg.array_length}'
+            else:
+                array_length = '0'
+
             handleObjectType = None
             if arg.base_type in self.handle_names:
                 handleObjectType = makeObjectType(arg.base_type)
@@ -258,12 +269,12 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
             escapedStringArrayName = makeSnakeCaseName(f'{arg.name}Var'.format(**locals()))
             header_data = [
                 makeGenVar(escapedStringArrayName, None, locals(), handleObjectType, indent, useThis=False),
-                makeGenCond('{struct_prefix}{arg.array_length}',
+                makeGenCond(array_length,
                             [makeGenVar(escapedStringArrayName, '{arg.name}', handleObjectType, locals(), indent, addType=False, useThis=False),
                             printOutStream(['"const char* "',
                                             escapedStringArrayName,
                                             '"[] = "',
-                                            f'VulkanCppConsumerBase::EscapeStringArray({struct_prefix}{arg.name}, {struct_prefix}{arg.array_length})',
+                                            f'VulkanCppConsumerBase::EscapeStringArray({struct_prefix}{arg.name}, {array_length})',
                                             '";"'], locals(), indent)], [], locals(), indent)]
             local_header.append(''.join(header_data))
             local_body.append(makeOutStructSet(escapedStringArrayName, locals(), isFirstArg, isLastArg, indent))

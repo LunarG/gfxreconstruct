@@ -1696,10 +1696,6 @@ class KhronosBaseGenerator(OutputGenerator):
             name = noneStr(elem.text)
             name_tail = noneStr(elem.tail)
 
-            # If it is deprecated as unused, don't generate it
-            if 'deprecated' in param.attrib and param.attrib.get('deprecated') == 'unused':
-               continue
-
             # Get type info
             elem = param.find('type')
             base_type = noneStr(elem.text)
@@ -2351,6 +2347,18 @@ class KhronosBaseGenerator(OutputGenerator):
         self, name, value, values, prefix, omit_output_param=None
     ):
         """Generate a parameter encoder method call invocation."""
+
+        # ppEnabledLayerNames/enabledLayerCount in VkDeviceDescriptorInfo was deprecated
+        # in Vulkan-Headers 1.4.349, and at the same time the len attribute for
+        # enabledLayerCount was dropped.  We don't have the info here to generate code
+        # identical to prior to when ppEnabledLayerNames was deprecated.  We need to
+        # still generate code as if it wasn't deprecated to maintain compatibiltiy with
+        # older captures. So we just kludge it and return the string that was generated
+        # in prior releases.
+        if name == 'VkDeviceCreateInfo' and value.name == 'ppEnabledLayerNames':
+            print("JJJ early return!")
+            return "encoder->EncodeStringArray(value.ppEnabledLayerNames, 0);"
+
         arg_name = prefix + value.name
         if self.is_generic_struct_handle_value(
             name, value.name
