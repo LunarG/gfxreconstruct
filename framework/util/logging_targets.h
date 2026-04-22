@@ -74,7 +74,8 @@ class LoggingTargetBase
 #endif
     }
 
-    ~LoggingTargetBase() {}
+    // Can't call the virtual flush from the destructor, as the derived classes are already destroyed.
+    virtual ~LoggingTargetBase() {}
 
     void SetEnable(bool enable)
     {
@@ -114,6 +115,7 @@ class LoggingTargetBase
 #endif // __ANDROID__
 
     virtual void LogMessage(LoggingSeverity severity, const std::string& message) {}
+    virtual void Flush() {}
 
   protected:
 #if defined(__ANDROID__)
@@ -133,6 +135,7 @@ class LoggingTargetStdout : public LoggingTargetBase
 {
   public:
     LoggingTargetStdout() {}
+    ~LoggingTargetStdout() override { Flush(); }
 
     // We override this because we may want to send errors specifically to the
     // stderr output if that option is enabled.  Meaning we don't output them to
@@ -140,6 +143,7 @@ class LoggingTargetStdout : public LoggingTargetBase
     bool WillOutputMessage(LoggingSeverity severity) override;
 
     void LogMessage(LoggingSeverity severity, const std::string& message) override;
+    void Flush() override;
 
     // Some extended options are specific to a target type.
     void SetBoolExtendedOption(LoggingExtendedOption option, bool value) override;
@@ -153,6 +157,7 @@ class LoggingTargetStderr : public LoggingTargetBase
 {
   public:
     LoggingTargetStderr();
+    ~LoggingTargetStderr() override { Flush(); }
 
     // If this is enabled, we don't want to adjust this output beyond errors
     void SetSeverity(LoggingSeverity severity) override {}
@@ -162,6 +167,7 @@ class LoggingTargetStderr : public LoggingTargetBase
     bool WillOutputMessage(LoggingSeverity severity) override;
 
     void LogMessage(LoggingSeverity severity, const std::string& message) override;
+    void Flush() override;
 };
 
 class LoggingTargetDebugView : public LoggingTargetBase
@@ -176,12 +182,14 @@ class LoggingTargetFile : public LoggingTargetBase
 {
   public:
     LoggingTargetFile() {}
+    ~LoggingTargetFile() override { Flush(); }
 
     // Some extended options are specific to a target type.
     void SetBoolExtendedOption(LoggingExtendedOption option, bool value) override;
     void SetStringExtendedOption(LoggingExtendedOption option, std::string value) override;
 
     void LogMessage(LoggingSeverity severity, const std::string& message) override;
+    void Flush() override;
 
   private:
     bool OpenFile();
