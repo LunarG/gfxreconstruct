@@ -2203,7 +2203,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
         {
             uint32_t                     finalized_primaries = 0;
             std::vector<VkCommandBuffer> accumulated_secondaries_command_buffers;
-            for (uint32_t i = 0; i < commandBufferCount; ++i)
+            for (uint32_t i = 0; (i < commandBufferCount) && (finalized_primaries < primary_last - primary_first); ++i)
             {
                 const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_secondary_contexts =
                     FindDrawCallDumpingContexts(pCommandBuffers[i]);
