@@ -6773,66 +6773,6 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_INFO_ARM: {
-                auto casted_struct = reinterpret_cast<const VkDataGraphOpticalFlowImageFormatInfoARM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphOpticalFlowImageFormatInfoARM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkDataGraphOpticalFlowImageFormatInfoARM(out,
-                                                         casted_struct,
-                                                         decoded_struct,
-                                                         consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_CREATE_INFO_ARM: {
-                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineOpticalFlowCreateInfoARM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineOpticalFlowCreateInfoARM(out,
-                                                            casted_struct,
-                                                            decoded_struct,
-                                                            consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_DISPATCH_INFO_ARM: {
-                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineOpticalFlowDispatchInfoARM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineOpticalFlowDispatchInfoARM(out,
-                                                              casted_struct,
-                                                              decoded_struct,
-                                                              consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_IMAGE_LAYOUT_ARM: {
-                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineResourceInfoImageLayoutARM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineResourceInfoImageLayoutARM(out,
-                                                              casted_struct,
-                                                              decoded_struct,
-                                                              consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CREATE_INFO_ARM: {
-                auto casted_struct = reinterpret_cast<const VkDataGraphPipelineSingleNodeCreateInfoARM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkDataGraphPipelineSingleNodeCreateInfoARM(out,
-                                                           casted_struct,
-                                                           decoded_struct,
-                                                           consumer);
-
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM: {
-                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(struct_info);
-                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(pnext_meta_data->GetMetaStructPointer());
-                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM(out,
-                                                                casted_struct,
-                                                                decoded_struct,
-                                                                consumer);
-
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT: {
                 auto casted_struct = reinterpret_cast<const VkPhysicalDeviceShaderLongVectorFeaturesEXT*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());

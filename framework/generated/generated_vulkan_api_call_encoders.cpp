@@ -28321,56 +28321,6 @@ VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEngi
 
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
-    VkPhysicalDevice                            physicalDevice,
-    uint32_t                                    queueFamilyIndex,
-    const VkQueueFamilyDataGraphPropertiesARM*  pQueueFamilyDataGraphProperties,
-    VkBaseOutStructure*                         pProperties)
-{
-    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
-    }
-
-    bool omit_output_data = false;
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM>::Dispatch(manager, physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties);
-
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pQueueFamilyDataGraphProperties, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties_unwrapped, pProperties);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
-
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM);
-    if (encoder)
-    {
-        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
-        encoder->EncodeUInt32Value(queueFamilyIndex);
-        EncodeStructPtr(encoder, pQueueFamilyDataGraphProperties);
-        EncodeStructPtr(encoder, pProperties, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        manager->EndApiCallCapture();
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties);
-
-    return result;
-
-}
-
 VKAPI_ATTR void VKAPI_CALL vkCmdSetAttachmentFeedbackLoopEnableEXT(
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask)
@@ -29241,61 +29191,6 @@ VKAPI_ATTR void VKAPI_CALL vkCmdBeginCustomResolveEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdBeginCustomResolveEXT(commandBuffer, pBeginCustomResolveInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginCustomResolveEXT>::Dispatch(manager, commandBuffer, pBeginCustomResolveInfo);
-
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
-    VkPhysicalDevice                            physicalDevice,
-    uint32_t                                    queueFamilyIndex,
-    const VkQueueFamilyDataGraphPropertiesARM*  pQueueFamilyDataGraphProperties,
-    const VkDataGraphOpticalFlowImageFormatInfoARM* pOpticalFlowImageFormatInfo,
-    uint32_t*                                   pFormatCount,
-    VkDataGraphOpticalFlowImageFormatPropertiesARM* pImageFormatProperties)
-{
-    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
-    }
-
-    bool omit_output_data = false;
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM>::Dispatch(manager, physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
-
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pQueueFamilyDataGraphProperties, handle_unwrap_memory);
-    const VkDataGraphOpticalFlowImageFormatInfoARM* pOpticalFlowImageFormatInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pOpticalFlowImageFormatInfo, handle_unwrap_memory);
-
-    VkResult result = vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties_unwrapped, pOpticalFlowImageFormatInfo_unwrapped, pFormatCount, pImageFormatProperties);
-    if (result < 0)
-    {
-        omit_output_data = true;
-    }
-
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM);
-    if (encoder)
-    {
-        encoder->EncodeVulkanHandleValue<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
-        encoder->EncodeUInt32Value(queueFamilyIndex);
-        EncodeStructPtr(encoder, pQueueFamilyDataGraphProperties);
-        EncodeStructPtr(encoder, pOpticalFlowImageFormatInfo);
-        encoder->EncodeUInt32Ptr(pFormatCount, omit_output_data);
-        EncodeStructArray(encoder, pImageFormatProperties, (pFormatCount != nullptr) ? (*pFormatCount) : 0, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        manager->EndApiCallCapture();
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM>::Dispatch(manager, result, physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
-
-    return result;
 
 }
 

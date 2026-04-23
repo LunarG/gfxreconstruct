@@ -683,15 +683,6 @@ struct Decoded_VkRect2D
     Decoded_VkExtent2D* extent{ nullptr };
 };
 
-struct Decoded_VkBaseOutStructure
-{
-    using struct_type = VkBaseOutStructure;
-
-    VkBaseOutStructure* decoded_value{ nullptr };
-
-    StructPointerDecoder<Decoded_VkBaseOutStructure>* pNext{ nullptr };
-};
-
 struct Decoded_VkAllocationCallbacks
 {
     using struct_type = VkAllocationCallbacks;
@@ -10884,26 +10875,6 @@ struct Decoded_VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM
     PNextNode* pNext{ nullptr };
 };
 
-struct Decoded_VkDataGraphTOSANameQualityARM
-{
-    using struct_type = VkDataGraphTOSANameQualityARM;
-
-    VkDataGraphTOSANameQualityARM* decoded_value{ nullptr };
-
-    StringDecoder name;
-};
-
-struct Decoded_VkQueueFamilyDataGraphTOSAPropertiesARM
-{
-    using struct_type = VkQueueFamilyDataGraphTOSAPropertiesARM;
-
-    VkQueueFamilyDataGraphTOSAPropertiesARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkDataGraphTOSANameQualityARM>* pProfiles{ nullptr };
-    StructPointerDecoder<Decoded_VkDataGraphTOSANameQualityARM>* pExtensions{ nullptr };
-};
-
 struct Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM
 {
     using struct_type = VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM;
@@ -11835,88 +11806,6 @@ struct Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM
     VkPhysicalDeviceDataGraphModelFeaturesQCOM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM
-{
-    using struct_type = VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM;
-
-    VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM
-{
-    using struct_type = VkQueueFamilyDataGraphOpticalFlowPropertiesARM;
-
-    VkQueueFamilyDataGraphOpticalFlowPropertiesARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM
-{
-    using struct_type = VkDataGraphPipelineOpticalFlowCreateInfoARM;
-
-    VkDataGraphPipelineOpticalFlowCreateInfoARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM
-{
-    using struct_type = VkDataGraphOpticalFlowImageFormatPropertiesARM;
-
-    VkDataGraphOpticalFlowImageFormatPropertiesARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphOpticalFlowImageFormatInfoARM
-{
-    using struct_type = VkDataGraphOpticalFlowImageFormatInfoARM;
-
-    VkDataGraphOpticalFlowImageFormatInfoARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM
-{
-    using struct_type = VkDataGraphPipelineOpticalFlowDispatchInfoARM;
-
-    VkDataGraphPipelineOpticalFlowDispatchInfoARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM
-{
-    using struct_type = VkDataGraphPipelineResourceInfoImageLayoutARM;
-
-    VkDataGraphPipelineResourceInfoImageLayoutARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphPipelineSingleNodeConnectionARM
-{
-    using struct_type = VkDataGraphPipelineSingleNodeConnectionARM;
-
-    VkDataGraphPipelineSingleNodeConnectionARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
-
-struct Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM
-{
-    using struct_type = VkDataGraphPipelineSingleNodeCreateInfoARM;
-
-    VkDataGraphPipelineSingleNodeCreateInfoARM* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    StructPointerDecoder<Decoded_VkDataGraphPipelineSingleNodeConnectionARM>* pConnections{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT

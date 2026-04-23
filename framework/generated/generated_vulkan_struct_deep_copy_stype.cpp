@@ -3781,10 +3781,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_TOSA_PROPERTIES_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkQueueFamilyDataGraphTOSAPropertiesARM*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM*>(pNext), 1, out_ptr);
@@ -4144,42 +4140,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPhysicalDeviceDataGraphModelFeaturesQCOM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkQueueFamilyDataGraphOpticalFlowPropertiesARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_CREATE_INFO_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkDataGraphPipelineOpticalFlowCreateInfoARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkDataGraphOpticalFlowImageFormatPropertiesARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_INFO_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkDataGraphOpticalFlowImageFormatInfoARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_DISPATCH_INFO_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkDataGraphPipelineOpticalFlowDispatchInfoARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_IMAGE_LAYOUT_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkDataGraphPipelineResourceInfoImageLayoutARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CONNECTION_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkDataGraphPipelineSingleNodeConnectionARM*>(pNext), 1, out_ptr);
-            break;
-        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CREATE_INFO_ARM:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkDataGraphPipelineSingleNodeCreateInfoARM*>(pNext), 1, out_ptr);
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT:
             offset += vulkan_struct_deep_copy(

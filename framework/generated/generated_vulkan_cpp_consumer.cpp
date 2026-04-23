@@ -17118,39 +17118,6 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphPropertie
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM);
 }
-void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            physicalDevice,
-    uint32_t                                    queueFamilyIndex,
-    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM>* pQueueFamilyDataGraphProperties,
-    StructPointerDecoder<Decoded_VkBaseOutStructure>* pProperties)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-    std::stringstream stream_pqueue_family_data_graph_properties;
-    std::string pqueue_family_data_graph_properties_struct = GenerateStruct_VkQueueFamilyDataGraphPropertiesARM(stream_pqueue_family_data_graph_properties,
-                                                                                                                pQueueFamilyDataGraphProperties->GetPointer(),
-                                                                                                                pQueueFamilyDataGraphProperties->GetMetaStructPointer(),
-                                                                                                                *this);
-    fprintf(file, "%s", stream_pqueue_family_data_graph_properties.str().c_str());
-    std::string pproperties_name = "NULL";
-    if (!pProperties->IsNull()) {
-        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkBaseOutStructure %s = {};\n", pproperties_name.c_str());
-        pproperties_name.insert(0, "&");
-    }
-    pfn_loader_.AddMethodName("vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(%s, %u, &%s, %s), %s);\n",
-            this->GetHandle(physicalDevice).c_str(),
-            queueFamilyIndex,
-            pqueue_family_data_graph_properties_struct.c_str(),
-            pproperties_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM);
-}
 void VulkanCppConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -17710,55 +17677,6 @@ void VulkanCppConsumer::Process_vkCmdBeginCustomResolveEXT(
             pbegin_custom_resolve_info_struct.c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdBeginCustomResolveEXT);
-}
-void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            physicalDevice,
-    uint32_t                                    queueFamilyIndex,
-    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM>* pQueueFamilyDataGraphProperties,
-    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatInfoARM>* pOpticalFlowImageFormatInfo,
-    PointerDecoder<uint32_t>*                   pFormatCount,
-    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM>* pImageFormatProperties)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-    std::stringstream stream_pqueue_family_data_graph_properties;
-    std::string pqueue_family_data_graph_properties_struct = GenerateStruct_VkQueueFamilyDataGraphPropertiesARM(stream_pqueue_family_data_graph_properties,
-                                                                                                                pQueueFamilyDataGraphProperties->GetPointer(),
-                                                                                                                pQueueFamilyDataGraphProperties->GetMetaStructPointer(),
-                                                                                                                *this);
-    fprintf(file, "%s", stream_pqueue_family_data_graph_properties.str().c_str());
-    std::stringstream stream_poptical_flow_image_format_info;
-    std::string poptical_flow_image_format_info_struct = GenerateStruct_VkDataGraphOpticalFlowImageFormatInfoARM(stream_poptical_flow_image_format_info,
-                                                                                                                 pOpticalFlowImageFormatInfo->GetPointer(),
-                                                                                                                 pOpticalFlowImageFormatInfo->GetMetaStructPointer(),
-                                                                                                                 *this);
-    fprintf(file, "%s", stream_poptical_flow_image_format_info.str().c_str());
-    std::string pformat_count_name = "NULL";
-    if (!pFormatCount->IsNull()) {
-        pformat_count_name = "pFormatCount_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tuint32_t %s = %s;\n", pformat_count_name.c_str(), util::ToString(*pFormatCount->GetPointer()).c_str());
-        pformat_count_name.insert(0, "&");
-    }
-    std::string pimage_format_properties_name = "NULL";
-    if (!pImageFormatProperties->IsNull()) {
-        const uint32_t* in_pformat_count = pFormatCount->GetPointer();
-        pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
-        fprintf(file, "\t\tVkDataGraphOpticalFlowImageFormatPropertiesARM %s[%d] = {};\n", pimage_format_properties_name.c_str(), *in_pformat_count);
-    }
-    pfn_loader_.AddMethodName("vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM");
-    fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(%s, %u, &%s, &%s, %s, %s), %s);\n",
-            this->GetHandle(physicalDevice).c_str(),
-            queueFamilyIndex,
-            pqueue_family_data_graph_properties_struct.c_str(),
-            poptical_flow_image_format_info_struct.c_str(),
-            pformat_count_name.c_str(),
-            pimage_format_properties_name.c_str(),
-            util::ToString<VkResult>(returnValue).c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM);
 }
 void VulkanCppConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     const ApiCallInfo&                          call_info,

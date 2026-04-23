@@ -35,6 +35,7 @@
     "vkDeferredOperationJoinKHR"
   ],
   "structures": [
+    "VkBaseOutStructure",
     "VkBaseInStructure",
     "VkDescriptorImageInfo",
     "VkWriteDescriptorSet",

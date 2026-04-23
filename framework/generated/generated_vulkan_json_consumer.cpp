@@ -10858,24 +10858,6 @@ void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphPr
     WriteBlockEnd();
 }
 
-void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            physicalDevice,
-    uint32_t                                    queueFamilyIndex,
-    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM>* pQueueFamilyDataGraphProperties,
-    StructPointerDecoder<Decoded_VkBaseOutStructure>* pProperties)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM");
-    jdata[NameReturn()] = returnValue;
-    auto& args = jdata[NameArgs()];
-        HandleToJson(args["physicalDevice"], physicalDevice);
-        args["queueFamilyIndex"] = queueFamilyIndex;
-        FieldToJson(args["pQueueFamilyDataGraphProperties"], pQueueFamilyDataGraphProperties);
-        FieldToJson(args["pProperties"], pProperties);
-    WriteBlockEnd();
-}
-
 void VulkanExportJsonConsumer::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -11196,28 +11178,6 @@ void VulkanExportJsonConsumer::Process_vkCmdBeginCustomResolveEXT(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["commandBuffer"], commandBuffer);
         FieldToJson(args["pBeginCustomResolveInfo"], pBeginCustomResolveInfo);
-    WriteBlockEnd();
-}
-
-void VulkanExportJsonConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            physicalDevice,
-    uint32_t                                    queueFamilyIndex,
-    StructPointerDecoder<Decoded_VkQueueFamilyDataGraphPropertiesARM>* pQueueFamilyDataGraphProperties,
-    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatInfoARM>* pOpticalFlowImageFormatInfo,
-    PointerDecoder<uint32_t>*                   pFormatCount,
-    StructPointerDecoder<Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM>* pImageFormatProperties)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM");
-    jdata[NameReturn()] = returnValue;
-    auto& args = jdata[NameArgs()];
-        HandleToJson(args["physicalDevice"], physicalDevice);
-        args["queueFamilyIndex"] = queueFamilyIndex;
-        FieldToJson(args["pQueueFamilyDataGraphProperties"], pQueueFamilyDataGraphProperties);
-        FieldToJson(args["pOpticalFlowImageFormatInfo"], pOpticalFlowImageFormatInfo);
-        FieldToJson(args["pFormatCount"], pFormatCount);
-        FieldToJson(args["pImageFormatProperties"], pImageFormatProperties);
     WriteBlockEnd();
 }
 

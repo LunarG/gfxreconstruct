@@ -1254,18 +1254,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRect2D* data)
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBaseOutStructure* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkBaseOutStructure& decoded_value = *data->decoded_value;
-        const Decoded_VkBaseOutStructure& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAllocationCallbacks* data)
 {
     if (data && data->decoded_value)
@@ -17377,35 +17365,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelin
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphTOSANameQualityARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphTOSANameQualityARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphTOSANameQualityARM& meta_struct = *data;
-
-        FieldToJson(jdata["name"], &meta_struct.name);
-        jdata["qualityFlags"] = VkDataGraphTOSAQualityFlagsARM_t{decoded_value.qualityFlags};
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyDataGraphTOSAPropertiesARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkQueueFamilyDataGraphTOSAPropertiesARM& decoded_value = *data->decoded_value;
-        const Decoded_VkQueueFamilyDataGraphTOSAPropertiesARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["profileCount"] = decoded_value.profileCount;
-        FieldToJson(jdata["pProfiles"], meta_struct.pProfiles);
-        jdata["extensionCount"] = decoded_value.extensionCount;
-        FieldToJson(jdata["pExtensions"], meta_struct.pExtensions);
-        jdata["level"] = decoded_value.level;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* data)
 {
     if (data && data->decoded_value)
@@ -18831,143 +18790,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDa
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM& decoded_value = *data->decoded_value;
-        const Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["dataGraphOpticalFlow"] = static_cast<bool>(decoded_value.dataGraphOpticalFlow);
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkQueueFamilyDataGraphOpticalFlowPropertiesARM& decoded_value = *data->decoded_value;
-        const Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["supportedOutputGridSizes"] = VkDataGraphOpticalFlowGridSizeFlagsARM_t{decoded_value.supportedOutputGridSizes};
-        jdata["supportedHintGridSizes"] = VkDataGraphOpticalFlowGridSizeFlagsARM_t{decoded_value.supportedHintGridSizes};
-        jdata["hintSupported"] = static_cast<bool>(decoded_value.hintSupported);
-        jdata["costSupported"] = static_cast<bool>(decoded_value.costSupported);
-        jdata["minWidth"] = decoded_value.minWidth;
-        jdata["minHeight"] = decoded_value.minHeight;
-        jdata["maxWidth"] = decoded_value.maxWidth;
-        jdata["maxHeight"] = decoded_value.maxHeight;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphPipelineOpticalFlowCreateInfoARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["width"] = decoded_value.width;
-        jdata["height"] = decoded_value.height;
-        jdata["imageFormat"] = decoded_value.imageFormat;
-        jdata["flowVectorFormat"] = decoded_value.flowVectorFormat;
-        jdata["costFormat"] = decoded_value.costFormat;
-        jdata["outputGridSize"] = VkDataGraphOpticalFlowGridSizeFlagsARM_t{decoded_value.outputGridSize};
-        jdata["hintGridSize"] = VkDataGraphOpticalFlowGridSizeFlagsARM_t{decoded_value.hintGridSize};
-        jdata["performanceLevel"] = decoded_value.performanceLevel;
-        jdata["flags"] = VkDataGraphOpticalFlowCreateFlagsARM_t{decoded_value.flags};
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphOpticalFlowImageFormatPropertiesARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["format"] = decoded_value.format;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphOpticalFlowImageFormatInfoARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphOpticalFlowImageFormatInfoARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphOpticalFlowImageFormatInfoARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["usage"] = VkDataGraphOpticalFlowImageUsageFlagsARM_t{decoded_value.usage};
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphPipelineOpticalFlowDispatchInfoARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["flags"] = VkDataGraphOpticalFlowExecuteFlagsARM_t{decoded_value.flags};
-        jdata["meanFlowL1NormHint"] = decoded_value.meanFlowL1NormHint;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphPipelineResourceInfoImageLayoutARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["layout"] = decoded_value.layout;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineSingleNodeConnectionARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphPipelineSingleNodeConnectionARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphPipelineSingleNodeConnectionARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["set"] = decoded_value.set;
-        jdata["binding"] = decoded_value.binding;
-        jdata["connection"] = decoded_value.connection;
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM* data)
-{
-    if (data && data->decoded_value)
-    {
-        const VkDataGraphPipelineSingleNodeCreateInfoARM& decoded_value = *data->decoded_value;
-        const Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM& meta_struct = *data;
-
-        jdata["sType"] = decoded_value.sType;
-        jdata["nodeType"] = decoded_value.nodeType;
-        jdata["connectionCount"] = decoded_value.connectionCount;
-        FieldToJson(jdata["pConnections"], meta_struct.pConnections);
-        FieldToJson(jdata["pNext"], meta_struct.pNext);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderLongVectorFeaturesEXT* data)
 {
     if (data && data->decoded_value)
@@ -20290,20 +20112,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_INFO_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphOpticalFlowImageFormatInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphOpticalFlowImageFormatPropertiesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
             case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_BUILTIN_MODEL_CREATE_INFO_QCOM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineBuiltinModelCreateInfoQCOM*>(data->GetMetaStructPointer());
@@ -20360,20 +20168,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_CREATE_INFO_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineOpticalFlowCreateInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_OPTICAL_FLOW_DISPATCH_INFO_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineOpticalFlowDispatchInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
             case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelinePropertyQueryResultARM*>(data->GetMetaStructPointer());
@@ -20384,13 +20178,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_ARM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineResourceInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_RESOURCE_INFO_IMAGE_LAYOUT_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineResourceInfoImageLayoutARM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -20426,20 +20213,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineShaderModuleCreateInfoARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CONNECTION_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineSingleNodeConnectionARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SINGLE_NODE_CREATE_INFO_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineSingleNodeCreateInfoARM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -22561,13 +22334,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -25442,13 +25208,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
-            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_OPTICAL_FLOW_PROPERTIES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyDataGraphOpticalFlowPropertiesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
             case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyDataGraphProcessingEnginePropertiesARM*>(data->GetMetaStructPointer());
@@ -25459,13 +25218,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyDataGraphPropertiesARM*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, pnext);
-                break;
-            }
-
-            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_TOSA_PROPERTIES_ARM:
-            {
-                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyDataGraphTOSAPropertiesARM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }

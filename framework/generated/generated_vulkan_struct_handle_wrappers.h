@@ -1941,8 +1941,6 @@ void UnwrapStructHandles(VkQueueFamilyDataGraphProcessingEnginePropertiesARM* va
 
 void UnwrapStructHandles(VkDataGraphPipelineConstantTensorSemiStructuredSparsityInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkQueueFamilyDataGraphTOSAPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* value, HandleUnwrapMemory* unwrap_memory);
@@ -2118,24 +2116,6 @@ void UnwrapStructHandles(VkCustomResolveCreateInfoEXT* value, HandleUnwrapMemory
 void UnwrapStructHandles(VkDataGraphPipelineBuiltinModelCreateInfoQCOM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceDataGraphModelFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkQueueFamilyDataGraphOpticalFlowPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphPipelineOpticalFlowCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphOpticalFlowImageFormatPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphOpticalFlowImageFormatInfoARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphPipelineOpticalFlowDispatchInfoARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphPipelineResourceInfoImageLayoutARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphPipelineSingleNodeConnectionARM* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkDataGraphPipelineSingleNodeCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderLongVectorFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 

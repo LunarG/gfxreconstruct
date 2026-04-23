@@ -859,12 +859,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRect2D& value)
     EncodeStruct(encoder, value.extent);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkBaseOutStructure& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodeStructPtr(encoder, value.pNext);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkAllocationCallbacks& value)
 {
     encoder->EncodeVoidPtr(value.pUserData);
@@ -10498,7 +10492,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineConstantAR
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineResourceInfoARM& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
+    EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.descriptorSet);
     encoder->EncodeUInt32Value(value.binding);
     encoder->EncodeUInt32Value(value.arrayElement);
@@ -10604,7 +10598,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineIdentifier
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineDispatchInfoARM& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
+    EncodePNextStructIfValid(encoder, value.pNext);
     encoder->EncodeFlags64Value(value.flags);
 }
 
@@ -10660,23 +10654,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineConstantTe
     encoder->EncodeUInt32Value(value.dimension);
     encoder->EncodeUInt32Value(value.zeroCount);
     encoder->EncodeUInt32Value(value.groupSize);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphTOSANameQualityARM& value)
-{
-    encoder->EncodeString(value.name);
-    encoder->EncodeFlagsValue(value.qualityFlags);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyDataGraphTOSAPropertiesARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.profileCount);
-    EncodeStructArray(encoder, value.pProfiles, value.profileCount);
-    encoder->EncodeUInt32Value(value.extensionCount);
-    EncodeStructArray(encoder, value.pExtensions, value.extensionCount);
-    encoder->EncodeEnumValue(value.level);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& value)
@@ -11490,89 +11467,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphMode
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.dataGraphModel);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.dataGraphOpticalFlow);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyDataGraphOpticalFlowPropertiesARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.supportedOutputGridSizes);
-    encoder->EncodeFlagsValue(value.supportedHintGridSizes);
-    encoder->EncodeUInt32Value(value.hintSupported);
-    encoder->EncodeUInt32Value(value.costSupported);
-    encoder->EncodeUInt32Value(value.minWidth);
-    encoder->EncodeUInt32Value(value.minHeight);
-    encoder->EncodeUInt32Value(value.maxWidth);
-    encoder->EncodeUInt32Value(value.maxHeight);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineOpticalFlowCreateInfoARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.width);
-    encoder->EncodeUInt32Value(value.height);
-    encoder->EncodeEnumValue(value.imageFormat);
-    encoder->EncodeEnumValue(value.flowVectorFormat);
-    encoder->EncodeEnumValue(value.costFormat);
-    encoder->EncodeFlagsValue(value.outputGridSize);
-    encoder->EncodeFlagsValue(value.hintGridSize);
-    encoder->EncodeEnumValue(value.performanceLevel);
-    encoder->EncodeFlagsValue(value.flags);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphOpticalFlowImageFormatPropertiesARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.format);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphOpticalFlowImageFormatInfoARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.usage);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineOpticalFlowDispatchInfoARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeUInt32Value(value.meanFlowL1NormHint);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineResourceInfoImageLayoutARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.layout);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSingleNodeConnectionARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.set);
-    encoder->EncodeUInt32Value(value.binding);
-    encoder->EncodeEnumValue(value.connection);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSingleNodeCreateInfoARM& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.nodeType);
-    encoder->EncodeUInt32Value(value.connectionCount);
-    EncodeStructArray(encoder, value.pConnections, value.connectionCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderLongVectorFeaturesEXT& value)

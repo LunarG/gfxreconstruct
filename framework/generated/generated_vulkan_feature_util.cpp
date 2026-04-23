@@ -5657,21 +5657,6 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM:
-            {
-                const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(next);
-                VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_OPTICAL_FLOW_FEATURES_ARM, nullptr };
-                physicalDeviceFeatures2.pNext = &query;
-                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
-                if ((currentNext->dataGraphOpticalFlow == VK_TRUE) && (query.dataGraphOpticalFlow == VK_FALSE))
-                {
-                    GFXRECON_LOG_WARNING("Feature dataGraphOpticalFlow %s", warn_message);
-                    found_unsupported = true;
-                    const_cast<VkPhysicalDeviceDataGraphOpticalFlowFeaturesARM*>(currentNext)->dataGraphOpticalFlow =
-                        remove_unsupported ? VK_FALSE : VK_TRUE;
-                }
-                break;
-            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_LONG_VECTOR_FEATURES_EXT:
             {
                 const VkPhysicalDeviceShaderLongVectorFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceShaderLongVectorFeaturesEXT*>(next);
