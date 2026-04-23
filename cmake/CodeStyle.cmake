@@ -76,7 +76,7 @@ function(target_code_style_build_directives TARGET)
                     COMMAND "${PYTHON}" ${PROJECT_SOURCE_DIR}/scripts/check_code_style.py
                     --sourcefile ${TARGET_SRC_FILES} --base ${CHECK_CPP_CODE_STYLE_BASE}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-                    COMMENT "Check code style for ${TARGET}")
+                    COMMENT "Check code style for ${TARGET}" VERBATIM)
             add_dependencies(${TARGET} "${TARGET}CodeStyleCheck")
         endif()
     endif()
