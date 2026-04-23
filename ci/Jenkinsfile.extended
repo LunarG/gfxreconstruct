@@ -64,6 +64,8 @@ pipeline {
                             'Android Rel64': runJob.gfxrTestAndroid('Android R64 Ext', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
                             'Linux Mesa Rel64': runJob.gfxrTestLinux('Linux Mesa Rel64 Ext', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
                             'Linux Nvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Linux Mesa 9070 Rel64': runJob.gfxrTestLinux('Linux Mesa 9070 Rel64 Ext', runJob.ReleaseMode, runJob.LinuxMesa9070Label, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Linux Nvidia 5080 Rel64': runJob.gfxrTestLinux('Linux Nvidia 5080 Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidia5080Label, runJob.Bit64, "extended-suite.json", requestedBranches),
                             'Windows AMD Rel64': runJob.gfxrTestWindows('Win AMD Rel64 Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
                             'Windows Nvidia Rel64': runJob.gfxrTestWindows('Win Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
                             'Windows11 AMD 9070 Rel64': runJob.gfxrTestWindows('Win11 AMD 9070 Rel64 Ext', runJob.ReleaseMode, runJob.Win11AMD9070Label, runJob.Bit64, "extended-suite.json", requestedBranches),
