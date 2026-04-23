@@ -192,6 +192,12 @@ struct VulkanReplayOptions : public ReplayOptions
     /// Milliseconds to wait before starting to replay each frame.
     uint32_t wait_before_frame{ 0 };
 
+    /// Path to a replay event plugin library to load.
+    std::string replay_event_plugin_path;
+
+    /// Parameters to pass to the replay event plugin.
+    std::string replay_event_plugin_params;
+
     void MaybeWaitBeforeFirstSubmit() const;
     void MaybeWaitBeforeFrame() const;
 };

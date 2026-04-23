@@ -36,6 +36,7 @@ target_include_directories(gfxrecon-testapp-base
 set(FRAMEWORK_DIR ${GFXRECON_ANDROID_DIR}/framework)
 set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_SOURCE_DIR}/..)
 add_subdirectory(${FRAMEWORK_DIR}/util ${FRAMEWORK_DIR}/util/build/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${FRAMEWORK_DIR}/plugin/build/${ANDROID_ABI})
 add_subdirectory(${FRAMEWORK_DIR}/decode ${FRAMEWORK_DIR}/decode/build/${ANDROID_ABI})
 add_subdirectory(${FRAMEWORK_DIR}/graphics ${FRAMEWORK_DIR}/graphics/build/${ANDROID_ABI})
 add_subdirectory(${FRAMEWORK_DIR}/format ${FRAMEWORK_DIR}/format/build/${ANDROID_ABI})

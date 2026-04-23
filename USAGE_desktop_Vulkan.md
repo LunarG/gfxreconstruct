@@ -637,6 +637,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--wait-before-first-submit MILLISECONDS]
                         [--idle-before-submit] [--serialize-render-passes]
                         [--wait-before-frame MILLISECONDS]
+                        [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
 
 
 Required arguments:
@@ -890,6 +891,14 @@ Optional arguments:
               run before each frame replay. Default is 0 (disabled).
   --wait-before-frame <milliseconds>
               Specify a wait time in milliseconds before starting replay of each frame. Default is 0 (disabled).
+  --replay-event-plugin-path <path>
+              Path to a replay event plugin library. If specified, the
+              plugin will be loaded and used to process replay events.
+              (forwarded to replay tool)
+  --replay-event-plugin-params <params>
+              Parameters to forward to the replay event plugin. The format
+              of the parameters is determined by the plugin and is not
+              interpreted by the replay tool. (forwarded to replay tool)
 ```
 
 ### Frame Warm-Up
