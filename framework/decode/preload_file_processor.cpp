@@ -23,34 +23,84 @@
 
 #include "decode/block_allocator.h"
 #include "decode/preload_file_processor.h"
+#include "decode/file_processor_visitors.h"
 #include "util/logging.h"
 
 #include <memory>
-#include "preload_file_processor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-PreloadFileProcessor::PreloadFileProcessor() : working_uncompressed_store_(kWorkingStoreInitialSize) {}
+PreloadFileProcessor::PreloadFileProcessor() : preload_queue_(), preload_batch_iterator_(preload_queue_) {}
 
 void PreloadFileProcessor::PreloadLoopFrame()
 {
     PreloadNextFrames(1);
-    loop_replay_      = true;
-    loop_reset_point_ = SkipStateBlocks(current_frame_number_, replay_cursor_);
+    loop_replay_ = true;
+    loop_bookmark_ =
+        SkipStateBlocks(dispatch_frame_number_, preload_batch_iterator_.MakeBookmark(preload_block_iterator_));
 }
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {
-    size_t expected_count = count;
-    if (!IsFileValid())
+    // This should never be called for zero length ranges
+    GFXRECON_ASSERT(count > 0U);
+
+    // Multiple appended preload not supported.
+    ResetPreload();
+
+    size_t preloaded_frames = 0;
+    if (async_processing_)
     {
-        error_state_ = CheckFileStatus();
-        return;
+        preloaded_frames = PreloadNextFramesAsync(count);
+    }
+    else
+    {
+        preloaded_frames = PreloadNextFramesSync(count);
     }
 
-    // Block processing will update current_frame_number_, so save and restore it,
-    // as callers rely on it remaining unchanged by preload.
-    const uint64_t save_current_frame = current_frame_number_;
+    if (preloaded_frames != count)
+    {
+        GFXRECON_LOG_INFO("Preload did not load all measurement frames. %" PRIu64 " frames found, %" PRIu64 " expected",
+                          preloaded_frames,
+                          count);
+    }
+
+    // Set the replay controls
+    replay_from_queue_ = true;
+    preload_batch_iterator_.Rewind(); // loads first batch; points cursor to head of preload_queue_
+    preload_block_iterator_ = BlockIterator(&preload_batch_iterator_);
+}
+
+void PreloadFileProcessor::ReplayAndClearStutterFrame()
+{
+    // This is really part of the non-preloaded previous (first) frame,
+    // so immediately replay it to complete that frame
+    DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
+    preload_batch_iterator_.Rewind();
+    BlockIterator begin(&preload_batch_iterator_);
+    ReplayOneFrame(dispatch_visitor, begin, BlockIterator());
+
+    // Don't need/want to NotifyIndexDequeued here as since:
+    // * this is a frame boundary (not EOF)
+    // * count is not decremented (and non-zero)
+    // * the next frame won't be first
+    //
+    // Thus at least one result is guaranteed to be preloaded.
+    ResetPreload();
+
+    GFXRECON_ASSERT(GetReplayResult(dispatch_visitor).state == ProcessBlockState::kFrameBoundary);
+}
+
+size_t PreloadFileProcessor::PreloadNextFramesSync(size_t preload_count)
+{
+    // This should never be called for zero length ranges
+    GFXRECON_ASSERT(preload_count > 0U);
+
+    if (!IsFileValid())
+    {
+        process_error_state_ = CheckFileStatus();
+        return 0;
+    }
 
     // Escalate operation mode to enqueueing if needed, saving previous mode
     auto save_operation_mode = block_parser_->GetOperationMode();
@@ -84,265 +134,218 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
     // by subsequent decompressions, leading to invalid or stale pointers.
     block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
 
-    // Multiple appended preload not supported.
-    GFXRECON_ASSERT(!preload_head_);
-    ResetPreload();
+    file_processor::PreloadProcessPolicy process_policy{ *this };
 
-    ProcessBlockState preload_result        = ProcessBlockState::kFrameBoundary;
-    bool              first_preloaded_frame = true;
-    while ((count != 0U) && (preload_result == ProcessBlockState::kFrameBoundary))
+    const FrameNumber end_preload_frame = dispatch_frame_number_ + preload_count;
+
+    ProcessBlockState state = ProcessBlockState::kFrameBoundary;
+    while ((process_frame_number_ < end_preload_frame) && (state == ProcessBlockState::kFrameBoundary))
     {
-        uint64_t current_preload_frame = current_frame_number_;
-        preload_result                 = PreloadBlocksOneFrame();
+        state = ProcessBlocks(process_policy);
 
-        if (preload_result != ProcessBlockState::kError)
+        // The index is not meaningful during synchronous processing.
+        ProcessBlocksResult preload_result = { 0U, process_frame_number_, process_error_state_, state };
+        block_parser_->EmplaceResultsBlock(preload_result);
+
+        // This is the "leading stutter"" condition.  The ProcessBlocks is repeating the same frame
+        // number we started with. Middle stutter (where the duplicate frame boundary is embbedded in
+        // the measurement range doesn't need special handling
+        if ((state == ProcessBlockState::kFrameBoundary) && (process_frame_number_ == dispatch_frame_number_))
         {
-            // This is for the corner case where we are seeing an explicit frame boundary, for a file
-            // that assumes implicit frame boundaries on specific function call blocks.
-            // A WARNING is logged during block processing when this occurs.
-
-            // We have two strategies to deal with this case:
-            const bool frame_stutter = (preload_result == ProcessBlockState::kFrameBoundary) &&
-                                       (current_frame_number_ == current_preload_frame);
-            if (frame_stutter)
-            {
-                // Deal with the frame marker after implied frame kFunctionCallBlock frame boundary case
-                GFXRECON_ASSERT(current_frame_number_ == (kFirstFrame + 1));
-                if (first_preloaded_frame)
-                {
-                    // This is really part of the non-preloaded previous (first) frame,
-                    // so immediately replay it to complete that frame
-                    block_parser_->GetBlockAllocator().FlushBatch();
-                    ProcessBlockState replay_result = ReplayOneFrame();
-                    ResetPreload();
-                    GFXRECON_ASSERT(replay_result == ProcessBlockState::kFrameBoundary);
-                }
-                else
-                {
-                    // Marking the preloaded queue as having a stuttered frame,
-                    // and have replay skip the first frame boundary when replaying
-                    GFXRECON_ASSERT(!first_preloaded_frame);
-                    preload_contains_frame_stutter_ = true;
-                }
-            }
-            else
-            {
-                // Normal case, just count the preloaded frame
-                count--;
-            }
-
-            first_preloaded_frame = false;
+            // This can only happen between frames 0 and 1.
+            GFXRECON_ASSERT(dispatch_frame_number_ == (kFirstFrame + 1));
+            block_parser_->GetBlockAllocator().FlushBatch();
+            ReplayAndClearStutterFrame();
         }
     }
 
-    // Ensure we have even non-full batches
+    // Flush any pending batches to the preload_queue_
     block_parser_->GetBlockAllocator().FlushBatch();
 
-    // Need to remember how preloading ended to know what to do after replay completes
-    final_process_state_ = preload_result;
+    // Since preload_count can't be zero, the queue mustn't be empty, even with no complete frames.
+    // If there are no complete frames, a kError or kEndProcessing result will be on the queue.
+    GFXRECON_ASSERT(!preload_queue_.empty());
 
-    if (count)
-    {
-        const uint64_t found = expected_count - count;
-        const uint64_t total = expected_count;
-        GFXRECON_LOG_INFO("Preload did not load all measurement frames. %" PRIu64 " frames found, %" PRIu64 " expected",
-                          found,
-                          total);
-    }
+    size_t frames_preloaded = process_frame_number_ - dispatch_frame_number_;
 
     // Restore the original parser policies
     block_parser_->SetOperationMode(save_operation_mode);
     block_parser_->SetDecompressionPolicy(save_decompression_policy);
     block_parser_->GetBlockAllocator().ResetBatchSinkProc();
-
-    // Restore saved frame number callers expect it to be unchanged by preload
-    current_frame_number_ = save_current_frame;
+    return frames_preloaded;
 }
 
 void PreloadFileProcessor::ResetPreload()
 {
-    preload_head_  = BlockBatch::iterator();
-    replay_cursor_ = BlockBatch::iterator();
-    preload_tail_  = nullptr;
+    preload_queue_.clear();
+    // view holds preload_queue_ iterators, make sure they aren't invalid
+    preload_batch_iterator_.Rewind();
+
+    // The Rewind call points cursor at preload_queue_.begin() but after clear,
+    // this should also be end(), and thus the view must be empty.
+    GFXRECON_ASSERT(preload_batch_iterator_.empty());
 }
 
-FileProcessor::ProcessBlockState PreloadFileProcessor::PreloadBlocksOneFrame()
+size_t PreloadFileProcessor::PreloadNextFramesAsync(size_t count)
 {
-    DispatchFunction dispatch = [](uint64_t block_index, ParsedBlock& block) {
-        // NULL dispatch function.  The block batch sink will collect the parsed blocks.
-        return ProcessBlockState::kRunning;
-    };
+    // Need to copy from the async_queue_ to the preload_queue_
+    // Only batches with trailing ProcessBlocksResults are interesting, as they reflect the flush conditions of
+    // the async thread:
+    // * End of preload
+    // * End of file
+    // * Coincidental with batch boundary.  Effectively, ignored
+    //
+    // Note that since we are directly consuming batches via async_block_iterator_, we will need to
+    // advance it past the last preloaded batch at the end of preload (see ProcessNextFrame).
+    //
+    FrameNumber       preload_frame_number = dispatch_frame_number_;
+    FrameNumber       preload_frame_limit_ = dispatch_frame_number_ + count;
+    ProcessBlockState state                = ProcessBlockState::kFrameBoundary;
 
-    return ProcessBlocks(dispatch, false /* check decoder completion */);
+    // Note that we aren't counting frames, rather looking at reported frame numbers.
+    bool preloading = true;
+    do
+    {
+        // Starting from were non-preload replay left off...
+        BlockBatch::BatchPtr batch = async_block_iterator_.GetBatch();
+        if (batch.get() == nullptr)
+        {
+            GFXRECON_ASSERT(
+                false && "Should never encounter end of queue without a terminating ProcessBlocksResult ahead of it.");
+            dispatch_error_state_ = BlockIOError::kErrorReadingBlockData;
+            state                 = ProcessBlockState::kError;
+            preloading            = false;
+        }
+        else
+        {
+            GFXRECON_ASSERT((batch.get() != nullptr) && !batch->empty());
+            ParsedBlock* tail_block = batch->Tail();
+
+            const ProcessBlocksResult* const* block_result_ptr =
+                std::get_if<ProcessBlocksResult*>(&(tail_block->GetArgs()));
+            preload_queue_.emplace_back(std::move(batch));
+
+            // The pointer is still valid, as moving the batch shared_ptr doesn't alter the batch..
+            if (block_result_ptr != nullptr)
+            {
+                const ProcessBlocksResult* const block_result = *block_result_ptr;
+                if (block_result)
+                {
+                    preload_frame_number = block_result->frame_number;
+                    state                = block_result->state;
+
+                    // This is the "leading stutter"" condition.  The batch tail is a frame boundary repeating the same
+                    // frame number. Middle stutter (where the duplicate frame boundary is embbedded in the measurement
+                    // range doesn't need special handling
+                    if ((state == ProcessBlockState::kFrameBoundary) &&
+                        (preload_frame_number == dispatch_frame_number_))
+                    {
+                        // This can only happen between frames 0 and 1.
+                        GFXRECON_ASSERT(dispatch_frame_number_ == (kFirstFrame + 1));
+                        ReplayAndClearStutterFrame();
+                    }
+                    GFXRECON_ASSERT(state != ProcessBlockState::kRunning);
+                    // Terminate if we hit anything other than a frame boundary in a trailing result, or finish the
+                    // preload.
+                    preloading =
+                        (state == ProcessBlockState::kFrameBoundary) && (preload_frame_number < preload_frame_limit_);
+                }
+            }
+        }
+
+        // If we're still preloading, get the next batch.
+        if (preloading)
+        {
+            async_block_iterator_.NextBatch();
+        }
+    } while (preloading);
+
+    // Return the number frames preloaded.
+    return preload_frame_number - dispatch_frame_number_;
 }
 
 bool PreloadFileProcessor::ProcessNextFrame()
 {
     // Clean up preloaded frames if we're at the end of the preloaded frames.  It's done here
     // so that the clean up time is not measured in the measurement-frame-range timing.
-    if (!replay_cursor_)
+    if (!replay_from_queue_)
     {
-        if (preload_head_)
+        if (!preload_queue_.empty())
         {
+            // We clean up frame after limit s.t. memory operations don't taint performance
             ResetPreload();
+
+            if (async_processing_)
+            {
+                // We didn't notify dequeued for all of replay, until now, and if async_processing_,
+                // the async_thread_ has been blocking on this last enqueued index
+                NotifyIndexDequeued(preload_last_index_);
+                // After restarting the async_thread_ (such that NextBatch doesn't hang), advance past the last
+                // preloaded batch; blocks until async_thread_ flushes the next one.
+                async_block_iterator_.NextBatch();
+            }
         }
         return FileProcessor::ProcessNextFrame();
     }
 
-    ProcessBlockState process_result = ReplayOneFrame();
+    DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
+    preload_block_iterator_           = ReplayOneFrame(dispatch_visitor, preload_block_iterator_, BlockIterator());
+    const ProcessBlocksResult& result = GetReplayResult(dispatch_visitor);
+    HandleReplayResult(result, preload_block_iterator_, [this](const ProcessBlocksResult& publish_result) {
+        preload_last_index_ = publish_result.index;
+    });
 
-    const bool at_end = (!replay_cursor_);
     if (loop_replay_)
     {
-        // We're resetting the command stream, wait for all referenced resouces
-        // to be non-busy
+        // We're resetting the command stream, wait for all referenced resources to be non-busy
         WaitDecodersIdle();
-        replay_cursor_ = loop_reset_point_;
-        // We keep going as long we get the expected result
-        return process_result != ProcessBlockState::kError;
+        preload_block_iterator_ = loop_bookmark_->RestoreInto(preload_batch_iterator_);
+        // NOTE: EOP is a valid loop continuation — only Error terminates looping.
+        return result.state != ProcessBlockState::kError;
     }
 
-    if (at_end)
+    if (preload_block_iterator_ == BlockIterator())
     {
-        if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
-        {
-            // If we reached the end of preloaded frames on a frame boundary, increment the frame number
-            current_frame_number_++;
-        }
-        // Return true only if both the replay and preload are in a continue state
-        return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
+        replay_from_queue_ = false;
     }
-
-    if (IsFrameBoundary(process_result))
-    {
-        current_frame_number_++;
-    }
-    return ContinueProcessing(process_result);
-}
-
-BlockBatch::iterator PreloadFileProcessor::SkipStateBlocks(uint64_t frame_number, BlockBatch::iterator start)
-{
-    GFXRECON_ASSERT(start);
-    for (auto drop_cursor = start; drop_cursor; ++drop_cursor)
-    {
-        ParsedBlock& block = *drop_cursor;
-        if (block.Holds<StateEndMarkerArgs>())
-        {
-            ++drop_cursor;
-            auto blocks_skipped = std::distance(start, drop_cursor);
-            GFXRECON_LOG_INFO(
-                "Skipped %" PRIu64 " state blocks from preloaded frame %" PRIu64, blocks_skipped, frame_number);
-            return drop_cursor;
-        }
-    }
-    return start;
-}
-
-FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
-{
-    GFXRECON_ASSERT(replay_cursor_);
-
-    BlockParser&    block_parser = GetBlockParser();
-    DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
-    SetDecoderFrameNumber(current_frame_number_);
-
-    ProcessBlockState process_state = ProcessBlockState::kRunning;
-    while (process_state == ProcessBlockState::kRunning)
-    {
-        ParsedBlock& queued_block = *replay_cursor_;
-        uint64_t     block_index  = queued_block.GetBlockIndex();
-        if (!ContinueDecoding(block_index, true /* check decoder completion */))
-        {
-            process_state = ProcessBlockState::kEndProcessing;
-            break;
-        }
-
-        // We assume that only known, visitable blocks were preloaded
-        GFXRECON_ASSERT(queued_block.IsVisitable());
-
-        if (queued_block.NeedsDecompression())
-        {
-            // Note: This replay path is destructive to preloaded blocks.
-            //
-            // Decompression during replay sets the args data pointer to the working_uncompressed_store_ data.
-            // The block is ready to dispatch; however, it will become invalid as soon as the next block is
-            // decompressed. This is because the working store will be overwritten with the most recently
-            // decompressed data, and since the working store automatically resizes as needed, the data
-            // pointer may become stale.
-            //
-            // For performance reasons, we are neither updating the block state nor deleting the block until
-            // *after* all preloaded blocks have been replayed. This means that replayed blocks are effectively
-            // invalid, yet they are retained and still marked as valid.
-            //
-            // If in the future we need to support the reuse of preloaded blocks, we will need a way to:
-            //  1: restore the args data pointer, or
-            //  2: retain the decompressed data in the block batch (likely as a dynamic allocation in the HLA), or
-            //  3: allocate the decompressed buffer storage at block creation time, but still defer decompression.
-            if (!queued_block.Decompress(block_parser, working_uncompressed_store_))
-            {
-                // As is the case with decompression failure during block parsing, decompression failure on replay
-                // is fatal.
-                //
-                // Note: Error message generation is done by the block decompression code
-                process_state = ProcessBlockState::kError;
-                break;
-            }
-        }
-
-        dispatch_visitor.SetBlockIndex(block_index);
-        std::visit(dispatch_visitor, queued_block.GetArgs());
-
-        if (queued_block.IsFrameBoundary())
-        {
-            if (!preload_contains_frame_stutter_)
-            {
-                process_state = ProcessBlockState::kFrameBoundary;
-            }
-            else
-            {
-                // There is at most one spurious frame boundary
-                preload_contains_frame_stutter_ = false;
-            }
-        }
-
-        // Advance
-        ++replay_cursor_;
-
-        if ((process_state == ProcessBlockState::kRunning) && !replay_cursor_)
-        {
-            // We did not end on a frame boundary, but that's okay if preloading end frame is beyond last complete frame
-            // and there is a last incomplete frame, because of interrupt during record
-            process_state = ProcessBlockState::kEndProcessing;
-        }
-    }
-
-    return process_state;
+    return ContinueProcessing(result.state);
 }
 
 void PreloadFileProcessor::EnqueueBatch(BlockBatch::BatchPtr&& batch)
 {
     GFXRECON_ASSERT(batch.get() != nullptr);
-    if (preload_tail_)
+    preload_queue_.emplace_back(batch);
+}
+
+PreloadFileProcessor::Bookmark
+PreloadFileProcessor::PreloadBatchIterator::MakeBookmark(const file_processor::BlockIterator& bit) const
+{
+    GFXRECON_ASSERT(bit.BelongsTo(*this));
+    return Bookmark(*this, bit.GetBlock());
+}
+
+file_processor::BlockIterator PreloadFileProcessor::Bookmark::RestoreInto(PreloadBatchIterator& target) const
+{
+    target = pbi_;
+    return file_processor::BlockIterator(file_processor::BlockIterator::ForceLocationTag{}, target, block_);
+}
+
+PreloadFileProcessor::Bookmark PreloadFileProcessor::SkipStateBlocks(uint64_t frame_number, Bookmark start)
+{
+    PreloadBatchIterator local;
+    BlockIterator        it = start.RestoreInto(local);
+    size_t               n  = 0;
+    for (; it != BlockIterator(); ++it, ++n)
     {
-        GFXRECON_ASSERT(preload_head_ && replay_cursor_);
-        batch = BlockBatch::NonEmptyBatch(std::move(batch));
-        if (batch.get() != nullptr)
+        if (it->Holds<StateEndMarkerArgs>())
         {
-            // The batch was non-empty, so add it to the end of the queue.
-            preload_tail_->SetNext(std::move(batch));
-            preload_tail_ = preload_tail_->GetTail();
+            ++n;
+            ++it; // advance past the StateEndMarkerArgs block
+            GFXRECON_LOG_INFO("Skipped %zu state blocks from preloaded frame %" PRIu64, n, frame_number);
+            return local.MakeBookmark(it);
         }
     }
-    else
-    {
-        preload_head_ = BlockBatch::MakeIteratorFromBatch(std::move(batch));
-        if (preload_head_ != BlockBatch::iterator())
-        {
-            // We aren't expecting chains of batches, but preload_tail_ will be wrong if we don't get the tail.
-            preload_tail_  = preload_head_.GetBatch()->GetTail();
-            replay_cursor_ = preload_head_;
-        }
-    }
+    return start;
 }
 
 GFXRECON_END_NAMESPACE(decode)

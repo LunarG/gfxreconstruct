@@ -23,6 +23,7 @@
 
 #include "decode/block_buffer.h"
 #include "decode/block_parser.h"
+#include "decode/file_processor_types.h"
 #include "format/format_util.h"
 
 #include <cstring>
