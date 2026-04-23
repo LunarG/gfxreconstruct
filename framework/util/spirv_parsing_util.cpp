@@ -38,17 +38,39 @@ struct LayoutInfo
     uint32_t size      = 0;
 };
 
+// NOTE: compute_type_layout does not handle different block-layouts (std140, std430, scalar), basically assuming std430
+// TODO: if possible avoid offset-calculation entirely, use SpvReflectBlockVariable instead
 LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description)
 {
-    // TODO: alignment should handle different block-layouts (std140, std430, scalar), when types are padded
     uint32_t alignment = 0;
     uint32_t num_bytes = type_description->traits.numeric.scalar.width / 8;
 
     switch (type_description->op)
     {
-        case SpvOpTypeVector:
-            num_bytes *= type_description->traits.numeric.vector.component_count;
+        case SpvOpTypeInt:
+
+            // 64-bit integers: align to 8-byte
+            if (type_description->traits.numeric.scalar.width == 64)
+            {
+                num_bytes = sizeof(uint64_t);
+                alignment = sizeof(uint64_t);
+            }
             break;
+
+        case SpvOpTypeVector:
+        {
+            if (type_description->traits.numeric.vector.component_count == 2)
+            {
+                num_bytes *= 2;
+                alignment = num_bytes;
+            }
+            else
+            {
+                alignment = num_bytes * 4;
+                num_bytes *= type_description->traits.numeric.vector.component_count;
+            }
+            break;
+        }
 
         case SpvOpTypeMatrix:
         {
@@ -92,11 +114,8 @@ LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description
 
         case SpvOpTypePointer:
         case SpvOpTypeForwardPointer:
-            // Vulkan device address / buffer ref
             num_bytes = sizeof(uint64_t);
-
-            // TODO: only true for std140, std430, could fail for scalar?
-            // alignment = sizeof(uint64_t);
+            alignment = sizeof(uint64_t);
             break;
 
         default:
@@ -175,9 +194,6 @@ class SpirVParsingUtil::Instruction
 
     const uint32_t* words_ = nullptr;
 };
-
-//// This is the LUT for hoping around instruction from the result ID
-// std::unordered_map<uint32_t, const SpirVInstruction*> definitions;
 
 const SpirVParsingUtil::Instruction* SpirVParsingUtil::FindDef(uint32_t id)
 {
@@ -338,10 +354,13 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
             {
                 auto queue_item = std::move(queue.front());
                 queue.pop_front();
-                auto& [td, offset, stride, member_names] = queue_item;
 
-                if (td)
+                if (auto& [td, offset, stride, member_names] = queue_item; td)
                 {
+                    // align offset
+                    auto layout_info = compute_type_layout(td);
+                    offset           = util::aligned_value(offset, layout_info.alignment);
+
                     member_names.emplace_back(td->struct_member_name ? td->struct_member_name : "unknown");
 
                     // we pick up potential buffer-references here and confirm later.
@@ -362,6 +381,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                         ref_info.array_stride  = stride;
 
                         // insert into map
+                        GFXRECON_ASSERT(offset % 8 == 0);
                         buffer_reference_map_[ref_info] = member_names;
                     }
 
@@ -371,9 +391,9 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                         queue.push_back({ member, offset, stride, member_names });
 
                         // align offset, add size
-                        auto layout_info = compute_type_layout(member);
-                        GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, layout_info.alignment));
-                        offset += layout_info.size;
+                        auto child_layout_info = compute_type_layout(member);
+                        GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, child_layout_info.alignment));
+                        offset += child_layout_info.size;
                     }
                 }
             }
