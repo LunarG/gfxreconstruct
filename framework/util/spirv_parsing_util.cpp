@@ -568,6 +568,13 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                     }
 
                                     td = td->members + idx;
+
+                                    // align member itself
+                                    auto target_layout_info = compute_type_layout(td);
+                                    GFXRECON_NARROWING_ASSIGN(buffer_reference_info.buffer_offset,
+                                                              util::aligned_value(buffer_reference_info.buffer_offset,
+                                                                                  target_layout_info.alignment));
+
                                     access_chain_names.emplace_back(td->struct_member_name ? td->struct_member_name
                                                                                            : "unknown");
                                 }
