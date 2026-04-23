@@ -192,6 +192,9 @@ struct VulkanReplayOptions : public ReplayOptions
     /// Milliseconds to wait before starting to replay each frame.
     uint32_t wait_before_frame{ 0 };
 
+    /// Serialize submit entries within one vkQueueSubmit/vkQueueSubmit2 call by chaining them with semaphores.
+    bool serialize_queue_submissions{ false };
+
     void MaybeWaitBeforeFirstSubmit() const;
     void MaybeWaitBeforeFrame() const;
 };
