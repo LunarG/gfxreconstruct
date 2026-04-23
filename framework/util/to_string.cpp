@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
 ** Copyright (c) 2023 Valve Corporation.
+** Copyright (c) 2026 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,6 +24,8 @@
 #include "util/to_string.h"
 #include "util/logging.h"
 #include "to_string.h"
+
+#include <cstdlib>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -117,6 +120,17 @@ void FieldToString(std::ostringstream& strStrm,
     strStrm << "\"" << fieldName << "\":";
     strStrm << GetWhitespaceString(toStringFlags);
     strStrm << fieldString;
+}
+
+std::wstring StringToWideString(const std::string& str)
+{
+    std::wstring wstr(str.size(), L'\0');
+    std::size_t  converted = std::mbstowcs(&wstr[0], str.c_str(), str.size());
+    if (converted != static_cast<std::size_t>(-1))
+    {
+        wstr.resize(converted);
+    }
+    return wstr;
 }
 
 GFXRECON_END_NAMESPACE(util)
