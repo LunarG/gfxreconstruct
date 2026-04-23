@@ -2111,9 +2111,9 @@ std::string GenerateStruct_VkDeviceCreateInfo(std::ostream &out, const VkDeviceC
         out << "\t\t" << "VkDeviceQueueCreateInfo " << pqueue_create_infos_array << "[] = {" << pqueue_create_infos_names << "};" << std::endl;
     }
     std::string pp_enabled_layer_names_var = "NULL";
-    if (0) {
+    if (structInfo->enabledLayerCount) {
     pp_enabled_layer_names_var = "ppEnabledLayerNames_" + std::to_string(consumer.GetNextId());
-    out << "\t\t" << "const char* " << pp_enabled_layer_names_var << "[] = " << VulkanCppConsumerBase::EscapeStringArray(structInfo->ppEnabledLayerNames, 0) << ";" << std::endl;
+    out << "\t\t" << "const char* " << pp_enabled_layer_names_var << "[] = " << VulkanCppConsumerBase::EscapeStringArray(structInfo->ppEnabledLayerNames, structInfo->enabledLayerCount) << ";" << std::endl;
     }
     std::string pp_enabled_extension_names_var = "NULL";
     if (structInfo->enabledExtensionCount) {

@@ -251,16 +251,14 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
 
         if arg.is_pointer and arg.pointer_count > 1:
 
-            # ppEnabledLayerNames/enabledLayerCount in VkDeviceDescriptorInfo was
-            # deprecated in Vulkan-Headers 1.4.349, and at the same time the len
-            # attribute for enabledLayerCount was dropped. So the value we get for
-            # arg.array_length is None. We need to include enabledLayerCount in captures
-            # so as to maintain compatibility with prior captures. We force array_length
-            # to 0 if we weren't passed a value for array_length.
-            if arg.array_length:
-                array_length = f'{struct_prefix}{arg.array_length}'
-            else:
-                array_length = '0'
+            # ppEnabledLayerNames/enabledLayerCount in VkDeviceDescriptorInfo were deprecated
+            # in Vulkan-Headers 1.4.349, and at the same time the len attribute for
+            # ppEnabledLayerNames was dropped. We need to still generate code as if it wasn't
+            # deprecated to maintain compatibiltiy with older apps and prior gfxr releases.
+            # So if the arg is ppEnabledLayerNames, we set arg.array_length to what it used to be
+            # in prior releases.
+            if arg.name == 'ppEnabledLayerNames' and arg.array_length == None:
+                arg.array_length = 'enabledLayerCount'
 
             handleObjectType = None
             if arg.base_type in self.handle_names:
@@ -269,12 +267,12 @@ class VulkanCppStructGenerator(VulkanBaseGenerator):
             escapedStringArrayName = makeSnakeCaseName(f'{arg.name}Var'.format(**locals()))
             header_data = [
                 makeGenVar(escapedStringArrayName, None, locals(), handleObjectType, indent, useThis=False),
-                makeGenCond(array_length,
+                makeGenCond('{struct_prefix}{arg.array_length}',
                             [makeGenVar(escapedStringArrayName, '{arg.name}', handleObjectType, locals(), indent, addType=False, useThis=False),
                             printOutStream(['"const char* "',
                                             escapedStringArrayName,
                                             '"[] = "',
-                                            f'VulkanCppConsumerBase::EscapeStringArray({struct_prefix}{arg.name}, {array_length})',
+                                            f'VulkanCppConsumerBase::EscapeStringArray({struct_prefix}{arg.name}, {struct_prefix}{arg.array_length})',
                                             '";"'], locals(), indent)], [], locals(), indent)]
             local_header.append(''.join(header_data))
             local_body.append(makeOutStructSet(escapedStringArrayName, locals(), isFirstArg, isLastArg, indent))
