@@ -29,43 +29,12 @@
 #include "util/platform.h"
 #include "util/alignment_utils.h"
 
-#include "Vulkan-Utility-Libraries/vk_format_utils.h"
-
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-static uint32_t FindBufferOffsetAlignmentForCopyBufferToImage(VkFormat format)
-{
-    uint32_t alignment = 0;
-    if (vkuFormatIsDepthOrStencil(format))
-    {
-        // Spec mandates an alignment of 4 for depth/stencil formats
-        alignment = 4;
-    }
-    else if (vkuFormatIsMultiplane(format))
-    {
-        // According to spec, for multiplanar formats the alignment is determined from the compatible format
-        VkFormat compatible_format = vkuFindMultiplaneCompatibleFormat(format, VK_IMAGE_ASPECT_PLANE_0_BIT);
-        GFXRECON_ASSERT(compatible_format != VK_FORMAT_UNDEFINED);
-        if (compatible_format != VK_FORMAT_UNDEFINED)
-        {
-            const VKU_FORMAT_INFO format_info = vkuGetFormatInfo(compatible_format);
-            alignment                         = format_info.block_size;
-        }
-    }
-    else
-    {
-        // In all other cases spec mandates an alignment of the format's block size.
-        const VKU_FORMAT_INFO format_info = vkuGetFormatInfo(format);
-        alignment                         = format_info.block_size;
-    }
-
-    return alignment;
-}
 
 VulkanResourceInitializer::VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
                                                      VkDeviceSize                            total_copy_size,
@@ -282,8 +251,13 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             if (staging_buffer_offset_ > 0)
             {
                 // Apply to offset any spec mandated alignment
-                const uint32_t alignment = FindBufferOffsetAlignmentForCopyBufferToImage(format);
-                staging_buffer_offset_   = util::platform::GetAlignedSize(staging_buffer_offset_, alignment);
+                //
+                // IMPORTANT: `util::platform::GetAlignedSize` uses bitwise math and only works for power-of-two
+                // alignments. Some legal Vulkan formats (for example RGB8) require alignment 3, which is not a
+                // power of two. Using the old helper with alignment=3 can produce offsets that are still misaligned
+                // to 3, triggering driver assertions when recording `vkCmdCopyBufferToImage`.
+                const VkDeviceSize alignment = graphics::GetBufferImageCopyOffsetAlignment(format, aspect);
+                staging_buffer_offset_       = graphics::AlignBufferOffset(staging_buffer_offset_, alignment);
 
                 // If data does not fit in the remaining portion of the staging buffer flush pending commands and reset
                 // staging buffer offset
