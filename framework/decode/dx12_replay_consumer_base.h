@@ -1279,7 +1279,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void ProcessQueueWait(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value);
 
-    void ProcessFenceSignal(DxObjectInfo* info, uint64_t value);
+    void ProcessFenceSignal(DxObjectInfo* info, uint64_t value, bool from_queue_signal);
 
     void SignalWaitingQueue(DxObjectInfo* queue_info, DxObjectInfo* fence_info, uint64_t value);
 
