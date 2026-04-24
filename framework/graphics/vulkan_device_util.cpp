@@ -129,8 +129,7 @@ static bool ShouldDisableArmDescriptorBufferCaptureReplay(const VulkanInstanceUt
     {
         if (minor < 6)
         {
-            GFXRECON_LOG_WARNING(
-                "Disabling descriptorBufferCaptureReplay as a workaround due to driver version.");
+            GFXRECON_LOG_WARNING("Disabling descriptorBufferCaptureReplay as a workaround due to driver version.");
             return true;
         }
 
@@ -140,8 +139,7 @@ static bool ShouldDisableArmDescriptorBufferCaptureReplay(const VulkanInstanceUt
     {
         if (minor < 4)
         {
-            GFXRECON_LOG_WARNING(
-                "Disabling descriptorBufferCaptureReplay as a workaround due to driver version.");
+            GFXRECON_LOG_WARNING("Disabling descriptorBufferCaptureReplay as a workaround due to driver version.");
             return true;
         }
 
