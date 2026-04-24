@@ -49,10 +49,10 @@ class InfoOpenXrFeature : public InfoFeature
     std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
-  protected:
     // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) override;
+    void RegisterDecodeComponents(decode::FileProcessor&      file_processor,
+                                  const decode::InfoConsumer& info_consumer) override;
 
   private:
     std::string GetVersionString(XrVersion api_version);

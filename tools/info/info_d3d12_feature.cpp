@@ -42,11 +42,14 @@ std::string InfoD3d12Feature::CompiledHeaderVersionString() const
 #endif
 }
 
-void InfoD3d12Feature::RegisterInternalDecodeComponents(decode::FileProcessor* file_processor)
+void InfoD3d12Feature::RegisterDecodeComponents(decode::FileProcessor&      file_processor,
+                                                const decode::InfoConsumer& info_consumer)
 {
     dx12_decoder_.AddConsumer(&dx12_detection_consumer_);
     dx12_decoder_.AddConsumer(&dx12_consumer_);
-    file_processor->AddDecoder(&dx12_decoder_);
+    file_processor.AddDecoder(&dx12_decoder_);
+    file_processor_ = &file_processor;
+    info_consumer_  = &info_consumer;
 }
 
 std::string InfoD3d12Feature::GetDriverInfoString()

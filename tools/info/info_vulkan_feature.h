@@ -50,10 +50,10 @@ class InfoVulkanFeature : public InfoFeature
     // Frame-specific methods
     uint32_t GetFrameStart() const override;
 
-  protected:
     // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) override;
+    void RegisterDecodeComponents(decode::FileProcessor&      file_processor,
+                                  const decode::InfoConsumer& info_consumer) override;
 
   private:
     nlohmann::json GetDeviceMemoryStatsJson(uint64_t alloc_count,

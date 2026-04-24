@@ -52,10 +52,10 @@ class InfoD3d12Feature : public InfoFeature
     std::string    GenerateText() override;
     nlohmann::json GenerateJson() override;
 
-  protected:
     // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) override;
+    void RegisterDecodeComponents(decode::FileProcessor&      file_processor,
+                                  const decode::InfoConsumer& info_consumer) override;
 
   private:
     std::string AdapterTypeToString(format::AdapterType type);
@@ -76,6 +76,8 @@ class InfoD3d12Feature : public InfoFeature
     decode::Dx12DetectionConsumer dx12_detection_consumer_;
     decode::Dx12StatsConsumer     dx12_consumer_;
     decode::Dx12Decoder           dx12_decoder_;
+    decode::FileProcessor*        file_processor_{ nullptr };
+    const decode::InfoConsumer*   info_consumer_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(info)

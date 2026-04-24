@@ -54,22 +54,12 @@ class InfoFeature
 
     // Method to register this feature's decoder elements with the containers
     // FileProcessor
-    void RegisterDecodeComponents(decode::FileProcessor* file_processor, const decode::InfoConsumer* info_consumer)
-    {
-        file_processor_ = file_processor;
-        info_consumer_  = info_consumer;
-        RegisterInternalDecodeComponents(file_processor);
-    }
+    virtual void RegisterDecodeComponents(decode::FileProcessor&      file_processor,
+                                          const decode::InfoConsumer& info_consumer) = 0;
 
     // Output methods
     virtual std::string    GenerateText() = 0;
     virtual nlohmann::json GenerateJson() = 0;
-
-  protected:
-    virtual void RegisterInternalDecodeComponents(decode::FileProcessor* file_processor) = 0;
-
-    decode::FileProcessor*      file_processor_{ nullptr };
-    const decode::InfoConsumer* info_consumer_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(info)

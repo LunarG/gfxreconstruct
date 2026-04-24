@@ -39,11 +39,12 @@ std::string InfoVulkanFeature::CompiledHeaderVersionString() const
            std::to_string(VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 }
 
-void InfoVulkanFeature::RegisterInternalDecodeComponents(decode::FileProcessor* file_processor)
+void InfoVulkanFeature::RegisterDecodeComponents(decode::FileProcessor&      file_processor,
+                                                 const decode::InfoConsumer& info_consumer)
 {
     vulkan_decoder_.AddConsumer(&vulkan_detection_consumer_);
     vulkan_decoder_.AddConsumer(&vulkan_stats_consumer_);
-    file_processor->AddDecoder(&vulkan_decoder_);
+    file_processor.AddDecoder(&vulkan_decoder_);
 }
 
 std::string InfoVulkanFeature::GetVersionString(uint32_t api_version)
