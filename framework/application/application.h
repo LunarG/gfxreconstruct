@@ -99,6 +99,8 @@ class Application final
         return GFXRECON_NARROWING_CAST(uint32_t, file_processor_->GetCurrentFrameNumber());
     }
 
+    graphics::FrameLoopInfo* frame_loop_info_; ///< Indicates that playback wishes to loop a certain frame
+
   private:
     decode::PreloadFileProcessor* GetPreloadFileProcessor()
     {
@@ -112,7 +114,6 @@ class Application final
     decode::FileProcessor*                                       file_processor_;    ///< The FileProcessor object responsible for decoding and processing capture file data.
     bool                                                         running_;           ///< Indicates that the application is actively processing system events for playback.
     bool                                                         paused_;            ///< Indicates that the playback has been paused.  When paused the application will stop rendering, but will continue processing system events.
-    graphics::FrameLoopInfo*                                     frame_loop_info_;   ///< Indicates that playback wishes to loop a certain frame
     uint32_t                                                     pause_frame_;       ///< The number for a frame that replay should pause after.
     std::unordered_map<std::string, std::unique_ptr<WsiContext>> wsi_contexts_;      ///< Loaded WSI contexts from CLI and VkInstanceCreateInfo
     std::string                                                  cli_wsi_extension_; ///< WSI extension selected on CLI, empty string if no CLI selection

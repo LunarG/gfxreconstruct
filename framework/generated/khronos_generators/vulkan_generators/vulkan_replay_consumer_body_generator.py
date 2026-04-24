@@ -68,6 +68,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             'generated/generated_vulkan_dispatch_table.h',
             'generated/generated_vulkan_struct_handle_mappers.h',
             'util/defines.h',
+            'decode/vulkan_replay_frame_loop_consumer.h'
         ))
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
         self.begin_end_file_data.common_api_headers = []

@@ -7673,7 +7673,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormatsKHR(
 
     VkResult result = func(physical_device_info->handle, surface_info->handle, surface_format_count, surface_formats);
 
-    if (surface_formats != nullptr && result == VK_SUCCESS && *surface_format_count > 0)
+    if (surface_formats != nullptr)
     {
         physical_device_info->surface_formats = { surface_formats, surface_formats + *surface_format_count };
     }
@@ -7696,7 +7696,7 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormats2KHR(
     VkResult result =
         func(physical_device_info->handle, surface_info->GetPointer(), surface_format_count, surface_formats);
 
-    if (surface_formats != nullptr && result == VK_SUCCESS && *surface_format_count > 0)
+    if (surface_formats != nullptr)
     {
         // init optional value
         physical_device_info->surface_formats.emplace();
