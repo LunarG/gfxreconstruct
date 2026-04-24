@@ -2347,6 +2347,17 @@ class KhronosBaseGenerator(OutputGenerator):
         self, name, value, values, prefix, omit_output_param=None
     ):
         """Generate a parameter encoder method call invocation."""
+
+        # ppEnabledLayerNames/enabledLayerCount in VkDeviceDescriptorInfo were deprecated
+        # in Vulkan-Headers 1.4.349, and at the same time the len attribute for
+        # ppEnabledLayerNames was dropped. We don't have the info here to generate code
+        # identical to prior to when ppEnabledLayerNames was deprecated. We need to
+        # still generate code as if it wasn't deprecated to maintain compatibility with
+        # older apps and prior gfxr releases. So we just kludge it and return the string
+        # that was generated in prior releases.
+        if name == 'VkDeviceCreateInfo' and value.name == 'ppEnabledLayerNames':
+            return "encoder->EncodeStringArray(value.ppEnabledLayerNames, value.enabledLayerCount);"
+
         arg_name = prefix + value.name
         if self.is_generic_struct_handle_value(
             name, value.name

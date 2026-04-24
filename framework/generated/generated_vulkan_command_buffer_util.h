@@ -173,6 +173,12 @@ void TrackCmdPipelineBarrier2KHRHandles(vulkan_wrappers::CommandBufferWrapper* w
 
 void TrackCmdWriteTimestamp2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
+void TrackCmdCopyMemoryToImageKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo);
+
+void TrackCmdCopyImageToMemoryKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo);
+
+void TrackCmdCopyQueryPoolResultsToMemoryKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+
 void TrackCmdCopyBuffer2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
 
 void TrackCmdCopyImage2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyImageInfo2* pCopyImageInfo);
