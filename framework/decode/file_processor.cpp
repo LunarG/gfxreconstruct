@@ -480,84 +480,141 @@ void FileProcessor::AsyncWaitForFrameCount(FrameCount wait_target)
     async_wait_target_.store(kMaxFrameCount, std::memory_order_release);
 }
 
-void FileProcessor::AsyncThrottleQueue(FrameCount enqueued_frames)
+void FileProcessor::AsyncThrottleQueue(FrameCount enqueued_frames, const AsyncBatchFramesRing& batch_frame_index)
 {
+    // 2 is "next to last batch".
+    const FrameCount prior_batch_frames = batch_frame_index.Back(2);
 
-    // Highwater check
+    // Lowwater/Highwater checks
+    //  * The highwater and lowwater checks are based on both frames and batches
+    //  * It is possible for the producer to be in both highwater based on frames ahead and lowwater based on batches
+    //  ahead
+    //  * Priority is given to lowwater, to prevent starvation of the consumer, as the "high water based on frames"
+    //    check will only happen simultaneously with the lowwater check if the frames are small w.r.t. batch size,
+    //  * Preventing starvation of the consumer and the cost of one or two additional batches pending is a small memory
+    //    and batch overhead.
+    //
     // Since async_dequeued_frames_ is set from the ProcessBlocksResult::index it must be <= enqueued_frames
-    const FrameCount pending_frames = enqueued_frames - async_dequeued_frames_.load(std::memory_order_acquire);
+    const FrameCount dequeued_frames = async_dequeued_frames_.load(std::memory_order_acquire);
+    const FrameCount pending_frames  = enqueued_frames - dequeued_frames;
     async_stats_.AddFramePending(pending_frames);
 
-    // Make sure we don't starve the consumer on startup.
-    if (pending_frames >= async_max_pending_)
+    if (dequeued_frames >= prior_batch_frames)
     {
+        // Avoid consumer starvation:
+        // * The consumer is currently processing frames in one of the last two batches we enqueued.
+        // * Flush the current batch in progress and offload decompression to the consumer to load balance
+        async_stats_.AddLowWaterFlush(enqueued_frames, dequeued_frames, prior_batch_frames);
         block_parser_->GetBlockAllocator().FlushBatch();
 
-        // Increase max pending to wait limit.
-        async_max_pending_ <<= kAsyncMaxPendingShift;
-        async_max_pending_ = std::min(async_max_pending_, kAsyncWait);
+        async_stats_.AddPolicyChange(block_parser_->GetDecompressionPolicy(), BlockParser::DecompressionPolicy::kNever);
+        block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
+    }
+    else if (pending_frames >= kAsyncWait)
+    {
+        // Since we're not starving the consumer, check if we're far enough ahead, and if so, wait for the consumer.
+        static_assert(kAsyncWait > kAsyncResume);
+        FrameCount wait_target = enqueued_frames - kAsyncResume;
 
-        // If we're far enough ahead, wait for the consumer.
-        if (pending_frames >= kAsyncWait)
+        // We wait, if we are "Wait" frames ahead of the consumer, and either:
+        // * producers is more than one batch ahead of wait_target,
+        // * OR dequeued_frames is approximately kSize batches behind. (frames spanning batches make this approximate)
+        // Note: we don't have to use kSize, just any value <= kSize, it's just conveniently, heuristically sized to
+        // match.
+        //       Make sure to adjust the wait_target override below if you change the kSize (use a different offset).
+        const FrameCount oldest_batch_frames  = batch_frame_index.Back(AsyncBatchFramesRing::kSize);
+        bool             excess_batch_pending = false;
+        if (dequeued_frames < oldest_batch_frames)
         {
-            async_stats_.AddWait();
-            static_assert(kAsyncWait > kAsyncResume);
-            // Must flush before waiting
-            AsyncWaitForFrameCount(enqueued_frames - kAsyncResume);
+            // If consumer is more than kSize batches behind, catch up, but not enough to trigger lowwater on resume.
+            constexpr size_t kWaitTargetOffset = AsyncBatchFramesRing::kSize - 1;
+            static_assert(kWaitTargetOffset > 1,
+                          "Do not use 1 as the wait target offset,  this will force LowWater on resume");
+            wait_target          = batch_frame_index.Back(kWaitTargetOffset);
+            excess_batch_pending = true;
+        }
+
+        if (wait_target <= prior_batch_frames)
+        {
+            // Since the consumer is at least one batch and kAsyncWait frames behind, we wait until the consumer has
+            // caught up to the "resume" point, which is at least 1 full batch behind.
+            // We needn't flush here, as there is at least one full batch between the consumer and the producer.
+            async_stats_.AddHighwaterWait(enqueued_frames, dequeued_frames, wait_target, excess_batch_pending);
+            AsyncWaitForFrameCount(wait_target);
+            AsyncAdjustDecompressionPolicy(kAsyncResume);
+        }
+        else
+        {
+            // The resume point is no more than one batch behind, regardless of frame distance, we don't want to wait.
+            // We also don't need to flush as the lowwater handler will do so as necessary.
+            AsyncAdjustDecompressionPolicy(pending_frames);
         }
     }
     else
     {
-        const auto policy = block_parser_->GetDecompressionPolicy();
-        switch (policy)
-        {
-            case BlockParser::DecompressionPolicy::kNever:
-                if (pending_frames > kAsyncOptimized)
-                {
-                    async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kQueueOptimized);
-                    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
-                }
-                break;
-            case BlockParser::DecompressionPolicy::kQueueOptimized:
-                if (pending_frames >= kAsyncAlways)
-                {
-                    async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kAlways);
-                    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
-                }
-                else if (pending_frames <= kAsyncNever)
-                {
-                    async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kNever);
-                    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
-                }
-                break;
-            case BlockParser::DecompressionPolicy::kAlways:
-                if (pending_frames <= kAsyncOptimized)
-                {
-                    async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kQueueOptimized);
-                    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
-                }
-                break;
-        }
+        // Neither high nor low water, adjust decompression policy to attempt to load balance.
+        AsyncAdjustDecompressionPolicy(pending_frames);
+    }
 
-        async_stats_.IncrementPolicyCount(*block_parser_);
+    async_stats_.IncrementPolicyCount(*block_parser_);
+}
+
+void FileProcessor::AsyncAdjustDecompressionPolicy(FrameCount pending_frames)
+{
+    const auto policy = block_parser_->GetDecompressionPolicy();
+    switch (policy)
+    {
+        case BlockParser::DecompressionPolicy::kNever:
+            if (pending_frames > kAsyncOptimized)
+            {
+                async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kQueueOptimized);
+                block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
+            }
+            break;
+        case BlockParser::DecompressionPolicy::kQueueOptimized:
+            if (pending_frames >= kAsyncAlways)
+            {
+                async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kAlways);
+                block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
+            }
+            else if (pending_frames <= kAsyncNever)
+            {
+                async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kNever);
+                block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
+            }
+            break;
+        case BlockParser::DecompressionPolicy::kAlways:
+            if (pending_frames <= kAsyncOptimized)
+            {
+                async_stats_.AddPolicyChange(policy, BlockParser::DecompressionPolicy::kQueueOptimized);
+                block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
+            }
+            break;
     }
 }
 
 // This is the block loading and processing child thread.
 void FileProcessor::ProcessBlocksAsync()
 {
-
-    block_parser_->GetBlockAllocator().SetBatchSinkProc([this](BlockBatch::BatchPtr&& batch) {
-        async_stats_.AddBatch(batch);
-        async_queue_.emplace(std::move(batch));
-    });
-    // Start with async_thread_ doing the minimal, and adjust if it gets too far ahead
-    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
-    file_processor::AsynchronousProcessPolicy process_policy{ *this, async_stats_ };
-
     // As frame numbers can be non-contiguous, use a frame enqueing index for throttling math
     // Allow the *index* to be one based, counting the number of enqueued frames
     FrameCount enqueued_frames = 0;
+
+    // The batch_frame_index is a circular buffer of the last frame indices of the last few enqueued batches, indexed by
+    // batch_index.
+    AsyncBatchFramesRing batch_frame_index;
+
+    block_parser_->GetBlockAllocator().SetBatchSinkProc(
+        [this, &enqueued_frames, &batch_frame_index](BlockBatch::BatchPtr&& batch) {
+            // This is the frame index of the last frame in the batch. Used to detect starvation, and force flush on
+            // near empty queue.
+            batch_frame_index.Push(enqueued_frames);
+            async_stats_.AddBatch(batch, enqueued_frames);
+            async_queue_.emplace(std::move(batch));
+        });
+    // Start with async_thread_ doing the minimal, and adjust if it gets too far ahead
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
+    file_processor::AsynchronousProcessPolicy process_policy{ *this, async_stats_ };
 
     bool continue_processing = true;
     do
@@ -578,6 +635,7 @@ void FileProcessor::ProcessBlocksAsync()
         ProcessBlockState process_state = ProcessBlocks(process_policy);
         // Push all processed blocks onto the queue, and add the end of frame/end of process result to the queue
         ++enqueued_frames;
+        async_stats_.AddFrame();
         block_parser_->EmplaceResultsBlock(enqueued_frames, process_frame_number_, process_error_state_, process_state);
 
         // We don't want any more than Wait frames on the queue
@@ -598,7 +656,7 @@ void FileProcessor::ProcessBlocksAsync()
         }
         else
         {
-            AsyncThrottleQueue(enqueued_frames);
+            AsyncThrottleQueue(enqueued_frames, batch_frame_index);
         }
 
         continue_processing = ContinueProcessing(process_state) && (process_frame_number_ < async_quit_before_frame_);

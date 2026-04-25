@@ -24,6 +24,8 @@
 #ifndef GFXRECON_DECODE_FILE_PROCESSOR_H
 #define GFXRECON_DECODE_FILE_PROCESSOR_H
 
+//#define ASYNC_PROCESSING_INSTRUMENTATION
+
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "decode/annotation_handler.h"
@@ -47,8 +49,6 @@
 #include <type_traits> // ParsedBlock
 #include <utility>
 #include <vector>
-
-//#define ASYNC_PROCESSING_INSTRUMENTATION
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -239,14 +239,16 @@ class FileProcessor
     uint64_t process_block_index_{ 0 };
     uint64_t dispatch_block_index_{ 0 };
 
+    using AsyncQueue           = file_processor::AsyncProcessedBlockQueue;
+    using AsyncBatchIterator   = file_processor::AsyncBatchIterator;
+    using AsyncStats           = file_processor::AsyncInstrumentation;
+    using AsyncBatchFramesRing = file_processor::AsyncBatchFramesRing;
+
     // Asynchronous file read and parsing support
     void AsyncWaitForFrameCount(FrameCount wait_target);
-    void AsyncThrottleQueue(FrameCount enqueued_frames);
+    void AsyncThrottleQueue(FrameCount enqueued_frames, const AsyncBatchFramesRing& batch_frame_index);
+    void AsyncAdjustDecompressionPolicy(FrameCount pending_frames);
     void ProcessBlocksAsync();
-
-    using AsyncQueue         = file_processor::AsyncProcessedBlockQueue;
-    using AsyncBatchIterator = file_processor::AsyncBatchIterator;
-    using AsyncStats         = file_processor::AsyncInstrumentation;
 
     // Async Thread Control group: (constructive alignment)
     //  This is state primarly accessed by the async thread, and only occasionally read by the main thread, so we want
@@ -260,7 +262,6 @@ class FileProcessor
     alignas(util::kConstructiveAlign) uint64_t async_quit_before_frame_{ kMaxFrameNumber };
     FrameRange        async_preload_frame_range_;
     std::atomic<bool> async_keep_alive_; // Thread teardown control
-    FrameCount        async_max_pending_{ kAsyncInitialMaxPending };
     AsyncStats        async_stats_;
 
     // Shared Control group: (constructive alignment)
@@ -294,10 +295,6 @@ class FileProcessor
     // Note: the offset are intentional s.t. we don't beat agains the hysteresis boundaries above
     constexpr static FrameCount kAsyncResume = kAsyncOptimized + 2; // Unblock condition predicate criteria
     constexpr static FrameCount kAsyncWait = kAsyncAlways + 2; // Go into condition variable wait when above this limit
-
-    // For early stages
-    constexpr static FrameCount kAsyncInitialMaxPending = 4;
-    constexpr static int        kAsyncMaxPendingShift   = 1;
 
     static const ProcessBlocksResult& GetReplayResult(DispatchVisitor& dispatch_visitor);
     BlockIterator ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator begin, BlockIterator end);
