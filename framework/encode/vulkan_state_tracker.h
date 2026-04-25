@@ -514,6 +514,9 @@ class VulkanStateTracker
     void TrackCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
                                         const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
 
+    void TrackCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                     const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
+
     void
     TrackCmdBindPipeline(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
 

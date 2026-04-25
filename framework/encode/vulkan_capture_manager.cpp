@@ -4026,7 +4026,16 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2KHR(
 {
     if (IsCaptureModeTrack())
     {
-        state_tracker_->TrackCmdBindDescriptorSets2KHR(commandBuffer, pBindDescriptorSetsInfo);
+        state_tracker_->TrackCmdBindDescriptorSets2(commandBuffer, pBindDescriptorSetsInfo);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2(
+    VkCommandBuffer commandBuffer, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdBindDescriptorSets2(commandBuffer, pBindDescriptorSetsInfo);
     }
 }
 
