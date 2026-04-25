@@ -1495,6 +1495,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdBindDescriptorSets2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>
 {
     template <typename... Args>
