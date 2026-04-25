@@ -8,6 +8,7 @@
         "vkCreateSampler": "manager->OverrideCreateSampler",
         "vkAllocateMemory": "manager->OverrideAllocateMemory",
         "vkGetPhysicalDeviceToolPropertiesEXT": "manager->OverrideGetPhysicalDeviceToolPropertiesEXT",
+        "vkGetPhysicalDeviceToolProperties": "manager->OverrideGetPhysicalDeviceToolPropertiesEXT",
         "vkCreateAccelerationStructureKHR": "manager->OverrideCreateAccelerationStructureKHR",
         "vkGetDeferredOperationResultKHR": "manager->OverrideGetDeferredOperationResultKHR",
         "vkDeferredOperationJoinKHR": "manager->OverrideDeferredOperationJoinKHR",
