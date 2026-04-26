@@ -39,6 +39,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+static constexpr Index UNDEFINED_INDEX = ~(static_cast<Index>(0x0));
+
 enum class DumpResourcesPipelineStage
 {
     kNone,
@@ -341,24 +343,67 @@ struct DumpedResourceBase
         type(t), ppl_stage(ps), bcb_index(0), cmd_index(cmd), qs_index(qs), render_pass(0), subpass(0)
     {}
 
+    DumpedResourceBase(DumpResourcesPipelineStage ps,
+                       uint64_t                   bcb,
+                       uint64_t                   cmd,
+                       uint64_t                   qs,
+                       Index                      sii,
+                       uint64_t                   sicbi,
+                       uint64_t                   rp,
+                       uint64_t                   sp,
+                       Index                      sci,
+                       Index                      eccbi) :
+        ppl_stage(ps),
+        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp), submit_info_index(sii),
+        submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci), execute_cmds_cmd_buf_index(eccbi)
+    {}
+
+    DumpedResourceBase(DumpResourcesPipelineStage ps,
+                       uint64_t                   bcb,
+                       uint64_t                   cmd,
+                       uint64_t                   qs,
+                       Index                      sii,
+                       uint64_t                   sicbi,
+                       Index                      sci,
+                       Index                      eccbi) :
+        ppl_stage(ps),
+        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(UNDEFINED_INDEX), subpass(UNDEFINED_INDEX),
+        submit_info_index(sii), submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci),
+        execute_cmds_cmd_buf_index(eccbi)
+    {}
+
+    DumpedResourceBase(const DumpedResourceBase& other, DumpResourceType t) : DumpedResourceBase(other) { type = t; }
+
     DumpResourceType type{ DumpResourceType::kNone };
 
     DumpResourcesPipelineStage ppl_stage{ DumpResourcesPipelineStage::kNone };
 
     // BeginCommandBuffer index
-    uint64_t bcb_index{ 0 };
+    Index bcb_index{ UNDEFINED_INDEX };
 
     // The command's index (vkCmdDraw, vkCmdDispatch, etc)
-    uint64_t cmd_index{ 0 };
+    Index cmd_index{ UNDEFINED_INDEX };
 
     // The QueueSubmit index
-    uint64_t qs_index{ 0 };
+    Index qs_index{ UNDEFINED_INDEX };
 
     // The render pass index in which this resource is dumped
-    uint64_t render_pass{ 0 };
+    Index render_pass{ UNDEFINED_INDEX };
 
     // The sub pass index in which this resource is dumped
-    uint64_t subpass{ 0 };
+    Index subpass{ UNDEFINED_INDEX };
+
+    // The submit info index from the queue submission
+    Index submit_info_index{ UNDEFINED_INDEX };
+
+    // The index of the command buffer in the pCommandBuffers from the submit info
+    Index submit_info_cmd_buf_index{ UNDEFINED_INDEX };
+
+    // The block index of the execute commands (only for secondaries)
+    Index execute_cmds_index{ UNDEFINED_INDEX };
+
+    // The index of the se secondary command buffer in the pCommandBuffers of execute commands (only for secondaries)
+    Index execute_cmds_cmd_buf_index{ UNDEFINED_INDEX };
 };
 
 struct DumpedVertexIndexBuffer : DumpedResourceBase
@@ -368,32 +413,34 @@ struct DumpedVertexIndexBuffer : DumpedResourceBase
     DumpedVertexIndexBuffer() = delete;
 
     // For vertex buffers
-    DumpedVertexIndexBuffer(DumpResourceType t,
-                            uint64_t         bcb,
-                            uint64_t         cmd,
-                            uint64_t         qs,
-                            uint32_t         b,
-                            VkBuffer         buffer,
-                            format::HandleId id,
-                            VkDeviceSize     s,
-                            VkDeviceSize     o) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs),
+    DumpedVertexIndexBuffer(const DumpedResourceBase& dumped_resource_base,
+                            DumpResourceType          t,
+                            uint32_t                  b,
+                            VkBuffer                  buffer,
+                            format::HandleId          id,
+                            VkDeviceSize              s,
+                            VkDeviceSize              o) :
+        DumpedResourceBase(dumped_resource_base, t),
         buffer(buffer, id, o, s), binding(b)
-    {}
+    {
+        GFXRECON_ASSERT(ppl_stage == DumpResourcesPipelineStage::kGraphics);
+        GFXRECON_ASSERT(t == DumpResourceType::kVertex);
+    }
 
     // For index buffers
-    DumpedVertexIndexBuffer(DumpResourceType t,
-                            uint64_t         bcb,
-                            uint64_t         cmd,
-                            uint64_t         qs,
-                            VkIndexType      it,
-                            VkBuffer         buffer,
-                            format::HandleId id,
-                            VkDeviceSize     s,
-                            VkDeviceSize     o) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs),
+    DumpedVertexIndexBuffer(const DumpedResourceBase& dumped_resource_base,
+                            DumpResourceType          t,
+                            VkIndexType               it,
+                            VkBuffer                  buffer,
+                            format::HandleId          id,
+                            VkDeviceSize              s,
+                            VkDeviceSize              o) :
+        DumpedResourceBase(dumped_resource_base, t),
         buffer(buffer, id, o, s), index_type(it)
-    {}
+    {
+        GFXRECON_ASSERT(ppl_stage == DumpResourcesPipelineStage::kGraphics);
+        GFXRECON_ASSERT(t == DumpResourceType::kIndex);
+    }
 
     DumpedBuffer buffer;
 
@@ -411,55 +458,53 @@ struct DumpedDescriptor : DumpedResourceBase
     DumpedDescriptor() = delete;
 
     // Buffer descriptors for graphics
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
-                     uint64_t                   rp,
-                     uint64_t                   sp,
-                     VkShaderStageFlags         ss,
-                     VkDescriptorType           dt,
-                     const DescriptorLocation&  desc_tu,
-                     VkBuffer                   buffer,
-                     format::HandleId           id,
-                     VkDeviceSize               offset,
-                     VkDeviceSize               size,
-                     DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
+    DumpedDescriptor(const DumpedResourceBase& dumped_resource_base,
+                     DumpResourceType          t,
+                     VkShaderStageFlags        ss,
+                     VkDescriptorType          dt,
+                     const DescriptorLocation& desc_tu,
+                     VkBuffer                  buffer,
+                     format::HandleId          id,
+                     VkDeviceSize              offset,
+                     VkDeviceSize              size) :
+        DumpedResourceBase(dumped_resource_base, t),
         stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
     // Inline uniform buffers for graphics
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
-                     uint64_t                   rp,
-                     uint64_t                   sp,
-                     VkShaderStageFlags         ss,
-                     VkDescriptorType           dt,
-                     const DescriptorLocation&  desc_tu,
-                     DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
+    DumpedDescriptor(const DumpedResourceBase& dumped_resource_base,
+                     DumpResourceType          t,
+                     VkShaderStageFlags        ss,
+                     VkDescriptorType          dt,
+                     const DescriptorLocation& desc_tu) :
+        DumpedResourceBase(dumped_resource_base, t),
         stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Graphics image descriptors
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
-                     uint64_t                   rp,
-                     uint64_t                   sp,
-                     VkShaderStageFlags         ss,
-                     VkDescriptorType           dt,
-                     const DescriptorLocation&  desc_tu,
-                     const VulkanImageInfo*     img_info,
-                     ImageDumpResult            cd,
-                     DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
+    DumpedDescriptor(const DumpedResourceBase& dumped_resource_base,
+                     DumpResourceType          t,
+                     VkShaderStageFlags        ss,
+                     VkDescriptorType          dt,
+                     const DescriptorLocation& desc_tu,
+                     const VulkanImageInfo*    img_info,
+                     ImageDumpResult           cd) :
+        DumpedResourceBase(dumped_resource_base, t),
         stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+    {}
+
+    // Acceleration structure for Graphics
+    DumpedDescriptor(const DumpedResourceBase&                 dumped_resource_base,
+                     DumpResourceType                          t,
+                     VkShaderStageFlags                        ss,
+                     VkDescriptorType                          dt,
+                     const DescriptorLocation&                 desc_tu,
+                     const VulkanAccelerationStructureKHRInfo* as_info,
+                     bool                                      dbib) :
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
 
     // Dispatch ray tracing image descriptors
@@ -545,17 +590,13 @@ struct DumpedRenderTarget : DumpedResourceBase
     // Deleting the default construct should help to ensure that variable are set
     DumpedRenderTarget() = delete;
 
-    DumpedRenderTarget(DumpResourceType       t,
-                       uint64_t               bcb,
-                       uint64_t               cmd,
-                       uint64_t               qs,
-                       uint64_t               rp,
-                       uint64_t               sp,
-                       uint32_t               l,
-                       bool                   before,
-                       const VulkanImageInfo* img_info,
-                       ImageDumpResult        cd) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs, rp, sp),
+    DumpedRenderTarget(const DumpedResourceBase& base,
+                       DumpResourceType          t,
+                       uint32_t                  l,
+                       bool                      before,
+                       const VulkanImageInfo*    img_info,
+                       ImageDumpResult           cd) :
+        DumpedResourceBase(base, t),
         location(l), dumped_image(img_info, cd)
     {
         if (before)
