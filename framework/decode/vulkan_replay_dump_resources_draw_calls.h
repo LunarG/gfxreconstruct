@@ -751,15 +751,6 @@ class DrawCallsDumpingContext
         // Relevant only for secondary command buffers
         DumpResourcesCommandBufferLevel command_buffer_level;
 
-        struct SecondaryIdentifiers
-        {
-            // vkCmdExecuteCommands block index
-            Index execute_cmds_index{ UNDEFINED_INDEX };
-
-            // Secondary's command buffer index inside pCommandBuffers
-            Index execute_cmds_cmd_buf_index{ UNDEFINED_INDEX };
-        };
-
         // Store the vkCmdExecuteCommands block index and the secondary's command buffer index inside pCommandBuffers.
         // This is a map in order to support the case where the same secondary is executed multiple times either from
         // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command

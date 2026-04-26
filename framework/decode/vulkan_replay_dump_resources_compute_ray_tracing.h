@@ -118,9 +118,9 @@ class DispatchTraceRaysDumpingContext
                             uint32_t                                           dynamicOffsetCount,
                             const uint32_t*                                    pDynamicOffsets);
 
-    VkResult DumpDispatchTraceRays();
+    VkResult DumpDispatchTraceRays(Index submit_info_index, Index submit_info_cmd_buf_index);
 
-    VkResult DumpMutableResources(uint64_t cmd_index, bool is_dispatch);
+    VkResult DumpMutableResources(const DumpedResourceBase& dumped_resource_base, bool is_dispatch);
 
     void FinalizeCommandBuffer(bool is_dispatch);
 
@@ -134,7 +134,9 @@ class DispatchTraceRaysDumpingContext
 
     void Release();
 
-    void UpdateSecondaries();
+    void UpdateSecondaries(DispatchTraceRaysDumpingContext& secondary_context,
+                           Index                            execute_cmd_index,
+                           Index                            command_buffer_execute_index);
 
     void AssignSecondary(uint64_t                                         execute_commands_index,
                          std::shared_ptr<DispatchTraceRaysDumpingContext> secondary_context);
@@ -177,7 +179,7 @@ class DispatchTraceRaysDumpingContext
 
     VkResult FetchIndirectParams();
 
-    VkResult DumpDescriptors(uint64_t cmd_index, bool is_dispatch);
+    VkResult DumpDescriptors(const DumpedResourceBase& dumped_resource_base, bool is_dispatch);
 
     const VulkanCommandBufferInfo* original_command_buffer_info_;
     decode::Index                  bcb_index_;
@@ -330,28 +332,40 @@ class DispatchTraceRaysDumpingContext
             {}
         } dispatch_params_union;
 
-        DispatchParams(DispatchTypes type, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) :
-            dispatch_params_union{ groupCountX, groupCountY, groupCountZ }, type(type),
-            updated_referenced_descriptors(false)
+        DispatchParams(DispatchTypes                   type,
+                       DumpResourcesCommandBufferLevel lvl,
+                       Index                           index,
+                       uint32_t                        groupCountX,
+                       uint32_t                        groupCountY,
+                       uint32_t                        groupCountZ) :
+            dispatch_params_union{ groupCountX, groupCountY, groupCountZ },
+            type(type), updated_referenced_descriptors(false), command_index(index), command_buffer_level(lvl)
         {
             assert(type == kDispatch);
         }
 
-        DispatchParams(DispatchTypes type, const VulkanBufferInfo* params_buffer_info, VkDeviceSize offset) :
-            dispatch_params_union{ params_buffer_info, offset }, type(type), updated_referenced_descriptors(false)
+        DispatchParams(DispatchTypes                   type,
+                       DumpResourcesCommandBufferLevel lvl,
+                       Index                           index,
+                       const VulkanBufferInfo*         params_buffer_info,
+                       VkDeviceSize                    offset) :
+            dispatch_params_union{ params_buffer_info, offset },
+            type(type), updated_referenced_descriptors(false), command_index(index), command_buffer_level(lvl)
         {
             assert(type == kDispatchIndirect);
         }
 
-        DispatchParams(DispatchTypes type,
-                       uint32_t      baseGroupX,
-                       uint32_t      baseGroupY,
-                       uint32_t      baseGroupZ,
-                       uint32_t      groupCountX,
-                       uint32_t      groupCountY,
-                       uint32_t      groupCountZ) :
+        DispatchParams(DispatchTypes                   type,
+                       DumpResourcesCommandBufferLevel lvl,
+                       Index                           index,
+                       uint32_t                        baseGroupX,
+                       uint32_t                        baseGroupY,
+                       uint32_t                        baseGroupZ,
+                       uint32_t                        groupCountX,
+                       uint32_t                        groupCountY,
+                       uint32_t                        groupCountZ) :
             dispatch_params_union{ baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ },
-            type(type), updated_referenced_descriptors(false)
+            type(type), updated_referenced_descriptors(false), command_index(index), command_buffer_level(lvl)
         {
             assert(type == kDispatchBase);
         }
@@ -366,6 +380,17 @@ class DispatchTraceRaysDumpingContext
         // Need to keep track if a dispatch context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
+
+        Index command_index{ UNDEFINED_INDEX };
+
+        // Relevant only for secondary command buffers
+        DumpResourcesCommandBufferLevel command_buffer_level;
+
+        // Store the vkCmdExecuteCommands block index and the secondary's command buffer index inside pCommandBuffers.
+        // This is a map in order to support the case where the same secondary is executed multiple times either from
+        // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command
+        // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
+        std::map<Index, SecondaryIdentifiers> secondary_identifiers;
 
         DumpedResourcesInfo dumped_resources;
     };
@@ -456,14 +481,26 @@ class DispatchTraceRaysDumpingContext
             {}
         } trace_rays_params_union;
 
-        TraceRaysParams(TraceRaysTypes type, uint32_t width, uint32_t height, uint32_t depth) :
-            type(type), trace_rays_params_union(width, height, depth), updated_referenced_descriptors(false)
+        TraceRaysParams(TraceRaysTypes                  type,
+                        DumpResourcesCommandBufferLevel lvl,
+                        Index                           index,
+                        uint32_t                        width,
+                        uint32_t                        height,
+                        uint32_t                        depth) :
+            type(type),
+            trace_rays_params_union(width, height, depth), updated_referenced_descriptors(false), command_index(index),
+            command_buffer_level(lvl)
         {
             assert(type == kTraceRays);
         }
 
-        TraceRaysParams(TraceRaysTypes type, VkDeviceAddress indirectDeviceAddress) :
-            type(type), trace_rays_params_union(indirectDeviceAddress), updated_referenced_descriptors(false)
+        TraceRaysParams(TraceRaysTypes                  type,
+                        DumpResourcesCommandBufferLevel lvl,
+                        Index                           index,
+                        VkDeviceAddress                 indirectDeviceAddress) :
+            type(type),
+            trace_rays_params_union(indirectDeviceAddress), updated_referenced_descriptors(false), command_index(index),
+            command_buffer_level(lvl)
 
         {
             assert(type == kTraceRaysIndirect);
@@ -480,6 +517,17 @@ class DispatchTraceRaysDumpingContext
         // Need to keep track if a trace rays context from a secondary command buffer has been updated with information
         // that might be available only from the primary command buffer
         bool updated_referenced_descriptors;
+
+        Index command_index{ UNDEFINED_INDEX };
+
+        // Relevant only for secondary command buffers
+        DumpResourcesCommandBufferLevel command_buffer_level;
+
+        // Store the vkCmdExecuteCommands block index and the secondary's command buffer index inside pCommandBuffers.
+        // This is a map in order to support the case where the same secondary is executed multiple times either from
+        // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command
+        // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
+        std::map<Index, SecondaryIdentifiers> secondary_identifiers;
 
         DumpedResourcesInfo dumped_resources;
     };
@@ -515,13 +563,13 @@ class DispatchTraceRaysDumpingContext
                                            const BoundDescriptorSets& tr_descriptor_sets);
 
     // One entry for each dispatch command
-    using DispatchParameters = std::unordered_map<uint64_t, std::unique_ptr<DispatchParams>>;
+    using DispatchParameters = std::unordered_map<uint64_t, std::shared_ptr<DispatchParams>>;
     DispatchParameters dispatch_params_;
 
     DispatchParameters& GetDispatchParameters() { return dispatch_params_; }
 
     // One entry for each trace rays command
-    using TraceRaysParameters = std::unordered_map<uint64_t, std::unique_ptr<TraceRaysParams>>;
+    using TraceRaysParameters = std::unordered_map<uint64_t, std::shared_ptr<TraceRaysParams>>;
     TraceRaysParameters trace_rays_params_;
 
     TraceRaysParameters& GetTraceRaysParameters() { return trace_rays_params_; }

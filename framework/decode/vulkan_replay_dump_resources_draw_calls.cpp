@@ -1191,7 +1191,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
             }
         }
 
-        DrawCallParams::SecondaryIdentifiers secondary_indices;
+        SecondaryIdentifiers secondary_indices;
         if (dc_params.command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
         {
             // This map is updated in UpdateSecondaries accordingly
