@@ -1887,22 +1887,22 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     }
 
     const size_t submit_count = submit_infos.size();
-    for (const auto& si : submit_infos)
+    for (size_t si = 0; si < submit_count; ++si)
     {
         std::vector<VkCommandBuffer> submit_cbs;
         VkResult                     res = VK_SUCCESS;
 
         // For each VkSubmitInfo we shall create a different fence. The provided fence will be used only in the last
         // VkSubmitInfo. If none is provided then we will create one.
-        const bool     last_submit_info  = (&si == &submit_infos.back());
+        const bool     last_submit_info  = (si == submit_count - 1);
         const bool     create_temp_fence = (!last_submit_info) || (last_submit_info && (fence == VK_NULL_HANDLE));
         TemporaryFence submission_fence(create_temp_fence ? VK_NULL_HANDLE : fence, queue_info->parent, device_table);
 
-        VkSubmitInfo modified_submit_info = si;
-        for (uint32_t cb = 0; cb < si.commandBufferCount; ++cb)
+        VkSubmitInfo modified_submit_info = submit_infos[si];
+        for (uint32_t cb = 0; cb < submit_infos[si].commandBufferCount; ++cb)
         {
-            const bool            last_cmd_buf   = (cb == si.commandBufferCount - 1);
-            const VkCommandBuffer command_buffer = si.pCommandBuffers[cb];
+            const bool            last_cmd_buf   = (cb == submit_infos[si].commandBufferCount - 1);
+            const VkCommandBuffer command_buffer = submit_infos[si].pCommandBuffers[cb];
 
             if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
             {
@@ -1973,7 +1973,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                         submit_cbs.clear();
                     }
 
-                    res = dc_context->DumpDrawCalls(queue_info->handle, modified_submit_info);
+                    res = dc_context->DumpDrawCalls(queue_info->handle,
+                                                    modified_submit_info,
+                                                    static_cast<Index>(si),
+                                                    static_cast<Index>(cb));
                     CHECK_VK_ERROR(res, "DumpDrawCalls")
 
                     // The semaphores have been used up by the submission. Don't use them again.
@@ -2241,7 +2244,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                             func(*primary_it, 1, &pCommandBuffers[i]);
                         }
 
-                        dc_primary_context->UpdateSecondaries(*dc_secondary_context.get());
+                        dc_primary_context->UpdateSecondaries(*dc_secondary_context.get(), call_info.index, i);
 
                         // All primaries have been finalized. Nothing else to do
                         if (finalized_primaries == primary_last - primary_first)
