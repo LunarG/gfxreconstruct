@@ -237,6 +237,15 @@ enum class DumpResourcesCommandBufferLevel
     kSecondary
 };
 
+struct SecondaryIdentifiers
+{
+    // vkCmdExecuteCommands block index
+    Index execute_cmds_index{ UNDEFINED_INDEX };
+
+    // Secondary's command buffer index inside pCommandBuffers
+    Index execute_cmds_cmd_buf_index{ UNDEFINED_INDEX };
+};
+
 #define DEPTH_ATTACHMENT ~0
 
 // Wrapper class for VkFence. Either holds an existing VkFence or creates and handles destruction of one

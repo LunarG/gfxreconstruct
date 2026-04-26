@@ -1878,8 +1878,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         return _res_;                                                                                               \
     }
 
-    std::vector<std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
-    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
+    std::vector<std::shared_ptr<TransferDumpingContext>>                                transfer_contexts;
+    std::map<std::pair<Index, Index>, std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
 
     if (!output_json_per_command)
     {
@@ -1933,7 +1933,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 // Handle Dispatch/TraceRays commands
                 if (auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index))
                 {
-                    dispatch_contexts.push_back(dispatch_context);
+                    dispatch_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                              dispatch_context);
                     // Dispatch/RayTracing context uses a clone command buffer. We submit that one instead of the
                     // original.
                     submit_cbs.push_back(dispatch_context->GetDispatchRaysCommandBuffer());
@@ -1973,10 +1974,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                         submit_cbs.clear();
                     }
 
-                    res = dc_context->DumpDrawCalls(queue_info->handle,
-                                                    modified_submit_info,
-                                                    static_cast<Index>(si),
-                                                    static_cast<Index>(cb));
+                    res = dc_context->DumpDrawCalls(
+                        queue_info->handle, modified_submit_info, static_cast<Index>(si), static_cast<Index>(cb));
                     CHECK_VK_ERROR(res, "DumpDrawCalls")
 
                     // The semaphores have been used up by the submission. Don't use them again.
@@ -2016,9 +2015,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         CHECK_VK_ERROR(res, "DumpTransferCommands")
     }
 
-    for (auto& disp_context : dispatch_contexts)
+    for (auto& [pair, disp_context] : dispatch_contexts)
     {
-        VkResult res = disp_context->DumpDispatchTraceRays();
+        VkResult res = disp_context->DumpDispatchTraceRays(pair.first, pair.second);
         CHECK_VK_ERROR(res, "DumpDispatchTraceRays")
     }
 
@@ -2295,6 +2294,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                                 VkCommandBuffer secondary_command_buffer =
                                     dr_secondary_context->GetDispatchRaysCommandBuffer();
                                 func(dispatch_rays_command_buffer, 1, &secondary_command_buffer);
+
+                                dr_primary_context->UpdateSecondaries(*dr_secondary_context, call_info.index, i);
                             }
                         }
                         else
@@ -2302,7 +2303,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                             func(dispatch_rays_command_buffer, 1, &pCommandBuffers[i]);
                         }
                     }
-                    dr_primary_context->UpdateSecondaries();
                 }
                 else
                 {
