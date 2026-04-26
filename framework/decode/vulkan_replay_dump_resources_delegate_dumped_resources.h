@@ -508,25 +508,21 @@ struct DumpedDescriptor : DumpedResourceBase
     {}
 
     // Dispatch ray tracing image descriptors
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
+    DumpedDescriptor(const DumpedResourceBase&  dumped_resource_base,
+                     DumpResourceType           t,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
                      const DescriptorLocation&  desc_tu,
                      const VulkanImageInfo*     img_info,
                      ImageDumpResult            cd,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing buffer descriptors
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
+    DumpedDescriptor(const DumpedResourceBase&  dumped_resource_base,
+                     DumpResourceType           t,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
                      const DescriptorLocation&  desc_tu,
@@ -535,36 +531,32 @@ struct DumpedDescriptor : DumpedResourceBase
                      VkDeviceSize               offset,
                      VkDeviceSize               size,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
     // Dispatch ray tracing inline uniform buffers
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
+    DumpedDescriptor(const DumpedResourceBase&  dumped_resource_base,
+                     DumpResourceType           t,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
                      const DescriptorLocation&  desc_tu,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Acceleration structure for TraceRays
-    DumpedDescriptor(DumpResourceType                          t,
-                     uint64_t                                  bcb,
-                     uint64_t                                  cmd,
-                     uint64_t                                  qs,
+    DumpedDescriptor(const DumpedResourceBase&                 dumped_resource_base,
+                     DumpResourceType                          t,
                      VkShaderStageFlags                        ss,
                      VkDescriptorType                          dt,
                      const DescriptorLocation&                 desc_tu,
                      const VulkanAccelerationStructureKHRInfo* as_info,
                      bool                                      dbib,
                      DumpResourcesPipelineStage                ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
