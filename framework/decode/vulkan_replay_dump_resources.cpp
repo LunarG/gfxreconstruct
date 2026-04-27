@@ -1878,7 +1878,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         return _res_;                                                                                               \
     }
 
-    std::vector<std::shared_ptr<TransferDumpingContext>>                                transfer_contexts;
+    std::map<std::pair<Index, Index>, std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
     std::map<std::pair<Index, Index>, std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
 
     if (!output_json_per_command)
@@ -1913,7 +1913,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 {
                     if (bcb_qs_pair.second == qs_index)
                     {
-                        transfer_contexts.push_back(transf_context);
+                        transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                                  transf_context);
                     }
                 }
             }
@@ -1924,7 +1925,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 // Handle Transfer commands
                 if (auto transfer_context = FindTransferContext(command_buffer, qs_index))
                 {
-                    transfer_contexts.push_back(transfer_context);
+                    transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                              transfer_context);
                     // Transfer context does not use a clone command buffer. We submit the original one.
                     submit_cbs.push_back(command_buffer);
                     has_transfer_or_dispatch = true;
@@ -2009,9 +2011,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         }
     }
 
-    for (auto& transfer_context : transfer_contexts)
+    for (auto& [pair, transfer_context] : transfer_contexts)
     {
-        VkResult res = transfer_context->DumpTransferCommands();
+        VkResult res = transfer_context->DumpTransferCommands(pair.first, pair.second);
         CHECK_VK_ERROR(res, "DumpTransferCommands")
     }
 
@@ -3246,7 +3248,7 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
     std::shared_ptr<TransferDumpingContext> transfer_context = FindTransferContextBcbQsIndex(0, 0);
     if (transfer_context != nullptr)
     {
-        VkResult res = transfer_context->DumpTransferCommands();
+        VkResult res = transfer_context->DumpTransferCommands(0, 0);
         if (res != VK_SUCCESS)
         {
             Release();

@@ -831,29 +831,34 @@ struct DumpedTransferCommand : DumpedResourceBase
     DumpedTransferCommand() = delete;
 
     // InitBufferMetaCommand
-    DumpedTransferCommand(DumpResourceType t, uint64_t cmd, uint64_t qs, format::HandleId b, VkDeviceSize s) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase& dumped_resource_base,
+                          DumpResourceType          t,
+                          format::HandleId          b,
+                          VkDeviceSize              s) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedInitBufferMetaCommand>, b, s), has_before(false)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kInitBufferMetaCommand);
     }
 
     // InitImageMetaCommand
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           const TransferedImageInfo& transf_img_info,
                           const VulkanImageInfo*     img_info) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedInitImageMetaCommand>, transf_img_info, img_info), has_before(false)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kInitImageMetaCommand);
     }
 
     // CopyBuffer
-    DumpedTransferCommand(
-        DumpResourceType t, uint64_t cmd, uint64_t qs, format::HandleId s, format::HandleId d, bool hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase& dumped_resource_base,
+                          DumpResourceType          t,
+                          format::HandleId          s,
+                          format::HandleId          d,
+                          bool                      hb) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyBuffer>, s, d), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyBuffer);
@@ -865,13 +870,12 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // CopyBufferToImage
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           format::HandleId           s,
                           const TransferedImageInfo& transf_img_info,
                           bool                       hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyBufferToImage>, s, transf_img_info), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyBufferToImage);
@@ -883,13 +887,12 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // CopyImage
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           const TransferedImageInfo& si,
                           const TransferedImageInfo& di,
                           bool                       hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyImage>, si, di), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyImage);
@@ -901,9 +904,12 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // CopyImageToBuffer
-    DumpedTransferCommand(
-        DumpResourceType t, uint64_t cmd, uint64_t qs, const TransferedImageInfo& si, format::HandleId d, bool hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
+                          const TransferedImageInfo& si,
+                          format::HandleId           d,
+                          bool                       hb) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyImageToBuffer>, si, d), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyImageToBuffer);
@@ -915,14 +921,13 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // BlitImage
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           const TransferedImageInfo& si,
                           const TransferedImageInfo& di,
                           VkFilter                   f,
                           bool                       hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedBlitImage>, si, di, f), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kBlitImage);
@@ -934,8 +939,8 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // Build AS
-    DumpedTransferCommand(DumpResourceType t, uint64_t cmd, uint64_t qs, bool hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase& dumped_resource_base, DumpResourceType t, bool hb) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedBuildAccelerationStructure>), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kBuildAccelerationStructure);
@@ -947,16 +952,15 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // Copy AS
-    DumpedTransferCommand(DumpResourceType                          t,
-                          uint64_t                                  cmd,
-                          uint64_t                                  qs,
+    DumpedTransferCommand(const DumpedResourceBase&                 dumped_resource_base,
+                          DumpResourceType                          t,
                           format::HandleId                          s,
                           format::HandleId                          d,
                           VkCopyAccelerationStructureModeKHR        m,
                           const VulkanAccelerationStructureKHRInfo* as_info,
                           bool                                      dump_input_buffers,
                           bool                                      hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyAccelerationStructure>, s, d, m, as_info, dump_input_buffers),
         has_before(hb)
     {
