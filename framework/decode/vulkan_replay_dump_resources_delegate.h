@@ -196,17 +196,6 @@ class VulkanDumpResourcesDelegate
 class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
 {
   public:
-    typedef std::string (DefaultVulkanDumpResourcesDelegate::*BufferFilenameGenerator)(
-        const DumpedResourceBase& dumped_resource, bool before_command) const;
-
-    typedef std::string (DefaultVulkanDumpResourcesDelegate::*ImageFilenameGenerator)(
-        const DumpedResourceBase& dumped_resource,
-        DumpedImageFormat         output_image_format,
-        VkImageAspectFlagBits     aspect,
-        uint32_t                  mip_level,
-        uint32_t                  layer,
-        bool                      before_command) const;
-
     DefaultVulkanDumpResourcesDelegate(const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table) :
         VulkanDumpResourcesDelegate(options), dump_json_(options), options_(options),
         object_info_table_(object_info_table)
@@ -235,62 +224,26 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     bool DumpImageToFile(DumpedResourceBase*        dumped_resource,
                          DumpedImage&               dumped_image,
                          const DumpedImageHostData& image_dumped_data,
-                         ImageFilenameGenerator     filename_generator,
                          bool                       before_command,
                          const util::Compressor*    compressor);
 
-    // Image filename generators
-    std::string GenerateRenderTargetImageFilename(const DumpedResourceBase& dumped_resource,
-                                                  DumpedImageFormat         output_image_format,
-                                                  VkImageAspectFlagBits     aspect,
-                                                  uint32_t                  mip_level,
-                                                  uint32_t                  layer,
-                                                  bool                      before_command) const;
+    void HashDumpedResourceBase(std::size_t& seed, const DumpedResourceBase& dumped_resource) const;
 
-    std::string GenerateGraphicsImageDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                        DumpedImageFormat         output_image_format,
-                                                        VkImageAspectFlagBits     aspect,
-                                                        uint32_t                  mip_level,
-                                                        uint32_t                  layer,
-                                                        bool                      before_command) const;
+    static constexpr uint32_t NO_INDEX = std::numeric_limits<uint32_t>::max();
 
-    std::string GenerateDispatchTraceRaysImageFilename(const DumpedResourceBase& dumped_resource,
-                                                       DumpedImageFormat         output_image_format,
-                                                       VkImageAspectFlagBits     aspect,
-                                                       uint32_t                  mip_level,
-                                                       uint32_t                  layer,
-                                                       bool                      before_command) const;
+    std::string GenerateBufferFilename(const DumpedResourceBase& dumped_resource,
+                                       bool                      before_command,
+                                       uint32_t                  region_index = NO_INDEX);
 
-    std::string GenerateDispatchTraceRaysImageDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                                 DumpedImageFormat         output_image_format,
-                                                                 VkImageAspectFlagBits     aspect,
-                                                                 uint32_t                  mip_level,
-                                                                 uint32_t                  layer,
-                                                                 bool                      before_command) const;
+    std::string GenerateImageFilename(const DumpedResourceBase& dumped_resource,
+                                      DumpedImageFormat         output_image_format,
+                                      VkImageAspectFlagBits     aspect,
+                                      uint32_t                  mip_level,
+                                      uint32_t                  layer,
+                                      bool                      before_command) const;
 
     // Buffers
     bool DumpBufferToFile(const VulkanDelegateDumpResourceContext& delegate_context);
-
-    // Buffer filename generators
-    std::string GenerateGraphicsBufferDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                         bool                      before_command) const;
-
-    std::string GenerateDispatchTraceRaysBufferDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                                  bool                      before_command) const;
-
-    std::string
-    GenerateDispatchTraceRaysInlineUniformBufferDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                                   bool                      before_command) const;
-
-    std::string GenerateGraphicsInlineUniformBufferDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                                      bool                      before_command) const;
-
-    std::string GenerateDispatchTraceRaysBufferFilename(const DumpedResourceBase& dumped_resource,
-                                                        bool                      before_command) const;
-
-    std::string GenerateVertexBufferFilename(const DumpedResourceBase& dumped_resource, bool before_command) const;
-
-    std::string GenerateIndexBufferFilename(const DumpedResourceBase& dumped_resource, bool before_command) const;
 
     // Acceleration structures
     bool DumpAccelerationStructureToFile(const VulkanDelegateDumpResourceContext& delegate_context);
@@ -321,24 +274,11 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     std::string GenerateASDumpedBufferFilename(const DumpedResourceBase&             resource_info,
                                                format::HandleId                      handle_id,
                                                AccelerationStructureDumpedBufferType type,
-                                               DumpResourcesPipelineStage            dumped_command_type,
                                                bool                                  before_command,
                                                uint32_t buffer_index = std::numeric_limits<uint32_t>::max());
 
     // Transfer
     bool DumpTransferCommandToFile(const VulkanDelegateDumpResourceContext& delegate_context);
-
-    static constexpr uint32_t NO_INDEX = std::numeric_limits<uint32_t>::max();
-    std::string               GenerateTransferToBufferRegionFilename(const DumpedResourceBase& dumped_resource,
-                                                                     bool                      before_command,
-                                                                     uint32_t                  region_index) const;
-
-    std::string GenerateTransferToImageRegionFilename(const DumpedResourceBase& dumped_resource,
-                                                      DumpedImageFormat         output_image_format,
-                                                      VkImageAspectFlagBits     aspect,
-                                                      uint32_t                  mip_level,
-                                                      uint32_t                  layer,
-                                                      bool                      before_command) const;
 
     // Json generators
     void GenerateOutputJsonDrawCallInfo(const VulkanDelegateDumpDrawCallContext& draw_call_info);
