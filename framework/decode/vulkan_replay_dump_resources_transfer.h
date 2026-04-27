@@ -164,7 +164,7 @@ class TransferDumpingContext
 
     bool MustDumpTransfer(uint64_t index) const;
 
-    VkResult DumpTransferCommands();
+    VkResult DumpTransferCommands(Index submit_info_index, Index submit_info_cmd_buf_index);
 
     const CommandIndices& GetCommandIndices() const { return transfer_indices_; }
 
@@ -825,6 +825,7 @@ class TransferDumpingContext
     CommandIndices                                    transfer_indices_;
     decode::Index                                     bcb_index_;
     decode::Index                                     qs_index_;
+    DumpResourcesCommandBufferLevel                   command_buffer_level_;
     CommonObjectInfoTable&                            object_info_table_;
     const graphics::InstanceDispatchTablesMap&        instance_tables_;
     const graphics::DeviceDispatchTablesMap&          device_tables_;
