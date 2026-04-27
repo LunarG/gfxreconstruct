@@ -10451,6 +10451,24 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
 }
 
+void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass   func,
+                                                        VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    command_buffer_info->inside_renderpass = false;
+    func(command_buffer_info->handle);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
+    PFN_vkCmdEndRenderPass2                         func,
+    VulkanCommandBufferInfo*                        command_buffer_info,
+    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    command_buffer_info->inside_renderpass = false;
+    func(command_buffer_info->handle, pSubpassEndInfo->GetPointer());
+}
+
 void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     PFN_vkCmdBeginRendering                        func,
     VulkanCommandBufferInfo*                       command_buffer_info,
