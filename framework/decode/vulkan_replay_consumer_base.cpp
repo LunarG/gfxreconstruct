@@ -7112,7 +7112,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         VkResult vk_res = func(
             device_info->handle, original_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 
-        if (vk_res == VK_SUCCESS)
+        if (vk_res == VK_SUCCESS && UseAddressReplacement(device_info))
         {
             // check for buffer-references, issue warning
             graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info);
@@ -7145,7 +7145,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     VkResult vk_res = func(
         device_info->handle, &override_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 
-    if (vk_res == VK_SUCCESS)
+    if (vk_res == VK_SUCCESS && UseAddressReplacement(device_info))
     {
         // check for buffer-references, issue warning
         graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize, shader_module_info);
@@ -9676,7 +9676,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
         }
     }
 
-    if (result >= 0)
+    if (result >= 0 && UseAddressReplacement(device_info))
     {
         graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
     }
@@ -12032,8 +12032,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
             resource_dumper_->DumpGraphicsPipelineInfos(pCreateInfos, create_info_count, pPipelines);
         }
 
-        // populate all VulkanPipelineInfo structs with information related to shader-modules
-        graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+        if (UseAddressReplacement(device_info))
+        {
+            // populate all VulkanPipelineInfo structs with information related to shader-modules
+            graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+        }
     }
     return replay_result;
 }
@@ -12083,7 +12086,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
         TrackNewPipelineCache(device_info, cache_pipeline_id, pipeline_cache, out_pipelines, create_info_count);
     }
 
-    if (replay_result == VK_SUCCESS)
+    if (replay_result == VK_SUCCESS && UseAddressReplacement(device_info))
     {
         // populate all VulkanPipelineInfo structs with information related to shader-modules
         graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
@@ -12169,7 +12172,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     VkResult replay_result =
         func(in_device, create_info_count, maybe_replaced_create_infos, in_p_allocation_callbacks, out_shaders);
 
-    if (replay_result == VK_SUCCESS)
+    if (replay_result == VK_SUCCESS && UseAddressReplacement(device_info))
     {
         for (uint32_t i = 0; i < create_info_count; ++i)
         {
@@ -12429,8 +12432,11 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
         pipeline_cache    = CreateNewPipelineCache(device_info, cache_pipeline_id);
     }
 
-    // populate VulkanPipelineInfo structs with information related to shader-modules
-    graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+    if (UseAddressReplacement(device_info))
+    {
+        // populate VulkanPipelineInfo structs with information related to shader-modules
+        graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+    }
 
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
     if (returnValue == VK_SUCCESS && options_.dumping_resources)
@@ -12555,8 +12561,11 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
         resource_dumper_->DumpComputePipelineInfos(pCreateInfos, createInfoCount, pPipelines);
     }
 
-    // populate VulkanPipelineInfo structs with information related to shader-modules
-    graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+    if (UseAddressReplacement(device_info))
+    {
+        // populate VulkanPipelineInfo structs with information related to shader-modules
+        graphics::populate_shader_stages(pCreateInfos, pPipelines, GetObjectInfoTable());
+    }
 
     // replace with deep-copy of create-info array
     const size_t         num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
@@ -12664,6 +12673,8 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
         shader_ext_infos[i] = reinterpret_cast<VulkanShaderEXTInfo*>(pShaders->GetConsumerData(i));
     }
 
+    const bool use_address_replacement = UseAddressReplacement(device_info);
+
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
                  device_handle,
@@ -12671,6 +12682,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
                  returnValue,
                  call_info,
                  in_pAllocator,
+                 use_address_replacement,
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
                  handle_deps      = std::move(handle_deps),
@@ -12690,7 +12702,7 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(PFN_vkCreateShadersEXT          
         CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
         ClearRecaptureHandleIds();
 
-        if (replay_result == VK_SUCCESS)
+        if (replay_result == VK_SUCCESS && use_address_replacement)
         {
             for (uint32_t i = 0; i < createInfoCount; ++i)
             {
