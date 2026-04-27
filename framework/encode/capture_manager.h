@@ -613,7 +613,7 @@ class CommonCaptureManager
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;
-    bool                                    skip_threads_with_invalid_data_;
+    bool skip_threads_with_invalid_data_;
 
     struct
     {
