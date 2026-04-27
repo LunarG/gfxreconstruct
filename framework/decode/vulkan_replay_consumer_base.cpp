@@ -2916,22 +2916,16 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
     {
         const auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
-        const bool is_forced =
-            util::platform::StringCompare(current_extension, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0 ||
-            util::platform::StringCompare(current_extension, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0;
-        if (!is_forced)
+        if (kSurfaceExtensions.contains(current_extension))
         {
-            if (kSurfaceExtensions.contains(current_extension))
+            if (!override_wsi_extensions)
             {
-                if (!override_wsi_extensions)
-                {
-                    capture_surface_extensions.push_back(current_extension);
-                }
+                capture_surface_extensions.push_back(current_extension);
             }
-            else
-            {
-                modified_extensions.push_back(current_extension);
-            }
+        }
+        else
+        {
+            modified_extensions.push_back(current_extension);
         }
     }
 
@@ -3021,14 +3015,83 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         }
 
         // Always enable portability enumeration if available
-        modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-        for (const VkExtensionProperties& extension : available_extensions)
+        if (graphics::feature_util::IsSupportedExtension(available_extensions,
+                                                         VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
         {
-            if (!util::platform::StringCompare(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
+            if (!graphics::feature_util::IsSupportedExtension(modified_extensions,
+                                                              VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
             {
                 modified_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-                modified_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
             }
+            modified_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+        }
+        else
+        {
+            // Disabled the flag in case it was set at capture time and the extension is not supported at replay time
+            modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+        }
+
+        // We want to create a debug messenger unconditionally so that
+        // debug messages from layers are displayed during replay.
+        // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
+        // in the pNext chain, those messengers will also be created.
+        auto ext_debug_utils_it =
+            std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
+                return util::platform::StringCompare(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, extension) == 0;
+            });
+        if (graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+        {
+            if (ext_debug_utils_it == modified_extensions.end())
+            {
+                modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+            }
+
+            // Set pfnUserCallback for all debug messengers down the pNext chain
+            VkDebugUtilsMessengerCreateInfoEXT* pnext_callback_info =
+                graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
+            while (pnext_callback_info != nullptr)
+            {
+                pnext_callback_info->pfnUserCallback = DebugUtilsCallback;
+                pnext_callback_info->pUserData       = this;
+                pnext_callback_info =
+                    graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
+            }
+
+            create_state.messenger_create_info       = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+            create_state.messenger_create_info.pNext = modified_create_info.pNext;
+            create_state.messenger_create_info.flags = 0;
+
+            create_state.messenger_create_info.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+            create_state.messenger_create_info.messageSeverity = options_.debug_message_severity;
+            create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
+            create_state.messenger_create_info.pUserData       = this;
+
+            // We chain the debug messenger create info here to catch debug messages
+            // emitted during vkCreateInstance()/vkDestroyInstance()
+            modified_create_info.pNext = &create_state.messenger_create_info;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to create debug utils callback. VK_EXT_debug_utils extension is not available "
+                                 "for the replay instance.");
+
+            if (ext_debug_utils_it != modified_extensions.end())
+            {
+                GFXRECON_LOG_INFO("VK_EXT_debug_utils was queried by the application but is not available on the "
+                                  "replay instance. The extensions will be faked.");
+                modified_extensions.erase(ext_debug_utils_it);
+                faked_extensions_.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+            }
+        }
+
+        if (graphics::feature_util::IsSupportedExtension(available_extensions,
+                                                         VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME) &&
+            !graphics::feature_util::IsSupportedExtension(modified_extensions,
+                                                          VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME))
+        {
+
+            GFXRECON_LOG_INFO("Enabling the %s extension", VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
+            modified_extensions.push_back(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
         }
 
         // All VK_KHR_get_physical_device_properties2 functionalities are included in Vulkan 1.1,
@@ -3063,44 +3126,6 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     {
         GFXRECON_LOG_WARNING("Failed to get instance extensions. Cannot perform sanity checks or filters for "
                              "extension availability.");
-    }
-
-    // We want to create a debug messenger unconditionally so that
-    // debug messages from layers are displayed during replay.
-    // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
-    // in the pNext chain, those messengers will also be created.
-    if (graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
-    {
-        modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-
-        // Set pfnUserCallback for all debug messengers down the pNext chain
-        VkDebugUtilsMessengerCreateInfoEXT* pnext_callback_info =
-            graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(&modified_create_info);
-        while (pnext_callback_info != nullptr)
-        {
-            pnext_callback_info->pfnUserCallback = DebugUtilsCallback;
-            pnext_callback_info->pUserData       = this;
-            pnext_callback_info =
-                graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(pnext_callback_info);
-        }
-
-        create_state.messenger_create_info       = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
-        create_state.messenger_create_info.pNext = modified_create_info.pNext;
-        create_state.messenger_create_info.flags = 0;
-
-        create_state.messenger_create_info.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-        create_state.messenger_create_info.messageSeverity = options_.debug_message_severity;
-        create_state.messenger_create_info.pfnUserCallback = DebugUtilsCallback;
-        create_state.messenger_create_info.pUserData       = this;
-
-        // We chain the debug messenger create info here to catch debug messages
-        // emitted during vkCreateInstance()/vkDestroyInstance()
-        modified_create_info.pNext = &create_state.messenger_create_info;
-    }
-    else
-    {
-        GFXRECON_LOG_WARNING("Failed to create debug utils callback. "
-                             "VK_EXT_debug_utils extension is not available for the replay instance.");
     }
 
     // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
