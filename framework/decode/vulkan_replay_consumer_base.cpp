@@ -10103,6 +10103,15 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     if (begin_info->pInheritanceInfo != nullptr)
     {
         command_buffer_info->inside_renderpass = begin_info->pInheritanceInfo->renderPass != VK_NULL_HANDLE;
+
+        // handle VK_KHR_dynamic_rendering
+        if (auto* inheritance_rendering_info =
+                graphics::vulkan_struct_get_pnext<VkCommandBufferInheritanceRenderingInfo>(
+                    begin_info->pInheritanceInfo))
+        {
+            // presence of struct in pNext means we're already rendering
+            command_buffer_info->inside_renderpass = true;
+        }
     }
 
     VkResult res = VK_SUCCESS;
@@ -10447,9 +10456,20 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     VulkanCommandBufferInfo*                       command_buffer_info,
     StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder)
 {
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
     MaybeInjectExecutionBarrier(command_buffer_info);
+    command_buffer_info->inside_renderpass = true;
 
     func(command_buffer_info->handle, rendering_info_decoder->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndRendering(PFN_vkCmdEndRendering    func,
+                                                       VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    command_buffer_info->inside_renderpass = false;
+    func(command_buffer_info->handle);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(

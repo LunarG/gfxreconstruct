@@ -1395,6 +1395,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    VulkanCommandBufferInfo*                       command_buffer_info,
                                    StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder);
 
+    void OverrideCmdEndRendering(PFN_vkCmdEndRendering func, VulkanCommandBufferInfo* command_buffer_info);
+
     void
     OverrideCmdTraceRaysKHR(PFN_vkCmdTraceRaysKHR                                          func,
                             VulkanCommandBufferInfo*                                       command_buffer_info,

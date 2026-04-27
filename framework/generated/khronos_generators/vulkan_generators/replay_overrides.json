@@ -176,6 +176,8 @@
     "vkCreatePipelineBinariesKHR": "OverrideCreatePipelineBinariesKHR",
     "vkCmdBeginRendering": "OverrideCmdBeginRendering",
     "vkCmdBeginRenderingKHR": "OverrideCmdBeginRendering",
+    "vkCmdEndRendering": "OverrideCmdEndRendering",
+    "vkCmdEndRenderingKHR": "OverrideCmdEndRendering",
     "vkCreateIndirectExecutionSetEXT": "OverrideCreateIndirectExecutionSetEXT",
     "vkCmdPreprocessGeneratedCommandsEXT": "OverrideCmdPreprocessGeneratedCommandsEXT",
     "vkCmdExecuteGeneratedCommandsEXT": "OverrideCmdExecuteGeneratedCommandsEXT"

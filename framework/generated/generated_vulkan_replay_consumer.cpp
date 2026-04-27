@@ -3414,13 +3414,13 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndRendering(in_commandBuffer);
+    OverrideCmdEndRendering(GetDeviceTable(in_commandBuffer->handle)->CmdEndRendering, in_commandBuffer);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRendering, in_commandBuffer);
+        resource_dumper_->Process_vkCmdEndRendering(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdEndRendering, in_commandBuffer->handle);
     }
 }
 
@@ -4815,13 +4815,13 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderingKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndRenderingKHR(in_commandBuffer);
+    OverrideCmdEndRendering(GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderingKHR, in_commandBuffer);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderingKHR, in_commandBuffer);
+        resource_dumper_->Process_vkCmdEndRenderingKHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderingKHR, in_commandBuffer->handle);
     }
 }
 
