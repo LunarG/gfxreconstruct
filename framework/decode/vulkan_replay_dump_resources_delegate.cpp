@@ -138,7 +138,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const Dum
                                                                        bool                      before_command,
                                                                        uint32_t                  region_index)
 {
-    size_t hash = 0;
+    uint64_t hash = 0;
 
     switch (dumped_resource.type)
     {
@@ -149,15 +149,15 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const Dum
 
             const DumpedVertexIndexBuffer& vertex_index_buffer =
                 static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
-            util::hash::hash_combine(hash, vertex_index_buffer.buffer.buffer_info.capture_id);
+            util::hash::hash_combine_64(hash, vertex_index_buffer.buffer.buffer_info.capture_id);
 
             if (dumped_resource.type == DumpResourceType::kVertex)
             {
-                util::hash::hash_combine(hash, vertex_index_buffer.binding);
+                util::hash::hash_combine_64(hash, vertex_index_buffer.binding);
             }
             else
             {
-                util::hash::hash_combine(hash, vertex_index_buffer.index_type);
+                util::hash::hash_combine_64(hash, vertex_index_buffer.index_type);
             }
         }
         break;
@@ -174,13 +174,13 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const Dum
             const DumpedBuffer*     dumped_buffer      = std::get_if<DumpedBuffer>(&dumped_buffer_desc.dumped_resource);
             GFXRECON_ASSERT(dumped_buffer != nullptr);
 
-            util::hash::hash_combine(hash, dumped_buffer->buffer_info.capture_id);
-            util::hash::hash_combine(hash, dumped_buffer_desc.stages);
-            util::hash::hash_combine(
+            util::hash::hash_combine_64(hash, dumped_buffer->buffer_info.capture_id);
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.stages);
+            util::hash::hash_combine_64(
                 hash, static_cast<std::underlying_type_t<VkDescriptorType>>(dumped_buffer_desc.desc_type));
-            util::hash::hash_combine(hash, dumped_buffer_desc.set);
-            util::hash::hash_combine(hash, dumped_buffer_desc.binding);
-            util::hash::hash_combine(hash, dumped_buffer_desc.array_index);
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.set);
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.binding);
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.array_index);
         }
         break;
 
@@ -193,7 +193,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const Dum
                 std::get_if<DumpedInitBufferMetaCommand>(&dumped_transfer_command.dumped_resource);
             GFXRECON_ASSERT(dumped_init_buffer != nullptr);
 
-            util::hash::hash_combine(hash, dumped_init_buffer->buffer);
+            util::hash::hash_combine_64(hash, dumped_init_buffer->buffer);
         }
         break;
 
@@ -205,8 +205,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const Dum
             auto*       dumped_copy_buffer = std::get_if<DumpedCopyBuffer>(&dumped_transfer_command.dumped_resource);
             GFXRECON_ASSERT(dumped_copy_buffer != nullptr);
 
-            util::hash::hash_combine(hash, dumped_copy_buffer->dst_buffer);
-            util::hash::hash_combine(hash, region_index);
+            util::hash::hash_combine_64(hash, dumped_copy_buffer->dst_buffer);
+            util::hash::hash_combine_64(hash, region_index);
         }
         break;
 
@@ -219,8 +219,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const Dum
                 std::get_if<DumpedCopyImageToBuffer>(&dumped_transfer_command.dumped_resource);
             GFXRECON_ASSERT(dumped_copy_image_to_buffer != nullptr);
 
-            util::hash::hash_combine(hash, dumped_copy_image_to_buffer->dst_buffer);
-            util::hash::hash_combine(hash, region_index);
+            util::hash::hash_combine_64(hash, dumped_copy_image_to_buffer->dst_buffer);
+            util::hash::hash_combine_64(hash, region_index);
         }
         break;
 
@@ -232,7 +232,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const Dum
     HashDumpedResourceBase(hash, dumped_resource);
     if (options_.dump_resources_before)
     {
-        util::hash::hash_combine(hash, before_command);
+        util::hash::hash_combine_64(hash, before_command);
     }
 
     std::stringstream filename;
@@ -747,42 +747,42 @@ bool DefaultVulkanDumpResourcesDelegate::DumpAccelerationStructureToFile(
     return true;
 }
 
-void DefaultVulkanDumpResourcesDelegate::HashDumpedResourceBase(std::size_t&              seed,
+void DefaultVulkanDumpResourcesDelegate::HashDumpedResourceBase(uint64_t&              seed,
                                                                 const DumpedResourceBase& dumped_resource) const
 {
     GFXRECON_ASSERT(dumped_resource.type != DumpResourceType::kNone);
-    util::hash::hash_combine(seed, static_cast<std::underlying_type_t<DumpResourceType>>(dumped_resource.type));
+    util::hash::hash_combine_64(seed, static_cast<std::underlying_type_t<DumpResourceType>>(dumped_resource.type));
 
     GFXRECON_ASSERT(dumped_resource.ppl_stage != DumpResourcesPipelineStage::kNone);
-    util::hash::hash_combine(
+    util::hash::hash_combine_64(
         seed, static_cast<std::underlying_type_t<DumpResourcesPipelineStage>>(dumped_resource.ppl_stage));
 
     GFXRECON_ASSERT(dumped_resource.bcb_index != UNDEFINED_INDEX);
-    util::hash::hash_combine(seed, dumped_resource.bcb_index);
+    util::hash::hash_combine_64(seed, dumped_resource.bcb_index);
 
     GFXRECON_ASSERT(dumped_resource.cmd_index != UNDEFINED_INDEX);
-    util::hash::hash_combine(seed, dumped_resource.cmd_index);
+    util::hash::hash_combine_64(seed, dumped_resource.cmd_index);
 
     GFXRECON_ASSERT(dumped_resource.qs_index != UNDEFINED_INDEX);
-    util::hash::hash_combine(seed, dumped_resource.qs_index);
+    util::hash::hash_combine_64(seed, dumped_resource.qs_index);
 
     GFXRECON_ASSERT(dumped_resource.submit_info_index != UNDEFINED_INDEX);
-    util::hash::hash_combine(seed, dumped_resource.submit_info_index);
+    util::hash::hash_combine_64(seed, dumped_resource.submit_info_index);
 
     GFXRECON_ASSERT(dumped_resource.submit_info_cmd_buf_index != UNDEFINED_INDEX);
-    util::hash::hash_combine(seed, dumped_resource.submit_info_cmd_buf_index);
+    util::hash::hash_combine_64(seed, dumped_resource.submit_info_cmd_buf_index);
 
     if (dumped_resource.render_pass != UNDEFINED_INDEX && dumped_resource.subpass != UNDEFINED_INDEX)
     {
-        util::hash::hash_combine(seed, dumped_resource.render_pass);
-        util::hash::hash_combine(seed, dumped_resource.subpass);
+        util::hash::hash_combine_64(seed, dumped_resource.render_pass);
+        util::hash::hash_combine_64(seed, dumped_resource.subpass);
     }
 
     if (dumped_resource.execute_cmds_index != UNDEFINED_INDEX &&
         dumped_resource.execute_cmds_cmd_buf_index != UNDEFINED_INDEX)
     {
-        util::hash::hash_combine(seed, dumped_resource.execute_cmds_index);
-        util::hash::hash_combine(seed, dumped_resource.execute_cmds_cmd_buf_index);
+        util::hash::hash_combine_64(seed, dumped_resource.execute_cmds_index);
+        util::hash::hash_combine_64(seed, dumped_resource.execute_cmds_cmd_buf_index);
     }
 }
 
@@ -793,7 +793,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
                                                                       uint32_t                  layer,
                                                                       bool                      before_command) const
 {
-    std::size_t hash = 0;
+    uint64_t hash = 0;
 
     // Resource type details
     switch (dumped_resource.type)
@@ -804,8 +804,8 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
             const DumpedRenderTarget& rt_resource_info = static_cast<const DumpedRenderTarget&>(dumped_resource);
             const VulkanImageInfo*    image_info       = rt_resource_info.dumped_image.image_info;
 
-            util::hash::hash_combine(hash, image_info->capture_id);
-            util::hash::hash_combine(hash, rt_resource_info.location);
+            util::hash::hash_combine_64(hash, image_info->capture_id);
+            util::hash::hash_combine_64(hash, rt_resource_info.location);
         }
         break;
 
@@ -819,15 +819,15 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
             const VulkanImageInfo* image_info = dumped_image->image_info;
             GFXRECON_ASSERT(image_info != nullptr);
 
-            util::hash::hash_combine(hash, image_info->capture_id);
-            util::hash::hash_combine(
+            util::hash::hash_combine_64(hash, image_info->capture_id);
+            util::hash::hash_combine_64(
                 hash, static_cast<std::underlying_type_t<DumpResourcesPipelineStage>>(dumped_image_desc.ppl_stage));
-            util::hash::hash_combine(hash, dumped_image_desc.stages);
-            util::hash::hash_combine(
+            util::hash::hash_combine_64(hash, dumped_image_desc.stages);
+            util::hash::hash_combine_64(
                 hash, static_cast<std::underlying_type_t<VkDescriptorType>>(dumped_image_desc.desc_type));
-            util::hash::hash_combine(hash, dumped_image_desc.set);
-            util::hash::hash_combine(hash, dumped_image_desc.binding);
-            util::hash::hash_combine(hash, dumped_image_desc.array_index);
+            util::hash::hash_combine_64(hash, dumped_image_desc.set);
+            util::hash::hash_combine_64(hash, dumped_image_desc.binding);
+            util::hash::hash_combine_64(hash, dumped_image_desc.array_index);
         }
         break;
 
@@ -837,7 +837,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
             auto* dumped_init_image = std::get_if<DumpedInitImageMetaCommand>(&dumped_transfer_command.dumped_resource);
             GFXRECON_ASSERT(dumped_init_image != nullptr);
 
-            util::hash::hash_combine(hash, dumped_init_image->image.id);
+            util::hash::hash_combine_64(hash, dumped_init_image->image.id);
         }
         break;
 
@@ -848,7 +848,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
                 std::get_if<DumpedCopyBufferToImage>(&dumped_transfer_command.dumped_resource);
             GFXRECON_ASSERT(dumped_copy_buffer_to_image != nullptr);
 
-            util::hash::hash_combine(hash, dumped_copy_buffer_to_image->dst_image.id);
+            util::hash::hash_combine_64(hash, dumped_copy_buffer_to_image->dst_image.id);
         }
         break;
 
@@ -858,7 +858,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
             auto*       dumped_copy_image = std::get_if<DumpedCopyImage>(&dumped_transfer_command.dumped_resource);
             GFXRECON_ASSERT(dumped_copy_image != nullptr);
 
-            util::hash::hash_combine(hash, dumped_copy_image->dst_image.id);
+            util::hash::hash_combine_64(hash, dumped_copy_image->dst_image.id);
         }
         break;
 
@@ -868,7 +868,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
             auto*       dumped_blit_image = std::get_if<DumpedBlitImage>(&dumped_transfer_command.dumped_resource);
             GFXRECON_ASSERT(dumped_blit_image != nullptr);
 
-            util::hash::hash_combine(hash, dumped_blit_image->dst_image.id);
+            util::hash::hash_combine_64(hash, dumped_blit_image->dst_image.id);
         }
         break;
 
@@ -877,15 +877,15 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const Dump
     }
 
     // Image specific details
-    util::hash::hash_combine(hash, static_cast<uint32_t>(aspect));
-    util::hash::hash_combine(hash, mip_level);
-    util::hash::hash_combine(hash, layer);
+    util::hash::hash_combine_64(hash, static_cast<uint32_t>(aspect));
+    util::hash::hash_combine_64(hash, mip_level);
+    util::hash::hash_combine_64(hash, layer);
 
     // Common details
     HashDumpedResourceBase(hash, dumped_resource);
     if (options_.dump_resources_before)
     {
-        util::hash::hash_combine(hash, before_command);
+        util::hash::hash_combine_64(hash, before_command);
     }
 
     std::stringstream filename;
@@ -1629,22 +1629,22 @@ DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedR
                                                                    bool                                  before_command,
                                                                    uint32_t                              buffer_index)
 {
-    std::size_t hash = 0;
+    uint64_t hash = 0;
 
-    util::hash::hash_combine(hash, static_cast<std::underlying_type_t<AccelerationStructureDumpedBufferType>>(type));
+    util::hash::hash_combine_64(hash, static_cast<std::underlying_type_t<AccelerationStructureDumpedBufferType>>(type));
 
     if (options_.dump_resources_before)
     {
-        util::hash::hash_combine(hash, before_command);
+        util::hash::hash_combine_64(hash, before_command);
     }
 
-    util::hash::hash_combine(hash, handle_id);
+    util::hash::hash_combine_64(hash, handle_id);
 
     if (type != AccelerationStructureDumpedBufferType::kSerializedBlas &&
         type != AccelerationStructureDumpedBufferType::kSerializedTlas)
     {
         GFXRECON_ASSERT(buffer_index != std::numeric_limits<uint32_t>::max())
-        util::hash::hash_combine(hash, buffer_index);
+        util::hash::hash_combine_64(hash, buffer_index);
     }
 
     std::stringstream filename;
