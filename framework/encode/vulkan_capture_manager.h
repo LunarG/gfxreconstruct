@@ -1747,6 +1747,11 @@ class VulkanCaptureManager : public ApiCaptureManager
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
+    void PostProcess_vkTransitionImageLayout(VkResult                               result,
+                                             VkDevice                               device,
+                                             uint32_t                               transitionCount,
+                                             const VkHostImageLayoutTransitionInfo* pTransitions);
+
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 

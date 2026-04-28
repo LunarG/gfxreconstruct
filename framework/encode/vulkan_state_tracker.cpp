@@ -4082,5 +4082,18 @@ void VulkanStateTracker::TrackBeginCommandBuffer(VkCommandBuffer command_buffer,
     }
 }
 
+void VulkanStateTracker::TrackTransitionImageLayout(uint32_t                               transitionCount,
+                                                    const VkHostImageLayoutTransitionInfo* pTransitions)
+{
+    for (uint32_t i = 0; i < transitionCount; ++i)
+    {
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pTransitions[i].image);
+        if (wrapper != nullptr)
+        {
+            wrapper->current_layout = pTransitions[i].newLayout;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
