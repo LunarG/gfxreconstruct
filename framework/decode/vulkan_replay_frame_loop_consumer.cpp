@@ -302,10 +302,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
     // Get device
-    Decoded_VkPresentInfoKHR* meta = pPresentInfo->GetMetaStructPointer();
-    CommonObjectInfoTable&    table = GetObjectInfoTable();
+    Decoded_VkPresentInfoKHR* meta           = pPresentInfo->GetMetaStructPointer();
+    CommonObjectInfoTable&    table          = GetObjectInfoTable();
     const auto                swapchain_info = table.GetVkSwapchainKHRInfo(meta->pSwapchains.GetPointer()[0]);
-    VkDevice                  device = swapchain_info->device_info->handle;
+    VkDevice                  device         = swapchain_info->device_info->handle;
     GFXRECON_ASSERT(device);
     const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
     GFXRECON_ASSERT(device_table);
