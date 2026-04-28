@@ -227,16 +227,18 @@ class FileProcessor
     // Frame numbers are zero-based (see kFirstFrame) and name the frame currently being processed or
     // dispatched, or the frame that will become current on the next call into the process or dispatch hierarchies.
     //
-    // Frame numbers advance only on frame boundaries, and not on terminating exit conditions (error or EOF).
-    uint64_t process_frame_number_{ kFirstFrame };
-    uint64_t dispatch_frame_number_{ kFirstFrame };
+    // The three are grouped, and then kept in separate cachelines. (for async processing)
 
-    // The error state observed during block processing and dispatch.
+    // *_frame_number_: Frame numbers advance only on frame boundaries, and not on terminating exit conditions (error or
+    // EOF).
+    // *_error_state_: The error state observed during block processing and dispatch.
+    // *_block_index_:The index of the block currently being processed or dispatched, or the next block that will be.
+    alignas(util::kConstructiveAlign) uint64_t process_frame_number_{ kFirstFrame };
     BlockIOError process_error_state_{ kErrorInvalidFileDescriptor };
-    BlockIOError dispatch_error_state_{ kErrorNone };
-
-    // The index of the block currently being processed or dispatched, or the next block that will be.
     uint64_t process_block_index_{ 0 };
+
+    alignas(util::kConstructiveAlign) uint64_t dispatch_frame_number_{ kFirstFrame };
+    BlockIOError dispatch_error_state_{ kErrorNone };
     uint64_t dispatch_block_index_{ 0 };
 
     using AsyncQueue           = file_processor::AsyncProcessedBlockQueue;
