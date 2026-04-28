@@ -287,7 +287,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkCommandPool>*        pCommandPool)
 {
-    if (frame_loop_info_.IsLooping())
+    if (frame_loop_info_.IsRepetition())
     {
         // Don't repeatedly recreate the command pool during the looping frame
         return;
