@@ -49,7 +49,7 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
     ResetPreload();
 
     size_t preloaded_frames = 0;
-    if (async_processing_)
+    if (AsyncProcessingEnabled())
     {
         preloaded_frames = PreloadNextFramesAsync(count);
     }
@@ -275,7 +275,7 @@ bool PreloadFileProcessor::ProcessNextFrame()
             // We clean up frame after limit s.t. memory operations don't taint performance
             ResetPreload();
 
-            if (async_processing_)
+            if (AsyncProcessingEnabled())
             {
                 // We didn't notify dequeued for all of replay, until now, and if async_processing_,
                 // the async_thread_ has been blocking on this last enqueued index

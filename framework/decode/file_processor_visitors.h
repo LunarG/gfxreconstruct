@@ -236,47 +236,6 @@ class ProcessVisitor
     FileProcessor& file_processor_;
 };
 
-struct ContinueProcessingPolicy
-{
-    struct BlockLimitOnly
-    {
-        constexpr static bool kCheckBlockLimit = true;
-        constexpr static bool kCheckDecoders   = false;
-    };
-    struct DecoderOnly
-    {
-        constexpr static bool kCheckBlockLimit = false;
-        constexpr static bool kCheckDecoders   = true;
-    };
-    struct CheckBoth
-    {
-        constexpr static bool kCheckBlockLimit = true;
-        constexpr static bool kCheckDecoders   = true;
-    };
-};
-
-class AsynchronousProcessPolicy
-{
-  public:
-    AsynchronousProcessPolicy(FileProcessor& file_processor, AsyncInstrumentation& async_stats) :
-        file_processor_(file_processor), async_stats_(async_stats)
-    {}
-    constexpr static bool kUpdateDispatchState = false;
-    bool                  ContinueBlockProcessing(uint64_t block_index)
-    {
-        return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::BlockLimitOnly>(block_index);
-    }
-    ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block)
-    {
-        async_stats_.AddBlock();
-        return ProcessBlockState::kRunning;
-    }
-
-  private:
-    FileProcessor&        file_processor_;
-    AsyncInstrumentation& async_stats_;
-};
-
 class SynchronousProcessPolicy
 {
   public:

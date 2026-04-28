@@ -5,6 +5,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/annotation_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_payload.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/async_processor.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/async_processor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/block_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/block_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/block_buffer.h

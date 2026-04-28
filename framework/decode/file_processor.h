@@ -24,8 +24,6 @@
 #ifndef GFXRECON_DECODE_FILE_PROCESSOR_H
 #define GFXRECON_DECODE_FILE_PROCESSOR_H
 
-//#define ASYNC_PROCESSING_INSTRUMENTATION
-
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "decode/annotation_handler.h"
@@ -52,10 +50,15 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// Forward declaractions
+class AsyncProcessor;
+
 GFXRECON_BEGIN_NAMESPACE(file_processor)
+class AsyncProcessPolicy;
 class DispatchVisitor;
-class ProcessVisitor;
 class PreloadProcessPolicy;
+class ProcessVisitor;
 GFXRECON_END_NAMESPACE(file_processor)
 
 class FileProcessor
@@ -68,46 +71,16 @@ class FileProcessor
         kBreak   = 2,
     };
 
-    using BlockIterator   = file_processor::BlockIterator;
-    using DispatchVisitor = file_processor::DispatchVisitor;
-    using FrameNumber     = file_processor::FrameNumber;
-    using FrameCount      = file_processor::FrameCount;
-    using ProcessVisitor  = file_processor::ProcessVisitor;
-
-    constexpr static FrameNumber kFirstFrame     = 0;
-    constexpr static FrameNumber kMaxFrameNumber = std::numeric_limits<FrameNumber>::max();
-    constexpr static FrameCount  kMaxFrameCount  = std::numeric_limits<FrameCount>::max();
-
-    // Range of frame numbers with half open [begin(), end()) semantics.
-    struct FrameRange
-    {
-        FrameNumber begin_frame{};
-        FrameNumber end_frame{};
-
-        FrameNumber begin() const noexcept { return begin_frame; }
-        FrameNumber end() const noexcept { return end_frame; }
-        bool        contains(FrameNumber frame) { return (frame >= begin_frame) && (frame < end_frame); }
-        bool        empty() const noexcept { return begin_frame == end_frame; }
-
-        template <typename T, typename U>
-        static FrameRange MakeFromOneBased(T inclusive_begin1, U exclusive_end1)
-        {
-            GFXRECON_ASSERT((inclusive_begin1 > 0) && (exclusive_end1 > 0));
-            return FrameRange(GFXRECON_NARROWING_CAST(FrameNumber, (inclusive_begin1 - 1)),
-                              GFXRECON_NARROWING_CAST(FrameNumber, (exclusive_end1 - 1)));
-        }
-
-        FrameRange(FrameNumber inclusive_begin, FrameNumber exclusive_end) :
-            begin_frame(inclusive_begin), end_frame(exclusive_end)
-        {
-            GFXRECON_ASSERT(begin_frame <= end_frame);
-        }
-        FrameRange() = default;
-    };
-
-    // ProcessBlocks specific status.
+    using BlockIterator       = file_processor::BlockIterator;
+    using DispatchVisitor     = file_processor::DispatchVisitor;
+    using FrameNumber         = file_processor::FrameNumber;
+    using FrameCount          = file_processor::FrameCount;
+    using FrameRange          = file_processor::FrameRange;
     using ProcessBlockState   = file_processor::ProcessBlockState;
     using ProcessBlocksResult = file_processor::ProcessBlocksResult;
+    using ProcessVisitor      = file_processor::ProcessVisitor;
+
+    constexpr static FrameNumber kFirstFrame = 0;
 
     FileProcessor();
 
@@ -195,6 +168,8 @@ class FileProcessor
   protected:
     using BlockProcessor = std::function<bool()>;
 
+    bool AsyncProcessingEnabled() const { return async_processor_.get() != nullptr; }
+
     // Read from active file
     bool ReadBytes(void* buffer, size_t buffer_size);
 
@@ -209,6 +184,11 @@ class FileProcessor
     static bool IsFrameBoundary(ProcessBlockState state) { return state == ProcessBlockState::kFrameBoundary; }
 
     ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
+
+    // Async processing needs to be to queury this frame wise.
+    friend class AsyncProcessor;
+    FrameNumber  GetProcessFrameNumber() const noexcept { return process_frame_number_; }
+    BlockIOError GetProcessErrorState() const noexcept { return process_error_state_; }
 
   protected:
     std::vector<ApiDecoder*> decoders_;
@@ -241,62 +221,8 @@ class FileProcessor
     BlockIOError dispatch_error_state_{ kErrorNone };
     uint64_t dispatch_block_index_{ 0 };
 
-    using AsyncQueue           = file_processor::AsyncProcessedBlockQueue;
-    using AsyncBatchIterator   = file_processor::AsyncBatchIterator;
-    using AsyncStats           = file_processor::AsyncInstrumentation;
-    using AsyncBatchFramesRing = file_processor::AsyncBatchFramesRing;
-
-    // Asynchronous file read and parsing support
-    void AsyncWaitForFrameCount(FrameCount wait_target);
-    void AsyncThrottleQueue(FrameCount enqueued_frames, const AsyncBatchFramesRing& batch_frame_index);
-    void AsyncAdjustDecompressionPolicy(FrameCount pending_frames);
-    void ProcessBlocksAsync();
-
-    // Async Thread Control group: (constructive alignment)
-    //  This is state primarly accessed by the async thread, and only occasionally read by the main thread, so we want
-    //  to keep it together and away from the main thread accessed state to avoid cache thrashing on the async thread
-    //  when the main thread is reading state.
-    //
-    // Note:
-    // preload frame range is only used for preload, but we need it to control async processing w.r.t. the preload
-    // frame range.  // During preload, different rules apply. Highwater becomes "all frames in preload range" and
-    // decompression policy is kAlways.
-    alignas(util::kConstructiveAlign) uint64_t async_quit_before_frame_{ kMaxFrameNumber };
-    FrameRange        async_preload_frame_range_;
-    std::atomic<bool> async_keep_alive_; // Thread teardown control
-    AsyncStats        async_stats_;
-
-    // Shared Control group: (constructive alignment)
-    alignas(util::kConstructiveAlign) std::mutex async_throttle_mutex_;
-    std::atomic<FrameCount> async_wait_target_{ kMaxFrameCount };
-    std::condition_variable async_throttle_cv_;
-
-    // Cache line isolated
-    //  This state is frequently accessed by both thread, but not at exactly the same time or frequency, so we need
-    //  these to be on separate cache lines to avoid thrashing when both threads are accessing them, and the need to be
-    //  separated both from the Control groun and each other to avoid thrashing between them.
-    alignas(util::kDestructiveAlign) AsyncQueue async_queue_;
-    alignas(util::kDestructiveAlign) std::atomic<FrameCount> async_dequeued_frames_;
-
-    // Main thread only group:
-    //  This state is only accessed by the main thread.
-    alignas(util::kDestructiveAlign) std::thread async_thread_;
-    bool async_processing_{ false };
-
-    // Owns the current async batch; only accessed by the main thread, references the async_queue_
-    // on operator++
-    AsyncBatchIterator async_batch_iterator_;
+    // Owns the current async batch; only accessed by the main thread on operator++
     BlockIterator      async_block_iterator_;
-
-    // Async processing throttle boundaries.  Values are in terms of frames async_thread is ahead of dispatching thread
-    // NOTE: These values are intial guesses only. Tuning could/should be done.
-    constexpr static FrameCount kAsyncNever     = 8;  // Offload decompression to dispatch when below this limit
-    constexpr static FrameCount kAsyncOptimized = 16; // Do decompression of smaller blocks on async_thread_
-    constexpr static FrameCount kAsyncAlways    = 32; // Do all decompression on async_thread_
-
-    // Note: the offset are intentional s.t. we don't beat agains the hysteresis boundaries above
-    constexpr static FrameCount kAsyncResume = kAsyncOptimized + 2; // Unblock condition predicate criteria
-    constexpr static FrameCount kAsyncWait = kAsyncAlways + 2; // Go into condition variable wait when above this limit
 
     static const ProcessBlocksResult& GetReplayResult(DispatchVisitor& dispatch_visitor);
     BlockIterator ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator begin, BlockIterator end);
@@ -425,10 +351,16 @@ class FileProcessor
     };
     using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
     ActiveStreamCache stream_cache_;
+
+    std::unique_ptr<AsyncProcessor> async_processor_{};
+    FrameRange                      preload_frame_range_{ 0, 0 };
+    FrameNumber                     quit_before_frame_{ 0 };
 };
 
 extern template file_processor::ProcessBlockState
 FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(file_processor::PreloadProcessPolicy& policy);
+extern template file_processor::ProcessBlockState
+FileProcessor::ProcessBlocks<file_processor::AsyncProcessPolicy>(file_processor::AsyncProcessPolicy& policy);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -70,7 +70,33 @@ struct ProcessBlocksResult
     ProcessBlockState state{ ProcessBlockState::kRunning }; // ProcessBlocks return value.
 };
 
-using AsyncProcessedBlockQueue = util::ThreadSafeQueue<BlockBatch::BatchPtr, true /* Single Consumer Queue */>;
+// Range of frame numbers with half open [begin(), end()) semantics.
+struct FrameRange
+{
+    FrameNumber begin_frame{ 0 };
+    FrameNumber end_frame{ 0 };
+
+    FrameNumber begin() const noexcept { return begin_frame; }
+    FrameNumber end() const noexcept { return end_frame; }
+    bool        contains(FrameNumber frame) { return (begin_frame <= frame) && (frame < end_frame); }
+    bool        empty() const noexcept { return begin_frame == end_frame; }
+    bool        valid() const noexcept { return begin_frame <= end_frame; }
+
+    template <typename T, typename U>
+    static FrameRange MakeFromOneBased(T inclusive_begin1, U exclusive_end1)
+    {
+        GFXRECON_ASSERT((inclusive_begin1 > 0) && (exclusive_end1 > 0));
+        return FrameRange(GFXRECON_NARROWING_CAST(FrameNumber, (inclusive_begin1 - 1)),
+                          GFXRECON_NARROWING_CAST(FrameNumber, (exclusive_end1 - 1)));
+    }
+
+    FrameRange(FrameNumber inclusive_begin, FrameNumber exclusive_end) :
+        begin_frame(inclusive_begin), end_frame(exclusive_end)
+    {
+        GFXRECON_ASSERT(valid());
+    }
+    FrameRange() = default;
+};
 
 // Iteration framework for traversing ParsedBlocks across batches during replay.
 //
@@ -131,31 +157,6 @@ class BatchIterator
 
   protected:
     BatchPtr batch_{};
-};
-
-// Adapts the async thread-safe queue. Blocks on Advance() until a batch is available.
-// Blocking occurs here — not hidden inside BlockIterator construction.
-class AsyncBatchIterator : public BatchIterator
-{
-  public:
-    AsyncBatchIterator() = default;
-    explicit AsyncBatchIterator(AsyncProcessedBlockQueue& queue) : queue_(&queue) { Advance(); }
-
-    void Advance() override
-    {
-        if (queue_ != nullptr)
-        {
-            auto item = queue_->pop();
-            batch_    = item.has_value() ? std::move(*item) : nullptr;
-        }
-        else
-        {
-            batch_ = nullptr;
-        }
-    }
-
-  private:
-    AsyncProcessedBlockQueue* queue_{ nullptr };
 };
 
 // Block-level iterator over batches supplied by a BatchIterator.
@@ -237,275 +238,25 @@ class BlockIterator
     pointer        block_;
 };
 
-// Circular buffer of final frame indices of the last kSize enqueued batches, used for async throttle logic
-class AsyncBatchFramesRing
+// ProcessBlocks policy definitions.
+struct ContinueProcessingPolicy
 {
-  public:
-    // We are tracking the last frame index for the last kSize batches, for low water and high water calculations.
-    constexpr static size_t kSize = 4;
-    constexpr static size_t kMask = kSize - 1;
-    static_assert((kSize & kMask) == 0, "Size must be a power of two for masking to work");
-
-    using value_type = FrameCount;
-
-    // Push to the back of the ring, overwriting front.
-    void Push(value_type frame_index)
+    struct BlockLimitOnly
     {
-        buffer_[batch_index_ & kMask] = frame_index;
-        ++batch_index_;
-    }
-
-    // Offset is how many batches back we want to look, with 0 being the current batch which has not yet been
-    // enqueued, and thus for which no frame index has yet been recorded (and thus should not be accessed) (think of
-    // Back as end() - offset) offset 1 is the last enqueued batch offset 2 is the next to last, etc.
-    value_type Back(size_t offset) const noexcept
-    {
-        GFXRECON_ASSERT((0 < offset) && (offset <= kSize));
-        // The addition of kSize allows use to ignore startup issues. Anything before zero is zero.
-        size_t index = (batch_index_ + kSize - offset) & kMask;
-        return buffer_[index];
-    }
-
-  private:
-    using Store = std::array<value_type, kSize>;
-    Store      buffer_{};
-    FrameCount batch_index_ = 0;
-};
-
-#if defined(ASYNC_PROCESSING_INSTRUMENTATION)
-class AsyncInstrumentation
-{
-  public:
-    ~AsyncInstrumentation()
-    {
-        // We only get any data if we've processed any asynchronous batches
-        if (total_batches_)
-        {
-            GFXRECON_WRITE_CONSOLE("Total frames %" PRIu64, total_frames_);
-            GFXRECON_WRITE_CONSOLE("Total batches %" PRIu64, total_batches_);
-            GFXRECON_WRITE_CONSOLE("Total blocks %" PRIu64, total_blocks_);
-            GFXRECON_WRITE_CONSOLE("Total linear bytes %" PRIu64, total_bytes_);
-            GFXRECON_WRITE_CONSOLE("Total unused bytes %" PRIu64, total_unused_);
-            GFXRECON_WRITE_CONSOLE("Total pending %" PRIu64, total_pending_);
-            GFXRECON_WRITE_CONSOLE("Total wait %" PRIu64, waits_);
-            GFXRECON_WRITE_CONSOLE("Total low water %" PRIu64, low_water_);
-            GFXRECON_WRITE_CONSOLE("Total starve (0 pending) %" PRIu64, starve_);
-            GFXRECON_WRITE_CONSOLE("Total near starve (1 pending) %" PRIu64, near_starve_);
-            GFXRECON_WRITE_CONSOLE("Total always %" PRIu64,
-                                   policy_count_[int(BlockParser::DecompressionPolicy::kAlways)]);
-            GFXRECON_WRITE_CONSOLE("Total optimized %" PRIu64,
-                                   policy_count_[int(BlockParser::DecompressionPolicy::kQueueOptimized)]);
-            GFXRECON_WRITE_CONSOLE("Total never %" PRIu64,
-                                   policy_count_[int(BlockParser::DecompressionPolicy::kNever)]);
-
-            using Policy                                          = BlockParser::DecompressionPolicy;
-            std::unordered_map<Policy, const char*> dbg_names     = { { Policy::kAlways, "kAlways" },
-                                                                      { Policy::kNever, "kNever" },
-                                                                      { Policy::kQueueOptimized, "kQueueOptimized" } };
-            std::pair<Policy, Policy>               dbg_changes[] = { { Policy::kNever, Policy::kQueueOptimized },
-                                                                      { Policy::kQueueOptimized, Policy::kNever },
-                                                                      { Policy::kAlways, Policy::kNever },
-                                                                      { Policy::kQueueOptimized, Policy::kAlways },
-                                                                      { Policy::kAlways, Policy::kQueueOptimized } };
-
-            GFXRECON_WRITE_CONSOLE("Policy transitions");
-            for (const auto& change : dbg_changes)
-            {
-                GFXRECON_WRITE_CONSOLE("From %s to %s:  %" PRIu64,
-                                       dbg_names[change.first],
-                                       dbg_names[change.second],
-                                       policy_change_[int(change.first)][int(change.second)]);
-            }
-
-            if (preload_pending_at_wait_.has_value())
-            {
-                GFXRECON_WRITE_CONSOLE("Pending");
-                GFXRECON_WRITE_CONSOLE("Frames pending at preload wait  %" PRIu64, *preload_pending_at_wait_);
-            }
-
-            if (total_frames_)
-            {
-                double oof = 1.0 / double(total_frames_);
-                double oom = 1.0 / double(1024 * 1024);
-                GFXRECON_WRITE_CONSOLE("Avg pending %f", total_pending_ * oof);
-                GFXRECON_WRITE_CONSOLE("Avg batches/frame %.3f", total_batches_ * oof);
-                GFXRECON_WRITE_CONSOLE("Avg blocks/frame %.3f", total_blocks_ * oof);
-                GFXRECON_WRITE_CONSOLE("Avg MB/frame %.3f", total_bytes_ * oof * oom);
-                GFXRECON_WRITE_CONSOLE("Avg unused MB/frame %.3f", total_unused_ * oof * oom);
-                if (total_batches_)
-                {
-                    double oob      = 1.0 / double(total_batches_);
-                    size_t capacity = BlockBatch::kCapacity;
-                    double ooc      = 1.0 / double(capacity);
-                    GFXRECON_WRITE_CONSOLE("capacity/batch %" PRIu64, capacity);
-                    GFXRECON_WRITE_CONSOLE("Avg blocks/batch %.3f", total_blocks_ * oob);
-                    GFXRECON_WRITE_CONSOLE("Avg MB/batch %.3f", total_bytes_ * oob * oom);
-                    GFXRECON_WRITE_CONSOLE("Avg unused MB/batch %.3f", total_unused_ * oob * oom);
-                    GFXRECON_WRITE_CONSOLE("%% capacity used %.3f", total_bytes_ * 100. * oob * ooc);
-                }
-
-                double poof = 100. * oof;
-                GFXRECON_WRITE_CONSOLE("%% wait %.3f", waits_ * poof);
-                GFXRECON_WRITE_CONSOLE("%% low_water %.3f", low_water_ * poof);
-                GFXRECON_WRITE_CONSOLE("%% starve (0 pending) %.3f", starve_ * poof);
-                GFXRECON_WRITE_CONSOLE("%% near starve (1 pending) %.3f", near_starve_ * poof);
-                GFXRECON_WRITE_CONSOLE("%% always %.3f",
-                                       poof * policy_count_[int(BlockParser::DecompressionPolicy::kAlways)]);
-                GFXRECON_WRITE_CONSOLE("%% optimized %.3f",
-                                       poof * policy_count_[int(BlockParser::DecompressionPolicy::kQueueOptimized)]);
-                GFXRECON_WRITE_CONSOLE("%% never %.3f",
-                                       poof * policy_count_[int(BlockParser::DecompressionPolicy::kNever)]);
-            }
-        }
-
-        if (queue_events_.size())
-        {
-            static const char* kQueueStatusNames[] = { "LowWater", "HighWater", "Flush" };
-            GFXRECON_WRITE_CONSOLE("Queue events:");
-            FrameCount last_frame = ~0;
-            for (const auto& event : queue_events_)
-            {
-                if (event.frame_index != last_frame)
-                {
-                    if (event.status == QueueStatus::kLowWater)
-                    {
-                        GFXRECON_WRITE_CONSOLE("%s: Frame %" PRIu64 ": Dequeued: %" PRIu64
-                                               " Prior Batch Frame: %" PRIu64,
-                                               kQueueStatusNames[int(event.status)],
-                                               event.frame_index,
-                                               event.dequed_frames,
-                                               event.prior_frame);
-                    }
-                    else if (event.status == QueueStatus::kHighWater)
-                    {
-                        const char* wait_target_str = (event.wait_for_prev) ? "(prev batch)" : "(excess batch)";
-                        GFXRECON_WRITE_CONSOLE("%s: Frame %" PRIu64 ": Dequeued: %" PRIu64 " Wait Target: %" PRIu64
-                                               "%s",
-                                               kQueueStatusNames[int(event.status)],
-                                               event.frame_index,
-                                               event.dequed_frames,
-                                               event.prior_frame,
-                                               wait_target_str);
-                    }
-                    else
-                    {
-                        GFXRECON_ASSERT(event.status == QueueStatus::kFlush);
-                        GFXRECON_WRITE_CONSOLE(
-                            "%s: Frame %" PRIu64, kQueueStatusNames[int(event.status)], event.frame_index);
-                    }
-                }
-                else
-                {
-                    GFXRECON_ASSERT(event.status == QueueStatus::kFlush);
-                }
-                last_frame = event.frame_index;
-            }
-        }
-    }
-
-    void AddFrame() { ++total_frames_; }
-    void AddFramePending(FrameCount pending_frames)
-    {
-        total_pending_ += pending_frames;
-        if (pending_frames == 0)
-        {
-            ++starve_;
-        }
-        else if (pending_frames == 1)
-        {
-            ++near_starve_;
-        }
-    }
-
-    void AddLowWaterFlush(FrameCount frame_index, FrameCount dequeued_frames, FrameCount prior_batch_frames)
-    {
-        ++low_water_;
-        queue_events_.push_back({ frame_index, dequeued_frames, QueueStatus::kLowWater, prior_batch_frames, true });
-    }
-
-    void AddHighwaterWait(FrameCount frame_index,
-                          FrameCount dequeued_frames,
-                          FrameCount wait_target,
-                          bool       excess_batch_pending)
-    {
-        ++waits_;
-        bool prior_batch_wait = !excess_batch_pending;
-        queue_events_.push_back(
-            { frame_index, dequeued_frames, QueueStatus::kHighWater, wait_target, prior_batch_wait });
-    }
-
-    void AddBatch(const BlockBatch::BatchPtr& batch, FrameCount frame_index)
-    {
-        ++total_batches_;
-        total_unused_ += batch->BytesRemaining();
-        total_bytes_ += (batch->kCapacity - batch->BytesRemaining()); // linear usage only
-        queue_events_.push_back({ frame_index, 0, QueueStatus::kFlush, 0, true });
-    }
-
-    void AddBlock() { ++total_blocks_; }
-
-    void AddPolicyChange(BlockParser::DecompressionPolicy from, BlockParser::DecompressionPolicy to)
-    {
-        if (from != to)
-        {
-            ++policy_change_[int(from)][int(to)];
-        }
-    }
-    void IncrementPolicyCount(const BlockParser& parser) { ++policy_count_[int(parser.GetDecompressionPolicy())]; }
-
-    void AddPendingAtWait(FrameCount enqueued_frames, const std::atomic<FrameCount>& dequeued_frames)
-    {
-        preload_pending_at_wait_.emplace(enqueued_frames - dequeued_frames.load(std::memory_order_acquire));
-    }
-
-  private:
-    FrameCount total_frames_  = 0;
-    uint64_t   total_batches_ = 0;
-    uint64_t   total_bytes_   = 0;
-    uint64_t   total_unused_  = 0;
-    uint64_t   total_blocks_  = 0;
-    FrameCount waits_         = 0;
-    FrameCount low_water_     = 0;
-    FrameCount starve_        = 0;
-    FrameCount near_starve_   = 0;
-    FrameCount total_pending_ = 0;
-    enum QueueStatus
-    {
-        kLowWater  = 0,
-        kHighWater = 1,
-        kFlush     = 2
+        constexpr static bool kCheckBlockLimit = true;
+        constexpr static bool kCheckDecoders   = false;
     };
-
-    struct QueueEvent
+    struct DecoderOnly
     {
-        FrameCount  frame_index;
-        FrameCount  dequed_frames;
-        QueueStatus status;
-        FrameCount  prior_frame;
-        bool        wait_for_prev;
+        constexpr static bool kCheckBlockLimit = false;
+        constexpr static bool kCheckDecoders   = true;
     };
-    std::deque<QueueEvent> queue_events_;
-
-    std::optional<FrameCount> preload_pending_at_wait_ = std::nullopt;
-
-    std::array<FrameCount, 3>                policy_count_{};
-    std::array<std::array<FrameCount, 3>, 3> policy_change_{};
+    struct CheckBoth
+    {
+        constexpr static bool kCheckBlockLimit = true;
+        constexpr static bool kCheckDecoders   = true;
+    };
 };
-#else  // !ASYNC_PROCESSING_INSTRUMENTATION)
-class AsyncInstrumentation
-{
-  public:
-    void AddFrame() {}
-    void AddFramePending(FrameCount) {}
-    void AddLowWaterFlush(FrameCount, FrameCount, FrameCount) {}
-    void AddHighwaterWait(FrameCount, FrameCount, FrameCount, bool) {}
-    void AddBatch(const BlockBatch::BatchPtr&, FrameCount) {}
-    void AddBlock() {}
-    void AddPolicyChange(BlockParser::DecompressionPolicy, BlockParser::DecompressionPolicy) {}
-    void IncrementPolicyCount(const BlockParser&) {}
-    void AddPendingAtWait(FrameCount, const std::atomic<FrameCount>&) {}
-};
-#endif // ASYNC_PROCESSING_INSTRUMENTATION)
 
 GFXRECON_END_NAMESPACE(file_processor)
 GFXRECON_END_NAMESPACE(decode)

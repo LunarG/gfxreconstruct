@@ -33,6 +33,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_payload.h
+                    ${CMAKE_CURRENT_LIST_DIR}/async_processor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/async_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/block_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/block_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/block_batch.h
