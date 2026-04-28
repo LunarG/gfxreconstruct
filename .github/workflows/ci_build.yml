@@ -57,7 +57,7 @@ jobs:
         cmakeVersion: 3.24
     - name: Run build script
       run: |
-        if [ "${{ matrix.config.type }}" == "release" ]
+        if [ "${{ matrix.config.type }}" == "debug" ]
         then
           clang-format-14 --version
           git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
@@ -140,6 +140,15 @@ jobs:
     - name: Set WindowsSDKVersion
       run:
         echo ("WindowsSDKVersion=10.0.26100.0\") >> $env:GITHUB_ENV
+    - name: Install clang-format
+      uses: aminya/setup-cpp@v1
+      with:
+        clang-format: 14.0.0
+    - name: Create clang-format-14 alias
+      shell: pwsh
+      run: |
+        $target = (Get-Command clang-format).Source
+        Copy-Item $target (Join-Path (Split-Path $target) "clang-format-14.exe")
     - name: Clone repository from merge of PR branch and dev branch
       uses: actions/checkout@v4
       with:
@@ -150,7 +159,13 @@ jobs:
         git diff --exit-code
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
+        if ("${{ matrix.config.type }}" -eq "release") {
+          python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
+        } else {
+          clang-format-14 --version
+          git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
+          python scripts\build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
+        }
     - name: Run test app test cases
       id: test_apps
       run: |
