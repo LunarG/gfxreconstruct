@@ -146,7 +146,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
                                      format::HandleId                            device,
                                      StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                     HandlePointerDecoder<VkCommandPool>*        pCommandPool);
+                                     HandlePointerDecoder<VkCommandPool>*        pCommandPool) override;
 
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
