@@ -12,7 +12,7 @@ on:
 
 jobs:
   check-format:
-    name: "Clang-Format Check"
+    name: "Format Check"
     runs-on: ubuntu-latest
     steps:
     - name: Install dependencies
@@ -81,7 +81,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev clang-format-14
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - uses: lukka/get-cmake@latest
       with:
         cmakeVersion: 3.24
@@ -174,7 +174,7 @@ jobs:
       if: matrix.config.type == 'debug'
       run: |
         python3 framework/generated/generate_dx12.py # check generated code isn't out of date
-        git diff --exit-code || { echo "Generated code differs from branch contents"; exit 1; }
+        git diff --exit-code; if ($LASTEXITCODE -ne 0) { Write-Error "Generated code differs from branch contents"; exit 1 }
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
