@@ -303,13 +303,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
+    const ApiCallInfo&                                         call_info,
+    VkResult                                                   returnValue,
+    format::HandleId                                           device,
     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
+    HandlePointerDecoder<VkDescriptorSet>*                     pDescriptorSets)
 {
-    VulkanReplayConsumer::Process_vkAllocateDescriptorSets(call_info, returnValue, device, pAllocateInfo, pDescriptorSets);
+    VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
+        call_info, returnValue, device, pAllocateInfo, pDescriptorSets);
     if (frame_loop_info_.IsLooping())
     {
         VkDescriptorPool pool = pAllocateInfo->GetPointer()->descriptorPool;
@@ -318,18 +319,18 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            queue,
+    const ApiCallInfo&                              call_info,
+    VkResult                                        returnValue,
+    format::HandleId                                queue,
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
     // Get device
-    Decoded_VkPresentInfoKHR *meta = pPresentInfo->GetMetaStructPointer();
-    CommonObjectInfoTable& table = GetObjectInfoTable();
-    const auto swapchain_info = table.GetVkSwapchainKHRInfo(meta->pSwapchains.GetPointer()[0]);
-    VkDevice device = swapchain_info->device_info->handle;
+    Decoded_VkPresentInfoKHR* meta = pPresentInfo->GetMetaStructPointer();
+    CommonObjectInfoTable&    table = GetObjectInfoTable();
+    const auto                swapchain_info = table.GetVkSwapchainKHRInfo(meta->pSwapchains.GetPointer()[0]);
+    VkDevice                  device = swapchain_info->device_info->handle;
     GFXRECON_ASSERT(device);
-    const graphics::VulkanDeviceTable *device_table = GetDeviceTable(device);
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
     GFXRECON_ASSERT(device_table);
 
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, returnValue, queue, pPresentInfo);
