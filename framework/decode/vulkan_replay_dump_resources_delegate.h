@@ -227,7 +227,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                          bool                       before_command,
                          const util::Compressor*    compressor);
 
-    void HashDumpedResourceBase(std::size_t& seed, const DumpedResourceBase& dumped_resource) const;
+    void HashDumpedResourceBase(uint64_t& seed, const DumpedResourceBase& dumped_resource) const;
 
     static constexpr uint32_t NO_INDEX = std::numeric_limits<uint32_t>::max();
 
