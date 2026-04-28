@@ -192,6 +192,13 @@ class KhronosReplayConsumerBodyGenerator():
         if is_skip_offscreen:
             body += self.check_skip_offscreen(values, name)
 
+        # Return if looping says we should skip this API call.
+        # Only do this check in Vulkan, since looping is currently
+        # only supported in Vulkan.
+        if api_data.api_name == 'Vulkan':
+            body += '    if (skip_while_looping(GetApplication().GetFrameLoopInfo(), call_info, gfxrecon::format::ApiCall_' + name + '))\n'
+            body += '        return;\n'
+
         args, preexpr, postexpr, push_handleid_expr = self.make_body_expression(
             api_data, return_type, name, values, is_override
         )

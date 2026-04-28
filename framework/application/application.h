@@ -83,6 +83,8 @@ class Application final
 
     void SetFrameLoopInfo(graphics::FrameLoopInfo* frame_loop_info) { frame_loop_info_ = frame_loop_info; }
 
+    graphics::FrameLoopInfo* GetFrameLoopInfo() { return frame_loop_info_; }
+
     bool InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
 #if defined(WIN32)
