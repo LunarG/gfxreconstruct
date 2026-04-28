@@ -141,15 +141,15 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
                                             uint32_t                                            layers,
                                             const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
 
-    void Process_vkAllocateDescriptorSets(const ApiCallInfo&                          call_info,
-                                          VkResult                                    returnValue,
-                                          format::HandleId                            device,
+    void Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
+                                          VkResult                                                   returnValue,
+                                          format::HandleId                                           device,
                                           StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-                                          HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets) override;
+                                          HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    void Process_vkQueuePresentKHR(const ApiCallInfo&                          call_info,
-                                   VkResult                                    returnValue,
-                                   format::HandleId                            queue,
+    void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
+                                   VkResult                                        returnValue,
+                                   format::HandleId                                queue,
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
 
   private:
