@@ -1479,6 +1479,9 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PostProcess_vkCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
                                                  const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
 
+    void PostProcess_vkCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                              const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
+
     void PostProcess_vkCmdCopyBuffer(VkCommandBuffer     commandBuffer,
                                      VkBuffer            srcBuffer,
                                      VkBuffer            dstBuffer,

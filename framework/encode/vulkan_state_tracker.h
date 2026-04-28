@@ -511,8 +511,8 @@ class VulkanStateTracker
                                     uint32_t               dynamicOffsetCount,
                                     const uint32_t*        pDynamicOffsets);
 
-    void TrackCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
-                                        const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+    void TrackCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                     const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
 
     void
     TrackCmdBindPipeline(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
