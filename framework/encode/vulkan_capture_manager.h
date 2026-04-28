@@ -1479,6 +1479,9 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PostProcess_vkCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
                                                  const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
 
+    void PostProcess_vkCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                              const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
+
     void PostProcess_vkCmdCopyBuffer(VkCommandBuffer     commandBuffer,
                                      VkBuffer            srcBuffer,
                                      VkBuffer            dstBuffer,
@@ -1746,6 +1749,11 @@ class VulkanCaptureManager : public ApiCaptureManager
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
+
+    void PostProcess_vkTransitionImageLayout(VkResult                               result,
+                                             VkDevice                               device,
+                                             uint32_t                               transitionCount,
+                                             const VkHostImageLayoutTransitionInfo* pTransitions);
 
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}

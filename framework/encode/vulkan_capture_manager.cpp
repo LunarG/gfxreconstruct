@@ -2272,7 +2272,6 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
             std::vector<uint64_t> level_sizes;
 
             uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.format,
-                                                                                img.type,
                                                                                 img.extent,
                                                                                 img.level_count,
                                                                                 img.layer_count,
@@ -4026,7 +4025,16 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2KHR(
 {
     if (IsCaptureModeTrack())
     {
-        state_tracker_->TrackCmdBindDescriptorSets2KHR(commandBuffer, pBindDescriptorSetsInfo);
+        state_tracker_->TrackCmdBindDescriptorSets2(commandBuffer, pBindDescriptorSetsInfo);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2(
+    VkCommandBuffer commandBuffer, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdBindDescriptorSets2(commandBuffer, pBindDescriptorSetsInfo);
     }
 }
 
@@ -4454,6 +4462,20 @@ bool VulkanCaptureManager::IsValidFence(VkFence fence)
 }
 
 #endif
+
+void VulkanCaptureManager::PostProcess_vkTransitionImageLayout(VkResult                               result,
+                                                               VkDevice                               device,
+                                                               uint32_t                               transitionCount,
+                                                               const VkHostImageLayoutTransitionInfo* pTransitions)
+{
+    if (result == VK_SUCCESS)
+    {
+        if (IsCaptureModeTrack())
+        {
+            state_tracker_->TrackTransitionImageLayout(transitionCount, pTransitions);
+        }
+    }
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
