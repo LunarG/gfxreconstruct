@@ -10105,9 +10105,7 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
         command_buffer_info->inside_renderpass = begin_info->pInheritanceInfo->renderPass != VK_NULL_HANDLE;
 
         // handle VK_KHR_dynamic_rendering
-        if (auto* inheritance_rendering_info =
-                graphics::vulkan_struct_get_pnext<VkCommandBufferInheritanceRenderingInfo>(
-                    begin_info->pInheritanceInfo))
+        if (graphics::vulkan_struct_get_pnext<VkCommandBufferInheritanceRenderingInfo>(begin_info->pInheritanceInfo))
         {
             // presence of struct in pNext means we're already rendering
             command_buffer_info->inside_renderpass = true;
