@@ -279,5 +279,27 @@ void VulkanReplayFrameLoopConsumer::ProcessCreateHardwareBufferCommand(
         device_id, memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkCommandPool>*        pCommandPool)
+{
+    if (frame_loop_info_.IsLooping())
+    {
+        // Don't repeatedly recreate the command pool during the looping frame
+        return;
+    }
+
+    // Set VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT in order to prevent validation
+    // error regarding implicitly resetting the command buffer
+    VkCommandPoolCreateInfo* create_info = pCreateInfo->GetPointer();
+    create_info->flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
