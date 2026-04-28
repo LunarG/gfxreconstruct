@@ -280,12 +280,12 @@ void VulkanReplayFrameLoopConsumer::ProcessCreateHardwareBufferCommand(
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
+    const ApiCallInfo&                                     call_info,
+    VkResult                                               returnValue,
+    format::HandleId                                       device,
     StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkCommandPool>*        pCommandPool)
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+    HandlePointerDecoder<VkCommandPool>*                   pCommandPool)
 {
     if (frame_loop_info_.IsRepetition())
     {
@@ -298,7 +298,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
     VkCommandPoolCreateInfo* create_info = pCreateInfo->GetPointer();
     create_info->flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-    VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
+    VulkanReplayConsumer::Process_vkCreateCommandPool(
+        call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
 }
 
 GFXRECON_END_NAMESPACE(decode)
