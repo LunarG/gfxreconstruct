@@ -32,9 +32,7 @@ pipeline {
         disableConcurrentBuilds(abortPrevious: true)
         buildDiscarder(logRotator(
             daysToKeepStr: '90',
-            numToKeepStr: '100',
-            artifactDaysToKeepStr: '90',
-            artifactNumToKeepStr: '100'
+            artifactDaysToKeepStr: '14'
         ))
     }
 
