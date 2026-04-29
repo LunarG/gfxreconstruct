@@ -10080,7 +10080,7 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->push_constant_pipeline_layout = VK_NULL_HANDLE;
     command_buffer_info->addresses_to_replace.clear();
     command_buffer_info->addresses_to_resolve.clear();
-    command_buffer_info->inside_renderpass = false;
+    command_buffer_info->in_rendering_scope = false;
 
     // free potential shadow-resources associated with this command-buffer
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
@@ -10102,7 +10102,14 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
 
     if (begin_info->pInheritanceInfo != nullptr)
     {
-        command_buffer_info->inside_renderpass = begin_info->pInheritanceInfo->renderPass != VK_NULL_HANDLE;
+        command_buffer_info->in_rendering_scope = begin_info->pInheritanceInfo->renderPass != VK_NULL_HANDLE;
+
+        // handle VK_KHR_dynamic_rendering
+        if (graphics::vulkan_struct_get_pnext<VkCommandBufferInheritanceRenderingInfo>(begin_info->pInheritanceInfo))
+        {
+            // presence of struct in pNext means we're already rendering
+            command_buffer_info->in_rendering_scope = true;
+        }
     }
 
     VkResult res = VK_SUCCESS;
@@ -10355,7 +10362,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
-    command_buffer_info->inside_renderpass = true;
+    command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
@@ -10413,7 +10420,7 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
-    command_buffer_info->inside_renderpass = true;
+    command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
@@ -10442,14 +10449,43 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
 }
 
+void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass   func,
+                                                        VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    command_buffer_info->in_rendering_scope = false;
+    func(command_buffer_info->handle);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
+    PFN_vkCmdEndRenderPass2                         func,
+    VulkanCommandBufferInfo*                        command_buffer_info,
+    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    command_buffer_info->in_rendering_scope = false;
+    func(command_buffer_info->handle, pSubpassEndInfo->GetPointer());
+}
+
 void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     PFN_vkCmdBeginRendering                        func,
     VulkanCommandBufferInfo*                       command_buffer_info,
     StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder)
 {
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
     MaybeInjectExecutionBarrier(command_buffer_info);
+    command_buffer_info->in_rendering_scope = true;
 
     func(command_buffer_info->handle, rendering_info_decoder->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdEndRendering(PFN_vkCmdEndRendering    func,
+                                                       VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    command_buffer_info->in_rendering_scope = false;
+    func(command_buffer_info->handle);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(

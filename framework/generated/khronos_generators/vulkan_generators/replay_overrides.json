@@ -114,6 +114,9 @@
     "vkCmdBeginRenderPass": "OverrideCmdBeginRenderPass",
     "vkCmdBeginRenderPass2": "OverrideCmdBeginRenderPass2",
     "vkCmdBeginRenderPass2KHR": "OverrideCmdBeginRenderPass2",
+    "vkCmdEndRenderPass": "OverrideCmdEndRenderPass",
+    "vkCmdEndRenderPass2": "OverrideCmdEndRenderPass2",
+    "vkCmdEndRenderPass2KHR": "OverrideCmdEndRenderPass2",
     "vkCreateImageView": "OverrideCreateImageView",
     "vkCreateFramebuffer": "OverrideCreateFramebuffer",
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
@@ -176,6 +179,8 @@
     "vkCreatePipelineBinariesKHR": "OverrideCreatePipelineBinariesKHR",
     "vkCmdBeginRendering": "OverrideCmdBeginRendering",
     "vkCmdBeginRenderingKHR": "OverrideCmdBeginRendering",
+    "vkCmdEndRendering": "OverrideCmdEndRendering",
+    "vkCmdEndRenderingKHR": "OverrideCmdEndRendering",
     "vkCreateIndirectExecutionSetEXT": "OverrideCreateIndirectExecutionSetEXT",
     "vkCmdPreprocessGeneratedCommandsEXT": "OverrideCmdPreprocessGeneratedCommandsEXT",
     "vkCmdExecuteGeneratedCommandsEXT": "OverrideCmdExecuteGeneratedCommandsEXT"
