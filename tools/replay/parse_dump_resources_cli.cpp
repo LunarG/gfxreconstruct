@@ -34,6 +34,7 @@
 #include <cctype>
 #include <cstdint>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 #include <set>
@@ -337,6 +338,9 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
 
         if (it->contains("Descriptors"))
         {
+            command_subresources.emplace(
+                std::piecewise_construct, std::forward_as_tuple(cmd_index), std::forward_as_tuple());
+
             const auto& subresources = it->at("Descriptors");
             for (const auto& sr : subresources)
             {
