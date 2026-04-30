@@ -1034,31 +1034,20 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
                                           &initial_barrier_swapchain_image);
 
         subresource.layerCount   = swapchain_info->image_array_layers;
+        VkExtent3D  image_extent = { std::min(swapchain_resources->actual_extent.width, swapchain_info->width),
+                                     std::min(swapchain_resources->actual_extent.height, swapchain_info->height),
+                                     1 };
+        VkImageCopy image_copy   = { subresource, offset, subresource, offset, image_extent };
 
-        VkImageBlit image_blit;
-        image_blit.srcSubresource  = subresource;
-        image_blit.srcOffsets[0].x = 0;
-        image_blit.srcOffsets[0].y = 0;
-        image_blit.srcOffsets[0].z = 0;
-        image_blit.srcOffsets[1].x = swapchain_info->width;
-        image_blit.srcOffsets[1].y = swapchain_info->height;
-        image_blit.srcOffsets[1].z = 1;
-        image_blit.dstSubresource  = subresource;
-        image_blit.dstOffsets[0].x = 0;
-        image_blit.dstOffsets[0].y = 0;
-        image_blit.dstOffsets[0].z = 0;
-        image_blit.dstOffsets[1].x = swapchain_resources->actual_extent.width;
-        image_blit.dstOffsets[1].y = swapchain_resources->actual_extent.height;
-        image_blit.dstOffsets[1].z = 1;
-
-        device_table_->CmdBlitImage(command_buffer,
+        // NOTE: vkCmdCopyImage works on Queues of types including Graphics, Compute
+        //       and Transfer.  So should work on any queues we get a vkQueuePresentKHR from.
+        device_table_->CmdCopyImage(command_buffer,
                                     virtual_image.image,
                                     VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                     replay_image,
                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                     1,
-                                    &image_blit,
-                                    VK_FILTER_LINEAR);
+                                    &image_copy);
 
         final_barrier_virtual_image.image                         = virtual_image.image;
         final_barrier_virtual_image.subresourceRange.layerCount   = swapchain_info->image_array_layers;
