@@ -153,7 +153,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
 
   private:
-    graphics::FrameLoopInfo& frame_loop_info_;
+    graphics::FrameLoopInfo&             frame_loop_info_;
     std::unordered_set<VkDescriptorPool> active_descriptor_pools_;
 };
 
