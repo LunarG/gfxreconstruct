@@ -990,13 +990,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     {
         std::stringstream filename;
         filename << "DrawCall_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
-                 << dumped_resources.bcb_index << "_dr.json";
-
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 
@@ -1699,12 +1694,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
     {
         std::stringstream filename;
         filename << "Dispatch_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
-                 << dumped_resources.bcb_index << "_dr.json";
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 
@@ -1800,12 +1791,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
     {
         std::stringstream filename;
         filename << "TraceRays_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
-                 << dumped_resources.bcb_index << "_dr.json";
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 
@@ -2612,13 +2599,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     {
         std::stringstream filename;
         filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
-                 << dumped_resources.bcb_index << "_dr.json";
-
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 

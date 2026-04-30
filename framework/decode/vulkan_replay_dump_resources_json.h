@@ -39,8 +39,6 @@ class VulkanReplayDumpResourcesJson
 
     bool Open(const std::string& infile, const std::string& outdir);
 
-    bool Open(const std::string& filename);
-
     void Close();
 
     nlohmann::ordered_json& BlockStart();

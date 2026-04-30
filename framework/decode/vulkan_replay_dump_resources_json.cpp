@@ -113,16 +113,6 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
     return true;
 }
 
-bool VulkanReplayDumpResourcesJson::Open(const std::string& filename)
-{
-    if (!InitializeFile(filename))
-    {
-        return false;
-    }
-
-    return true;
-}
-
 void VulkanReplayDumpResourcesJson::Close()
 {
     if (file_ != nullptr)

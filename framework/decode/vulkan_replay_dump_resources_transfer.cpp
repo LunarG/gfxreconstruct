@@ -1231,7 +1231,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
 
 VkResult TransferDumpingContext::DumpTransferCommands()
 {
-    if (!qs_index_)
+    if (!qs_index_ && !options_.dump_resources_json_per_command)
     {
         delegate_.DumpStart();
     }
@@ -2003,7 +2003,7 @@ VkResult TransferDumpingContext::DumpTransferCommands()
         delegate_.DumpDrawCallInfo(transfer_info);
     }
 
-    if (!qs_index_)
+    if (!qs_index_ && !options_.dump_resources_json_per_command)
     {
         delegate_.DumpEnd();
     }
