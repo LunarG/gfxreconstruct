@@ -111,6 +111,8 @@ class BlockParser
         kEnqueueRetained // Always store raw block data in BlockBatch
     };
 
+    constexpr static uint64_t kResultsBlockIndexNumber = std::numeric_limits<uint64_t>::max();
+
     // The threshold is based on a trade off: maximize the number blocks with no decompression at replay
     // while minimizing the memory overhead of the non-deferred compressions.
     //

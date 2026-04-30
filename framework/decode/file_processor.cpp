@@ -143,9 +143,7 @@ bool FileProcessor::ProcessNextFrameAsync()
     async_block_iterator_ = ReplayOneFrame(dispatch_visitor, async_block_iterator_, BlockIterator());
 
     const ProcessBlocksResult& result = GetReplayResult(dispatch_visitor);
-    HandleReplayResult(result, async_block_iterator_, [this](const ProcessBlocksResult& publish_result) {
-        NotifyIndexDequeued(publish_result.index);
-    });
+    HandleReplayResult(result, async_block_iterator_, [](const ProcessBlocksResult& publish_result) {});
 
     return ContinueProcessing(result.state);
 }
@@ -334,11 +332,11 @@ template <typename ProcessPolicy>
 FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(ProcessPolicy& policy)
 {
     BlockBuffer       block_buffer;
-    ProcessBlockState process_state = ProcessBlockState::kRunning;
+    ProcessBlockState process_state = ProcessBlockState::kContinue;
     BlockParser&      block_parser  = *block_parser_.get();
     ProcessVisitor    process_visitor(*this);
 
-    while (process_state == ProcessBlockState::kRunning)
+    while (process_state == ProcessBlockState::kContinue)
     {
         PrintBlockInfo();
 
@@ -377,11 +375,10 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(ProcessPolicy& pol
                             if (success)
                             {
                                 process_state = policy.Dispatch(process_block_index_, parsed_block);
-                                if ((ProcessBlockState::kRunning == process_state) &&
+                                if ((ProcessBlockState::kContinue == process_state) &&
                                     process_visitor.IsFrameDelimiter())
                                 {
                                     process_state = ProcessBlockState::kFrameBoundary;
-                                    parsed_block.SetFrameBoundaryFlag(true);
                                 }
                             }
                             else
@@ -479,7 +476,7 @@ void FileProcessor::HandleReplayResult(const ProcessBlocksResult&               
     dispatch_error_state_  = result.error;
     dispatch_frame_number_ = result.frame_number;
 
-    if (result.state == ProcessBlockState::kRunning)
+    if (result.state == ProcessBlockState::kContinue)
     {
         if (iterator == file_processor::BlockIterator())
         {
@@ -501,11 +498,11 @@ FileProcessor::ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator b
     GFXRECON_ASSERT(begin != end);
     BlockParser& block_parser = GetBlockParser();
 
-    ProcessBlockState             state = ProcessBlockState::kRunning;
+    ProcessBlockState             state = ProcessBlockState::kContinue;
     file_processor::BlockIterator it    = begin;
 
     SetDecoderFrameNumber(dispatch_frame_number_);
-    while ((it != end) && (ProcessBlockState::kRunning == state))
+    while ((it != end) && (ProcessBlockState::kContinue == state))
     {
         ParsedBlock& block = *it;
         // We assume that only known, visitable blocks were preloaded
@@ -557,14 +554,6 @@ FileProcessor::ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator b
         ++it;
     }
     return it;
-}
-
-void FileProcessor::NotifyIndexDequeued(const FrameCount index)
-{
-    if (async_processor_.get() != nullptr)
-    {
-        async_processor_->NotifyFrameIndexDequeued(index);
-    }
 }
 
 bool FileProcessor::IsFileValid() const
@@ -841,7 +830,7 @@ FileProcessor::ProcessBlockState FileProcessor::HandleBlockEof(const char* opera
             file_stack_.pop_back();
             if (!file_stack_.empty())
             {
-                state = ProcessBlockState::kRunning;
+                state = ProcessBlockState::kContinue;
             }
         }
     }

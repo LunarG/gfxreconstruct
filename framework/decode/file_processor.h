@@ -163,8 +163,6 @@ class FileProcessor
     void ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end);
     void ProcessAnnotation(const AnnotationArgs& annotation);
 
-    void NotifyIndexDequeued(FrameCount index);
-
   protected:
     using BlockProcessor = std::function<bool()>;
 
@@ -215,14 +213,14 @@ class FileProcessor
     // *_block_index_:The index of the block currently being processed or dispatched, or the next block that will be.
     alignas(util::kConstructiveAlign) uint64_t process_frame_number_{ kFirstFrame };
     BlockIOError process_error_state_{ kErrorInvalidFileDescriptor };
-    uint64_t process_block_index_{ 0 };
+    uint64_t     process_block_index_{ 0 };
 
     alignas(util::kConstructiveAlign) uint64_t dispatch_frame_number_{ kFirstFrame };
     BlockIOError dispatch_error_state_{ kErrorNone };
-    uint64_t dispatch_block_index_{ 0 };
+    uint64_t     dispatch_block_index_{ 0 };
 
     // Owns the current async batch; only accessed by the main thread on operator++
-    BlockIterator      async_block_iterator_;
+    BlockIterator async_block_iterator_;
 
     static const ProcessBlocksResult& GetReplayResult(DispatchVisitor& dispatch_visitor);
     BlockIterator ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator begin, BlockIterator end);
@@ -272,8 +270,6 @@ class FileProcessor
         GFXRECON_ASSERT(block_parser_.get() != nullptr);
         return *block_parser_;
     }
-
-    ProcessBlockState DispatchBlock(uint64_t block_index, DispatchVisitor& dispatch_visitor, ParsedBlock& block);
 
   private:
     bool ProcessFileHeader();

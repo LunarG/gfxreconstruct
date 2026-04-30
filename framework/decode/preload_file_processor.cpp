@@ -221,19 +221,19 @@ size_t PreloadFileProcessor::PreloadNextFramesAsync(size_t count)
             GFXRECON_ASSERT((batch.get() != nullptr) && !batch->empty());
             ParsedBlock* tail_block = batch->Tail();
 
+            // NOTE: the final preloaded batch *must* terminate with a ProcessResultsBlock,
+            // however, other batches may not terminate with ProcesBlocksResult (except by chance)
             const ProcessBlocksResult* const* block_result_ptr =
                 std::get_if<ProcessBlocksResult*>(&(tail_block->GetArgs()));
-            preload_queue_.emplace_back(std::move(batch));
-
-            // The pointer is still valid, as moving the batch shared_ptr doesn't alter the batch..
-            if (block_result_ptr != nullptr)
+            if ((block_result_ptr != nullptr) && (*block_result_ptr != nullptr))
             {
                 const ProcessBlocksResult* const block_result = *block_result_ptr;
-                if (block_result)
-                {
-                    preload_frame_number = block_result->frame_number;
-                    state                = block_result->state;
+                preload_frame_number                          = block_result->frame_number;
+                state                                         = block_result->state;
 
+                // Ignore the state of "ContinueBlocks" (they don't have one)
+                if (state != ProcessBlockState::kContinue)
+                {
                     // This is the "leading stutter"" condition.  The batch tail is a frame boundary repeating the same
                     // frame number. Middle stutter (where the duplicate frame boundary is embbedded in the measurement
                     // range doesn't need special handling
@@ -244,13 +244,14 @@ size_t PreloadFileProcessor::PreloadNextFramesAsync(size_t count)
                         GFXRECON_ASSERT(dispatch_frame_number_ == (kFirstFrame + 1));
                         ReplayAndClearStutterFrame();
                     }
-                    GFXRECON_ASSERT(state != ProcessBlockState::kRunning);
+
                     // Terminate if we hit anything other than a frame boundary in a trailing result, or finish the
                     // preload.
                     preloading =
                         (state == ProcessBlockState::kFrameBoundary) && (preload_frame_number < preload_frame_limit_);
                 }
             }
+            preload_queue_.emplace_back(std::move(batch));
         }
 
         // If we're still preloading, get the next batch.
@@ -277,11 +278,9 @@ bool PreloadFileProcessor::ProcessNextFrame()
 
             if (AsyncProcessingEnabled())
             {
-                // We didn't notify dequeued for all of replay, until now, and if async_processing_,
-                // the async_thread_ has been blocking on this last enqueued index
-                NotifyIndexDequeued(preload_last_index_);
-                // After restarting the async_thread_ (such that NextBatch doesn't hang), advance past the last
-                // preloaded batch; blocks until async_thread_ flushes the next one.
+                // After replay move to the next batch, which will be the ContinueBatch
+                // async_thread_ is cv_waiting on, effectively ublocking the async thread which was blocked
+                // during preload replay.
                 async_block_iterator_.NextBatch();
             }
         }
@@ -290,7 +289,7 @@ bool PreloadFileProcessor::ProcessNextFrame()
 
     DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
     preload_block_iterator_           = ReplayOneFrame(dispatch_visitor, preload_block_iterator_, BlockIterator());
-    const ProcessBlocksResult& result = GetReplayResult(dispatch_visitor);
+    const ProcessBlocksResult& result = dispatch_visitor.GetReplayResult();
     HandleReplayResult(result, preload_block_iterator_, [this](const ProcessBlocksResult& publish_result) {
         preload_last_index_ = publish_result.index;
     });

@@ -42,7 +42,7 @@ class BlockBatch
     using pointer    = ParsedBlock*;
     using BatchPtr   = std::shared_ptr<BlockBatch>;
 
-    // 1 MB -- the size of the linear allocation
+    // Capacity -- the size of the linear allocation
     constexpr static size_t kCapacity = 1 * 1024 * 1024;
     // Size threshold for low frequency, large allocations, which are dynamically allocated
     constexpr static size_t kJumboSize = 1 * 1024;
@@ -115,11 +115,21 @@ class BlockBatch
 
     size_t BytesRemaining() const noexcept;
 
+    void SetBatchTag(uint64_t tag) noexcept
+    {
+        batch_tag_ = tag;
+    }
+    uint64_t GetBatchTag() const noexcept
+    {
+        return batch_tag_;
+    }
+
   private:
     util::HybridLinearAllocator allocator_;
 
     pointer  head_;
     pointer  tail_;
+    uint64_t batch_tag_ = 0; // Opaque tag for batch identification
 };
 
 GFXRECON_END_NAMESPACE(decode)

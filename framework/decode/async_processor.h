@@ -49,20 +49,21 @@ class AsyncProcessor
 {
   public:
     using AsyncBatchQueue   = util::ThreadSafeQueue<BlockBatch::BatchPtr, true /* Single Consumer Queue */>;
+    using BatchCount        = uint64_t;
     using FrameCount        = file_processor::FrameCount;
     using FrameNumber       = file_processor::FrameNumber;
     using FrameRange        = file_processor::FrameRange;
     using ProcessBlockState = file_processor::ProcessBlockState;
 
     constexpr static FrameNumber kMaxFrameNumber = std::numeric_limits<FrameNumber>::max();
-    constexpr static FrameCount  kMaxFrameCount  = std::numeric_limits<FrameCount>::max();
+    constexpr static BatchCount  kMaxBatchCount  = std::numeric_limits<BatchCount>::max();
 
     AsyncProcessor(FileProcessor& file_processor, BlockParser& block_parser) :
         file_processor_(file_processor), block_parser_(block_parser), async_batch_iterator_()
     {}
     ~AsyncProcessor();
     void LaunchAsyncThread();
-    void NotifyFrameIndexDequeued(FrameCount frame_index);
+    void NotifyBatchIndexDequeued(BatchCount frame_index);
 
     // Adapts the async thread-safe queue. Blocks on Advance() until a batch is available.
     // Blocking occurs here — not hidden inside BlockIterator construction.
@@ -70,10 +71,15 @@ class AsyncProcessor
     {
       public:
         AsyncBatchIterator() = default;
-        explicit AsyncBatchIterator(AsyncBatchQueue& queue) : queue_(&queue) { Advance(); }
+        explicit AsyncBatchIterator(AsyncProcessor& async_processor, AsyncBatchQueue& queue) :
+            async_processor_(&async_processor), queue_(&queue)
+        {
+            Advance();
+        }
         void Advance() override;
 
       private:
+        AsyncProcessor*  async_processor_{ nullptr }; // For NotifyFrameIndexDequeued
         AsyncBatchQueue* queue_{ nullptr };
     };
 
@@ -86,19 +92,22 @@ class AsyncProcessor
     {
       public:
         ~AsyncInstrumentation();
+        void Dump(bool reset);
 
         void AddFrame() { ++total_frames_; }
-        void AddFramePending(FrameCount pending_frames);
-        void AddLowWaterFlush(FrameCount frame_index, FrameCount dequeued_frames, FrameCount prior_batch_frames);
-        void AddHighwaterWait(FrameCount frame_index,
-                              FrameCount dequeued_frames,
-                              FrameCount wait_target,
-                              bool       excess_batch_pending);
-        void AddBatch(const BlockBatch::BatchPtr& batch, FrameCount frame_index);
+        void AddBatchesPending(FrameCount pending_batches);
+        void AddLowWaterFlush(FrameCount frame_index, BatchCount batch_index, BatchCount pending_batches);
+        void AddHighwaterWait(FrameCount frame_index, BatchCount batch_index, BatchCount pending_batches);
+        void AddBatch(const BlockBatch::BatchPtr&    batch,
+                      FrameCount                     frame_index,
+                      BatchCount                     batch_index,
+                      const std::atomic<BatchCount>& dequeued_batches);
         void AddBlock() { ++total_blocks_; }
         void AddPolicyChange(BlockParser::DecompressionPolicy from, BlockParser::DecompressionPolicy to);
         void IncrementPolicyCount(const BlockParser& parser) { ++policy_count_[int(parser.GetDecompressionPolicy())]; }
-        void AddPendingAtWait(FrameCount enqueued_frames, const std::atomic<FrameCount>& dequeued_frames);
+        void AddPendingAtWait(FrameCount                     frame_index,
+                              BatchCount                     batch_index,
+                              const std::atomic<BatchCount>& dequeued_batches);
 
       private:
         FrameCount total_frames_  = 0;
@@ -115,16 +124,17 @@ class AsyncProcessor
         {
             kLowWater  = 0,
             kHighWater = 1,
-            kFlush     = 2
+            kFlush     = 2,
+            kWait      = 3,
+            kAddBatch  = 4
         };
 
         struct QueueEvent
         {
             FrameCount  frame_index;
-            FrameCount  dequed_frames;
+            BatchCount  batch_index;
+            BatchCount  pending_batches;
             QueueStatus status;
-            FrameCount  prior_frame;
-            bool        wait_for_prev;
         };
         std::deque<QueueEvent>    queue_events_;
         std::optional<FrameCount> preload_pending_at_wait_ = std::nullopt;
@@ -138,66 +148,42 @@ class AsyncProcessor
       public:
         using FrameCount = file_processor::FrameCount;
         void AddFrame() {}
-        void AddFramePending(FrameCount) {}
-        void AddLowWaterFlush(FrameCount, FrameCount, FrameCount) {}
-        void AddHighwaterWait(FrameCount, FrameCount, FrameCount, bool) {}
-        void AddBatch(const BlockBatch::BatchPtr&, FrameCount) {}
+        void Dump(bool reset) {}
+        void AddBatchesPending(BatchCount) {}
+        void AddLowWaterFlush(FrameCount, BatchCount, BatchCount) {}
+        void AddHighwaterWait(FrameCount, BatchCount, BatchCount) {}
+        void AddBatch(const BlockBatch::BatchPtr&,
+                      FrameCount frame_index,
+                      BatchCount batch_index,
+                      const std::atomic<BatchCount>&)
+        {}
         void AddBlock() {}
         void AddPolicyChange(BlockParser::DecompressionPolicy, BlockParser::DecompressionPolicy) {}
         void IncrementPolicyCount(const BlockParser&) {}
-        void AddPendingAtWait(FrameCount, const std::atomic<FrameCount>&) {}
+        void AddPendingAtWait(FrameCount, BatchCount, const std::atomic<BatchCount>&) {}
     };
 #endif // ASYNC_PROCESSING_INSTRUMENTATION)
 
   private:
-    // Async processing throttle boundaries.  Values are in terms of frames async_thread is ahead of dispatching thread
+    // Async processing throttle boundaries.  Values are in terms of batches async_thread is ahead of dispatching thread
     // NOTE: These values are intial guesses only. Tuning could/should be done.
-    constexpr static FrameCount kAsyncNever     = 8;  // Offload decompression to dispatch when below this limit
-    constexpr static FrameCount kAsyncOptimized = 16; // Do decompression of smaller blocks on async_thread_
-    constexpr static FrameCount kAsyncAlways    = 32; // Do all decompression on async_thread_
+    constexpr static BatchCount kLowWater             = 1; // Flush current batch if not this many batches queued
+    constexpr static BatchCount kSoftLowWater         = 2; // Flush current batch if more than half full
+    constexpr static BatchCount kAsyncDecompressNever = 4; // Offload decompression to dispatch when below this limit
+    constexpr static BatchCount kAsyncDecompressOptimized = 8;  // Do decompression of smaller blocks on async_thread_
+    constexpr static BatchCount kAsyncDecompressAlways    = 16; // Do all decompression on async_thread_
 
     // Note: the offset are intentional s.t. we don't beat agains the hysteresis boundaries above
-    constexpr static FrameCount kAsyncResume = kAsyncOptimized + 2; // Unblock condition predicate criteria
-    constexpr static FrameCount kAsyncWait = kAsyncAlways + 2; // Go into condition variable wait when above this limit
+    constexpr static BatchCount kAsyncResume = kAsyncDecompressOptimized + 1; // Unblock condition predicate criteria
+    constexpr static BatchCount kAsyncWait =
+        kAsyncDecompressAlways + 1; // Go into condition variable wait when above this limit
 
-    // Circular buffer of final frame indices of the last kSize enqueued batches, used for async throttle logic
-    class BatchFramesRing
-    {
-      public:
-        // We are tracking the last frame index for the last kSize batches, for low water and high water calculations.
-        constexpr static size_t kSize = 4;
-        constexpr static size_t kMask = kSize - 1;
-        static_assert((kSize & kMask) == 0, "Size must be a power of two for masking to work");
+    void WaitForBatchCount(BatchCount wait_target);
+    void ThrottleQueue();
+    void AdjustDecompressionPolicy(BatchCount pending_batches);
 
-        using value_type = FrameCount;
-
-        // Push to the back of the ring, overwriting front.
-        void Push(value_type frame_index)
-        {
-            buffer_[batch_index_ & kMask] = frame_index;
-            ++batch_index_;
-        }
-
-        // Offset is how many batches back we want to look, with 0 being the current batch which has not yet been
-        // enqueued, and thus for which no frame index has yet been recorded (and thus should not be accessed) (think of
-        // Back as end() - offset) offset 1 is the last enqueued batch offset 2 is the next to last, etc.
-        value_type Back(size_t offset) const noexcept
-        {
-            GFXRECON_ASSERT((0 < offset) && (offset <= kSize));
-            // The addition of kSize allows use to ignore startup issues. Anything before zero is zero.
-            size_t index = (batch_index_ + kSize - offset) & kMask;
-            return buffer_[index];
-        }
-
-      private:
-        using Store = std::array<value_type, kSize>;
-        Store      buffer_{};
-        FrameCount batch_index_ = 0;
-    };
-
-    void WaitForFrameCount(FrameCount wait_target);
-    void ThrottleQueue(FrameCount enqueued_frames, const BatchFramesRing& batch_frame_index);
-    void AdjustDecompressionPolicy(FrameCount pending_frames);
+    void AddResultsBlock(FrameNumber frame_number, BlockIOError error_state, ProcessBlockState state);
+    void AddContinueBatch();
 
     // This is the block loading and processing child thread.
     void ThreadMain();
@@ -213,16 +199,19 @@ class AsyncProcessor
     //
     // Note:
     // preload frame range is only used for preload, but we need it to control async processing w.r.t. the preload
-    // frame range.  // During preload, different rules apply. Highwater becomes "all frames in preload range" and
+    // frame range.  During preload, different rules apply. Highwater becomes "all frames in preload range" and
     // decompression policy is kAlways.
     alignas(util::kConstructiveAlign) uint64_t quit_before_frame_{ kMaxFrameNumber };
-    FrameRange           preload_frame_range_{};
-    std::atomic<bool>    keep_alive_{ false }; // Thread teardown control
+    FrameRange        preload_frame_range_{};
+    std::atomic<bool> keep_alive_{ false }; // Thread teardown control
+
+    FrameCount           enqueued_frame_index_{ 0 };
+    BatchCount           enqueued_batch_index_{ 0 };
     AsyncInstrumentation async_stats_;
 
     // Shared Control group: (constructive alignment)
     alignas(util::kConstructiveAlign) std::mutex throttle_mutex_;
-    std::atomic<FrameCount> throttle_wait_target_{ kMaxFrameCount };
+    std::atomic<BatchCount> throttle_wait_target_{ kMaxBatchCount };
     std::condition_variable throttle_cv_;
 
     // Cache line isolated
@@ -230,7 +219,7 @@ class AsyncProcessor
     //  these to be on separate cache lines to avoid thrashing when both threads are accessing them, and the need to be
     //  separated both from the Control groun and each other to avoid thrashing between them.
     alignas(util::kDestructiveAlign) AsyncBatchQueue batch_queue_;
-    alignas(util::kDestructiveAlign) std::atomic<FrameCount> dequeued_frames_{ 0 };
+    alignas(util::kDestructiveAlign) std::atomic<BatchCount> last_dequeued_batch_{ 0 };
 
     // Main thread only group:
     //  This state is only accessed by the main thread.
@@ -251,7 +240,7 @@ class AsyncProcessPolicy
     ProcessBlockState     Dispatch(uint64_t block_index, ParsedBlock& block)
     {
         async_stats_.AddBlock();
-        return ProcessBlockState::kRunning;
+        return ProcessBlockState::kContinue;
     }
 
   private:

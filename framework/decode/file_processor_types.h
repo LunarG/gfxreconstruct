@@ -54,7 +54,7 @@ enum class ProcessBlockState : int32_t
     //
     // Returned when ProcessBlocks ...
     kFrameBoundary = 1,  // encountered a frame boundary
-    kRunning       = 0,  // never. Internal state: continue looping in ProcessBlocks
+    kContinue      = 0,  // never returned by ProcessBlocks. Denotes placeholder/noop ProcessBlocksResult.
     kEndProcessing = -1, // completed processing (!ContinueDecoding or clean EOF)
     kError         = -2, // encountered an error
 };
@@ -64,10 +64,18 @@ using FrameCount  = uint64_t;
 using FrameNumber = uint64_t;
 struct ProcessBlocksResult
 {
-    FrameCount        index{ 0U };                          // Strictly monotonic index of result
-    uint64_t          frame_number{ 0U };                   // Snapshot of process_frame_number_ at return.
-    BlockIOError      error{ BlockIOError::kErrorNone };    // Snapshot of the process_error_state_ at return.
-    ProcessBlockState state{ ProcessBlockState::kRunning }; // ProcessBlocks return value.
+    // Strictly monotonic index of result
+    FrameCount index{ 0U };
+
+    // NOTE: This is the frame_number of the *next* frame
+    // Snapshot of process_frame_number_ at return.
+    uint64_t frame_number{ 0U };
+
+    // Snapshot of the process_error_state_ at return.
+    BlockIOError error{ BlockIOError::kErrorNone };
+
+    // ProcessBlocks return value.
+    ProcessBlockState state{ ProcessBlockState::kContinue };
 };
 
 // Range of frame numbers with half open [begin(), end()) semantics.

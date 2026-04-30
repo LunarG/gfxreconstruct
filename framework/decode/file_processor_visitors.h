@@ -72,7 +72,7 @@ class DispatchVisitor
   public:
     // No valid dispatch args, nothing to do. It is possible to modify in future to support passing down
     // raw block data to some raw block handler if needed
-    ProcessBlockState operator()(const std::monostate&) { return ProcessBlockState::kRunning; };
+    ProcessBlockState operator()(const std::monostate&) { return ProcessBlockState::kContinue; };
 
     // Dispatch based on the Args traits.
     template <typename Args>
@@ -105,7 +105,7 @@ class DispatchVisitor
             };
             std::apply(annotation_call, annotation->GetTuple());
         }
-        return ProcessBlockState::kRunning;
+        return ProcessBlockState::kContinue;
     }
 
     // Replay frame/error/end control.
@@ -114,7 +114,11 @@ class DispatchVisitor
     // while still commuinicating the correct state and error information back to the caller.
     ProcessBlockState operator()(const ProcessBlocksResult* result)
     {
-        SetReplayResult(*result);
+        if (result->state != ProcessBlockState::kContinue)
+        {
+            // kContinue denotes an "non-result" useful for in-band signaling, and wait control.
+            SetReplayResult(*result);
+        }
         return result->state;
     }
 
@@ -153,7 +157,7 @@ class DispatchVisitor
             }
         }
         // NOTE: If future decoders can updata state, this should be updated to forward that information.
-        return ProcessBlockState::kRunning;
+        return ProcessBlockState::kContinue;
     }
 
     FileProcessor&                  file_processor_;
@@ -269,7 +273,7 @@ class PreloadProcessPolicy
         // timing loop and thus irrelevant.
         return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::BlockLimitOnly>(block_index);
     }
-    ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block) { return ProcessBlockState::kRunning; }
+    ProcessBlockState Dispatch(uint64_t block_index, ParsedBlock& block) { return ProcessBlockState::kContinue; }
 
   private:
     FileProcessor& file_processor_;

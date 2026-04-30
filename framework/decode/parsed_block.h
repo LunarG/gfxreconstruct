@@ -150,10 +150,6 @@ class ParsedBlock
         next_ = next;
     }
 
-    bool IsFrameBoundary() const noexcept { return is_frame_boundary_; }
-
-    void SetFrameBoundaryFlag(const bool frame_boundary) noexcept { is_frame_boundary_ = frame_boundary; }
-
   private:
     template <typename Args>
     BlockSpan GetCompressedSpan(Args& args);
@@ -171,8 +167,7 @@ class ParsedBlock
     ParsedBlock* next_ = nullptr;
 
     // ParsedBlock state
-    BlockState state_                 = BlockState::kInvalid;
-    bool       is_frame_boundary_ : 1 = false;
+    BlockState state_ = BlockState::kInvalid;
 };
 
 GFXRECON_END_NAMESPACE(decode)
