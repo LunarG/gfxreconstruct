@@ -38,7 +38,8 @@ Dx12StateWriter::Dx12StateWriter(util::FileOutputStream* output_stream,
                                  util::Compressor*       compressor,
                                  format::ThreadId        thread_id,
                                  util::FileOutputStream* asset_file_stream) :
-    output_stream_(output_stream), compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
+    output_stream_(output_stream),
+    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
 {
     assert(output_stream != nullptr);
 }

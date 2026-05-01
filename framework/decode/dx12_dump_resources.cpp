@@ -2430,7 +2430,7 @@ void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pa
                                                        const std::string&                                  key,
                                                        uint64_t                                            value)
 {
-    auto* jdata_node = FindDrawCallJsonNode(json_path);
+    auto* jdata_node   = FindDrawCallJsonNode(json_path);
     (*jdata_node)[key] = value;
 }
 
@@ -2438,7 +2438,7 @@ void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pa
                                                        const uint32_t                                      index,
                                                        uint64_t                                            value)
 {
-    auto* jdata_node = FindDrawCallJsonNode(json_path);
+    auto* jdata_node     = FindDrawCallJsonNode(json_path);
     (*jdata_node)[index] = value;
 }
 
@@ -2498,7 +2498,7 @@ void DefaultDx12DumpResourcesDelegate::WriteRootParameterInfo(
     uint32_t                                            root_parameter_index,
     const TrackRootParameter&                           root_parameter)
 {
-    auto* jdata_node = FindDrawCallJsonNode(json_path);
+    auto* jdata_node                      = FindDrawCallJsonNode(json_path);
     (*jdata_node)["root_parameter_index"] = root_parameter_index;
     (*jdata_node)["root_signature_type"]  = root_parameter.root_signature_type;
     (*jdata_node)["cmd_bind_type"]        = root_parameter.cmd_bind_type;
