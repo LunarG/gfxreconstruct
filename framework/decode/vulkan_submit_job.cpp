@@ -70,7 +70,7 @@ VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*        
     VkSemaphoreCreateInfo semaphore_create_info{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
     semaphore_create_info.pNext = &timeline_create_info;
 
-    VkResult result = device_table_->CreateSemaphore(device_info_->handle, &semaphore_create_info, nullptr, &handle);
+    VkResult result = device_table_->CreateSemaphore(device_info_->handle, &semaphore_create_info, nullptr, &handle_);
     if (result != VK_SUCCESS) [[unlikely]]
     {
         GFXRECON_LOG_ERROR("Failed to create timeline semaphore for submit job execution: %s",
@@ -78,17 +78,37 @@ VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*        
     }
 }
 
+VulkanInjectedSemaphore::VulkanInjectedSemaphore(VulkanInjectedSemaphore&& other) :
+    handle_{ other.handle_ }, target_value_{ other.target_value_ }, device_info_{ other.device_info_ }, device_table_{
+        other.device_table_
+    }
+{
+    other.handle_ = VK_NULL_HANDLE;
+}
+
+VulkanInjectedSemaphore& VulkanInjectedSemaphore::operator=(VulkanInjectedSemaphore&& other) noexcept
+{
+    if (this != &other)
+    {
+        std::swap(handle_, other.handle_);
+        std::swap(target_value_, other.target_value_);
+        std::swap(device_info_, other.device_info_);
+        std::swap(device_table_, other.device_table_);
+    }
+    return *this;
+}
+
 bool VulkanInjectedSemaphore::HasReachedTargetValue() const
 {
-    if (handle == VK_NULL_HANDLE)
+    if (handle_ == VK_NULL_HANDLE)
     {
         return false;
     }
 
     VkSemaphoreWaitInfo wait_info = { VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO };
     wait_info.semaphoreCount      = 1;
-    wait_info.pSemaphores         = &handle;
-    wait_info.pValues             = &target_value;
+    wait_info.pSemaphores         = &handle_;
+    wait_info.pValues             = &target_value_;
     VkResult result               = device_table_->WaitSemaphores(device_info_->handle, &wait_info, 0);
     if (result != VK_SUCCESS && result != VK_TIMEOUT)
     {
@@ -100,13 +120,13 @@ bool VulkanInjectedSemaphore::HasReachedTargetValue() const
 
 VulkanInjectedSemaphore::~VulkanInjectedSemaphore()
 {
-    if (handle != VK_NULL_HANDLE)
+    if (handle_ != VK_NULL_HANDLE)
     {
         if (!HasReachedTargetValue())
         {
             GFXRECON_LOG_ERROR("Injected timeline semaphore has not reached its target value at destruction time.");
         }
-        device_table_->DestroySemaphore(device_info_->handle, handle, nullptr);
+        device_table_->DestroySemaphore(device_info_->handle, handle_, nullptr);
     }
 }
 
@@ -114,8 +134,8 @@ VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*
                                                          const graphics::VulkanDeviceTable* device_table) :
     semaphore{ device_info, device_table }
 {
-    GFXRECON_ASSERT(semaphore.handle != VK_NULL_HANDLE);
-    info.semaphore = semaphore.handle;
+    GFXRECON_ASSERT(semaphore.GetHandle() != VK_NULL_HANDLE);
+    info.semaphore = semaphore.GetHandle();
     info.stageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
 }
 
@@ -259,14 +279,14 @@ void VulkanSubmitJobExecution::AddWaitSemaphore(VkSubmitInfo& submit_info, const
     std::vector<uint64_t>&             wait_values                    = GetWaitValues(submit_info);
     VkTimelineSemaphoreSubmitInfo&     timeline_semaphore_submit_info = GetTimelineSemaphoreSubmitInfo(submit_info);
 
-    wait_semaphores.push_back(semaphore.handle);
+    wait_semaphores.push_back(semaphore.GetHandle());
     submit_info.pWaitSemaphores    = wait_semaphores.data();
     submit_info.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size());
 
     wait_dst_stage_masks.push_back(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
     submit_info.pWaitDstStageMask = wait_dst_stage_masks.data();
 
-    wait_values.push_back(semaphore.target_value);
+    wait_values.push_back(semaphore.GetTargetValue());
 
     timeline_semaphore_submit_info.pWaitSemaphoreValues    = wait_values.data();
     timeline_semaphore_submit_info.waitSemaphoreValueCount = static_cast<uint32_t>(wait_values.size());
@@ -280,11 +300,11 @@ void VulkanSubmitJobExecution::AddSignalSemaphore(VkSubmitInfo& submit_info, con
     std::vector<uint64_t>&         signal_values                  = GetSignalValues(submit_info);
     VkTimelineSemaphoreSubmitInfo& timeline_semaphore_submit_info = GetTimelineSemaphoreSubmitInfo(submit_info);
 
-    signal_semaphores.push_back(semaphore.handle);
+    signal_semaphores.push_back(semaphore.GetHandle());
     submit_info.pSignalSemaphores    = signal_semaphores.data();
     submit_info.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
 
-    signal_values.push_back(semaphore.target_value);
+    signal_values.push_back(semaphore.GetTargetValue());
 
     timeline_semaphore_submit_info.pSignalSemaphoreValues    = signal_values.data();
     timeline_semaphore_submit_info.signalSemaphoreValueCount = static_cast<uint32_t>(signal_values.size());
@@ -474,7 +494,7 @@ void VulkanSubmitJobExecution::InjectSemaphore(VkSubmitInfo& submit_info, Vulkan
 {
     // Wait on the current value, then signal the next value on the same injected timeline semaphore.
     AddWaitSemaphore(submit_info, semaphore);
-    semaphore.target_value++;
+    semaphore.IncreaseTargetValue();
     AddSignalSemaphore(submit_info, semaphore);
 }
 
@@ -484,7 +504,7 @@ void VulkanSubmitJobExecution::InjectSemaphore(VkSubmitInfo2& submit_info, Vulka
     AddWaitSemaphore(submit_info, semaphore_info);
     semaphore_info.info.value++;
     semaphore_info.info.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-    semaphore_info.semaphore.target_value++;
+    semaphore_info.semaphore.IncreaseTargetValue();
     AddSignalSemaphore(submit_info, semaphore_info);
 }
 
@@ -546,7 +566,7 @@ VulkanInjectedSemaphore* VulkanSubmitJobExecutor::CreateTimelineSemaphore()
     PruneSignaledTimelineSemaphores();
 
     auto injected_semaphore = std::make_unique<VulkanInjectedSemaphore>(device_info_, device_table_);
-    if (injected_semaphore->handle == VK_NULL_HANDLE) [[unlikely]]
+    if (injected_semaphore->GetHandle() == VK_NULL_HANDLE) [[unlikely]]
     {
         return nullptr;
     }
@@ -559,7 +579,7 @@ VulkanInjectedSemaphoreInfo* VulkanSubmitJobExecutor::CreateTimelineSemaphoreInf
     PruneSignaledTimelineSemaphoreInfos();
 
     auto injected_semaphore_info = std::make_unique<VulkanInjectedSemaphoreInfo>(device_info_, device_table_);
-    if (injected_semaphore_info->semaphore.handle == VK_NULL_HANDLE) [[unlikely]]
+    if (injected_semaphore_info->semaphore.GetHandle() == VK_NULL_HANDLE) [[unlikely]]
     {
         return nullptr;
     }

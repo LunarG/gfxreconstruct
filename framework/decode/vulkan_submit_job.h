@@ -115,18 +115,29 @@ class VulkanSubmitJobExecutor;
  * next value. After all submits have been rewritten, `target_value` is the final value that must be reached before the
  * executor can safely destroy the semaphore.
  */
-struct VulkanInjectedSemaphore
+class VulkanInjectedSemaphore
 {
-    VkSemaphore handle       = VK_NULL_HANDLE;
-    uint64_t    target_value = 0;
+  private:
+    VkSemaphore handle_       = VK_NULL_HANDLE;
+    uint64_t    target_value_ = 0;
 
     const VulkanDeviceInfo*            device_info_;
     const graphics::VulkanDeviceTable* device_table_;
 
-    bool HasReachedTargetValue() const;
+  public:
+    bool        HasReachedTargetValue() const;
+    VkSemaphore GetHandle() const { return handle_; }
+    uint64_t    GetTargetValue() const { return target_value_; }
+    void        IncreaseTargetValue() { ++target_value_; }
 
     VulkanInjectedSemaphore(const VulkanDeviceInfo* device_info, const graphics::VulkanDeviceTable* table);
     ~VulkanInjectedSemaphore();
+
+    VulkanInjectedSemaphore(const VulkanInjectedSemaphore&)            = delete;
+    VulkanInjectedSemaphore& operator=(const VulkanInjectedSemaphore&) = delete;
+
+    VulkanInjectedSemaphore(VulkanInjectedSemaphore&&);
+    VulkanInjectedSemaphore& operator=(VulkanInjectedSemaphore&&) noexcept;
 };
 
 /**
