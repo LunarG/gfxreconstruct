@@ -164,6 +164,7 @@ const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
 const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
 const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
+const char kDisableProcessNameOverride[]       = "--disable-process-name-override";
 #endif
 
 const char kDumpResourcesArgument[]    = "--dump-resources";
@@ -1383,7 +1384,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
-    replay_options.idle_before_submit = arg_parser.IsOptionSet(kIdleBeforeSubmit);
+    replay_options.idle_before_submit      = arg_parser.IsOptionSet(kIdleBeforeSubmit);
     replay_options.serialize_render_passes = arg_parser.IsOptionSet(kSerializeRenderPasses);
 
     GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);

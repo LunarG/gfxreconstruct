@@ -465,9 +465,24 @@ Optional arguments:
 Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.
 ```
 
-### Renaming Scripts
+### Renaming Player
 
-In order to obtain application-matching playback, it is sometimes necessary to rename `gfxrecon-replay.exe` to match the captured application's executable name. This is because driver behavior can sometimes change depending on the executable name of the running application. Renaming is not always required, but it is an added measure towards functional replay. The two following utility scripts are bundled, which extract the application name from the capture file and make the renaming task automatic. Renaming can also be done manually, since the application executable name can be extracted using the `gfxrecon-info` tool.
+In order to obtain application-matching playback, it is sometimes necessary for the replayer to report the captured application's executable name to the driver. This is because driver behavior can sometimes change depending on the executable name of the running application.
+
+#### Process Name Override (Default Behavior)
+
+`gfxrecon-replay.exe` and `gfxrecon-optimize.exe` automatically override the process name reported to the driver. They read the captured application's executable name from the capture file and hook `GetModuleFileNameA`/`GetModuleFileNameW` so that the process name is transparently reported as the original application's name — without requiring any physical renaming of the executable.
+
+This behavior is enabled by default. If it is not required, it can be disabled with the `--disable-process-name-override` flag:
+
+```bat
+gfxrecon-replay.exe --disable-process-name-override <file>
+gfxrecon-optimize.exe --disable-process-name-override <input-file> <output-file>
+```
+
+#### Manual Renaming Scripts (Alternative)
+
+As an alternative to the automatic process name override, the following utility scripts perform physical renaming of `gfxrecon-replay.exe` or `gfxrecon-optimize.exe` to match the captured application's name. They extract the application name from the capture file automatically. Manual renaming is also possible using the `gfxrecon-info` tool to retrieve the application executable name.
 
 #### gfxrecon-replay-renamed.py
 

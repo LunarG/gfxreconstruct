@@ -34,7 +34,8 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture";
+    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--disable-process-name-"
+    "override";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -199,12 +200,16 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE(
         "          \t\tThis can include vertex, index, const buffer, shader resource, render target,");
     GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil resources. Resources are dumped after the drawcall.");
-    GFXRECON_WRITE_CONSOLE(
-        "  --fwo <x,y>\t\tForce windowed mode if not already, and allow setting of a custom window location.");
-    GFXRECON_WRITE_CONSOLE("          \t\t(Same as --force-windowed-origin)");
+    GFXRECON_WRITE_CONSOLE("  --fwo <x,y>                     \tForce windowed mode if not already, and allow setting "
+                           "of a custom window location.");
+    GFXRECON_WRITE_CONSOLE("                                  \t(Same as --force-windowed-origin)");
+    GFXRECON_WRITE_CONSOLE("  --disable-process-name-override \tDisable the process name override functionality that "
+                           "sets the process name");
+    GFXRECON_WRITE_CONSOLE("                                  \tto the capture application name.");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
+    GFXRECON_WRITE_CONSOLE(
+        "                                  \tdisplayed when abort() is called (Windows debug only).");
 #endif
 #endif
     GFXRECON_WRITE_CONSOLE("")

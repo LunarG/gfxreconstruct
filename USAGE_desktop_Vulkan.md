@@ -41,7 +41,8 @@ to one of these other documents:
     4. [Trimmed File Optimization](#trimmed-file-optimization)
     5. [JSON Lines Conversion](#json-lines-conversion)
     6. [Command Launcher](#command-launcher)
-    7. [Options Common To All Tools](#options-common-to-all-tools)
+    7. [Renaming Player (Windows Only)](#renaming-player-windows-only)
+    8. [Options Common To All Tools](#options-common-to-all-tools)
 
 ## Capturing API calls
 
@@ -1184,6 +1185,41 @@ gfxrecon.py capture -o vkcube.gfxr vkcube
 
 On Windows, after installing Python3, be sure to associate the `.py` file extension with
 the Python3 interpreter before you run the script.
+
+### Renaming Player (Windows Only)
+
+In order to obtain application-matching playback on Windows, it is sometimes necessary for the replayer to report the captured application's executable name to the driver. This is because driver behavior can sometimes change depending on the executable name of the running application.
+
+#### Process Name Override (Default Behavior, Windows Only)
+
+`gfxrecon-replay.exe` automatically overrides the process name reported to the driver. It reads the captured application's executable name from the capture file and hooks `GetModuleFileNameA`/`GetModuleFileNameW` so that the process name is transparently reported as the original application's name — without requiring any physical renaming of the executable.
+
+This behavior is enabled by default on Windows. If it is not required, it can be disabled with the `--disable-process-name-override` flag:
+
+```bat
+gfxrecon-replay.exe --disable-process-name-override <file>
+```
+
+#### Manual Renaming Script (Alternative)
+
+As an alternative to the automatic process name override, the following utility script performs physical renaming of `gfxrecon-replay.exe` to match the captured application's name. It extracts the application name from the capture file automatically. Manual renaming is also possible using the `gfxrecon-info` tool to retrieve the application executable name.
+
+##### gfxrecon-replay-renamed.py
+
+This script can be used to replay capture files. It performs automatic renaming and execution of `gfxrecon-replay.exe`
+
+```text
+gfxrecon-replay-renamed.py - Helper script to perform automatic renaming of gfxrecon-replay.exe prior to playback.
+
+Usage:
+  gfxrecon-replay-renamed.py <file> [optional_replayer_args]
+
+Required arguments:
+  <file>                     Path to the capture file to replay.
+
+Optional arguments:
+  [optional_replayer_args]   All optional arguments exposed by gfxrecon-replay.exe
+```
 
 ### Options Common To all Tools
 
