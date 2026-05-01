@@ -1532,7 +1532,7 @@ static const char* sSwapchainSourceCode_part_2 = R"(
             uint32_t new_count  = max_queues;
             if (start_size < new_count)
             {
-                // Create one command buffer per queue per swapchain image so that we don't reset a command buffer
+                // Create one command buffer per queue per swapchain image so that we don't Rewind a command buffer
                 // that may be in active use.
                 uint32_t command_buffer_count = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
                 if (command_buffer_count < captured_image_count)

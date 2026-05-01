@@ -29,7 +29,6 @@
 #include "util/hybrid_linear_allocator.h"
 
 #include <cstddef>
-#include <deque>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -43,7 +42,7 @@ class BlockBatch
     using pointer    = ParsedBlock*;
     using BatchPtr   = std::shared_ptr<BlockBatch>;
 
-    // 2 MB -- the size of the linear allocation
+    // Capacity -- the size of the linear allocation
     constexpr static size_t kCapacity = 1 * 1024 * 1024;
     // Size threshold for low frequency, large allocations, which are dynamically allocated
     constexpr static size_t kJumboSize = 1 * 1024;
@@ -86,83 +85,26 @@ class BlockBatch
         return *parsed_block;
     }
 
-    class iterator
+    // The block batch stores parsed blocks in an internal linked list.
+    // Public traversal is intentionally limited to direct access through head/tail accessors.
+
+    pointer Head() const noexcept { return head_; }
+    pointer Tail() const noexcept { return tail_; }
+
+    bool empty() const noexcept { return head_ == nullptr; }
+
+#if !defined(NDEBUG)
+    // Returns true if block is reachable by walking the linked list from Head().
+    // Intended for use in debug assertions only — O(n).
+    bool ContainsBlock(const pointer block) const noexcept
     {
-      public:
-        // Standard iterator type aliases
-        using iterator_category = std::forward_iterator_tag;
-        using value_type        = ParsedBlock;
-        using difference_type   = std::ptrdiff_t;
-        using pointer           = ParsedBlock*;
-        using reference         = ParsedBlock&;
-        using BatchPtr          = BlockBatch::BatchPtr;
+        for (auto* cur = head_; cur != nullptr; cur = cur->GetNext())
+            if (cur == block)
+                return true;
+        return false;
+    }
+#endif
 
-        iterator() = default;
-
-        explicit operator bool() const noexcept { return batch_ != nullptr; }
-
-        reference operator*() const { return *block_; }
-        pointer   operator->() const { return block_; }
-
-        iterator& operator++()
-        {
-            GFXRECON_ASSERT(batch_.get() != nullptr);
-            GFXRECON_ASSERT(block_ != nullptr);
-            block_ = block_->GetNext();
-            if (block_ == nullptr)
-            {
-                // End of batch; find next non-empty batch, or 'end'
-                batch_ = batch_->GetNext();
-                if (batch_.get() != nullptr)
-                {
-                    block_ = batch_->front();
-                    if (block_ == nullptr)
-                    {
-                        IncrementToNextNonEmpty();
-                    }
-                }
-                // else clause (implicit)
-                //     Don't need to set state explicitly. block_ is already nullptr, as that's how we got here.
-                //     and the else means batch_ is nullptr, so we're already == end().
-            }
-            return *this;
-        }
-        iterator operator++(int);
-
-        bool operator==(const iterator& other) const { return (batch_ == other.batch_) && (block_ == other.block_); }
-        bool operator!=(const iterator& other) const { return (batch_ != other.batch_) || (block_ != other.block_); }
-
-        const BatchPtr& GetBatch() const { return batch_; }
-
-      private:
-        friend class BlockBatch;
-        // NOTE: iterators must never point to empty batches.
-        //       Either an iterator has a non-null block_ or is at end().
-        explicit iterator(const BatchPtr& batch) :
-            batch_(batch), block_((batch.get() == nullptr) ? nullptr : batch->front())
-        {
-            // Non-null batches must be non-empty. Null batches must have null blocks.
-            // This invariant is maintained by BlockBatch::MakeIteratorFromBatch, and why the constructor is private.
-            GFXRECON_ASSERT(block_ != nullptr || (batch_.get() == nullptr));
-        }
-        explicit iterator(BatchPtr&& batch) :
-            // Non-null batches must be non-empty. Null batches must have null blocks.
-            // This invariant is maintained by BlockBatch::MakeIteratorFromBatch, and why the constructor is private.
-            batch_(std::move(batch)), block_((batch_.get() == nullptr) ? nullptr : batch_->front())
-        {
-            GFXRECON_ASSERT(block_ != nullptr || (batch_.get() == nullptr));
-        }
-
-        void IncrementToNextNonEmpty();
-
-        BatchPtr batch_;
-        pointer  block_ = nullptr;
-    };
-
-    // While the block batch is not a standard container, provide STL-like iteration support
-    pointer front() const noexcept { return head_; }
-    pointer back() const noexcept { return tail_; }
-    bool    empty() const noexcept { return head_ == nullptr; }
     void    reset();
     void    reset_no_list()
     {
@@ -171,20 +113,23 @@ class BlockBatch
         allocator_.reset();
     }
 
-    size_t                        BytesRemaining() const noexcept;
-    void                          SetNext(const BatchPtr& batch);
-    const BatchPtr&               GetNext() const;
-    BlockBatch*                   GetTail();
-    [[nodiscard]] static iterator MakeIteratorFromBatch(BatchPtr&& batch);
-    [[nodiscard]] static BatchPtr NonEmptyBatch(BatchPtr&& batch);
-    [[nodiscard]] static BatchPtr NextNonEmptyBatch(const BatchPtr& batch);
+    size_t BytesRemaining() const noexcept;
+
+    void SetBatchTag(uint64_t tag) noexcept
+    {
+        batch_tag_ = tag;
+    }
+    uint64_t GetBatchTag() const noexcept
+    {
+        return batch_tag_;
+    }
 
   private:
     util::HybridLinearAllocator allocator_;
 
     pointer  head_;
     pointer  tail_;
-    BatchPtr next_batch_;
+    uint64_t batch_tag_ = 0; // Opaque tag for batch identification
 };
 
 GFXRECON_END_NAMESPACE(decode)

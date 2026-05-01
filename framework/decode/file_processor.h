@@ -30,6 +30,7 @@
 #include "decode/api_decoder.h"
 #include "decode/api_payload.h"
 #include "decode/block_parser.h"
+#include "decode/file_processor_types.h"
 #include "util/clock_cache.h"
 #include "util/compressor.h"
 #include "util/defines.h"
@@ -39,57 +40,26 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <cstdio>
 #include <deque>
 #include <functional>
 #include <memory>
-#include <optional>
 #include <string>
 #include <type_traits> // ParsedBlock
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// TODO: Find a better home for the visitors and utilities
-template <bool HasAllocGuard = false>
-struct DecoderAllocGuard
-{};
+// Forward declaractions
+class AsyncProcessor;
 
-template <>
-struct DecoderAllocGuard<true>
-{
-    DecoderAllocGuard& operator=(const DecoderAllocGuard&) = delete;
-    DecoderAllocGuard(DecoderAllocGuard&&)                 = delete;
-    DecoderAllocGuard& operator=(DecoderAllocGuard&&)      = delete;
-    DecoderAllocGuard() { DecodeAllocator::Begin(); }
-    ~DecoderAllocGuard() noexcept { DecodeAllocator::End(); }
-};
-
-template <typename Args>
-static bool DecoderSupportsDispatch(ApiDecoder& decoder, const Args& args)
-{
-    if constexpr (DispatchTraits<Args>::kHasCallId)
-    {
-        return decoder.SupportsApiCall(args.call_id);
-    }
-    else if constexpr (DispatchTraits<Args>::kHasMetaDataId)
-    {
-        return decoder.SupportsMetaDataId(args.meta_data_id);
-    }
-    return true;
-}
-
-template <typename Args>
-static void SetDecoderApiCallId(ApiDecoder& decoder, const Args& args)
-{
-    if constexpr (DispatchTraits<Args>::kHasCallId)
-    {
-        decoder.SetCurrentApiCallId(args.call_id);
-    }
-}
+GFXRECON_BEGIN_NAMESPACE(file_processor)
+class AsyncProcessPolicy;
+class DispatchVisitor;
+class PreloadProcessPolicy;
+class ProcessVisitor;
+GFXRECON_END_NAMESPACE(file_processor)
 
 class FileProcessor
 {
@@ -101,8 +71,16 @@ class FileProcessor
         kBreak   = 2,
     };
 
-  public:
-    constexpr static uint32_t kFirstFrame = 0;
+    using BlockIterator       = file_processor::BlockIterator;
+    using DispatchVisitor     = file_processor::DispatchVisitor;
+    using FrameNumber         = file_processor::FrameNumber;
+    using FrameCount          = file_processor::FrameCount;
+    using FrameRange          = file_processor::FrameRange;
+    using ProcessBlockState   = file_processor::ProcessBlockState;
+    using ProcessBlocksResult = file_processor::ProcessBlocksResult;
+    using ProcessVisitor      = file_processor::ProcessVisitor;
+
+    constexpr static FrameNumber kFirstFrame = 0;
 
     FileProcessor();
 
@@ -113,6 +91,10 @@ class FileProcessor
     void WaitDecodersIdle();
 
     void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
+
+    void StartAsyncProcessing();
+    void SetPreloadFrameRange(FrameRange frame_range);
+    void SetQuitBeforeFrame(FrameNumber frame_number);
 
     void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
 
@@ -130,17 +112,19 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
+    template <typename CheckPolicy>
+    bool ContinueBlockProcessing(uint64_t block_index); // Check process_block_index_ against block_limit_
+
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
-    uint64_t GetCurrentFrameNumber() const { return current_frame_number_; }
+    // Application facing interface returns the *dispatched* frame and block index, to preserve expected semantics.
+    uint64_t GetCurrentFrameNumber() const noexcept { return dispatch_frame_number_; }
+    uint64_t GetCurrentBlockIndex() const noexcept { return dispatch_block_index_; }
 
-    uint64_t GetCurrentBlockIndex() const { return block_index_; }
-
-    bool GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
-
+    // These have "process_" side semantic semantics process_
+    bool         GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
     uint64_t GetNumBytesRead() const { return bytes_read_; }
-
-    BlockIOError GetErrorState() const { return error_state_; }
+    BlockIOError GetErrorState() const { return dispatch_error_state_; }
 
     bool EntireFileWasProcessed() const
     {
@@ -163,6 +147,11 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
+    // Returns whether the call_id is a frame delimiter and handles frame delimiting logic
+    // Called from ProcessVisitor.
+    bool ProcessFrameDelimiter(format::ApiCallId call_id);
+    bool ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame);
+
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
@@ -177,7 +166,9 @@ class FileProcessor
   protected:
     using BlockProcessor = std::function<bool()>;
 
-    bool ContinueDecoding(uint64_t block_index, bool check_decoders);
+    bool AsyncProcessingEnabled() const { return async_processor_.get() != nullptr; }
+
+    // Read from active file
     bool ReadBytes(void* buffer, size_t buffer_size);
 
     // Reads block header, from input stream.
@@ -185,40 +176,59 @@ class FileProcessor
 
     void UpdateEndFrameState();
 
-    // Returns whether the call_id is a frame delimiter and handles frame delimiting logic
-    bool ProcessFrameDelimiter(format::ApiCallId call_id);
-    bool ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame);
-
     void PrintBlockInfo() const;
 
-    enum class ProcessBlockState : int32_t
-    {
-        // Negative values indicate terminal states. Do not call ProcessBlocks again after receiving these.
-        //
-        // Returned when ProcessBlocks ...
-        kFrameBoundary = 1,  // encountered a frame boundary
-        kRunning       = 0,  // never. Internal state: continue looping in ProcessBlocks
-        kEndProcessing = -1, // completed processing (!ContinueDecoding or clean EOF)
-        kError         = -2, // encountered an error
-    };
     static bool ContinueProcessing(ProcessBlockState state) { return static_cast<int32_t>(state) >= 0; }
     static bool IsFrameBoundary(ProcessBlockState state) { return state == ProcessBlockState::kFrameBoundary; }
 
     ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
 
+    // Async processing needs to be to queury this frame wise.
+    friend class AsyncProcessor;
+    FrameNumber  GetProcessFrameNumber() const noexcept { return process_frame_number_; }
+    BlockIOError GetProcessErrorState() const noexcept { return process_error_state_; }
+
   protected:
-    uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
-    AnnotationHandler*       annotation_handler_;
-    BlockIOError             error_state_;
-    uint64_t                 bytes_read_;
+    AnnotationHandler*       annotation_handler_{ nullptr };
+    uint64_t                 bytes_read_{ 0 };
 
-    /// @brief Incremented at the end of every block successfully processed.
-    uint64_t block_index_;
+    // Frame, block, and error tracking state:
+    // Members prefixed 'process_' refer to state during ProcessBlocks (reading, parsing, enqueueing).
+    // Members prefixed 'dispatch_' refer to state during dispatch operations (DispatchVisitor, Replay*).
+    //
+    // For API compatibility, state queries return the dispatch_<state> values.
+    //
+    // In immediate mode (not preload, not asynchronous), process_<state> is propagated as needed
+    // to dispatch_<state> in order to support application-facing state access.
+    //
+    // Frame numbers are zero-based (see kFirstFrame) and name the frame currently being processed or
+    // dispatched, or the frame that will become current on the next call into the process or dispatch hierarchies.
+    //
+    // The three are grouped, and then kept in separate cachelines. (for async processing)
 
-  protected:
-    bool IsFileValid() const;
+    // *_frame_number_: Frame numbers advance only on frame boundaries, and not on terminating exit conditions (error or
+    // EOF).
+    // *_error_state_: The error state observed during block processing and dispatch.
+    // *_block_index_:The index of the block currently being processed or dispatched, or the next block that will be.
+    alignas(util::kConstructiveAlign) uint64_t process_frame_number_{ kFirstFrame };
+    BlockIOError process_error_state_{ kErrorInvalidFileDescriptor };
+    uint64_t     process_block_index_{ 0 };
 
+    alignas(util::kConstructiveAlign) uint64_t dispatch_frame_number_{ kFirstFrame };
+    BlockIOError dispatch_error_state_{ kErrorNone };
+    uint64_t     dispatch_block_index_{ 0 };
+
+    // Owns the current async batch; only accessed by the main thread on operator++
+    BlockIterator async_block_iterator_;
+
+    static const ProcessBlocksResult& GetReplayResult(DispatchVisitor& dispatch_visitor);
+    BlockIterator ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator begin, BlockIterator end);
+    void          HandleReplayResult(const ProcessBlocksResult&                             result,
+                                     const file_processor::BlockIterator&                   iterator,
+                                     const std::function<void(const ProcessBlocksResult&)>& publish);
+
+    bool         IsFileValid() const;
     BlockIOError CheckFileStatus() const
     {
         if (file_stack_.empty())
@@ -248,10 +258,10 @@ class FileProcessor
         return file_stack_.back().active_file->IsEof();
     }
 
-    // Dispatch function is allowed to modify the ParsedBlock as needed before processing
-    // including decompression, or even stealing the contents for deferred processing.
-    using DispatchFunction = std::function<ProcessBlockState(uint64_t, ParsedBlock&)>;
-    ProcessBlockState ProcessBlocks(DispatchFunction& dispatch, bool check_decoder_completeness);
+    // Control the update, continue, and dispatch functionality from a policy
+    // appropriate to the callers requirements.
+    template <typename Policy>
+    ProcessBlockState ProcessBlocks(Policy& policy);
 
     void SetDecoderFrameNumber(uint64_t frame_number);
 
@@ -261,156 +271,10 @@ class FileProcessor
         return *block_parser_;
     }
 
-    class DispatchVisitor
-    {
-      public:
-        // No valid dispatch args, nothing to do. It is possible to modify in future to support passing down
-        // raw block data to some raw block handler if needed
-        void operator()(const std::monostate&) {}
-
-        // Dispatch based on the Args traits.
-        template <typename Args>
-        void operator()(const Args* args)
-        {
-            DispatchArgs(args);
-        }
-
-        // State Marker control
-        void operator()(const StateBeginMarkerArgs* state_begin)
-        {
-            // The block and marker type are implied by the Args type
-            file_processor_.ProcessStateBeginMarker(*state_begin);
-            DispatchArgs(state_begin);
-        }
-
-        void operator()(const StateEndMarkerArgs* state_end)
-        {
-            // The block and marker type are implied by the Args type
-            file_processor_.ProcessStateEndMarker(*state_end);
-            DispatchArgs(state_end);
-        }
-
-        void operator()(const AnnotationArgs* annotation)
-        {
-            if (annotation_handler_)
-            {
-                auto annotation_call = [this](auto&&... expanded_args) {
-                    annotation_handler_->ProcessAnnotation(std::forward<decltype(expanded_args)>(expanded_args)...);
-                };
-                std::apply(annotation_call, annotation->GetTuple());
-            }
-        }
-
-        DispatchVisitor(FileProcessor&                  file_processor,
-                        const std::vector<ApiDecoder*>& decoders,
-                        AnnotationHandler*              annotation_handler) :
-            file_processor_(file_processor),
-            decoders_(decoders), annotation_handler_(annotation_handler)
-        {}
-
-        void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }
-
-      private:
-        template <typename Args>
-        void DispatchArgs(const Args* args)
-        {
-            constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
-            for (auto decoder : decoders_)
-            {
-                if (DecoderSupportsDispatch(*decoder, *args))
-                {
-                    [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
-                    SetDecoderApiCallId(*decoder, *args);
-                    decoder->SetCurrentBlockIndex(block_index_);
-                    auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
-                        (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
-                    };
-                    std::apply(dispatch_call, args->GetTuple());
-                }
-            }
-        }
-
-        FileProcessor&                  file_processor_;
-        const std::vector<ApiDecoder*>& decoders_;
-        AnnotationHandler*              annotation_handler_;
-        uint64_t                        block_index_;
-    };
-
   private:
-    class ProcessVisitor
-    {
-      public:
-        // NOTE: All overloads should set all state, as the caller is *reusing* the Visitor object across a number of
-        //       std::visit calls
-
-        // Frame boundary control
-        void operator()(const FunctionCallArgs* function_call)
-        {
-            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call->call_id);
-            success            = true;
-        }
-
-        void operator()(const MethodCallArgs* method_call)
-        {
-            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call->call_id);
-            success            = true;
-        }
-
-        void operator()(const FrameEndMarkerArgs* end_frame)
-        {
-            // The block and marker type are implied by the Args type
-            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(*end_frame);
-            success            = true;
-        }
-
-        // I/O Control
-        void operator()(const ExecuteBlocksFromFileArgs* execute_blocks)
-        {
-            // The block and marker type are implied by the Args type
-            is_frame_delimiter = false;
-            success            = file_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
-        }
-
-        void operator()(const StateEndMarkerArgs* state_end)
-        {
-            // The block and marker type are implied by the Args type
-            is_frame_delimiter = false;
-            success            = true;
-            file_processor_.ProcessStateEndMarkerFrameState(*state_end);
-        }
-
-        void operator()(const AnnotationArgs* annotation)
-        {
-            // The block and marker type are implied by the Command type
-            is_frame_delimiter = false;
-            success            = true;
-            file_processor_.ProcessAnnotation(*annotation);
-        }
-
-        void operator()(const std::monostate&) { Reset(); }
-
-        template <typename Args>
-        void operator()(const Args*)
-        {
-            Reset();
-        }
-
-        bool IsSuccess() const { return success; }
-        bool IsFrameDelimiter() const { return is_frame_delimiter; }
-        ProcessVisitor(FileProcessor& file_processor) : file_processor_(file_processor) {}
-        void Reset()
-        {
-            is_frame_delimiter = false;
-            success            = true;
-        }
-
-      private:
-        bool           is_frame_delimiter = false;
-        bool           success            = true;
-        FileProcessor& file_processor_;
-    };
-
     bool ProcessFileHeader();
+    bool ProcessNextFrameAsync();
+    bool ProcessNextFrameSync();
 
     // NOTE: These two can't be const as derived class updates state.
     virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
@@ -432,7 +296,7 @@ class FileProcessor
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     std::vector<uint8_t>                uncompressed_buffer_;
-    uint64_t                            block_limit_;
+    uint64_t                            block_limit_{ 0 }; // No block limit by default
     bool                                pending_capture_uses_frame_markers_{ false };
     bool                                capture_uses_frame_markers_{ false };
     bool                                file_supports_frame_markers_{ false };
@@ -440,10 +304,15 @@ class FileProcessor
     bool                                enable_print_block_info_{ false };
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
-    bool                                loading_trimmed_capture_state_;
+    bool                                loading_trimmed_capture_state_{ false };
 
     std::string        absolute_path_;
     format::FileHeader file_header_;
+
+    // Working store for replay time decompression
+    // Working store for replay time decompression
+    constexpr static size_t kWorkingStoreInitialSize = 4096;
+    util::HeapBuffer        working_uncompressed_store_;
 
   protected:
     std::unique_ptr<util::Compressor> compressor_;
@@ -478,7 +347,16 @@ class FileProcessor
     };
     using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
     ActiveStreamCache stream_cache_;
+
+    std::unique_ptr<AsyncProcessor> async_processor_{};
+    FrameRange                      preload_frame_range_{ 0, 0 };
+    FrameNumber                     quit_before_frame_{ 0 };
 };
+
+extern template file_processor::ProcessBlockState
+FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(file_processor::PreloadProcessPolicy& policy);
+extern template file_processor::ProcessBlockState
+FileProcessor::ProcessBlocks<file_processor::AsyncProcessPolicy>(file_processor::AsyncProcessPolicy& policy);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

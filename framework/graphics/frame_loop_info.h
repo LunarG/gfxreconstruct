@@ -54,6 +54,7 @@ class FrameLoopInfo
     bool IsRepetition() const { return is_repetition_; }
 
     void     SetLooping(bool looping) { is_looping_ = looping; }
+    uint32_t GetLoopFrame() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }
 
     /// Decrements the number of loop iterations remaining.

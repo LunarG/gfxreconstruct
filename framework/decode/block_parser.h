@@ -78,9 +78,9 @@ class BlockParser
     enum class DecompressionPolicy
     {
         kAlways = 0,     // Always decompress parameter data when parsing blocks
-        kNever,          // Never decompress parameter data when parsing blocks
         kQueueOptimized, // Decompress only "small" blocks deferring large block to JIT decompression, suitable for
                          // block preload/preparsed content
+        kNever,          // Never decompress parameter data when parsing blocks
     };
 
     // In order to minimize memory migration overhead for both preloaded and non-preloaded dispatch, we have three
@@ -110,6 +110,8 @@ class BlockParser
                          // reference
         kEnqueueRetained // Always store raw block data in BlockBatch
     };
+
+    constexpr static uint64_t kResultsBlockIndexNumber = std::numeric_limits<uint64_t>::max();
 
     // The threshold is based on a trade off: maximize the number blocks with no decompression at replay
     // while minimizing the memory overhead of the non-deferred compressions.
@@ -161,6 +163,14 @@ class BlockParser
 
     BlockAllocator& GetBlockAllocator() noexcept { return block_allocator_; }
 
+    template <typename... Args>
+    ParsedBlock& EmplaceResultsBlock(Args&&... args)
+    {
+        file_processor::ProcessBlocksResult* results_ptr =
+            Emplace<file_processor::ProcessBlocksResult>(std::forward<Args>(args)...);
+        return EmplaceBlock(ParsedBlock::BlockState::kReady, block_index_, nullptr, results_ptr);
+    }
+
   private:
     BlockAllocator::BlockAllocationInfo GetAllocationInfo(format::BlockType type, size_t total_size);
 
@@ -173,14 +183,14 @@ class BlockParser
     };
 
     template <typename... Args>
-    ParsedBlock& EmplaceBlock(Args... args)
+    ParsedBlock& EmplaceBlock(Args&&... args)
     {
         const bool add_to_list = operation_mode_ != OperationMode::kImmediate;
         return block_allocator_.GetCurrentBatch().emplace_block(add_to_list, std::forward<Args>(args)...);
     }
 
     template <typename T, typename... Args>
-    T* Emplace(Args... args)
+    requires std::constructible_from<T, Args&&...> T* Emplace(Args&&... args)
     {
         return block_allocator_.GetCurrentBatch().emplace<T>(std::forward<Args>(args)...);
     }

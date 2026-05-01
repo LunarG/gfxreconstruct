@@ -164,7 +164,6 @@ int main(int argc, const char** argv)
             std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
             auto        application   = std::make_shared<gfxrecon::application::Application>(
                 kApplicationName, file_processor.get(), wsi_extension, nullptr);
-
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
             gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
                 GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
@@ -339,6 +338,8 @@ int main(int argc, const char** argv)
 
             application->SetPauseFrame(GetPauseFrame(arg_parser));
             application->SetFpsInfo(&fps_info);
+            application->SetAsyncProcessing(arg_parser.IsOptionSet(kAsyncProcessingOption));
+
             application->Run();
 
             // XXX if the final frame ended with a Present, this would be the *next* frame

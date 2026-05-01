@@ -51,6 +51,7 @@ class ParsedBlock
         kReady,              // Set when block is decompressed, or doesn't need to be
         kDeferredDecompress, // Set when block type is compressed, but decompression was suppressed
     };
+    constexpr static uint64_t kInvalidIndex = std::numeric_limits<uint64_t>::max();
 
     bool IsValid() const noexcept { return state_ != BlockState::kInvalid; }
     bool IsReady() const noexcept { return state_ == BlockState::kReady; }
@@ -133,7 +134,12 @@ class ParsedBlock
         block_index_(block_index), block_data_(block_data), dispatch_args_(args), state_(initial_state)
     {}
 
-    [[nodiscard]] bool Decompress(BlockParser& parser, util::HeapBuffer& uncompresser_store);
+    // This is a valid ready block, without block_data_ or a valid index.  Visitors must be aware.
+    ParsedBlock(file_processor::ProcessBlocksResult* result) :
+        block_index_(kInvalidIndex), block_data_(nullptr), dispatch_args_(result), state_(BlockState::kReady)
+    {}
+
+    [[nodiscard]] bool Decompress(const BlockParser& parser, util::HeapBuffer& uncompresser_store);
 
     ParsedBlock* GetNext() { return next_; }
     void         SetNext(ParsedBlock* next)
@@ -143,10 +149,6 @@ class ParsedBlock
         GFXRECON_ASSERT(next_ == nullptr);
         next_ = next;
     }
-
-    bool IsFrameBoundary() const noexcept { return is_frame_boundary_; }
-
-    void SetFrameBoundaryFlag(const bool frame_boundary) noexcept { is_frame_boundary_ = frame_boundary; }
 
   private:
     template <typename Args>
@@ -165,8 +167,7 @@ class ParsedBlock
     ParsedBlock* next_ = nullptr;
 
     // ParsedBlock state
-    BlockState state_                 = BlockState::kInvalid;
-    bool       is_frame_boundary_ : 1 = false;
+    BlockState state_ = BlockState::kInvalid;
 };
 
 GFXRECON_END_NAMESPACE(decode)
