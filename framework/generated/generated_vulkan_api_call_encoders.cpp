@@ -9378,6 +9378,18 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateSwapchainKHR(
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pSwapchain);
 
+    // Release all images associated with oldSwapchain
+    // This may not be right - maybe should not release images that were returned by vkAcquireNextImage??
+    if (pCreateInfo->oldSwapchain) {
+        auto wrapper = GetWrapper<SwapchainKHRWrapper>(pCreateInfo->oldSwapchain);
+        for (auto image_wrapper : wrapper->child_images)
+        {
+            RemoveWrapper<ImageWrapper>(image_wrapper);
+            delete image_wrapper;
+        }
+        wrapper->child_images.clear();
+    }
+
     return result;
 
 }
