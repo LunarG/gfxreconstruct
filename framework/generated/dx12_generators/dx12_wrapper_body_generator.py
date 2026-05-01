@@ -808,6 +808,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += '\n'
                 expr += indent + 'if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)\n'
                 expr += indent + '{\n'
+                expr += indent1 + 'ScopedCounter scoped(manager->AvoidApiCallLock());\n'
                 expr += indent1 + 'manager->DecrementCallScope();\n'
                 expr += indent1 + 'auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_{}_{});\n'.format(class_name, method_name)
                 expr += indent1 + 'for(auto& command_set : trim_draw_calls_command_sets)\n'
