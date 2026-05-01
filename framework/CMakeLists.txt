@@ -1,4 +1,5 @@
 add_subdirectory(util)
+add_subdirectory(plugin)
 add_subdirectory(graphics)
 add_subdirectory(format)
 add_subdirectory(encode)

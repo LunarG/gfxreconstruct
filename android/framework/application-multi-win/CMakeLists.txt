@@ -32,6 +32,7 @@ target_link_libraries(gfxrecon_application_multiwin
                       gfxrecon_graphics
                       gfxrecon_format
                       gfxrecon_util
+                      gfxrecon_replay_event_plugin_loader
                       native_app_glue
                       vulkan_registry
                       platform_specific)

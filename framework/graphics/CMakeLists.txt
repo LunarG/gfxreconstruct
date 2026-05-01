@@ -81,7 +81,7 @@ target_include_directories(gfxrecon_graphics
                                ${PROJECT_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
-target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific gfxrecon_replay_event_plugin_abi)
 
 common_build_directives(gfxrecon_graphics)
 

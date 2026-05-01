@@ -1,0 +1,373 @@
+/*
+** Copyright (c) 2026 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+#define CATCH_CONFIG_MAIN
+#include <catch2/catch.hpp>
+#include <vulkan/vulkan.h>
+
+#include <plugin/replay_event_sink.h>
+#include <plugin/replay_event_plugin_loader.h>
+
+class TestReplayEventSink : public gfxrecon::plugin::ReplayEventSink
+{
+  public:
+    GfxrReplayEventHeader         last_event_header     = {};
+    GfxrReplayQueueSubmitEndEvent last_submit_end_event = {};
+    GfxrReplayFrameEndEvent       last_frame_end_event  = {};
+
+  protected:
+    void EmitQueueSubmitBegin(const GfxrReplayQueueSubmitBeginEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayQueueSubmitBeginEvent));
+        last_event_header = event.header;
+    }
+
+    void EmitQueueSubmitEnd(const GfxrReplayQueueSubmitEndEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_QUEUE_SUBMIT_END);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayQueueSubmitEndEvent));
+        last_event_header     = event.header;
+        last_submit_end_event = event;
+    }
+
+    void EmitFrameBegin(const GfxrReplayFrameBeginEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_FRAME_BEGIN);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayFrameBeginEvent));
+        last_event_header = event.header;
+    }
+
+    void EmitFrameEnd(const GfxrReplayFrameEndEvent& event) override
+    {
+        REQUIRE(event.header.abi_version == GFXR_REPLAY_PLUGIN_ABI_VERSION);
+        REQUIRE(event.header.type == GFXR_REPLAY_EVENT_FRAME_END);
+        REQUIRE(event.header.struct_size == sizeof(GfxrReplayFrameEndEvent));
+        last_event_header    = event.header;
+        last_frame_end_event = event;
+    }
+};
+
+TEST_CASE("ReplayEventSink - frame lifecycle", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    TestReplayEventSink event_sink;
+
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+    event_sink.FrameBegin(0);
+    REQUIRE(event_sink.IsFrameActive());
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    event_sink.FrameEnd();
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    REQUIRE(event_sink.last_frame_end_event.first_submit_index == GFXR_REPLAY_INVALID_SUBMIT_INDEX);
+    REQUIRE(event_sink.last_frame_end_event.last_submit_index == GFXR_REPLAY_INVALID_SUBMIT_INDEX);
+}
+
+TEST_CASE("ReplayEventSink - two submits", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    TestReplayEventSink event_sink;
+
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+    event_sink.FrameBegin(0);
+    REQUIRE(event_sink.IsFrameActive());
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+
+    uint64_t submit_index = event_sink.QueueSubmitBegin(0);
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    event_sink.QueueSubmitEnd(submit_index, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    REQUIRE(submit_index == 0);
+    REQUIRE(event_sink.last_submit_end_event.submit_index == submit_index);
+
+    uint64_t next_submit_index = event_sink.QueueSubmitBegin(0);
+    REQUIRE(next_submit_index == submit_index + 1);
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    event_sink.QueueSubmitEnd(
+        next_submit_index, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    REQUIRE(event_sink.last_submit_end_event.submit_index == next_submit_index);
+
+    event_sink.FrameEnd();
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    REQUIRE(event_sink.last_frame_end_event.first_submit_index == 0);
+    REQUIRE(event_sink.last_frame_end_event.last_submit_index == next_submit_index);
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+}
+
+TEST_CASE("ReplayEventSink - global submit index", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    TestReplayEventSink event_sink;
+
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+    event_sink.FrameBegin(0);
+    REQUIRE(event_sink.IsFrameActive());
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+
+    uint64_t submit_index = event_sink.QueueSubmitBegin(0);
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    event_sink.QueueSubmitEnd(submit_index, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    REQUIRE(submit_index == 0);
+    REQUIRE(event_sink.last_submit_end_event.submit_index == submit_index);
+
+    event_sink.FrameEnd();
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+    REQUIRE(event_sink.last_event_header.frame_index == 0);
+    REQUIRE(event_sink.last_frame_end_event.first_submit_index == 0);
+    REQUIRE(event_sink.last_frame_end_event.last_submit_index == submit_index);
+
+    event_sink.FrameBegin(1);
+    REQUIRE(event_sink.IsFrameActive());
+    REQUIRE(event_sink.last_event_header.frame_index == 1);
+
+    uint64_t next_submit_index = event_sink.QueueSubmitBegin(0);
+    REQUIRE(event_sink.last_event_header.frame_index == 1);
+    REQUIRE(next_submit_index == submit_index + 1);
+    event_sink.QueueSubmitEnd(
+        next_submit_index, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    REQUIRE(event_sink.last_event_header.frame_index == 1);
+    REQUIRE(event_sink.last_submit_end_event.submit_index == next_submit_index);
+    event_sink.FrameEnd();
+    REQUIRE_FALSE(event_sink.IsFrameActive());
+    REQUIRE(event_sink.last_event_header.frame_index == 1);
+    REQUIRE(event_sink.last_frame_end_event.first_submit_index == next_submit_index);
+    REQUIRE(event_sink.last_frame_end_event.last_submit_index == next_submit_index);
+}
+
+static void FakeDestroy(GfxrReplayPluginV1* self)
+{
+    // No-op for fake plugin
+}
+
+static GfxrReplayPluginResult FakeOnEvent(GfxrReplayPluginV1* self, const GfxrReplayEventHeader* event)
+{
+    // No-op for fake plugin
+    return GFXR_REPLAY_PLUGIN_RESULT_OK;
+}
+
+static GfxrReplayPluginV1 CreateFakePlugin()
+{
+    return GfxrReplayPluginV1{
+        GFXR_REPLAY_PLUGIN_ABI_VERSION,
+        sizeof(GfxrReplayPluginV1),
+        FakeDestroy,
+        FakeOnEvent,
+    };
+}
+
+static const char*                                   kSuccessPluginPath = "fake_library.so";
+static const gfxrecon::util::platform::LibraryHandle kFakeLibraryHandle =
+    reinterpret_cast<gfxrecon::util::platform::LibraryHandle>(0x1);
+
+static gfxrecon::util::platform::LibraryHandle FakeOpenLibrary(const char* library_path)
+{
+    if (strcmp(library_path, kSuccessPluginPath) == 0)
+    {
+        return kFakeLibraryHandle;
+    }
+    return nullptr; // Simulate failure for all other paths
+}
+
+static void* FakeCreatePlugin(const char* args)
+{
+    static GfxrReplayPluginV1 plugin = CreateFakePlugin();
+    return reinterpret_cast<void*>(&plugin);
+}
+
+static void* FakeGetProcAddress(gfxrecon::util::platform::LibraryHandle library, const char* symbol_name)
+{
+    if (library == kFakeLibraryHandle && strcmp(symbol_name, GFXR_REPLAY_PLUGIN_FACTORY_NAME) == 0)
+    {
+        return reinterpret_cast<void*>(FakeCreatePlugin);
+    }
+    return nullptr; // Simulate failure for all other cases
+}
+
+static void FakeCloseLibrary(gfxrecon::util::platform::LibraryHandle library)
+{
+    // No-op for fake library
+}
+
+TEST_CASE("ReplayEventPluginLoader - open failure", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    ReplayEventPluginLoadInfo load_info;
+    load_info.library_path          = "nonexistent_library.so";
+    ReplayEventPluginLoadOps ops    = { FakeOpenLibrary, FakeGetProcAddress, FakeCloseLibrary };
+    auto                     plugin = LoadPlugin(load_info, ops);
+    REQUIRE(plugin == nullptr);
+}
+
+static void* FakeFailGetProcAddress(gfxrecon::util::platform::LibraryHandle library, const char* symbol_name)
+{
+    return nullptr; // Simulate failure for all symbols
+}
+
+TEST_CASE("ReplayEventPluginLoader - missing factory", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    ReplayEventPluginLoadInfo load_info;
+    load_info.library_path          = kSuccessPluginPath;
+    ReplayEventPluginLoadOps ops    = { FakeOpenLibrary, FakeFailGetProcAddress, FakeCloseLibrary };
+    auto                     plugin = LoadPlugin(load_info, ops);
+    REQUIRE(plugin == nullptr);
+}
+
+static void* FakeWrongAbiCreatePlugin(const char* args)
+{
+    static GfxrReplayPluginV1 plugin = CreateFakePlugin();
+    plugin.abi_version               = GFXR_REPLAY_PLUGIN_ABI_VERSION + 1; // Wrong ABI version
+    return reinterpret_cast<void*>(&plugin);
+}
+
+static void* FakeWrongAbiGetProcAddress(gfxrecon::util::platform::LibraryHandle library, const char* symbol_name)
+{
+    if (library == kFakeLibraryHandle && strcmp(symbol_name, GFXR_REPLAY_PLUGIN_FACTORY_NAME) == 0)
+    {
+        return reinterpret_cast<void*>(FakeWrongAbiCreatePlugin);
+    }
+    return nullptr; // Simulate failure for all other cases
+}
+
+TEST_CASE("ReplayEventPluginLoader - wrong abi", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    ReplayEventPluginLoadInfo load_info;
+    load_info.library_path          = kSuccessPluginPath;
+    ReplayEventPluginLoadOps ops    = { FakeOpenLibrary, FakeWrongAbiGetProcAddress, FakeCloseLibrary };
+    auto                     plugin = LoadPlugin(load_info, ops);
+    REQUIRE(plugin == nullptr);
+}
+
+static void* FakeBadStructSizeCreatePlugin(const char* args)
+{
+    static GfxrReplayPluginV1 plugin = CreateFakePlugin();
+    plugin.struct_size               = sizeof(GfxrReplayPluginV1) - 1; // Wrong struct size
+    return reinterpret_cast<void*>(&plugin);
+}
+
+static void* FakeBadStructSizeGetProcAddress(gfxrecon::util::platform::LibraryHandle library, const char* symbol_name)
+{
+    if (library == kFakeLibraryHandle && strcmp(symbol_name, GFXR_REPLAY_PLUGIN_FACTORY_NAME) == 0)
+    {
+        return reinterpret_cast<void*>(FakeBadStructSizeCreatePlugin);
+    }
+    return nullptr; // Simulate failure for all other cases
+}
+
+TEST_CASE("ReplayEventPluginLoader - bad struct size", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    ReplayEventPluginLoadInfo load_info;
+    load_info.library_path          = kSuccessPluginPath;
+    ReplayEventPluginLoadOps ops    = { FakeOpenLibrary, FakeBadStructSizeGetProcAddress, FakeCloseLibrary };
+    auto                     plugin = LoadPlugin(load_info, ops);
+    REQUIRE(plugin == nullptr);
+}
+
+static void* FakeNullDestroyCreatePlugin(const char* args)
+{
+    static GfxrReplayPluginV1 plugin = CreateFakePlugin();
+    plugin.destroy                   = nullptr; // Null destroy function
+    return reinterpret_cast<void*>(&plugin);
+}
+
+static void* FakeNullDestroyGetProcAddress(gfxrecon::util::platform::LibraryHandle library, const char* symbol_name)
+{
+    if (library == kFakeLibraryHandle && strcmp(symbol_name, GFXR_REPLAY_PLUGIN_FACTORY_NAME) == 0)
+    {
+        return reinterpret_cast<void*>(FakeNullDestroyCreatePlugin);
+    }
+    return nullptr; // Simulate failure for all other cases
+}
+
+TEST_CASE("ReplayEventPluginLoader - null destroy function", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    ReplayEventPluginLoadInfo load_info;
+    load_info.library_path          = kSuccessPluginPath;
+    ReplayEventPluginLoadOps ops    = { FakeOpenLibrary, FakeNullDestroyGetProcAddress, FakeCloseLibrary };
+    auto                     plugin = LoadPlugin(load_info, ops);
+    REQUIRE(plugin == nullptr);
+}
+
+static void* FakeNullOnEventCreatePlugin(const char* args)
+{
+    static GfxrReplayPluginV1 plugin = CreateFakePlugin();
+    plugin.on_event                  = nullptr; // Null on_event function
+    return reinterpret_cast<void*>(&plugin);
+}
+
+static void* FakeNullOnEventGetProcAddress(gfxrecon::util::platform::LibraryHandle library, const char* symbol_name)
+{
+    if (library == kFakeLibraryHandle && strcmp(symbol_name, GFXR_REPLAY_PLUGIN_FACTORY_NAME) == 0)
+    {
+        return reinterpret_cast<void*>(FakeNullOnEventCreatePlugin);
+    }
+    return nullptr; // Simulate failure for all other cases
+}
+
+TEST_CASE("ReplayEventPluginLoader - null on_event function", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    ReplayEventPluginLoadInfo load_info;
+    load_info.library_path          = kSuccessPluginPath;
+    ReplayEventPluginLoadOps ops    = { FakeOpenLibrary, FakeNullOnEventGetProcAddress, FakeCloseLibrary };
+    auto                     plugin = LoadPlugin(load_info, ops);
+    REQUIRE(plugin == nullptr);
+}
+
+TEST_CASE("ReplayEventPluginLoader - successful load", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+
+    ReplayEventPluginLoadInfo load_info;
+    load_info.library_path          = kSuccessPluginPath;
+    ReplayEventPluginLoadOps ops    = { FakeOpenLibrary, FakeGetProcAddress, FakeCloseLibrary };
+    auto                     plugin = LoadPlugin(load_info, ops);
+    REQUIRE(plugin != nullptr);
+}
+
+TEST_CASE("ReplayEventPluginLoader - read load", "[plugin]")
+{
+    using namespace gfxrecon::plugin;
+    auto plugin = LoadPlugin({ SAMPLE_PLUGIN_PATH });
+    REQUIRE(plugin != nullptr);
+    plugin->FrameBegin(0);
+    plugin->QueueSubmitBegin(0);
+    plugin->QueueSubmitEnd(0, 0, VK_SUCCESS, GFXR_REPLAY_QUEUE_SUBMIT_COMPLETION_SOURCE_SUBMIT_RETURN);
+    plugin->FrameEnd();
+}
