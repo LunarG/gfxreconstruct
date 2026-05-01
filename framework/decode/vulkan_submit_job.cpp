@@ -105,17 +105,14 @@ bool VulkanInjectedSemaphore::HasReachedTargetValue() const
         return false;
     }
 
-    VkSemaphoreWaitInfo wait_info = { VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO };
-    wait_info.semaphoreCount      = 1;
-    wait_info.pSemaphores         = &handle_;
-    wait_info.pValues             = &target_value_;
-    VkResult result               = device_table_->WaitSemaphores(device_info_->handle, &wait_info, 0);
-    if (result != VK_SUCCESS && result != VK_TIMEOUT)
+    uint64_t read_value = 0;
+    VkResult result     = device_table_->GetSemaphoreCounterValue(device_info_->handle, handle_, &read_value);
+    if (result != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("Failed to wait on timeline semaphore for submit job execution: %s",
+        GFXRECON_LOG_ERROR("Failed to get timeline semaphore value for submit job execution: %s",
                            util::ToString(result).c_str());
     }
-    return result == VK_SUCCESS;
+    return result == VK_SUCCESS && read_value >= target_value_;
 }
 
 VulkanInjectedSemaphore::~VulkanInjectedSemaphore()
