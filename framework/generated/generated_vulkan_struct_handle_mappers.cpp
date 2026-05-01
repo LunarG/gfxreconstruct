@@ -6367,6 +6367,28 @@ void MapStructHandles(Decoded_VkResolveImageModeInfoKHR* wrapper, const CommonOb
     }
 }
 
+void MapStructHandles(Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkDebugReportCallbackCreateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -12418,6 +12440,61 @@ void MapStructHandles(Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeatures
     }
 }
 
+void MapStructHandles(Decoded_VkThrottleHintSubmitInfoSEC* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPhysicalDeviceThrottleHintFeaturesSEC* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkDataGraphPipelineNeuralStatisticsCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -13057,6 +13134,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM:
         MapStructHandles(reinterpret_cast<Decoded_VkDataGraphPipelineInfoARM*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_NEURAL_STATISTICS_CREATE_INFO_ARM:
+        MapStructHandles(reinterpret_cast<Decoded_VkDataGraphPipelineNeuralStatisticsCreateInfoARM*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM:
         MapStructHandles(reinterpret_cast<Decoded_VkDataGraphPipelinePropertyQueryResultARM*>(wrapper), object_info_table);
         break;
@@ -13074,6 +13154,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM:
         MapStructHandles(reinterpret_cast<Decoded_VkDataGraphPipelineSessionMemoryRequirementsInfoARM*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM:
+        MapStructHandles(reinterpret_cast<Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM:
         MapStructHandles(reinterpret_cast<Decoded_VkDataGraphPipelineShaderModuleCreateInfoARM*>(wrapper), object_info_table);
@@ -13987,6 +14070,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceDataGraphModelFeaturesQCOM*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(wrapper), object_info_table);
         break;
@@ -14319,6 +14405,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_PROPERTIES_KHR:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance10PropertiesKHR*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceMaintenance3Properties*>(wrapper), object_info_table);
@@ -14854,6 +14943,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceThrottleHintFeaturesSEC*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(wrapper), object_info_table);
         break;
@@ -15226,6 +15318,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
         MapStructHandles(reinterpret_cast<Decoded_VkQueueFamilyGlobalPriorityProperties*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
+        MapStructHandles(reinterpret_cast<Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
         MapStructHandles(reinterpret_cast<Decoded_VkQueueFamilyOwnershipTransferPropertiesKHR*>(wrapper), object_info_table);
         break;
@@ -15549,6 +15644,9 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         break;
     case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
         MapStructHandles(reinterpret_cast<Decoded_VkTextureLODGatherFormatPropertiesAMD*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_THROTTLE_HINT_SUBMIT_INFO_SEC:
+        MapStructHandles(reinterpret_cast<Decoded_VkThrottleHintSubmitInfoSEC*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
         MapStructHandles(reinterpret_cast<Decoded_VkTileMemoryBindInfoQCOM*>(wrapper), object_info_table);

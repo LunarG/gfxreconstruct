@@ -440,6 +440,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_INFO_ARM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDataGraphPipelineInfoARM*>(base));
             break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_NEURAL_STATISTICS_CREATE_INFO_ARM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkDataGraphPipelineNeuralStatisticsCreateInfoARM*>(base));
+            break;
         case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDataGraphPipelinePropertyQueryResultARM*>(base));
             break;
@@ -457,6 +460,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDataGraphPipelineSessionMemoryRequirementsInfoARM*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM*>(base));
             break;
         case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SHADER_MODULE_CREATE_INFO_ARM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkDataGraphPipelineShaderModuleCreateInfoARM*>(base));
@@ -1385,6 +1391,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_MODEL_FEATURES_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDataGraphModelFeaturesQCOM*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(base));
             break;
@@ -1717,6 +1726,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_PROPERTIES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMaintenance10PropertiesKHR*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMaintenance11FeaturesKHR*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceMaintenance3Properties*>(base));
@@ -2252,6 +2264,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceTextureCompressionASTCHDRFeatures*>(base));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceThrottleHintFeaturesSEC*>(base));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(base));
             break;
@@ -2627,6 +2642,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkQueueFamilyGlobalPriorityProperties*>(base));
             break;
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR*>(base));
+            break;
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const VkQueueFamilyOwnershipTransferPropertiesKHR*>(base));
             break;
@@ -2950,6 +2968,9 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             EncodeStructPtr(encoder, reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_THROTTLE_HINT_SUBMIT_INFO_SEC:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkThrottleHintSubmitInfoSEC*>(base));
             break;
         case VK_STRUCTURE_TYPE_TILE_MEMORY_BIND_INFO_QCOM:
             EncodeStructPtr(encoder, reinterpret_cast<const VkTileMemoryBindInfoQCOM*>(base));

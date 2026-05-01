@@ -10540,6 +10540,32 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkResolveImageMode
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceMaintenance11FeaturesKHR& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["maintenance11"] = static_cast<bool>(decoded_value.maintenance11);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR& decoded_value = *data->decoded_value;
+        const Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        FieldToJson(jdata["optimalImageTransferGranularity"], meta_struct.optimalImageTransferGranularity);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugReportCallbackCreateInfoEXT* data)
 {
     if (data && data->decoded_value)
@@ -18898,6 +18924,71 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkThrottleHintSubmitInfoSEC* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkThrottleHintSubmitInfoSEC& decoded_value = *data->decoded_value;
+        const Decoded_VkThrottleHintSubmitInfoSEC& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["throttleHint"] = decoded_value.throttleHint;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceThrottleHintFeaturesSEC* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceThrottleHintFeaturesSEC& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceThrottleHintFeaturesSEC& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["throttleHint"] = static_cast<bool>(decoded_value.throttleHint);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["dataGraphNeuralAcceleratorStatistics"] = static_cast<bool>(decoded_value.dataGraphNeuralAcceleratorStatistics);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineNeuralStatisticsCreateInfoARM* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkDataGraphPipelineNeuralStatisticsCreateInfoARM& decoded_value = *data->decoded_value;
+        const Decoded_VkDataGraphPipelineNeuralStatisticsCreateInfoARM& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["allowNeuralStatistics"] = static_cast<bool>(decoded_value.allowNeuralStatistics);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM& decoded_value = *data->decoded_value;
+        const Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["mode"] = decoded_value.mode;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* data)
 {
     if (data && data->decoded_value)
@@ -20168,6 +20259,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_NEURAL_STATISTICS_CREATE_INFO_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineNeuralStatisticsCreateInfoARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_PROPERTY_QUERY_RESULT_ARM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelinePropertyQueryResultARM*>(data->GetMetaStructPointer());
@@ -20206,6 +20304,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_MEMORY_REQUIREMENTS_INFO_ARM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineSessionMemoryRequirementsInfoARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -22338,6 +22443,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV*>(data->GetMetaStructPointer());
@@ -23111,6 +23223,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_PROPERTIES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance10PropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
@@ -24361,6 +24480,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceThrottleHintFeaturesSEC*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_MEMORY_HEAP_FEATURES_QCOM:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceTileMemoryHeapFeaturesQCOM*>(data->GetMetaStructPointer());
@@ -25229,6 +25355,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkQueueFamilyOwnershipTransferPropertiesKHR*>(data->GetMetaStructPointer());
@@ -25981,6 +26114,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkTextureLODGatherFormatPropertiesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_THROTTLE_HINT_SUBMIT_INFO_SEC:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkThrottleHintSubmitInfoSEC*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }
