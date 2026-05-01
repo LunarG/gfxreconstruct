@@ -26,12 +26,14 @@
 #include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/buffer_writer.h"
+#include "util/hash.h"
 #include "util/image_writer.h"
 #include "util/logging.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
 #include <unordered_set>
 #include <variant>
 #include <vulkan/vulkan_core.h>
@@ -132,23 +134,127 @@ static bool DumpBufferToFile(DumpedBuffer&           dumped_buffer,
     return bytes_written ? true : false;
 }
 
+std::string DefaultVulkanDumpResourcesDelegate::GenerateBufferFilename(const DumpedResourceBase& dumped_resource,
+                                                                       bool                      before_command,
+                                                                       uint32_t                  region_index)
+{
+    uint64_t hash = 0;
+
+    switch (dumped_resource.type)
+    {
+        case DumpResourceType::kVertex:
+        case DumpResourceType::kIndex:
+        {
+            GFXRECON_ASSERT(region_index == NO_INDEX);
+
+            const DumpedVertexIndexBuffer& vertex_index_buffer =
+                static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
+            util::hash::hash_combine_64(hash, vertex_index_buffer.buffer.buffer_info.capture_id);
+
+            if (dumped_resource.type == DumpResourceType::kVertex)
+            {
+                util::hash::hash_combine_64(hash, vertex_index_buffer.binding);
+            }
+            else
+            {
+                util::hash::hash_combine_64(hash, vertex_index_buffer.index_type);
+            }
+        }
+        break;
+
+        case DumpResourceType::kBufferDescriptor:
+        case DumpResourceType::kDispatchTraceRaysBuffer:
+        case DumpResourceType::kDispatchTraceRaysBufferDescriptor:
+        case DumpResourceType::kInlineUniformBufferDescriptor:
+        case DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor:
+        {
+            GFXRECON_ASSERT(region_index == NO_INDEX);
+
+            const DumpedDescriptor& dumped_buffer_desc = static_cast<const DumpedDescriptor&>(dumped_resource);
+            const DumpedBuffer*     dumped_buffer      = std::get_if<DumpedBuffer>(&dumped_buffer_desc.dumped_resource);
+            GFXRECON_ASSERT(dumped_buffer != nullptr);
+
+            util::hash::hash_combine_64(hash, dumped_buffer->buffer_info.capture_id);
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.stages);
+            util::hash::hash_combine_64(
+                hash, static_cast<std::underlying_type_t<VkDescriptorType>>(dumped_buffer_desc.desc_type));
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.set);
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.binding);
+            util::hash::hash_combine_64(hash, dumped_buffer_desc.array_index);
+        }
+        break;
+
+        case DumpResourceType::kInitBufferMetaCommand:
+        {
+            GFXRECON_ASSERT(region_index == NO_INDEX);
+
+            const auto& dumped_transfer_command = static_cast<const DumpedTransferCommand&>(dumped_resource);
+            auto*       dumped_init_buffer =
+                std::get_if<DumpedInitBufferMetaCommand>(&dumped_transfer_command.dumped_resource);
+            GFXRECON_ASSERT(dumped_init_buffer != nullptr);
+
+            util::hash::hash_combine_64(hash, dumped_init_buffer->buffer);
+        }
+        break;
+
+        case DumpResourceType::kCopyBuffer:
+        {
+            GFXRECON_ASSERT(region_index != NO_INDEX);
+
+            const auto& dumped_transfer_command = static_cast<const DumpedTransferCommand&>(dumped_resource);
+            auto*       dumped_copy_buffer = std::get_if<DumpedCopyBuffer>(&dumped_transfer_command.dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_buffer != nullptr);
+
+            util::hash::hash_combine_64(hash, dumped_copy_buffer->dst_buffer);
+            util::hash::hash_combine_64(hash, region_index);
+        }
+        break;
+
+        case DumpResourceType::kCopyImageToBuffer:
+        {
+            GFXRECON_ASSERT(region_index == NO_INDEX);
+
+            const auto& dumped_transfer_command = static_cast<const DumpedTransferCommand&>(dumped_resource);
+            auto*       dumped_copy_image_to_buffer =
+                std::get_if<DumpedCopyImageToBuffer>(&dumped_transfer_command.dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_image_to_buffer != nullptr);
+
+            util::hash::hash_combine_64(hash, dumped_copy_image_to_buffer->dst_buffer);
+            util::hash::hash_combine_64(hash, region_index);
+        }
+        break;
+
+        default:
+            GFXRECON_LOG_ERROR("%s(): Unexpected resource type", __func__);
+    }
+
+    // Common details
+    HashDumpedResourceBase(hash, dumped_resource);
+    if (options_.dump_resources_before)
+    {
+        util::hash::hash_combine_64(hash, before_command);
+    }
+
+    std::stringstream filename;
+    filename << "buffer_" << hash << ".bin";
+
+    std::filesystem::path filedirname(options_.dump_resources_output_dir);
+    std::filesystem::path filebasename(filename.str());
+    return (filedirname / filebasename).string();
+}
+
 bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(const VulkanDelegateDumpResourceContext& delegate_context)
 {
     DumpedResourceBase* dumped_resource = delegate_context.dumped_resource;
     GFXRECON_ASSERT(dumped_resource != nullptr);
 
-    DumpedBuffer*           dumped_buffer;
-    BufferFilenameGenerator filename_generator;
+    DumpedBuffer* dumped_buffer;
 
     switch (dumped_resource->type)
     {
         case DumpResourceType::kVertex:
         case DumpResourceType::kIndex:
         {
-            filename_generator = dumped_resource->type == DumpResourceType::kVertex
-                                     ? &DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename
-                                     : &DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename;
-
             GFXRECON_ASSERT(!delegate_context.before_command);
             DumpedVertexIndexBuffer* dumped_vertex_index_buffer =
                 static_cast<DumpedVertexIndexBuffer*>(dumped_resource);
@@ -162,33 +268,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(const VulkanDelegateDu
         case DumpResourceType::kInlineUniformBufferDescriptor:
         case DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor:
         {
-            if (dumped_resource->type == DumpResourceType::kBufferDescriptor)
-            {
-                filename_generator = &DefaultVulkanDumpResourcesDelegate::GenerateGraphicsBufferDescriptorFilename;
-            }
-            else if (dumped_resource->type == DumpResourceType::kDispatchTraceRaysBuffer)
-            {
-                filename_generator = &DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferFilename;
-            }
-            else if (dumped_resource->type == DumpResourceType::kInlineUniformBufferDescriptor)
-            {
-                GFXRECON_ASSERT(!delegate_context.before_command);
-                filename_generator =
-                    &DefaultVulkanDumpResourcesDelegate::GenerateGraphicsInlineUniformBufferDescriptorFilename;
-            }
-            else if (dumped_resource->type == DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor)
-            {
-                GFXRECON_ASSERT(!delegate_context.before_command);
-                filename_generator =
-                    &DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineUniformBufferDescriptorFilename;
-            }
-            else
-            {
-                GFXRECON_ASSERT((dumped_resource->type == DumpResourceType::kDispatchTraceRaysBufferDescriptor));
-                filename_generator =
-                    &DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferDescriptorFilename;
-            }
-
             DumpedDescriptor* dumped_buffer_desc = static_cast<DumpedDescriptor*>(delegate_context.dumped_resource);
             GFXRECON_ASSERT(dumped_buffer_desc != nullptr);
 
@@ -206,9 +285,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBufferToFile(const VulkanDelegateDu
     const VulkanDelegateBufferDumpedData& buffer_data =
         std::get<VulkanDelegateBufferDumpedData>(delegate_context.dumped_data);
 
-    const std::string filename =
-        std::invoke(filename_generator, *this, *dumped_resource, delegate_context.before_command);
-
+    const std::string filename = GenerateBufferFilename(*dumped_resource, delegate_context.before_command);
     return gfxrecon::decode::DumpBufferToFile(*dumped_buffer, filename, buffer_data.data, delegate_context.compressor);
 }
 
@@ -305,7 +382,6 @@ GetDumpedImageFormat(const DumpedImage& dumped_image, bool dump_images_raw, util
 bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*        dumped_resource,
                                                          DumpedImage&               dumped_image,
                                                          const DumpedImageHostData& image_dumped_data,
-                                                         ImageFilenameGenerator     filename_generator,
                                                          bool                       before_command,
                                                          const util::Compressor*    compressor)
 {
@@ -324,14 +400,9 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
     {
         auto& sub_res = dumped_image.dumped_subresources[i];
 
-        const std::string filename = std::invoke(filename_generator,
-                                                 *this,
-                                                 *dumped_resource,
-                                                 output_image_format,
-                                                 sub_res.aspect,
-                                                 sub_res.level,
-                                                 sub_res.layer,
-                                                 before_command);
+        GFXRECON_ASSERT(dumped_resource != nullptr);
+        const std::string filename = GenerateImageFilename(
+            *dumped_resource, output_image_format, sub_res.aspect, sub_res.level, sub_res.layer, before_command);
 
         sub_res.filename = filename;
 
@@ -426,15 +497,13 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
     DumpedResourceBase* dumped_resource = delegate_context.dumped_resource;
     GFXRECON_ASSERT(dumped_resource != nullptr);
 
-    DumpedImage*           dumped_image;
-    ImageFilenameGenerator filename_generator;
+    DumpedImage* dumped_image;
 
     switch (dumped_resource->type)
     {
         case DumpResourceType::kRtv:
         case DumpResourceType::kDsv:
         {
-            filename_generator            = &DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename;
             DumpedRenderTarget* dumped_rt = static_cast<DumpedRenderTarget*>(dumped_resource);
             dumped_image = delegate_context.before_command ? &dumped_rt->dumped_image_before : &dumped_rt->dumped_image;
         }
@@ -444,20 +513,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
         case DumpResourceType::kDispatchTraceRaysImage:
         case DumpResourceType::kDispatchTraceRaysImageDescriptor:
         {
-            if (dumped_resource->type == DumpResourceType::kImageDescriptor)
-            {
-                filename_generator = &DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename;
-            }
-            else if (dumped_resource->type == DumpResourceType::kDispatchTraceRaysImage)
-            {
-                filename_generator = &DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename;
-            }
-            else
-            {
-                filename_generator =
-                    &DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDescriptorFilename;
-            }
-
             DumpedDescriptor* dumped_desc = static_cast<DumpedDescriptor*>(dumped_resource);
             dumped_image                  = delegate_context.before_command
                                                 ? std::get_if<DumpedImage>(&dumped_desc->dumped_resource_before)
@@ -476,7 +531,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(const VulkanDelegateDum
     return DumpImageToFile(dumped_resource,
                            *dumped_image,
                            image_dumped_data.data,
-                           filename_generator,
                            delegate_context.before_command,
                            delegate_context.compressor);
 }
@@ -496,7 +550,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTLASToFile(const DumpedResourceBase
         std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
                                                               dumped_as.as_info->capture_id,
                                                               AccelerationStructureDumpedBufferType::kSerializedTlas,
-                                                              dumped_resource.ppl_stage,
                                                               before_command);
 
         gfxrecon::decode::DumpBufferToFile(
@@ -522,7 +575,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTLASToFile(const DumpedResourceBase
             std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
                                                                   dumped_as.as_info->capture_id,
                                                                   AccelerationStructureDumpedBufferType::kInstance,
-                                                                  dumped_resource.ppl_stage,
                                                                   before_command,
                                                                   static_cast<uint32_t>(i));
             gfxrecon::decode::DumpBufferToFile(
@@ -572,7 +624,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
         std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
                                                               dumped_as.as_info->capture_id,
                                                               AccelerationStructureDumpedBufferType::kSerializedBlas,
-                                                              dumped_resource.ppl_stage,
                                                               before_command);
 
         gfxrecon::decode::DumpBufferToFile(
@@ -604,7 +655,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                 std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
                                                                       dumped_as.as_info->capture_id,
                                                                       AccelerationStructureDumpedBufferType::kVertex,
-                                                                      dumped_resource.ppl_stage,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
                 gfxrecon::decode::DumpBufferToFile(
@@ -617,7 +667,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                 std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
                                                                       dumped_as.as_info->capture_id,
                                                                       AccelerationStructureDumpedBufferType::kIndex,
-                                                                      dumped_resource.ppl_stage,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
                 gfxrecon::decode::DumpBufferToFile(
@@ -630,7 +679,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                 std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
                                                                       dumped_as.as_info->capture_id,
                                                                       AccelerationStructureDumpedBufferType::kTransform,
-                                                                      dumped_resource.ppl_stage,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
                 gfxrecon::decode::DumpBufferToFile(
@@ -650,7 +698,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpBLASToFile(const DumpedResourceBase
                 std::string filename = GenerateASDumpedBufferFilename(dumped_resource,
                                                                       dumped_as.as_info->capture_id,
                                                                       AccelerationStructureDumpedBufferType::kAABB,
-                                                                      dumped_resource.ppl_stage,
                                                                       before_command,
                                                                       static_cast<uint32_t>(i));
                 gfxrecon::decode::DumpBufferToFile(aabb->aabb_buffer, filename, aabb_data->aabb_buffer, compressor);
@@ -700,277 +747,149 @@ bool DefaultVulkanDumpResourcesDelegate::DumpAccelerationStructureToFile(
     return true;
 }
 
-std::string
-DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const DumpedResourceBase& dumped_resource,
+void DefaultVulkanDumpResourcesDelegate::HashDumpedResourceBase(uint64_t&              seed,
+                                                                const DumpedResourceBase& dumped_resource) const
+{
+    GFXRECON_ASSERT(dumped_resource.type != DumpResourceType::kNone);
+    util::hash::hash_combine_64(seed, static_cast<std::underlying_type_t<DumpResourceType>>(dumped_resource.type));
+
+    GFXRECON_ASSERT(dumped_resource.ppl_stage != DumpResourcesPipelineStage::kNone);
+    util::hash::hash_combine_64(
+        seed, static_cast<std::underlying_type_t<DumpResourcesPipelineStage>>(dumped_resource.ppl_stage));
+
+    GFXRECON_ASSERT(dumped_resource.bcb_index != UNDEFINED_INDEX);
+    util::hash::hash_combine_64(seed, dumped_resource.bcb_index);
+
+    GFXRECON_ASSERT(dumped_resource.cmd_index != UNDEFINED_INDEX);
+    util::hash::hash_combine_64(seed, dumped_resource.cmd_index);
+
+    GFXRECON_ASSERT(dumped_resource.qs_index != UNDEFINED_INDEX);
+    util::hash::hash_combine_64(seed, dumped_resource.qs_index);
+
+    GFXRECON_ASSERT(dumped_resource.submit_info_index != UNDEFINED_INDEX);
+    util::hash::hash_combine_64(seed, dumped_resource.submit_info_index);
+
+    GFXRECON_ASSERT(dumped_resource.submit_info_cmd_buf_index != UNDEFINED_INDEX);
+    util::hash::hash_combine_64(seed, dumped_resource.submit_info_cmd_buf_index);
+
+    if (dumped_resource.render_pass != UNDEFINED_INDEX && dumped_resource.subpass != UNDEFINED_INDEX)
+    {
+        util::hash::hash_combine_64(seed, dumped_resource.render_pass);
+        util::hash::hash_combine_64(seed, dumped_resource.subpass);
+    }
+
+    if (dumped_resource.execute_cmds_index != UNDEFINED_INDEX &&
+        dumped_resource.execute_cmds_cmd_buf_index != UNDEFINED_INDEX)
+    {
+        util::hash::hash_combine_64(seed, dumped_resource.execute_cmds_index);
+        util::hash::hash_combine_64(seed, dumped_resource.execute_cmds_cmd_buf_index);
+    }
+}
+
+std::string DefaultVulkanDumpResourcesDelegate::GenerateImageFilename(const DumpedResourceBase& dumped_resource,
                                                                       DumpedImageFormat         output_image_format,
                                                                       VkImageAspectFlagBits     aspect,
                                                                       uint32_t                  mip_level,
                                                                       uint32_t                  layer,
                                                                       bool                      before_command) const
 {
-    const DumpedRenderTarget& rt_resource_info = static_cast<const DumpedRenderTarget&>(dumped_resource);
-    const VulkanImageInfo*    image_info =
-        !before_command ? rt_resource_info.dumped_image.image_info : rt_resource_info.dumped_image_before.image_info;
-    std::string aspect_str     = ImageAspectToStr(aspect);
-    std::string attachment_str = rt_resource_info.location != DEPTH_ATTACHMENT
-                                     ? "_att_" + std::to_string(rt_resource_info.location)
-                                     : "_depth_att";
+    uint64_t hash = 0;
 
-    std::stringstream filename;
-    if (output_image_format != KFormatRaw)
-    {
-        if (options_.dump_resources_before)
-        {
-            filename << "draw_" << ((!before_command) ? "after_" : "before_") << rt_resource_info.cmd_index << "_qs_"
-                     << rt_resource_info.qs_index << "_bcb_" << rt_resource_info.bcb_index << attachment_str
-                     << "_aspect_" << aspect_str;
-        }
-        else
-        {
-            filename << "draw_" << rt_resource_info.cmd_index << "_qs_" << rt_resource_info.qs_index << "_bcb_"
-                     << rt_resource_info.bcb_index << attachment_str << "_aspect_" << aspect_str;
-        }
-    }
-    else
-    {
-        if (options_.dump_resources_before)
-        {
-            filename << "draw_" << ((!before_command) ? "after_" : "before_") << rt_resource_info.cmd_index << "_qs_"
-                     << rt_resource_info.qs_index << "_bcb_" << rt_resource_info.bcb_index << "_"
-                     << rt_resource_info.qs_index << "_" << rt_resource_info.bcb_index << attachment_str << "_"
-                     << util::ToString<VkFormat>(image_info->format) << "_aspect_" << aspect_str;
-        }
-        else
-        {
-            filename << "draw_" << rt_resource_info.cmd_index << "_qs_" << rt_resource_info.qs_index << "_bcb_"
-                     << rt_resource_info.bcb_index << attachment_str << "_"
-                     << util::ToString<VkFormat>(image_info->format) << "_aspect_" << aspect_str;
-        }
-    }
-
-    std::stringstream subresource_sting;
-    subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
-    subresource_sting << ImageFileExtension(output_image_format);
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str() + subresource_sting.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string
-DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                                            DumpedImageFormat     output_image_format,
-                                                                            VkImageAspectFlagBits aspect,
-                                                                            uint32_t              mip_level,
-                                                                            uint32_t              layer,
-                                                                            bool                  before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedDescriptor& image_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
-    const DumpedImage*      dumped_image    = std::get_if<DumpedImage>(&image_desc_info.dumped_resource);
-    GFXRECON_ASSERT(dumped_image != nullptr);
-
-    const VulkanImageInfo* image_info = dumped_image->image_info;
-    std::string            aspect_str = ImageAspectToStr(aspect);
-    std::stringstream      base_filename;
-
-    if (output_image_format != KFormatRaw)
-    {
-        base_filename << "image_" << image_info->capture_id << "_qs_" << image_desc_info.qs_index << "_bcb_"
-                      << image_desc_info.bcb_index << "_rp_" << image_desc_info.render_pass << "_aspect_" << aspect_str;
-    }
-    else
-    {
-        std::string whole_format_name = util::ToString<VkFormat>(image_info->format);
-        std::string format_name(whole_format_name.begin() + 10, whole_format_name.end());
-
-        base_filename << "image_" << image_info->capture_id << "_qs_" << image_desc_info.qs_index << "_bcb_"
-                      << image_desc_info.bcb_index << "_rp_" << image_desc_info.render_pass << "_" << format_name
-                      << "_aspect_" << aspect_str;
-    }
-
-    std::stringstream sub_resources_str;
-    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
-    sub_resources_str << ImageFileExtension(output_image_format);
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(sub_resources_str.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string
-DefaultVulkanDumpResourcesDelegate::GenerateGraphicsBufferDescriptorFilename(const DumpedResourceBase& dumped_resource,
-                                                                             bool before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedDescriptor& dumped_desc = static_cast<const DumpedDescriptor&>(dumped_resource);
-
-    const DumpedBuffer* dumped_buffer = std::get_if<DumpedBuffer>(&dumped_desc.dumped_resource);
-    GFXRECON_ASSERT(dumped_buffer != nullptr);
-
-    std::stringstream filename;
-    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_dc_" << dumped_desc.cmd_index << "_qs_"
-             << dumped_desc.qs_index << "_bcb_" << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_"
-             << dumped_desc.set << "_binding_" << dumped_desc.binding << "_ai_" << dumped_desc.array_index << ".bin";
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DefaultVulkanDumpResourcesDelegate::GenerateGraphicsInlineUniformBufferDescriptorFilename(
-    const DumpedResourceBase& dumped_resource, bool before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
-
-    std::stringstream filename;
-    filename << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_dc_" << buffer_desc_info.cmd_index << "_qs_"
-             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(const DumpedResourceBase& dumped_resource,
-                                                                             bool before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedVertexIndexBuffer& vertex_buffer = static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
-
-    std::stringstream filename;
-    filename << "vertexBuffers_"
-             << "qs_" << vertex_buffer.qs_index << "_bcb_" << vertex_buffer.bcb_index << "_dc_"
-             << vertex_buffer.cmd_index << "_binding_" << vertex_buffer.binding << ".bin";
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(const DumpedResourceBase& dumped_resource,
-                                                                            bool before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedVertexIndexBuffer& index_buffer = static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
-
-    std::stringstream filename;
-    std::string       index_type_name = IndexTypeToStr(index_buffer.index_type);
-    filename << "indexBuffer_"
-             << "qs_" << dumped_resource.qs_index << "_bcb_" << dumped_resource.bcb_index << "_dc_"
-             << dumped_resource.cmd_index << index_type_name << ".bin";
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DefaultVulkanDumpResourcesDelegate::GenerateTransferToBufferRegionFilename(
-    const DumpedResourceBase& dumped_resource, bool before_command, uint32_t region_index) const
-{
-    const auto& dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
-
-    std::stringstream filename;
+    // Resource type details
     switch (dumped_resource.type)
     {
-        case DumpResourceType::kInitBufferMetaCommand:
-            filename << "initBuffer_";
-            break;
-
-        case DumpResourceType::kCopyBuffer:
-            filename << "copyBuffer_";
-            break;
-        case DumpResourceType::kCopyImageToBuffer:
-            filename << "copyImageToBuffer_";
-            break;
-        default:
-            GFXRECON_LOG_ERROR(
-                "%s(): Unexpected resource type (%u)", __func__, static_cast<uint32_t>(dumped_resource.type))
-    }
-
-    if (options_.dump_resources_before)
-    {
-        if (before_command)
+        case DumpResourceType::kRtv:
+        case DumpResourceType::kDsv:
         {
-            filename << "before_";
+            const DumpedRenderTarget& rt_resource_info = static_cast<const DumpedRenderTarget&>(dumped_resource);
+            const VulkanImageInfo*    image_info       = rt_resource_info.dumped_image.image_info;
+
+            util::hash::hash_combine_64(hash, image_info->capture_id);
+            util::hash::hash_combine_64(hash, rt_resource_info.location);
         }
-        else
+        break;
+
+        case DumpResourceType::kImageDescriptor:
+        case DumpResourceType::kDispatchTraceRaysImage:
+        case DumpResourceType::kDispatchTraceRaysImageDescriptor:
         {
-            filename << "after_";
+            const DumpedDescriptor& dumped_image_desc = static_cast<const DumpedDescriptor&>(dumped_resource);
+            const DumpedImage*      dumped_image      = std::get_if<DumpedImage>(&dumped_image_desc.dumped_resource);
+            GFXRECON_ASSERT(dumped_image != nullptr);
+            const VulkanImageInfo* image_info = dumped_image->image_info;
+            GFXRECON_ASSERT(image_info != nullptr);
+
+            util::hash::hash_combine_64(hash, image_info->capture_id);
+            util::hash::hash_combine_64(
+                hash, static_cast<std::underlying_type_t<DumpResourcesPipelineStage>>(dumped_image_desc.ppl_stage));
+            util::hash::hash_combine_64(hash, dumped_image_desc.stages);
+            util::hash::hash_combine_64(
+                hash, static_cast<std::underlying_type_t<VkDescriptorType>>(dumped_image_desc.desc_type));
+            util::hash::hash_combine_64(hash, dumped_image_desc.set);
+            util::hash::hash_combine_64(hash, dumped_image_desc.binding);
+            util::hash::hash_combine_64(hash, dumped_image_desc.array_index);
         }
-    }
+        break;
 
-    filename << "cmd_" << dumped_cmd.cmd_index;
-    if (region_index != NO_INDEX)
-    {
-        filename << "_region_index_" << region_index;
-    }
-
-    filename << "_qs_" << dumped_cmd.qs_index << "_bcb_" << dumped_cmd.bcb_index << ".bin";
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string
-DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const DumpedResourceBase& dumped_resource,
-                                                                          DumpedImageFormat         output_image_format,
-                                                                          VkImageAspectFlagBits     aspect,
-                                                                          uint32_t                  mip_level,
-                                                                          uint32_t                  layer,
-                                                                          bool before_command) const
-{
-    std::stringstream filename;
-    switch (dumped_resource.type)
-    {
         case DumpResourceType::kInitImageMetaCommand:
-            filename << "initImage_";
-            break;
+        {
+            const auto& dumped_transfer_command = static_cast<const DumpedTransferCommand&>(dumped_resource);
+            auto* dumped_init_image = std::get_if<DumpedInitImageMetaCommand>(&dumped_transfer_command.dumped_resource);
+            GFXRECON_ASSERT(dumped_init_image != nullptr);
 
-        case DumpResourceType::kCopyImage:
-            filename << "copyImage_";
-            break;
+            util::hash::hash_combine_64(hash, dumped_init_image->image.id);
+        }
+        break;
 
         case DumpResourceType::kCopyBufferToImage:
-            filename << "copyBufferToImage_";
-            break;
+        {
+            const auto& dumped_transfer_command = static_cast<const DumpedTransferCommand&>(dumped_resource);
+            auto*       dumped_copy_buffer_to_image =
+                std::get_if<DumpedCopyBufferToImage>(&dumped_transfer_command.dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_buffer_to_image != nullptr);
+
+            util::hash::hash_combine_64(hash, dumped_copy_buffer_to_image->dst_image.id);
+        }
+        break;
+
+        case DumpResourceType::kCopyImage:
+        {
+            const auto& dumped_transfer_command = static_cast<const DumpedTransferCommand&>(dumped_resource);
+            auto*       dumped_copy_image = std::get_if<DumpedCopyImage>(&dumped_transfer_command.dumped_resource);
+            GFXRECON_ASSERT(dumped_copy_image != nullptr);
+
+            util::hash::hash_combine_64(hash, dumped_copy_image->dst_image.id);
+        }
+        break;
 
         case DumpResourceType::kBlitImage:
-            filename << "blitImage_";
-            break;
+        {
+            const auto& dumped_transfer_command = static_cast<const DumpedTransferCommand&>(dumped_resource);
+            auto*       dumped_blit_image = std::get_if<DumpedBlitImage>(&dumped_transfer_command.dumped_resource);
+            GFXRECON_ASSERT(dumped_blit_image != nullptr);
+
+            util::hash::hash_combine_64(hash, dumped_blit_image->dst_image.id);
+        }
+        break;
 
         default:
-            GFXRECON_LOG_ERROR(
-                "%s(): Unexpected resource type (%u)", __func__, static_cast<uint32_t>(dumped_resource.type))
+            GFXRECON_LOG_ERROR("%s(): Unexpected resource type", __func__)
     }
 
+    // Image specific details
+    util::hash::hash_combine_64(hash, static_cast<uint32_t>(aspect));
+    util::hash::hash_combine_64(hash, mip_level);
+    util::hash::hash_combine_64(hash, layer);
+
+    // Common details
+    HashDumpedResourceBase(hash, dumped_resource);
     if (options_.dump_resources_before)
     {
-        if (before_command)
-        {
-            filename << "before_";
-        }
-        else
-        {
-            filename << "after_";
-        }
+        util::hash::hash_combine_64(hash, before_command);
     }
 
-    const std::string aspect_str = ImageAspectToStr(aspect);
-    const auto&       dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
-
-    filename << "cmd_" << dumped_cmd.cmd_index << "_qs_" << dumped_cmd.qs_index << "_bcb_" << dumped_cmd.bcb_index
-             << "_aspect_" << aspect_str << "_level_" << mip_level << "_layer_" << layer;
-
-    filename << ImageFileExtension(output_image_format);
+    std::stringstream filename;
+    filename << "image_" << hash << ImageFileExtension(output_image_format);
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1275,175 +1194,6 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         dump_json_.BlockEnd();
         dump_json_.Close();
     }
-}
-
-std::string
-DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const DumpedResourceBase& dumped_resource,
-                                                                           DumpedImageFormat     output_image_format,
-                                                                           VkImageAspectFlagBits aspect,
-                                                                           uint32_t              mip_level,
-                                                                           uint32_t              layer,
-                                                                           bool                  before_command) const
-{
-    const DumpedDescriptor& dumped_image_desc = static_cast<const DumpedDescriptor&>(dumped_resource);
-    const DumpedImage*      dumped_image      = std::get_if<DumpedImage>(&dumped_image_desc.dumped_resource);
-    GFXRECON_ASSERT(dumped_image != nullptr);
-
-    const VulkanImageInfo* image_info = dumped_image->image_info;
-    GFXRECON_ASSERT(image_info != nullptr);
-
-    GFXRECON_ASSERT(dumped_image_desc.ppl_stage == DumpResourcesPipelineStage::kCompute ||
-                    dumped_image_desc.ppl_stage == DumpResourcesPipelineStage::kRayTracing);
-    const bool is_dispatch = dumped_image_desc.ppl_stage == DumpResourcesPipelineStage::kCompute;
-
-    const std::string aspect_str = ImageAspectToStr(aspect);
-
-    std::stringstream filename;
-    if (before_command)
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_image_desc.cmd_index << "_qs_"
-                 << dumped_image_desc.qs_index << "_bcb_" << dumped_image_desc.bcb_index << "_before_"
-                 << "set_" << dumped_image_desc.set << "_binding_" << dumped_image_desc.binding << "_index_"
-                 << dumped_image_desc.array_index;
-        if (output_image_format != KFormatRaw)
-        {
-            filename << "_" << util::ToString<VkFormat>(image_info->format).c_str();
-        }
-        filename << "_aspect_" << aspect_str;
-    }
-    else
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_image_desc.cmd_index << "_qs_"
-                 << dumped_image_desc.qs_index << "_bcb_" << dumped_image_desc.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_image_desc.set << "_binding_"
-                 << dumped_image_desc.binding << "_index_" << dumped_image_desc.array_index;
-        if (output_image_format != KFormatRaw)
-        {
-            filename << "_" << util::ToString<VkFormat>(image_info->format).c_str();
-        }
-        filename << "_aspect_" << aspect_str;
-    }
-
-    filename << "_mip_" << mip_level << "_layer_" << layer;
-
-    filename << ImageFileExtension(output_image_format);
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string
-DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferFilename(const DumpedResourceBase& dumped_resource,
-                                                                            bool before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedDescriptor& dumped_buffer_desc = static_cast<const DumpedDescriptor&>(dumped_resource);
-    const DumpedBuffer*     dumped_buffer      = std::get_if<DumpedBuffer>(&dumped_buffer_desc.dumped_resource);
-    GFXRECON_ASSERT(dumped_buffer != nullptr);
-
-    GFXRECON_ASSERT(dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kCompute ||
-                    dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kRayTracing);
-    const bool is_dispatch = dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kCompute;
-
-    std::stringstream filename;
-    if (before_command)
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_buffer_desc.cmd_index << "_qs_"
-                 << dumped_buffer_desc.qs_index << "_bcb_" << dumped_buffer_desc.bcb_index << "_before_"
-                 << "set_" << dumped_buffer_desc.set << "_binding_" << dumped_buffer_desc.binding << "_index_"
-                 << dumped_buffer_desc.array_index << "_buffer.bin";
-    }
-    else
-    {
-        filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_buffer_desc.cmd_index << "_qs_"
-                 << dumped_buffer_desc.qs_index << "_bcb_" << dumped_buffer_desc.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_buffer_desc.set << "_binding_"
-                 << dumped_buffer_desc.binding << "_index_" << dumped_buffer_desc.array_index << "_buffer.bin";
-    }
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDescriptorFilename(
-    const DumpedResourceBase& dumped_resource,
-    DumpedImageFormat         output_image_format,
-    VkImageAspectFlagBits     aspect,
-    uint32_t                  mip_level,
-    uint32_t                  layer,
-    bool                      before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedDescriptor& image_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
-
-    const DumpedImage* dumped_image = std::get_if<DumpedImage>(&image_desc_info.dumped_resource);
-    GFXRECON_ASSERT(dumped_image != nullptr);
-
-    const VulkanImageInfo* image_info = dumped_image->image_info;
-
-    std::string       aspect_str = ImageAspectToStr(aspect);
-    std::stringstream base_filename;
-
-    if (output_image_format != KFormatRaw)
-    {
-        base_filename << "image_" << image_info->capture_id << "_cmd_" << image_desc_info.cmd_index << "_qs_"
-                      << image_desc_info.qs_index << "_bcb_" << image_desc_info.bcb_index << "_aspect_" << aspect_str;
-    }
-    else
-    {
-        std::string format_name = FormatToStr(image_info->format);
-        base_filename << "image_" << image_info->capture_id << "_cmd_" << image_desc_info.cmd_index << "_qs_"
-                      << image_desc_info.qs_index << "_bcb_" << image_desc_info.bcb_index << "_" << format_name
-                      << "_aspect_" << aspect_str;
-    }
-
-    std::stringstream sub_resources_str;
-    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
-    sub_resources_str << ImageFileExtension(output_image_format);
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(sub_resources_str.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferDescriptorFilename(
-    const DumpedResourceBase& dumped_resource, bool before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
-    const DumpedBuffer*     dumped_buffer    = std::get_if<DumpedBuffer>(&buffer_desc_info.dumped_resource);
-    GFXRECON_ASSERT(dumped_buffer != nullptr);
-
-    std::stringstream filename;
-    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_set_" << buffer_desc_info.set << "_binding_"
-             << buffer_desc_info.binding << "_ai_" << buffer_desc_info.array_index << "_cmd_"
-             << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
-             << buffer_desc_info.bcb_index << ".bin";
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
-}
-
-std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineUniformBufferDescriptorFilename(
-    const DumpedResourceBase& dumped_resource, bool before_command) const
-{
-    GFXRECON_UNREFERENCED_PARAMETER(before_command);
-
-    const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
-
-    std::stringstream filename;
-    filename << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_cmd_" << buffer_desc_info.cmd_index << "_qs_"
-             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
-
-    std::filesystem::path filedirname(options_.dump_resources_output_dir);
-    std::filesystem::path filebasename(filename.str());
-    return (filedirname / filebasename).string();
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateBLASJsonInfo(nlohmann::ordered_json&            blas_json_entry,
@@ -1873,101 +1623,53 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
 }
 
 std::string
-DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedResourceBase&             resource_info,
-                                                                   format::HandleId                      handle_id,
+DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedResourceBase& dumped_resource_base,
+                                                                   format::HandleId          handle_id,
                                                                    AccelerationStructureDumpedBufferType type,
-                                                                   DumpResourcesPipelineStage dumped_command_type,
-                                                                   bool                       before_command,
-                                                                   uint32_t                   buffer_index)
+                                                                   bool                                  before_command,
+                                                                   uint32_t                              buffer_index)
 {
-    std::stringstream filename;
-    switch (dumped_command_type)
-    {
-        case DumpResourcesPipelineStage::kGraphics:
-            filename << "DrawCall_";
-            break;
+    uint64_t hash = 0;
 
-        case DumpResourcesPipelineStage::kCompute:
-            filename << "Dispatch_";
-            break;
-
-        case DumpResourcesPipelineStage::kRayTracing:
-            filename << "TraceRays_";
-            break;
-
-        case DumpResourcesPipelineStage::kTransfer:
-            filename << "Transfer_";
-            break;
-
-        default:
-            GFXRECON_LOG_ERROR(
-                "%s: Unrecognized command type (%u)", __func__, static_cast<unsigned>(dumped_command_type));
-            filename << "XXX_";
-            break;
-    }
-
-    filename << resource_info.cmd_index;
-
-    std::string buffer_type;
-    switch (type)
-    {
-        case AccelerationStructureDumpedBufferType::kInstance:
-            buffer_type = "_instance_buffer_";
-            break;
-        case AccelerationStructureDumpedBufferType::kVertex:
-            buffer_type = "_vertex_buffer_";
-            break;
-        case AccelerationStructureDumpedBufferType::kIndex:
-            buffer_type = "_index_buffer_";
-            break;
-        case AccelerationStructureDumpedBufferType::kAABB:
-            buffer_type = "_AABB_buffer_";
-            break;
-        case AccelerationStructureDumpedBufferType::kTransform:
-            buffer_type = "_transform_buffer_";
-            break;
-        case AccelerationStructureDumpedBufferType::kSerializedBlas:
-        case AccelerationStructureDumpedBufferType::kSerializedTlas:
-            buffer_type = "_serialized";
-            break;
-        default:
-            GFXRECON_ASSERT(0);
-    }
-
-    if (type == AccelerationStructureDumpedBufferType::kVertex ||
-        type == AccelerationStructureDumpedBufferType::kIndex || type == AccelerationStructureDumpedBufferType::kAABB ||
-        type == AccelerationStructureDumpedBufferType::kTransform ||
-        type == AccelerationStructureDumpedBufferType::kSerializedBlas)
-    {
-        filename << "_BLAS_";
-    }
-    else
-    {
-        filename << "_TLAS_";
-    }
+    util::hash::hash_combine_64(hash, static_cast<std::underlying_type_t<AccelerationStructureDumpedBufferType>>(type));
 
     if (options_.dump_resources_before)
     {
-        if (before_command)
-        {
-            filename << "before_";
-        }
-        else
-        {
-            filename << "after_";
-        }
+        util::hash::hash_combine_64(hash, before_command);
     }
 
-    filename << handle_id << buffer_type;
+    util::hash::hash_combine_64(hash, handle_id);
 
     if (type != AccelerationStructureDumpedBufferType::kSerializedBlas &&
         type != AccelerationStructureDumpedBufferType::kSerializedTlas)
     {
         GFXRECON_ASSERT(buffer_index != std::numeric_limits<uint32_t>::max())
-        filename << buffer_index;
+        util::hash::hash_combine_64(hash, buffer_index);
     }
 
-    filename << ".bin";
+    std::stringstream filename;
+    if (type == AccelerationStructureDumpedBufferType::kVertex ||
+        type == AccelerationStructureDumpedBufferType::kIndex || type == AccelerationStructureDumpedBufferType::kAABB ||
+        type == AccelerationStructureDumpedBufferType::kTransform ||
+        type == AccelerationStructureDumpedBufferType::kSerializedBlas)
+    {
+        filename << "BLAS_";
+    }
+    else
+    {
+        filename << "TLAS_";
+    }
+
+    // Keep the "serialized" part in the filename as serialized ASes are treated separately in CI
+    if (type == AccelerationStructureDumpedBufferType::kSerializedBlas ||
+        type == AccelerationStructureDumpedBufferType::kSerializedTlas)
+    {
+        filename << "serialized_";
+    }
+
+    HashDumpedResourceBase(hash, dumped_resource_base);
+
+    filename << hash << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1992,8 +1694,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
 
         auto* dumped_init_buffer = std::get_if<DumpedInitBufferMetaCommand>(&dumped_transfer_command->dumped_resource);
         GFXRECON_ASSERT(dumped_init_buffer != nullptr);
-        const std::string filename =
-            GenerateTransferToBufferRegionFilename(*delegate_context.dumped_resource, false, NO_INDEX);
+        const std::string filename = GenerateBufferFilename(*delegate_context.dumped_resource, false);
         gfxrecon::decode::DumpBufferToFile(
             dumped_init_buffer->dumped_buffer, filename, init_buffer_host_data->data, delegate_context.compressor);
     }
@@ -2009,7 +1710,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
         DumpImageToFile(delegate_context.dumped_resource,
                         dumped_init_image->dumped_image,
                         init_image_host_data->data,
-                        &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
                         delegate_context.before_command,
                         delegate_context.compressor);
     }
@@ -2029,8 +1729,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             for (uint32_t i = 0; i < region_count; ++i)
             {
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
-                const std::string filename         = GenerateTransferToBufferRegionFilename(
-                    *delegate_context.dumped_resource, delegate_context.before_command, i);
+                const std::string filename =
+                    GenerateBufferFilename(*delegate_context.dumped_resource, delegate_context.before_command, i);
                 gfxrecon::decode::DumpBufferToFile(dumped_copy_buffer->regions[i].dumped_buffer,
                                                    filename,
                                                    region_host_data,
@@ -2051,8 +1751,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             for (uint32_t i = 0; i < region_count; ++i)
             {
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
-                const std::string filename         = GenerateTransferToBufferRegionFilename(
-                    *delegate_context.dumped_resource, delegate_context.before_command, i);
+                const std::string filename =
+                    GenerateBufferFilename(*delegate_context.dumped_resource, delegate_context.before_command, i);
                 gfxrecon::decode::DumpBufferToFile(dumped_copy_image_to_buffer->regions[i].dumped_buffer,
                                                    filename,
                                                    region_host_data,
@@ -2077,7 +1777,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                 DumpImageToFile(delegate_context.dumped_resource,
                                 dumped_copy_buffer_to_image->regions[i].dumped_image,
                                 image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
                                 delegate_context.before_command,
                                 delegate_context.compressor);
             }
@@ -2095,7 +1794,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                 DumpImageToFile(delegate_context.dumped_resource,
                                 dumped_copy_image->regions[i].dumped_image,
                                 image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
                                 delegate_context.before_command,
                                 delegate_context.compressor);
             }
@@ -2113,7 +1811,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                 DumpImageToFile(delegate_context.dumped_resource,
                                 dumped_blit_image->regions[i].dumped_image,
                                 image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
                                 delegate_context.before_command,
                                 delegate_context.compressor);
             }

@@ -1878,8 +1878,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         return _res_;                                                                                               \
     }
 
-    std::vector<std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
-    std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
+    std::map<std::pair<Index, Index>, std::shared_ptr<TransferDumpingContext>>          transfer_contexts;
+    std::map<std::pair<Index, Index>, std::shared_ptr<DispatchTraceRaysDumpingContext>> dispatch_contexts;
 
     if (!output_json_per_command)
     {
@@ -1887,22 +1887,22 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     }
 
     const size_t submit_count = submit_infos.size();
-    for (const auto& si : submit_infos)
+    for (size_t si = 0; si < submit_count; ++si)
     {
         std::vector<VkCommandBuffer> submit_cbs;
         VkResult                     res = VK_SUCCESS;
 
         // For each VkSubmitInfo we shall create a different fence. The provided fence will be used only in the last
         // VkSubmitInfo. If none is provided then we will create one.
-        const bool     last_submit_info  = (&si == &submit_infos.back());
+        const bool     last_submit_info  = (si == submit_count - 1);
         const bool     create_temp_fence = (!last_submit_info) || (last_submit_info && (fence == VK_NULL_HANDLE));
         TemporaryFence submission_fence(create_temp_fence ? VK_NULL_HANDLE : fence, queue_info->parent, device_table);
 
-        VkSubmitInfo modified_submit_info = si;
-        for (uint32_t cb = 0; cb < si.commandBufferCount; ++cb)
+        VkSubmitInfo modified_submit_info = submit_infos[si];
+        for (uint32_t cb = 0; cb < submit_infos[si].commandBufferCount; ++cb)
         {
-            const bool            last_cmd_buf   = (cb == si.commandBufferCount - 1);
-            const VkCommandBuffer command_buffer = si.pCommandBuffers[cb];
+            const bool            last_cmd_buf   = (cb == submit_infos[si].commandBufferCount - 1);
+            const VkCommandBuffer command_buffer = submit_infos[si].pCommandBuffers[cb];
 
             if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
             {
@@ -1913,7 +1913,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 {
                     if (bcb_qs_pair.second == qs_index)
                     {
-                        transfer_contexts.push_back(transf_context);
+                        transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                                  transf_context);
                     }
                 }
             }
@@ -1924,7 +1925,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 // Handle Transfer commands
                 if (auto transfer_context = FindTransferContext(command_buffer, qs_index))
                 {
-                    transfer_contexts.push_back(transfer_context);
+                    transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                              transfer_context);
                     // Transfer context does not use a clone command buffer. We submit the original one.
                     submit_cbs.push_back(command_buffer);
                     has_transfer_or_dispatch = true;
@@ -1933,7 +1935,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 // Handle Dispatch/TraceRays commands
                 if (auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index))
                 {
-                    dispatch_contexts.push_back(dispatch_context);
+                    dispatch_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                              dispatch_context);
                     // Dispatch/RayTracing context uses a clone command buffer. We submit that one instead of the
                     // original.
                     submit_cbs.push_back(dispatch_context->GetDispatchRaysCommandBuffer());
@@ -1973,7 +1976,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                         submit_cbs.clear();
                     }
 
-                    res = dc_context->DumpDrawCalls(queue_info->handle, modified_submit_info);
+                    res = dc_context->DumpDrawCalls(
+                        queue_info->handle, modified_submit_info, static_cast<Index>(si), static_cast<Index>(cb));
                     CHECK_VK_ERROR(res, "DumpDrawCalls")
 
                     // The semaphores have been used up by the submission. Don't use them again.
@@ -2007,15 +2011,15 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         }
     }
 
-    for (auto& transfer_context : transfer_contexts)
+    for (auto& [pair, transfer_context] : transfer_contexts)
     {
-        VkResult res = transfer_context->DumpTransferCommands();
+        VkResult res = transfer_context->DumpTransferCommands(pair.first, pair.second);
         CHECK_VK_ERROR(res, "DumpTransferCommands")
     }
 
-    for (auto& disp_context : dispatch_contexts)
+    for (auto& [pair, disp_context] : dispatch_contexts)
     {
-        VkResult res = disp_context->DumpDispatchTraceRays();
+        VkResult res = disp_context->DumpDispatchTraceRays(pair.first, pair.second);
         CHECK_VK_ERROR(res, "DumpDispatchTraceRays")
     }
 
@@ -2203,7 +2207,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
         {
             uint32_t                     finalized_primaries = 0;
             std::vector<VkCommandBuffer> accumulated_secondaries_command_buffers;
-            for (uint32_t i = 0; i < commandBufferCount; ++i)
+            for (uint32_t i = 0; (i < commandBufferCount) && (finalized_primaries < primary_last - primary_first); ++i)
             {
                 const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_secondary_contexts =
                     FindDrawCallDumpingContexts(pCommandBuffers[i]);
@@ -2241,7 +2245,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                             func(*primary_it, 1, &pCommandBuffers[i]);
                         }
 
-                        dc_primary_context->UpdateSecondaries(*dc_secondary_context.get());
+                        dc_primary_context->UpdateSecondaries(*dc_secondary_context.get(), call_info.index, i);
 
                         // All primaries have been finalized. Nothing else to do
                         if (finalized_primaries == primary_last - primary_first)
@@ -2292,6 +2296,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                                 VkCommandBuffer secondary_command_buffer =
                                     dr_secondary_context->GetDispatchRaysCommandBuffer();
                                 func(dispatch_rays_command_buffer, 1, &secondary_command_buffer);
+
+                                dr_primary_context->UpdateSecondaries(*dr_secondary_context, call_info.index, i);
                             }
                         }
                         else
@@ -2299,7 +2305,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
                             func(dispatch_rays_command_buffer, 1, &pCommandBuffers[i]);
                         }
                     }
-                    dr_primary_context->UpdateSecondaries();
                 }
                 else
                 {
@@ -3243,7 +3248,7 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
     std::shared_ptr<TransferDumpingContext> transfer_context = FindTransferContextBcbQsIndex(0, 0);
     if (transfer_context != nullptr)
     {
-        VkResult res = transfer_context->DumpTransferCommands();
+        VkResult res = transfer_context->DumpTransferCommands(0, 0);
         if (res != VK_SUCCESS)
         {
             Release();

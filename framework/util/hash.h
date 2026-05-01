@@ -99,6 +99,22 @@ inline void hash_combine(std::size_t& seed, const T& v)
 }
 
 /**
+ * @brief       Similar to has_combine above but works with uint64_t which size is consistent between 32/64 builds
+ *
+ * @tparam  T       value template-type
+ * @param   seed    a provided reference to a seed. will be combined with the newly created value-hash.
+ * @param   v       a provided value
+ */
+
+template <class T>
+inline void hash_combine_64(uint64_t& seed, const T& v)
+{
+    std::hash<T> hasher;
+    // 0x9e3779b97f4a7c15 is the 64-bit analogue of 0x9e3779b9 (golden ratio).
+    seed ^= static_cast<uint64_t>(hasher(v)) + 0x9e3779b97f4a7c15ULL + (seed << 12U) + (seed >> 4U);
+}
+
+/**
  * @brief       hash_range can be used to create hash-values for arbitrary ranges.
  *
  * Requires an existing std::hash overload for the range's element-type.
