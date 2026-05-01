@@ -6484,6 +6484,25 @@ struct Decoded_VkResolveImageModeInfoKHR
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance11FeaturesKHR;
+
+    VkPhysicalDeviceMaintenance11FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR
+{
+    using struct_type = VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR;
+
+    VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkExtent3D* optimalImageTransferGranularity{ nullptr };
+};
+
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
 {
     using struct_type = VkDebugReportCallbackCreateInfoEXT;
@@ -11876,6 +11895,51 @@ struct Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE
     using struct_type = VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE;
 
     VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkThrottleHintSubmitInfoSEC
+{
+    using struct_type = VkThrottleHintSubmitInfoSEC;
+
+    VkThrottleHintSubmitInfoSEC* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceThrottleHintFeaturesSEC
+{
+    using struct_type = VkPhysicalDeviceThrottleHintFeaturesSEC;
+
+    VkPhysicalDeviceThrottleHintFeaturesSEC* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM
+{
+    using struct_type = VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM;
+
+    VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineNeuralStatisticsCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineNeuralStatisticsCreateInfoARM;
+
+    VkDataGraphPipelineNeuralStatisticsCreateInfoARM* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM
+{
+    using struct_type = VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM;
+
+    VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

@@ -6621,6 +6621,20 @@ void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageModeInfoKHR& va
     encoder->EncodeEnumValue(value.stencilResolveMode);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance11FeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maintenance11);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.optimalImageTransferGranularity);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -10529,7 +10543,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineShaderModu
 void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionCreateInfoARM& value)
 {
     encoder->EncodeEnumValue(value.sType);
-    EncodePNextStructIfValid(encoder, value.pNext);
+    EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeFlags64Value(value.flags);
     encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineWrapper>(value.dataGraphPipeline);
 }
@@ -11527,6 +11541,41 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderMixedFl
     encoder->EncodeUInt32Value(value.shaderMixedFloatDotProductFloat16AccFloat16);
     encoder->EncodeUInt32Value(value.shaderMixedFloatDotProductBFloat16Acc);
     encoder->EncodeUInt32Value(value.shaderMixedFloatDotProductFloat8AccFloat32);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkThrottleHintSubmitInfoSEC& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.throttleHint);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceThrottleHintFeaturesSEC& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.throttleHint);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.dataGraphNeuralAcceleratorStatistics);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineNeuralStatisticsCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.allowNeuralStatistics);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.mode);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT& value)

@@ -1095,6 +1095,10 @@ void UnwrapStructHandles(VkRenderingAttachmentFlagsInfoKHR* value, HandleUnwrapM
 
 void UnwrapStructHandles(VkResolveImageModeInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceMaintenance11FeaturesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkDebugReportCallbackCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPipelineRasterizationStateRasterizationOrderAMD* value, HandleUnwrapMemory* unwrap_memory);
@@ -2132,6 +2136,16 @@ void UnwrapStructHandles(VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* val
 void UnwrapStructHandles(VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkThrottleHintSubmitInfoSEC* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceThrottleHintFeaturesSEC* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphPipelineNeuralStatisticsCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 

@@ -2624,6 +2624,21 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
+            {
+                const VkPhysicalDeviceMaintenance11FeaturesKHR* currentNext = reinterpret_cast<const VkPhysicalDeviceMaintenance11FeaturesKHR*>(next);
+                VkPhysicalDeviceMaintenance11FeaturesKHR query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->maintenance11 == VK_TRUE) && (query.maintenance11 == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature maintenance11 %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceMaintenance11FeaturesKHR*>(currentNext)->maintenance11 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
             {
                 const VkPhysicalDeviceTransformFeedbackFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(next);
@@ -5764,6 +5779,36 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                     GFXRECON_LOG_WARNING("Feature shaderMixedFloatDotProductFloat8AccFloat32 %s", warn_message);
                     found_unsupported = true;
                     const_cast<VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE*>(currentNext)->shaderMixedFloatDotProductFloat8AccFloat32 =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC:
+            {
+                const VkPhysicalDeviceThrottleHintFeaturesSEC* currentNext = reinterpret_cast<const VkPhysicalDeviceThrottleHintFeaturesSEC*>(next);
+                VkPhysicalDeviceThrottleHintFeaturesSEC query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->throttleHint == VK_TRUE) && (query.throttleHint == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature throttleHint %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceThrottleHintFeaturesSEC*>(currentNext)->throttleHint =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM:
+            {
+                const VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM* currentNext = reinterpret_cast<const VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM*>(next);
+                VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->dataGraphNeuralAcceleratorStatistics == VK_TRUE) && (query.dataGraphNeuralAcceleratorStatistics == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature dataGraphNeuralAcceleratorStatistics %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM*>(currentNext)->dataGraphNeuralAcceleratorStatistics =
                         remove_unsupported ? VK_FALSE : VK_TRUE;
                 }
                 break;

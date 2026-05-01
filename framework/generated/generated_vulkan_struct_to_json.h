@@ -693,6 +693,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingEndInfoKHR* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingAttachmentFlagsInfoKHR* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkResolveImageModeInfoKHR* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance11FeaturesKHR* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugReportCallbackCreateInfoEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationStateRasterizationOrderAMD* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjectNameInfoEXT* data);
@@ -1268,6 +1270,11 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputeOccupancy
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkThrottleHintSubmitInfoSEC* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceThrottleHintFeaturesSEC* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineNeuralStatisticsCreateInfoARM* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* data);

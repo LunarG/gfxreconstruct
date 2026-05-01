@@ -710,6 +710,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance10
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingEndInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderingAttachmentFlagsInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageModeInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance11FeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationStateRasterizationOrderAMD& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugMarkerObjectNameInfoEXT& value);
@@ -1285,6 +1287,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkComputeOccupancyPriorityPar
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeOccupancyPriorityFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkThrottleHintSubmitInfoSEC& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceThrottleHintFeaturesSEC& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineNeuralStatisticsCreateInfoARM& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);
