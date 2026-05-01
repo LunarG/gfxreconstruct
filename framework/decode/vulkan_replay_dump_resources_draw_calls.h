@@ -173,6 +173,10 @@ class DrawCallsDumpingContext
 
     void EndRendering();
 
+    void RecordCmdBeginRendering(VkCommandBuffer command_buffer, const VkRenderingInfo* rendering_info) const;
+
+    void RecordCmdEndRendering(VkCommandBuffer command_buffer) const;
+
     void BindVertexBuffers(uint64_t                                    index,
                            uint32_t                                    firstBinding,
                            const std::vector<const VulkanBufferInfo*>& buffer_infos,
@@ -275,6 +279,10 @@ class DrawCallsDumpingContext
     void ReleaseIndirectParams();
 
     void ResetFetchedIndirectParams();
+
+    PFN_vkCmdBeginRendering ResolveCmdBeginRendering() const;
+
+    PFN_vkCmdEndRendering ResolveCmdEndRendering() const;
 
     VkResult BackUpMutableResources(VkQueue queue);
 
