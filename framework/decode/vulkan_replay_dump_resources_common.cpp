@@ -469,8 +469,12 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                 const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
                 const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
 
-                dumped_image.dumped_subresources.emplace_back(
-                    aspect, subresource_extent, subresource_scaled_extent, mip, layer);
+                dumped_image.dumped_subresources.emplace_back(aspect,
+                                                              subresource_extent,
+                                                              subresource_scaled_extent,
+                                                              static_cast<uint32_t>(image_info->sample_count),
+                                                              mip,
+                                                              layer);
 
                 const uint32_t sub_res_idx = mip * image_info->layer_count + layer;
                 const void*    offsetted_data =

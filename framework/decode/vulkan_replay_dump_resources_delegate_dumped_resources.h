@@ -187,14 +187,14 @@ struct DumpedImage
         DumpedImageSubresource() = default;
 
         DumpedImageSubresource(
-            VkImageAspectFlagBits a, const VkExtent3D& e, const VkExtent3D& se, uint32_t le, uint32_t la) :
-            aspect(a),
-            extent(e), scaled_extent(se), level(le), layer(la)
+            VkImageAspectFlagBits a, const VkExtent3D& e, const VkExtent3D& se, uint32_t sc, uint32_t le, uint32_t la) :
+            aspect(a), extent(e), scaled_extent(se), sample_count(sc), level(le), layer(la)
         {}
 
         VkImageAspectFlagBits aspect{ VkImageAspectFlagBits(0) };
         VkExtent3D            extent{ 0, 0, 0 };
         VkExtent3D            scaled_extent{ 0, 0, 0 };
+        uint32_t              sample_count{ 0 };
         uint32_t              level{ 0 };
         uint32_t              layer{ 0 };
     };
