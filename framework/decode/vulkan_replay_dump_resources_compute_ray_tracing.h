@@ -30,6 +30,7 @@
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/compressor.h"
 #include "util/defines.h"
@@ -37,6 +38,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <map>
 #include <unordered_map>
 #include <vector>
 
@@ -205,32 +207,102 @@ class DispatchTraceRaysDumpingContext
     {
         MutableResourcesBackupContext() = default;
 
-        struct ImageContext
+        struct ClonedDescriptorBase
         {
-            VulkanImageInfo    new_image_info;
-            VkDeviceMemory     image_memory{ VK_NULL_HANDLE };
-            VkShaderStageFlags stages;
-            VkDescriptorType   desc_type;
-            uint32_t           desc_set;
-            uint32_t           desc_binding;
-            uint32_t           array_index;
+            ClonedDescriptorBase() = delete;
+
+            ClonedDescriptorBase(VkShaderStageFlags                 stage_flags,
+                                 VkDescriptorType                   type,
+                                 format::HandleId                   parent_device,
+                                 const graphics::VulkanDeviceTable& dt,
+                                 const CommonObjectInfoTable&       oit) :
+                device_memory(VK_NULL_HANDLE),
+                stages(stage_flags), desc_type(type), parent_device_id(parent_device), device_table(dt),
+                object_info_table(oit)
+            {}
+
+            ~ClonedDescriptorBase()
+            {
+                const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(parent_device_id);
+                GFXRECON_ASSERT(device_info != nullptr);
+                const VkDevice device = device_info->handle;
+
+                if (device_memory != VK_NULL_HANDLE)
+                {
+                    device_table.FreeMemory(device, device_memory, nullptr);
+                    device_memory = VK_NULL_HANDLE;
+                }
+            }
+
+            VkDeviceMemory                     device_memory;
+            VkShaderStageFlags                 stages;
+            VkDescriptorType                   desc_type;
+            format::HandleId                   parent_device_id;
+            const graphics::VulkanDeviceTable& device_table;
+            const CommonObjectInfoTable&       object_info_table;
         };
 
-        std::vector<ImageContext> images;
-
-        struct BufferContext
+        struct ClonedImageDescriptor : ClonedDescriptorBase
         {
-            VulkanBufferInfo   new_buffer_info;
-            VkDeviceMemory     buffer_memory{ VK_NULL_HANDLE };
-            VkDeviceSize       cloned_size{ 0 };
-            VkShaderStageFlags stages;
-            VkDescriptorType   desc_type;
-            uint32_t           desc_set;
-            uint32_t           desc_binding;
-            uint32_t           array_index;
+            ClonedImageDescriptor() = delete;
+
+            ClonedImageDescriptor(const VulkanImageInfo&             src_img_info,
+                                  VkShaderStageFlags                 stage_flags,
+                                  VkDescriptorType                   type,
+                                  format::HandleId                   parent_device,
+                                  const graphics::VulkanDeviceTable& dt,
+                                  const CommonObjectInfoTable&       oit) :
+                ClonedDescriptorBase(stage_flags, type, parent_device, dt, oit),
+                new_image_info(src_img_info)
+            {}
+
+            ~ClonedImageDescriptor()
+            {
+                const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(parent_device_id);
+                GFXRECON_ASSERT(device_info != nullptr);
+
+                if (new_image_info.handle != VK_NULL_HANDLE)
+                {
+                    device_table.DestroyImage(device_info->handle, new_image_info.handle, nullptr);
+                    new_image_info.handle = VK_NULL_HANDLE;
+                }
+            }
+
+            VulkanImageInfo new_image_info;
         };
 
-        std::vector<BufferContext> buffers;
+        struct ClonedBufferDescriptor : ClonedDescriptorBase
+        {
+            ClonedBufferDescriptor() = delete;
+
+            ClonedBufferDescriptor(const VulkanBufferInfo&            src_buffer_info,
+                                   VkDeviceSize                       size,
+                                   VkShaderStageFlags                 stage_flags,
+                                   VkDescriptorType                   type,
+                                   format::HandleId                   parent_device,
+                                   const graphics::VulkanDeviceTable& dt,
+                                   const CommonObjectInfoTable&       oit) :
+                ClonedDescriptorBase(stage_flags, type, parent_device, dt, oit),
+                new_buffer_info(src_buffer_info), cloned_size(size)
+            {}
+
+            ~ClonedBufferDescriptor()
+            {
+                const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(parent_device_id);
+                GFXRECON_ASSERT(device_info != nullptr);
+
+                if (new_buffer_info.handle != VK_NULL_HANDLE)
+                {
+                    device_table.DestroyBuffer(device_info->handle, new_buffer_info.handle, nullptr);
+                    new_buffer_info.handle = VK_NULL_HANDLE;
+                }
+            }
+
+            VulkanBufferInfo new_buffer_info;
+            VkDeviceSize     cloned_size;
+        };
+
+        std::map<DescriptorLocation, std::unique_ptr<ClonedDescriptorBase>> cloned_descriptors;
     };
 
     enum DispatchTypes
