@@ -528,6 +528,7 @@ Here is an example of a json output file:
             720,
             1
           ],
+          "sampleCount": 1,
           "mipLevel": 0,
           "arrayLayer": 0,
           "file": "Draw_407_qs_461_bcb_399_att_0_aspect_color.bmp"
@@ -544,6 +545,7 @@ Here is an example of a json output file:
             720,
             1
           ],
+          "sampleCount": 1,
           "mipLevel": 0,
           "arrayLayer": 0,
           "file": "Draw_407_qs_461_bcb_399_depth_att_aspect_depth.bmp"
@@ -587,6 +589,7 @@ Here is an example of a json output file:
                   1,
                   1
                 ],
+                "sampleCount": 1,
                 "mipLevel": 0,
                 "arrayLayer": 0,
                 "file": "Image_68_qs_461_bcb_399_rp_0_aspect_color.bmp"
@@ -659,4 +662,3 @@ Raw binary files are created when the dumped resource is an image with a format 
 ### Buffer file output
 
 All buffers are dumped as raw binary files (`.bin`).
-
