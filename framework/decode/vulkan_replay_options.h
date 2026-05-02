@@ -32,6 +32,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -62,6 +63,10 @@ using ExecuteCommands   = std::unordered_map<Index, CommandIndices>;
 
 struct DescriptorLocation
 {
+    DescriptorLocation() = delete;
+
+    DescriptorLocation(uint32_t s, uint32_t b, uint32_t ai) : set(s), binding(b), array_index(ai) {}
+
     bool const operator==(const DescriptorLocation& other) const
     {
         return set == other.set && binding == other.binding && array_index == other.array_index;
@@ -91,10 +96,9 @@ struct DescriptorLocation
     uint32_t array_index;
 };
 
-using CommandImageSubresource =
-    std::unordered_map<decode::Index, std::map<DescriptorLocation, VkImageSubresourceRange>>;
-using CommandImageSubresourceIterator = CommandImageSubresource::const_iterator;
-using BeginCmdBufQueueSubmitPair      = std::pair<decode::Index, decode::Index>;
+using DescriptorImageSubresourcesMap = std::map<DescriptorLocation, VkImageSubresourceRange>;
+using CommandImageSubresource        = std::unordered_map<decode::Index, DescriptorImageSubresourcesMap>;
+using BeginCmdBufQueueSubmitPair     = std::pair<decode::Index, decode::Index>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.

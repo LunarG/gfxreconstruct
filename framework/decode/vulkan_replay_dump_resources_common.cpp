@@ -24,6 +24,7 @@
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
@@ -35,6 +36,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <sstream>
+#include <tuple>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -989,25 +992,215 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
-bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
-                    uint32_t                        desc_set,
-                    uint32_t                        binding,
-                    uint32_t                        array_index,
-                    VkImageSubresourceRange*        subresource_range)
+void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
+                     const BoundDescriptorSets&            referenced_descriptors,
+                     const DescriptorImageSubresourcesMap* requested_descriptors,
+                     decode::Index                         call_index,
+                     bool                                  dump_all_image_subresources,
+                     DescriptorImageSubresourcesMap&       descriptors_to_dump)
 {
-    const DescriptorLocation desc_loc                = DescriptorLocation{ desc_set, binding, array_index };
-    const auto               image_subresource_entry = cmd_subresources_entry->second.find(desc_loc);
-    if (image_subresource_entry == cmd_subresources_entry->second.end())
+    descriptors_to_dump.clear();
+    if (referenced_descriptors.empty() || (requested_descriptors != nullptr && requested_descriptors->empty()))
     {
-        return true;
+        return;
     }
 
-    if (subresource_range != nullptr)
+    if (requested_descriptors != nullptr)
     {
-        *subresource_range = image_subresource_entry->second;
-    }
+        // Only dump the requested descriptors. Verify if they are valid based on the call's referenced descriptors
+        for (const auto& [requested_descriptor_tuple, img_subres_range] : *requested_descriptors)
+        {
+            // Validate requested descriptors
+            const auto referenced_descriptor_entry = referenced_descriptors.find(requested_descriptor_tuple.set);
+            if (referenced_descriptor_entry != referenced_descriptors.end())
+            {
+                const VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo& referenced_desc_set_map =
+                    referenced_descriptor_entry->second;
 
-    return false;
+                const auto referenced_desc_set_entry = referenced_desc_set_map.find(requested_descriptor_tuple.binding);
+                if (referenced_desc_set_entry != referenced_desc_set_map.end())
+                {
+                    const auto& referenced_desc_binding = referenced_desc_set_entry->second;
+                    bool        valid_array_index       = false;
+                    switch (referenced_desc_binding.desc_type)
+                    {
+                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                            valid_array_index =
+                                referenced_desc_binding.image_info.contains(requested_descriptor_tuple.array_index);
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                            valid_array_index = referenced_desc_binding.texel_buffer_view_info.contains(
+                                requested_descriptor_tuple.array_index);
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                            valid_array_index =
+                                referenced_desc_binding.buffer_info.contains(requested_descriptor_tuple.array_index);
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                            // Inline uniform blocks do not have arrays
+                            valid_array_index = true;
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                            valid_array_index = referenced_desc_binding.acceleration_structs_khr_info.contains(
+                                requested_descriptor_tuple.array_index);
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_SAMPLER:
+                            // Nothing to dump for this descriptor type but don't generate a warning
+                            valid_array_index = true;
+                            break;
+
+                        default:
+                            GFXRECON_LOG_WARNING("%s:%u Descriptor type %u was not handled",
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 static_cast<uint32_t>(referenced_desc_binding.desc_type));
+                    }
+
+                    if (valid_array_index)
+                    {
+                        descriptors_to_dump.emplace(std::piecewise_construct,
+                                                    std::forward_as_tuple(requested_descriptor_tuple),
+                                                    std::forward_as_tuple(img_subres_range));
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Requested array index %u in descriptor set %u at binding %u is not valid for "
+                            "draw call %" PRIu64,
+                            requested_descriptor_tuple.array_index,
+                            requested_descriptor_tuple.set,
+                            requested_descriptor_tuple.binding,
+                            call_index);
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Requested binding %u in descriptor set %u is not valid for draw call %" PRIu64,
+                        requested_descriptor_tuple.binding,
+                        requested_descriptor_tuple.set,
+                        call_index);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Requested descriptor set %u is not valid for draw call %" PRIu64,
+                                     requested_descriptor_tuple.set,
+                                     call_index);
+            }
+        }
+    }
+    else
+    {
+        for (const auto& [desc_set_index, desc_set] : referenced_descriptors)
+        {
+            for (const auto& [desc_binding_index, desc_binding] : desc_set)
+            {
+                switch (desc_binding.desc_type)
+                {
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    {
+                        for (const auto& [ai, img_desc_info] : desc_binding.image_info)
+                        {
+                            if (img_desc_info.image_view_info != nullptr)
+                            {
+                                const VulkanImageInfo* image_info =
+                                    object_info_table_.GetVkImageInfo(img_desc_info.image_view_info->image_id);
+                                if (image_info == nullptr)
+                                {
+                                    continue;
+                                }
+
+                                const VkImageSubresourceRange img_subres_range = {
+                                    graphics::GetFormatAspects(image_info->format),
+                                    0,
+                                    dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                                    0,
+                                    dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+                                };
+                                const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+                                descriptors_to_dump.emplace(std::piecewise_construct,
+                                                            std::forward_as_tuple(desc_tuple),
+                                                            std::forward_as_tuple(img_subres_range));
+                            }
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        for (const auto& [ai, img_desc] : desc_binding.texel_buffer_view_info)
+                        {
+                            const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+                            descriptors_to_dump.emplace(
+                                std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        for (const auto& [ai, img_desc] : desc_binding.buffer_info)
+                        {
+                            const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+                            descriptors_to_dump.emplace(
+                                std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        // Inline uniform blocks do not have arrays
+                        const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, 0 };
+                        descriptors_to_dump.emplace(
+                            std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                    {
+                        for (const auto& [ai, img_desc] : desc_binding.acceleration_structs_khr_info)
+                        {
+                            const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+                            descriptors_to_dump.emplace(
+                                std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                        // Nothing to dump for this descriptor type
+                        break;
+
+                    default:
+                        GFXRECON_LOG_WARNING("%s:%u Descriptor type %u was not handled",
+                                             __FILE__,
+                                             __LINE__,
+                                             static_cast<uint32_t>(desc_binding.desc_type));
+                }
+            }
+        }
+    }
 }
 
 VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp)
