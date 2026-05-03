@@ -1364,9 +1364,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t cmd_inde
                     qs_index_,
                     cloned_image.stages,
                     cloned_image.desc_type,
-                    desc_tuple.set,
-                    desc_tuple.binding,
-                    desc_tuple.array_index,
+                    desc_tuple,
                     &cloned_image.new_image_info,
                     can_dump_image,
                     is_dispatch ? DumpResourcesPipelineStage::kCompute : DumpResourcesPipelineStage::kRayTracing);
@@ -1468,9 +1466,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t cmd_inde
                     qs_index_,
                     cloned_buffer.stages,
                     cloned_buffer.desc_type,
-                    desc_tuple.set,
-                    desc_tuple.binding,
-                    desc_tuple.array_index,
+                    desc_tuple,
                     cloned_buffer.new_buffer_info.handle,
                     cloned_buffer.new_buffer_info.capture_id,
                     0,
@@ -1615,17 +1611,13 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
         GFXRECON_ASSERT(desc_binding_entry != desc_set.end());
         const auto& desc_binding = desc_binding_entry->second;
 
-        const uint32_t desc_set_index     = desc_tuple.set;
-        const uint32_t desc_binding_index = desc_tuple.binding;
-        const uint32_t array_index        = desc_tuple.array_index;
-
         switch (desc_binding.desc_type)
         {
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
             {
-                const auto img_desc_info_entry = desc_binding.image_info.find(array_index);
+                const auto img_desc_info_entry = desc_binding.image_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(img_desc_info_entry != desc_binding.image_info.end());
                 const auto img_desc_info = img_desc_info_entry->second;
                 if (img_desc_info.image_view_info != nullptr)
@@ -1646,9 +1638,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
                         qs_index_,
                         desc_binding.stage_flags,
                         desc_binding.desc_type,
-                        desc_set_index,
-                        desc_binding_index,
-                        array_index,
+                        desc_tuple,
                         img_info,
                         can_dump_image,
                         ppl_stage);
@@ -1658,9 +1648,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
                         continue;
                     }
 
-                    auto&                    new_dumped_image = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
-                    const DescriptorLocation loc              = { desc_set_index, desc_binding_index, array_index };
-                    const auto&              dumped_descs_entry = dumped_descriptors.image_descriptors.find(loc);
+                    auto&       new_dumped_image   = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
+                    const auto& dumped_descs_entry = dumped_descriptors.image_descriptors.find(desc_tuple);
                     if (dumped_descs_entry == dumped_descriptors.image_descriptors.end())
                     {
                         VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1691,7 +1680,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
 
                         delegate_.DumpResource(res_info);
 
-                        dumped_descriptors.image_descriptors.emplace(loc, new_dumped_image);
+                        dumped_descriptors.image_descriptors.emplace(desc_tuple, new_dumped_image);
                     }
                     else
                     {
@@ -1703,7 +1692,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
 
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             {
-                const auto buf_desc_info_entry = desc_binding.texel_buffer_view_info.find(array_index);
+                const auto buf_desc_info_entry = desc_binding.texel_buffer_view_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(buf_desc_info_entry != desc_binding.texel_buffer_view_info.end());
                 const auto buf_desc_info = buf_desc_info_entry->second;
 
@@ -1724,17 +1713,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
                     qs_index_,
                     desc_binding.stage_flags,
                     desc_binding.desc_type,
-                    desc_set_index,
-                    desc_binding_index,
-                    array_index,
+                    desc_tuple,
                     buffer_info->handle,
                     buffer_info->capture_id,
                     offset,
                     size,
                     ppl_stage);
 
-                const DescriptorLocation loc               = { desc_set_index, desc_binding_index, array_index };
-                const auto&              dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(loc);
+                const auto& dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(desc_tuple);
                 if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end())
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
@@ -1762,7 +1748,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
 
                     delegate_.DumpResource(res_info);
 
-                    dumped_descriptors.buffer_descriptors.emplace(loc, new_dumped_buffer);
+                    dumped_descriptors.buffer_descriptors.emplace(desc_tuple, new_dumped_buffer);
                 }
                 else
                 {
@@ -1775,7 +1761,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             {
-                const auto desc_buf_info_entry = desc_binding.buffer_info.find(array_index);
+                const auto desc_buf_info_entry = desc_binding.buffer_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(desc_buf_info_entry != desc_binding.buffer_info.end());
                 const auto buf_desc_info = desc_buf_info_entry->second;
 
@@ -1796,17 +1782,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
                     qs_index_,
                     desc_binding.stage_flags,
                     desc_binding.desc_type,
-                    desc_set_index,
-                    desc_binding_index,
-                    array_index,
+                    desc_tuple,
                     buffer_info->handle,
                     buffer_info->capture_id,
                     offset,
                     size,
                     ppl_stage);
 
-                const DescriptorLocation loc               = { desc_set_index, desc_binding_index, array_index };
-                const auto               dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(loc);
+                const auto dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(desc_tuple);
                 if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end())
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
@@ -1834,7 +1817,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
 
                     delegate_.DumpResource(res_info);
 
-                    dumped_descriptors.buffer_descriptors.emplace(loc, new_dumped_buffer);
+                    dumped_descriptors.buffer_descriptors.emplace(desc_tuple, new_dumped_buffer);
                 }
                 else
                 {
@@ -1846,6 +1829,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
 
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             {
+                GFXRECON_ASSERT(!desc_tuple.array_index);
                 auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                     DumpResourceType::kDispatchTraceRaysInlineUniformBufferDescriptor,
                     bcb_index_,
@@ -1853,8 +1837,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
                     qs_index_,
                     desc_binding.stage_flags,
                     desc_binding.desc_type,
-                    desc_set_index,
-                    desc_binding_index,
+                    desc_tuple,
                     ppl_stage);
 
                 VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1868,7 +1851,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
 
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             {
-                const auto as_info_entry = desc_binding.acceleration_structs_khr_info.find(array_index);
+                const auto as_info_entry = desc_binding.acceleration_structs_khr_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(as_info_entry != desc_binding.acceleration_structs_khr_info.end());
                 const auto as_info = as_info_entry->second;
 
@@ -1885,19 +1868,16 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
                     qs_index_,
                     desc_binding.stage_flags,
                     desc_binding.desc_type,
-                    desc_set_index,
-                    desc_binding_index,
-                    array_index,
+                    desc_tuple,
                     as_info,
                     options_.dump_resources_dump_build_AS_input_buffers,
                     ppl_stage);
 
-                auto& new_dumped_as          = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
-                const DescriptorLocation loc = { desc_set_index, desc_binding_index, array_index };
-                const auto&              dumped_desc_entry = dumped_descriptors.acceleration_structures.find(loc);
+                auto&       new_dumped_as     = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
+                const auto& dumped_desc_entry = dumped_descriptors.acceleration_structures.find(desc_tuple);
                 if (dumped_desc_entry == dumped_descriptors.acceleration_structures.end())
                 {
-                    dumped_descriptors.acceleration_structures.emplace(loc, new_dumped_as);
+                    dumped_descriptors.acceleration_structures.emplace(desc_tuple, new_dumped_as);
 
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
                     res_info.dumped_resource                   = &new_dumped_desc;

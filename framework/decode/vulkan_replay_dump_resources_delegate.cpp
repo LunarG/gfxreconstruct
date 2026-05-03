@@ -813,7 +813,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsBufferDescriptorFilename(con
     std::stringstream filename;
     filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_dc_" << dumped_desc.cmd_index << "_qs_"
              << dumped_desc.qs_index << "_bcb_" << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_"
-             << dumped_desc.set << "_binding_" << dumped_desc.binding << "_ai_" << dumped_desc.array_index << ".bin";
+             << dumped_desc.desc_tuple.set << "_binding_" << dumped_desc.desc_tuple.binding << "_ai_"
+             << dumped_desc.desc_tuple.array_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -828,9 +829,10 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateGraphicsInlineUniformBuf
     const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
 
     std::stringstream filename;
-    filename << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_dc_" << buffer_desc_info.cmd_index << "_qs_"
-             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
+    filename << "inlineUniformBlock_set_" << buffer_desc_info.desc_tuple.set << "_binding_"
+             << buffer_desc_info.desc_tuple.binding << "_ai_" << buffer_desc_info.desc_tuple.array_index << "_dc_"
+             << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+             << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1298,8 +1300,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_image_desc.cmd_index << "_qs_"
                  << dumped_image_desc.qs_index << "_bcb_" << dumped_image_desc.bcb_index << "_before_"
-                 << "set_" << dumped_image_desc.set << "_binding_" << dumped_image_desc.binding << "_index_"
-                 << dumped_image_desc.array_index;
+                 << "set_" << dumped_image_desc.desc_tuple.set << "_binding_" << dumped_image_desc.desc_tuple.binding
+                 << "_index_" << dumped_image_desc.desc_tuple.array_index;
         if (output_image_format != KFormatRaw)
         {
             filename << "_" << util::ToString<VkFormat>(image_info->format).c_str();
@@ -1310,8 +1312,9 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_image_desc.cmd_index << "_qs_"
                  << dumped_image_desc.qs_index << "_bcb_" << dumped_image_desc.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_image_desc.set << "_binding_"
-                 << dumped_image_desc.binding << "_index_" << dumped_image_desc.array_index;
+                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_image_desc.desc_tuple.set
+                 << "_binding_" << dumped_image_desc.desc_tuple.binding << "_index_"
+                 << dumped_image_desc.desc_tuple.array_index;
         if (output_image_format != KFormatRaw)
         {
             filename << "_" << util::ToString<VkFormat>(image_info->format).c_str();
@@ -1347,15 +1350,16 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferFilename(cons
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_buffer_desc.cmd_index << "_qs_"
                  << dumped_buffer_desc.qs_index << "_bcb_" << dumped_buffer_desc.bcb_index << "_before_"
-                 << "set_" << dumped_buffer_desc.set << "_binding_" << dumped_buffer_desc.binding << "_index_"
-                 << dumped_buffer_desc.array_index << "_buffer.bin";
+                 << "set_" << dumped_buffer_desc.desc_tuple.set << "_binding_" << dumped_buffer_desc.desc_tuple.binding
+                 << "_index_" << dumped_buffer_desc.desc_tuple.array_index << "_buffer.bin";
     }
     else
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_buffer_desc.cmd_index << "_qs_"
                  << dumped_buffer_desc.qs_index << "_bcb_" << dumped_buffer_desc.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_buffer_desc.set << "_binding_"
-                 << dumped_buffer_desc.binding << "_index_" << dumped_buffer_desc.array_index << "_buffer.bin";
+                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_buffer_desc.desc_tuple.set
+                 << "_binding_" << dumped_buffer_desc.desc_tuple.binding << "_index_"
+                 << dumped_buffer_desc.desc_tuple.array_index << "_buffer.bin";
     }
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -1414,9 +1418,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferD
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
     std::stringstream filename;
-    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_set_" << buffer_desc_info.set << "_binding_"
-             << buffer_desc_info.binding << "_ai_" << buffer_desc_info.array_index << "_cmd_"
-             << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_set_" << buffer_desc_info.desc_tuple.set
+             << "_binding_" << buffer_desc_info.desc_tuple.binding << "_ai_" << buffer_desc_info.desc_tuple.array_index
+             << "_cmd_" << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
              << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -1432,9 +1436,10 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
     const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
 
     std::stringstream filename;
-    filename << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_cmd_" << buffer_desc_info.cmd_index << "_qs_"
-             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
+    filename << "inlineUniformBlock_set_" << buffer_desc_info.desc_tuple.set << "_binding_"
+             << buffer_desc_info.desc_tuple.binding << "_ai_" << buffer_desc_info.desc_tuple.array_index << "_cmd_"
+             << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+             << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1576,9 +1581,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
                 auto&     entry             = dispatch_json_entry["descriptors"][stage_name][stage_entry_index++];
                 entry["type"]               = util::ToString<VkDescriptorType>(desc.desc_type);
-                entry["set"]                = desc.set;
-                entry["binding"]            = desc.binding;
-                entry["arrayIndex"]         = desc.array_index;
+                entry["set"]                = desc.desc_tuple.set;
+                entry["binding"]            = desc.desc_tuple.binding;
+                entry["arrayIndex"]         = desc.desc_tuple.array_index;
                 entry["imageId"]            = img_info->capture_id;
                 entry["format"]             = util::ToString<VkFormat>(img_info->format);
                 entry["imageType"]          = util::ToString<VkImageType>(img_info->type);
@@ -1635,9 +1640,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
                 auto&     entry             = dispatch_json_entry["descriptors"][stage_name][stage_entry_index++];
                 entry["type"]               = util::ToString<VkDescriptorType>(desc.desc_type);
-                entry["set"]                = desc.set;
-                entry["binding"]            = desc.binding;
-                entry["arrayIndex"]         = desc.array_index;
+                entry["set"]                = desc.desc_tuple.set;
+                entry["binding"]            = desc.desc_tuple.binding;
+                entry["arrayIndex"]         = desc.desc_tuple.array_index;
 
                 dump_json_.InsertBufferInfo(entry, *dumped_buffer);
 
@@ -1660,9 +1665,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
                 auto&     entry             = dispatch_json_entry["descriptors"][stage_name][stage_entry_index++];
                 entry["type"]               = util::ToString<VkDescriptorType>(desc.desc_type);
-                entry["set"]                = desc.set;
-                entry["binding"]            = desc.binding;
-                entry["arrayIndex"]         = desc.array_index;
+                entry["set"]                = desc.desc_tuple.set;
+                entry["binding"]            = desc.desc_tuple.binding;
+                entry["arrayIndex"]         = desc.desc_tuple.array_index;
                 entry["TlasId"]             = tlas->as_info->capture_id;
 
                 if (tlas->input_buffers.empty() && tlas->BLASes.empty())

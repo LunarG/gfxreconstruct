@@ -1578,10 +1578,6 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
         GFXRECON_ASSERT(desc_binding_entry != desc_set.end());
         const auto& desc_binding = desc_binding_entry->second;
 
-        const uint32_t desc_set_index     = desc_tuple.set;
-        const uint32_t desc_binding_index = desc_tuple.binding;
-        const uint32_t array_index        = desc_tuple.array_index;
-
         switch (desc_binding.desc_type)
         {
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1589,7 +1585,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
             {
-                const auto img_desc_info_entry = desc_binding.image_info.find(array_index);
+                const auto img_desc_info_entry = desc_binding.image_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(img_desc_info_entry != desc_binding.image_info.end());
                 const auto img_desc_info = img_desc_info_entry->second;
                 if (img_desc_info.image_view_info != nullptr)
@@ -1613,9 +1609,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
                         static_cast<uint64_t>(current_subpass_),
                         desc_binding.stage_flags,
                         desc_binding.desc_type,
-                        desc_set_index,
-                        desc_binding_index,
-                        array_index,
+                        desc_tuple,
                         image_info,
                         can_dump_image,
                         DumpResourcesPipelineStage::kGraphics);
@@ -1682,7 +1676,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             {
-                const auto buf_desc_info_entry = desc_binding.texel_buffer_view_info.find(array_index);
+                const auto buf_desc_info_entry = desc_binding.texel_buffer_view_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(buf_desc_info_entry != desc_binding.texel_buffer_view_info.end());
                 const auto              buf_desc_info = buf_desc_info_entry->second;
                 const VulkanBufferInfo* buffer_info   = object_info_table_.GetVkBufferInfo(buf_desc_info->buffer_id);
@@ -1704,9 +1698,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
                                                                                static_cast<uint64_t>(current_subpass_),
                                                                                desc_binding.stage_flags,
                                                                                desc_binding.desc_type,
-                                                                               desc_set_index,
-                                                                               desc_binding_index,
-                                                                               array_index,
+                                                                               desc_tuple,
                                                                                buffer_info->handle,
                                                                                buffer_info->capture_id,
                                                                                offset,
@@ -1755,7 +1747,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
             {
-                const auto desc_buf_info_entry = desc_binding.buffer_info.find(array_index);
+                const auto desc_buf_info_entry = desc_binding.buffer_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(desc_buf_info_entry != desc_binding.buffer_info.end());
                 const auto buf_desc_info = desc_buf_info_entry->second;
 
@@ -1778,9 +1770,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
                                                                                static_cast<uint64_t>(current_subpass_),
                                                                                desc_binding.stage_flags,
                                                                                desc_binding.desc_type,
-                                                                               desc_set_index,
-                                                                               desc_binding_index,
-                                                                               array_index,
+                                                                               desc_tuple,
                                                                                buffer_info->handle,
                                                                                buffer_info->capture_id,
                                                                                offset,
@@ -1826,6 +1816,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
 
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             {
+                GFXRECON_ASSERT(!desc_tuple.array_index);
                 auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
                     DumpResourceType::kInlineUniformBufferDescriptor,
                     bcb_index_,
@@ -1835,8 +1826,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
                     static_cast<uint64_t>(current_subpass_),
                     desc_binding.stage_flags,
                     desc_binding.desc_type,
-                    desc_set_index,
-                    desc_binding_index,
+                    desc_tuple,
                     DumpResourcesPipelineStage::kGraphics);
 
                 VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1850,7 +1840,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
 
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             {
-                const auto as_info_entry = desc_binding.acceleration_structs_khr_info.find(array_index);
+                const auto as_info_entry = desc_binding.acceleration_structs_khr_info.find(desc_tuple.array_index);
                 GFXRECON_ASSERT(as_info_entry != desc_binding.acceleration_structs_khr_info.end());
                 const auto as_info = as_info_entry->second;
                 if (as_info == nullptr)
@@ -1866,9 +1856,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
                     qs_index_,
                     desc_binding.stage_flags,
                     desc_binding.desc_type,
-                    desc_set_index,
-                    desc_binding_index,
-                    array_index,
+                    desc_tuple,
                     as_info,
                     options_.dump_resources_dump_build_AS_input_buffers,
                     DumpResourcesPipelineStage::kGraphics);

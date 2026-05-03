@@ -67,6 +67,10 @@ struct DescriptorLocation
 
     DescriptorLocation(uint32_t s, uint32_t b, uint32_t ai) : set(s), binding(b), array_index(ai) {}
 
+    DescriptorLocation(const DescriptorLocation& other) :
+        set(other.set), binding(other.binding), array_index(other.array_index)
+    {}
+
     bool const operator==(const DescriptorLocation& other) const
     {
         return set == other.set && binding == other.binding && array_index == other.array_index;

@@ -25,6 +25,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
+#include "decode/vulkan_replay_options.h"
 #include "util/defines.h"
 #include "format/format.h"
 
@@ -417,16 +418,14 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint64_t                   sp,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
+                     const DescriptorLocation&  desc_tu,
                      VkBuffer                   buffer,
                      format::HandleId           id,
                      VkDeviceSize               offset,
                      VkDeviceSize               size,
                      DumpResourcesPipelineStage ps) :
         DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
@@ -439,12 +438,10 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint64_t                   sp,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
+                     const DescriptorLocation&  desc_tu,
                      DumpResourcesPipelineStage ps) :
         DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0),
-        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Graphics image descriptors
@@ -456,15 +453,12 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint64_t                   sp,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
+                     const DescriptorLocation&  desc_tu,
                      const VulkanImageInfo*     img_info,
                      ImageDumpResult            cd,
                      DumpResourcesPipelineStage ps) :
         DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing image descriptors
@@ -474,15 +468,12 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint64_t                   qs,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
+                     const DescriptorLocation&  desc_tu,
                      const VulkanImageInfo*     img_info,
                      ImageDumpResult            cd,
                      DumpResourcesPipelineStage ps) :
         DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing buffer descriptors
@@ -492,16 +483,14 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint64_t                   qs,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
+                     const DescriptorLocation&  desc_tu,
                      VkBuffer                   buffer,
                      format::HandleId           id,
                      VkDeviceSize               offset,
                      VkDeviceSize               size,
                      DumpResourcesPipelineStage ps) :
         DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
@@ -512,12 +501,10 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint64_t                   qs,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
+                     const DescriptorLocation&  desc_tu,
                      DumpResourcesPipelineStage ps) :
         DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0),
-        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Acceleration structure for TraceRays
@@ -527,14 +514,12 @@ struct DumpedDescriptor : DumpedResourceBase
                      uint64_t                                  qs,
                      VkShaderStageFlags                        ss,
                      VkDescriptorType                          dt,
-                     uint32_t                                  s,
-                     uint32_t                                  b,
-                     uint32_t                                  ai,
+                     const DescriptorLocation&                 desc_tu,
                      const VulkanAccelerationStructureKHRInfo* as_info,
                      bool                                      dbib,
                      DumpResourcesPipelineStage                ps) :
         DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
 
@@ -549,10 +534,8 @@ struct DumpedDescriptor : DumpedResourceBase
 
     VkShaderStageFlags stages{ VkShaderStageFlagBits(0) };
 
-    VkDescriptorType desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
-    uint32_t         set{ 0 };
-    uint32_t         binding{ 0 };
-    uint32_t         array_index{ 0 };
+    VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    DescriptorLocation desc_tuple;
 };
 
 struct DumpedRenderTarget : DumpedResourceBase
