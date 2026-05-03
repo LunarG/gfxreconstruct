@@ -243,6 +243,7 @@ void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& jso
 void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
                                                     format::HandleId        id,
                                                     VkFormat                format,
+                                                    const VkExtent3D&       extent,
                                                     VkImageType             type,
                                                     uint32_t                levels,
                                                     uint32_t                layers,
@@ -250,6 +251,9 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
 {
     json_entry["imageId"]     = id;
     json_entry["format"]      = util::ToString<VkFormat>(format);
+    json_entry["extent"][0]   = extent.width;
+    json_entry["extent"][1]   = extent.height;
+    json_entry["extent"][2]   = extent.depth;
     json_entry["imageType"]   = util::ToString<VkImageType>(type);
     json_entry["levels"]      = levels;
     json_entry["layers"]      = layers;

@@ -75,6 +75,7 @@ class VulkanReplayDumpResourcesJson
     void InsertImageInfo(nlohmann::ordered_json& json_entry,
                          format::HandleId        id,
                          VkFormat                format,
+                         const VkExtent3D&       extent,
                          VkImageType             type,
                          uint32_t                levels,
                          uint32_t                layers,
