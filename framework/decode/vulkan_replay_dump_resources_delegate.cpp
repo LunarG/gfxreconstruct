@@ -1144,11 +1144,13 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         const VulkanImageInfo* image_info = image.image_info;
         GFXRECON_ASSERT(image_info != nullptr);
 
-        rt_entry["imageId"]   = image_info->capture_id;
-        rt_entry["format"]    = util::ToString<VkFormat>(image_info->format);
-        rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
-        rt_entry["levels"]    = image_info->level_count;
-        rt_entry["layers"]    = image_info->layer_count;
+        dump_json_.InsertImageInfo(rt_entry,
+                                   image_info->capture_id,
+                                   image_info->format,
+                                   image_info->type,
+                                   image_info->level_count,
+                                   image_info->layer_count,
+                                   image_info->sample_count);
         if (!is_depth_attachment)
         {
             rt_entry["location"] = rt.location;
@@ -1584,9 +1586,13 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 entry["set"]                = desc.desc_tuple.set;
                 entry["binding"]            = desc.desc_tuple.binding;
                 entry["arrayIndex"]         = desc.desc_tuple.array_index;
-                entry["imageId"]            = img_info->capture_id;
-                entry["format"]             = util::ToString<VkFormat>(img_info->format);
-                entry["imageType"]          = util::ToString<VkImageType>(img_info->type);
+                dump_json_.InsertImageInfo(entry,
+                                           img_info->capture_id,
+                                           img_info->format,
+                                           img_info->type,
+                                           img_info->level_count,
+                                           img_info->layer_count,
+                                           img_info->sample_count);
 
                 if (dumped_image->scaling_failed)
                 {

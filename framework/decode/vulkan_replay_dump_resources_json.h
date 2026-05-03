@@ -23,9 +23,10 @@
 #ifndef GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 
+#include "format/format.h"
 #include "util/json_util.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -70,6 +71,14 @@ class VulkanReplayDumpResourcesJson
                                           bool                                       dumped_raw);
 
     void InsertBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
+
+    void InsertImageInfo(nlohmann::ordered_json& json_entry,
+                         format::HandleId        id,
+                         VkFormat                format,
+                         VkImageType             type,
+                         uint32_t                levels,
+                         uint32_t                layers,
+                         VkSampleCountFlagBits   sample_count);
 
     void InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
 

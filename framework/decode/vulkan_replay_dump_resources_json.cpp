@@ -240,6 +240,22 @@ void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& jso
     }
 }
 
+void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
+                                                    format::HandleId        id,
+                                                    VkFormat                format,
+                                                    VkImageType             type,
+                                                    uint32_t                levels,
+                                                    uint32_t                layers,
+                                                    VkSampleCountFlagBits   sample_count)
+{
+    json_entry["imageId"]     = id;
+    json_entry["format"]      = util::ToString<VkFormat>(format);
+    json_entry["imageType"]   = util::ToString<VkImageType>(type);
+    json_entry["levels"]      = levels;
+    json_entry["layers"]      = layers;
+    json_entry["sampleCount"] = static_cast<uint32_t>(sample_count);
+}
+
 void VulkanReplayDumpResourcesJson::InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry,
                                                            const DumpedBuffer&     dumped_buffer)
 {
