@@ -285,7 +285,7 @@ class TransferDumpingContext
                                  VkImageAspectFlagBits              a,
                                  VkImageLayout                      l) :
                 TransferParamsBase(t, hb, dt, pdi),
-                dst_image(ii->capture_id, ii->format, ii->extent, l), aspect(a), copied_image(ii)
+                dst_image(ii, l), aspect(a), copied_image(ii)
             {}
 
             ~InitImageMetaCommand()
@@ -364,7 +364,7 @@ class TransferDumpingContext
                               VkImageLayout                      dil,
                               const VulkanImageInfo*             ii) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_buffer(sb), dst_image(ii->capture_id, ii->format, ii->extent, dil), copied_image(ii)
+                src_buffer(sb), dst_image(ii, dil), copied_image(ii)
             {}
 
             ~CopyBufferToImage()
@@ -412,8 +412,7 @@ class TransferDumpingContext
                       const VulkanImageInfo*             di,
                       VkImageLayout                      dl) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_image(si->capture_id, si->format, si->extent, sl),
-                dst_image(di->capture_id, di->format, di->extent, dl), copied_image(di)
+                src_image(si, sl), dst_image(di, dl), copied_image(di)
             {}
 
             ~CopyImage()
@@ -460,7 +459,7 @@ class TransferDumpingContext
                               VkImageLayout                      sl,
                               format::HandleId                   d) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_image(si->capture_id, si->format, si->extent, sl), dst_buffer(d)
+                src_image(si, sl), dst_buffer(d)
             {}
 
             ~CopyImageToBuffer()
@@ -509,8 +508,7 @@ class TransferDumpingContext
                       VkImageLayout                      dl,
                       VkFilter                           f) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_image(si->capture_id, si->format, si->extent, sl),
-                dst_image(di->capture_id, di->format, di->extent, dl), copied_image(di), filter(f)
+                src_image(si, sl), dst_image(di, dl), copied_image(di), filter(f)
             {}
 
             ~BlitImage()

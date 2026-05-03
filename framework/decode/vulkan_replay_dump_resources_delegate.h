@@ -328,6 +328,9 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     // Transfer
     bool DumpTransferCommandToFile(const VulkanDelegateDumpResourceContext& delegate_context);
 
+    void GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
+                                         const TransferedImageInfo& transf_img_info);
+
     static constexpr uint32_t NO_INDEX = std::numeric_limits<uint32_t>::max();
     std::string               GenerateTransferToBufferRegionFilename(const DumpedResourceBase& dumped_resource,
                                                                      bool                      before_command,

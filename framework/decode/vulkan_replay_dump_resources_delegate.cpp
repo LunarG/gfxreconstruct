@@ -2181,15 +2181,19 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
     return true;
 }
 
-static void GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
-                                            const TransferedImageInfo& transf_img_info)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
+                                                                         const TransferedImageInfo& transf_img_info)
 {
-    json_entry["image"]     = transf_img_info.id;
-    json_entry["format"]    = util::ToString<VkFormat>(transf_img_info.format);
-    json_entry["extent"][0] = transf_img_info.extent.width;
-    json_entry["extent"][1] = transf_img_info.extent.height;
-    json_entry["extent"][2] = transf_img_info.extent.depth;
-    json_entry["layout"]    = util::ToString<VkImageLayout>(transf_img_info.layout);
+    GFXRECON_ASSERT(transf_img_info.image_info != nullptr);
+
+    dump_json_.InsertImageInfo(json_entry,
+                               transf_img_info.image_info->capture_id,
+                               transf_img_info.image_info->format,
+                               transf_img_info.image_info->type,
+                               transf_img_info.image_info->level_count,
+                               transf_img_info.image_info->layer_count,
+                               transf_img_info.image_info->sample_count);
+    json_entry["layout"] = util::ToString<VkImageLayout>(transf_img_info.layout);
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonInitBufferCommand(const DumpedTransferCommand& cmd,

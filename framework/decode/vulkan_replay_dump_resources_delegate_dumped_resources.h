@@ -28,6 +28,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "util/defines.h"
 #include "format/format.h"
+#include "util/logging.h"
 
 #include <list>
 #include <stdint.h>
@@ -578,18 +579,18 @@ struct TransferedImageInfo
 {
     TransferedImageInfo() = delete;
 
-    TransferedImageInfo(format::HandleId i, VkFormat f, VkExtent3D e, VkImageLayout l) :
-        id(i), format(f), extent(e), layout(l)
-    {}
+    TransferedImageInfo(const VulkanImageInfo* img_info, VkImageLayout l) : image_info(img_info), layout(l)
+    {
+        GFXRECON_ASSERT(img_info != nullptr);
+    }
 
-    TransferedImageInfo(const TransferedImageInfo& other) :
-        id(other.id), format(other.format), extent(other.extent), layout(other.layout)
-    {}
+    TransferedImageInfo(const TransferedImageInfo& other, VkImageLayout l) : image_info(other.image_info), layout(l)
+    {
+        GFXRECON_ASSERT(other.image_info != nullptr);
+    }
 
-    format::HandleId id;
-    VkFormat         format;
-    VkExtent3D       extent;
-    VkImageLayout    layout;
+    const VulkanImageInfo* image_info;
+    VkImageLayout          layout;
 };
 
 struct DumpedInitBufferMetaCommand

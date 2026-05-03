@@ -279,7 +279,8 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         if (entry != transfer_params_.end())
         {
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(entry->second.params.get());
-            if (init_image_params != nullptr && init_image_params->dst_image.id == image_id)
+            GFXRECON_ASSERT(init_image_params->dst_image.image_info != nullptr);
+            if (init_image_params != nullptr && init_image_params->dst_image.image_info->capture_id == image_id)
             {
                 insert_new_entry = false;
             }
