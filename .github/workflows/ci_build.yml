@@ -30,14 +30,16 @@ jobs:
         BASE="origin/${{ github.base_ref }}"
         git fetch origin "${{ github.base_ref }}"
         clang-format-14 --version
-        ( git diff --name-only --diff-filter=ACMR "$BASE"...HEAD ; git ls-files '*.c' '*.h' '*.cpp' '*.hpp' '*.mm' ) | \
-          egrep -v '(^|/)(framework/generated|external)/|/generated_|\.def$' | \
-          sort | uniq -d | \
-          xargs --no-run-if-empty clang-format-14 -i
-        if ! git diff --exit-code; then
+        DIFF_OUTPUT=$(git diff -U0 "$BASE"...HEAD -- \
+          '*.c' '*.h' '*.cpp' '*.hpp' '*.mm' \
+          ':!framework/generated/' ':!external/' \
+          ':!*generated_*' ':!*.def' | \
+          python3 scripts/clang-format-diff.py -p1 -style=file)
+        if [ -n "$DIFF_OUTPUT" ]; then
+          echo "$DIFF_OUTPUT"
           echo
-          echo "Formatting issues found. Apply the diff above with 'git apply',"
-          echo "or run 'clang-format-14 -i' on the affected files locally."
+          echo "Formatting issues found on changed lines. Apply the diff above with 'git apply',"
+          echo "or run 'git clang-format-14' locally."
           exit 1
         fi
 
