@@ -573,7 +573,7 @@ void Dx12ReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId de
     GFXRECON_UNREFERENCED_PARAMETER(total_copy_size);
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_copy_size);
 
-    auto device         = MapObject<ID3D12Device>(device_id);
+    auto device = MapObject<ID3D12Device>(device_id);
 
     resource_data_util_ = std::make_unique<graphics::Dx12ResourceDataUtil>(device, max_copy_size);
 
