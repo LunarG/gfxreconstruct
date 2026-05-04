@@ -73,7 +73,7 @@ struct DescriptorLocation
 
     bool const operator==(const DescriptorLocation& other) const
     {
-        return set == other.set && binding == other.binding && array_index == other.array_index;
+        return (set == other.set) && (binding == other.binding) && (array_index == other.array_index);
     }
 
     bool const operator<(const DescriptorLocation& other) const
@@ -100,8 +100,51 @@ struct DescriptorLocation
     uint32_t array_index;
 };
 
+struct CommandLocation
+{
+    CommandLocation() = delete;
+
+    CommandLocation(Index bcb, Index qs, Index cmd) :
+        begin_command_buffer_index(bcb), queue_submit_index(qs), cmd_index(cmd)
+    {}
+
+    CommandLocation(const CommandLocation& other) :
+        begin_command_buffer_index(other.begin_command_buffer_index), queue_submit_index(other.queue_submit_index),
+        cmd_index(other.cmd_index)
+    {}
+
+    bool const operator==(const CommandLocation& other) const
+    {
+        return (begin_command_buffer_index == other.begin_command_buffer_index) &&
+               (queue_submit_index == other.queue_submit_index) && (cmd_index == other.cmd_index);
+    }
+
+    bool const operator<(const CommandLocation& other) const
+    {
+        if (begin_command_buffer_index == other.begin_command_buffer_index)
+        {
+            if (queue_submit_index == other.queue_submit_index)
+            {
+                return cmd_index < other.cmd_index;
+            }
+            else
+            {
+                return queue_submit_index < other.queue_submit_index;
+            }
+        }
+        else
+        {
+            return begin_command_buffer_index < other.begin_command_buffer_index;
+        }
+    }
+
+    Index begin_command_buffer_index;
+    Index queue_submit_index;
+    Index cmd_index;
+};
+
 using DescriptorImageSubresourcesMap = std::map<DescriptorLocation, VkImageSubresourceRange>;
-using CommandImageSubresource        = std::unordered_map<decode::Index, DescriptorImageSubresourcesMap>;
+using CommandImageSubresource        = std::map<CommandLocation, DescriptorImageSubresourcesMap>;
 using BeginCmdBufQueueSubmitPair     = std::pair<decode::Index, decode::Index>;
 
 // Default color attachment index selection for dump resources feature.

@@ -1289,8 +1289,10 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t cmd_inde
         is_dispatch ? dis_params->second->mutable_resources_clones_before
                     : tr_params->second->mutable_resources_clones_before;
 
-    const auto& command_subresources   = is_dispatch ? disp_subresources_ : tr_subresources_;
-    const auto& cmd_subresources_entry = command_subresources.find(cmd_index);
+    const auto& command_subresources = is_dispatch ? disp_subresources_ : tr_subresources_;
+
+    const decode::CommandLocation command_location(bcb_index_, qs_index_, cmd_index);
+    const auto&                   cmd_subresources_entry = command_subresources.find(command_location);
 
     // If there is no entry for this command index then we should dump all referenced descriptors
     const bool cull_resources = cmd_subresources_entry != command_subresources.end();
@@ -1572,7 +1574,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
 
     const CommandImageSubresource& command_subresources = is_dispatch ? disp_subresources_ : tr_subresources_;
 
-    const auto& cmd_subresources_entry = command_subresources.find(cmd_index);
+    const decode::CommandLocation command_location(bcb_index_, qs_index_, cmd_index);
+    const auto&                   cmd_subresources_entry = command_subresources.find(command_location);
 
     // If there is no entry for this command index then we should dump all referenced descriptors
     const bool cull_resources = cmd_subresources_entry != command_subresources.end();

@@ -1537,7 +1537,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
 {
     assert(rp < render_pass_dumped_descriptors_.size());
 
-    const auto& cmd_subresources_entry = dc_subresources_.find(dc_index);
+    const decode::CommandLocation command_location(bcb_index_, qs_index_, dc_index);
+    const auto&                   cmd_subresources_entry = dc_subresources_.find(command_location);
 
     // If there is no entry for this command index then we should dump all referenced descriptors
     const bool cull_resources = cmd_subresources_entry != dc_subresources_.end();
