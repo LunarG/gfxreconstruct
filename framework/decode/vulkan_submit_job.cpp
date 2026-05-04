@@ -181,7 +181,9 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
 
             // If waitSemaphoreCount was 0, pWaitDstStageMask might be nullptr.
             // Make sure it points to valid data in all cases.
-            auto& wait_dst_stage_masks    = GetWaitDstStageMasks(submit_info, true);
+            auto& wait_dst_stage_masks = GetWaitDstStageMasks(submit_info);
+            std::fill(wait_dst_stage_masks.begin(), wait_dst_stage_masks.end(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+
             submit_info.pWaitDstStageMask = wait_dst_stage_masks.data();
 
             // The original waits were stripped, so any timeline wait values that described them must be removed too.
@@ -272,7 +274,7 @@ std::vector<VkSemaphore>& VulkanSubmitJobExecution::GetWaitSemaphores(VkSubmitIn
 void VulkanSubmitJobExecution::AddWaitSemaphore(VkSubmitInfo& submit_info, const VulkanInjectedSemaphore& semaphore)
 {
     std::vector<VkSemaphore>&          wait_semaphores                = GetWaitSemaphores(submit_info);
-    std::vector<VkPipelineStageFlags>& wait_dst_stage_masks           = GetWaitDstStageMasks(submit_info, true);
+    std::vector<VkPipelineStageFlags>& wait_dst_stage_masks           = GetWaitDstStageMasks(submit_info);
     std::vector<uint64_t>&             wait_values                    = GetWaitValues(submit_info);
     VkTimelineSemaphoreSubmitInfo&     timeline_semaphore_submit_info = GetTimelineSemaphoreSubmitInfo(submit_info);
 
@@ -392,8 +394,7 @@ std::vector<uint64_t>& VulkanSubmitJobExecution::GetSignalValues(VkSubmitInfo& s
     return injected_signal_semaphore_values_[&submit_info];
 }
 
-std::vector<VkPipelineStageFlags>& VulkanSubmitJobExecution::GetWaitDstStageMasks(VkSubmitInfo& submit_info,
-                                                                                  bool          override)
+std::vector<VkPipelineStageFlags>& VulkanSubmitJobExecution::GetWaitDstStageMasks(VkSubmitInfo& submit_info)
 {
     // Make sure there is injected storage for wait dst stage masks for this submit info.
     if (!injected_wait_dst_stage_masks_.contains(&submit_info))
@@ -413,13 +414,6 @@ std::vector<VkPipelineStageFlags>& VulkanSubmitJobExecution::GetWaitDstStageMask
 
         // Override wait dst stage mask pointer.
         submit_info.pWaitDstStageMask = injected_wait_dst_stage_masks_[&submit_info].data();
-    }
-
-    if (override)
-    {
-        std::fill(injected_wait_dst_stage_masks_[&submit_info].begin(),
-                  injected_wait_dst_stage_masks_[&submit_info].end(),
-                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
     }
 
     return injected_wait_dst_stage_masks_[&submit_info];

@@ -270,14 +270,12 @@ class VulkanSubmitJobExecution
      * @brief  Access mutable wait dst stage mask storage for one VkSubmitInfo.
      *
      * If executor-owned storage has not been created for this submit yet, the current wait dst stage masks from
-     * `submit_info` are copied into internal backing storage first. If `override` is true, the backing storage is
-     * filled with `VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT`.
+     * `submit_info` are copied into internal backing storage first.
      *
      * @param   submit_info      submit struct whose wait dst stage masks should be accessed.
-     * @param   override         if true, existing masks will be overridden with `VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT`.
      * @return  mutable vector owned by this executor and suitable for rewriting `submit_info` wait dst stage masks.
      */
-    std::vector<VkPipelineStageFlags>& GetWaitDstStageMasks(VkSubmitInfo& submit_info, bool override = false);
+    std::vector<VkPipelineStageFlags>& GetWaitDstStageMasks(VkSubmitInfo& submit_info);
 
     /**
      * @brief Access mutable timeline semaphore value storage for one VkSubmitInfo.
