@@ -49,6 +49,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                 VkInstance                              instance,
                                 VkPhysicalDevice                        physical_device,
                                 VkDevice                                device,
+                                const VkDeviceCreateInfo&               device_create_info,
                                 const std::vector<std::string>&         enabled_device_extensions,
                                 VkPhysicalDeviceType                    capture_device_type,
                                 const VkPhysicalDeviceMemoryProperties& capture_memory_properties,

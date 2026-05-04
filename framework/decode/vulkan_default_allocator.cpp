@@ -46,6 +46,7 @@ VkResult VulkanDefaultAllocator::Initialize(uint32_t                            
                                             VkInstance                              instance,
                                             VkPhysicalDevice                        physical_device,
                                             VkDevice                                device,
+                                            const VkDeviceCreateInfo&               device_create_info,
                                             const std::vector<std::string>&         enabled_device_extensions,
                                             VkPhysicalDeviceType                    capture_device_type,
                                             const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
@@ -56,6 +57,7 @@ VkResult VulkanDefaultAllocator::Initialize(uint32_t                            
     GFXRECON_UNREFERENCED_PARAMETER(instance);
     GFXRECON_UNREFERENCED_PARAMETER(physical_device);
     GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(device_create_info);
     GFXRECON_UNREFERENCED_PARAMETER(enabled_device_extensions);
     GFXRECON_UNREFERENCED_PARAMETER(capture_device_type);
     GFXRECON_UNREFERENCED_PARAMETER(capture_memory_properties);

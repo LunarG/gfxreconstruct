@@ -2304,6 +2304,7 @@ bool VulkanReplayConsumerBase::CheckTrimDeviceExtensions(VkPhysicalDevice       
 
 void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalDeviceInfo* physical_device_info,
                                                            VkDevice                        device,
+                                                           const VkDeviceCreateInfo&       device_create_info,
                                                            const std::vector<std::string>& enabled_device_extensions,
                                                            VulkanResourceAllocator*        allocator)
 {
@@ -2427,6 +2428,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
                                             physical_device_info->parent,
                                             physical_device_info->handle,
                                             device,
+                                            device_create_info,
                                             enabled_device_extensions,
                                             physical_device_info->capture_device_type,
                                             physical_device_info->capture_memory_properties,
@@ -3508,7 +3510,8 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
     std::vector<std::string> enabled_extensions(create_state.modified_create_info.ppEnabledExtensionNames,
                                                 create_state.modified_create_info.ppEnabledExtensionNames +
                                                     create_state.modified_create_info.enabledExtensionCount);
-    InitializeResourceAllocator(physical_device_info, replay_device, enabled_extensions, allocator);
+    InitializeResourceAllocator(
+        physical_device_info, replay_device, create_state.modified_create_info, enabled_extensions, allocator);
 
     device_info->allocator = std::shared_ptr<VulkanResourceAllocator>(allocator);
 

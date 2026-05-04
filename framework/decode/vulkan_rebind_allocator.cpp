@@ -108,6 +108,7 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
                                            VkInstance                              instance,
                                            VkPhysicalDevice                        physical_device,
                                            VkDevice                                device,
+                                           const VkDeviceCreateInfo&               device_create_info,
                                            const std::vector<std::string>&         enabled_device_extensions,
                                            VkPhysicalDeviceType                    capture_device_type,
                                            const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
@@ -173,15 +174,23 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
         functions_.get_physical_device_queue_family_properties(
             physical_device, &queue_family_count, queue_family_properties.data());
 
+        std::vector<bool> used_queue_families(queue_family_count, false);
+        for (uint32_t i = 0; i < device_create_info.queueCreateInfoCount; ++i)
+        {
+            used_queue_families[device_create_info.pQueueCreateInfos[i].queueFamilyIndex] = true;
+        }
+
         staging_queue_family_ = 0;
         for (const VkQueueFamilyProperties& elt : queue_family_properties)
         {
-            if (elt.queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
+            if ((elt.queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT)) &&
+                used_queue_families[staging_queue_family_])
             {
                 break;
             }
             staging_queue_family_++;
         }
+        assert(staging_queue_family_ < queue_family_count);
 
         VkCommandPoolCreateInfo cmd_pool_info = {};
         cmd_pool_info.sType                   = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
