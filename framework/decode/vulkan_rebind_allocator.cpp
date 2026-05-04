@@ -1900,9 +1900,9 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
     if (result == VK_SUCCESS)
     {
         VkSubmitInfo compute_submit_info{};
-        compute_submit_info.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        compute_submit_info.commandBufferCount   = 1;
-        compute_submit_info.pCommandBuffers      = &staging_resources.cmd_buffer;
+        compute_submit_info.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        compute_submit_info.commandBufferCount = 1;
+        compute_submit_info.pCommandBuffers    = &staging_resources.cmd_buffer;
         GFXRECON_NARROWING_ASSIGN(compute_submit_info.waitSemaphoreCount, waiting_semaphores.size());
         compute_submit_info.pWaitSemaphores      = waiting_semaphores.data();
         compute_submit_info.pWaitDstStageMask    = waiting_semaphores_dst_stage_mask.data();
@@ -3097,11 +3097,11 @@ VkResult VulkanRebindAllocator::QueueBindSparse(VkQueue                 queue,
         }
 
         GFXRECON_NARROWING_ASSIGN(modified_bind_info.bufferBindCount, modified_buffer_bind_infos[i].size());
-        modified_bind_info.pBufferBinds         = modified_buffer_bind_infos[i].data();
+        modified_bind_info.pBufferBinds = modified_buffer_bind_infos[i].data();
         GFXRECON_NARROWING_ASSIGN(modified_bind_info.imageOpaqueBindCount, modified_image_opaque_bind_infos[i].size());
-        modified_bind_info.pImageOpaqueBinds    = modified_image_opaque_bind_infos[i].data();
+        modified_bind_info.pImageOpaqueBinds = modified_image_opaque_bind_infos[i].data();
         GFXRECON_NARROWING_ASSIGN(modified_bind_info.imageBindCount, modified_image_bind_infos[i].size());
-        modified_bind_info.pImageBinds          = modified_image_bind_infos[i].data();
+        modified_bind_info.pImageBinds = modified_image_bind_infos[i].data();
     }
 
     std::vector<std::unique_lock<std::mutex>> block_locks;

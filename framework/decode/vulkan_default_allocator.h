@@ -375,7 +375,6 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                          MemoryData allocator_data) override;
 
   protected:
-
     enum MemoryInfoType
     {
         kBasic,       // single: buffer, image, acceleration_structure_nv
