@@ -1020,17 +1020,115 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
                 const auto referenced_desc_set_entry = referenced_desc_set_map.find(requested_descriptor_tuple.binding);
                 if (referenced_desc_set_entry != referenced_desc_set_map.end())
                 {
-                    const auto& referenced_desc_binding = referenced_desc_set_entry->second;
-                    bool        valid_array_index       = false;
+                    auto        modified_img_subres_range = img_subres_range;
+                    const auto& referenced_desc_binding   = referenced_desc_set_entry->second;
+                    bool        valid_array_index         = false;
                     switch (referenced_desc_binding.desc_type)
                     {
                         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
                         case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                         case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                         case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                            valid_array_index =
-                                referenced_desc_binding.image_info.contains(requested_descriptor_tuple.array_index);
-                            break;
+                        {
+                            const auto desc_array_entry =
+                                referenced_desc_binding.image_info.find(requested_descriptor_tuple.array_index);
+                            valid_array_index = desc_array_entry != referenced_desc_binding.image_info.end();
+
+                            // If descriptor tuple is valid, validate the requested image sub resources
+                            if (valid_array_index)
+                            {
+                                const auto&            img_desc_info = desc_array_entry->second;
+                                const VulkanImageInfo* image_info =
+                                    object_info_table_.GetVkImageInfo(img_desc_info.image_view_info->image_id);
+                                if (image_info == nullptr)
+                                {
+                                    continue;
+                                }
+
+                                // Validate aspect
+                                if (img_subres_range.aspectMask != VK_IMAGE_ASPECT_NONE)
+                                {
+                                    if (!(graphics::GetFormatAspects(image_info->format) & img_subres_range.aspectMask))
+                                    {
+                                        GFXRECON_LOG_WARNING(
+                                            "Requested aspect 0x%x for image descriptor at set: %u binding: %u array "
+                                            "index: %u is not valid for the image format (%s)",
+                                            img_subres_range.aspectMask,
+                                            requested_descriptor_tuple.set,
+                                            requested_descriptor_tuple.binding,
+                                            requested_descriptor_tuple.array_index,
+                                            util::ToString(image_info->format).c_str());
+
+                                        modified_img_subres_range.aspectMask =
+                                            graphics::GetFormatAspects(image_info->format);
+                                    }
+                                }
+                                else
+                                {
+                                    modified_img_subres_range.aspectMask =
+                                        graphics::GetFormatAspects(image_info->format);
+                                }
+
+                                // Validate baseMipLevel
+                                if (img_subres_range.baseMipLevel > image_info->level_count)
+                                {
+                                    GFXRECON_LOG_WARNING("Requested mip baseMipLevel %u for image descriptor at set: "
+                                                         "%u binding: %u array "
+                                                         "index: %u is not valid for the image",
+                                                         img_subres_range.baseMipLevel,
+                                                         requested_descriptor_tuple.set,
+                                                         requested_descriptor_tuple.binding,
+                                                         requested_descriptor_tuple.array_index);
+
+                                    modified_img_subres_range.baseMipLevel = 0;
+                                }
+
+                                // Validate levelCount
+                                if (img_subres_range.levelCount != VK_REMAINING_MIP_LEVELS &&
+                                    img_subres_range.levelCount > image_info->level_count)
+                                {
+                                    GFXRECON_LOG_WARNING(
+                                        "Requested mip levelCount %u for image descriptor at set: %u binding: %u array "
+                                        "index: %u is not valid for the image",
+                                        img_subres_range.baseMipLevel,
+                                        requested_descriptor_tuple.set,
+                                        requested_descriptor_tuple.binding,
+                                        requested_descriptor_tuple.array_index);
+
+                                    modified_img_subres_range.levelCount = image_info->level_count;
+                                }
+
+                                // Validate baseArrayLayer
+                                if (img_subres_range.baseArrayLayer > image_info->layer_count)
+                                {
+                                    GFXRECON_LOG_WARNING("Requested mip baseArrayLayer %u for image descriptor at set: "
+                                                         "%u binding: %u array "
+                                                         "index: %u is not valid for the image",
+                                                         img_subres_range.baseArrayLayer,
+                                                         requested_descriptor_tuple.set,
+                                                         requested_descriptor_tuple.binding,
+                                                         requested_descriptor_tuple.array_index);
+
+                                    modified_img_subres_range.baseArrayLayer = 0;
+                                }
+
+                                // Validate layerCount
+                                if (img_subres_range.layerCount != VK_REMAINING_ARRAY_LAYERS &&
+                                    img_subres_range.layerCount > image_info->layer_count)
+                                {
+                                    GFXRECON_LOG_WARNING(
+                                        "Requested mip layerCount %u for image descriptor at set: %u binding: %u array "
+                                        "index: %u is not valid for the image",
+                                        img_subres_range.baseMipLevel,
+                                        requested_descriptor_tuple.set,
+                                        requested_descriptor_tuple.binding,
+                                        requested_descriptor_tuple.array_index);
+
+                                    modified_img_subres_range.layerCount = image_info->layer_count;
+                                }
+                            }
+                        }
+                        break;
 
                         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
@@ -1072,7 +1170,7 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
                     {
                         descriptors_to_dump.emplace(std::piecewise_construct,
                                                     std::forward_as_tuple(requested_descriptor_tuple),
-                                                    std::forward_as_tuple(img_subres_range));
+                                                    std::forward_as_tuple(modified_img_subres_range));
                     }
                     else
                     {
