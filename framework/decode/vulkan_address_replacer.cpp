@@ -805,7 +805,7 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
                                             nullptr);
     }
 
-    if (!command_buffer_info->inside_renderpass)
+    if (!command_buffer_info->in_rendering_scope)
     {
         std::vector<VkDeviceAddress> addresses_to_replace(command_buffer_info->addresses_to_replace.begin(),
                                                           command_buffer_info->addresses_to_replace.end());

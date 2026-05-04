@@ -414,7 +414,15 @@ if(MSVC)
 endif()
 
 add_library(vulkan_registry INTERFACE)
-target_include_directories(vulkan_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
+if (CMAKE_CXX_COMPILER_ID STREQUAL AppleClang)
+    # AppleClang implicitly adds /usr/local/include as a -I path, which takes precedence
+    # over -isystem paths. Add external/Vulkan-Headers as a normal -I path for the correct
+    # search order, then use --system-header-prefix to treat it as a system header for warnings
+    target_include_directories(vulkan_registry INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
+    target_compile_options(vulkan_registry INTERFACE --system-header-prefix vulkan/)
+else ()
+    target_include_directories(vulkan_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
+endif()
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(spirv_registry INTERFACE)
@@ -423,6 +431,11 @@ target_include_directories(spirv_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}
 add_library(OpenXR INTERFACE)
 if (OPENXR_SUPPORT_ENABLED)
     option(DYNAMIC_LOADER "" OFF)
+    # Tell openxr_loader to use the vendored copy of jsoncpp rather than finding system jsoncpp.
+    # When using system jsoncpp, OpenXR's fallback finder creates a local INTERFACE target
+    # that cannot be exported, causing CMake errors during install(EXPORT ...) operations.
+    option(BUILD_WITH_SYSTEM_JSONCPP "" OFF)
+
     add_subdirectory(${PROJECT_SOURCE_DIR}/external/OpenXR-SDK)
     target_include_directories(OpenXR INTERFACE ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
     target_compile_definitions(OpenXR INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)

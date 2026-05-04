@@ -474,6 +474,19 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         ++total_draw_count_;
     }
 
+    virtual void Process_vkCmdDrawIndirectCount(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                gfxrecon::format::HandleId,
+                                                gfxrecon::format::HandleId,
+                                                VkDeviceSize,
+                                                gfxrecon::format::HandleId,
+                                                VkDeviceSize,
+                                                uint32_t,
+                                                uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
     virtual void Process_vkCmdDrawIndexedIndirectCountKHR(const gfxrecon::decode::ApiCallInfo& call_info,
                                                           gfxrecon::format::HandleId,
                                                           gfxrecon::format::HandleId,
@@ -482,6 +495,19 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                           VkDeviceSize,
                                                           uint32_t,
                                                           uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
+    virtual void Process_vkCmdDrawIndexedIndirectCount(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                       gfxrecon::format::HandleId,
+                                                       gfxrecon::format::HandleId,
+                                                       VkDeviceSize,
+                                                       gfxrecon::format::HandleId,
+                                                       VkDeviceSize,
+                                                       uint32_t,
+                                                       uint32_t) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;

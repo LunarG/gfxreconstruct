@@ -64,17 +64,19 @@ class VulkanResourcesUtil
     VkResult CreateStagingBuffer(VkDeviceSize size);
 
     // Will return the size requirements and offsets for each subresource contained for an image with the specified
-    // attributes. Sizes and offsets are calculated in such a way that the each subresource will be tightly packed.
+    // attributes. Offsets are Vulkan-valid copy offsets for VkBufferImageCopy regions.
     //
     // The sizes are returned in the subresource_sizes vector and will be in the order:
     //    M0 L0 L1 ... La M1 L0 L1 ... La ... Mm L0 L1 ... La
     // Where M denotes the mip map levels and L the array layers.
+    // - With all_layers_per_level=false, each entry is the tightly-packed payload bytes for that subresource.
+    // - With all_layers_per_level=true, each entry is the serialized per-mip stride used by init-image commands;
+    //   intermediate entries may include padding so replay can reconstruct aligned buffer offsets.
     // The offsets will be returned in the subresource_offsets vector in the same manner.
     // all_layers_per_level boolean determines if all array layer per mip map level will be accounted as one.
     //
     // Return value is the total size of the image.
     uint64_t GetImageResourceSizesOptimal(VkFormat               format,
-                                          VkImageType            type,
                                           const VkExtent3D&      extent,
                                           uint32_t               mip_levels,
                                           uint32_t               array_layers,
@@ -238,6 +240,7 @@ class VulkanResourcesUtil
 
     void CopyImageBuffer(VkCommandBuffer              command_buffer,
                          VkImage                      image,
+                         VkFormat                     format,
                          VkBuffer                     buffer,
                          VkDeviceSize                 buffer_offset,
                          const VkExtent3D&            extent,

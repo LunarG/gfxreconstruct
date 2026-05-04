@@ -1907,6 +1907,15 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
             {
                 submit_cbs.push_back(command_buffer);
+
+                // Look for transfer contexts from secondaries
+                for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
+                {
+                    if (bcb_qs_pair.second == qs_index)
+                    {
+                        transfer_contexts.push_back(transf_context);
+                    }
+                }
             }
             else
             {

@@ -1473,6 +1473,258 @@ void VulkanReferencedBlockConsumer::Process_vkCmdWriteTimestamp2KHR(
     if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkCmdBindIndexBuffer3KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBindIndexBuffer3InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdBindVertexBuffers3KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    StructPointerDecoder<Decoded_VkBindVertexBuffer3InfoKHR>* pBindingInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
+    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pBindingInfos);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirect2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirect2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDispatchIndirect2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDispatchIndirect2InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryInfoKHR>* pCopyMemoryInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pCopyMemoryInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyMemoryToImageKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyImageToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdUpdateMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    VkDeviceSize                                dataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pDstRange);
+    GFXRECON_UNREFERENCED_PARAMETER(dstFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(dataSize);
+    GFXRECON_UNREFERENCED_PARAMETER(pData);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdFillMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    uint32_t                                    data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pDstRange);
+    GFXRECON_UNREFERENCED_PARAMETER(dstFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(data);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    VkQueryResultFlags                          queryResultFlags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
+    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
+    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pDstRange);
+    GFXRECON_UNREFERENCED_PARAMETER(dstFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(queryResultFlags);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectCount2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndexedIndirectCount2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdBeginConditionalRendering2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfo2EXT>* pConditionalRenderingBegin)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pConditionalRenderingBegin);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdBindTransformFeedbackBuffers2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pBindingInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
+    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pBindingInfos);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdBeginTransformFeedback2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstCounterRange,
+    uint32_t                                    counterRangeCount,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(firstCounterRange);
+    GFXRECON_UNREFERENCED_PARAMETER(counterRangeCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pCounterInfos);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdEndTransformFeedback2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstCounterRange,
+    uint32_t                                    counterRangeCount,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(firstCounterRange);
+    GFXRECON_UNREFERENCED_PARAMETER(counterRangeCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pCounterInfos);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDrawIndirectByteCount2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfo,
+    uint32_t                                    counterOffset,
+    uint32_t                                    vertexStride)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instanceCount);
+    GFXRECON_UNREFERENCED_PARAMETER(firstInstance);
+    GFXRECON_UNREFERENCED_PARAMETER(pCounterInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(counterOffset);
+    GFXRECON_UNREFERENCED_PARAMETER(vertexStride);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirect2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdDrawMeshTasksIndirectCount2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdWriteMarkerToMemoryAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkMemoryMarkerInfoAMD>* pInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -2669,6 +2921,16 @@ void VulkanReferencedBlockConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
 }
 
+void VulkanReferencedBlockConsumer::Process_vkCmdSetDispatchParametersARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDispatchParametersARM>* pDispatchParameters)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pDispatchParameters);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
 void VulkanReferencedBlockConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -3181,6 +3443,16 @@ void VulkanReferencedBlockConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
     StructPointerDecoder<Decoded_VkComputeOccupancyPriorityParametersNV>* pParameters)
 {
     GFXRECON_UNREFERENCED_PARAMETER(pParameters);
+
+    if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
+}
+
+void VulkanReferencedBlockConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    primitiveRestartIndex)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(primitiveRestartIndex);
 
     if (check_handle_id_unused(commandBuffer)){ set_block_index_unused(call_info.index); }
 }

@@ -62,6 +62,18 @@ void ReleaseLoader(util::platform::LibraryHandle loader_handle);
 
 bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit);
 
+// Aligns a byte offset up to the next multiple of `alignment`.
+// Unlike util::platform::GetAlignedSize, this helper is safe for non-power-of-two alignments
+// (for example, 3-byte RGB formats).
+VkDeviceSize AlignBufferOffset(VkDeviceSize offset, VkDeviceSize alignment);
+
+// Returns the Vulkan-mandated VkBufferImageCopy::bufferOffset alignment for a format/aspect pair.
+// This must be applied to every copy region offset (not only the first one):
+// - depth/stencil formats => 4-byte alignment
+// - multiplane formats    => block size of the selected compatible plane format
+// - all other formats     => block size of the format
+VkDeviceSize GetBufferImageCopyOffsetAlignment(VkFormat format, VkImageAspectFlags aspect_mask);
+
 /**
  * @brief   copy_dispatch_table_from_device can be used if a command-buffer was not allocated through the loader,
  *          in order to assign the dispatch table from an existing VkDevice.

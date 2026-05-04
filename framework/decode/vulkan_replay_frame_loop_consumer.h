@@ -141,6 +141,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayConsumer
                                             uint32_t                                            layers,
                                             const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
 
+    void Process_vkCreateCommandPool(const ApiCallInfo&                                     call_info,
+                                     VkResult                                               returnValue,
+                                     format::HandleId                                       device,
+                                     StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
+                                     StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                     HandlePointerDecoder<VkCommandPool>*                   pCommandPool) override;
+
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
 };

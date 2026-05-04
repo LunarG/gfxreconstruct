@@ -1208,6 +1208,33 @@ void TrackCmdWriteTimestamp2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wr
     if(queryPool != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::QueryPoolHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::QueryPoolWrapper>(queryPool));
 }
 
+void TrackCmdCopyMemoryToImageKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyMemoryInfo != nullptr)
+    {
+        if(pCopyMemoryInfo->image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pCopyMemoryInfo->image));
+    }
+}
+
+void TrackCmdCopyImageToMemoryKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyMemoryInfo != nullptr)
+    {
+        if(pCopyMemoryInfo->image != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageWrapper>(pCopyMemoryInfo->image));
+    }
+}
+
+void TrackCmdCopyQueryPoolResultsToMemoryKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkQueryPool queryPool)
+{
+    assert(wrapper != nullptr);
+
+    if(queryPool != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::QueryPoolHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::QueryPoolWrapper>(queryPool));
+}
+
 void TrackCmdCopyBuffer2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo)
 {
     assert(wrapper != nullptr);

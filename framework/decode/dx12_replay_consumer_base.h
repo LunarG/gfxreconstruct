@@ -73,9 +73,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetAgsMarkerInjector(AGSContext* ags_context = nullptr);
 #endif
 
-    void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
+    void SetFatalErrorHandler(std::function<void(const char*)> handler)
+    {
+        fatal_error_handler_ = handler;
+    }
 
-    void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
+    void SetFpsInfo(graphics::FpsInfo* fps_info)
+    {
+        fps_info_ = fps_info;
+    }
 
     void PostReplay();
 
@@ -253,6 +259,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                          UINT                                      NumCommandLists,
                                                          HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists);
 
+    void PostCall_ID3D12CommandQueue_UpdateTileMappings(
+        const ApiCallInfo&                                             call_info,
+        DxObjectInfo*                                                  object_info,
+        format::HandleId                                               pResource,
+        UINT                                                           NumResourceRegions,
+        StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pResourceRegionStartCoordinates,
+        StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>*          pResourceRegionSizes,
+        format::HandleId                                               pHeap,
+        UINT                                                           NumRanges,
+        PointerDecoder<D3D12_TILE_RANGE_FLAGS>*                        pRangeFlags,
+        PointerDecoder<UINT>*                                          pHeapRangeStartOffsets,
+        PointerDecoder<UINT>*                                          pRangeTileCounts,
+        D3D12_TILE_MAPPING_FLAGS                                       Flags);
+
     void PostCall_ID3D12Device_CopyDescriptors(
         const ApiCallInfo&                                         call_info,
         DxObjectInfo*                                              device_object_info,
@@ -308,7 +328,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     IDXGIAdapter* GetAdapter();
 
-    graphics::dx12::ActiveAdapterMap& GetAdaptersMap() { return adapters_; }
+    graphics::dx12::ActiveAdapterMap& GetAdaptersMap()
+    {
+        return adapters_;
+    }
 
   protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
@@ -558,7 +581,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                  D3D12_RENDER_PASS_FLAGS                                             Flags);
 
     template <typename T>
-    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, T* desc_src) {};
+    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, T* desc_src){};
 
     template <>
     void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, D3D12_RESOURCE_DESC1* desc_src)
@@ -1090,9 +1113,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                     PointerDecoder<uint8_t>* parameters_data,
                                     SIZE_T                   parameters_data_sizeinbytes);
 
-    const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
+    const Dx12ObjectInfoTable& GetObjectInfoTable() const
+    {
+        return object_info_table_;
+    }
 
-    Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
+    Dx12ObjectInfoTable& GetObjectInfoTable()
+    {
+        return object_info_table_;
+    }
 
     DxObjectInfo* GetObjectInfo(format::HandleId id)
     {
@@ -1105,13 +1134,25 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return nullptr;
     }
 
-    const Dx12DescriptorMap& GetDescriptorMap() const { return descriptor_map_; }
+    const Dx12DescriptorMap& GetDescriptorMap() const
+    {
+        return descriptor_map_;
+    }
 
-    Dx12DescriptorMap& GetDescriptorMap() { return descriptor_map_; }
+    Dx12DescriptorMap& GetDescriptorMap()
+    {
+        return descriptor_map_;
+    }
 
-    const graphics::Dx12GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
+    const graphics::Dx12GpuVaMap& GetGpuVaTable() const
+    {
+        return gpu_va_map_;
+    }
 
-    graphics::Dx12GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
+    graphics::Dx12GpuVaMap& GetGpuVaTable()
+    {
+        return gpu_va_map_;
+    }
 
     void ReplaceWindowedResolution(uint32_t& width, uint32_t& height)
     {
@@ -1131,7 +1172,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
-    Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
+    Dx12ResourceValueMapper* GetResourceValueMapper()
+    {
+        return resource_value_mapper_.get();
+    }
 
     template <typename CountT>
     void SetOutputArrayCount(format::HandleId object_id, VariableLengthArrayIndices index, CountT count)
@@ -1364,6 +1408,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
     std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;
+    std::unordered_set<ID3D12CommandQueue*>               trim_state_tile_update_queues_;
 
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };

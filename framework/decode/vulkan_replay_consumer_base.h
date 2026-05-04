@@ -37,6 +37,7 @@
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
+#include "decode/vulkan_submit_job.h"
 #include "decode/vulkan_swapchain.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
@@ -1391,9 +1392,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
                                     VkSubpassContents                                    contents);
 
+    void OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass func, VulkanCommandBufferInfo* command_buffer_info);
+
+    void OverrideCmdEndRenderPass2(PFN_vkCmdEndRenderPass2                         func,
+                                   VulkanCommandBufferInfo*                        command_buffer_info,
+                                   StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
+
     void OverrideCmdBeginRendering(PFN_vkCmdBeginRendering                        func,
                                    VulkanCommandBufferInfo*                       command_buffer_info,
                                    StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder);
+
+    void OverrideCmdEndRendering(PFN_vkCmdEndRendering func, VulkanCommandBufferInfo* command_buffer_info);
 
     void
     OverrideCmdTraceRaysKHR(PFN_vkCmdTraceRaysKHR                                          func,
@@ -1816,6 +1825,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
     VulkanFrameWarmUp&                  GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info);
+    VulkanSubmitJobExecutor&            GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info);
 
     /**
      * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
@@ -1959,9 +1969,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
 
-    VulkanPerDeviceAddressTrackers  _device_address_trackers;
-    VulkanPerDeviceAddressReplacers _device_address_replacers;
-    VulkanPerDeviceFrameWarmUp      device_frame_warmups_;
+    VulkanPerDeviceAddressTrackers    device_address_trackers_;
+    VulkanPerDeviceAddressReplacers   device_address_replacers_;
+    VulkanPerDeviceFrameWarmUp        device_frame_warmups_;
+    VulkanPerDeviceSubmitJobExecutors device_submit_job_executors_;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;

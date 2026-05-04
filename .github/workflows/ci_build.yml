@@ -11,6 +11,37 @@ on:
       - dev
 
 jobs:
+  check-format:
+    name: "Format Check"
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format-14
+    - name: Clone repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Run clang-format script
+      run: |
+        set -euo pipefail
+        BASE="origin/${{ github.base_ref }}"
+        git fetch origin "${{ github.base_ref }}"
+        clang-format-14 --version
+        ( git diff --name-only --diff-filter=ACMR "$BASE"...HEAD ; git ls-files '*.c' '*.h' '*.cpp' '*.hpp' '*.mm' ) | \
+          egrep -v '(^|/)(framework/generated|external)/|/generated_|\.def$' | \
+          sort | uniq -d | \
+          xargs --no-run-if-empty clang-format-14 -i
+        if ! git diff --exit-code; then
+          echo
+          echo "Formatting issues found. Apply the diff above with 'git apply',"
+          echo "or run 'clang-format-14 -i' on the affected files locally."
+          exit 1
+        fi
+
+
   linux:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
@@ -51,24 +82,20 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev clang-format-14
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - uses: lukka/get-cmake@latest
       with:
         cmakeVersion: 3.24
+    - name: Check generated code
+      if: matrix.config.type == 'debug'
+      run: |
+        echo ---- run Khronos Generators and fail if branch differs
+        python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
+        python3 framework/generated/generate_openxr.py # check generated code isn't out of date
+        git diff --exit-code || { echo "Generated code differs from branch contents"; exit 1; }
     - name: Run build script
       run: |
-        if [ "${{ matrix.config.type }}" == "release" ]
-        then
-          clang-format-14 --version
-          git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
-          echo ---- run Khronos Generators and fail if branch contents differs
-          python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
-          python3 framework/generated/generate_openxr.py # check generated code isn't out of date
-          git diff --exit-code || { echo "Generated code differs from branch contents"; exit 1; }
-          python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
-        else
-          python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
-        fi
+        python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
       env:
         SCCACHE_GHA_ENABLED: on
         CMAKE_C_COMPILER_LAUNCHER: sccache
@@ -145,9 +172,10 @@ jobs:
       with:
         submodules: 'recursive'
     - name: Check generated code
+      if: matrix.config.type == 'debug'
       run: |
         python3 framework/generated/generate_dx12.py # check generated code isn't out of date
-        git diff --exit-code
+        git diff --exit-code; if ($LASTEXITCODE -ne 0) { Write-Error "Generated code differs from branch contents"; exit 1 }
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps

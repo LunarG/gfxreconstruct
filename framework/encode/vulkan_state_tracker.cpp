@@ -2621,8 +2621,8 @@ void VulkanStateTracker::TrackCmdBindDescriptorSets(VkCommandBuffer        comma
     }
 }
 
-void VulkanStateTracker::TrackCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
-                                                        const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
+void VulkanStateTracker::TrackCmdBindDescriptorSets2(VkCommandBuffer                    commandBuffer,
+                                                     const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
 {
     if (pBindDescriptorSetsInfo != nullptr && pBindDescriptorSetsInfo->pDescriptorSets != nullptr &&
         commandBuffer != VK_NULL_HANDLE)
@@ -4078,6 +4078,19 @@ void VulkanStateTracker::TrackBeginCommandBuffer(VkCommandBuffer command_buffer,
         if (wrapper != nullptr)
         {
             wrapper->one_time_submission = true;
+        }
+    }
+}
+
+void VulkanStateTracker::TrackTransitionImageLayout(uint32_t                               transitionCount,
+                                                    const VkHostImageLayoutTransitionInfo* pTransitions)
+{
+    for (uint32_t i = 0; i < transitionCount; ++i)
+    {
+        auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pTransitions[i].image);
+        if (wrapper != nullptr)
+        {
+            wrapper->current_layout = pTransitions[i].newLayout;
         }
     }
 }

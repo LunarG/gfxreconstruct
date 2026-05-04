@@ -91,6 +91,13 @@ void LoggingTargetStdout::LogMessage(LoggingSeverity severity, const std::string
 #endif
 }
 
+void LoggingTargetStdout::Flush()
+{
+#if !defined(__ANDROID__)
+    platform::FileFlush(stdout);
+#endif
+}
+
 void LoggingTargetStdout::SetBoolExtendedOption(LoggingExtendedOption option, bool value)
 {
     if (option == kOption_WriteErrors)
@@ -130,6 +137,11 @@ void LoggingTargetStderr::LogMessage(LoggingSeverity severity, const std::string
     {
         platform::FileFlush(stderr);
     }
+}
+
+void LoggingTargetStderr::Flush()
+{
+    platform::FileFlush(stderr);
 }
 
 LoggingTargetDebugView::LoggingTargetDebugView()
@@ -222,6 +234,7 @@ void LoggingTargetFile::CloseFile()
     const std::lock_guard<std::mutex> lock(file_mut_);
     if (log_stream_.is_open())
     {
+        log_stream_.flush();
         log_stream_.close();
     }
 }
@@ -255,6 +268,15 @@ void LoggingTargetFile::LogMessage(LoggingSeverity severity, const std::string& 
     if (!leave_open_)
     {
         CloseFile();
+    }
+}
+
+void LoggingTargetFile::Flush()
+{
+    const std::lock_guard<std::mutex> lock(file_mut_);
+    if (log_stream_.is_open())
+    {
+        log_stream_.flush();
     }
 }
 
