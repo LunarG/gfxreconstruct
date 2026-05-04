@@ -33,9 +33,8 @@
 #include "util/platform.h"
 #ifdef WIN32
 #include "graphics/dx12_image_renderer.h"
-#else
-#include "format/platform_types.h"
 #endif
+#include "format/platform_types.h"
 #include "format/format.h"
 
 #ifdef WIN32
@@ -57,7 +56,15 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
 #ifdef WIN32
+typedef _com_ptr_t<_com_IIID<IUnknown, &__uuidof(IUnknown)>> IUnknownComPtr;
+
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter, &__uuidof(IDXGIAdapter)>>       IDXGIAdapterComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter1, &__uuidof(IDXGIAdapter1)>>     IDXGIAdapter1ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter2, &__uuidof(IDXGIAdapter2)>>     IDXGIAdapter2ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter3, &__uuidof(IDXGIAdapter3)>>     IDXGIAdapter3ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory, &__uuidof(IDXGIFactory)>>       IDXGIFactoryComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory1, &__uuidof(IDXGIFactory1)>>     IDXGIFactory1ComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>>                     ID3D12DeviceComPtr;
@@ -136,7 +143,7 @@ uint32_t Dx12DumpResourcePosToArrayIndex(Dx12DumpResourcePos pos);
 struct ActiveAdapterInfo
 {
     format::DxgiAdapterDesc internal_desc;
-    IDXGIAdapter*           adapter;
+    IDXGIAdapterComPtr      adapter;
     UINT32                  adapter_idx;
     bool                    active;
 };

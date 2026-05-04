@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -92,33 +92,6 @@ struct D3D12StateObjectInfo;
 struct D3D12ResourceInfo;
 struct D3D12CommandSignatureInfo;
 
-// Util function for getting the extra info object from a DxObjectInfo.
-template <typename T>
-T* GetExtraInfo(DxObjectInfo* info)
-{
-    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
-    {
-        return static_cast<T*>(info->extra_info.get());
-    }
-
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
-
-    return nullptr;
-}
-
-template <typename T>
-const T* GetExtraInfo(const DxObjectInfo* info)
-{
-    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
-    {
-        return static_cast<T*>(info->extra_info.get());
-    }
-
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
-
-    return nullptr;
-}
-
 struct MappedMemoryInfo
 {
     uint32_t count{ 0 };     ///< Number of times that the memory has been mapped.
@@ -173,6 +146,8 @@ struct ArgumentBufferExtraInfo
     D3D12CommandSignatureInfo* command_signature_info{ nullptr };
     DxObjectInfo*              argument_buffer{ nullptr };
     uint64_t                   argument_buffer_offset{ 0 };
+
+    bool operator==(const ArgumentBufferExtraInfo& other) const = default;
 };
 
 struct ResourceValueInfo
@@ -200,6 +175,8 @@ struct ResourceValueInfo
     }
 
     bool operator<(const ResourceValueInfo& other) const { return offset < other.offset; }
+
+    bool operator==(const ResourceValueInfo& other) const = default;
 };
 
 typedef std::map<DxObjectInfo*, std::set<ResourceValueInfo>> ResourceValueInfoMap;
@@ -223,6 +200,33 @@ struct DxObjectInfo
     std::unordered_map<VariableLengthArrayIndices, size_t> array_counts;
 };
 
+// Util function for getting the extra info object from a DxObjectInfo.
+template <typename T>
+T* GetExtraInfo(DxObjectInfo* info)
+{
+    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
+    {
+        return static_cast<T*>(info->extra_info.get());
+    }
+
+    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+
+    return nullptr;
+}
+
+template <typename T>
+const T* GetExtraInfo(const DxObjectInfo* info)
+{
+    if ((info != nullptr) && (info->extra_info != nullptr) && (info->extra_info->extra_info_type == T::kType))
+    {
+        return static_cast<T*>(info->extra_info.get());
+    }
+
+    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+
+    return nullptr;
+}
+
 struct DxgiSwapchainInfo : DxObjectExtraInfo
 {
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kIDxgiSwapchainInfo;
@@ -239,7 +243,7 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
 
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{
         nullptr
-    }; ///< The command queue that was used to create the swapchain.
+    };                           ///< The command queue that was used to create the swapchain.
     bool is_fullscreen{ false }; ///< Swapchain full screen flag.
 };
 
@@ -385,6 +389,7 @@ struct D3D12HeapInfo : DxObjectExtraInfo
     D3D12HeapInfo() : DxObjectExtraInfo(kType) {}
 
     void* external_allocation{ nullptr };
+    void* external_handle{ nullptr };
 };
 
 struct D3D12ResourceInfo : DxObjectExtraInfo

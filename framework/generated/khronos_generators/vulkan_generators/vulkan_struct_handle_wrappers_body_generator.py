@@ -89,11 +89,6 @@ class VulkanStructHandleWrappersBodyGenerator(VulkanBaseGenerator, KhronosStruct
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_struct_members:
-            return True
-        return False
 
     def write_special_case_struct_handling(self):
         """Method override."""
@@ -115,16 +110,3 @@ class VulkanStructHandleWrappersBodyGenerator(VulkanBaseGenerator, KhronosStruct
             file=self.outFile
         )
         write('        break;', file=self.outFile)
-
-    def has_special_case_handle_unwrapping(self, name):
-        """Method override."""
-        if (name == 'VkGeneratedCommandsMemoryRequirementsInfoEXT'):
-            return True
-        return False
-
-    def get_special_case_handle_wrapping(self, name):
-        """Method override."""
-        # Workaround for spec missing const in VkGeneratedCommandsMemoryRequirementsInfoEXT::pNext, should be removed next header update
-        if (name == 'VkGeneratedCommandsMemoryRequirementsInfoEXT'):
-            return '            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));\n'
-        return ''

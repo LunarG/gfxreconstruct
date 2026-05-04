@@ -77,7 +77,7 @@ class ParameterEncoder
     void EncodeD3D_FEATURE_LEVELValue(D3D_FEATURE_LEVEL value) { EncodeValue(value); }
 #endif // ENABLE_OPENXR_SUPPORT
     void EncodeLARGE_INTEGERValue(LARGE_INTEGER& value) { EncodeValue(value.QuadPart); }
-    void EncodeLUIDValue(LUID value) { EncodeValue(*reinterpret_cast<int64_t*>(&value)); }
+    void EncodeLUIDValue(LUID value) { EncodeValue(pack_luid(value)); }
 
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
     void EncodeAddress(const void* value)                                                                             { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
@@ -162,6 +162,7 @@ class ParameterEncoder
     void EncodeInt64Array(const int64_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeUInt64Array(const uint64_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)           { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeFloatArray(const float* arr, size_t len, bool omit_data = false, bool omit_addr = false)               { EncodeArray(arr, len, omit_data, omit_addr); }
+    void EncodeFloat64Array(const double* arr, size_t len, bool omit_data = false, bool omit_addr = false)            { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeSizeTArray(const size_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)              { EncodeArrayConverted<format::SizeTEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeHandleIdArray(const format::HandleId* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::HandleEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeVkFormatArray(const VkFormat* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::FormatEncodeType>(arr, len, omit_data, omit_addr); }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2018-2025 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -99,6 +99,10 @@ def CreateReplayParser():
     parser.add_argument('--debug-messenger-level', metavar='LEVEL', help='Specify highest debug messenger severity level. Options are: debug, info, warning, and error. Default is warning. (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
+
+    parser.add_argument('--loop-frame', default=0, help='Replay the given frame repeatedly')
+    parser.add_argument('--loop-count', default=0, help='Replay the repeated frame N times')
+
     parser.add_argument('--cpu-mask', metavar='binary_mask', help='Set of CPU cores used by the replayer. `binary-mask` is a succession of "0" and "1" that specifies used/unused cores read from left to right. For example "10010" activates the first and fourth cores and deactivate all other cores. If the option is not set, all cores can be used. If the option is set only for some cores, the other cores are not used. (forwarded to replay tool)')
     parser.add_argument('--screenshot-all', action='store_true', default=False, help='Generate screenshots for all frames.  When this option is specified, --screenshots is ignored (forwarded to replay tool)')
     parser.add_argument('--screenshots', metavar='RANGES', help='Generate screenshots for the specified frames.  Target frames are specified as a comma separated list of frame ranges.  A frame range can be specified as a single value, to specify a single frame, or as two hyphenated values, to specify the first and last frames to process.  Frame ranges should be specified in ascending order and cannot overlap.  Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: 200,301-305 will generate six screenshots (forwarded to replay tool)')
@@ -123,37 +127,32 @@ def CreateReplayParser():
     parser.add_argument('--quit-after-measurement-range', action='store_true', default=False, help='If this is specified the replayer will abort when it reaches the <end_frame> specified in the --measurement-frame-range argument. (forwarded to replay tool)')
     parser.add_argument('--flush-measurement-range', action='store_true', default=False, help='If this is specified the replayer will flush and wait for all current GPU work to finish at the start and end of the measurement range. (forwarded to replay tool)')
     parser.add_argument('--flush-inside-measurement-range', action='store_true', default=False, help='If this is specified the replayer will flush and wait for all current GPU work to finish at end of each frame inside the measurement range. (forwarded to replay tool)')
-    parser.add_argument('--sgfs', '--skip-get-fence-status', metavar='STATUS', default=0, help='Specify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus. Default is 0 - No skip (forwarded to replay tool)')
+    parser.add_argument('--sgfs', '--skip-get-fence-status', metavar='STATUS', default=0, help='Specify behavior to skip calls to vkWaitForFences and vkGetFenceStatus. Default is 0 - No skip (forwarded to replay tool)')
     parser.add_argument('--sgfr', '--skip-get-fence-ranges', metavar='FRAME-RANGES', default='', help='Frame ranges where --sgfs applies. Default is all frames (forwarded to replay tool)')
     parser.add_argument('--wait-before-present', action='store_true', default=False, help='Force wait on completion of queue operations for all queues before calling Present. This is needed for accurate acquisition of instrumentation data on some platforms.')
     parser.add_argument('-m', '--memory-translation', metavar='MODE', choices=['none', 'remap', 'realign', 'rebind'], help='Enable memory translation for replay on GPUs with memory types that are not compatible with the capture GPU\'s memory types.  Available modes are: none, remap, realign, rebind (forwarded to replay tool)')
     parser.add_argument('--swapchain', metavar='MODE', choices=['virtual', 'captured', 'offscreen'], help='Choose a swapchain mode to replay. Available modes are: virtual, captured, offscreen (forwarded to replay tool)')
+    parser.add_argument('--present-mode', metavar='MODE', choices=['capture', 'immediate', 'mailbox', 'fifo', 'fifo_relaxed'], help='Set swapchain\'s VkPresentModeKHR. Available modes are: auto, immediate, mailbox, fifo, fifo_relaxed (forwarded to replay tool)')
     parser.add_argument('--vssb', '--virtual-swapchain-skip-blit', action='store_true', default=False, help='Skip blit to real swapchain to gain performance during replay.')
     parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Same as "--swapchain captured". Ignored if the "--swapchain" option is used.')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
-    parser.add_argument('--dump-resources', metavar='DUMP_RESOURCES', help='The capture file will be examined, and <submit-index,command-index,draw-call-index> will be converted to <arg> as used in --dump-resources <arg>.  The converted args will be used used as the args for dump resources.')
-    parser.add_argument('--dump-resources-before-draw', action='store_true', default=False, help= 'In addition to dumping gpu resources after the Vulkan draw calls specified by the --dump-resources argument, also dump resources before the draw calls.')
-    parser.add_argument('--dump-resources-image-format', metavar='FORMAT', choices=['bmp', 'png'], help='Image file format to use when dumping image resources. Available formats are: bmp, png')
-    parser.add_argument('--dump-resources-scale', metavar='DR_SCALE', help='tScale images generated by dump resources by the given scale factor. The scale factor must be a floating point number greater than 0. Values greater than 10 are capped at 10. Default value is 1.0.')
-    parser.add_argument('--dump-resources-dir', metavar='DIR', help='Directory to write dump resources output files. Default is "/sdcard" (forwarded to replay tool)')
-    parser.add_argument('--dump-resources-dump-depth-attachment', action='store_true', default=False, help= 'Dump depth attachment when dumping a draw call. Default is false.')
-    parser.add_argument('--dump-resources-dump-color-attachment-index', metavar='N', help='Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero based integer. Default is to dump all color attachments.')
-    parser.add_argument('--dump-resources-dump-vertex-index-buffers', action='store_true', default=False, help= 'Enables dumping of vertex and index buffers while dumping draw call resources. Default is disabled.')
-    parser.add_argument('--dump-resources-json-output-per-command', action='store_true', default=False, help= 'Enables storing a json output file for each dumped command. Default is disabled.')
-    parser.add_argument('--dump-resources-dump-immutable-resources', action='store_true', default=False, help= 'Dump immutable immutable shader resources.')
-    parser.add_argument('--dump-resources-dump-all-image-subresources', action='store_true', default=False, help= 'Dump all available mip levels and layers when dumping images.')
-    parser.add_argument('--dump-resources-dump-raw-images', action='store_true', default=False, help= 'Dump images verbatim as raw binary files.')
-    parser.add_argument('--dump-resources-dump-separate-alpha', action='store_true', default=False, help= 'Dump image alpha in a separate image file.')
-    parser.add_argument('--dump-resources-dump-unused-vertex-bindings', action='store_true', default=False, help= 'Dump a vertex binding even if no vertex attributes references it.')
-    parser.add_argument('--dump-resources-binary-file-compression-type', metavar='FORMAT', choices=['none', 'lz4', 'zlib', 'zstd'], help='Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib, zstd]. Default is none (no compression).')
+    parser.add_argument('--dump-resources', metavar='DUMP_RESOURCES', help='Extract dump resources block indices and options from the specified json file. The format for the json file is documented in detail in vulkan_dump_resources.md.')
+    parser.add_argument('--dump-resources-dir', metavar='DIR', help='Directory to write dump resources output files.')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
-    parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
+    parser.add_argument('--pcj', '--pipeline-creation-jobs', metavar='PCJ', default=1, help='Specify the number of pipeline-creation-jobs or background-threads.')
     parser.add_argument('--save-pipeline-cache', metavar='DEVICE_FILE', help='If set, produces pipeline caches at replay time instead of using the one saved at capture time and save those caches in DEVICE_FILE. (forwarded to replay tool)')
     parser.add_argument('--load-pipeline-cache', metavar='DEVICE_FILE', help='If set, loads data created by the `--save-pipeline-cache` option in DEVICE_FILE and uses it to create the pipelines instead of the pipeline caches saved at capture time. (forwarded to replay tool)')
     parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
     parser.add_argument('--quit-after-frame', metavar='FRAME', help='Specify a frame after which replay will terminate.')
     parser.add_argument('--screenshot-ignore-FrameBoundaryANDROID', action='store_true', default=False, help='If set, frames switced with vkFrameBoundANDROID will be ignored from the screenshot handler.')
+    parser.add_argument('--wait-before-first-submit', metavar='MILLISECONDS', help='Wait for the specified amount of milliseconds before processing the first submit. (forwarded to replay tool)')
+    parser.add_argument('--idle-before-submit', action='store_true', default=False, help='Wait for the GPU to become idle before each submit. (forwarded to replay tool)')
+    parser.add_argument('--serialize-render-passes', action='store_true', default=False, help='Serialize render passes by injecting execution barriers before render pass begin during replay. (forwarded to replay tool)')
+    parser.add_argument('--frame-warm-up-spirv', metavar='DEVICE_FILE', help='Specify a user-provided SPIR-V compute shader for the warm-up pass. The shader must use entry point main and set 0, binding 0 as a storage buffer. Warm-up runs before the first submit of each replayed frame only when this option and a non-zero --frame-warm-up-load are both provided. (forwarded to replay tool)')
+    parser.add_argument('--frame-warm-up-load', metavar='LOAD', default=0, help='Specify workload scale factor for a compute dispatch warm-up pass run before each frame replay. Default is 0 (disabled). (forwarded to replay tool)')
+    parser.add_argument('--wait-before-frame', metavar='MILLISECONDS', default=0, help='Wait for the specified amount of milliseconds before starting to replay each frame. Default is 0 (no wait). (forwarded to replay tool)')
+    parser.add_argument('--serialize-queue-submissions', action='store_true', default=False, help='Serialize submit entries within one vkQueueSubmit or vkQueueSubmit2 call by adding semaphores between consecutive submits during replay. (forwarded to replay tool)')
 
     return parser
 
@@ -184,6 +183,14 @@ def MakeExtrasString(args):
 
     if args.paused:
         arg_list.append('--paused')
+
+    if args.loop_frame:
+        arg_list.append("--loop-frame")
+        arg_list.append('{}'.format(args.loop_frame))
+
+    if args.loop_count:
+        arg_list.append('--loop-count')
+        arg_list.append('{}'.format(args.loop_count))
 
     if args.cpu_mask:
         arg_list.append('--cpu-mask')
@@ -271,6 +278,10 @@ def MakeExtrasString(args):
         arg_list.append('--swapchain')
         arg_list.append('{}'.format(args.swapchain))
 
+    if args.present_mode:
+        arg_list.append('--present-mode')
+        arg_list.append('{}'.format(args.present_mode))
+
     if args.offscreen_swapchain_frame_boundary:
         arg_list.append('--offscreen-swapchain-frame-boundary')
 
@@ -296,52 +307,9 @@ def MakeExtrasString(args):
         arg_list.append('--dump-resources')
         arg_list.append('{}'.format(args.dump_resources))
 
-    if args.dump_resources_before_draw:
-        arg_list.append('--dump-resources-before-draw')
-
-    if args.dump_resources_image_format:
-        arg_list.append('--dump-resources-image-format')
-        arg_list.append('{}'.format(args.dump_resources_image_format))
-
-    if args.dump_resources_scale:
-        arg_list.append('--dump-resources-scale')
-        arg_list.append('{}'.format(args.dump_resources_scale))
-
     if args.dump_resources_dir:
         arg_list.append('--dump-resources-dir')
         arg_list.append('{}'.format(args.dump_resources_dir))
-
-    if args.dump_resources_dump_depth_attachment:
-        arg_list.append('--dump-resources-dump-depth-attachment')
-
-    if args.dump_resources_dump_color_attachment_index:
-        arg_list.append('--dump-resources-dump-color-attachment-index')
-        arg_list.append('{}'.format(args.dump_resources_dump_color_attachment_index))
-
-    if args.dump_resources_dump_vertex_index_buffers:
-        arg_list.append('--dump-resources-dump-vertex-index-buffers')
-
-    if args.dump_resources_json_output_per_command:
-        arg_list.append('--dump-resources-json-output-per-command')
-
-    if args.dump_resources_dump_immutable_resources:
-        arg_list.append('--dump-resources-dump-immutable-resources')
-
-    if args.dump_resources_dump_all_image_subresources:
-        arg_list.append('--dump-resources-dump-all-image-subresources')
-
-    if args.dump_resources_dump_raw_images:
-        arg_list.append('--dump-resources-dump-raw-images')
-
-    if args.dump_resources_dump_separate_alpha:
-        arg_list.append('--dump-resources-dump-separate-alpha')
-
-    if args.dump_resources_dump_unused_vertex_bindings:
-        arg_list.append('--dump-resources-dump-unused-vertex-bindings')
-
-    if args.dump_resources_binary_file_compression_type:
-        arg_list.append('--dump-resources-binary-file-compression-type')
-        arg_list.append('{}'.format(args.dump_resources_binary_file_compression_type))
 
     if args.pbi_all:
         arg_list.append('--pbi-all')
@@ -371,6 +339,31 @@ def MakeExtrasString(args):
 
     if args.screenshot_ignore_FrameBoundaryANDROID:
         arg_list.append('--screenshot-ignore-FrameBoundaryANDROID')
+
+    if args.wait_before_first_submit:
+        arg_list.append('--wait-before-first-submit')
+        arg_list.append('{}'.format(args.wait_before_first_submit))
+
+    if args.idle_before_submit:
+        arg_list.append('--idle-before-submit')
+
+    if args.serialize_render_passes:
+        arg_list.append('--serialize-render-passes')
+
+    if args.frame_warm_up_spirv:
+        arg_list.append('--frame-warm-up-spirv')
+        arg_list.append('{}'.format(args.frame_warm_up_spirv))
+
+    if args.frame_warm_up_load:
+        arg_list.append('--frame-warm-up-load')
+        arg_list.append('{}'.format(args.frame_warm_up_load))
+    
+    if args.serialize_queue_submissions:
+        arg_list.append('--serialize-queue-submissions')
+
+    if args.wait_before_frame:
+        arg_list.append('--wait-before-frame')
+        arg_list.append('{}'.format(args.wait_before_frame))
 
     if args.file:
         arg_list.append(args.file)
@@ -411,8 +404,8 @@ def ReplayCommon(replay_args, activity):
 
         adb_start = 'adb shell am start -n {} -a {} -c {}'.format(activity, app_action, app_category)
 
-        cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
-        print('Executing:', cmd)
+        print(f'Executing: {adb_start} --es args \'"{extras}"\'')
+        cmd = ' '.join([adb_start, '--es', 'args', '"{}"'.format(extras)])
 
         # Specify posix=False to prevent removal of quotes from adb extras.
         subprocess.check_call(shlex.split(cmd, posix=False))

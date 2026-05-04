@@ -47,4 +47,6 @@ target_link_libraries(
         gfxrecon_format
         platform_specific)
 
+target_link_options(gfxrecon-replay PRIVATE "-Wl,-z,max-page-size=16384")
+
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")

@@ -10,8 +10,11 @@
     5. [Simple examples](#simple-examples)
     6. [Index vector dimensionality](#index-vector-dimensionality)
     7. [A more complex example](#a-more-complex-example)
-2. [Command line options and input](#command-line-options-and-input)
-    1. [gfxrecon-replay command line params](#gfxrecon-replay-command-line-params)
+    8. [Culling dumped descriptors](#culling-dumped-descriptors)
+    9. [Transfer commands](#transfer-commands)
+2. [Vulkan dump resources options](#vulkan-dump-resources-options)
+    1. [gfxrecon-replay command line parameters](#gfxrecon-replay-command-line-parameters)
+    2. [Input json options](#input-json-options)
 3. [Output](#output)
     1. [Json file output](#json-file-output)
     2. [Image file output](#image-file-output)
@@ -38,6 +41,10 @@ GFXReconstruct offers the capability to dump resources when replaying a capture 
 4. Descriptor bindings used as inputs in all shader stages.
 
     All images and buffers used as descriptor bindings by draw calls, dispatch and ray tracing shaders.
+
+5. Transfer commands
+
+    Target resources of transfer commands
 
 The resources are dumped into files and can either be image files (bmp or png) or binary files.
 
@@ -159,7 +166,7 @@ In order to dump the draw call from the secondary command buffer `230` the follo
     "Draw": [ [ 761 ], [ ] ],
     "RenderPass": [ [ [ ] ], [ [ 3948, 3950 ] ] ],
     "ExecuteCommands": [ [ [ ] ], [ [ 3949, 754 ] ] ],
-    "QueueSubmit": [ 3952 ]
+    "QueueSubmit": [ 3952, 3952 ]
 }
 ```
 
@@ -169,7 +176,7 @@ Indices are provided in GFXReconstruct as vectors of indices. Each index vector,
 
 * `"BeginCommandBuffer"` and `"QueueSubmit"`: **1D**
 
-Commands recorded in multiple command buffers can be dumped in a single run. For each command buffer the index of the `vkBeginCommandBuffer` must be provided. The index of the `vkQueueSubmit` in which the command buffer is submitted must be provided. Both these vectors must have the same number of indices.
+Commands recorded in multiple command buffers can be dumped in a single run. For each command buffer the index of the `vkBeginCommandBuffer` must be provided. The index of the `vkQueueSubmit` in which the command buffer is submitted must be provided. Both these vectors must have the same number of indices, so in the case of multiple command buffers being submitted in the same `vkQueueSubmit` the submission index needs to be duplicated.
 
 * `"Draw"`, `"Dispatch"` and `"TraceRays"`: **2D**
 
@@ -250,69 +257,205 @@ In this example two command buffers are submitted for dumping, one with object I
     * `[ 26, 30 ]`: `vkCmdBeginRenderPass`: `26` and `vkCmdEndRenderPass`: `30`
 * Command buffer `59` is submitted for execution with `vkQueueSubmit` with index `50` and command buffer `60` is submitted in `vkQueueSubmit` with index `51`
 
-## Command line options and input
+### Culling dumped descriptors
+There is an option to ask for specific descriptors and image subresources to be dumped instead of dumping all bound descriptors. This can be done by providing for each command index the 1) descriptor set index, 2) binding index and, 3) array index of the descriptors to be dumped for the specific command.
+This is an example:
+```Json
+{
+    "BeginCommandBuffer": [
+        2525
+    ],
+    "QueueSubmit": [
+        2548
+    ],
+    "Draw": [
+        [
+            {
+                "Index": 2533,
+                "Descriptors": [
+                    {
+                        "Set": 0,
+                        "Binding": 1,
+                        "ArrayIndex": 0
+                    },
+                    {
+                        "Set": 0,
+                        "Binding": 0,
+                        "ArrayIndex": 0
+                    }
+                ]
+            },
+            2537
+        ]
+    ],
+    "RenderPass": [
+        [
+            [
+                2526,
+                2538
+            ]
+        ]
+    ]
+}
+```
 
-### gfxrecon-replay command line params
+Image descriptors can be fine grained further by specifying the desired subresources with a `VkImageSubresourceRange` like this:
 
-Dump resources feature can be control in several ways. To do so, a number of parameters can be provided to either to the `gfxrecon-replay` tool or to the Android application through the `gfxrecon.py` script:
+```Json
+"Index": 2533,
+"Descriptors": [
+    {
+        "Set": 0,
+        "Binding": 1,
+        "ArrayIndex": 0,
+        "SubresourceRange": {
+            "AspectMask": "VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT",
+            "BaseMipLevel": 2,
+            "LevelCount": 1,
+            "BaseArrayLayer": 2,
+            "LayerCount": 1
+        }
+    }
+]
+```
 
-```text
-  --dump-resources <submit-index,command-index,draw-call-index>
-              The capture file will be examined, and <submit-index,command-index,draw-call-index>
-              will be converted to <arg> as used in --dump-resources <arg> below.
-              The converted args will be used as the args for dump resources.
-  --dump-resources <arg>
-              <arg> is BeginCommandBuffer=<n>,Draw=<o>,BeginRenderPass=<p>,
-              NextSubpass=<q>,EndRenderPass=<r>,Dispatch=<s>,TraceRays=<t>,
-              QueueSubmit=<u>
-              Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
-              each is a block index from the capture file.  The additional parameters are used to identify during which occurence
-              of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
-              indicate subpasses withing a render pass.  Note that the minimal set of parameters must be one of:
-                  BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, QueueSubmit
-                  BeginCmdBuffer, Dispatch, QueueSubmit
-                  BeginCmdBuffer, TraceRays, QueueSubmit
-  --dump-resources <filename>
-              Extract --dump-resources block indices args from the specified file, with each line in the file containing a comma 
-              or space separated list of the parameters to --dump-resources <arg>. The file can contain multiple lines 
-              specifying multiple dumps.
-  --dump-resources <filename>.json
-              Extract --dump-resources block indices args from the specified json file. The format for the json file is 
-              documented in detail in the gfxreconstruct documentation.
-  --dump-resources-image-format <format>
-              Image file format to use for image resource dumping.
-              Available formats are:
-                  bmp         Bitmap file format.  This is the default format.
-                  png         Png file format.
-  --dump-resources-before-draw
-              In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
-              --dump-resources argument, also dump resources before those calls.
-  --dump-resources-scale <scale>
-              Scale images generated by dump resources by the given scale factor. The scale factor must be a floating point number
-              greater than 0. Values greater than 10 are capped at 10. Default value is 1.0.
-  --dump-resources-dir <dir>
-              Directory to write dump resources output files. Default is the current working directory.
-  --dump-resources-dump-depth-attachment
-              Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
-  --dump-resources-dump-color-attachment-index <index>
-              Specify which color attachment to dump when dumping draw calls. Index should be an unsigned zero
-              based integer. Default is to dump all color attachments.
-  --dump-resources-dump-vertex-index-buffers
-              Enables dumping of vertex and index buffers while dumping draw call resources.
-  --dump-resources-json-output-per-command
-              Enables storing a json output file for each dumped command. Overrides default behavior which
-              is generating one output json file that contains the information for all dumped commands.
-  --dump-resources-dump-immutable-resources
-              Enables dumping of resources that are used as inputs in the commands requested for dumping
-  --dump-resources-dump-all-image-subresources
-              Enables dumping of all image sub resources (mip map levels and array layers)
-  --dump-resources-dump-raw-images
-              When enabled all image resources will be dumped verbatim as raw bin files.
-  --dump-resources-dump-separate-alpha
-              When enabled alpha channel of dumped images will be dumped in a separate file.
-  --dump-resources-binary-file-compression-type
-              Compress files that are dumped as binary. Available compression types are: [none, lz4 (block format), zlib,
-              zlib, zstd]. Default is none (no compression).
+`VK_REMAINING_MIP_LEVELS` and `VK_REMAINING_ARRAY_LAYERS` can be used in `LevelCount` and `LayerCount` respectively.
+
+### Transfer commands
+
+Target resources of transfer commands can also be dumped. Currently the supported transfer commands are the following:
+- `vkCmdCopyBuffer`
+- `vkCmdCopyBuffer2`
+- `vkCmdCopyBuffer2KHR`
+- `vkCmdCopyBufferToImage`
+- `vkCmdCopyBufferToImage2`
+- `vkCmdCopyBufferToImage2KHR`
+- `vkCmdCopyImage`
+- `vkCmdCopyImage2`
+- `vkCmdCopyImage2KHR`
+- `vkCmdCopyImageToBuffer`
+- `vkCmdCopyImageToBuffer2`
+- `vkCmdCopyImageToBuffer2KHR`
+- `vkCmdBlitImage`
+- `vkCmdBlitImage2`
+- `vkCmdBlitImage2KHR`
+- `vkCmdBuildAccelerationStructuresKHR`
+- `vkCmdCopyAccelerationStructureKHR`
+
+Additionally the following GFXR transfer meta commands can also be dumped:
+- `kInitBufferCommand`
+- `kInitImageCommand`
+- `kVulkanBuildAccelerationStructuresCommand`
+- `kVulkanCopyAccelerationStructuresCommand`
+The meta commands can only exist in the state setup block. The state setup block exists only for trimmed captures and its purpose is to initialize all Vulkan objects that have been created outside the captured region.
+
+`vkCmdCopyBuffer` and its variations and `vkCmdCopyImageToBuffer` and its variations will dump the target buffer's regions as separate binary files.
+
+`vkCmdCopyImage` and its variations and `vkCmdCopyBufferToImage` and its variations will dump the target image's regions as separate image files (or binary files depending on the circumstances).
+
+Transfer command indices need to specified in a similar manner as with the other commands. The `Transfer` json entry is used for this. An example:
+
+```Json
+"BeginCommandBuffer": [ 250 ],
+"Transfer": [[266, 267]],
+"QueueSubmit": [ 270 ]
+```
+
+The supported transfer meta commands can be found in the state setup of a trimmed capture. To do so `0` should be used a special block index for both `BeginCommandBuffer` and `QueueSubmit`. For example:
+
+```Json
+"BeginCommandBuffer": [ 0 ],
+"Transfer": [[266, 267]],
+"QueueSubmit": [ 0 ]
+```
+
+## Vulkan dump resources options
+
+### gfxrecon-replay command line parameters
+
+Dump resources feature can be controled in several ways. This is done either by providing the appropriate options via the command line or using the input json.
+The majority of the options are only available via the input json. The command line options, which can be passed to either to the `gfxrecon-replay` tool or to the Android application through the `gfxrecon.py` script are the following:
+
+- ```--dump-resources <filename>.json```
+Specify the input json file. It should contain the command indices and the various options that control how and which the resources should be dumped. The format for the json file is documented in detail in the gfxreconstruct documentation.
+
+- ```--dump-resources-dir <dir>```
+Directory to write dump resources output files. Default is the current working directory.
+
+
+### Input json options
+
+The rest of the dump resources options are available through the input json file. They are expected to be inside a json object named `DumpResourcesOptions`.
+The possible options are the following:
+
+* `Scale` <`float`>: Scale images generated by dump resources by the given scale factor. The scale factor must be a floating point number greater than 0. Values greater than 10 are capped at 10. Default value is `1.0`.
+
+* `ImageFormat` <`image format`>:
+Image file format to use for image resource dumping. Available formats are: `bmp` and `png`. Default is `bmp`.
+
+* `DumpBeforeCommand` <`boolean`>:
+In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls, also dump resources before those calls. Default is `false`.
+
+* `DumpDepth` <`boolean`>:
+Enables dumping of the depth attachment when dumping draw calls. Default is disabled. Default is `false`.
+
+* `ColorAttachmentIndex` <`unsigned integer`>:
+Specify which color attachment to dump when dumping draw calls. Index should be an unsigned zero
+based integer. Default is to dump all color attachments. By default all attachments are dumped.
+
+* `DumpVertexIndexBuffer` <`boolean`>:
+Enables dumping of vertex and index buffers while dumping draw call resources. Default is `false`.
+
+* `DumpAllDescriptors` <`boolean`>:
+Enables dumping all descriptors used in the shaders referenced by the commands that have been marked for dumping. Default is `false`.
+
+* `DumpAllImageSubresources` <`boolean`>:
+Enables dumping of all image sub resources (mip map levels and array layers). Default is `false`.
+
+* `DumpRawImages` <`boolean`>:
+When enabled all image resources will be dumped verbatim as raw bin files. Default is `false`.
+
+* `DumpSeparateAlpha` <`boolean`>:
+When enabled alpha channel of dumped images will be dumped in a separate file. Default is `false`.
+
+* `DumpUnusedVertexBindings` <`boolean`>:
+Bound vertex buffer bindings are filtered based on the currently active graphics pipeline. Setting this option to true will dump all bound vertex buffers. Default is `false`.
+
+* `JsonOutputPerCommand` <`boolean`>:
+Enables storing a json output file for each dumped command. Overrides default behavior which
+is generating one output json file that contains the information for all dumped commands. Default is `false`.
+
+* `BinaryFileCompressionType` <`compression method`>:
+Compress files that are dumped as binary. Available compression methods are: [`none`, `lz4` (block format), `zlib`, `zlib`, `zstd`]. Default is `none` (no compression).
+
+* `DumpBuildAccelerationStructuresInputBuffers` <`boolean`>:
+Dump all input buffers used in vkCmdBuildAccelerationStructures. This includes vertex, index, transformation matrix, AABB and instance buffers. Default is `false`.
+
+A json example specifying the above options:
+
+```Json
+{
+  "DumpResourcesOptions": {
+      "Scale": 0.2,
+      "ColorAttachmentIndex": -1,
+      "OutputDir": "",
+      "ImageFormat": "png",
+      "DumpBeforeCommand": false,
+      "DumpDepth": false,
+      "DumpVertexIndexBuffer": false,
+      "DumpAllDescriptors": true,
+      "DumpAllImageSubresources": true,
+      "DumpRawImages": false,
+      "DumpSeparateAlpha": false,
+      "DumpUnusedVertexBindings": false,
+      "BinaryFileCompressionType": "None",
+      "DumpBuildAccelerationStructuresInputBuffers": true
+  },
+
+  "BeginCommandBuffer": [ 448 ],
+  "TraceRays": [[ 451 ]],
+  "QueueSubmit": [ 466 ]
+}
 ```
 
 ## Output

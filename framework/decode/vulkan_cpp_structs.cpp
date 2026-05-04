@@ -996,7 +996,7 @@ GenerateStruct_VkAccelerationStructureMotionInstanceNV(std::ostream&            
 {
     std::stringstream struct_body;
     std::string       accel_struct_inst_variable = GenerateStruct_VkAccelerationStructureInstanceKHR(
-        out, &structInfo->data.staticInstance, metaInfo->staticInstance, consumer);
+        out, &structInfo->data.staticInstance, metaInfo->data->staticInstance, consumer);
     // type
     struct_body << "\t\t\t"
                 << "VkAccelerationStructureMotionInstanceTypeNV(" << structInfo->type << ")"
@@ -1226,7 +1226,7 @@ std::string GenerateStruct_VkIndirectExecutionSetCreateInfoEXT(std::ostream&    
     struct_body << "\t\t\t"
                 << "VkIndirectExecutionSetInfoTypeEXT(" << structInfo->type << ")" << std::endl;
     // info
-    switch (metaInfo->decoded_type)
+    switch (structInfo->type)
     {
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
             struct_body << "\t\t\t"
@@ -1263,7 +1263,7 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     struct_body << "\t\t\t"
                 << "VkIndirectCommandsTokenTypeEXT(" << structInfo->type << ")" << std::endl;
     // data
-    switch (metaInfo->decoded_type)
+    switch (structInfo->type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
@@ -1294,9 +1294,11 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_MESH_TASKS_COUNT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_TRACE_RAYS2_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_MAX_ENUM_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_SEQUENCE_INDEX_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_DATA_EXT:
             GFXRECON_LOG_ERROR(
                 "GenerateStruct_VkIndirectCommandsLayoutTokenEXT: unhandled case in switch-statement: %d",
-                metaInfo->decoded_type);
+                structInfo->type);
             break;
     }
     // offset
@@ -1372,7 +1374,7 @@ std::string GenerateStruct_VkMemoryToImageCopy(std::ostream&                out,
         out << "\t\t"
             << "const uint8_t " << phost_pointer_array << "[] = "
             << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(structInfo->pHostPointer),
-                                                 metaInfo->pHostPointer.GetLength())
+                                                 GFXRECON_NARROWING_CAST(uint32_t, metaInfo->pHostPointer.GetLength()))
             << ";" << std::endl;
     }
 
@@ -1463,7 +1465,7 @@ std::string GenerateStruct_VkImageToMemoryCopy(std::ostream&                out,
         out << "\t\t"
             << "uint8_t " << phost_pointer_array << "[] = "
             << VulkanCppConsumerBase::BuildValue(reinterpret_cast<const uint8_t*>(structInfo->pHostPointer),
-                                                 metaInfo->pHostPointer.GetLength())
+                                                 GFXRECON_NARROWING_CAST(uint32_t, metaInfo->pHostPointer.GetLength()))
             << ";" << std::endl;
     }
 
@@ -1490,6 +1492,117 @@ std::string GenerateStruct_VkImageToMemoryCopy(std::ostream&                out,
     out << "\t\t"
         << "};" << std::endl;
     return variable_name;
+}
+
+std::string GenerateStruct_VkLayerSettingEXT(std::ostream&              out,
+                                             const VkLayerSettingEXT*   structInfo,
+                                             Decoded_VkLayerSettingEXT* metaInfo,
+                                             VulkanCppConsumerBase&     consumer)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(metaInfo);
+
+    std::stringstream struct_body;
+    std::string       pvalues_array = "NULL";
+
+    if (structInfo->pValues != nullptr)
+    {
+        std::string pvalues_values;
+        std::string pvalues_typestr;
+
+        switch (structInfo->type)
+        {
+            case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+            case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+                pvalues_typestr = "uint32_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_INT32_EXT:
+                pvalues_typestr = "int32_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_INT64_EXT:
+                pvalues_typestr = "int64_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+                pvalues_typestr = "uint64_t ";
+                break;
+            case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+                pvalues_typestr = "float ";
+                break;
+            case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+                pvalues_typestr = "double ";
+                break;
+            case VK_LAYER_SETTING_TYPE_STRING_EXT:
+                pvalues_typestr = "const char* ";
+                break;
+            case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+                GFXRECON_ASSERT(false);
+                break;
+        }
+
+        for (uint32_t i = 0; i < structInfo->valueCount; ++i)
+        {
+            std::string val;
+            switch (structInfo->type)
+            {
+                case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+                case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+                    val = std::to_string(static_cast<const uint32_t*>(structInfo->pValues)[i]);
+                    break;
+                case VK_LAYER_SETTING_TYPE_INT32_EXT:
+                    val = std::to_string(static_cast<const int32_t*>(structInfo->pValues)[i]);
+                    break;
+                case VK_LAYER_SETTING_TYPE_INT64_EXT:
+                    val = std::to_string(static_cast<const int64_t*>(structInfo->pValues)[i]);
+                    break;
+                case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+                    val = std::to_string(static_cast<const uint64_t*>(structInfo->pValues)[i]);
+                    break;
+                case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+                    val = std::to_string(static_cast<const float*>(structInfo->pValues)[i]);
+                    break;
+                case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+                    val = std::to_string(static_cast<const double*>(structInfo->pValues)[i]);
+                    break;
+                case VK_LAYER_SETTING_TYPE_STRING_EXT:
+                {
+                    const auto* string_array = static_cast<const char* const*>(structInfo->pValues);
+                    val                      = std::string("\"") + string_array[i] + "\"";
+                }
+                break;
+                case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+                    GFXRECON_ASSERT(false);
+                    break;
+            }
+            pvalues_values += val + ", ";
+        }
+        pvalues_array = "pValues_" + std::to_string(consumer.GetNextId());
+        out << "\t\t" << pvalues_typestr << pvalues_array << "[] = {" << pvalues_values << "};" << std::endl;
+    }
+    struct_body << "\t" << VulkanCppConsumerBase::ToEscape(structInfo->pLayerName) << "," << std::endl;
+    struct_body << "\t\t\t" << VulkanCppConsumerBase::ToEscape(structInfo->pSettingName) << "," << std::endl;
+    struct_body << "\t\t\t"
+                << "VkLayerSettingTypeEXT(" << structInfo->type << ")"
+                << "," << std::endl;
+    struct_body << "\t\t\t" << structInfo->valueCount << "," << std::endl;
+    struct_body << "\t\t\t" << pvalues_array << ",";
+    std::string variable_name = consumer.AddStruct(struct_body, "layerSettingEXT");
+    out << "\t\t"
+        << "VkLayerSettingEXT " << variable_name << " {" << std::endl;
+    out << "\t\t" << struct_body.str() << std::endl;
+    out << "\t\t"
+        << "};" << std::endl;
+    return variable_name;
+}
+
+std::string GenerateStruct_VkDescriptorGetInfoEXT(std::ostream&                   out,
+                                                  const VkDescriptorGetInfoEXT*   structInfo,
+                                                  Decoded_VkDescriptorGetInfoEXT* metaInfo,
+                                                  VulkanCppConsumerBase&          consumer)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(out);
+    GFXRECON_UNREFERENCED_PARAMETER(structInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(metaInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(consumer);
+    return {};
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

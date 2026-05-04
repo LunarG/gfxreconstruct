@@ -117,11 +117,14 @@ void OpenXrReplayConsumer::Process_xrGetSystem(
 {
     XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
     const XrSystemGetInfo* in_getInfo = getInfo->GetPointer();
+    MapStructHandles(getInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!systemId->IsNull()) { systemId->SetHandleLength(1); }
     XrSystemId* out_systemId = systemId->GetHandlePointer();
 
+    PushRecaptureHandleId(systemId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_instance)->GetSystem(in_instance, in_getInfo, out_systemId);
     CheckResult("xrGetSystem", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSystemIdInfo>(instance, systemId->GetPointer(), out_systemId, &CommonObjectInfoTable::AddXrSystemIdInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrGetSystem>::UpdateState(this, call_info, returnValue, instance, getInfo, systemId, replay_result);
@@ -139,8 +142,10 @@ void OpenXrReplayConsumer::Process_xrGetSystemProperties(
     XrSystemProperties* out_properties = properties->IsNull() ? nullptr : properties->AllocateOutputData(1, { XR_TYPE_SYSTEM_PROPERTIES, nullptr });
     InitializeOutputStructNext(properties);
 
+    PushRecaptureStructHandleIds(properties->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_instance)->GetSystemProperties(in_instance, in_systemId, out_properties);
     CheckResult("xrGetSystemProperties", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(instance, properties->GetMetaStructPointer(), out_properties, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetSystemProperties>::UpdateState(this, call_info, returnValue, instance, systemId, properties, replay_result);
@@ -159,8 +164,10 @@ void OpenXrReplayConsumer::Process_xrCreateSession(
     if (!session->IsNull()) { session->SetHandleLength(1); }
     XrSession* out_session = session->GetHandlePointer();
 
+    PushRecaptureHandleId(session->GetPointer());
     XrResult replay_result = GetInstanceTable(in_instance)->CreateSession(in_instance, in_createInfo, out_session);
     CheckResult("xrCreateSession", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSessionInfo>(instance, session->GetPointer(), out_session, &CommonObjectInfoTable::AddXrSessionInfo);
     
@@ -207,11 +214,14 @@ void OpenXrReplayConsumer::Process_xrCreateReferenceSpace(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrReferenceSpaceCreateInfo* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateReferenceSpace(in_session, in_createInfo, out_space);
     CheckResult("xrCreateReferenceSpace", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -247,8 +257,10 @@ void OpenXrReplayConsumer::Process_xrCreateActionSpace(
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateActionSpace(in_session, in_createInfo, out_space);
     CheckResult("xrCreateActionSpace", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -269,8 +281,12 @@ void OpenXrReplayConsumer::Process_xrLocateSpace(
     XrSpaceLocation* out_location = location->IsNull() ? nullptr : location->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATION, nullptr });
     InitializeOutputStructNext(location);
 
+    PushRecaptureStructHandleIds(location->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_space)->LocateSpace(in_space, in_baseSpace, time, out_location);
     CheckResult("xrLocateSpace", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
+
+    AddStructHandles(space, location->GetMetaStructPointer(), out_location, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrLocateSpace>::UpdateState(this, call_info, returnValue, space, baseSpace, time, location, replay_result);
 }
 
@@ -400,6 +416,7 @@ void OpenXrReplayConsumer::Process_xrAcquireSwapchainImage(
 {
     XrSwapchain in_swapchain = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
     const XrSwapchainImageAcquireInfo* in_acquireInfo = acquireInfo->GetPointer();
+    MapStructHandles(acquireInfo->GetMetaStructPointer(), GetObjectInfoTable());
     uint32_t* out_index = index->IsNull() ? nullptr : index->AllocateOutputData(1, static_cast<uint32_t>(0));
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->AcquireSwapchainImage(in_swapchain, in_acquireInfo, out_index);
@@ -415,6 +432,7 @@ void OpenXrReplayConsumer::Process_xrWaitSwapchainImage(
 {
     XrSwapchain in_swapchain = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
     const XrSwapchainImageWaitInfo* in_waitInfo = waitInfo->GetPointer();
+    MapStructHandles(waitInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->WaitSwapchainImage(in_swapchain, in_waitInfo);
     CheckResult("xrWaitSwapchainImage", returnValue, replay_result, call_info);
@@ -429,6 +447,7 @@ void OpenXrReplayConsumer::Process_xrBeginSession(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrSessionBeginInfo* in_beginInfo = beginInfo->GetPointer();
+    MapStructHandles(beginInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->BeginSession(in_session, in_beginInfo);
     CheckResult("xrBeginSession", returnValue, replay_result, call_info);
@@ -468,6 +487,7 @@ void OpenXrReplayConsumer::Process_xrWaitFrame(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrFrameWaitInfo* in_frameWaitInfo = frameWaitInfo->GetPointer();
+    MapStructHandles(frameWaitInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrFrameState* out_frameState = frameState->IsNull() ? nullptr : frameState->AllocateOutputData(1, { XR_TYPE_FRAME_STATE, nullptr });
     InitializeOutputStructNext(frameState);
 
@@ -484,6 +504,7 @@ void OpenXrReplayConsumer::Process_xrBeginFrame(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrFrameBeginInfo* in_frameBeginInfo = frameBeginInfo->GetPointer();
+    MapStructHandles(frameBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->BeginFrame(in_session, in_frameBeginInfo);
     CheckResult("xrBeginFrame", returnValue, replay_result, call_info);
@@ -525,8 +546,10 @@ void OpenXrReplayConsumer::Process_xrStringToPath(
     if (!path->IsNull()) { path->SetHandleLength(1); }
     XrPath* out_path = path->GetHandlePointer();
 
+    PushRecaptureHandleId(path->GetPointer());
     XrResult replay_result = GetInstanceTable(in_instance)->StringToPath(in_instance, in_pathString, out_path);
     CheckResult("xrStringToPath", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrPathInfo>(instance, path->GetPointer(), out_path, &CommonObjectInfoTable::AddXrPathInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrStringToPath>::UpdateState(this, call_info, returnValue, instance, pathString, path, replay_result);
@@ -560,11 +583,14 @@ void OpenXrReplayConsumer::Process_xrCreateActionSet(
 {
     XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
     const XrActionSetCreateInfo* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!actionSet->IsNull()) { actionSet->SetHandleLength(1); }
     XrActionSet* out_actionSet = actionSet->GetHandlePointer();
 
+    PushRecaptureHandleId(actionSet->GetPointer());
     XrResult replay_result = GetInstanceTable(in_instance)->CreateActionSet(in_instance, in_createInfo, out_actionSet);
     CheckResult("xrCreateActionSet", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrActionSetInfo>(instance, actionSet->GetPointer(), out_actionSet, &CommonObjectInfoTable::AddXrActionSetInfo);
     
@@ -598,8 +624,10 @@ void OpenXrReplayConsumer::Process_xrCreateAction(
     if (!action->IsNull()) { action->SetHandleLength(1); }
     XrAction* out_action = action->GetHandlePointer();
 
+    PushRecaptureHandleId(action->GetPointer());
     XrResult replay_result = GetInstanceTable(in_actionSet)->CreateAction(in_actionSet, in_createInfo, out_action);
     CheckResult("xrCreateAction", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrActionInfo>(actionSet, action->GetPointer(), out_action, &CommonObjectInfoTable::AddXrActionInfo);
     
@@ -662,8 +690,10 @@ void OpenXrReplayConsumer::Process_xrGetCurrentInteractionProfile(
     XrInteractionProfileState* out_interactionProfile = interactionProfile->IsNull() ? nullptr : interactionProfile->AllocateOutputData(1, { XR_TYPE_INTERACTION_PROFILE_STATE, nullptr });
     InitializeOutputStructNext(interactionProfile);
 
+    PushRecaptureStructHandleIds(interactionProfile->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->GetCurrentInteractionProfile(in_session, in_topLevelUserPath, out_interactionProfile);
     CheckResult("xrGetCurrentInteractionProfile", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, interactionProfile->GetMetaStructPointer(), out_interactionProfile, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetCurrentInteractionProfile>::UpdateState(this, call_info, returnValue, session, topLevelUserPath, interactionProfile, replay_result);
@@ -772,8 +802,10 @@ void OpenXrReplayConsumer::Process_xrEnumerateBoundSourcesForAction(
     if (!sources->IsNull()) { sources->SetHandleLength(sourceCapacityInput); }
     XrPath* out_sources = sources->GetHandlePointer();
 
+    PushRecaptureHandleIds(sources->GetPointer(), sources->GetLength());
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateBoundSourcesForAction(in_session, in_enumerateInfo, sourceCapacityInput, out_sourceCountOutput, out_sources);
     CheckResult("xrEnumerateBoundSourcesForAction", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandles<OpenXrPathInfo>(session, sources->GetPointer(), sources->GetLength(), out_sources, sourceCapacityInput, &CommonObjectInfoTable::AddXrPathInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateBoundSourcesForAction>::UpdateState(this, call_info, returnValue, session, enumerateInfo, sourceCapacityInput, sourceCountOutput, sources, replay_result);
@@ -855,12 +887,15 @@ void OpenXrReplayConsumer::Process_xrCreateSwapchainAndroidSurfaceKHR(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrSwapchainCreateInfo* in_info = info->GetPointer();
+    MapStructHandles(info->GetMetaStructPointer(), GetObjectInfoTable());
     if (!swapchain->IsNull()) { swapchain->SetHandleLength(1); }
     XrSwapchain* out_swapchain = swapchain->GetHandlePointer();
     jobject* in_surface = static_cast<jobject*>(PreProcessExternalObject(surface, format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR, "xrCreateSwapchainAndroidSurfaceKHR"));
 
+    PushRecaptureHandleId(swapchain->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSwapchainAndroidSurfaceKHR(in_session, in_info, out_swapchain, in_surface);
     CheckResult("xrCreateSwapchainAndroidSurfaceKHR", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSwapchainInfo>(session, swapchain->GetPointer(), out_swapchain, &CommonObjectInfoTable::AddXrSwapchainInfo);
     
@@ -954,8 +989,10 @@ void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsDeviceKHR(
     if (!vkPhysicalDevice->IsNull()) { vkPhysicalDevice->SetHandleLength(1); }
     VkPhysicalDevice* out_vkPhysicalDevice = vkPhysicalDevice->GetHandlePointer();
 
+    PushRecaptureHandleId(vkPhysicalDevice->GetPointer());
     XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanGraphicsDeviceKHR(in_instance, in_systemId, in_vkInstance, out_vkPhysicalDevice);
     CheckResult("xrGetVulkanGraphicsDeviceKHR", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<VulkanPhysicalDeviceInfo>(instance, vkPhysicalDevice->GetPointer(), out_vkPhysicalDevice, &CommonObjectInfoTable::AddVkPhysicalDeviceInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::UpdateState(this, call_info, returnValue, instance, systemId, vkInstance, vkPhysicalDevice, replay_result);
@@ -1122,8 +1159,10 @@ void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsDevice2KHR(
     if (!vulkanPhysicalDevice->IsNull()) { vulkanPhysicalDevice->SetHandleLength(1); }
     VkPhysicalDevice* out_vulkanPhysicalDevice = vulkanPhysicalDevice->GetHandlePointer();
 
+    PushRecaptureHandleId(vulkanPhysicalDevice->GetPointer());
     XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanGraphicsDevice2KHR(in_instance, in_getInfo, out_vulkanPhysicalDevice);
     CheckResult("xrGetVulkanGraphicsDevice2KHR", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<VulkanPhysicalDeviceInfo>(instance, vulkanPhysicalDevice->GetPointer(), out_vulkanPhysicalDevice, &CommonObjectInfoTable::AddVkPhysicalDeviceInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::UpdateState(this, call_info, returnValue, instance, getInfo, vulkanPhysicalDevice, replay_result);
@@ -1205,6 +1244,7 @@ void OpenXrReplayConsumer::Process_xrSetDebugUtilsObjectNameEXT(
 {
     XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
     const XrDebugUtilsObjectNameInfoEXT* in_nameInfo = nameInfo->GetPointer();
+    MapStructHandles(nameInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_instance)->SetDebugUtilsObjectNameEXT(in_instance, in_nameInfo);
     CheckResult("xrSetDebugUtilsObjectNameEXT", returnValue, replay_result, call_info);
@@ -1234,6 +1274,7 @@ void OpenXrReplayConsumer::Process_xrSubmitDebugUtilsMessageEXT(
 {
     XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
     const XrDebugUtilsMessengerCallbackDataEXT* in_callbackData = callbackData->GetPointer();
+    MapStructHandles(callbackData->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_instance)->SubmitDebugUtilsMessageEXT(in_instance, messageSeverity, messageTypes, in_callbackData);
     CheckResult("xrSubmitDebugUtilsMessageEXT", returnValue, replay_result, call_info);
@@ -1248,6 +1289,7 @@ void OpenXrReplayConsumer::Process_xrSessionBeginDebugUtilsLabelRegionEXT(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrDebugUtilsLabelEXT* in_labelInfo = labelInfo->GetPointer();
+    MapStructHandles(labelInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->SessionBeginDebugUtilsLabelRegionEXT(in_session, in_labelInfo);
     CheckResult("xrSessionBeginDebugUtilsLabelRegionEXT", returnValue, replay_result, call_info);
@@ -1274,6 +1316,7 @@ void OpenXrReplayConsumer::Process_xrSessionInsertDebugUtilsLabelEXT(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrDebugUtilsLabelEXT* in_labelInfo = labelInfo->GetPointer();
+    MapStructHandles(labelInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->SessionInsertDebugUtilsLabelEXT(in_session, in_labelInfo);
     CheckResult("xrSessionInsertDebugUtilsLabelEXT", returnValue, replay_result, call_info);
@@ -1293,8 +1336,10 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorMSFT(
     if (!anchor->IsNull()) { anchor->SetHandleLength(1); }
     XrSpatialAnchorMSFT* out_anchor = anchor->GetHandlePointer();
 
+    PushRecaptureHandleId(anchor->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialAnchorMSFT(in_session, in_createInfo, out_anchor);
     CheckResult("xrCreateSpatialAnchorMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpatialAnchorMSFTInfo>(session, anchor->GetPointer(), out_anchor, &CommonObjectInfoTable::AddXrSpatialAnchorMSFTInfo);
     
@@ -1315,8 +1360,10 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorSpaceMSFT(
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialAnchorSpaceMSFT(in_session, in_createInfo, out_space);
     CheckResult("xrCreateSpatialAnchorSpaceMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -1433,11 +1480,14 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialGraphNodeSpaceMSFT(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrSpatialGraphNodeSpaceCreateInfoMSFT* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialGraphNodeSpaceMSFT(in_session, in_createInfo, out_space);
     CheckResult("xrCreateSpatialGraphNodeSpaceMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -1458,8 +1508,10 @@ void OpenXrReplayConsumer::Process_xrTryCreateSpatialGraphStaticNodeBindingMSFT(
     if (!nodeBinding->IsNull()) { nodeBinding->SetHandleLength(1); }
     XrSpatialGraphNodeBindingMSFT* out_nodeBinding = nodeBinding->GetHandlePointer();
 
+    PushRecaptureHandleId(nodeBinding->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->TryCreateSpatialGraphStaticNodeBindingMSFT(in_session, in_createInfo, out_nodeBinding);
     CheckResult("xrTryCreateSpatialGraphStaticNodeBindingMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpatialGraphNodeBindingMSFTInfo>(session, nodeBinding->GetPointer(), out_nodeBinding, &CommonObjectInfoTable::AddXrSpatialGraphNodeBindingMSFTInfo);
     
@@ -1489,6 +1541,7 @@ void OpenXrReplayConsumer::Process_xrGetSpatialGraphNodeBindingPropertiesMSFT(
 {
     XrSpatialGraphNodeBindingMSFT in_nodeBinding = MapHandle<OpenXrSpatialGraphNodeBindingMSFTInfo>(nodeBinding, &CommonObjectInfoTable::GetXrSpatialGraphNodeBindingMSFTInfo);
     const XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* in_getInfo = getInfo->GetPointer();
+    MapStructHandles(getInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrSpatialGraphNodeBindingPropertiesMSFT* out_properties = properties->IsNull() ? nullptr : properties->AllocateOutputData(1, { XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_MSFT, nullptr });
     InitializeOutputStructNext(properties);
 
@@ -1506,11 +1559,14 @@ void OpenXrReplayConsumer::Process_xrCreateHandTrackerEXT(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrHandTrackerCreateInfoEXT* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!handTracker->IsNull()) { handTracker->SetHandleLength(1); }
     XrHandTrackerEXT* out_handTracker = handTracker->GetHandlePointer();
 
+    PushRecaptureHandleId(handTracker->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateHandTrackerEXT(in_session, in_createInfo, out_handTracker);
     CheckResult("xrCreateHandTrackerEXT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrHandTrackerEXTInfo>(session, handTracker->GetPointer(), out_handTracker, &CommonObjectInfoTable::AddXrHandTrackerEXTInfo);
     
@@ -1540,11 +1596,14 @@ void OpenXrReplayConsumer::Process_xrCreateHandMeshSpaceMSFT(
 {
     XrHandTrackerEXT in_handTracker = MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
     const XrHandMeshSpaceCreateInfoMSFT* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_handTracker)->CreateHandMeshSpaceMSFT(in_handTracker, in_createInfo, out_space);
     CheckResult("xrCreateHandMeshSpaceMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(handTracker, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -1561,6 +1620,7 @@ void OpenXrReplayConsumer::Process_xrUpdateHandMeshMSFT(
 {
     XrHandTrackerEXT in_handTracker = MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
     const XrHandMeshUpdateInfoMSFT* in_updateInfo = updateInfo->GetPointer();
+    MapStructHandles(updateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrHandMeshMSFT* out_handMesh = handMesh->IsNull() ? nullptr : handMesh->AllocateOutputData(1, { XR_TYPE_HAND_MESH_MSFT, nullptr });
     InitializeOutputStructNext(handMesh);
 
@@ -1581,8 +1641,10 @@ void OpenXrReplayConsumer::Process_xrGetControllerModelKeyMSFT(
     XrControllerModelKeyStateMSFT* out_controllerModelKeyState = controllerModelKeyState->IsNull() ? nullptr : controllerModelKeyState->AllocateOutputData(1, { XR_TYPE_CONTROLLER_MODEL_KEY_STATE_MSFT, nullptr });
     InitializeOutputStructNext(controllerModelKeyState);
 
+    PushRecaptureStructHandleIds(controllerModelKeyState->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->GetControllerModelKeyMSFT(in_session, in_topLevelUserPath, out_controllerModelKeyState);
     CheckResult("xrGetControllerModelKeyMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, controllerModelKeyState->GetMetaStructPointer(), out_controllerModelKeyState, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetControllerModelKeyMSFT>::UpdateState(this, call_info, returnValue, session, topLevelUserPath, controllerModelKeyState, replay_result);
@@ -1653,8 +1715,10 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFromPerceptionAnchorMSFT
     if (!anchor->IsNull()) { anchor->SetHandleLength(1); }
     XrSpatialAnchorMSFT* out_anchor = anchor->GetHandlePointer();
 
+    PushRecaptureHandleId(anchor->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialAnchorFromPerceptionAnchorMSFT(in_session, in_perceptionAnchor, out_anchor);
     CheckResult("xrCreateSpatialAnchorFromPerceptionAnchorMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpatialAnchorMSFTInfo>(session, anchor->GetPointer(), out_anchor, &CommonObjectInfoTable::AddXrSpatialAnchorMSFTInfo);
     
@@ -1737,11 +1801,14 @@ void OpenXrReplayConsumer::Process_xrCreateBodyTrackerFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrBodyTrackerCreateInfoFB* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!bodyTracker->IsNull()) { bodyTracker->SetHandleLength(1); }
     XrBodyTrackerFB* out_bodyTracker = bodyTracker->GetHandlePointer();
 
+    PushRecaptureHandleId(bodyTracker->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateBodyTrackerFB(in_session, in_createInfo, out_bodyTracker);
     CheckResult("xrCreateBodyTrackerFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrBodyTrackerFBInfo>(session, bodyTracker->GetPointer(), out_bodyTracker, &CommonObjectInfoTable::AddXrBodyTrackerFBInfo);
     
@@ -1805,11 +1872,14 @@ void OpenXrReplayConsumer::Process_xrCreateSceneObserverMSFT(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrSceneObserverCreateInfoMSFT* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!sceneObserver->IsNull()) { sceneObserver->SetHandleLength(1); }
     XrSceneObserverMSFT* out_sceneObserver = sceneObserver->GetHandlePointer();
 
+    PushRecaptureHandleId(sceneObserver->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSceneObserverMSFT(in_session, in_createInfo, out_sceneObserver);
     CheckResult("xrCreateSceneObserverMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSceneObserverMSFTInfo>(session, sceneObserver->GetPointer(), out_sceneObserver, &CommonObjectInfoTable::AddXrSceneObserverMSFTInfo);
     
@@ -1839,11 +1909,14 @@ void OpenXrReplayConsumer::Process_xrCreateSceneMSFT(
 {
     XrSceneObserverMSFT in_sceneObserver = MapHandle<OpenXrSceneObserverMSFTInfo>(sceneObserver, &CommonObjectInfoTable::GetXrSceneObserverMSFTInfo);
     const XrSceneCreateInfoMSFT* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!scene->IsNull()) { scene->SetHandleLength(1); }
     XrSceneMSFT* out_scene = scene->GetHandlePointer();
 
+    PushRecaptureHandleId(scene->GetPointer());
     XrResult replay_result = GetInstanceTable(in_sceneObserver)->CreateSceneMSFT(in_sceneObserver, in_createInfo, out_scene);
     CheckResult("xrCreateSceneMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSceneMSFTInfo>(sceneObserver, scene->GetPointer(), out_scene, &CommonObjectInfoTable::AddXrSceneMSFTInfo);
     
@@ -1902,6 +1975,7 @@ void OpenXrReplayConsumer::Process_xrGetSceneComponentsMSFT(
 {
     XrSceneMSFT in_scene = MapHandle<OpenXrSceneMSFTInfo>(scene, &CommonObjectInfoTable::GetXrSceneMSFTInfo);
     const XrSceneComponentsGetInfoMSFT* in_getInfo = getInfo->GetPointer();
+    MapStructHandles(getInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrSceneComponentsMSFT* out_components = components->IsNull() ? nullptr : components->AllocateOutputData(1, { XR_TYPE_SCENE_COMPONENTS_MSFT, nullptr });
     InitializeOutputStructNext(components);
 
@@ -1937,6 +2011,7 @@ void OpenXrReplayConsumer::Process_xrGetSceneMeshBuffersMSFT(
 {
     XrSceneMSFT in_scene = MapHandle<OpenXrSceneMSFTInfo>(scene, &CommonObjectInfoTable::GetXrSceneMSFTInfo);
     const XrSceneMeshBuffersGetInfoMSFT* in_getInfo = getInfo->GetPointer();
+    MapStructHandles(getInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrSceneMeshBuffersMSFT* out_buffers = buffers->IsNull() ? nullptr : buffers->AllocateOutputData(1, { XR_TYPE_SCENE_MESH_BUFFERS_MSFT, nullptr });
     InitializeOutputStructNext(buffers);
 
@@ -1953,6 +2028,7 @@ void OpenXrReplayConsumer::Process_xrDeserializeSceneMSFT(
 {
     XrSceneObserverMSFT in_sceneObserver = MapHandle<OpenXrSceneObserverMSFTInfo>(sceneObserver, &CommonObjectInfoTable::GetXrSceneObserverMSFTInfo);
     const XrSceneDeserializeInfoMSFT* in_deserializeInfo = deserializeInfo->GetPointer();
+    MapStructHandles(deserializeInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_sceneObserver)->DeserializeSceneMSFT(in_sceneObserver, in_deserializeInfo);
     CheckResult("xrDeserializeSceneMSFT", returnValue, replay_result, call_info);
@@ -1970,6 +2046,7 @@ void OpenXrReplayConsumer::Process_xrGetSerializedSceneFragmentDataMSFT(
 {
     XrSceneMSFT in_scene = MapHandle<OpenXrSceneMSFTInfo>(scene, &CommonObjectInfoTable::GetXrSceneMSFTInfo);
     const XrSerializedSceneFragmentDataGetInfoMSFT* in_getInfo = getInfo->GetPointer();
+    MapStructHandles(getInfo->GetMetaStructPointer(), GetObjectInfoTable());
     uint32_t* out_readOutput = readOutput->IsNull() ? nullptr : readOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     uint8_t* out_buffer = buffer->IsNull() ? nullptr : buffer->AllocateOutputData(countInput);
 
@@ -2017,8 +2094,10 @@ void OpenXrReplayConsumer::Process_xrEnumerateViveTrackerPathsHTCX(
     uint32_t* out_pathCountOutput = pathCountOutput->IsNull() ? nullptr : pathCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrViveTrackerPathsHTCX* out_paths = paths->IsNull() ? nullptr : paths->AllocateOutputData(pathCapacityInput, XrViveTrackerPathsHTCX{ XR_TYPE_VIVE_TRACKER_PATHS_HTCX, nullptr });
 
+    PushRecaptureStructArrayHandleIds(paths->GetMetaStructPointer(), paths->GetLength(), this);
     XrResult replay_result = GetInstanceTable(in_instance)->EnumerateViveTrackerPathsHTCX(in_instance, pathCapacityInput, out_pathCountOutput, out_paths);
     CheckResult("xrEnumerateViveTrackerPathsHTCX", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructArrayHandles<Decoded_XrViveTrackerPathsHTCX>(instance, paths->GetMetaStructPointer(), paths->GetLength(), out_paths, pathCapacityInput, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateViveTrackerPathsHTCX>::UpdateState(this, call_info, returnValue, instance, pathCapacityInput, pathCountOutput, paths, replay_result);
@@ -2033,11 +2112,14 @@ void OpenXrReplayConsumer::Process_xrCreateFacialTrackerHTC(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrFacialTrackerCreateInfoHTC* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!facialTracker->IsNull()) { facialTracker->SetHandleLength(1); }
     XrFacialTrackerHTC* out_facialTracker = facialTracker->GetHandlePointer();
 
+    PushRecaptureHandleId(facialTracker->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateFacialTrackerHTC(in_session, in_createInfo, out_facialTracker);
     CheckResult("xrCreateFacialTrackerHTC", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrFacialTrackerHTCInfo>(session, facialTracker->GetPointer(), out_facialTracker, &CommonObjectInfoTable::AddXrFacialTrackerHTCInfo);
     
@@ -2116,8 +2198,10 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFB(
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialAnchorFB(in_session, in_info, out_requestId);
     CheckResult("xrCreateSpatialAnchorFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFB>::UpdateState(this, call_info, returnValue, session, info, requestId, replay_result);
@@ -2163,11 +2247,14 @@ void OpenXrReplayConsumer::Process_xrSetSpaceComponentStatusFB(
 {
     XrSpace in_space = MapHandle<OpenXrSpaceInfo>(space, &CommonObjectInfoTable::GetXrSpaceInfo);
     const XrSpaceComponentStatusSetInfoFB* in_info = info->GetPointer();
+    MapStructHandles(info->GetMetaStructPointer(), GetObjectInfoTable());
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_space)->SetSpaceComponentStatusFB(in_space, in_info, out_requestId);
     CheckResult("xrSetSpaceComponentStatusFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(space, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrSetSpaceComponentStatusFB>::UpdateState(this, call_info, returnValue, space, info, requestId, replay_result);
@@ -2198,11 +2285,14 @@ void OpenXrReplayConsumer::Process_xrCreateFoveationProfileFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrFoveationProfileCreateInfoFB* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!profile->IsNull()) { profile->SetHandleLength(1); }
     XrFoveationProfileFB* out_profile = profile->GetHandlePointer();
 
+    PushRecaptureHandleId(profile->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateFoveationProfileFB(in_session, in_createInfo, out_profile);
     CheckResult("xrCreateFoveationProfileFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrFoveationProfileFBInfo>(session, profile->GetPointer(), out_profile, &CommonObjectInfoTable::AddXrFoveationProfileFBInfo);
     
@@ -2232,6 +2322,7 @@ void OpenXrReplayConsumer::Process_xrQuerySystemTrackedKeyboardFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrKeyboardTrackingQueryFB* in_queryInfo = queryInfo->GetPointer();
+    MapStructHandles(queryInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrKeyboardTrackingDescriptionFB* out_keyboard = keyboard->IsNull() ? nullptr : keyboard->AllocateOutputData(1);
 
     XrResult replay_result = GetInstanceTable(in_session)->QuerySystemTrackedKeyboardFB(in_session, in_queryInfo, out_keyboard);
@@ -2248,11 +2339,14 @@ void OpenXrReplayConsumer::Process_xrCreateKeyboardSpaceFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrKeyboardSpaceCreateInfoFB* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!keyboardSpace->IsNull()) { keyboardSpace->SetHandleLength(1); }
     XrSpace* out_keyboardSpace = keyboardSpace->GetHandlePointer();
 
+    PushRecaptureHandleId(keyboardSpace->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateKeyboardSpaceFB(in_session, in_createInfo, out_keyboardSpace);
     CheckResult("xrCreateKeyboardSpaceFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, keyboardSpace->GetPointer(), out_keyboardSpace, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -2321,11 +2415,14 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrPassthroughCreateInfoFB* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!outPassthrough->IsNull()) { outPassthrough->SetHandleLength(1); }
     XrPassthroughFB* out_outPassthrough = outPassthrough->GetHandlePointer();
 
+    PushRecaptureHandleId(outPassthrough->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreatePassthroughFB(in_session, in_createInfo, out_outPassthrough);
     CheckResult("xrCreatePassthroughFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrPassthroughFBInfo>(session, outPassthrough->GetPointer(), out_outPassthrough, &CommonObjectInfoTable::AddXrPassthroughFBInfo);
     
@@ -2383,8 +2480,10 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughLayerFB(
     if (!outLayer->IsNull()) { outLayer->SetHandleLength(1); }
     XrPassthroughLayerFB* out_outLayer = outLayer->GetHandlePointer();
 
+    PushRecaptureHandleId(outLayer->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreatePassthroughLayerFB(in_session, in_createInfo, out_outLayer);
     CheckResult("xrCreatePassthroughLayerFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrPassthroughLayerFBInfo>(session, outLayer->GetPointer(), out_outLayer, &CommonObjectInfoTable::AddXrPassthroughLayerFBInfo);
     
@@ -2457,8 +2556,10 @@ void OpenXrReplayConsumer::Process_xrCreateGeometryInstanceFB(
     if (!outGeometryInstance->IsNull()) { outGeometryInstance->SetHandleLength(1); }
     XrGeometryInstanceFB* out_outGeometryInstance = outGeometryInstance->GetHandlePointer();
 
+    PushRecaptureHandleId(outGeometryInstance->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateGeometryInstanceFB(in_session, in_createInfo, out_outGeometryInstance);
     CheckResult("xrCreateGeometryInstanceFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrGeometryInstanceFBInfo>(session, outGeometryInstance->GetPointer(), out_outGeometryInstance, &CommonObjectInfoTable::AddXrGeometryInstanceFBInfo);
     
@@ -2506,8 +2607,10 @@ void OpenXrReplayConsumer::Process_xrEnumerateRenderModelPathsFB(
     uint32_t* out_pathCountOutput = pathCountOutput->IsNull() ? nullptr : pathCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
     XrRenderModelPathInfoFB* out_paths = paths->IsNull() ? nullptr : paths->AllocateOutputData(pathCapacityInput, XrRenderModelPathInfoFB{ XR_TYPE_RENDER_MODEL_PATH_INFO_FB, nullptr });
 
+    PushRecaptureStructArrayHandleIds(paths->GetMetaStructPointer(), paths->GetLength(), this);
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateRenderModelPathsFB(in_session, pathCapacityInput, out_pathCountOutput, out_paths);
     CheckResult("xrEnumerateRenderModelPathsFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructArrayHandles<Decoded_XrRenderModelPathInfoFB>(session, paths->GetMetaStructPointer(), paths->GetLength(), out_paths, pathCapacityInput, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateRenderModelPathsFB>::UpdateState(this, call_info, returnValue, session, pathCapacityInput, pathCountOutput, paths, replay_result);
@@ -2525,8 +2628,10 @@ void OpenXrReplayConsumer::Process_xrGetRenderModelPropertiesFB(
     XrRenderModelPropertiesFB* out_properties = properties->IsNull() ? nullptr : properties->AllocateOutputData(1, { XR_TYPE_RENDER_MODEL_PROPERTIES_FB, nullptr });
     InitializeOutputStructNext(properties);
 
+    PushRecaptureStructHandleIds(properties->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->GetRenderModelPropertiesFB(in_session, in_path, out_properties);
     CheckResult("xrGetRenderModelPropertiesFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, properties->GetMetaStructPointer(), out_properties, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrGetRenderModelPropertiesFB>::UpdateState(this, call_info, returnValue, session, path, properties, replay_result);
@@ -2628,11 +2733,14 @@ void OpenXrReplayConsumer::Process_xrCreateMarkerSpaceVARJO(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrMarkerSpaceCreateInfoVARJO* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateMarkerSpaceVARJO(in_session, in_createInfo, out_space);
     CheckResult("xrCreateMarkerSpaceVARJO", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -2662,11 +2770,14 @@ void OpenXrReplayConsumer::Process_xrCreateSpaceFromCoordinateFrameUIDML(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrCoordinateSpaceCreateInfoML * in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpaceFromCoordinateFrameUIDML(in_session, in_createInfo, out_space);
     CheckResult("xrCreateSpaceFromCoordinateFrameUIDML", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -2683,11 +2794,14 @@ void OpenXrReplayConsumer::Process_xrCreateMarkerDetectorML(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrMarkerDetectorCreateInfoML* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!markerDetector->IsNull()) { markerDetector->SetHandleLength(1); }
     XrMarkerDetectorML* out_markerDetector = markerDetector->GetHandlePointer();
 
+    PushRecaptureHandleId(markerDetector->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateMarkerDetectorML(in_session, in_createInfo, out_markerDetector);
     CheckResult("xrCreateMarkerDetectorML", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrMarkerDetectorMLInfo>(session, markerDetector->GetPointer(), out_markerDetector, &CommonObjectInfoTable::AddXrMarkerDetectorMLInfo);
     
@@ -2751,8 +2865,10 @@ void OpenXrReplayConsumer::Process_xrGetMarkersML(
     if (!markers->IsNull()) { markers->SetHandleLength(markerCapacityInput); }
     XrMarkerML* out_markers = markers->GetHandlePointer();
 
+    PushRecaptureHandleIds(markers->GetPointer(), markers->GetLength());
     XrResult replay_result = GetInstanceTable(in_markerDetector)->GetMarkersML(in_markerDetector, markerCapacityInput, out_markerCountOutput, out_markers);
     CheckResult("xrGetMarkersML", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandles<OpenXrMarkerMLInfo>(markerDetector, markers->GetPointer(), markers->GetLength(), out_markers, markerCapacityInput, &CommonObjectInfoTable::AddXrMarkerMLInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrGetMarkersML>::UpdateState(this, call_info, returnValue, markerDetector, markerCapacityInput, markerCountOutput, markers, replay_result);
@@ -2838,8 +2954,10 @@ void OpenXrReplayConsumer::Process_xrCreateMarkerSpaceML(
     if (!space->IsNull()) { space->SetHandleLength(1); }
     XrSpace* out_space = space->GetHandlePointer();
 
+    PushRecaptureHandleId(space->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateMarkerSpaceML(in_session, in_createInfo, out_space);
     CheckResult("xrCreateMarkerSpaceML", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -2855,6 +2973,7 @@ void OpenXrReplayConsumer::Process_xrEnableLocalizationEventsML(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrLocalizationEnableEventsInfoML * in_info = info->GetPointer();
+    MapStructHandles(info->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->EnableLocalizationEventsML(in_session, in_info);
     CheckResult("xrEnableLocalizationEventsML", returnValue, replay_result, call_info);
@@ -2888,6 +3007,7 @@ void OpenXrReplayConsumer::Process_xrRequestMapLocalizationML(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrMapLocalizationRequestInfoML* in_requestInfo = requestInfo->GetPointer();
+    MapStructHandles(requestInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->RequestMapLocalizationML(in_session, in_requestInfo);
     CheckResult("xrRequestMapLocalizationML", returnValue, replay_result, call_info);
@@ -2903,6 +3023,7 @@ void OpenXrReplayConsumer::Process_xrImportLocalizationMapML(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrLocalizationMapImportInfoML* in_importInfo = importInfo->GetPointer();
+    MapStructHandles(importInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrUuidEXT* out_mapUuid = mapUuid->IsNull() ? nullptr : mapUuid->AllocateOutputData(1);
 
     XrResult replay_result = GetInstanceTable(in_session)->ImportLocalizationMapML(in_session, in_importInfo, out_mapUuid);
@@ -2922,8 +3043,10 @@ void OpenXrReplayConsumer::Process_xrCreateExportedLocalizationMapML(
     if (!map->IsNull()) { map->SetHandleLength(1); }
     XrExportedLocalizationMapML* out_map = map->GetHandlePointer();
 
+    PushRecaptureHandleId(map->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateExportedLocalizationMapML(in_session, in_mapUuid, out_map);
     CheckResult("xrCreateExportedLocalizationMapML", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrExportedLocalizationMapMLInfo>(session, map->GetPointer(), out_map, &CommonObjectInfoTable::AddXrExportedLocalizationMapMLInfo);
     
@@ -2971,8 +3094,10 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorStoreConnectionMSFT(
     if (!spatialAnchorStore->IsNull()) { spatialAnchorStore->SetHandleLength(1); }
     XrSpatialAnchorStoreConnectionMSFT* out_spatialAnchorStore = spatialAnchorStore->GetHandlePointer();
 
+    PushRecaptureHandleId(spatialAnchorStore->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialAnchorStoreConnectionMSFT(in_session, out_spatialAnchorStore);
     CheckResult("xrCreateSpatialAnchorStoreConnectionMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpatialAnchorStoreConnectionMSFTInfo>(session, spatialAnchorStore->GetPointer(), out_spatialAnchorStore, &CommonObjectInfoTable::AddXrSpatialAnchorStoreConnectionMSFTInfo);
     
@@ -3038,8 +3163,10 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFromPersistedNameMSFT(
     if (!spatialAnchor->IsNull()) { spatialAnchor->SetHandleLength(1); }
     XrSpatialAnchorMSFT* out_spatialAnchor = spatialAnchor->GetHandlePointer();
 
+    PushRecaptureHandleId(spatialAnchor->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialAnchorFromPersistedNameMSFT(in_session, in_spatialAnchorCreateInfo, out_spatialAnchor);
     CheckResult("xrCreateSpatialAnchorFromPersistedNameMSFT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpatialAnchorMSFTInfo>(session, spatialAnchor->GetPointer(), out_spatialAnchor, &CommonObjectInfoTable::AddXrSpatialAnchorMSFTInfo);
     
@@ -3123,8 +3250,10 @@ void OpenXrReplayConsumer::Process_xrQuerySpacesFB(
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->QuerySpacesFB(in_session, in_info, out_requestId);
     CheckResult("xrQuerySpacesFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrQuerySpacesFB>::UpdateState(this, call_info, returnValue, session, info, requestId, replay_result);
@@ -3142,8 +3271,10 @@ void OpenXrReplayConsumer::Process_xrRetrieveSpaceQueryResultsFB(
     XrSpaceQueryResultsFB* out_results = results->IsNull() ? nullptr : results->AllocateOutputData(1, { XR_TYPE_SPACE_QUERY_RESULTS_FB, nullptr });
     InitializeOutputStructNext(results);
 
+    PushRecaptureStructHandleIds(results->GetMetaStructPointer(), this);
     XrResult replay_result = GetInstanceTable(in_session)->RetrieveSpaceQueryResultsFB(in_session, in_requestId, out_results);
     CheckResult("xrRetrieveSpaceQueryResultsFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddStructHandles(session, results->GetMetaStructPointer(), out_results, &GetObjectInfoTable());
     CustomProcess<format::ApiCallId::ApiCall_xrRetrieveSpaceQueryResultsFB>::UpdateState(this, call_info, returnValue, session, requestId, results, replay_result);
@@ -3162,8 +3293,10 @@ void OpenXrReplayConsumer::Process_xrSaveSpaceFB(
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->SaveSpaceFB(in_session, in_info, out_requestId);
     CheckResult("xrSaveSpaceFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrSaveSpaceFB>::UpdateState(this, call_info, returnValue, session, info, requestId, replay_result);
@@ -3182,8 +3315,10 @@ void OpenXrReplayConsumer::Process_xrEraseSpaceFB(
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->EraseSpaceFB(in_session, in_info, out_requestId);
     CheckResult("xrEraseSpaceFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrEraseSpaceFB>::UpdateState(this, call_info, returnValue, session, info, requestId, replay_result);
@@ -3230,8 +3365,10 @@ void OpenXrReplayConsumer::Process_xrShareSpacesFB(
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->ShareSpacesFB(in_session, in_info, out_requestId);
     CheckResult("xrShareSpacesFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrShareSpacesFB>::UpdateState(this, call_info, returnValue, session, info, requestId, replay_result);
@@ -3328,6 +3465,7 @@ void OpenXrReplayConsumer::Process_xrSetDigitalLensControlALMALENCE(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrDigitalLensControlALMALENCE* in_digitalLensControl = digitalLensControl->GetPointer();
+    MapStructHandles(digitalLensControl->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->SetDigitalLensControlALMALENCE(in_session, in_digitalLensControl);
     CheckResult("xrSetDigitalLensControlALMALENCE", returnValue, replay_result, call_info);
@@ -3343,11 +3481,14 @@ void OpenXrReplayConsumer::Process_xrRequestSceneCaptureFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrSceneCaptureRequestInfoFB* in_info = info->GetPointer();
+    MapStructHandles(info->GetMetaStructPointer(), GetObjectInfoTable());
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->RequestSceneCaptureFB(in_session, in_info, out_requestId);
     CheckResult("xrRequestSceneCaptureFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrRequestSceneCaptureFB>::UpdateState(this, call_info, returnValue, session, info, requestId, replay_result);
@@ -3394,11 +3535,14 @@ void OpenXrReplayConsumer::Process_xrCreateFaceTrackerFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrFaceTrackerCreateInfoFB* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!faceTracker->IsNull()) { faceTracker->SetHandleLength(1); }
     XrFaceTrackerFB* out_faceTracker = faceTracker->GetHandlePointer();
 
+    PushRecaptureHandleId(faceTracker->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateFaceTrackerFB(in_session, in_createInfo, out_faceTracker);
     CheckResult("xrCreateFaceTrackerFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrFaceTrackerFBInfo>(session, faceTracker->GetPointer(), out_faceTracker, &CommonObjectInfoTable::AddXrFaceTrackerFBInfo);
     
@@ -3428,6 +3572,7 @@ void OpenXrReplayConsumer::Process_xrGetFaceExpressionWeightsFB(
 {
     XrFaceTrackerFB in_faceTracker = MapHandle<OpenXrFaceTrackerFBInfo>(faceTracker, &CommonObjectInfoTable::GetXrFaceTrackerFBInfo);
     const XrFaceExpressionInfoFB* in_expressionInfo = expressionInfo->GetPointer();
+    MapStructHandles(expressionInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrFaceExpressionWeightsFB* out_expressionWeights = expressionWeights->IsNull() ? nullptr : expressionWeights->AllocateOutputData(1, { XR_TYPE_FACE_EXPRESSION_WEIGHTS_FB, nullptr });
     InitializeOutputStructNext(expressionWeights);
 
@@ -3445,11 +3590,14 @@ void OpenXrReplayConsumer::Process_xrCreateEyeTrackerFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrEyeTrackerCreateInfoFB* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!eyeTracker->IsNull()) { eyeTracker->SetHandleLength(1); }
     XrEyeTrackerFB* out_eyeTracker = eyeTracker->GetHandlePointer();
 
+    PushRecaptureHandleId(eyeTracker->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateEyeTrackerFB(in_session, in_createInfo, out_eyeTracker);
     CheckResult("xrCreateEyeTrackerFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrEyeTrackerFBInfo>(session, eyeTracker->GetPointer(), out_eyeTracker, &CommonObjectInfoTable::AddXrEyeTrackerFBInfo);
     
@@ -3496,6 +3644,7 @@ void OpenXrReplayConsumer::Process_xrPassthroughLayerSetKeyboardHandsIntensityFB
 {
     XrPassthroughLayerFB in_layer = MapHandle<OpenXrPassthroughLayerFBInfo>(layer, &CommonObjectInfoTable::GetXrPassthroughLayerFBInfo);
     const XrPassthroughKeyboardHandsIntensityFB* in_intensity = intensity->GetPointer();
+    MapStructHandles(intensity->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_layer)->PassthroughLayerSetKeyboardHandsIntensityFB(in_layer, in_intensity);
     CheckResult("xrPassthroughLayerSetKeyboardHandsIntensityFB", returnValue, replay_result, call_info);
@@ -3543,11 +3692,14 @@ void OpenXrReplayConsumer::Process_xrCreateVirtualKeyboardMETA(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrVirtualKeyboardCreateInfoMETA* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!keyboard->IsNull()) { keyboard->SetHandleLength(1); }
     XrVirtualKeyboardMETA* out_keyboard = keyboard->GetHandlePointer();
 
+    PushRecaptureHandleId(keyboard->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateVirtualKeyboardMETA(in_session, in_createInfo, out_keyboard);
     CheckResult("xrCreateVirtualKeyboardMETA", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrVirtualKeyboardMETAInfo>(session, keyboard->GetPointer(), out_keyboard, &CommonObjectInfoTable::AddXrVirtualKeyboardMETAInfo);
     
@@ -3583,8 +3735,10 @@ void OpenXrReplayConsumer::Process_xrCreateVirtualKeyboardSpaceMETA(
     if (!keyboardSpace->IsNull()) { keyboardSpace->SetHandleLength(1); }
     XrSpace* out_keyboardSpace = keyboardSpace->GetHandlePointer();
 
+    PushRecaptureHandleId(keyboardSpace->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateVirtualKeyboardSpaceMETA(in_session, in_keyboard, in_createInfo, out_keyboardSpace);
     CheckResult("xrCreateVirtualKeyboardSpaceMETA", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, keyboardSpace->GetPointer(), out_keyboardSpace, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -3629,6 +3783,7 @@ void OpenXrReplayConsumer::Process_xrSetVirtualKeyboardModelVisibilityMETA(
 {
     XrVirtualKeyboardMETA in_keyboard = MapHandle<OpenXrVirtualKeyboardMETAInfo>(keyboard, &CommonObjectInfoTable::GetXrVirtualKeyboardMETAInfo);
     const XrVirtualKeyboardModelVisibilitySetInfoMETA* in_modelVisibility = modelVisibility->GetPointer();
+    MapStructHandles(modelVisibility->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->SetVirtualKeyboardModelVisibilityMETA(in_keyboard, in_modelVisibility);
     CheckResult("xrSetVirtualKeyboardModelVisibilityMETA", returnValue, replay_result, call_info);
@@ -3708,6 +3863,7 @@ void OpenXrReplayConsumer::Process_xrChangeVirtualKeyboardTextContextMETA(
 {
     XrVirtualKeyboardMETA in_keyboard = MapHandle<OpenXrVirtualKeyboardMETAInfo>(keyboard, &CommonObjectInfoTable::GetXrVirtualKeyboardMETAInfo);
     const XrVirtualKeyboardTextContextChangeInfoMETA* in_changeInfo = changeInfo->GetPointer();
+    MapStructHandles(changeInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->ChangeVirtualKeyboardTextContextMETA(in_keyboard, in_changeInfo);
     CheckResult("xrChangeVirtualKeyboardTextContextMETA", returnValue, replay_result, call_info);
@@ -3744,8 +3900,10 @@ void OpenXrReplayConsumer::Process_xrEnumeratePerformanceMetricsCounterPathsMETA
     if (!counterPaths->IsNull()) { counterPaths->SetHandleLength(counterPathCapacityInput); }
     XrPath* out_counterPaths = counterPaths->GetHandlePointer();
 
+    PushRecaptureHandleIds(counterPaths->GetPointer(), counterPaths->GetLength());
     XrResult replay_result = GetInstanceTable(in_instance)->EnumeratePerformanceMetricsCounterPathsMETA(in_instance, counterPathCapacityInput, out_counterPathCountOutput, out_counterPaths);
     CheckResult("xrEnumeratePerformanceMetricsCounterPathsMETA", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandles<OpenXrPathInfo>(instance, counterPaths->GetPointer(), counterPaths->GetLength(), out_counterPaths, counterPathCapacityInput, &CommonObjectInfoTable::AddXrPathInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrEnumeratePerformanceMetricsCounterPathsMETA>::UpdateState(this, call_info, returnValue, instance, counterPathCapacityInput, counterPathCountOutput, counterPaths, replay_result);
@@ -3759,6 +3917,7 @@ void OpenXrReplayConsumer::Process_xrSetPerformanceMetricsStateMETA(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrPerformanceMetricsStateMETA* in_state = state->GetPointer();
+    MapStructHandles(state->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_session)->SetPerformanceMetricsStateMETA(in_session, in_state);
     CheckResult("xrSetPerformanceMetricsStateMETA", returnValue, replay_result, call_info);
@@ -3810,8 +3969,10 @@ void OpenXrReplayConsumer::Process_xrSaveSpaceListFB(
     if (!requestId->IsNull()) { requestId->SetHandleLength(1); }
     XrAsyncRequestIdFB* out_requestId = requestId->GetHandlePointer();
 
+    PushRecaptureHandleId(requestId->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->SaveSpaceListFB(in_session, in_info, out_requestId);
     CheckResult("xrSaveSpaceListFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
     CustomProcess<format::ApiCallId::ApiCall_xrSaveSpaceListFB>::UpdateState(this, call_info, returnValue, session, info, requestId, replay_result);
@@ -3826,11 +3987,14 @@ void OpenXrReplayConsumer::Process_xrCreateSpaceUserFB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrSpaceUserCreateInfoFB* in_info = info->GetPointer();
+    MapStructHandles(info->GetMetaStructPointer(), GetObjectInfoTable());
     if (!user->IsNull()) { user->SetHandleLength(1); }
     XrSpaceUserFB* out_user = user->GetHandlePointer();
 
+    PushRecaptureHandleId(user->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpaceUserFB(in_session, in_info, out_user);
     CheckResult("xrCreateSpaceUserFB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceUserFBInfo>(session, user->GetPointer(), out_user, &CommonObjectInfoTable::AddXrSpaceUserFBInfo);
     
@@ -3892,11 +4056,14 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughColorLutMETA(
 {
     XrPassthroughFB in_passthrough = MapHandle<OpenXrPassthroughFBInfo>(passthrough, &CommonObjectInfoTable::GetXrPassthroughFBInfo);
     const XrPassthroughColorLutCreateInfoMETA* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!colorLut->IsNull()) { colorLut->SetHandleLength(1); }
     XrPassthroughColorLutMETA* out_colorLut = colorLut->GetHandlePointer();
 
+    PushRecaptureHandleId(colorLut->GetPointer());
     XrResult replay_result = GetInstanceTable(in_passthrough)->CreatePassthroughColorLutMETA(in_passthrough, in_createInfo, out_colorLut);
     CheckResult("xrCreatePassthroughColorLutMETA", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrPassthroughColorLutMETAInfo>(passthrough, colorLut->GetPointer(), out_colorLut, &CommonObjectInfoTable::AddXrPassthroughColorLutMETAInfo);
     
@@ -3925,6 +4092,7 @@ void OpenXrReplayConsumer::Process_xrUpdatePassthroughColorLutMETA(
 {
     XrPassthroughColorLutMETA in_colorLut = MapHandle<OpenXrPassthroughColorLutMETAInfo>(colorLut, &CommonObjectInfoTable::GetXrPassthroughColorLutMETAInfo);
     const XrPassthroughColorLutUpdateInfoMETA* in_updateInfo = updateInfo->GetPointer();
+    MapStructHandles(updateInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_colorLut)->UpdatePassthroughColorLutMETA(in_colorLut, in_updateInfo);
     CheckResult("xrUpdatePassthroughColorLutMETA", returnValue, replay_result, call_info);
@@ -3940,6 +4108,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceTriangleMeshMETA(
 {
     XrSpace in_space = MapHandle<OpenXrSpaceInfo>(space, &CommonObjectInfoTable::GetXrSpaceInfo);
     const XrSpaceTriangleMeshGetInfoMETA* in_getInfo = getInfo->GetPointer();
+    MapStructHandles(getInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrSpaceTriangleMeshMETA* out_triangleMeshOutput = triangleMeshOutput->IsNull() ? nullptr : triangleMeshOutput->AllocateOutputData(1, { XR_TYPE_SPACE_TRIANGLE_MESH_META, nullptr });
     InitializeOutputStructNext(triangleMeshOutput);
 
@@ -3957,11 +4126,14 @@ void OpenXrReplayConsumer::Process_xrCreateFaceTracker2FB(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrFaceTrackerCreateInfo2FB* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!faceTracker->IsNull()) { faceTracker->SetHandleLength(1); }
     XrFaceTracker2FB* out_faceTracker = faceTracker->GetHandlePointer();
 
+    PushRecaptureHandleId(faceTracker->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateFaceTracker2FB(in_session, in_createInfo, out_faceTracker);
     CheckResult("xrCreateFaceTracker2FB", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrFaceTracker2FBInfo>(session, faceTracker->GetPointer(), out_faceTracker, &CommonObjectInfoTable::AddXrFaceTracker2FBInfo);
     
@@ -3991,6 +4163,7 @@ void OpenXrReplayConsumer::Process_xrGetFaceExpressionWeights2FB(
 {
     XrFaceTracker2FB in_faceTracker = MapHandle<OpenXrFaceTracker2FBInfo>(faceTracker, &CommonObjectInfoTable::GetXrFaceTracker2FBInfo);
     const XrFaceExpressionInfo2FB* in_expressionInfo = expressionInfo->GetPointer();
+    MapStructHandles(expressionInfo->GetMetaStructPointer(), GetObjectInfoTable());
     XrFaceExpressionWeights2FB* out_expressionWeights = expressionWeights->IsNull() ? nullptr : expressionWeights->AllocateOutputData(1, { XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB, nullptr });
     InitializeOutputStructNext(expressionWeights);
 
@@ -4008,11 +4181,14 @@ void OpenXrReplayConsumer::Process_xrCreateEnvironmentDepthProviderMETA(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrEnvironmentDepthProviderCreateInfoMETA* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!environmentDepthProvider->IsNull()) { environmentDepthProvider->SetHandleLength(1); }
     XrEnvironmentDepthProviderMETA* out_environmentDepthProvider = environmentDepthProvider->GetHandlePointer();
 
+    PushRecaptureHandleId(environmentDepthProvider->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateEnvironmentDepthProviderMETA(in_session, in_createInfo, out_environmentDepthProvider);
     CheckResult("xrCreateEnvironmentDepthProviderMETA", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrEnvironmentDepthProviderMETAInfo>(session, environmentDepthProvider->GetPointer(), out_environmentDepthProvider, &CommonObjectInfoTable::AddXrEnvironmentDepthProviderMETAInfo);
     
@@ -4066,11 +4242,14 @@ void OpenXrReplayConsumer::Process_xrCreateEnvironmentDepthSwapchainMETA(
 {
     XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
     const XrEnvironmentDepthSwapchainCreateInfoMETA* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!swapchain->IsNull()) { swapchain->SetHandleLength(1); }
     XrEnvironmentDepthSwapchainMETA* out_swapchain = swapchain->GetHandlePointer();
 
+    PushRecaptureHandleId(swapchain->GetPointer());
     XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->CreateEnvironmentDepthSwapchainMETA(in_environmentDepthProvider, in_createInfo, out_swapchain);
     CheckResult("xrCreateEnvironmentDepthSwapchainMETA", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrEnvironmentDepthSwapchainMETAInfo>(environmentDepthProvider, swapchain->GetPointer(), out_swapchain, &CommonObjectInfoTable::AddXrEnvironmentDepthSwapchainMETAInfo);
     
@@ -4149,6 +4328,7 @@ void OpenXrReplayConsumer::Process_xrSetEnvironmentDepthHandRemovalMETA(
 {
     XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
     const XrEnvironmentDepthHandRemovalSetInfoMETA* in_setInfo = setInfo->GetPointer();
+    MapStructHandles(setInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->SetEnvironmentDepthHandRemovalMETA(in_environmentDepthProvider, in_setInfo);
     CheckResult("xrSetEnvironmentDepthHandRemovalMETA", returnValue, replay_result, call_info);
@@ -4178,11 +4358,14 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughHTC(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrPassthroughCreateInfoHTC* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!passthrough->IsNull()) { passthrough->SetHandleLength(1); }
     XrPassthroughHTC* out_passthrough = passthrough->GetHandlePointer();
 
+    PushRecaptureHandleId(passthrough->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreatePassthroughHTC(in_session, in_createInfo, out_passthrough);
     CheckResult("xrCreatePassthroughHTC", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrPassthroughHTCInfo>(session, passthrough->GetPointer(), out_passthrough, &CommonObjectInfoTable::AddXrPassthroughHTCInfo);
     
@@ -4231,8 +4414,10 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorHTC(
     if (!anchor->IsNull()) { anchor->SetHandleLength(1); }
     XrSpace* out_anchor = anchor->GetHandlePointer();
 
+    PushRecaptureHandleId(anchor->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreateSpatialAnchorHTC(in_session, in_createInfo, out_anchor);
     CheckResult("xrCreateSpatialAnchorHTC", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrSpaceInfo>(session, anchor->GetPointer(), out_anchor, &CommonObjectInfoTable::AddXrSpaceInfo);
     
@@ -4262,6 +4447,7 @@ void OpenXrReplayConsumer::Process_xrApplyForceFeedbackCurlMNDX(
 {
     XrHandTrackerEXT in_handTracker = MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
     const XrForceFeedbackCurlApplyLocationsMNDX* in_locations = locations->GetPointer();
+    MapStructHandles(locations->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_handTracker)->ApplyForceFeedbackCurlMNDX(in_handTracker, in_locations);
     CheckResult("xrApplyForceFeedbackCurlMNDX", returnValue, replay_result, call_info);
@@ -4277,11 +4463,14 @@ void OpenXrReplayConsumer::Process_xrCreatePlaneDetectorEXT(
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrPlaneDetectorCreateInfoEXT* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!planeDetector->IsNull()) { planeDetector->SetHandleLength(1); }
     XrPlaneDetectorEXT* out_planeDetector = planeDetector->GetHandlePointer();
 
+    PushRecaptureHandleId(planeDetector->GetPointer());
     XrResult replay_result = GetInstanceTable(in_session)->CreatePlaneDetectorEXT(in_session, in_createInfo, out_planeDetector);
     CheckResult("xrCreatePlaneDetectorEXT", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
 
     AddHandle<OpenXrPlaneDetectorEXTInfo>(session, planeDetector->GetPointer(), out_planeDetector, &CommonObjectInfoTable::AddXrPlaneDetectorEXTInfo);
     
@@ -4407,6 +4596,7 @@ void OpenXrReplayConsumer::Process_xrEnableUserCalibrationEventsML(
 {
     XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
     const XrUserCalibrationEnableEventsInfoML* in_enableInfo = enableInfo->GetPointer();
+    MapStructHandles(enableInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     XrResult replay_result = GetInstanceTable(in_instance)->EnableUserCalibrationEventsML(in_instance, in_enableInfo);
     CheckResult("xrEnableUserCalibrationEventsML", returnValue, replay_result, call_info);

@@ -32,6 +32,7 @@
 #include "encode/parameter_buffer.h"
 #include "encode/parameter_encoder.h"
 #include "format/format_util.h"
+#include "util/callbacks.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
 #include "util/date_time.h"
@@ -60,8 +61,61 @@ std::mutex                                     CommonCaptureManager::instance_lo
 thread_local std::unique_ptr<util::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT            CommonCaptureManager::api_call_mutex_;
 bool                                           CommonCaptureManager::initialize_log_ = true;
+std::atomic<format::HandleId>              CommonCaptureManager::default_unique_id_counter_{ format::kNullHandleId };
+uint64_t                                   CommonCaptureManager::default_unique_id_offset_ = 0;
+thread_local bool                          CommonCaptureManager::force_default_unique_id_  = false;
+thread_local std::vector<format::HandleId> CommonCaptureManager::unique_id_stack_;
 
-std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ format::kNullHandleId };
+static std::mutex external_trim_trigger_mutex_g;
+static bool       externally_set_trimming_state_g          = false;
+static bool       previous_externally_set_trimming_state_g = false;
+
+extern "C"
+{
+    // The following two functions are made public and should be discoverable via dlsym.
+
+    // The purpose of this functions is to allow another module to be able to control trimming by calling this function
+    // with the appropriate argument. Calling with true starts trimming and false ends trimming.
+    GFXR_EXPORT void GFXRSetTrimmingState(bool trimming_enabled)
+    {
+        std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
+        externally_set_trimming_state_g = trimming_enabled;
+    }
+
+    // The purpose of this functions is to allow another module to query the current capture mode.
+    GFXR_EXPORT uint32_t GFXRGetCaptureMode()
+    {
+        const CommonCaptureManager* manager = CommonCaptureManager::Get();
+        return manager != nullptr ? manager->GetCaptureMode() : 0;
+    }
+}
+
+format::HandleId CommonCaptureManager::GetUniqueId()
+{
+    uint64_t result = 0;
+    if (force_default_unique_id_ || unique_id_stack_.empty())
+    {
+        result = GetDefaultUniqueId();
+    }
+    else
+    {
+        result = unique_id_stack_.back();
+        unique_id_stack_.pop_back();
+    }
+    return result;
+}
+
+void CommonCaptureManager::PushUniqueId(const format::HandleId id)
+{
+    GFXRECON_ASSERT(id != format::kNullHandleId);
+
+    unique_id_stack_.push_back(id);
+}
+
+void CommonCaptureManager::ClearUniqueIds()
+{
+    unique_id_stack_.clear();
+}
 
 CommonCaptureManager::CommonCaptureManager() :
     force_file_flush_(false), timestamp_filename_(true),
@@ -115,11 +169,8 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
 
         if (initialize_log_)
         {
-            // Initialize logging to report only errors (to stderr).
-            util::Log::Settings stderr_only_log_settings;
-            stderr_only_log_settings.min_severity            = util::Log::kErrorSeverity;
-            stderr_only_log_settings.output_errors_to_stderr = true;
-            util::Log::Init(stderr_only_log_settings);
+            // Initialize logging
+            util::Log::Init();
         }
 
         // NOTE: FIRST Api Instance is used for settings -- actual multiple simulatenous API support will need to
@@ -132,16 +183,15 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
             // Load log settings.
             CaptureSettings::LoadLogSettings(&capture_settings_);
 
-            // Reinitialize logging with values retrieved from settings.
-            util::Log::Release();
-            util::Log::Init(capture_settings_.GetLogSettings());
+            // And then update the log with those settings
+            util::Log::UpdateWithSettings(capture_settings_.GetLogSettings());
         }
 
         // Load all settings with final logging settings active.
         CaptureSettings::LoadSettings(&capture_settings_, initialize_log_);
 
         GFXRECON_LOG_INFO("Initializing GFXReconstruct capture layer");
-        GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_LOG_INFO("  GFXReconstruct Version %s", GetProjectVersionString());
 
         CaptureSettings::TraceSettings trace_settings = capture_settings_.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
@@ -488,6 +538,8 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                         capture_mode_ = kModeWriteAndTrack;
                     }
 
+                    util::SignalTrimmingStart();
+
                     success = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_ranges_[0]));
                 }
                 else
@@ -508,10 +560,13 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
 
                 // Enable state tracking when hotkey pressed
                 if (IsTrimHotkeyPressed() ||
-                    trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled)
+                    trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kEnabled ||
+                    ExternalTriggerEnabled())
                 {
                     capture_mode_         = kModeWriteAndTrack;
                     trim_key_first_frame_ = current_frame_;
+
+                    util::SignalTrimmingStart();
 
                     success = CreateCaptureFile(api_family,
                                                 util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
@@ -799,6 +854,32 @@ bool CommonCaptureManager::RuntimeTriggerDisabled()
     return result;
 }
 
+bool CommonCaptureManager::ExternalTriggerEnabled()
+{
+    std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
+
+    if (!previous_externally_set_trimming_state_g && externally_set_trimming_state_g)
+    {
+        previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
+        return true;
+    }
+
+    return false;
+}
+
+bool CommonCaptureManager::ExternalTriggerDisabled()
+{
+    std::lock_guard<std::mutex> set_trim_state_lock(external_trim_trigger_mutex_g);
+
+    if (previous_externally_set_trimming_state_g && !externally_set_trimming_state_g)
+    {
+        previous_externally_set_trimming_state_g = externally_set_trimming_state_g;
+        return true;
+    }
+
+    return false;
+}
+
 bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
 {
     CaptureSettings settings;
@@ -866,7 +947,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
     }
     else if (IsTrimHotkeyPressed() ||
              ((trim_key_frames_ > 0) && (current_boundary_count >= (trim_key_first_frame_ + trim_key_frames_))) ||
-             RuntimeTriggerDisabled())
+             RuntimeTriggerDisabled() || ExternalTriggerDisabled())
     {
         // Stop recording and close file.
         DeactivateTrimming(current_lock);
@@ -920,7 +1001,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
             }
         }
     }
-    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled())
+    else if (IsTrimHotkeyPressed() || RuntimeTriggerEnabled() || ExternalTriggerEnabled())
     {
         bool success =
             CreateCaptureFile(api_family, util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
@@ -1216,7 +1297,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         operation_annotation += "\",\n";
         operation_annotation += "    \"";
         operation_annotation += gfxrecon::format::kOperationAnnotationGfxreconstructVersion;
-        operation_annotation += "\": \"" GFXRECON_PROJECT_VERSION_STRING "\",\n";
+        operation_annotation += "\": \"" + std::string(GetProjectVersionString()) + "\",\n";
         operation_annotation += "    \"";
         operation_annotation += gfxrecon::format::kOperationAnnotationVulkanVersion;
         operation_annotation += "\": \"";
@@ -1294,6 +1375,7 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
         }
 
         capture_mode_ |= kModeWrite;
+        util::SignalTrimmingStart();
 
         auto* thread_data = GetThreadData();
         GFXRECON_ASSERT(thread_data != nullptr);
@@ -1338,6 +1420,7 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
         }
 
         capture_mode_ &= ~kModeWrite;
+        util::SignalTrimmingEnd();
 
         assert(file_stream_);
         file_stream_->Flush();
@@ -1358,8 +1441,8 @@ void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
 
     format::FileHeader file_header;
     file_header.fourcc        = GFXRECON_FOURCC;
-    file_header.major_version = 0;
-    file_header.minor_version = 0;
+    file_header.major_version = GFXRECON_CURRENT_FILE_MAJOR;
+    file_header.minor_version = GFXRECON_CURRENT_FILE_MINOR;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
     CombineAndWriteToFile({ { &file_header, sizeof(file_header) },
@@ -1525,6 +1608,7 @@ void CommonCaptureManager::WriteFillMemoryCmd(
 
 void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_family,
                                                      format::HandleId    device_id,
+                                                     uint64_t            total_copy_size,
                                                      uint64_t            max_resource_size)
 {
     if ((capture_mode_ & kModeWrite) != kModeWrite)
@@ -1534,7 +1618,7 @@ void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_fam
 
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, max_resource_size);
 
-    format::BeginResourceInitCommand init_cmd;
+    format::BeginResourceInitCommand init_cmd = {};
 
     auto thread_data = GetThreadData();
     GFXRECON_ASSERT(thread_data != nullptr);
@@ -1543,10 +1627,10 @@ void CommonCaptureManager::WriteBeginResourceInitCmd(format::ApiFamilyId api_fam
     init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd);
     init_cmd.meta_header.meta_data_id =
         format::MakeMetaDataId(api_family, format::MetaDataType::kBeginResourceInitCommand);
-    init_cmd.thread_id         = thread_data->thread_id_;
-    init_cmd.device_id         = device_id;
-    init_cmd.max_resource_size = max_resource_size;
-    init_cmd.max_copy_size     = max_resource_size;
+    init_cmd.thread_id       = thread_data->thread_id_;
+    init_cmd.device_id       = device_id;
+    init_cmd.total_copy_size = total_copy_size;
+    init_cmd.max_copy_size   = max_resource_size;
 
     WriteToFile(&init_cmd, sizeof(init_cmd));
 }

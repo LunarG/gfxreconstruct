@@ -53,6 +53,7 @@ class VulkanStructHandleMappersHeaderGeneratorOptions(VulkanBaseGeneratorOptions
         )
 
         self.begin_end_file_data.specific_headers.extend((
+            'decode/common_consumer_base.h',
             'decode/common_object_info_table.h',
             'decode/vulkan_pnext_node.h',
             'format/platform_types.h',
@@ -91,8 +92,3 @@ class VulkanStructHandleMappersHeaderGenerator(
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_struct_members:
-            return True
-        return False

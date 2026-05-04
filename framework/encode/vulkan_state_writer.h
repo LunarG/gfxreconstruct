@@ -27,6 +27,7 @@
 #include "encode/command_writer.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrappers.h"
+#include "encode/vulkan_device_address_tracker.h"
 #include "generated/generated_vulkan_state_table.h"
 #include "format/format.h"
 #include "format/platform_types.h"
@@ -39,6 +40,7 @@
 #include "util/thread_data.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan_handle_wrapper_util.h"
 
 #include <cstdint>
 #include <set>
@@ -53,10 +55,11 @@ class VulkanStateWriter
   public:
     using AssetFileOffsetsInfo = std::unordered_map<uint64_t, int64_t>;
 
-    VulkanStateWriter(util::FileOutputStream*                  output_stream,
-                      util::Compressor*                        compressor,
-                      util::ThreadData*                        thread_data,
-                      std::function<format::HandleId()>        get_unique_id_fn,
+    VulkanStateWriter(util::FileOutputStream*                                                 output_stream,
+                      util::Compressor*                                                       compressor,
+                      util::ThreadData*                                                       thread_data,
+                      vulkan_wrappers::PFN_GetHandleId                                        get_unique_id_fn,
+                      const std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker>& device_address_trackers,
                       util::FileOutputStream*                  asset_file_stream  = nullptr,
                       const std::string*                       asset_file_name    = nullptr,
                       VulkanStateWriter::AssetFileOffsetsInfo* asset_file_offsets = nullptr);
@@ -136,6 +139,8 @@ class VulkanStateWriter
 
     void WriteImageViewState(const VulkanStateTable& state_table);
 
+    void WriteSamplerState(const VulkanStateTable& state_table);
+
     void WriteFramebufferState(const VulkanStateTable& state_table);
 
     void WritePipelineLayoutState(const VulkanStateTable& state_table);
@@ -162,7 +167,7 @@ class VulkanStateWriter
 
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
-    void WriteRayTracingPropertiesState(const VulkanStateTable& state_table);
+    void WritePhysicalDeviceExtensionPropertiesState(const VulkanStateTable& state_table);
 
     void WriteRayTracingShaderGroupHandlesState(const VulkanStateTable& state_table);
 
@@ -188,13 +193,13 @@ class VulkanStateWriter
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
-                                VkDeviceSize*           max_resource_size,
+                                VkDeviceSize*           total_staging_copy_size,
                                 VkDeviceSize*           max_staging_copy_size,
                                 bool                    write_memory_state);
 
     void WriteImageMemoryState(const VulkanStateTable& state_table,
                                DeviceResourceTables*   resources,
-                               VkDeviceSize*           max_resource_size,
+                               VkDeviceSize*           total_staging_copy_size,
                                VkDeviceSize*           max_staging_copy_size,
                                bool                    write_memory_state);
 
@@ -332,6 +337,11 @@ class VulkanStateWriter
 
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, VkDeviceAddress address);
 
+    void WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
+                                             format::HandleId object_id,
+                                             size_t           data_size,
+                                             const void*      data);
+
     void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                      format::HandleId pipeline_id,
                                                      size_t           data_size,
@@ -390,14 +400,14 @@ class VulkanStateWriter
 
     void WriteAccelerationStructureStateMetaCommands(const VulkanStateTable& state_table);
 
-    using AccelerationStructureBuildCommandData =
-        vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData;
+    void WriteAccelerationStructureResourceInit(const gfxrecon::format::HandleId&                 device,
+                                                encode::AccelerationStructureKHRBuildCommandData& command);
 
-    void WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&      device,
-                                              AccelerationStructureBuildCommandData& command);
+    void WriteAccelerationStructureBuildState(const gfxrecon::format::HandleId&                 device,
+                                              encode::AccelerationStructureKHRBuildCommandData& command);
 
-    void EncodeAccelerationStructureBuildMetaCommand(format::HandleId                             device_id,
-                                                     const AccelerationStructureBuildCommandData& command);
+    void EncodeAccelerationStructureBuildMetaCommand(format::HandleId                                        device_id,
+                                                     const encode::AccelerationStructureKHRBuildCommandData& command);
 
     void EncodeAccelerationStructuresCopyMetaCommand(format::HandleId                                       device_id,
                                                      const std::vector<VkCopyAccelerationStructureInfoKHR>& infos);
@@ -415,15 +425,17 @@ class VulkanStateWriter
     WriteGetAccelerationStructureDeviceAddressKHRCall(const VulkanStateTable& state_table,
                                                       const vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
-    static void UpdateAddresses(AccelerationStructureBuildCommandData& command);
+    static void UpdateAddresses(encode::AccelerationStructureKHRBuildCommandData& command);
 
-    using ASInputBuffer = vulkan_wrappers::AccelerationStructureKHRWrapper::ASInputBuffer;
     void BeginAccelerationStructuresSection(format::HandleId device_id, uint64_t max_resource_size);
-    void WriteASInputBufferState(ASInputBuffer& buffer);
-    void WriteASInputMemoryState(ASInputBuffer& buffer);
-    void InitializeASInputBuffer(ASInputBuffer& buffer);
-    void WriteDestroyASInputBuffer(ASInputBuffer& buffer);
+    void WriteASInputBufferState(encode::AccelerationStructureInputBuffer& buffer);
+    void WriteASInputMemoryState(encode::AccelerationStructureInputBuffer& buffer);
+    void InitializeASInputBuffer(encode::AccelerationStructureInputBuffer& buffer);
+    void WriteDestroyASInputBuffer(encode::AccelerationStructureInputBuffer& buffer);
     void EndAccelerationStructureSection(format::HandleId device_id);
+
+    void WriteRecreateAccelerationHandle(encode::AccelerationStructureKHRBuildCommandData& command);
+    void WriteDestroyAccelerationHandle(const encode::AccelerationStructureKHRBuildCommandData& command);
 
     void WriteExecuteFromFile(const std::string& filename, uint32_t n_blocks, int64_t offset);
 
@@ -439,7 +451,10 @@ class VulkanStateWriter
     uint64_t                 blocks_written_{ 0 };
 
     // helper to retrieve a unique id, e.g. from a CaptureManager
-    std::function<format::HandleId()> get_unique_id_;
+    vulkan_wrappers::PFN_GetHandleId get_unique_id_;
+
+    // Keeps track of buffer- and acceleration-structure device addresses
+    const std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker>& device_address_trackers_;
 
     util::FileOutputStream* asset_file_stream_;
     std::string             asset_file_name_;

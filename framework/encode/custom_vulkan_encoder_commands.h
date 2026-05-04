@@ -218,7 +218,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>
     }
 };
 
-// Dispatch custom command to give implementation warning during create wayland surface
+// Dispatch custom command to set wayland keyboard connection during create wayland surface
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>
 {
@@ -226,6 +226,17 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PreProcess_vkCreateWaylandSurfaceKHR(args...);
+    }
+};
+
+// Dispatch custom command to clean up implementation in wayland surface
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkDestroySurfaceKHR(args...);
     }
 };
 
@@ -666,6 +677,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkMapMemory2(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkMapMemory2(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>
 {
     template <typename... Args>
@@ -686,6 +717,26 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory>
 };
 
 template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkUnmapMemory2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkUnmapMemory2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeMemory>
 {
     template <typename... Args>
@@ -702,6 +753,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PostProcess_vkFreeMemory(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueBindSparse>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_vkQueueBindSparse(args...);
     }
 };
 
@@ -747,6 +808,36 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>
 };
 
 #endif
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitForFences>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkWaitForFences(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetFences>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkResetFences(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceStatus>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetFenceStatus(args...);
+    }
+};
 
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>
@@ -1404,6 +1495,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindDescriptorSets2>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdBindDescriptorSets2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>
 {
     template <typename... Args>
@@ -1825,6 +1926,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBeginCommandBuffer>
 };
 
 #endif // ENABLE_OPENXR_SUPPORT
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTransitionImageLayout>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkTransitionImageLayout(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTransitionImageLayoutEXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkTransitionImageLayout(result, args...);
+    }
+};
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

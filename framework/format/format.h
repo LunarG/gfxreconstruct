@@ -38,6 +38,14 @@
 #define GFXRECON_FOURCC GFXRECON_MAKE_FOURCC('G', 'F', 'X', 'R')
 #define GFXRECON_FILE_EXTENSION ".gfxr"
 
+#define GFXRECON_MAKE_FILE_VERSION(major, minor) ((static_cast<uint64_t>(major) << 32) | minor)
+#define GFXRECON_CURRENT_FILE_VERSION GFXRECON_MAKE_FILE_VERSION(0, 1)
+#define GFXRECON_CURRENT_FILE_MAJOR static_cast<uint32_t>(GFXRECON_CURRENT_FILE_VERSION >> 32)
+#define GFXRECON_CURRENT_FILE_MINOR static_cast<uint32_t>(GFXRECON_CURRENT_FILE_VERSION)
+
+// After this version, implicit frame boundaries are ignored
+#define GFXRECON_EXPLICIT_FRAME_MARKER_FILE_VERSION GFXRECON_MAKE_FILE_VERSION(0, 1)
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
 
@@ -68,16 +76,17 @@ const int8_t   kNoneIndex                 = -1;
 
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
-const char* const kAnnotationLabelOperation          = "operation";
-const char* const kAnnotationLabelReplayOptions      = "replayopts";
-const char* const kAnnotationLabelRemovedResource    = "removed-resource";
-const char* const kAnnotationLabelTransformer        = "transformer";
-const char* const kAnnotationPipelineCreationAttempt = "pipelinecreationattempt";
+constexpr char kAnnotationLabelOperation[]           = "operation";
+constexpr char kAnnotationLabelReplayOptions[]       = "replayopts";
+constexpr char kAnnotationLabelRemovedResource[]     = "removed-resource";
+constexpr char kAnnotationLabelRemovedFunctionCall[] = "removed-function-call";
+constexpr char kAnnotationLabelTransformer[]         = "transformer";
+constexpr char kAnnotationPipelineCreationAttempt[]  = "pipelinecreationattempt";
 
-const char* const kOperationAnnotationGfxreconstructVersion = "gfxrecon-version";
-const char* const kOperationAnnotationVulkanVersion         = "vulkan-version";
-const char* const kOperationAnnotationTimestamp             = "timestamp";
-const char* const kOperationAnnotationCaptureParameters     = "capture-parameters";
+constexpr char kOperationAnnotationGfxreconstructVersion[] = "gfxrecon-version";
+constexpr char kOperationAnnotationVulkanVersion[]         = "vulkan-version";
+constexpr char kOperationAnnotationTimestamp[]             = "timestamp";
+constexpr char kOperationAnnotationCaptureParameters[]     = "capture-parameters";
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {
@@ -160,6 +169,7 @@ enum class MetaDataType : uint16_t
     kExecuteBlocksFromFile                              = 34,
     kCreateHardwareBufferCommand                        = 35,
     kInitializeMetaCommand                              = 36,
+    kSetOpaqueCaptureDescriptorDataCommand              = 37,
 
     //! reserve values with highest-bit for special purposes
     kBeginExperimentalReservedRange = 1U << 15U
@@ -487,8 +497,12 @@ struct BeginResourceInitCommand
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
     format::HandleId device_id;
-    uint64_t         max_resource_size; // Size of largest resource in upload data set.
-    uint64_t         max_copy_size;     // Size of largest resource requiring a staging copy at capture.
+
+    // sum of all resource-size in bytes.
+    uint64_t total_copy_size;
+
+    // size of single largest resource requiring a staging copy, in bytes.
+    uint64_t max_copy_size;
 };
 
 struct EndResourceInitCommand
@@ -576,6 +590,15 @@ struct SetOpaqueAddressCommand
     uint64_t         address;
 };
 
+struct SetOpaqueDescriptorDataCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId object_id;
+    uint32_t         data_size;
+};
+
 struct SetRayTracingShaderGroupHandlesCommandHeader
 {
     MetaDataHeader   meta_header;
@@ -640,6 +663,11 @@ struct DxgiAdapterDesc
     int32_t  LuidHighPart;
     uint32_t extra_info; // 2 bits (LSB) to store Type and 30 bits for object ID
 };
+
+inline int64_t pack_luid(const format::DxgiAdapterDesc& adapter_desc)
+{
+    return static_cast<int64_t>((static_cast<uint64_t>(adapter_desc.LuidHighPart) << 32) | adapter_desc.LuidLowPart);
+}
 
 struct DxgiAdapterInfoCommandHeader
 {
@@ -753,7 +781,7 @@ struct InitializeMetaCommand
     format::HandleId capture_id;
     uint32_t         block_index{ 0 };
     uint32_t         total_number_of_initializemetacommand{ 0 };
-    uint64_t         initialization_parameters_data_size{ 0 };
+    uint64_t         data_size{ 0 };
 
     // In the capture file, initialize metacommand data is written in the following order:
     // InitializeMetaCommandHeder

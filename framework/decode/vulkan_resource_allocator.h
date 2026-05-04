@@ -108,6 +108,8 @@ class VulkanResourceAllocator
         PFN_vkDestroySemaphore                             destroy_semaphore{ nullptr };
         PFN_vkWaitForFences                                wait_for_fences{ nullptr };
         PFN_vkGetAndroidHardwareBufferPropertiesANDROID    get_android_hardware_buffer_properties{ nullptr };
+        PFN_vkCreateFence                                  create_fence{ nullptr };
+        PFN_vkDestroyFence                                 destroy_fence{ nullptr };
     };
 
   public:
@@ -414,6 +416,7 @@ class VulkanResourceAllocator
 
     virtual uint64_t GetDeviceMemoryOpaqueCaptureAddress(const VkDeviceMemoryOpaqueCaptureAddressInfo* info,
                                                          MemoryData allocator_data) = 0;
+    virtual void     ClearStagingResources(){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

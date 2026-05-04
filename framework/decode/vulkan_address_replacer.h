@@ -23,9 +23,12 @@
 #ifndef GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 #define GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 
+#include <span>
+
 #include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_device_address_tracker.h"
+#include "graphics/vulkan_semaphore_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "format/platform_types.h"
 
@@ -80,19 +83,53 @@ class VulkanAddressReplacer
      * 3) lastly, if command_buffer_info' is a nullptr:
      * - submit the dispatch locally, sync via internal fence
      *
-     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr
-     * @param   addresses           array of device-addresses
-     * @param   num_addresses       number of addresses
-     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
-     * @param   wait_semaphores     optional array of (timeline) wait-semaphores, along with their wait-values
+     * @param   command_buffer_info  optional VulkanCommandBufferInfo* or nullptr
+     * @param   addresses_to_replace span of device-addresses
+     * @param   address_tracker      const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param   wait_semaphores      optional span of (timeline) wait-semaphores, along with their wait-values
      * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
-    VkSemaphore
-    UpdateBufferAddresses(const VulkanCommandBufferInfo*                                      command_buffer_info,
-                          const VkDeviceAddress*                                              addresses,
-                          uint32_t                                                            num_addresses,
-                          const decode::VulkanDeviceAddressTracker&                           address_tracker,
-                          const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores = {});
+    VkSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
+                                      const std::span<VkDeviceAddress>           addresses_to_replace,
+                                      const decode::VulkanDeviceAddressTracker&  address_tracker,
+                                      const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
+
+  private:
+    /**
+     * @brief   'ResolveBufferAddresses' can be used to identify buffers which are referenced
+     *          by buffer-device-addresses.
+     *
+     * This routine allows resolving pointer-chains (to some degree) and identify additional BDA-locations
+     * that require address remapping/replacement.
+     *
+     * @param   command_buffer_info a provided command_buffer_info containing locations to resolve
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
+    void ResolveBufferAddresses(VulkanCommandBufferInfo*                  command_buffer_info,
+                                const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   `ResolveBufferAddresses` can be used to identify buffers which are referenced
+     *          by buffer-device-addresses.
+     *
+     * @param   command_buffers     a provided vector of VulkanCommandBufferInfo* containing locations to resolve
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker
+     * @return  a pair with a vector, containing all device-addresses that require replacement, and a pointer to the
+     * first command-buffer-info that was used to discover those addresses.
+     */
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(std::vector<VulkanCommandBufferInfo*> command_buffers,
+                           const VulkanDeviceAddressTracker&     address_tracker);
+
+    std::vector<VulkanCommandBufferInfo*> GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo& submit_info);
+    std::vector<VulkanCommandBufferInfo*> GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo2& submit_info2);
+
+  public:
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(Decoded_VkSubmitInfo& submit_info, const VulkanDeviceAddressTracker& address_tracker);
+
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(Decoded_VkSubmitInfo2& submit_info2, const VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',
@@ -190,13 +227,14 @@ class VulkanAddressReplacer
      * @param info_count            number of elements in 'build_geometry_infos'
      * @param build_geometry_infos  provided array of VkAccelerationStructureBuildGeometryInfoKHR
      * @param build_range_infos     provided array of VkAccelerationStructureBuildRangeInfoKHR*
-     * @param address_tracker       const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param address_tracker       reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     *                              and potentially update tracked information
      */
     void ProcessCmdBuildAccelerationStructuresKHR(const VulkanCommandBufferInfo*               command_buffer_info,
                                                   uint32_t                                     info_count,
                                                   VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos,
                                                   VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos,
-                                                  const decode::VulkanDeviceAddressTracker&    address_tracker);
+                                                  decode::VulkanDeviceAddressTracker&          address_tracker);
 
     /**
      * @brief   ProcessCmdCopyAccelerationStructuresKHR will check
@@ -217,12 +255,15 @@ class VulkanAddressReplacer
      * @param   query_type              the query's type
      * @param   pool                    provided VkQuerypool handle
      * @param   first_query             index of first query
+     * @param   address_tracker         const reference to a VulkanDeviceAddressTracker,
+     *                                  used for mapping device-addresses
      */
     void ProcessCmdWriteAccelerationStructuresPropertiesKHR(uint32_t                    count,
                                                             VkAccelerationStructureKHR* acceleration_structures,
                                                             VkQueryType                 query_type,
                                                             VkQueryPool                 pool,
-                                                            uint32_t                    first_query);
+                                                            uint32_t                    first_query,
+                                                            const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   ProcessUpdateDescriptorSets will check
@@ -232,11 +273,25 @@ class VulkanAddressReplacer
      * @param   descriptor_writes       provided array of VkWriteDescriptorSet
      * @param   descriptor_copy_count   element count in descriptor_copies
      * @param   descriptor_copies       provided array of VkCopyDescriptorSet
+     * @param   address_tracker         const reference to a VulkanDeviceAddressTracker,
+     *                                  used for mapping device-addresses
      */
-    void ProcessUpdateDescriptorSets(uint32_t              descriptor_write_count,
-                                     VkWriteDescriptorSet* descriptor_writes,
-                                     uint32_t              descriptor_copy_count,
-                                     VkCopyDescriptorSet*  descriptor_copies);
+    void ProcessUpdateDescriptorSets(uint32_t                                  descriptor_write_count,
+                                     VkWriteDescriptorSet*                     descriptor_writes,
+                                     uint32_t                                  descriptor_copy_count,
+                                     VkCopyDescriptorSet*                      descriptor_copies,
+                                     const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   ProcessGeneratedCommandsInfoEXT will check
+     *          and potentially correct device addresses in VkGeneratedCommandsInfoEXT
+     *
+     * @param   pGeneratedCommandsInfo  structure to replace device addresses in
+     * @param   address_tracker         const reference to a VulkanDeviceAddressTracker,
+     *                                  used for mapping device-addresses
+     */
+    void ProcessGeneratedCommandsInfoEXT(VkGeneratedCommandsInfoEXT*               pGeneratedCommandsInfo,
+                                         const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   ProcessGetQueryPoolResults will check for running queries and attempt to extract information
@@ -276,7 +331,7 @@ class VulkanAddressReplacer
     ProcessBuildVulkanAccelerationStructuresMetaCommand(uint32_t                                     info_count,
                                                         VkAccelerationStructureBuildGeometryInfoKHR* geometry_infos,
                                                         VkAccelerationStructureBuildRangeInfoKHR**   range_infos,
-                                                        const decode::VulkanDeviceAddressTracker&    address_tracker);
+                                                        decode::VulkanDeviceAddressTracker&          address_tracker);
 
     /**
      * @brief   Process information contained in a metadata-block in order to copy acceleration-structures.
@@ -296,9 +351,10 @@ class VulkanAddressReplacer
      * @param   query_type              type of query
      * @param   acceleration_structure  provided acceleration-structure handle
      */
-    void
-    ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(VkQueryType                query_type,
-                                                                  VkAccelerationStructureKHR acceleration_structure);
+    void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        VkQueryType                               query_type,
+        VkAccelerationStructureKHR                acceleration_structure,
+        const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkAccelerationStructureKHR handle,
@@ -307,6 +363,14 @@ class VulkanAddressReplacer
      * @param   handle  a provided VkAccelerationStructureKHR handle
      */
     void DestroyShadowResources(VkAccelerationStructureKHR handle);
+
+    /**
+     * @brief   DestroyShadowResources should be called upon destruction of a VkBuffer-handle,
+     *          allowing this class to free potential resources associated with it.
+     *
+     * @param   buffer_info  a provided VulkanBufferInfo struct
+     */
+    void DestroyShadowResources(const VulkanBufferInfo* buffer_info, const VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkCommandBuffer handle,
@@ -334,7 +398,7 @@ class VulkanAddressReplacer
         buffer_context_t(buffer_context_t&& other) noexcept;
         ~buffer_context_t();
         buffer_context_t& operator=(buffer_context_t other);
-        void              swap(buffer_context_t& other);
+        void              swap(buffer_context_t& other) noexcept;
     };
 
     struct pipeline_context_t
@@ -386,7 +450,7 @@ class VulkanAddressReplacer
         submit_asset_t(submit_asset_t&& other) noexcept;
         submit_asset_t& operator=(submit_asset_t other);
         ~submit_asset_t();
-        void swap(submit_asset_t& other);
+        void swap(submit_asset_t& other) noexcept;
     };
 
     [[nodiscard]] bool init_pipeline();
@@ -395,18 +459,17 @@ class VulkanAddressReplacer
 
     void update_global_hashmap(VkCommandBuffer command_buffer);
 
-    void run_compute_replace(const VulkanCommandBufferInfo*            command_buffer_info,
-                             const VkDeviceAddress*                    addresses,
-                             uint32_t                                  num_addresses,
-                             const decode::VulkanDeviceAddressTracker& address_tracker,
-                             VkPipelineStageFlags                      sync_stage);
+    void run_compute_replace(const VulkanCommandBufferInfo*    command_buffer_info,
+                             const std::span<VkDeviceAddress>  addresses,
+                             const VulkanDeviceAddressTracker& address_tracker,
+                             VkPipelineStageFlags              sync_stage);
 
     [[nodiscard]] bool create_buffer(buffer_context_t&  buffer_context,
                                      size_t             num_bytes,
                                      uint32_t           usage_flags   = 0,
                                      uint32_t           min_alignment = 0,
                                      bool               use_host_mem  = true,
-                                     const std::string& name          = "GFXR VulkanAddressReplacer Buffer");
+                                     const std::string& name          = "GFXR VulkanAddressReplacer Buffer") const;
 
     [[nodiscard]] bool create_acceleration_asset(acceleration_structure_asset_t& as_asset,
                                                  VkAccelerationStructureTypeKHR  type,
@@ -420,13 +483,14 @@ class VulkanAddressReplacer
                  VkPipelineStageFlags src_stage,
                  VkAccessFlags        src_access,
                  VkPipelineStageFlags dst_stage,
-                 VkAccessFlags        dst_access);
+                 VkAccessFlags        dst_access) const;
 
-    bool swap_acceleration_structure_handle(VkAccelerationStructureKHR& handle);
+    bool swap_acceleration_structure_handle(VkAccelerationStructureKHR&               handle,
+                                            const decode::VulkanDeviceAddressTracker& address_tracker);
 
-    const graphics::VulkanDeviceTable*                             device_table_      = nullptr;
-    decode::CommonObjectInfoTable*                                 object_table_      = nullptr;
-    VkPhysicalDeviceMemoryProperties                               memory_properties_ = {};
+    const graphics::VulkanDeviceTable*                             device_table_              = nullptr;
+    decode::CommonObjectInfoTable*                                 object_table_              = nullptr;
+    VkPhysicalDeviceMemoryProperties                               capture_memory_properties_ = {};
     std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> capture_ray_properties_{}, replay_ray_properties_{};
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> replay_acceleration_structure_properties_{};
     bool                                                              valid_sbt_alignment_ = true;
@@ -459,14 +523,15 @@ class VulkanAddressReplacer
     std::vector<bda_element_t> storage_bda_binary_;
 
     // storage- and control-buffers for a global hashmap acting as address-filter
-    buffer_context_t hashmap_storage_bda_binary_       = {};
-    buffer_context_t hashmap_control_block_bda_binary_ = {};
+    buffer_context_t hashmap_storage_bda_binary_            = {};
+    buffer_context_t hashmap_control_block_bda_binary_      = {};
+    buffer_context_t hashmap_control_block_bda_binary_prev_ = {};
 
     // pipeline-contexts per command-buffer
     std::unordered_map<VkCommandBuffer, std::vector<pipeline_context_t>> pipeline_context_map_;
 
     // resources related to acceleration-structures
-    std::unordered_map<VkAccelerationStructureKHR, acceleration_structure_asset_t> shadow_as_map_;
+    std::unordered_map<VkDeviceAddress, acceleration_structure_asset_t> shadow_as_map_;
 
     // currently running compaction queries. pool -> AS -> query-pool-index
     std::unordered_map<VkQueryPool, std::unordered_map<VkAccelerationStructureKHR, uint32_t>> as_compact_queries_;
@@ -480,6 +545,10 @@ class VulkanAddressReplacer
     PFN_vkGetPhysicalDeviceProperties2 get_physical_device_properties_fn_ = nullptr;
     PFN_vkSetDebugUtilsObjectNameEXT   set_debug_utils_object_name_fn_    = nullptr;
 };
+
+using VulkanPerDeviceAddressReplacers =
+    std::unordered_map<const decode::VulkanDeviceInfo*, decode::VulkanAddressReplacer>;
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

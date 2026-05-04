@@ -55,18 +55,19 @@ class VulkanStateTracker
 
     ~VulkanStateTracker();
 
-    uint64_t WriteState(util::FileOutputStream*           file_stream,
-                        util::ThreadData*                 thread_data,
-                        std::function<format::HandleId()> get_unique_id_fn,
-                        util::Compressor*                 compressor,
-                        uint64_t                          frame_number,
-                        util::FileOutputStream*           asset_file_stream,
-                        const std::string*                asset_file_name)
+    uint64_t WriteState(util::FileOutputStream*          file_stream,
+                        util::ThreadData*                thread_data,
+                        vulkan_wrappers::PFN_GetHandleId get_unique_id_fn,
+                        util::Compressor*                compressor,
+                        uint64_t                         frame_number,
+                        util::FileOutputStream*          asset_file_stream,
+                        const std::string*               asset_file_name)
     {
         VulkanStateWriter state_writer(file_stream,
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        asset_file_stream != nullptr ? &asset_file_offsets_ : nullptr);
@@ -75,11 +76,11 @@ class VulkanStateTracker
         return state_writer.WriteState(state_table_, frame_number);
     }
 
-    uint64_t WriteAssets(util::FileOutputStream*           asset_file_stream,
-                         const std::string*                asset_file_name,
-                         util::ThreadData*                 thread_data,
-                         std::function<format::HandleId()> get_unique_id_fn,
-                         util::Compressor*                 compressor)
+    uint64_t WriteAssets(util::FileOutputStream*          asset_file_stream,
+                         const std::string*               asset_file_name,
+                         util::ThreadData*                thread_data,
+                         vulkan_wrappers::PFN_GetHandleId get_unique_id_fn,
+                         util::Compressor*                compressor)
     {
         assert(asset_file_stream != nullptr);
         assert(asset_file_name != nullptr);
@@ -88,6 +89,7 @@ class VulkanStateTracker
                                        compressor,
                                        thread_data,
                                        get_unique_id_fn,
+                                       device_address_trackers_,
                                        asset_file_stream,
                                        asset_file_name,
                                        &asset_file_offsets_);
@@ -385,8 +387,7 @@ class VulkanStateTracker
                            void*            mapped_data,
                            VkDeviceSize     mapped_offset,
                            VkDeviceSize     mapped_size,
-                           VkMemoryMapFlags mapped_flags,
-                           bool             track_assets);
+                           VkMemoryMapFlags mapped_flags);
 
     void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
 
@@ -450,6 +451,9 @@ class VulkanStateTracker
                               const uint32_t*       image_indices,
                               VkQueue               queue);
 
+    // finds potential fences in pNext-chain and tracks their usage
+    void TrackPresentFences(const VkPresentInfoKHR* present_info);
+
     void TrackAccelerationStructureKHRDeviceAddress(VkDevice                   device,
                                                     VkAccelerationStructureKHR accel_struct,
                                                     VkDeviceAddress            address);
@@ -479,6 +483,9 @@ class VulkanStateTracker
         VkPhysicalDevice                                    physicalDevice,
         VkPhysicalDeviceAccelerationStructurePropertiesKHR* acceleration_structure_properties);
 
+    void TrackDescriptorBufferProperties(VkPhysicalDevice                               physicalDevice,
+                                         VkPhysicalDeviceDescriptorBufferPropertiesEXT* descriptor_buffer_properties);
+
     void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
 
     void TrackAcquireFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain);
@@ -504,8 +511,8 @@ class VulkanStateTracker
                                     uint32_t               dynamicOffsetCount,
                                     const uint32_t*        pDynamicOffsets);
 
-    void TrackCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
-                                        const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+    void TrackCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                     const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
 
     void
     TrackCmdBindPipeline(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
@@ -743,6 +750,8 @@ class VulkanStateTracker
 
     void TrackAssetsInSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
 
+    void TrackAssetsInMemory(format::HandleId memory_id);
+
     void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
 
     void TrackSetDebugUtilsObjectNameEXT(VkDevice                             device,
@@ -754,6 +763,8 @@ class VulkanStateTracker
                                         const util::MemoryOutputStream*     object_tag_parameter_buffer);
 
     void TrackBeginCommandBuffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags flags);
+
+    void TrackTransitionImageLayout(uint32_t transitionCount, const VkHostImageLayoutTransitionInfo* pTransitions);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
@@ -818,7 +829,7 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrapper);
 
-    void DestroyState(vulkan_wrappers::BufferWrapper* wrapper);
+    void DestroyState(vulkan_wrappers::BufferWrapper* buffer_wrapper);
 
     void DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 

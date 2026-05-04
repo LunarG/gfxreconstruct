@@ -30,8 +30,10 @@
 #endif
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
+#include <debug_utils_app.h>
 #include <triangle_app.h>
 #include <triangle_extra_device_app.h>
+#include <deep_pnext_chain_app.h>
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #include <ahb_app.h>
 #endif
@@ -40,6 +42,7 @@
 #include <external_memory_fd_export_app.h>
 #include <external_memory_fd_import_app.h>
 #include <wait_for_present_app.h>
+#include <trigger_trimming_app.h>
 #endif
 
 #include <algorithm>
@@ -60,6 +63,7 @@ const char kArguments[] = "--wsi";
 
 static const char* kAppNames[] = {
     "acquired-image",
+    "debug-utils",
     "host-image-copy",
     "multisample-depth",
     "pipeline-binaries",
@@ -70,10 +74,12 @@ static const char* kAppNames[] = {
     "sparse-resources",
     "triangle",
     "triangle-extra-device",
+    "deep-pnext-chain",
 #ifdef __linux__
     "external-memory-fd-export",
     "external-memory-fd-import",
     "wait-for-present",
+    "trigger-trimming",
 #endif
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
     "ahb"
@@ -135,6 +141,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     {
         app = std::make_unique<gfxrecon::test_app::acquired_image::App>();
     }
+    else if (app_name == "debug-utils")
+    {
+        app = std::make_unique<gfxrecon::test_app::debug_utils::App>();
+    }
     else if (app_name == "triangle")
     {
         app = std::make_unique<gfxrecon::test_app::triangle::App>();
@@ -169,6 +179,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     {
         app = std::make_unique<gfxrecon::test_app::sparse_resources::App>();
     }
+    else if (app_name == "deep-pnext-chain")
+    {
+        app = std::make_unique<gfxrecon::test_app::deep_pnext_chain::App>();
+    }
 #ifdef __linux__
     else if (app_name == "external-memory-fd-export")
     {
@@ -181,6 +195,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "wait-for-present")
     {
         app = std::make_unique<gfxrecon::test_app::wait_for_present::App>();
+    }
+    else if (app_name == "trigger-trimming")
+    {
+        app = std::make_unique<gfxrecon::test_app::trigger_trimming::App>();
     }
 #endif // __linux__
 #ifdef VK_USE_PLATFORM_ANDROID_KHR

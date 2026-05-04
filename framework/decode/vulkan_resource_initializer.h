@@ -31,6 +31,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -41,7 +42,9 @@ class VulkanResourceInitializer
 {
   public:
     VulkanResourceInitializer(const VulkanDeviceInfo*                 device_info,
+                              VkDeviceSize                            total_copy_size,
                               VkDeviceSize                            max_copy_size,
+                              const VkPhysicalDeviceProperties&       physical_device_properties,
                               const VkPhysicalDeviceMemoryProperties& memory_properties,
                               bool                                    have_shader_stencil_write,
                               VulkanResourceAllocator*                resource_allocator,
@@ -84,9 +87,11 @@ class VulkanResourceInitializer
                              uint32_t              layer_count,
                              uint32_t              level_count);
 
-  private:
     VkResult GetCommandExecObjects(uint32_t queue_family_index, VkCommandBuffer* command_buffer);
 
+    VkResult BeginCommandBuffer(uint32_t queue_family_index, VkCommandBuffer* command_buffer_p = nullptr);
+
+  private:
     VkResult GetDrawDescriptorObjects(VkSampler* sampler, VkDescriptorSetLayout* set_layout, VkDescriptorSet* set);
 
     VkResult CreateDrawObjects(VkFormat              format,
@@ -128,14 +133,12 @@ class VulkanResourceInitializer
 
     void UpdateDrawDescriptorSet(VkDescriptorSet set, VkImageView view, VkSampler sampler);
 
-    VkResult BeginCommandBuffer(uint32_t queue_family_index, VkCommandBuffer* command_buffer_p = nullptr);
-
     VkResult ExecuteCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer);
 
     VkImageAspectFlags
     GetImageTransitionAspect(VkFormat format, VkImageAspectFlagBits aspect, VkImageLayout* old_layout);
 
-    uint32_t GetMemoryTypeIndex(uint32_t type_bits, VkMemoryPropertyFlags property_flags);
+    std::optional<uint32_t> GetMemoryTypeIndex(uint32_t type_bits, VkMemoryPropertyFlags property_flags) const;
 
     VkResult BufferToImageCopy(uint32_t                 queue_family_index,
                                VkBuffer                 source,
@@ -168,7 +171,6 @@ class VulkanResourceInitializer
 
     VkResult FlushRemainingResourcesInit();
 
-  private:
     struct CommandExecObjects
     {
         VkQueue         queue;
@@ -180,7 +182,6 @@ class VulkanResourceInitializer
     // Map queue family index to command pool, command buffer, and queue objects for command processing.
     typedef std::unordered_map<uint32_t, CommandExecObjects> CommandExecObjectMap;
 
-  private:
     VkDevice                              device_;
     CommandExecObjectMap                  command_exec_objects_;
     VkDeviceMemory                        staging_memory_;
@@ -188,13 +189,16 @@ class VulkanResourceInitializer
     VkBuffer                              staging_buffer_;
     VulkanResourceAllocator::ResourceData staging_buffer_data_;
     size_t                                staging_buffer_offset_;
+    size_t                                staging_buffer_size_;
+    size_t                                staging_buffer_alignment_;
     uint8_t*                              staging_buffer_mapped_ptr_;
     VkSampler                             draw_sampler_;
     VkDescriptorPool                      draw_pool_;
     VkDescriptorSetLayout                 draw_set_layout_;
     VkDescriptorSet                       draw_set_;
-    VkDeviceSize                          max_copy_size_;
-    VkPhysicalDeviceMemoryProperties      memory_properties_;
+    VkFence                               fence_             = VK_NULL_HANDLE;
+    uint32_t                              num_queue_submits_ = 0;
+    VkPhysicalDeviceMemoryProperties      memory_properties_{};
     bool                                  have_shader_stencil_write_;
     VulkanResourceAllocator*              resource_allocator_;
     const graphics::VulkanDeviceTable*    device_table_;

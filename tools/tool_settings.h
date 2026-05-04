@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2023 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -82,6 +82,8 @@ const char kOverrideGpuArgument[]                = "--gpu";
 const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
+const char kLoopFrameArgument[]                  = "--loop-frame";
+const char kLoopCountArgument[]                  = "--loop-count";
 const char kCaptureOption[]                      = "--capture";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
@@ -124,6 +126,8 @@ const char kQuitAfterFrameArgument[]             = "--quit-after-frame";
 const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
+const char kPresentModeOption[]                  = "--present-mode";
+const char kPresentOverrideImageArgument[]       = "--present-override";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
@@ -146,32 +150,27 @@ const char kSavePipelineCacheArgument[]           = "--save-pipeline-cache";
 const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
+const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
+const char kIdleBeforeSubmit[]                    = "--idle-before-submit";
+const char kSerializeRenderPasses[]               = "--serialize-render-passes";
+const char kWaitBeforeFrame[]                     = "--wait-before-frame";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
 #if defined(WIN32)
-const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
-const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
-const char kDxAgsMarkRenderPasses[]       = "--dx12-ags-inject-markers";
-const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
+const char kDxTwoPassReplay[]                  = "--dx12-two-pass-replay";
+const char kDxOverrideObjectNames[]            = "--dx12-override-object-names";
+const char kDxAgsMarkRenderPasses[]            = "--dx12-ags-inject-markers";
+const char kBatchingMemoryUsageArgument[]      = "--batching-memory-usage";
+const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-state-only";
+const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 #endif
 
-const char kDumpResourcesArgument[]                    = "--dump-resources";
-const char kDumpResourcesBeforeDrawOption[]            = "--dump-resources-before-draw";
-const char kDumpResourcesImageFormat[]                 = "--dump-resources-image-format";
-const char kDumpResourcesScaleArgument[]               = "--dump-resources-scale";
-const char kDumpResourcesDepth[]                       = "--dump-resources-dump-depth-attachment";
-const char kDumpResourcesDirArgument[]                 = "--dump-resources-dir";
-const char kDumpResourcesModifiableStateOnly[]         = "--dump-resources-modifiable-state-only";
-const char kDumpResourcesColorAttIdxArg[]              = "--dump-resources-dump-color-attachment-index";
-const char kDumpResourcesDumpVertexIndexBuffers[]      = "--dump-resources-dump-vertex-index-buffers";
-const char kDumpResourcesJsonPerCommand[]              = "--dump-resources-json-output-per-command";
-const char kDumpResourcesDumpImmutableResources[]      = "--dump-resources-dump-immutable-resources";
-const char kDumpResourcesDumpImageSubresources[]       = "--dump-resources-dump-all-image-subresources";
-const char kDumpResourcesDumpRawImages[]               = "--dump-resources-dump-raw-images";
-const char kDumpResourcesDumpSeparateAlpha[]           = "--dump-resources-dump-separate-alpha";
-const char kDumpResourcesDumpUnusedVertexBindings[]    = "--dump-resources-dump-unused-vertex-bindigs";
-const char kDumpResourcesBinaryFileCompressionMethod[] = "--dump-resources-binary-file-compression-type";
+const char kDumpResourcesArgument[]     = "--dump-resources";
+const char kDumpResourcesDirArgument[]  = "--dump-resources-dir";
+const char kFrameWarmUpSpirv[]          = "--frame-warm-up-spirv";
+const char kFrameWarmUpLoad[]           = "--frame-warm-up-load";
+const char kSerializeQueueSubmissions[] = "--serialize-queue-submissions";
 
 enum class WsiPlatform
 {
@@ -203,13 +202,11 @@ const char kSwapchainVirtual[]   = "virtual";
 const char kSwapchainCaptured[]  = "captured";
 const char kSwapchainOffscreen[] = "offscreen";
 
-const char kScreenshotFormatBmp[] = "bmp";
-const char kScreenshotFormatPng[] = "png";
-
-const char kCompressionTypeNone[] = "none";
-const char kCompressionTypeLz4[]  = "lz4";
-const char kCompressionTypeZlib[] = "zlib";
-const char kCompressionTypeZstd[] = "zstd";
+const char kPresentModeCapture[]     = "capture";
+const char kPresentModeImmediate[]   = "immediate";
+const char kPresentModeMailbox[]     = "mailbox";
+const char kPresentModeFifo[]        = "fifo";
+const char kPresentModeFifoRelaxed[] = "fifo_relaxed";
 
 #if defined(__ANDROID__)
 const char kDefaultScreenshotDir[]    = "/sdcard";
@@ -322,7 +319,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
 
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    uint32_t    pause_frame = 0;
+    uint32_t    pause_frame = std::numeric_limits<uint32_t>::max();
     const auto& value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
 
     if (arg_parser.IsOptionSet(kPausedOption))
@@ -531,8 +528,8 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
                            gfxrecon::util::Log::Settings&        log_settings)
 {
     // Parse log level
-    gfxrecon::util::Log::Severity log_level;
-    const std::string&            value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
+    gfxrecon::util::LoggingSeverity log_level;
+    const std::string&              value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
     if (value_string.empty() || !gfxrecon::util::Log::StringToSeverity(value_string, log_level))
     {
         log_level = gfxrecon::decode::kDefaultLogLevel;
@@ -547,6 +544,10 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     log_settings.output_timestamps         = arg_parser.IsOptionSet(kLogTimestampsOption);
     log_settings.file_name                 = arg_parser.GetArgumentValue(kLogFileArgument);
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
+    if (log_settings.file_name.size() > 0)
+    {
+        log_settings.write_to_file = true;
+    }
 }
 
 static void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_parser, std::string& file_name)
@@ -569,11 +570,11 @@ static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util
 
     if (!value.empty())
     {
-        if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
+        if (!gfxrecon::util::platform::StringCompareNoCase(gfxrecon::util::kScreenshotFormatBmp, value.c_str()))
         {
             format = gfxrecon::util::ScreenshotFormat::kBmp;
         }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatPng, value.c_str()) == 0)
+        else if (!gfxrecon::util::platform::StringCompareNoCase(gfxrecon::util::kScreenshotFormatPng, value.c_str()))
         {
             format = gfxrecon::util::ScreenshotFormat::kPng;
         }
@@ -584,63 +585,6 @@ static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util
     }
 
     return format;
-}
-
-static gfxrecon::util::ScreenshotFormat GetDumpresourcesImageFormat(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    gfxrecon::util::ScreenshotFormat format = gfxrecon::util::ScreenshotFormat::kBmp;
-    const auto&                      value  = arg_parser.GetArgumentValue(kDumpResourcesImageFormat);
-
-    if (!value.empty())
-    {
-        if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
-        {
-            format = gfxrecon::util::ScreenshotFormat::kBmp;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatPng, value.c_str()) == 0)
-        {
-            format = gfxrecon::util::ScreenshotFormat::kPng;
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized dump resources image format option \"%s\"", value.c_str());
-        }
-    }
-
-    return format;
-}
-
-static gfxrecon::format::CompressionType
-GetDumpResourcesCompressionType(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesBinaryFileCompressionMethod);
-
-    gfxrecon::format::CompressionType type = gfxrecon::format::CompressionType::kNone;
-    if (!value.empty())
-    {
-        if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeNone, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kNone;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeLz4, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kLz4;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeZlib, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kZlib;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kCompressionTypeZstd, value.c_str()) == 0)
-        {
-            type = gfxrecon::format::CompressionType::kZstd;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Unrecognized compression method \"%s\"", value.c_str());
-        }
-    }
-
-    return type;
 }
 
 static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -699,56 +643,37 @@ static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, 
     }
 }
 
-static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
+static std::optional<std::array<float, 2>> GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotScaleArgument);
-
-    float scale = 0.0f;
 
     if (!value.empty())
     {
         try
         {
-            scale = std::stof(value);
+            std::array<float, 2> scale = { 1.0f, 1.0f };
+            std::size_t          pos   = 0;
+            scale[0]                   = std::stof(value, &pos);
+
+            // skip comma separator
+            if (pos < value.size() && value[pos] == ',')
+            {
+                scale[1] = std::stof(value.substr(pos + 1));
+            }
+            else
+            {
+                // single value provided — apply uniformly
+                scale[1] = scale[0];
+            }
+            return scale;
         }
         catch (std::exception&)
         {
             GFXRECON_LOG_WARNING(
-                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [x,y]");
         }
     }
-
-    return scale;
-}
-
-static float GetDumpResourcesScale(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesScaleArgument);
-
-    float scale = 1.0f;
-
-    if (!value.empty())
-    {
-        try
-        {
-            scale = std::stof(value);
-        }
-        catch (std::exception&)
-        {
-            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option.");
-        }
-        if (scale <= 0.0f)
-        {
-            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option. Value must > 0.0.");
-            scale = 1.0f;
-        }
-        if (scale >= 10.0f)
-        {
-            scale = 10.0f;
-        }
-    }
-
-    return scale;
+    return {};
 }
 
 static std::vector<gfxrecon::decode::ScreenshotRange>
@@ -804,6 +729,62 @@ static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, 
     return false;
 }
 
+static bool GetLoopFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_number)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kLoopFrameArgument);
+
+    bool valid = !value.empty();
+
+    if (valid)
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            valid = false;
+        }
+    }
+
+    if (valid)
+    {
+        frame_number = std::stoi(value);
+        if (frame_number == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which must be greater than zero",
+                                 value.c_str());
+            valid = false;
+        }
+    }
+
+    return valid;
+}
+
+static bool GetLoopCount(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& loop_count)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kLoopCountArgument);
+    if (!value.empty())
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            return false;
+        }
+
+        uint32_t parsed_loop_count = static_cast<uint32_t>(std::stoul(value));
+        if (parsed_loop_count == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which must be greater than zero", value.c_str());
+            return false;
+        }
+
+        loop_count = parsed_loop_count;
+        return true;
+    }
+
+    return false;
+}
+
 static bool
 GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
 {
@@ -811,56 +792,57 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
     end_frame   = std::numeric_limits<uint32_t>::max();
 
     const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
-    if (!value.empty())
+    if (value.empty())
     {
-        std::vector<std::string> values  = gfxrecon::util::strings::SplitString(value, '-');
-        bool                     invalid = false;
+        return false;
+    }
 
-        if (values.size() != 2)
+    std::vector<std::string> values = gfxrecon::util::strings::SplitString(value, '-');
+
+    if (values.size() != 2)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
+                           value.c_str());
+        std::abort();
+    }
+
+    for (std::string& num : values)
+    {
+        gfxrecon::util::strings::RemoveWhitespace(num);
+
+        // Check that the range string only contains numbers.
+        const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
+        if (count != num.length())
         {
-            GFXRECON_LOG_WARNING(
-                "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
-                value.c_str());
-            invalid = true;
-        }
-
-        for (std::string& num : values)
-        {
-            gfxrecon::util::strings::RemoveWhitespace(num);
-
-            // Check that the range string only contains numbers.
-            const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
-            if (count != num.length())
-            {
-                GFXRECON_LOG_WARNING(
-                    "Ignoring invalid measurement frame range \"%s\", which contains non-numeric values",
-                    value.c_str());
-                invalid = true;
-                break;
-            }
-        }
-
-        if (!invalid)
-        {
-            uint32_t start_frame_arg = std::stoi(values[0]);
-            uint32_t end_frame_arg   = std::stoi(values[1]);
-
-            if (start_frame_arg >= end_frame_arg)
-            {
-                GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
-                                     "greater than or equal to the last frame",
-                                     value.c_str());
-
-                return false;
-            }
-
-            start_frame = start_frame_arg;
-            end_frame   = end_frame_arg;
-            return true;
+            GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", which contains non-numeric values",
+                               value.c_str());
+            std::abort();
         }
     }
 
-    return false;
+    uint32_t start_frame_arg = std::stoi(values[0]);
+    uint32_t end_frame_arg   = std::stoi(values[1]);
+
+    if (start_frame_arg >= end_frame_arg)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is greater than or equal "
+                           "to the last frame",
+                           value.c_str());
+        std::abort();
+    }
+
+    if (start_frame_arg == 0)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is 0 which is invalid in "
+                           "GFXReconstruct (frame count starts at 1)",
+                           value.c_str());
+        std::abort();
+    }
+
+    start_frame = start_frame_arg;
+    end_frame   = end_frame_arg;
+
+    return true;
 }
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
@@ -967,6 +949,85 @@ static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser
         }
     }
     return msgs;
+}
+
+static void GetWaitBeforeFirstSubmit(const gfxrecon::util::ArgumentParser& arg_parser,
+                                     uint32_t&                             wait_before_first_submit)
+{
+    const auto& value = arg_parser.GetArgumentValue(kWaitBeforeFirstSubmit);
+
+    if (!value.empty())
+    {
+        try
+        {
+            wait_before_first_submit = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid wait before first submit option. Expected format is unsigned integer");
+        }
+    }
+}
+
+static void GetFrameWarmUpLoad(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_warm_up_load)
+{
+    const auto& value = arg_parser.GetArgumentValue(kFrameWarmUpLoad);
+
+    if (!value.empty())
+    {
+        try
+        {
+            frame_warm_up_load = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid frame warm up load option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
+    }
+}
+
+static void GetFrameWarmUpOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+                                  std::string&                          frame_warm_up_spirv,
+                                  uint32_t&                             frame_warm_up_load)
+{
+    frame_warm_up_spirv = arg_parser.GetArgumentValue(kFrameWarmUpSpirv);
+    GetFrameWarmUpLoad(arg_parser, frame_warm_up_load);
+
+    if (frame_warm_up_load > 0 && frame_warm_up_spirv.empty())
+    {
+        GFXRECON_LOG_FATAL(
+            "Frame warm up load option is set to %u, but no SPIR-V file is specified. Expected format is "
+            "--frame-warm-up-spirv [spirv-file]",
+            frame_warm_up_load);
+    }
+    else if (!frame_warm_up_spirv.empty() && frame_warm_up_load == 0)
+    {
+        GFXRECON_LOG_WARNING("Frame warm up SPIR-V file is specified as \"%s\", but frame warm up is disabled because "
+                             "`--frame-warm-up-load` is 0. Specify a non-zero load to enable frame warm up.",
+                             frame_warm_up_spirv.c_str());
+    }
+}
+
+static void GetWaitBeforeFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& wait_before_frame)
+{
+    const auto& value = arg_parser.GetArgumentValue(kWaitBeforeFrame);
+
+    if (!value.empty())
+    {
+        try
+        {
+            wait_before_frame = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid wait before frame option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
+    }
 }
 
 static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
@@ -1136,6 +1197,32 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         }
     }
 
+    auto present_mode_option = arg_parser.GetArgumentValue(kPresentModeOption);
+    if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeCapture, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kCapture;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeImmediate, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kImmediate;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeMailbox, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kMailbox;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeFifo, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kFifo;
+    }
+    else if (gfxrecon::util::platform::StringCompareNoCase(kPresentModeFifoRelaxed, present_mode_option.c_str()) == 0)
+    {
+        replay_options.present_mode_option = gfxrecon::util::PresentModeOption::kFifoRelaxed;
+    }
+    else if (!present_mode_option.empty())
+    {
+        GFXRECON_LOG_WARNING("Ignoring unrecognized \"--present-mode\" option: %s", present_mode_option.c_str());
+    }
+
     if (arg_parser.IsOptionSet(kColorspaceFallback))
     {
         replay_options.use_colorspace_fallback = true;
@@ -1202,6 +1289,12 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
     replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
+
+    if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
+    {
+        replay_options.present_override_image_name = override_name;
+    }
+
     if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))
     {
         replay_options.screenshot_ignore_frameBoundaryAndroid = true;
@@ -1283,35 +1376,20 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         }
     }
 
-    replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
-    replay_options.dump_resources_dump_depth   = arg_parser.IsOptionSet(kDumpResourcesDepth);
-    replay_options.dump_resources_image_format = GetDumpresourcesImageFormat(arg_parser);
-    replay_options.dump_resources_scale        = GetDumpResourcesScale(arg_parser);
-    replay_options.dump_resources_output_dir   = GetDumpResourcesDir(arg_parser);
-    replay_options.dumping_resources           = !replay_options.dump_resources_block_indices.empty();
-    replay_options.dump_resources_dump_vertex_index_buffer =
-        arg_parser.IsOptionSet(kDumpResourcesDumpVertexIndexBuffers);
-    replay_options.dump_resources_json_per_command = arg_parser.IsOptionSet(kDumpResourcesJsonPerCommand);
-    replay_options.dump_resources_dump_immutable_resources =
-        arg_parser.IsOptionSet(kDumpResourcesDumpImmutableResources);
-    replay_options.dump_resources_dump_all_image_subresources =
-        arg_parser.IsOptionSet(kDumpResourcesDumpImageSubresources);
-    replay_options.dump_resources_dump_raw_images     = arg_parser.IsOptionSet(kDumpResourcesDumpRawImages);
-    replay_options.dump_resources_dump_separate_alpha = arg_parser.IsOptionSet(kDumpResourcesDumpSeparateAlpha);
-    replay_options.dump_resources_dump_unused_vertex_bindings =
-        arg_parser.IsOptionSet(kDumpResourcesDumpUnusedVertexBindings);
-    replay_options.dump_resources_binary_file_compression_type = GetDumpResourcesCompressionType(arg_parser);
-
-    std::string dr_color_att_idx = arg_parser.GetArgumentValue(kDumpResourcesColorAttIdxArg);
-    if (!dr_color_att_idx.empty())
-    {
-        replay_options.dump_resources_color_attachment_index = std::stoi(dr_color_att_idx);
-    }
+    replay_options.dump_resources_output_dir = GetDumpResourcesDir(arg_parser);
 
     replay_options.save_pipeline_cache_filename = arg_parser.GetArgumentValue(kSavePipelineCacheArgument);
     replay_options.load_pipeline_cache_filename = arg_parser.GetArgumentValue(kLoadPipelineCacheArgument);
     replay_options.add_new_pipeline_caches      = arg_parser.IsOptionSet(kCreateNewPipelineCacheOption);
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
+
+    GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
+    replay_options.idle_before_submit          = arg_parser.IsOptionSet(kIdleBeforeSubmit);
+    replay_options.serialize_render_passes     = arg_parser.IsOptionSet(kSerializeRenderPasses);
+    replay_options.serialize_queue_submissions = arg_parser.IsOptionSet(kSerializeQueueSubmissions);
+
+    GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);
+    GetWaitBeforeFrame(arg_parser, replay_options.wait_before_frame);
 
     return replay_options;
 }
@@ -1419,7 +1497,7 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
         }
 
         GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
         GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
                                VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
                                VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),

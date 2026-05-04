@@ -194,6 +194,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                     instance_info, instance_table, physical_device, vulkan_1_2_features);
             }
             break;
+
             // samplerYcbcrConversion is required for sampling images with external format
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
             {
@@ -213,6 +214,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT: // _not_ an alias of the above
             {
                 auto buffer_address_features =
                     reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);
@@ -220,6 +222,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                     instance_info, instance_table, physical_device, buffer_address_features);
             }
             break;
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             {
                 // Enable accelerationStructureCaptureReplay
@@ -249,14 +252,15 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                     accel_struct_features->accelerationStructureCaptureReplay;
             }
             break;
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
             {
                 // Enable rayTracingPipelineShaderGroupHandleCaptureReplay
-                auto rt_pipeline_features =
+                auto* rt_pipeline_features =
                     reinterpret_cast<VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(current_struct);
 
                 rayTracingPipelineShaderGroupHandleCaptureReplay_ptr =
-                    (&rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay);
+                    &rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
                 rayTracingPipelineShaderGroupHandleCaptureReplay_original =
                     rt_pipeline_features->rayTracingPipelineShaderGroupHandleCaptureReplay;
 
@@ -289,6 +293,38 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                 }
             }
             break;
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
+            {
+                // Enable descriptorBufferCaptureReplay
+                auto* desc_buffer_features =
+                    reinterpret_cast<VkPhysicalDeviceDescriptorBufferFeaturesEXT*>(current_struct);
+
+                descriptorBufferCaptureReplay_ptr      = &desc_buffer_features->descriptorBufferCaptureReplay;
+                descriptorBufferCaptureReplay_original = desc_buffer_features->descriptorBufferCaptureReplay;
+
+                if (desc_buffer_features->descriptorBuffer && !desc_buffer_features->descriptorBufferCaptureReplay)
+                {
+                    VkPhysicalDeviceDescriptorBufferFeaturesEXT supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT, nullptr
+                    };
+                    GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+
+                    desc_buffer_features->descriptorBufferCaptureReplay =
+                        supported_features.descriptorBufferCaptureReplay;
+                }
+
+                result.feature_descriptorBufferCaptureReplay = desc_buffer_features->descriptorBufferCaptureReplay;
+
+                // retrieve descriptor-buffer-properties
+                result.descriptor_buffer_properties = {
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT, nullptr
+                };
+                GetPhysicalDeviceProperties(
+                    instance_info, instance_table, physical_device, result.descriptor_buffer_properties);
+            }
+            break;
+
             default:
                 break;
         }
@@ -344,6 +380,7 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&  
 
     if (instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
+        // properties needs to match VulkanReplayConsumerBase::SetPhysicalDeviceProperties2.
         // pNext-chaining
         VkPhysicalDeviceDriverProperties driver_properties = {};
         driver_properties.sType                            = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
@@ -351,12 +388,17 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(const VulkanInstanceUtilInfo&  
         VkPhysicalDeviceRayTracingPipelinePropertiesKHR raytracing_properties = {};
         raytracing_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
 
+        VkPhysicalDeviceAccelerationStructurePropertiesKHR acc_str_properties = {};
+        acc_str_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
+
+        driver_properties.pNext     = &acc_str_properties;
         raytracing_properties.pNext = &driver_properties;
         device_properties2.pNext    = &raytracing_properties;
 
         instance_table->GetPhysicalDeviceProperties2(physical_device, &device_properties2);
-        replay_device_info->raytracing_properties = raytracing_properties;
-        replay_device_info->driver_properties     = driver_properties;
+        replay_device_info->raytracing_properties             = raytracing_properties;
+        replay_device_info->driver_properties                 = driver_properties;
+        replay_device_info->acceleration_structure_properties = acc_str_properties;
     }
     else
     {

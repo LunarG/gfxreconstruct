@@ -26,6 +26,7 @@
 #include "util/defines.h"
 #include "util/platform.h"
 #include "util/file_path.h"
+#include "util/interception/hooking_detours.h"
 
 #include <string>
 #include <windows.h>
@@ -121,7 +122,8 @@ std::string PrepGfxrRuntimesFolder(const std::string& windows_module_root)
     char roaming_path[MAX_PATH] = {};
     if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, roaming_path)))
     {
-        std::string gfxr_user_target = std::string(roaming_path) + util::filepath::kPathSep + std::string("GFXReconstruct");
+        std::string gfxr_user_target =
+            std::string(roaming_path) + util::filepath::kPathSep + std::string("GFXReconstruct");
         std::string gfxr_runtimes_target = gfxr_user_target + util::filepath::kPathSep + std::string("dx-runtimes");
 
         // If "\AppData\Roaming\GFXReconstruct\dx-runtimes" does not exist, create it
@@ -301,7 +303,7 @@ class DxDllInitializer
 
   private:
     typedef bool (*InitializeFuncT)(DispatchTableT*);
-    typedef void (*ReleaseFuncT)(DispatchTableT*);
+    typedef void(WINAPI* ReleaseFuncT)(DispatchTableT*);
 
   private:
     DispatchTableT dispatch_table_;

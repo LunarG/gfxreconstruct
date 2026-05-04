@@ -511,6 +511,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAY
             wrapper->AABBs->decoded_value = &(value->AABBs);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->AABBs);
             break;
+        case D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES:
+            wrapper->OmmTriangles = DecodeAllocator::Allocate<Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC>();
+            wrapper->OmmTriangles->decoded_value = &(value->OmmTriangles);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->OmmTriangles);
+            break;
     }
 
     return bytes_read;
@@ -554,6 +559,12 @@ size_t DecodeStruct(const uint8_t*                                              
                     value->ppGeometryDescs = wrapper->ppGeometryDescs->GetPointer();
                     break;
             }
+            break;
+        case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+            wrapper->pOpacityMicromapArrayDesc =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC>>();
+            bytes_read += wrapper->pOpacityMicromapArrayDesc->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->pOpacityMicromapArrayDesc = wrapper->pOpacityMicromapArrayDesc->GetPointer();
             break;
     }
 
@@ -671,6 +682,109 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t*                                                      buffer,
+                    size_t                                                              buffer_size,
+                    Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                                      bytes_read = 0;
+    D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* value      = wrapper->decoded_value;
+
+    wrapper->DriverMatchingIdentifier =
+        DecodeAllocator::Allocate<Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER>();
+    wrapper->DriverMatchingIdentifier->decoded_value = &(value->DriverMatchingIdentifier);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DriverMatchingIdentifier);
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedSizeInBytesIncludingHeader));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->DeserializedSizeInBytes));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->HeaderPostambleType));
+
+    switch (value->HeaderPostambleType)
+    {
+        case D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE_BOTTOM_LEVEL_POINTERS:
+            bytes_read +=
+                ValueDecoder::DecodeUInt32Value((buffer + bytes_read),
+                                                (buffer_size - bytes_read),
+                                                &(value->NumBottomLevelAccelerationStructurePointersAfterHeader));
+            break;
+        case D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER_POSTAMBLE_TYPE_BLOCKS:
+            bytes_read +=
+                ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBlocks));
+            break;
+        default:
+            GFXRECON_LOG_FATAL_ONCE(
+                "Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
+                value->HeaderPostambleType);
+            break;
+    }
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t*                                                                     buffer,
+                    size_t                                                                             buffer_size,
+                    Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                                                     bytes_read = 0;
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->SerializedSizeInBytes));
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read),
+                                        (buffer_size - bytes_read),
+                                        &(value->NumBottomLevelAccelerationStructureHeaderAndPointerListPairs));
+
+    return bytes_read;
+}
+
+size_t
+DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                      bytes_read = 0;
+    D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* value      = wrapper->decoded_value;
+
+    wrapper->szAdapterFamily.SetExternalMemory(value->szAdapterFamily, 128);
+    bytes_read += wrapper->szAdapterFamily.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->MinimumABISupportVersion));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->MaximumABISupportVersion));
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CompilerVersion.Version));
+    bytes_read += ValueDecoder::DecodeUInt64Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->ApplicationProfileVersion.Version));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_APPLICATION_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                  bytes_read = 0;
+    D3D12_APPLICATION_DESC* value      = wrapper->decoded_value;
+
+    bytes_read += wrapper->pExeFilename.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pExeFilename = wrapper->pExeFilename.GetPointer();
+    bytes_read += wrapper->pName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pName = wrapper->pName.GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Version.Version));
+    bytes_read += wrapper->pEngineName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pEngineName = wrapper->pEngineName.GetPointer();
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->EngineVersion.Version));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INTEGER* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -682,6 +796,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_LARGE_INT
 
     return bytes_read;
 }
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                  bytes_read = 0;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* value      = wrapper->decoded_value;
+
+    // subdivision_level and format are bit-field. It cannot take the address of a bit-field.
+    UINT                                     subdivision_level;
+    D3D12_RAYTRACING_OPACITY_MICROMAP_FORMAT format;
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ByteOffset));
+
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(subdivision_level));
+    value->SubdivisionLevel = subdivision_level;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(format));
+    value->Format = format;
+
+    return bytes_read;
+}
+
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIPELINE_STATE_STREAM_DESC* wrapper)
 {
@@ -991,6 +1129,52 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
                 offset += sizeof(*subobject);
                 break;
             }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER1:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12Rasterizer1Subobject*>(current);
+                subobject->type                    = type;
+                wrapper->rasterizer1.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->rasterizer1));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2:
+            {
+                auto subobject                     = reinterpret_cast<format::Dx12Rasterizer2Subobject*>(current);
+                subobject->type                    = type;
+                wrapper->rasterizer2.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->rasterizer2));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+            {
+                auto subobject                        = reinterpret_cast<format::Dx12DepthStencil2Subobject*>(current);
+                subobject->type                       = type;
+                wrapper->depth_stencil2.decoded_value = &subobject->value;
+
+                bytes_read +=
+                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->depth_stencil2));
+
+                offset += sizeof(*subobject);
+                break;
+            }
+            case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SERIALIZED_ROOT_SIGNATURE:
+            {
+                auto subobject  = reinterpret_cast<format::Dx12SerializedRootSignatureSubobject*>(current);
+                subobject->type = type;
+                wrapper->serialized_root_signature.decoded_value = &subobject->value;
+
+                bytes_read += DecodeStruct(
+                    (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->serialized_root_signature));
+
+                offset += sizeof(*subobject);
+                break;
+            }
             default:
                 // Type is unrecognized.  Check for an invalid type value to determine if capture did not recogize the
                 // type and log a warning.
@@ -1219,6 +1403,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_STA
             value->pDesc = wrapper->depth_stencil_desc2->GetPointer();
             break;
         case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
+            break;
+        default:
+            GFXRECON_LOG_WARNING("Pipeline state subobject decoding encountered unrecognized subobject type "
+                                 "D3D12_STATE_SUBOBJECT_TYPE = %d, which may cause replay to fail.",
+                                 value->Type);
             break;
     }
 

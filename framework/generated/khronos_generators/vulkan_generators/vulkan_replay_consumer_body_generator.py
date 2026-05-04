@@ -117,11 +117,6 @@ class VulkanReplayConsumerBodyGenerator(
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
 
     def is_instance_type(self, typename):
         ''' Method overide. '''
@@ -281,8 +276,9 @@ class VulkanReplayConsumerBodyGenerator(
     def is_special_case_value(self, value, is_override):
         """Method override."""
         if (value.base_type == 'VkSurfaceKHR' or
-            (value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR') or
-            (value.base_type == "VkSwapchainKHR" and not is_override)):
+                (value.name == 'pSurfaceInfo' and value.base_type != 'VkSurfaceKHR') or
+                (value.base_type == "VkSwapchainKHR" and not is_override)
+                or value.base_type == 'VkDebugUtilsObjectNameInfoEXT'):
             return True
         return False
 

@@ -507,12 +507,13 @@ void Dx12ExperimentalResourceValueTracker::PostProcessCopyTextureRegion(
             (src_copy_location->Type == D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT))
         {
             auto resource = dst_copy_location->pResource;
-            if (resource != format::kNullHandleId)
+            if (resource != nullptr)
             {
                 auto        device           = graphics::dx12::GetDeviceComPtrFromChild<ID3D12Device>(resource);
                 const auto& placed_footprint = src_copy_location->PlacedFootprint;
                 uint64_t    copy_size        = 0;
-                device->GetCopyableFootprints(&resource->GetDesc(),
+                auto        desc             = resource->GetDesc();
+                device->GetCopyableFootprints(&desc,
                                               dst_copy_location->SubresourceIndex,
                                               1,
                                               placed_footprint.Offset,

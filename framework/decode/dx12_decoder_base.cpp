@@ -296,9 +296,9 @@ void Dx12DecoderBase::DispatchInitSubresourceCommand(const format::InitSubresour
 }
 
 void Dx12DecoderBase::DispatchInitDx12AccelerationStructureCommand(
-    const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-    std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-    const uint8_t*                                                  build_inputs_data)
+    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const uint8_t*                                                        build_inputs_data)
 {
     for (auto consumer : consumers_)
     {
@@ -322,8 +322,8 @@ void Dx12DecoderBase::DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCo
     }
 }
 
-void Dx12DecoderBase::DispatchInitializeMetaCommand(format::InitializeMetaCommand& header,
-                                                    const uint8_t*                 initialization_parameters_data)
+void Dx12DecoderBase::DispatchInitializeMetaCommand(const format::InitializeMetaCommand& header,
+                                                    const uint8_t*                       initialization_parameters_data)
 {
     for (auto consumer : consumers_)
     {
@@ -331,8 +331,8 @@ void Dx12DecoderBase::DispatchInitializeMetaCommand(format::InitializeMetaComman
     }
 }
 
-void Dx12DecoderBase::DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                             const char*                             env_string)
+void Dx12DecoderBase::DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                             const char*                                   env_string)
 {
     for (auto consumer : consumers_)
     {
@@ -544,9 +544,20 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
+        case D3D12_FEATURE_D3D12_TIGHT_ALIGNMENT:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
         case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT:
+            // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
             break;
         default:
             GFXRECON_LOG_FATAL("Failed to decode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "

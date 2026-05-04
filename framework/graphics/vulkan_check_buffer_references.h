@@ -68,7 +68,8 @@ static void vulkan_check_buffer_references(const uint32_t* const spirv_code, siz
     {
         if (out_info_struct != nullptr)
         {
-            out_info_struct->buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
+            const auto& refs                        = spirv_util.GetBufferReferenceInfos();
+            out_info_struct->buffer_reference_infos = { refs.begin(), refs.end() };
         }
     }
 }

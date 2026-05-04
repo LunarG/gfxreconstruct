@@ -32,6 +32,7 @@
 #include "util/to_string.h"
 #include "util/logging.h"
 #include "format/format.h"
+#include <mutex>
 
 #ifndef WIN32
 #include "format/platform_types.h"
@@ -86,50 +87,73 @@ inline JsonFormat get_json_format(std::string format)
 /// Parameters potentially required in converting our datastructures to JSON.
 struct JsonOptions
 {
-    // Fields ordered large to small for alignment/packing.
-    std::string root_dir;
-    std::string data_sub_dir;
-    JsonFormat  format        = JsonFormat::JSON;
-    bool        dump_binaries = false;
-    bool        expand_flags  = false;
-    bool        hex_handles   = false;
+    // Wrapper to ensure that a value is initialized exactly once and before it is read.
+    template <typename T>
+    class SetOnce
+    {
+      public:
+        SetOnce(T default_value) : value_(default_value) {}
+        const T& operator=(const T& value)
+        {
+            static std::mutex           mutex;
+            std::lock_guard<std::mutex> lock(mutex);
+            GFXRECON_ASSERT(!initialized_);
+            value_       = value;
+            initialized_ = true;
+            return value;
+        }
+        operator const T&() const
+        {
+            GFXRECON_ASSERT(initialized_);
+            return value_;
+        }
+        const T& operator*() const { return *this; }
+
+      private:
+        T    value_;
+        bool initialized_ = false;
+    };
+    static SetOnce<std::string> root_dir;
+    static SetOnce<std::string> data_sub_dir;
+    static SetOnce<JsonFormat>  format;
+    static SetOnce<bool>        dump_binaries;
+    static SetOnce<bool>        expand_flags;
+    static SetOnce<bool>        hex_handles;
 };
 
-void FieldToJson(nlohmann::ordered_json& jdata, const short& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const int& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const long& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const long long& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json&   jdata,
-                 const unsigned long long& data,
-                 const JsonOptions&        options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data);
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers
 /// into JSON nulls otherwise.
-void FieldToJson(nlohmann::ordered_json& jdata, float data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, float data);
 /// @note This is unused dead code currently (try placing a breakpoint on it).
-void FieldToJson(nlohmann::ordered_json& jdata, double data, const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const std::string_view   data,
-                 const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const std::wstring_view  data,
-                 const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, double data);
+void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data);
+void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data);
+
+#if defined(D3D12_SUPPORT)
+/// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
+/// sequence as the identifier of the C macro defining it in a header like
+/// winerror.h.
+/// @param hresult A D3D12 or DXGI result code.
+std::string HresultToString(const HRESULT hresult);
+void        HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult);
+
+void FieldToJson(nlohmann::ordered_json& jdata, const format::InitDx12AccelerationStructureGeometryDesc& data);
+void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data);
+void FieldToJson(nlohmann::ordered_json& jdata, const format::Dx12RuntimeInfo& data);
+void FieldToJson(nlohmann::ordered_json& jdata, const util::filepath::FileInfo& data);
+#endif
 
 /// @brief Convert the integer representation of a handle in capture files into
 /// either a JSON number or a JSON string with the number represented in
 /// hexadecimal.
-void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, const JsonOptions& options);
+void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle);
 
 /// @brief  Convert a bool represented as a 32 bit unsigned number like a
 /// VkBool32 to true or false. It should be fine for the signed Windows type
 /// BOOL too.
-void Bool32ToJson(nlohmann::ordered_json&  jdata,
-                  const uint32_t&          data,
-                  const util::JsonOptions& options = util::JsonOptions());
+void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t& data);
 
 /// @brief Convert an integer type to JSON but encoded in hex as a JSON string
 /// rather than as a JSON number type. Useful for pointers and memory offsets.
@@ -141,9 +165,7 @@ void Bool32ToJson(nlohmann::ordered_json&  jdata,
 /// depending on switching on a parameter value) and should only be done if it
 /// simplifies codegen, removing special cases for the classes of types.
 template <typename T>
-void FieldToJsonAsHex(nlohmann::ordered_json&  jdata,
-                      const T                  data,
-                      const util::JsonOptions& options = util::JsonOptions())
+void FieldToJsonAsHex(nlohmann::ordered_json& jdata, const T data)
 {
     jdata = to_hex_variable_width(data);
 }
@@ -151,24 +173,26 @@ void FieldToJsonAsHex(nlohmann::ordered_json&  jdata,
 /// @brief Convert an integer type to JSON but encoded in binary as a JSON string
 /// rather than as a JSON number type. Useful for bitmasks.
 template <typename T>
-void FieldToJsonAsFixedWidthBinary(nlohmann::ordered_json&  jdata,
-                                   const T                  data,
-                                   const util::JsonOptions& options = util::JsonOptions())
+void FieldToJsonAsFixedWidthBinary(nlohmann::ordered_json& jdata, const T data)
 {
     jdata = to_binary_fixed_width(data);
 }
 
 template <typename T>
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const T*                 data,
-                 size_t                   num_elements,
-                 const util::JsonOptions& options = util::JsonOptions())
+void FieldToJson(nlohmann::ordered_json& jdata, const T* data, size_t num_elements)
 {
     if (data)
     {
         for (size_t i = 0; i < num_elements; ++i)
         {
-            FieldToJson(jdata[i], data[i], options);
+            if constexpr (std::is_integral<T>::value)
+            {
+                jdata[i] = data[i];
+            }
+            else
+            {
+                FieldToJson(jdata[i], data[i]);
+            }
         }
     }
     else
@@ -177,52 +201,26 @@ void FieldToJson(nlohmann::ordered_json&  jdata,
     }
 }
 
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const float              data[4],
-                 const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const float data[4]);
 
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const uint32_t           data[4],
-                 const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const uint32_t data[4]);
 
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const uint64_t           data[4],
-                 const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t data[4]);
 
-void FieldToJson(nlohmann::ordered_json& jdata, const LARGE_INTEGER& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const LARGE_INTEGER& value);
 
-void FieldToJson(nlohmann::ordered_json& jdata, const LUID& value, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const LUID& value);
 
-void HandleToJson(nlohmann::ordered_json&  jdata,
-                  const format::HandleId*  data,
-                  size_t                   num_elements,
-                  const util::JsonOptions& options = util::JsonOptions());
-
-#if defined(D3D12_SUPPORT)
-/// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
-/// sequence as the identifier of the C macro defining it in a header like
-/// winerror.h.
-/// @param hresult A D3D12 or DXGI result code.
-std::string HresultToString(const HRESULT hresult);
-void        HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const util::JsonOptions& options);
-
-void FieldToJson(nlohmann::ordered_json&                                  jdata,
-                 const format::InitDx12AccelerationStructureGeometryDesc& data,
-                 const util::JsonOptions&                                 options);
-void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data, const util::JsonOptions& options);
-void FieldToJson(nlohmann::ordered_json& jdata, const format::Dx12RuntimeInfo& data, const util::JsonOptions& options);
-void FieldToJson(nlohmann::ordered_json& jdata, const util::filepath::FileInfo& data, const util::JsonOptions& options);
-#endif
+void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId* data, size_t num_elements);
 
 /// @brief Represent a binary blob in the JSON tree either as the filename of a file containing the data that is also
 /// written, or as placeholder text with the binary file not written, depending on the JsonOptions in effect.
 /// @return true if a binary file was written to storage, false if not.
-bool RepresentBinaryFile(const util::JsonOptions& json_options,
-                         nlohmann::ordered_json&  jdata,
-                         std::string_view         filename_base,
-                         const uint64_t           instance_counter,
-                         const uint64_t           data_size,
-                         const uint8_t* const     data);
+bool RepresentBinaryFile(nlohmann::ordered_json& jdata,
+                         std::string_view        filename_base,
+                         const uint64_t          instance_counter,
+                         const uint64_t          data_size,
+                         const uint8_t* const    data);
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -48,7 +48,7 @@ static constexpr int kListSize   = 16;
 
 TEST_CASE("GetWriteWatch::CreatePlacedResource, no writing to memory", "[memory_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     ULONG                    granularity;
     void*                    modified_addresses[kBufferSize];
@@ -106,7 +106,7 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource, no writing to memory", "[memory_
 
 TEST_CASE("GetWriteWatch::CreatePlacedResource", "[memory_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     ULONG                    granularity;
     void*                    modified_addresses[kBufferSize];
     D3D12_RANGE              read_range{ 0, 0 };
@@ -118,11 +118,11 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource", "[memory_map][pre_submit]")
     const D3D12_HEAP_DESC    heap_desc{
         static_cast<UINT64>(kBufferSize),
         {
-            D3D12_HEAP_TYPE_UPLOAD,
-            D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-            D3D12_MEMORY_POOL_UNKNOWN,
-            0,
-            0,
+               D3D12_HEAP_TYPE_UPLOAD,
+               D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+               D3D12_MEMORY_POOL_UNKNOWN,
+               0,
+               0,
         },
         D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
         D3D12_HEAP_FLAG_NONE | D3D12_HEAP_FLAG_ALLOW_WRITE_WATCH,
@@ -164,7 +164,7 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource", "[memory_map][pre_submit]")
 
 TEST_CASE("GetWriteWatch::CreatePlacedResource buffer list", "[memory_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     static constexpr int buffer_alignment =
         ((kBufferSize / D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT) + 1) * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
     ULONG                    granularity;
@@ -233,7 +233,7 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource buffer list", "[memory_map][pre_s
 
 TEST_CASE("GetWriteWatch::CreatePlacedResource D3D12_HEAP_TYPE_DEFAULT flag", "[memory_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     ULONG                    granularity;
     void*                    modified_addresses[kBufferSize];
     D3D12_RANGE              read_range{ 0, 0 };
@@ -303,7 +303,7 @@ TEST_CASE("GetWriteWatch::CreatePlacedResource D3D12_HEAP_TYPE_DEFAULT flag", "[
 
 TEST_CASE("GetWriteWatch::CreateCommittedResource", "[memory_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     ULONG                    granularity;
     void*                    modified_addresses[kBufferSize];
     D3D12_RANGE              read_range{ 0, 0 };
@@ -353,7 +353,7 @@ TEST_CASE("GetWriteWatch::CreateCommittedResource", "[memory_map][pre_submit]")
 
 TEST_CASE("GetWriteWatch::CreateCommittedResource buffer list", "[memory_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     ULONG                    granularity;
     void*                    modified_addresses[kBufferSize];
     D3D12_RANGE              read_range{ 0, 0 };

@@ -55,8 +55,6 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
     bool IsValid() const { return writer_ && writer_->IsValid(); }
 
   protected:
-    const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
-
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
 
     /// Output the current in-memory json tree to the destination file.
@@ -128,7 +126,7 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
                              XrResult                                         returnValue,
                              format::HandleId                                 instance,
                              StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
-    void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location) override;
+    void ProcessViewRelativeLocation(format::ThreadId thread_id, const format::ViewRelativeLocation& location) override;
 
     uint32_t submit_index_{ 0 }; // index of submissions across the trace
 

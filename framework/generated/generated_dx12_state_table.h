@@ -64,6 +64,7 @@ class Dx12StateTable : public Dx12StateTableBase
     bool InsertWrapper(format::HandleId id, ID3D12MetaCommand_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12MetaCommand_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12ShaderCacheSession_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12ShaderCacheSession_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12Device_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12Device_Wrapper_map_); }
+    bool InsertWrapper(format::HandleId id, ID3D12StateObjectDatabase_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12StateObjectDatabase_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12VirtualizationGuestDevice_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12VirtualizationGuestDevice_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12Tools_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12Tools_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12PageableTools_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12PageableTools_Wrapper_map_); }
@@ -71,6 +72,7 @@ class Dx12StateTable : public Dx12StateTableBase
     bool InsertWrapper(format::HandleId id, ID3D12SDKConfiguration_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12SDKConfiguration_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12DeviceFactory_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12DeviceFactory_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12DeviceConfiguration_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12DeviceConfiguration_Wrapper_map_); }
+    bool InsertWrapper(format::HandleId id, ID3D12StateObjectDatabaseFactory_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12StateObjectDatabaseFactory_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12CommandList_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12CommandList_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12DSRDeviceFactory_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12DSRDeviceFactory_Wrapper_map_); }
     bool InsertWrapper(format::HandleId id, ID3D12GBVDiagnostics_Wrapper* wrapper) { return InsertEntry(id, wrapper, ID3D12GBVDiagnostics_Wrapper_map_); }
@@ -126,6 +128,7 @@ class Dx12StateTable : public Dx12StateTableBase
     bool RemoveWrapper(const ID3D12MetaCommand_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12MetaCommand_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12ShaderCacheSession_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12ShaderCacheSession_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12Device_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12Device_Wrapper_map_); }
+    bool RemoveWrapper(const ID3D12StateObjectDatabase_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12StateObjectDatabase_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12VirtualizationGuestDevice_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12VirtualizationGuestDevice_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12Tools_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12Tools_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12PageableTools_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12PageableTools_Wrapper_map_); }
@@ -133,6 +136,7 @@ class Dx12StateTable : public Dx12StateTableBase
     bool RemoveWrapper(const ID3D12SDKConfiguration_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12SDKConfiguration_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12DeviceFactory_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12DeviceFactory_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12DeviceConfiguration_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12DeviceConfiguration_Wrapper_map_); }
+    bool RemoveWrapper(const ID3D12StateObjectDatabaseFactory_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12StateObjectDatabaseFactory_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12CommandList_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12CommandList_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12DSRDeviceFactory_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12DSRDeviceFactory_Wrapper_map_); }
     bool RemoveWrapper(const ID3D12GBVDiagnostics_Wrapper* wrapper) { return RemoveEntry(wrapper, ID3D12GBVDiagnostics_Wrapper_map_); }
@@ -188,6 +192,7 @@ class Dx12StateTable : public Dx12StateTableBase
     void VisitWrappers(std::function<void(ID3D12MetaCommand_Wrapper*)> visitor) const { for (auto entry : ID3D12MetaCommand_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12ShaderCacheSession_Wrapper*)> visitor) const { for (auto entry : ID3D12ShaderCacheSession_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12Device_Wrapper*)> visitor) const { for (auto entry : ID3D12Device_Wrapper_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12StateObjectDatabase_Wrapper*)> visitor) const { for (auto entry : ID3D12StateObjectDatabase_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12VirtualizationGuestDevice_Wrapper*)> visitor) const { for (auto entry : ID3D12VirtualizationGuestDevice_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12Tools_Wrapper*)> visitor) const { for (auto entry : ID3D12Tools_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12PageableTools_Wrapper*)> visitor) const { for (auto entry : ID3D12PageableTools_Wrapper_map_) { visitor(entry.second); } }
@@ -195,6 +200,7 @@ class Dx12StateTable : public Dx12StateTableBase
     void VisitWrappers(std::function<void(ID3D12SDKConfiguration_Wrapper*)> visitor) const { for (auto entry : ID3D12SDKConfiguration_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12DeviceFactory_Wrapper*)> visitor) const { for (auto entry : ID3D12DeviceFactory_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12DeviceConfiguration_Wrapper*)> visitor) const { for (auto entry : ID3D12DeviceConfiguration_Wrapper_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ID3D12StateObjectDatabaseFactory_Wrapper*)> visitor) const { for (auto entry : ID3D12StateObjectDatabaseFactory_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12CommandList_Wrapper*)> visitor) const { for (auto entry : ID3D12CommandList_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12DSRDeviceFactory_Wrapper*)> visitor) const { for (auto entry : ID3D12DSRDeviceFactory_Wrapper_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(ID3D12GBVDiagnostics_Wrapper*)> visitor) const { for (auto entry : ID3D12GBVDiagnostics_Wrapper_map_) { visitor(entry.second); } }
@@ -304,6 +310,9 @@ class Dx12StateTable : public Dx12StateTableBase
     ID3D12Device_Wrapper* GetID3D12Device_Wrapper(format::HandleId id) { return GetWrapper<ID3D12Device_Wrapper>(id, ID3D12Device_Wrapper_map_); }
     const ID3D12Device_Wrapper* GetID3D12Device_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12Device_Wrapper>(id, ID3D12Device_Wrapper_map_); }
 
+    ID3D12StateObjectDatabase_Wrapper* GetID3D12StateObjectDatabase_Wrapper(format::HandleId id) { return GetWrapper<ID3D12StateObjectDatabase_Wrapper>(id, ID3D12StateObjectDatabase_Wrapper_map_); }
+    const ID3D12StateObjectDatabase_Wrapper* GetID3D12StateObjectDatabase_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12StateObjectDatabase_Wrapper>(id, ID3D12StateObjectDatabase_Wrapper_map_); }
+
     ID3D12VirtualizationGuestDevice_Wrapper* GetID3D12VirtualizationGuestDevice_Wrapper(format::HandleId id) { return GetWrapper<ID3D12VirtualizationGuestDevice_Wrapper>(id, ID3D12VirtualizationGuestDevice_Wrapper_map_); }
     const ID3D12VirtualizationGuestDevice_Wrapper* GetID3D12VirtualizationGuestDevice_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12VirtualizationGuestDevice_Wrapper>(id, ID3D12VirtualizationGuestDevice_Wrapper_map_); }
 
@@ -324,6 +333,9 @@ class Dx12StateTable : public Dx12StateTableBase
 
     ID3D12DeviceConfiguration_Wrapper* GetID3D12DeviceConfiguration_Wrapper(format::HandleId id) { return GetWrapper<ID3D12DeviceConfiguration_Wrapper>(id, ID3D12DeviceConfiguration_Wrapper_map_); }
     const ID3D12DeviceConfiguration_Wrapper* GetID3D12DeviceConfiguration_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12DeviceConfiguration_Wrapper>(id, ID3D12DeviceConfiguration_Wrapper_map_); }
+
+    ID3D12StateObjectDatabaseFactory_Wrapper* GetID3D12StateObjectDatabaseFactory_Wrapper(format::HandleId id) { return GetWrapper<ID3D12StateObjectDatabaseFactory_Wrapper>(id, ID3D12StateObjectDatabaseFactory_Wrapper_map_); }
+    const ID3D12StateObjectDatabaseFactory_Wrapper* GetID3D12StateObjectDatabaseFactory_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12StateObjectDatabaseFactory_Wrapper>(id, ID3D12StateObjectDatabaseFactory_Wrapper_map_); }
 
     ID3D12CommandList_Wrapper* GetID3D12CommandList_Wrapper(format::HandleId id) { return GetWrapper<ID3D12CommandList_Wrapper>(id, ID3D12CommandList_Wrapper_map_); }
     const ID3D12CommandList_Wrapper* GetID3D12CommandList_Wrapper(format::HandleId id) const { return GetWrapper<ID3D12CommandList_Wrapper>(id, ID3D12CommandList_Wrapper_map_); }
@@ -439,6 +451,7 @@ class Dx12StateTable : public Dx12StateTableBase
     std::map<format::HandleId, ID3D12MetaCommand_Wrapper*> ID3D12MetaCommand_Wrapper_map_;
     std::map<format::HandleId, ID3D12ShaderCacheSession_Wrapper*> ID3D12ShaderCacheSession_Wrapper_map_;
     std::map<format::HandleId, ID3D12Device_Wrapper*> ID3D12Device_Wrapper_map_;
+    std::map<format::HandleId, ID3D12StateObjectDatabase_Wrapper*> ID3D12StateObjectDatabase_Wrapper_map_;
     std::map<format::HandleId, ID3D12VirtualizationGuestDevice_Wrapper*> ID3D12VirtualizationGuestDevice_Wrapper_map_;
     std::map<format::HandleId, ID3D12Tools_Wrapper*> ID3D12Tools_Wrapper_map_;
     std::map<format::HandleId, ID3D12PageableTools_Wrapper*> ID3D12PageableTools_Wrapper_map_;
@@ -446,6 +459,7 @@ class Dx12StateTable : public Dx12StateTableBase
     std::map<format::HandleId, ID3D12SDKConfiguration_Wrapper*> ID3D12SDKConfiguration_Wrapper_map_;
     std::map<format::HandleId, ID3D12DeviceFactory_Wrapper*> ID3D12DeviceFactory_Wrapper_map_;
     std::map<format::HandleId, ID3D12DeviceConfiguration_Wrapper*> ID3D12DeviceConfiguration_Wrapper_map_;
+    std::map<format::HandleId, ID3D12StateObjectDatabaseFactory_Wrapper*> ID3D12StateObjectDatabaseFactory_Wrapper_map_;
     std::map<format::HandleId, ID3D12CommandList_Wrapper*> ID3D12CommandList_Wrapper_map_;
     std::map<format::HandleId, ID3D12DSRDeviceFactory_Wrapper*> ID3D12DSRDeviceFactory_Wrapper_map_;
     std::map<format::HandleId, ID3D12GBVDiagnostics_Wrapper*> ID3D12GBVDiagnostics_Wrapper_map_;

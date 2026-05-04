@@ -190,5 +190,36 @@ void MapStructHandles(Decoded_VkCopyImageToMemoryInfo* wrapper, const CommonObje
     }
 }
 
+void MapStructHandles(Decoded_VkDescriptorGetInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkDescriptorGetInfoEXT* value = wrapper->decoded_value;
+        switch (value->type)
+        {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+                value->data.pSampler = handle_mapping::MapHandleArray<VulkanSamplerInfo>(
+                    &wrapper->data->pSampler, object_info_table, &CommonObjectInfoTable::GetVkSamplerInfo);
+                break;
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                MapStructHandles(
+                    value->type, wrapper->data->pCombinedImageSampler->GetMetaStructPointer(), object_info_table);
+                break;
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                MapStructHandles(
+                    value->type, wrapper->data->pInputAttachmentImage->GetMetaStructPointer(), object_info_table);
+                break;
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                MapStructHandles(value->type, wrapper->data->pSampledImage->GetMetaStructPointer(), object_info_table);
+                break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                MapStructHandles(value->type, wrapper->data->pStorageImage->GetMetaStructPointer(), object_info_table);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

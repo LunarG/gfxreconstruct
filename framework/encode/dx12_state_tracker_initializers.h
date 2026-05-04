@@ -27,6 +27,7 @@
 #include "format/format.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
+#include "util/logging.h"
 
 #include <memory>
 

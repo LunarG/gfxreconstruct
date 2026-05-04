@@ -104,10 +104,3 @@ class VulkanRecaptureFuncTableGenerator(VulkanBaseGenerator, KhronosLayerFuncTab
         # match the scheme used by skip_func_list:
         align = align_col - len('vk_layerGetPhysicalDeviceProcAddr')
         write('        { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(vulkan_recapture::GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
-
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False

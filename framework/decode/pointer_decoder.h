@@ -58,8 +58,11 @@ class PointerDecoder : public PointerDecoderBase
     {
         output_len_ = len;
 
-        // Default initialize output_data_
-        output_data_ = DecodeAllocator::Allocate<OutputT>(len);
+        if (output_len_)
+        {
+            // Default initialize output_data_
+            output_data_ = DecodeAllocator::Allocate<OutputT>(len);
+        }
 
         return output_data_;
     }
@@ -121,6 +124,7 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeInt64(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<int64_t>(buffer, buffer_size); }
     size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size)       { return DecodeFrom<uint64_t>(buffer, buffer_size); }
     size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<float>(buffer, buffer_size); }
+    size_t DecodeDouble(const uint8_t* buffer, size_t buffer_size)       { return DecodeFrom<double>(buffer, buffer_size); }
 
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
     size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)      { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }

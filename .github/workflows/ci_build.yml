@@ -6,8 +6,42 @@ on:
   pull_request:
     branches:
       - dev
+  merge_group:
+    branches:
+      - dev
 
 jobs:
+  check-format:
+    name: "Format Check"
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format-14
+    - name: Clone repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Run clang-format script
+      run: |
+        set -euo pipefail
+        BASE="origin/${{ github.base_ref }}"
+        git fetch origin "${{ github.base_ref }}"
+        clang-format-14 --version
+        ( git diff --name-only --diff-filter=ACMR "$BASE"...HEAD ; git ls-files '*.c' '*.h' '*.cpp' '*.hpp' '*.mm' ) | \
+          egrep -v '(^|/)(framework/generated|external)/|/generated_|\.def$' | \
+          sort | uniq -d | \
+          xargs --no-run-if-empty clang-format-14 -i
+        if ! git diff --exit-code; then
+          echo
+          echo "Formatting issues found. Apply the diff above with 'git apply',"
+          echo "or run 'clang-format-14 -i' on the affected files locally."
+          exit 1
+        fi
+
+
   linux:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
@@ -34,38 +68,43 @@ jobs:
             cc: "gcc", cxx: "g++"
           }
     steps:
+    - name: Require Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - run: pip install pyparsing
     - name: Clone repository
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
+    - name: Setup sccache
+      uses: mozilla-actions/sccache-action@v0.0.9
     - name: Install build dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev clang-format-14
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - uses: lukka/get-cmake@latest
       with:
         cmakeVersion: 3.24
+    - name: Check generated code
+      if: matrix.config.type == 'debug'
+      run: |
+        echo ---- run Khronos Generators and fail if branch differs
+        python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
+        python3 framework/generated/generate_openxr.py # check generated code isn't out of date
+        git diff --exit-code || { echo "Generated code differs from branch contents"; exit 1; }
     - name: Run build script
       run: |
-        if [ "${{ matrix.config.type }}" == "release" ]
-        then
-          clang-format-14 --version
-          git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
-          python3 scripts/build.py --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD --parallel 0 --test-apps
-          python3 framework/generated/generate_vulkan.py # check generated code isn't out of date
-          python3 framework/generated/generate_openxr.py # check generated code isn't out of date
-          git diff --exit-code
-        else
-          python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
-        fi
+        python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
+      env:
+        SCCACHE_GHA_ENABLED: on
+        CMAKE_C_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
     - name: Run test app test cases
       id: test_apps
       run: |
         cd ${{matrix.config.build_dir}}/linux/x64/output/test
-        sudo useradd test
-        sudo usermod -a -G docker test
-        chmod -R g+w .
-        sudo -n -u test ./run-tests.sh
+        sudo -n ./run-tests.sh
     - name: Upload test failure artifacts
       uses: actions/upload-artifact@v4
       if: ${{ failure() && steps.test_apps.conclusion == 'failure' }}
@@ -133,9 +172,10 @@ jobs:
       with:
         submodules: 'recursive'
     - name: Check generated code
+      if: matrix.config.type == 'debug'
       run: |
         python3 framework/generated/generate_dx12.py # check generated code isn't out of date
-        git diff --exit-code
+        git diff --exit-code; if ($LASTEXITCODE -ne 0) { Write-Error "Generated code differs from branch contents"; exit 1 }
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
@@ -195,6 +235,8 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
+    - name: Setup sccache
+      uses: mozilla-actions/sccache-action@v0.0.9
     - name: Cache dependencies
       id: cache-deps
       uses: actions/cache@v3
@@ -206,7 +248,13 @@ jobs:
       run: .github/workflows/scripts/build-dependencies-macos.sh
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=11.0 --parallel 0 --test-apps
+        python3 scripts/build.py --skip-check-code-style --config ${{ matrix.config.type }} --cmake-extra "CMAKE_PREFIX_PATH=$HOME/deps" --cmake-extra CMAKE_OSX_DEPLOYMENT_TARGET=13.3 --parallel 0 --test-apps
+      env:
+        SCCACHE_GHA_ENABLED: on
+        SCCACHE_CACHE_MULTIARCH: on
+        SCCACHE_IDLE_TIMEOUT: 0
+        CMAKE_C_COMPILER_LAUNCHER: sccache
+        CMAKE_CXX_COMPILER_LAUNCHER: sccache
     - name: Run test app test cases
       id: test_apps
       run: |
@@ -281,9 +329,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-      - name: Update submodules
-        run: |
-          git submodule update --init
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Set up Java
         uses: "actions/setup-java@v4"
         with:
@@ -298,6 +345,10 @@ jobs:
           else
             sh gradlew assembleDebug -Parm64-v8a
           fi
+        env:
+          SCCACHE_GHA_ENABLED: on
+          CMAKE_C_COMPILER_LAUNCHER: sccache
+          CMAKE_CXX_COMPILER_LAUNCHER: sccache
       - name: Prepare artifacts
         run: |
           mkdir gfxreconstruct-dev

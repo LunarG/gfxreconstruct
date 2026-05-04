@@ -50,6 +50,7 @@ target_include_directories(${PROJECT_NAME}
 
 set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-acquired-image
+    gfxrecon-testapp-debug-utils
     gfxrecon-testapp-host-image-copy
     gfxrecon-testapp-multisample-depth
     gfxrecon-testapp-pipeline-binaries
@@ -60,7 +61,9 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-external-memory-fd-export
     gfxrecon-testapp-external-memory-fd-import
     gfxrecon-testapp-wait-for-present
-    gfxrecon-testapp-ahb)
+    gfxrecon-testapp-trigger-trimming
+    gfxrecon-testapp-ahb
+    gfxrecon-testapp-deep-pnext-chain)
 
 target_link_libraries(${PROJECT_NAME}
                       ${GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES})

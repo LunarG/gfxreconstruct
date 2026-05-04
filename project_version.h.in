@@ -28,7 +28,6 @@
 #define GFXRECON_PROJECT_VERSION_PATCH @GFXRECONSTRUCT_PROJECT_VERSION_PATCH@
 
 #define GFXRECON_PROJECT_VERSION_DESIGNATION  "@GFXRECON_PROJECT_VERSION_DESIGNATION@"
-#define GFXRECON_PROJECT_VERSION_SHA1         "@GFXRECON_PROJECT_VERSION_SHA1@"
 #define GFXRECON_PROJECT_BUILD_TYPE           "$<CONFIG>"
 
 #define GFXRECON_VERSION_STR_EXPAND(x) #x
@@ -40,10 +39,8 @@
 #define API_SUPPORT ""
 #endif
 
-#define GFXRECON_PROJECT_VERSION_STRING                                                                               \
-    GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_MAJOR)                                                              \
-    "." GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_MINOR) "." GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_PATCH) \
-        GFXRECON_PROJECT_VERSION_DESIGNATION " (" GFXRECON_PROJECT_VERSION_SHA1 API_SUPPORT") " GFXRECON_PROJECT_BUILD_TYPE
+// Returns the full version including major, minor, patch, designation, SHA, API, and build type.
+const char* GetProjectVersionString();
 
 #define GFXRECON_PROJECT_NAME               "GFXReconstruct"
 #define GFXRECON_PROJECT_VULKAN_LAYER_NAME  "VK_LAYER_LUNARG_gfxreconstruct"

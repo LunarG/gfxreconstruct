@@ -76,6 +76,9 @@ static std::string GetResultValueString(HRESULT result)
         case D3D12_ERROR_ADAPTER_NOT_FOUND:             return "D3D12_ERROR_ADAPTER_NOT_FOUND";
         case D3D12_ERROR_DRIVER_VERSION_MISMATCH:       return "D3D12_ERROR_DRIVER_VERSION_MISMATCH";
         case D3D12_ERROR_INVALID_REDIST:                return "D3D12_ERROR_INVALID_REDIST";
+        case DXGI_STATUS_OCCLUDED:                      return "DXGI_STATUS_OCCLUDED";
+        case DXGI_STATUS_MODE_CHANGED:                  return "DXGI_STATUS_MODE_CHANGED";
+        case DXGI_STATUS_MODE_CHANGE_IN_PROGRESS:       return "DXGI_STATUS_MODE_CHANGE_IN_PROGRESS";
         default:                                        return std::to_string(result);
     }
     // clang-format on
@@ -134,6 +137,9 @@ static const char* GetResultDescription(HRESULT result)
         case D3D12_ERROR_ADAPTER_NOT_FOUND:             return "The specified cached PSO was created on a different adapter and cannot be reused on the current adapter.";
         case D3D12_ERROR_DRIVER_VERSION_MISMATCH:       return "The specified cached PSO was created on a different driver version and cannot be reused on the current adapter.";
         case D3D12_ERROR_INVALID_REDIST:                return "The D3D12 SDK version configuration of the host exe is invalid.";
+        case DXGI_STATUS_OCCLUDED:                      return "The window content is not visible. When receiving this status, an application can stop rendering and use DXGI_PRESENT_TEST to determine when to resume rendering. You will not receive DXGI_STATUS_OCCLUDED if you're using a flip model swap chain.";
+        case DXGI_STATUS_MODE_CHANGED:                  return "The desktop display mode has been changed, there might be color conversion/stretching. The application should call IDXGISwapChain::ResizeBuffers to match the new display mode.";
+        case DXGI_STATUS_MODE_CHANGE_IN_PROGRESS:       return "IDXGISwapChain::ResizeTarget and IDXGISwapChain::SetFullscreenState will return DXGI_STATUS_MODE_CHANGE_IN_PROGRESS if a fullscreen/windowed mode transition is occurring when either API is called.";
         default:                                        return "An error has occurred";
     }
     // clang-format on

@@ -60,10 +60,10 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class GpuVaMap
 {
   public:
-    GpuVaMap(const GpuVaMap&) noexcept = delete;
+    GpuVaMap(const GpuVaMap&) noexcept            = delete;
     GpuVaMap& operator=(const GpuVaMap&) noexcept = delete;
     GpuVaMap(GpuVaMap&&) noexcept                 = delete;
-    GpuVaMap& operator=(GpuVaMap&&) noexcept = delete;
+    GpuVaMap& operator=(GpuVaMap&&) noexcept      = delete;
 
     GpuVaMap() = default;
 

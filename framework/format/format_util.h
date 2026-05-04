@@ -95,6 +95,22 @@ util::Compressor* CreateCompressor(CompressionType type);
 
 std::string GetCompressionTypeName(CompressionType type);
 
+const char* ToString(BlockType type);
+
+struct GfxrVersion
+{
+    bool        valid = false;
+    uint32_t    major = 0;
+    uint32_t    minor = 0;
+    uint32_t    patch = 0;
+    std::string tag;
+    std::string sha;
+
+    bool SupportsFrameMarkers() const;
+};
+
+GfxrVersion ParseVersionFromOperations(const char* operations);
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

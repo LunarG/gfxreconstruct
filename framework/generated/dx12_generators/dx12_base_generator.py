@@ -107,6 +107,9 @@ class ValueInfo():
       is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
       is_const - True if the member is a const.
     """
+    # In agility SDK 1.618.5, it has typo in "FindStateObjectDesc(_In_reads_(keySize)" and "FindObjectVersion(_In_reads_(keySize)"
+    # This typo might be fixed by future Agility SDK.    
+    SDK_TYPO_FIX_LIST = [{"keySize":"KeySize"}]
 
     def __init__(
         self,
@@ -130,6 +133,11 @@ class ValueInfo():
         self.full_type = full_type
         self.pointer_count = pointer_count
         self.array_length = array_length
+
+        for typo_fix in self.SDK_TYPO_FIX_LIST:
+            if self.array_length in typo_fix:
+                self.array_length = typo_fix[self.array_length]
+
         self.array_length_value = array_length_value
         self.array_capacity = array_capacity
         self.array_dimension = array_dimension
@@ -240,7 +248,8 @@ class Dx12BaseGenerator():
             'ID3D12GraphicsCommandList_OMSetRenderTargets',
             'pRenderTargetDescriptors',
             '(NumRenderTargetDescriptors ? (RTsSingleHandleToDescriptorRange ? 1 : NumRenderTargetDescriptors) : 0)'
-        ]
+        ],
+        ['D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC', 'pOmmHistogram', 'NumOmmHistogramEntries']
     ]
 
     RETURN_ARRAY_SIZE_LIST = [
@@ -250,7 +259,12 @@ class Dx12BaseGenerator():
         ]
     ]
 
-    NOT_ARRAY_DICT = {'D3D12_MESSAGE': ['pDescription']}
+    NOT_ARRAY_DICT = {
+        'D3D12_MESSAGE': ['pDescription'],
+        'ID3D12InfoQueue_GetMessage': ['pMessage'],
+        'ID3D12InfoQueue_GetStorageFilter': ['pFilter'],
+        'ID3D12InfoQueue_GetRetrievalFilter': ['pFilter'],
+    }
 
     # convert base type into the encode function name
     CONVERT_FUNCTION_LIST = [
@@ -273,6 +287,9 @@ class Dx12BaseGenerator():
         [['wchar_t'], 'WString'],
         [['PFN_DESTRUCTION_CALLBACK'], 'Function'],
         [['D3D12MessageFunc'], 'Function'],
+        [['D3D12ApplicationDescFunc'], 'Function'],
+        [['D3D12PipelineStateFunc'], 'Function'],
+        [['D3D12StateObjectFunc'], 'Function']
     ]
 
     BIT_FIELD_LIST = [
@@ -563,14 +580,6 @@ class Dx12BaseGenerator():
         Derived classes responsible for emitting feature"""
         self.featureName = None
         self.featureExtraProtect = None
-
-    #
-    # Indicates that the current feature has C++ code to generate.
-    # The subclass should override this method.
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate.
-        The subclass should override this method."""
-        return False
 
     def generate_feature(self):
         """Performs C++ code generation for the feature.
@@ -1481,20 +1490,17 @@ class Dx12BaseGenerator():
         return None
 
     def is_union(self, type):
-        if type[:12] == '<anon-union-':
-            union_dict = self.source_dict['union_dict']
-            return type in union_dict
-        return False
+        union_dict = self.source_dict['union_dict']
+        return type in union_dict
 
     def get_union_members(self, type):
-        if type[:12] == '<anon-union-':
-            union_dict = self.source_dict['union_dict']
-            union_info = union_dict.get(type)
-            if union_info:
-                members = list()
-                for m in union_info['members']:
-                    members.append(self.get_value_info(m))
-                return members
+        union_dict = self.source_dict['union_dict']
+        union_info = union_dict.get(type)
+        if union_info:
+            members = list()
+            for m in union_info['members']:
+                members.append(self.get_value_info(m))
+            return members
         return None
 
     def convert_function(self, type):

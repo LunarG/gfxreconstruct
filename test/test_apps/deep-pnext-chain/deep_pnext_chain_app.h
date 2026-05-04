@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2024 Valve Corporation
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,28 +20,29 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "util/defines.h"
+#ifndef GFXRECON_TESTAPP_DEEP_PNEXT_CHAIN_H
+#define GFXRECON_TESTAPP_DEEP_PNEXT_CHAIN_H
+
+#include <test_app_base.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(test_app)
+GFXRECON_BEGIN_NAMESPACE(deep_pnext_chain)
 
-using PFN_BeginInjectedCommands       = void (*)(void*);
-using PFN_EndInjectedCommands         = void (*)(void*);
-using PFN_SetInjectedCommandCallbacks = void (*)(PFN_BeginInjectedCommands, PFN_EndInjectedCommands, void*);
+class App : public gfxrecon::test::TestAppBase
+{
+    void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
+    void configure_device_builder(test::DeviceBuilder&        device_builder,
+                                  test::PhysicalDevice const& physical_device,
+                                  vkmock::TestConfig*   test_config) override;
+    bool frame(const int frame_num) override;
 
-// Interface for registering callbacks so that GFXReconstruct can notify an external library about
-// generated API calls that are not included in the capture file.
-// Intended usage: GFXR will call PFN_BeginInjectedCommands once before it starts issuing synthesized
-// API calls, and PFN_EndInjectedCommands once it is finished.
-// A void * pointer allows passing optional data that will be forwared into both callbacks.
-//
-// SetInjectedCommandCallbacks can be discovered through dlsym/GetProcAddress.
-extern "C" void
-SetInjectedCommandCallbacks(PFN_BeginInjectedCommands begin_fp, PFN_EndInjectedCommands end_fp, void* data);
+  private:
+    std::array<VkDevicePrivateDataCreateInfo, 256> private_data_create_infos_;
+};
 
-void BeginInjectedCommands();
-
-void EndInjectedCommands();
-
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(deep_pnext_chain)
+GFXRECON_END_NAMESPACE(test_app)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // GFXRECON_TESTAPP_DEEP_PNEXT_CHAIN_H

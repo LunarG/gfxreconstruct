@@ -115,14 +115,16 @@ class VulkanReplayDumpResourcesBodyGenerator(
         body = ''
 
         is_override = name in self.DUMP_RESOURCES_OVERRIDES
+        is_transfer = name in self.DUMP_RESOURCES_TRANSFER_API_CALLS
 
         if not is_override:
-            body += '    if (IsRecording(commandBuffer))\n'
+            body += '    if (IsRecording())\n'
             body += '    {\n'
-            body += '        CommandBufferIterator first, last;\n'
-            body += '        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);\n'
-            body += '        if (found)\n'
+            body += '        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);\n'
+            body += '        for (auto dc_context : dc_contexts)\n'
             body += '        {\n'
+            body += '            CommandBufferIterator first, last;\n'
+            body += '            dc_context->GetDrawCallActiveCommandBuffers(first, last);\n'
             body += '            for (CommandBufferIterator it = first; it < last; ++it)\n'
             body += '            {\n'
 
@@ -133,17 +135,20 @@ class VulkanReplayDumpResourcesBodyGenerator(
                 call_expr += '{}, '.format(val.name)
 
             dispatchfunc += call_expr
-            body += '                 ' + dispatchfunc[:-2] + ');\n'
+            body += '                ' + dispatchfunc[:-2] + ');\n'
             body += '            }\n'
             body += '        }\n'
             body += '\n'
-            body += '        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);\n'
-            body += '        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)\n'
+            body += '        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);\n'
+            body += '        for (auto dr_context : dr_contexts)\n'
             body += '        {\n'
+            body += '            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();\n'
+            body += '            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)\n'
+            body += '            {\n'
 
             dispatchfunc = 'func(dispatch_rays_command_buffer, ' + call_expr
-            body += '             ' + dispatchfunc[:-2] + ');\n'
-
+            body += '                ' + dispatchfunc[:-2] + ');\n'
+            body += '            }\n'
             body += '        }\n'
             body += '    }\n'
         else:
@@ -158,8 +163,12 @@ class VulkanReplayDumpResourcesBodyGenerator(
                 else:
                     override_call_expr += '{}, '.format(val.name)
 
-            override_call_expr = override_call_expr[:-2]
-            body += '    if (IsRecording(commandBuffer))\n'
+            if is_transfer:
+                override_call_expr += 'before_command'
+            else:
+                override_call_expr = override_call_expr[:-2]
+
+            body += '    if (IsRecording())\n'
             body += '    {\n'
             body += '        {}({});\n'.format(self.DUMP_RESOURCES_OVERRIDES[name], override_call_expr)
             body += '    }\n'

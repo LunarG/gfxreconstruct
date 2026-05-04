@@ -21,6 +21,7 @@
 */
 
 #include PROJECT_VERSION_HEADER_FILE
+#include "project_version_string.h"
 #include "winres.h"
 
 VS_VERSION_INFO VERSIONINFO
@@ -32,7 +33,7 @@ BEGIN
         BEGIN
             VALUE "FileDescription", GFXRECON_PROJECT_NAME
             VALUE "ProductName", GFXRECON_PROJECT_NAME
-            VALUE "ProductVersion", GFXRECON_PROJECT_VERSION_STRING
+            VALUE "ProductVersion", GFXRECON_PROJECT_VERSION_STRING_MACRO
             VALUE "LegalCopyright", "Copyright (C) 2023"
         END
     END

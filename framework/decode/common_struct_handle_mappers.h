@@ -23,6 +23,8 @@
 #ifndef GFXRECON_DECODE_COMMON_HANDLE_MAPPERS_H
 #define GFXRECON_DECODE_COMMON_HANDLE_MAPPERS_H
 
+#include "decode/common_consumer_base.h"
+
 template <typename T>
 void MapStructArrayHandles(T* structs, size_t len, const CommonObjectInfoTable& object_info_table)
 {
@@ -62,6 +64,19 @@ void AddStructArrayHandles(format::HandleId               parent_id,
         for (size_t i = 0; i < len; ++i)
         {
             AddStructHandles(parent_id, &id_wrappers[i], &handle_structs[i], object_info_table);
+        }
+    }
+}
+
+template <typename T>
+void PushRecaptureStructArrayHandleIds(const T* id_wrappers, size_t id_len, CommonConsumerBase* consumer)
+{
+    GFXRECON_ASSERT(consumer != nullptr);
+    if (consumer->IsRecapture() && id_wrappers != nullptr)
+    {
+        for (size_t i = 0; i < id_len; ++i)
+        {
+            PushRecaptureStructHandleIds(&id_wrappers[i], consumer);
         }
     }
 }

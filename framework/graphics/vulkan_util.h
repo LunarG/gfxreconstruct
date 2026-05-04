@@ -62,6 +62,18 @@ void ReleaseLoader(util::platform::LibraryHandle loader_handle);
 
 bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit);
 
+// Aligns a byte offset up to the next multiple of `alignment`.
+// Unlike util::platform::GetAlignedSize, this helper is safe for non-power-of-two alignments
+// (for example, 3-byte RGB formats).
+VkDeviceSize AlignBufferOffset(VkDeviceSize offset, VkDeviceSize alignment);
+
+// Returns the Vulkan-mandated VkBufferImageCopy::bufferOffset alignment for a format/aspect pair.
+// This must be applied to every copy region offset (not only the first one):
+// - depth/stencil formats => 4-byte alignment
+// - multiplane formats    => block size of the selected compatible plane format
+// - all other formats     => block size of the format
+VkDeviceSize GetBufferImageCopyOffsetAlignment(VkFormat format, VkImageAspectFlags aspect_mask);
+
 /**
  * @brief   copy_dispatch_table_from_device can be used if a command-buffer was not allocated through the loader,
  *          in order to assign the dispatch table from an existing VkDevice.
@@ -75,17 +87,70 @@ static inline void copy_dispatch_table_from_device(VkDevice device, VkCommandBuf
     *reinterpret_cast<void**>(handle) = *reinterpret_cast<void**>(device);
 }
 
-/**
- * @brief   StripWaitSemaphores can be used to remove all wait-semaphores for a provided VkSubmitInfo.
- *          Respective pointer in submit_info will be set to nullptr and count to zero.
- *
- * @param   submit_info     a provided VkSubmitInfo(2) struct
- * @return  an array of Semaphores that have been stripped/removed from submit_info
- */
-std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo* submit_info);
-std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo2* submit_info);
-
 [[maybe_unused]] static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
+
+/**
+ * @brief   Scales a VkExtent3D to the provided mip map level
+ *
+ * @param[in]   extent    The VkExtent3D to scale
+ * @param[in]   level     The mip map level
+ * @return  The scaled VkExtent3D
+ */
+static constexpr VkExtent3D ScaleToMipLevel(const VkExtent3D& extent, uint32_t level)
+{
+    const VkExtent3D mip_extent = VkExtent3D{ std::max(1u, extent.width >> level),
+                                              std::max(1u, extent.height >> level),
+                                              std::max(1u, extent.depth >> level) };
+
+    return mip_extent;
+}
+
+/**
+ * @brief   Scales a VkExtent3D with the provided scaling factor
+ *
+ * @param[in]   extent    The VkExtent3D to scale
+ * @param[in]   scale     The scaling factor
+ * @return  The scaled VkExtent3D
+ */
+static constexpr VkExtent3D ScaleExtent(const VkExtent3D& extent, float scale)
+{
+    const VkExtent3D scaled_extent =
+        VkExtent3D{ static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.width) * scale)),
+                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.height) * scale)),
+                    static_cast<uint32_t>(std::max(1.0f, static_cast<float>(extent.depth) * scale)) };
+
+    return scaled_extent;
+}
+
+/**
+ * @brief   Flags and properties for enabled queue families
+ */
+struct VulkanQueueFamilyFlags
+{
+    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
+    std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_properties_flags;
+    std::vector<bool>                                      queue_family_index_enabled;
+};
+/**
+ * @brief   Function pointer type for queue family index finder functions
+ */
+using FindQueueFamilyIndex_fp = uint32_t (*)(const VulkanQueueFamilyFlags&);
+
+/**
+ * @brief   Find a transfer queue family index from queue families
+ *
+ * @param[in]   families    The enabled queue family flags
+ * @return  The queue family index, or VK_QUEUE_FAMILY_IGNORED if not found
+ */
+uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
+
+/**
+ * @brief   Find a compute queue family index from queue families
+ *
+ * @param[in]   families    The enabled queue family flags
+ * @return  The queue family index, or VK_QUEUE_FAMILY_IGNORED if not found
+ */
+uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

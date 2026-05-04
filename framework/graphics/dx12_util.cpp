@@ -733,7 +733,7 @@ void TrackAdapterDesc(IDXGIAdapter*                     adapter,
                       graphics::dx12::ActiveAdapterMap& adapters,
                       format::AdapterType               type)
 {
-    const int64_t packed_luid = (dxgi_desc.AdapterLuid.HighPart << 31) | dxgi_desc.AdapterLuid.LowPart;
+    const int64_t packed_luid = pack_luid(dxgi_desc.AdapterLuid);
 
     if (adapters.count(packed_luid) == 0)
     {
@@ -770,18 +770,20 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
     if (SUCCEEDED(result))
     {
         // First see if the created factory can be queried as a 1.1 factory
-        IDXGIFactory1* factory1 = reinterpret_cast<IDXGIFactory1*>(*ppFactory);
+        auto*               base_factory = reinterpret_cast<IUnknown*>(*ppFactory);
+        IDXGIFactory1ComPtr factory1     = nullptr;
 
         // DXGI 1.1 tracking (default)
-        if (SUCCEEDED(factory1->QueryInterface(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory1))))
+        if (SUCCEEDED(base_factory->QueryInterface(IID_PPV_ARGS(&factory1))))
         {
             // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
             RemoveDeactivatedAdapters(adapters);
 
             // Enumerate 1.1 adapters and fetch data with GetDesc1()
-            IDXGIAdapter1* adapter1 = nullptr;
+            IDXGIAdapter1ComPtr adapter1 = nullptr;
 
-            for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1)); ++adapter_idx)
+            for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1.GetInterfacePtr()));
+                 ++adapter_idx)
             {
                 DXGI_ADAPTER_DESC1 dxgi_desc = {};
                 adapter1->GetDesc1(&dxgi_desc);
@@ -792,7 +794,7 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
                     adapter_type = format::AdapterType::kSoftwareAdapter;
                 }
 
-                TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, adapters, adapter_type);
+                TrackAdapterDesc(std::move(adapter1.GetInterfacePtr()), adapter_idx, dxgi_desc, adapters, adapter_type);
             }
         }
 
@@ -802,20 +804,25 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
             // Only enumerate 1.0 factory adapters if nothing has been seen yet
             if (adapters.empty())
             {
-                IDXGIFactory* factory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
+                IDXGIFactoryComPtr factory = nullptr;
 
-                if (SUCCEEDED(factory->QueryInterface(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory))))
+                if (SUCCEEDED(base_factory->QueryInterface(IID_PPV_ARGS(&factory))))
                 {
                     // Enumerate 1.0 adapters and fetch data with GetDesc()
-                    IDXGIAdapter* adapter = nullptr;
+                    IDXGIAdapterComPtr adapter = nullptr;
 
-                    for (UINT adapter_idx = 0; SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter)); ++adapter_idx)
+                    for (UINT adapter_idx = 0;
+                         SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter.GetInterfacePtr()));
+                         ++adapter_idx)
                     {
                         DXGI_ADAPTER_DESC dxgi_desc = {};
                         adapter->GetDesc(&dxgi_desc);
 
-                        TrackAdapterDesc(
-                            adapter, adapter_idx, dxgi_desc, adapters, format::AdapterType::kUnknownAdapter);
+                        TrackAdapterDesc(std::move(adapter.GetInterfacePtr()),
+                                         adapter_idx,
+                                         dxgi_desc,
+                                         adapters,
+                                         format::AdapterType::kUnknownAdapter);
                     }
                 }
                 else
@@ -853,7 +860,7 @@ format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12:
         // Get the device's parent adapter identifier
         LUID parent_adapter_luid = device->GetAdapterLuid();
 
-        const int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+        const int64_t packed_luid = pack_luid(parent_adapter_luid);
 
         // Mark an adapter as active
         for (auto& adapter : adapters)
@@ -936,13 +943,13 @@ bool GetAdapterAndIndexbyLUID(LUID                              luid,
 {
     bool success = false;
 
-    const int64_t packed_luid = (luid.HighPart << 31) | luid.LowPart;
+    const int64_t packed_luid = pack_luid(luid);
 
     auto search = adapters.find(packed_luid);
     if (search != adapters.end())
     {
         index       = search->second.adapter_idx;
-        adapter_ptr = search->second.adapter;
+        adapter_ptr = search->second.adapter.GetInterfacePtr();
         success     = true;
     }
     return success;
@@ -972,7 +979,7 @@ IDXGIAdapter* GetAdapterbyIndex(graphics::dx12::ActiveAdapterMap& adapters, int3
     {
         if (static_cast<int32_t>(adapter.second.adapter_idx) == index)
         {
-            return adapter.second.adapter;
+            return adapter.second.adapter.GetInterfacePtr();
         }
     }
     return nullptr;
@@ -1018,7 +1025,7 @@ bool GetAdapterAndIndexbyDevice(ID3D12Device*                     device,
 
 format::DxgiAdapterDesc* GetAdapterDescByLUID(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters)
 {
-    const int64_t            packed_luid         = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+    const int64_t            packed_luid         = pack_luid(parent_adapter_luid);
     format::DxgiAdapterDesc* parent_adapter_desc = nullptr;
     for (auto& adapter : adapters)
     {
@@ -1329,7 +1336,13 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
 {
     UINT64 total_bytes = 0;
 
-    device->GetCopyableFootprints(pResourceDesc,
+    D3D12_RESOURCE_DESC modified_desc = *pResourceDesc;
+    if ((pResourceDesc->Flags & D3D12_RESOURCE_FLAG_USE_TIGHT_ALIGNMENT) == D3D12_RESOURCE_FLAG_USE_TIGHT_ALIGNMENT)
+    {
+        modified_desc.Alignment = 0;
+    }
+
+    device->GetCopyableFootprints(&modified_desc,
                                   FirstSubresource,
                                   NumSubresources,
                                   BaseOffset,
@@ -1345,8 +1358,7 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
         // it before querying the copyable footprint. This handles the case where a resource is created with castable
         // formats but the format in the resource desc is not compatible with
         // D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS.
-        D3D12_RESOURCE_DESC modified_desc = *pResourceDesc;
-        modified_desc.Flags               = (modified_desc.Flags & ~D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+        modified_desc.Flags = (modified_desc.Flags & ~D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
         device->GetCopyableFootprints(&modified_desc,
                                       FirstSubresource,

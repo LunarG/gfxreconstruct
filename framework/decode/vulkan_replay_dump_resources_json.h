@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -24,8 +24,8 @@
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 
 #include "util/json_util.h"
-#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_replay_dump_resources_common.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -38,8 +38,6 @@ class VulkanReplayDumpResourcesJson
     ~VulkanReplayDumpResourcesJson(){};
 
     bool Open(const std::string& infile, const std::string& outdir);
-
-    bool Open(const std::string& filename);
 
     void Close();
 
@@ -59,25 +57,32 @@ class VulkanReplayDumpResourcesJson
 
     nlohmann::ordered_json& GetCurrentSubEntry();
 
-    void InsertImageSubresourceInfo(nlohmann::ordered_json&      json_entry,
-                                    VkFormat                     image_format,
-                                    VkImageType                  image_type,
-                                    format::HandleId             image_id,
-                                    const VkExtent3D&            extent,
-                                    const std::string&           filename,
-                                    VkImageAspectFlagBits        aspect,
-                                    uint32_t                     layer_count,
-                                    uint32_t                     mip_level         = 0,
-                                    uint32_t                     array_layer       = 0,
-                                    const std::vector<uint64_t>* subresource_sizes = nullptr,
-                                    bool                         separate_alpha    = false,
-                                    const std::string*           filename_before   = nullptr);
+    void InsertImageSubresourceInfo(nlohmann::ordered_json&                    json_entry,
+                                    const DumpedImage::DumpedImageSubresource& subresource,
+                                    VkFormat                                   format,
+                                    bool                                       separate_alpha,
+                                    bool                                       dumped_raw);
+
+    void InsertBeforeImageSubresourceInfo(nlohmann::ordered_json&                    json_entry,
+                                          const DumpedImage::DumpedImageSubresource& subresource,
+                                          VkFormat                                   format,
+                                          bool                                       separate_alpha,
+                                          bool                                       dumped_raw);
+
+    void InsertBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
+
+    void InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
+
+    void InsertASBuildRangeInfo(nlohmann::ordered_json&                         json_entry,
+                                const VkAccelerationStructureBuildRangeInfoKHR& range);
 
     uint32_t FetchAndAddDrawCallsEntryIndex() { return draw_calls_entry_index++; }
 
     uint32_t FetchAndAddDispatchEntryIndex() { return dispatch_entry_index++; }
 
     uint32_t FetchAndAddTraceRaysEntryIndex() { return trace_rays_entry_index++; }
+
+    uint32_t FetchAndAddTransferEntryIndex() { return transfer_entry_index++; }
 
   private:
     bool InitializeFile(const std::string& filename);
@@ -91,6 +96,7 @@ class VulkanReplayDumpResourcesJson
     uint32_t draw_calls_entry_index;
     uint32_t dispatch_entry_index;
     uint32_t trace_rays_entry_index;
+    uint32_t transfer_entry_index;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

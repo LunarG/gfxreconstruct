@@ -138,6 +138,9 @@ enum CommandHandleType : uint32_t
     IndirectCommandsLayoutEXTHandle,
     IndirectExecutionSetEXTHandle,
     DeviceMemoryHandle,
+    TensorARMHandle,
+    TensorViewARMHandle,
+    DataGraphPipelineSessionARMHandle,
 
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };

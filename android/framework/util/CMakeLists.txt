@@ -19,15 +19,25 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/argument_parser.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/buffer_writer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/callbacks.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/callbacks.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/clock_cache.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/compiler_diagnostics.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/date_time.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/defines.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/file_input_stream.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/file_input_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/hash.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/heap_buffer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/heap_buffer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/hybrid_linear_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/hybrid_linear_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/image_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/json_util.h
@@ -37,6 +47,9 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/linear_hashmap.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/logging_common.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/logging_targets.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/logging_targets.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/zlib_compressor.h
@@ -53,6 +66,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/platform.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/span.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/spirv_helper.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/spirv_parsing_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/spirv_parsing_util.cpp
@@ -60,6 +74,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/thread_data.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/type_traits_extras.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.h

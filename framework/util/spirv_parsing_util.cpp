@@ -25,17 +25,109 @@
 #include <optional>
 #include <deque>
 #include "spirv_reflect.h"
+#include "util/alignment_utils.h"
 #include "util/spirv_helper.h"
 #include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-// used to enable type as key for std::set/map
-bool operator<(const SpirVParsingUtil::BufferReferenceInfo& lhs, const SpirVParsingUtil::BufferReferenceInfo& rhs)
+struct LayoutInfo
 {
-    return std::make_tuple(lhs.source, lhs.set, lhs.binding, lhs.buffer_offset, lhs.array_stride) <
-           std::make_tuple(rhs.source, rhs.set, rhs.binding, rhs.buffer_offset, rhs.array_stride);
+    uint32_t alignment = 0;
+    uint32_t size      = 0;
+};
+
+// NOTE: compute_type_layout does not handle different block-layouts (std140, std430, scalar), basically assuming std430
+// TODO: if possible avoid offset-calculation entirely, use SpvReflectBlockVariable instead
+LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description)
+{
+    uint32_t alignment = 0;
+    uint32_t num_bytes = type_description->traits.numeric.scalar.width / 8;
+
+    switch (type_description->op)
+    {
+        case SpvOpTypeInt:
+
+            // 64-bit integers: align to 8-byte
+            if (type_description->traits.numeric.scalar.width == 64)
+            {
+                num_bytes = sizeof(uint64_t);
+                alignment = sizeof(uint64_t);
+            }
+            break;
+
+        case SpvOpTypeVector:
+        {
+            if (type_description->traits.numeric.vector.component_count == 2)
+            {
+                num_bytes *= 2;
+                alignment = num_bytes;
+            }
+            else
+            {
+                alignment = num_bytes * 4;
+                num_bytes *= type_description->traits.numeric.vector.component_count;
+            }
+            break;
+        }
+
+        case SpvOpTypeMatrix:
+        {
+            bool is_col_major = type_description->decoration_flags & SPV_REFLECT_DECORATION_COLUMN_MAJOR ||
+                                !(type_description->decoration_flags & SPV_REFLECT_DECORATION_ROW_MAJOR);
+
+            num_bytes = (is_col_major ? type_description->traits.numeric.matrix.column_count
+                                      : type_description->traits.numeric.matrix.row_count) *
+                        type_description->traits.numeric.matrix.stride;
+        }
+
+        break;
+
+        case SpvOpTypeArray:
+        case SpvOpTypeRuntimeArray:
+            num_bytes = std::max(num_bytes, type_description->traits.array.stride);
+            for (uint32_t d = 0; d < type_description->traits.array.dims_count; ++d)
+            {
+                num_bytes *= type_description->traits.array.dims[d] == SPV_REFLECT_ARRAY_DIM_RUNTIME
+                                 ? 1
+                                 : type_description->traits.array.dims[d];
+            }
+            break;
+
+        case SpvOpTypeStruct:
+        {
+            uint32_t offset    = 0;
+            uint32_t max_align = 0;
+
+            for (uint32_t i = 0; i < type_description->member_count; ++i)
+            {
+                LayoutInfo layout_info = compute_type_layout(&type_description->members[i]);
+                GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, layout_info.alignment));
+                offset += layout_info.size;
+                max_align = std::max(max_align, layout_info.alignment);
+            }
+
+            GFXRECON_NARROWING_ASSIGN(num_bytes, util::aligned_value(offset, max_align));
+        }
+        break;
+
+        case SpvOpTypePointer:
+        case SpvOpTypeForwardPointer:
+            num_bytes = sizeof(uint64_t);
+            alignment = sizeof(uint64_t);
+            break;
+
+        default:
+            break;
+    }
+    return { alignment, num_bytes };
+}
+
+static bool check_type_potential_ref(const SpvReflectTypeDescription* td)
+{
+    return td->storage_class == spv::StorageClassPhysicalStorageBuffer ||
+           (td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64 && !td->traits.numeric.scalar.signedness);
 }
 
 // Instruction represents a single Spv::Op instruction.
@@ -79,7 +171,7 @@ class SpirVParsingUtil::Instruction
     [[nodiscard]] uint32_t length() const { return words_[0] >> 16; }
 
     //! the instruction's op-code
-    [[nodiscard]] uint32_t opcode() const { return words_[0] & 0x0ffffu; }
+    [[nodiscard]] spv::Op opcode() const { return static_cast<spv::Op>(words_[0] & 0x0ffffu); }
 
     //! operand id, return 0 if no result
     [[nodiscard]] uint32_t resultId() const { return (result_id_index_ == 0) ? 0 : words_[result_id_index_]; }
@@ -102,9 +194,6 @@ class SpirVParsingUtil::Instruction
 
     const uint32_t* words_ = nullptr;
 };
-
-//// This is the LUT for hoping around instruction from the result ID
-// std::unordered_map<uint32_t, const SpirVInstruction*> definitions;
 
 const SpirVParsingUtil::Instruction* SpirVParsingUtil::FindDef(uint32_t id)
 {
@@ -242,6 +331,9 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     }
 
     // forward spirv-reflect-pass
+    constexpr bool use_forward_spirv_reflect_pass = true;
+
+    if constexpr (use_forward_spirv_reflect_pass)
     {
         // define a function to walk blocks breadth-first and check for buffer-references
         auto check_buffer_references = [this](const SpvReflectTypeDescription* type,
@@ -262,22 +354,24 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
             {
                 auto queue_item = std::move(queue.front());
                 queue.pop_front();
-                auto& [td, offset, stride, member_names] = queue_item;
 
-                if (td)
+                if (auto& [td, offset, stride, member_names] = queue_item; td)
                 {
+                    // align offset
+                    auto layout_info = compute_type_layout(td);
+                    offset           = util::aligned_value(offset, layout_info.alignment);
+
                     member_names.emplace_back(td->struct_member_name ? td->struct_member_name : "unknown");
+
+                    // we pick up potential buffer-references here and confirm later.
+                    bool is_potential_ref = check_type_potential_ref(td);
 
                     if (td->op == SpvOpTypeArray || td->op == SpvOpTypeRuntimeArray)
                     {
                         stride = td->traits.array.stride;
                     }
 
-                    // we pick up potential buffer-references here and confirm later.
-                    bool is_potential_ref = td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64 &&
-                                            !td->traits.numeric.scalar.signedness;
-
-                    if (td->storage_class == spv::StorageClassPhysicalStorageBuffer || is_potential_ref)
+                    if (is_potential_ref)
                     {
                         BufferReferenceInfo ref_info;
                         ref_info.source        = source;
@@ -287,6 +381,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                         ref_info.array_stride  = stride;
 
                         // insert into map
+                        GFXRECON_ASSERT(offset % 8 == 0);
                         buffer_reference_map_[ref_info] = member_names;
                     }
 
@@ -295,33 +390,10 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                         auto* member = td->members + j;
                         queue.push_back({ member, offset, stride, member_names });
 
-                        uint32_t num_scalar_bytes = member->traits.numeric.scalar.width / 8;
-
-                        if (member->op == SpvOpTypeVector)
-                        {
-                            num_scalar_bytes *= member->traits.numeric.vector.component_count;
-                        }
-                        else if (member->op == SpvOpTypeMatrix)
-                        {
-                            num_scalar_bytes *= member->traits.numeric.matrix.column_count;
-                            num_scalar_bytes *= member->traits.numeric.matrix.row_count;
-                            num_scalar_bytes = std::max(num_scalar_bytes, member->traits.numeric.matrix.stride);
-                        }
-                        else if (member->op == SpvOpTypePointer || member->op == SpvOpTypeForwardPointer)
-                        {
-                            num_scalar_bytes = sizeof(uint64_t);
-                        }
-                        else if (member->op == SpvOpTypeArray || member->op == SpvOpTypeRuntimeArray)
-                        {
-                            num_scalar_bytes = std::max(num_scalar_bytes, member->traits.array.stride);
-                            for (uint32_t d = 0; d < member->traits.array.dims_count; ++d)
-                            {
-                                num_scalar_bytes *= member->traits.array.dims[d] == spv::OpTypeRuntimeArray
-                                                        ? 1
-                                                        : member->traits.array.dims[d];
-                            }
-                        }
-                        offset += num_scalar_bytes;
+                        // align offset, add size
+                        auto child_layout_info = compute_type_layout(member);
+                        GFXRECON_NARROWING_ASSIGN(offset, util::aligned_value(offset, child_layout_info.alignment));
+                        offset += child_layout_info.size;
                     }
                 }
             }
@@ -370,25 +442,33 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
         }
     } // forward spirv-reflect pass
 
-    auto track_back_instruction = [this, &spv_shader_module](const Instruction* object_insn) {
+    auto track_back_instruction = [this, &spv_shader_module](const Instruction* object_insn,
+                                                             uint32_t           initial_array_stride = 0) {
         // keep track of access-chain
         std::vector<uint32_t> access_indices;
 
         // We are where a buffer-reference was accessed, now walk back to find where it came from
         while (object_insn)
         {
+            bool ptr_access_chain = false;
+
             switch (object_insn->opcode())
             {
                 case spv::OpFunctionParameter:
                 case spv::OpConvertUToPtr:
                 case spv::OpCopyLogical:
+                case spv::OpCompositeExtract:
                 case spv::OpLoad:
                     object_insn = FindDef(object_insn->operand(0));
                     break;
+                case spv::OpPtrAccessChain:
+                    ptr_access_chain = true;
+                    // fall through
                 case spv::OpAccessChain:
                 {
+                    uint32_t              i = ptr_access_chain ? 2 : 1;
                     std::vector<uint32_t> indices;
-                    for (uint32_t i = 1; i < object_insn->num_operands(); ++i)
+                    for (; i < object_insn->num_operands(); ++i)
                     {
                         if (auto ins = FindDef(object_insn->operand(i)))
                         {
@@ -418,6 +498,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                     else
                     {
                         BufferReferenceInfo buffer_reference_info = {};
+                        buffer_reference_info.array_stride        = initial_array_stride;
 
                         if (GetVariableDecorations(object_insn, buffer_reference_info))
                         {
@@ -465,39 +546,35 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                 {
                                     if (td->op == SpvOpTypeArray || td->op == SpvOpTypeRuntimeArray)
                                     {
-                                        buffer_reference_info.array_stride = td->traits.array.stride;
+                                        // only inherit stride when the array element is itself a PSB pointer.
+                                        if (td->storage_class == spv::StorageClassPhysicalStorageBuffer)
+                                        {
+                                            buffer_reference_info.array_stride = td->traits.array.stride;
+                                        }
+                                        continue;
                                     }
 
                                     // offset calculation
                                     for (uint32_t m = 0; m < idx; ++m)
                                     {
-                                        uint32_t    num_scalar_bytes = 0;
-                                        const auto& member           = td->members[m];
-                                        num_scalar_bytes             = member.traits.numeric.scalar.width / 8;
+                                        auto layout_info = compute_type_layout(&td->members[m]);
 
-                                        if (member.op == SpvOpTypeVector)
-                                        {
-                                            num_scalar_bytes *= member.traits.numeric.vector.component_count;
-                                        }
-                                        else if (member.op == SpvOpTypeMatrix)
-                                        {
-                                            num_scalar_bytes *= member.traits.numeric.matrix.column_count;
-                                            num_scalar_bytes *= member.traits.numeric.matrix.row_count;
-                                            num_scalar_bytes =
-                                                std::max(num_scalar_bytes, member.traits.numeric.matrix.stride);
-                                        }
-                                        else if (member.op == SpvOpTypePointer || member.op == SpvOpTypeForwardPointer)
-                                        {
-                                            num_scalar_bytes = sizeof(uint64_t);
-                                        }
-                                        else if (member.op == SpvOpTypeArray || member.op == SpvOpTypeRuntimeArray)
-                                        {
-                                            num_scalar_bytes = std::max(num_scalar_bytes, member.traits.array.stride);
-                                        }
-                                        buffer_reference_info.buffer_offset += num_scalar_bytes;
+                                        // align offset, add size
+                                        GFXRECON_NARROWING_ASSIGN(
+                                            buffer_reference_info.buffer_offset,
+                                            util::aligned_value(buffer_reference_info.buffer_offset,
+                                                                layout_info.alignment));
+                                        buffer_reference_info.buffer_offset += layout_info.size;
                                     }
 
                                     td = td->members + idx;
+
+                                    // align member itself
+                                    auto target_layout_info = compute_type_layout(td);
+                                    GFXRECON_NARROWING_ASSIGN(buffer_reference_info.buffer_offset,
+                                                              util::aligned_value(buffer_reference_info.buffer_offset,
+                                                                                  target_layout_info.alignment));
+
                                     access_chain_names.emplace_back(td->struct_member_name ? td->struct_member_name
                                                                                            : "unknown");
                                 }
@@ -580,6 +657,31 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
 
         const Instruction* load_pointer_insn = FindDef(insn.operand(0));
 
+        // Detect pointer-to-pointer (Slang-style arrays of buffer device addresses):
+        // when a PhysicalStorageBuffer pointer's pointee is also a PhysicalStorageBuffer pointer,
+        // look up ArrayStride decoration to propagate the array stride.
+        uint32_t pointer_array_stride = 0;
+        {
+            const Instruction* pointee_type_insn = FindDef(type_pointer_insn->operand(1));
+            if (pointee_type_insn && pointee_type_insn->opcode() == spv::OpTypePointer &&
+                pointee_type_insn->operand(0) == spv::StorageClassPhysicalStorageBuffer)
+            {
+                for (const Instruction* decor : decorations_instructions_)
+                {
+                    if (decor->operand(0) == type_pointer_insn->resultId() &&
+                        decor->operand(1) == spv::DecorationArrayStride)
+                    {
+                        pointer_array_stride = decor->operand(2);
+                        break;
+                    }
+                }
+                if (pointer_array_stride == 0)
+                {
+                    pointer_array_stride = sizeof(VkDeviceAddress);
+                }
+            }
+        }
+
         if (load_pointer_insn && load_pointer_insn->opcode() == spv::OpVariable &&
             load_pointer_insn->operand(0) == spv::StorageClassFunction)
         {
@@ -589,13 +691,16 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                 continue;
             }
 
-            track_back_instruction(object_insn);
+            track_back_instruction(object_insn, pointer_array_stride);
         }
-        else if (load_pointer_insn && load_pointer_insn->opcode() == spv::OpAccessChain)
+        else if (load_pointer_insn && (load_pointer_insn->opcode() == spv::OpAccessChain ||
+                                       load_pointer_insn->opcode() == spv::OpPtrAccessChain))
         {
-            track_back_instruction(load_pointer_insn);
+            track_back_instruction(load_pointer_insn, pointer_array_stride);
         }
     }
+
+    GFXRECON_LOG_DEBUG("%s: spirv: %d", __func__, spirv_num_bytes);
 
     for (const auto& [buffer_reference_info, chain_names] : buffer_reference_map_)
     {
@@ -642,53 +747,6 @@ std::vector<SpirVParsingUtil::BufferReferenceInfo> SpirVParsingUtil::GetBufferRe
         ret.push_back(buffer_ref_info);
     }
     return ret;
-}
-
-static VkDescriptorType SpvReflectToVkDescriptorType(SpvReflectDescriptorType type)
-{
-    switch (type)
-    {
-        case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
-            return VK_DESCRIPTOR_TYPE_SAMPLER;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-            return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-            return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-
-        case SPV_REFLECT_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-            return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
-
-        default:
-            GFXRECON_LOG_WARNING("%s(): Unrecognised SPIRV-Reflect descriptor type");
-            assert(0);
-            return VK_DESCRIPTOR_TYPE_MAX_ENUM;
-    }
 }
 
 GFXRECON_END_NAMESPACE(util)

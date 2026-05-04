@@ -18,7 +18,12 @@
     "vkCreateRayTracingPipelinesKHR",
     "vkCreateExternalComputeQueueNV",
     "vkDestroyExternalComputeQueueNV",
-    "vkGetExternalComputeQueueDataNV"
+    "vkGetExternalComputeQueueDataNV",
+    "vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT",
+    "vkGetBufferOpaqueCaptureDescriptorDataEXT",
+    "vkGetImageOpaqueCaptureDescriptorDataEXT",
+    "vkGetImageViewOpaqueCaptureDescriptorDataEXT",
+    "vkGetSamplerOpaqueCaptureDescriptorDataEXT"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
@@ -37,6 +42,7 @@
     "VkPerformanceValueINTEL",
     "VkPushDescriptorSetWithTemplateInfo",
     "VkAccelerationStructureGeometryKHR",
+    "VkAccelerationStructureDenseGeometryFormatTrianglesDataAMDX",
     "VkAccelerationStructureMotionInstanceNV",
     "VkIndirectExecutionSetInfoEXT",
     "VkIndirectExecutionSetCreateInfoEXT",
@@ -45,6 +51,8 @@
     "VkCopyMemoryToImageInfo",
     "VkMemoryToImageCopy",
     "VkCopyImageToMemoryInfo",
-    "VkImageToMemoryCopy"
+    "VkImageToMemoryCopy",
+    "VkLayerSettingEXT",
+    "VkDescriptorGetInfoEXT"
   ]
 }

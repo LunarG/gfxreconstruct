@@ -136,8 +136,6 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
         format::HandleId                                                   commandBuffer,
         StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
 
-    const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
-
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
 
     /// Output the current in-memory json tree to the destination file.

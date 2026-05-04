@@ -83,7 +83,7 @@ void VulkanDecoderBase::DispatchFillMemoryCommand(
     }
 }
 
-void VulkanDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+void VulkanDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, const format::ExeFileInfoBlock& info)
 {
     for (auto consumer : consumers_)
     {
@@ -217,6 +217,20 @@ void VulkanDecoderBase::DispatchSetOpaqueAddressCommand(format::ThreadId thread_
     for (auto consumer : consumers_)
     {
         consumer->ProcessSetOpaqueAddressCommand(device_id, object_id, address);
+    }
+}
+
+void VulkanDecoderBase::DispatchSetOpaqueDescriptorDataCommand(format::ThreadId thread_id,
+                                                               format::HandleId device_id,
+                                                               format::HandleId object_id,
+                                                               uint32_t         data_size,
+                                                               const uint8_t*   data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetOpaqueDescriptorDataCommand(device_id, object_id, data_size, data);
     }
 }
 
@@ -552,8 +566,8 @@ void VulkanDecoderBase::DispatchSetTlasToBlasDependencyCommand(format::HandleId 
     }
 }
 
-void VulkanDecoderBase::DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                               const char*                             env_string)
+void VulkanDecoderBase::DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                               const char*                                   env_string)
 {
     for (auto consumer : consumers_)
     {
@@ -591,8 +605,8 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(con
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessBuildVulkanAccelerationStructuresMetaCommand(
-            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos);
+        consumer->ProcessVulkanBuildAccelerationStructuresCommand(
+            device_id, GFXRECON_NARROWING_CAST(uint32_t, pInfos.GetLength()), &pInfos, &ppRangeInfos);
     }
 }
 
@@ -607,7 +621,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresCopyMetaCommand(cons
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessCopyVulkanAccelerationStructuresMetaCommand(device_id, &pInfos);
+        consumer->ProcessVulkanCopyAccelerationStructuresCommand(device_id, &pInfos);
     }
 }
 
@@ -625,7 +639,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresWritePropertiesMetaC
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        consumer->ProcessVulkanWriteAccelerationStructuresPropertiesCommand(
             device_id, query_type, acceleration_structure_id);
     }
 }

@@ -21,6 +21,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+#include "util/json_util.h"
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 #include "tool_settings.h"
@@ -171,7 +172,7 @@ static bool GetFrameIndices(const gfxrecon::util::ArgumentParser& arg_parser, st
     if (!input_ranges.empty())
     {
         std::vector<gfxrecon::util::UintRange> frame_ranges =
-            gfxrecon::util::GetUintRanges(input_ranges.c_str(), "frames to be converted", true);
+            gfxrecon::util::GetUintRanges(input_ranges.c_str(), "frames to be converted", true, true);
 
         for (uint32_t i = 0; i < frame_ranges.size(); ++i)
         {
@@ -233,11 +234,10 @@ int main(int argc, const char** argv)
     }
 #endif
 
-    // Reinitialize logging with values retrieved from command line arguments
+    // Update logging with values retrieved from command line arguments
     gfxrecon::util::Log::Settings log_settings;
     GetLogSettings(arg_parser, log_settings);
-    gfxrecon::util::Log::Release();
-    gfxrecon::util::Log::Init(log_settings);
+    gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
     std::string filename_stem;
     std::string output_filename;
@@ -342,14 +342,14 @@ int main(int argc, const char** argv)
             file_processor.AddDecoder(&openxr_decoder);
 #endif
 
-            gfxrecon::util::JsonOptions json_options;
-            json_options.root_dir      = output_dir;
-            json_options.data_sub_dir  = filename_stem;
-            json_options.format        = output_format;
-            json_options.dump_binaries = dump_binaries;
-            json_options.expand_flags  = expand_flags;
+            gfxrecon::util::JsonOptions::root_dir      = output_dir;
+            gfxrecon::util::JsonOptions::data_sub_dir  = filename_stem;
+            gfxrecon::util::JsonOptions::format        = output_format;
+            gfxrecon::util::JsonOptions::dump_binaries = dump_binaries;
+            gfxrecon::util::JsonOptions::expand_flags  = expand_flags;
+            gfxrecon::util::JsonOptions::hex_handles   = false;
 
-            gfxrecon::decode::JsonWriter json_writer{ json_options, GFXRECON_PROJECT_VERSION_STRING, input_filename };
+            gfxrecon::decode::JsonWriter json_writer{ GetProjectVersionString(), input_filename };
             file_processor.SetAnnotationProcessor(&json_writer);
 
             bool              success = true;
@@ -472,14 +472,16 @@ int main(int argc, const char** argv)
             if (tmp_file_handle != nullptr)
             {
                 gfxrecon::util::platform::FileClose(tmp_file_handle);
+                tmp_file_handle = nullptr;
             }
 
             if (!output_to_stdout)
             {
                 gfxrecon::util::platform::FileClose(out_file_handle);
+                out_file_handle = nullptr;
             }
 
-            if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+            if (file_processor.GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
             {
                 GFXRECON_LOG_ERROR("Failed to process trace.");
                 ret_code = 1;

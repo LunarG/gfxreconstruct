@@ -23,6 +23,8 @@
 #include "graphics/vulkan_util.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
+
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -53,65 +55,114 @@ bool ImageHasUsage(VkImageUsageFlags usage_flags, VkImageUsageFlagBits bit)
     return (usage_flags & bit) == bit;
 }
 
-template <typename T>
-std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphoresUtil(T* submit_info)
+VkDeviceSize AlignBufferOffset(VkDeviceSize offset, VkDeviceSize alignment)
 {
-    static_assert(std::is_same_v<T, VkSubmitInfo> || std::is_same_v<T, VkSubmitInfo2>);
-    std::vector<std::pair<VkSemaphore, uint64_t>> semaphore_wait_infos;
+    // Vulkan only specifies alignments for buffer-image copies. Use modulo math so
+    // non-power-of-two alignments (e.g. 3-byte RGB formats) are handled correctly.
+    GFXRECON_ASSERT(alignment > 0);
 
-    if constexpr (std::is_same_v<T, VkSubmitInfo>)
+    if (alignment <= 1)
     {
-        semaphore_wait_infos.resize(submit_info->waitSemaphoreCount);
+        return offset;
+    }
 
-        for (uint32_t s = 0; s < submit_info->waitSemaphoreCount; ++s)
+    const VkDeviceSize remainder = offset % alignment;
+    if (remainder == 0)
+    {
+        return offset;
+    }
+
+    return offset + (alignment - remainder);
+}
+
+VkDeviceSize GetBufferImageCopyOffsetAlignment(VkFormat format, VkImageAspectFlags aspect_mask)
+{
+    if (format == VK_FORMAT_UNDEFINED)
+    {
+        // Defensive fallback for external-format images where no concrete VkFormat is available.
+        return 1;
+    }
+
+    if (vkuFormatIsDepthOrStencil(format))
+    {
+        // Vulkan requires 4-byte bufferOffset alignment for depth/stencil image copies.
+        return 4;
+    }
+
+    if (vkuFormatIsMultiplane(format))
+    {
+        // For multiplane formats, alignment comes from the selected plane's compatible format.
+        VkImageAspectFlagBits plane_aspect = VK_IMAGE_ASPECT_PLANE_0_BIT;
+        if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_1_BIT) != 0)
         {
-            semaphore_wait_infos[s] = { submit_info->pWaitSemaphores[s], 1 };
+            plane_aspect = VK_IMAGE_ASPECT_PLANE_1_BIT;
+        }
+        else if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_2_BIT) != 0)
+        {
+            plane_aspect = VK_IMAGE_ASPECT_PLANE_2_BIT;
         }
 
-        if (auto* timeline_info = graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(submit_info))
+        const VkFormat compatible_format = vkuFindMultiplaneCompatibleFormat(format, plane_aspect);
+        GFXRECON_ASSERT(compatible_format != VK_FORMAT_UNDEFINED);
+        if (compatible_format != VK_FORMAT_UNDEFINED)
         {
-            GFXRECON_ASSERT(submit_info->waitSemaphoreCount == timeline_info->waitSemaphoreValueCount);
+            const VKU_FORMAT_INFO format_info = vkuGetFormatInfo(compatible_format);
+            GFXRECON_ASSERT(format_info.block_size > 0);
+            return format_info.block_size;
+        }
 
-            for (uint32_t s = 0; s < timeline_info->waitSemaphoreValueCount; ++s)
+        return 1;
+    }
+
+    const VKU_FORMAT_INFO format_info = vkuGetFormatInfo(format);
+    GFXRECON_ASSERT(format_info.block_size > 0);
+    return format_info.block_size;
+}
+
+uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+{
+    uint32_t index = VK_QUEUE_FAMILY_IGNORED;
+
+    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
+    {
+        if (families.queue_family_index_enabled[i])
+        {
+            const auto& flags_entry = families.queue_family_properties_flags.find(i);
+            if ((flags_entry != families.queue_family_properties_flags.end()))
             {
-                semaphore_wait_infos[s].second = timeline_info->pWaitSemaphoreValues[s];
+                if ((flags_entry->second & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
+                {
+                    return i;
+                }
+                else if ((flags_entry->second & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)))
+                {
+                    index = i;
+                }
             }
-
-            // strip out wait-semaphores from timeline_info-info
-            timeline_info->waitSemaphoreValueCount = 0;
-            timeline_info->pWaitSemaphoreValues    = nullptr;
         }
-
-        // strip out wait-semaphores from submit-info
-        submit_info->waitSemaphoreCount = 0;
-        submit_info->pWaitSemaphores    = nullptr;
     }
 
-    if constexpr (std::is_same_v<T, VkSubmitInfo2>)
+    return index;
+}
+
+uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
+{
+    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
     {
-        semaphore_wait_infos.resize(submit_info->waitSemaphoreInfoCount);
-
-        for (uint32_t s = 0; s < submit_info->waitSemaphoreInfoCount; ++s)
+        if (families.queue_family_index_enabled[i])
         {
-            semaphore_wait_infos[s] = { submit_info->pWaitSemaphoreInfos[s].semaphore,
-                                        submit_info->pWaitSemaphoreInfos[s].value };
+            const auto& flags_entry = families.queue_family_properties_flags.find(i);
+            if ((flags_entry != families.queue_family_properties_flags.end()))
+            {
+                if ((flags_entry->second & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
+                {
+                    return i;
+                }
+            }
         }
-
-        // strip out wait-semaphores from submit-info
-        submit_info->waitSemaphoreInfoCount = 0;
-        submit_info->pWaitSemaphoreInfos    = nullptr;
     }
-    return semaphore_wait_infos;
-}
 
-std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo* submit_info)
-{
-    return StripWaitSemaphoresUtil(submit_info);
-}
-
-std::vector<std::pair<VkSemaphore, uint64_t>> StripWaitSemaphores(VkSubmitInfo2* submit_info)
-{
-    return StripWaitSemaphoresUtil(submit_info);
+    return VK_QUEUE_FAMILY_IGNORED;
 }
 
 GFXRECON_END_NAMESPACE(graphics)

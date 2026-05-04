@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
-** Copyright (c) 2019-2023 LunarG, Inc.
+** Copyright (c) 2019-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -33,9 +33,11 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <map>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
+#include <optional>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -43,7 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
 
 // Default log level to use prior to loading settings.
-const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
+const util::LoggingSeverity kDefaultLogLevel = util::LoggingSeverity::kInfo;
 
 enum class SkipGetFenceStatus
 {
@@ -53,13 +55,46 @@ enum class SkipGetFenceStatus
     COUNT
 };
 
-using Index                 = uint64_t;
-using DrawCallIndices       = std::vector<Index>;
-using RenderPassIndices     = std::vector<std::vector<Index>>;
-using DispatchIndices       = std::vector<Index>;
-using TraceRaysIndices      = std::vector<Index>;
-using ExecuteCommandIndices = std::vector<Index>;
-using ExecuteCommands       = std::unordered_map<Index, ExecuteCommandIndices>;
+using Index             = uint64_t;
+using CommandIndices    = std::vector<Index>;
+using RenderPassIndices = std::vector<std::vector<Index>>;
+using ExecuteCommands   = std::unordered_map<Index, CommandIndices>;
+
+struct DescriptorLocation
+{
+    bool const operator==(const DescriptorLocation& other) const
+    {
+        return set == other.set && binding == other.binding && array_index == other.array_index;
+    }
+
+    bool const operator<(const DescriptorLocation& other) const
+    {
+        if (set == other.set)
+        {
+            if (binding == other.binding)
+            {
+                return array_index < other.array_index;
+            }
+            else
+            {
+                return binding < other.binding;
+            }
+        }
+        else
+        {
+            return set < other.set;
+        }
+    }
+
+    uint32_t set;
+    uint32_t binding;
+    uint32_t array_index;
+};
+
+using CommandImageSubresource =
+    std::unordered_map<decode::Index, std::map<DescriptorLocation, VkImageSubresourceRange>>;
+using CommandImageSubresourceIterator = CommandImageSubresource::const_iterator;
+using BeginCmdBufQueueSubmitPair      = std::pair<decode::Index, decode::Index>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.
@@ -67,32 +102,45 @@ static constexpr int kUnspecifiedColorAttachment = -1;
 
 struct VulkanReplayOptions : public ReplayOptions
 {
-    bool                         enable_vulkan{ true };
-    bool                         capture{ false };
-    bool                         omit_pipeline_cache_data{ false };
-    bool                         use_colorspace_fallback{ false };
-    bool                         offscreen_swapchain_frame_boundary{ false };
-    util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };
-    bool                         virtual_swapchain_skip_blit{ false };
-    int32_t                      override_gpu_group_index{ -1 };
-    int32_t                      surface_index{ -1 };
-    CreateResourceAllocator      create_resource_allocator;
-    uint32_t                     screenshot_width, screenshot_height;
-    float                        screenshot_scale;
-    std::string                  replace_shader_dir;
-    SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
-    std::vector<util::UintRange> skip_get_fence_ranges;
-    bool                         wait_before_present{ false };
-    VkFlags                      debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+    bool                    enable_vulkan{ true };
+    bool                    capture{ false };
+    bool                    omit_pipeline_cache_data{ false };
+    bool                    use_colorspace_fallback{ false };
+    bool                    offscreen_swapchain_frame_boundary{ false };
+    util::SwapchainOption   swapchain_option{ util::SwapchainOption::kVirtual };
+    util::PresentModeOption present_mode_option{ util::PresentModeOption::kCapture };
+    bool                    virtual_swapchain_skip_blit{ false };
+
+    // optionally override swapchain-images by providing an image debug-utils name
+    std::string present_override_image_name;
+
+    int32_t                             override_gpu_group_index{ -1 };
+    int32_t                             surface_index{ -1 };
+    CreateResourceAllocator             create_resource_allocator;
+    uint32_t                            screenshot_width, screenshot_height;
+    std::optional<std::array<float, 2>> screenshot_scale;
+    std::string                         replace_shader_dir;
+    SkipGetFenceStatus                  skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
+    std::vector<util::UintRange>        skip_get_fence_ranges;
+    bool                                wait_before_present{ false };
+    VkFlags                             debug_message_severity{ VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                     VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT };
 
     // Dumping resources related configurable replay options
-    std::vector<decode::Index>     BeginCommandBuffer_Indices;
-    std::vector<DrawCallIndices>   Draw_Indices;
+    std::vector<BeginCmdBufQueueSubmitPair> BeginCommandBufferQueueSubmit_Indices;
+
     std::vector<RenderPassIndices> RenderPass_Indices;
-    std::vector<DispatchIndices>   Dispatch_Indices;
-    std::vector<TraceRaysIndices>  TraceRays_Indices;
-    std::vector<decode::Index>     QueueSubmit_Indices;
+    std::vector<CommandIndices>    Draw_Indices;
+    CommandImageSubresource        DrawSubresources;
+
+    std::vector<CommandIndices> Dispatch_Indices;
+    CommandImageSubresource     DispatchSubresources;
+
+    std::vector<CommandIndices> TraceRays_Indices;
+    CommandImageSubresource     TraceRaysSubresources;
+
+    std::vector<CommandIndices> Transfer_Indices;
+    CommandImageSubresource     TransferSubresources;
 
     // ExecuteCommands block index : vector or BeginCommandBuffer indices of secondary cbs.
     std::vector<ExecuteCommands> ExecuteCommands_Indices;
@@ -107,11 +155,12 @@ struct VulkanReplayOptions : public ReplayOptions
     float dump_resources_scale{ 1.0f };
     bool  dump_resources_dump_vertex_index_buffer{ false };
     bool  dump_resources_json_per_command{ false };
-    bool  dump_resources_dump_immutable_resources{ false };
+    bool  dump_all_descriptors{ false };
     bool  dump_resources_dump_all_image_subresources{ false };
     bool  dump_resources_dump_raw_images{ false };
     bool  dump_resources_dump_separate_alpha{ false };
     bool  dump_resources_dump_unused_vertex_bindings{ false };
+    bool  dump_resources_dump_build_AS_input_buffers{ false };
 
     format::CompressionType dump_resources_binary_file_compression_type{ format::CompressionType::kNone };
 
@@ -120,6 +169,34 @@ struct VulkanReplayOptions : public ReplayOptions
     std::string load_pipeline_cache_filename;
     std::string save_pipeline_cache_filename;
     bool        add_new_pipeline_caches;
+
+    // Time of instantiation of this struct.
+    std::chrono::high_resolution_clock::time_point start_time{ std::chrono::high_resolution_clock::now() };
+
+    // Milliseconds to wait before first queue submit.
+    uint32_t wait_before_first_submit{ 0 };
+
+    /// Wait for the GPU to become idle before each submit.
+    bool idle_before_submit{ false };
+
+    /// Serialize render passes by injecting an execution barrier before each render pass begin.
+    bool serialize_render_passes{ false };
+
+    /// Path to SPIR-V binary used for the compute dispatch warm-up pass.
+    std::string frame_warm_up_spirv_path;
+
+    // Workload scale factor for the compute dispatch warm-up pass.
+    // A bigger `frame_warm_up_load` means more synthetic GPU work to ramp/stabilize GPU clocks before replay.
+    uint32_t frame_warm_up_load{ 0 };
+
+    /// Milliseconds to wait before starting to replay each frame.
+    uint32_t wait_before_frame{ 0 };
+
+    /// Serialize submit entries within one vkQueueSubmit/vkQueueSubmit2 call by chaining them with semaphores.
+    bool serialize_queue_submissions{ false };
+
+    void MaybeWaitBeforeFirstSubmit() const;
+    void MaybeWaitBeforeFrame() const;
 };
 
 GFXRECON_END_NAMESPACE(decode)

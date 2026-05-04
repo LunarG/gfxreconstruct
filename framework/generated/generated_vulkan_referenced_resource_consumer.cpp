@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2018-2026 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,8 +29,6 @@
 
 #include "generated/generated_vulkan_referenced_resource_consumer.h"
 
-#include <cassert>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -40,7 +38,7 @@ void VulkanReferencedResourceConsumer::Process_vkBeginCommandBuffer(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
 {
-    assert(pBeginInfo != nullptr);
+    GFXRECON_ASSERT(pBeginInfo != nullptr);
 
     if (!pBeginInfo->IsNull() && (pBeginInfo->HasData()))
     {
@@ -51,116 +49,6 @@ void VulkanReferencedResourceConsumer::Process_vkBeginCommandBuffer(
             GetTable().AddResourceToUser(commandBuffer, pInheritanceInfo_ptr->framebuffer);
         }
     }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineBindPoint                         pipelineBindPoint,
-    format::HandleId                            layout,
-    uint32_t                                    firstSet,
-    uint32_t                                    descriptorSetCount,
-    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
-    uint32_t                                    dynamicOffsetCount,
-    PointerDecoder<uint32_t>*                   pDynamicOffsets)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
-    GFXRECON_UNREFERENCED_PARAMETER(layout);
-    GFXRECON_UNREFERENCED_PARAMETER(firstSet);
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorSetCount);
-    GFXRECON_UNREFERENCED_PARAMETER(dynamicOffsetCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pDynamicOffsets);
-
-    assert(pDescriptorSets != nullptr);
-
-    if (!pDescriptorSets->IsNull() && (pDescriptorSets->HasData()))
-    {
-        auto pDescriptorSets_ptr = pDescriptorSets->GetPointer();
-        size_t pDescriptorSets_count = pDescriptorSets->GetLength();
-        for (size_t pDescriptorSets_index = 0; pDescriptorSets_index < pDescriptorSets_count; ++pDescriptorSets_index)
-        {
-            GetTable().AddContainerToUser(commandBuffer, pDescriptorSets_ptr[pDescriptorSets_index]);
-        }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdBindIndexBuffer(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    VkIndexType                                 indexType)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(indexType);
-
-    GetTable().AddResourceToUser(commandBuffer, buffer);
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    firstBinding,
-    uint32_t                                    bindingCount,
-    HandlePointerDecoder<VkBuffer>*             pBuffers,
-    PointerDecoder<VkDeviceSize>*               pOffsets)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
-    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
-
-    assert(pBuffers != nullptr);
-
-    if (!pBuffers->IsNull() && (pBuffers->HasData()))
-    {
-        auto pBuffers_ptr = pBuffers->GetPointer();
-        size_t pBuffers_count = pBuffers->GetLength();
-        for (size_t pBuffers_index = 0; pBuffers_index < pBuffers_count; ++pBuffers_index)
-        {
-            GetTable().AddResourceToUser(commandBuffer, pBuffers_ptr[pBuffers_index]);
-        }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirect(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    uint32_t                                    drawCount,
-    uint32_t                                    stride)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    GetTable().AddResourceToUser(commandBuffer, buffer);
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirect(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    uint32_t                                    drawCount,
-    uint32_t                                    stride)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-
-    GetTable().AddResourceToUser(commandBuffer, buffer);
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdDispatchIndirect(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-
-    GetTable().AddResourceToUser(commandBuffer, buffer);
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer(
@@ -192,27 +80,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage(
     GFXRECON_UNREFERENCED_PARAMETER(dstImageLayout);
     GFXRECON_UNREFERENCED_PARAMETER(regionCount);
     GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-
-    GetTable().AddResourceToUser(commandBuffer, srcImage);
-    GetTable().AddResourceToUser(commandBuffer, dstImage);
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            srcImage,
-    VkImageLayout                               srcImageLayout,
-    format::HandleId                            dstImage,
-    VkImageLayout                               dstImageLayout,
-    uint32_t                                    regionCount,
-    StructPointerDecoder<Decoded_VkImageBlit>*  pRegions,
-    VkFilter                                    filter)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(srcImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(dstImageLayout);
-    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
-    GFXRECON_UNREFERENCED_PARAMETER(filter);
 
     GetTable().AddResourceToUser(commandBuffer, srcImage);
     GetTable().AddResourceToUser(commandBuffer, dstImage);
@@ -282,6 +149,136 @@ void VulkanReferencedResourceConsumer::Process_vkCmdFillBuffer(
     GetTable().AddResourceToUser(commandBuffer, dstBuffer);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlags                        srcStageMask,
+    VkPipelineStageFlags                        dstStageMask,
+    VkDependencyFlags                           dependencyFlags,
+    uint32_t                                    memoryBarrierCount,
+    StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
+    uint32_t                                    bufferMemoryBarrierCount,
+    StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+    uint32_t                                    imageMemoryBarrierCount,
+    StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
+    GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
+    GFXRECON_UNREFERENCED_PARAMETER(dependencyFlags);
+    GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
+    GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
+    GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
+
+    GFXRECON_ASSERT(pBufferMemoryBarriers != nullptr);
+
+    if (!pBufferMemoryBarriers->IsNull() && (pBufferMemoryBarriers->HasData()))
+    {
+        auto pBufferMemoryBarriers_ptr = pBufferMemoryBarriers->GetMetaStructPointer();
+        size_t pBufferMemoryBarriers_count = pBufferMemoryBarriers->GetLength();
+        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
+        }
+    }
+
+    GFXRECON_ASSERT(pImageMemoryBarriers != nullptr);
+
+    if (!pImageMemoryBarriers->IsNull() && (pImageMemoryBarriers->HasData()))
+    {
+        auto pImageMemoryBarriers_ptr = pImageMemoryBarriers->GetMetaStructPointer();
+        size_t pImageMemoryBarriers_count = pImageMemoryBarriers->GetLength();
+        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    format::HandleId                            dstBuffer,
+    VkDeviceSize                                dstOffset,
+    VkDeviceSize                                stride,
+    VkQueryResultFlags                          flags)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
+    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
+    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
+    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
+    GFXRECON_UNREFERENCED_PARAMETER(stride);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+
+    GetTable().AddResourceToUser(commandBuffer, dstBuffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdExecuteCommands(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    commandBufferCount,
+    HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(commandBufferCount);
+
+    GFXRECON_ASSERT(pCommandBuffers != nullptr);
+
+    if (!pCommandBuffers->IsNull() && (pCommandBuffers->HasData()))
+    {
+        auto pCommandBuffers_ptr = pCommandBuffers->GetPointer();
+        size_t pCommandBuffers_count = pCommandBuffers->GetLength();
+        for (size_t pCommandBuffers_index = 0; pCommandBuffers_index < pCommandBuffers_count; ++pCommandBuffers_index)
+        {
+            GetTable().AddUserToUser(commandBuffer, pCommandBuffers_ptr[pCommandBuffers_index]);
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindPipeline(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+
+    GetTable().AddResourceToUser(commandBuffer, pipeline);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    descriptorSetCount,
+    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
+    uint32_t                                    dynamicOffsetCount,
+    PointerDecoder<uint32_t>*                   pDynamicOffsets)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+    GFXRECON_UNREFERENCED_PARAMETER(layout);
+    GFXRECON_UNREFERENCED_PARAMETER(firstSet);
+    GFXRECON_UNREFERENCED_PARAMETER(descriptorSetCount);
+    GFXRECON_UNREFERENCED_PARAMETER(dynamicOffsetCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pDynamicOffsets);
+
+    GFXRECON_ASSERT(pDescriptorSets != nullptr);
+
+    if (!pDescriptorSets->IsNull() && (pDescriptorSets->HasData()))
+    {
+        auto pDescriptorSets_ptr = pDescriptorSets->GetPointer();
+        size_t pDescriptorSets_count = pDescriptorSets->GetLength();
+        for (size_t pDescriptorSets_index = 0; pDescriptorSets_index < pDescriptorSets_count; ++pDescriptorSets_index)
+        {
+            GetTable().AddContainerToUser(commandBuffer, pDescriptorSets_ptr[pDescriptorSets_index]);
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdClearColorImage(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -297,6 +294,154 @@ void VulkanReferencedResourceConsumer::Process_vkCmdClearColorImage(
     GFXRECON_UNREFERENCED_PARAMETER(pRanges);
 
     GetTable().AddResourceToUser(commandBuffer, image);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdDispatchIndirect(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    eventCount,
+    HandlePointerDecoder<VkEvent>*              pEvents,
+    VkPipelineStageFlags                        srcStageMask,
+    VkPipelineStageFlags                        dstStageMask,
+    uint32_t                                    memoryBarrierCount,
+    StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
+    uint32_t                                    bufferMemoryBarrierCount,
+    StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+    uint32_t                                    imageMemoryBarrierCount,
+    StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(eventCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pEvents);
+    GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
+    GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
+    GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
+    GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
+    GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
+
+    GFXRECON_ASSERT(pBufferMemoryBarriers != nullptr);
+
+    if (!pBufferMemoryBarriers->IsNull() && (pBufferMemoryBarriers->HasData()))
+    {
+        auto pBufferMemoryBarriers_ptr = pBufferMemoryBarriers->GetMetaStructPointer();
+        size_t pBufferMemoryBarriers_count = pBufferMemoryBarriers->GetLength();
+        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
+        }
+    }
+
+    GFXRECON_ASSERT(pImageMemoryBarriers != nullptr);
+
+    if (!pImageMemoryBarriers->IsNull() && (pImageMemoryBarriers->HasData()))
+    {
+        auto pImageMemoryBarriers_ptr = pImageMemoryBarriers->GetMetaStructPointer();
+        size_t pImageMemoryBarriers_count = pImageMemoryBarriers->GetLength();
+        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindIndexBuffer(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    VkIndexType                                 indexType)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(indexType);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    HandlePointerDecoder<VkBuffer>*             pBuffers,
+    PointerDecoder<VkDeviceSize>*               pOffsets)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(firstBinding);
+    GFXRECON_UNREFERENCED_PARAMETER(bindingCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
+
+    GFXRECON_ASSERT(pBuffers != nullptr);
+
+    if (!pBuffers->IsNull() && (pBuffers->HasData()))
+    {
+        auto pBuffers_ptr = pBuffers->GetPointer();
+        size_t pBuffers_count = pBuffers->GetLength();
+        for (size_t pBuffers_index = 0; pBuffers_index < pBuffers_count; ++pBuffers_index)
+        {
+            GetTable().AddResourceToUser(commandBuffer, pBuffers_ptr[pBuffers_index]);
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndirect(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    uint32_t                                    drawCount,
+    uint32_t                                    stride)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
+    GFXRECON_UNREFERENCED_PARAMETER(stride);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirect(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    uint32_t                                    drawCount,
+    uint32_t                                    stride)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(drawCount);
+    GFXRECON_UNREFERENCED_PARAMETER(stride);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            srcImage,
+    VkImageLayout                               srcImageLayout,
+    format::HandleId                            dstImage,
+    VkImageLayout                               dstImageLayout,
+    uint32_t                                    regionCount,
+    StructPointerDecoder<Decoded_VkImageBlit>*  pRegions,
+    VkFilter                                    filter)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(srcImageLayout);
+    GFXRECON_UNREFERENCED_PARAMETER(dstImageLayout);
+    GFXRECON_UNREFERENCED_PARAMETER(regionCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pRegions);
+    GFXRECON_UNREFERENCED_PARAMETER(filter);
+
+    GetTable().AddResourceToUser(commandBuffer, srcImage);
+    GetTable().AddResourceToUser(commandBuffer, dstImage);
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdClearDepthStencilImage(
@@ -335,121 +480,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage(
     GetTable().AddResourceToUser(commandBuffer, dstImage);
 }
 
-void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    eventCount,
-    HandlePointerDecoder<VkEvent>*              pEvents,
-    VkPipelineStageFlags                        srcStageMask,
-    VkPipelineStageFlags                        dstStageMask,
-    uint32_t                                    memoryBarrierCount,
-    StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
-    uint32_t                                    bufferMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
-    uint32_t                                    imageMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(eventCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pEvents);
-    GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
-    GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
-
-    assert(pBufferMemoryBarriers != nullptr);
-
-    if (!pBufferMemoryBarriers->IsNull() && (pBufferMemoryBarriers->HasData()))
-    {
-        auto pBufferMemoryBarriers_ptr = pBufferMemoryBarriers->GetMetaStructPointer();
-        size_t pBufferMemoryBarriers_count = pBufferMemoryBarriers->GetLength();
-        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-        {
-            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-        }
-    }
-
-    assert(pImageMemoryBarriers != nullptr);
-
-    if (!pImageMemoryBarriers->IsNull() && (pImageMemoryBarriers->HasData()))
-    {
-        auto pImageMemoryBarriers_ptr = pImageMemoryBarriers->GetMetaStructPointer();
-        size_t pImageMemoryBarriers_count = pImageMemoryBarriers->GetLength();
-        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-        {
-            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-        }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    VkPipelineStageFlags                        srcStageMask,
-    VkPipelineStageFlags                        dstStageMask,
-    VkDependencyFlags                           dependencyFlags,
-    uint32_t                                    memoryBarrierCount,
-    StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
-    uint32_t                                    bufferMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
-    uint32_t                                    imageMemoryBarrierCount,
-    StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
-    GFXRECON_UNREFERENCED_PARAMETER(dependencyFlags);
-    GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
-    GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
-    GFXRECON_UNREFERENCED_PARAMETER(imageMemoryBarrierCount);
-
-    assert(pBufferMemoryBarriers != nullptr);
-
-    if (!pBufferMemoryBarriers->IsNull() && (pBufferMemoryBarriers->HasData()))
-    {
-        auto pBufferMemoryBarriers_ptr = pBufferMemoryBarriers->GetMetaStructPointer();
-        size_t pBufferMemoryBarriers_count = pBufferMemoryBarriers->GetLength();
-        for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-        {
-            GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-        }
-    }
-
-    assert(pImageMemoryBarriers != nullptr);
-
-    if (!pImageMemoryBarriers->IsNull() && (pImageMemoryBarriers->HasData()))
-    {
-        auto pImageMemoryBarriers_ptr = pImageMemoryBarriers->GetMetaStructPointer();
-        size_t pImageMemoryBarriers_count = pImageMemoryBarriers->GetLength();
-        for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-        {
-            GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-        }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdCopyQueryPoolResults(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            queryPool,
-    uint32_t                                    firstQuery,
-    uint32_t                                    queryCount,
-    format::HandleId                            dstBuffer,
-    VkDeviceSize                                dstOffset,
-    VkDeviceSize                                stride,
-    VkQueryResultFlags                          flags)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(queryPool);
-    GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
-    GFXRECON_UNREFERENCED_PARAMETER(queryCount);
-    GFXRECON_UNREFERENCED_PARAMETER(dstOffset);
-    GFXRECON_UNREFERENCED_PARAMETER(stride);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
-    GetTable().AddResourceToUser(commandBuffer, dstBuffer);
-}
-
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -458,7 +488,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
 {
     GFXRECON_UNREFERENCED_PARAMETER(contents);
 
-    assert(pRenderPassBegin != nullptr);
+    GFXRECON_ASSERT(pRenderPassBegin != nullptr);
 
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
@@ -479,27 +509,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
             }
         }
         GetTable().AddResourceToUser(commandBuffer, pRenderPassBegin_ptr->framebuffer);
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdExecuteCommands(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    uint32_t                                    commandBufferCount,
-    HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(commandBufferCount);
-
-    assert(pCommandBuffers != nullptr);
-
-    if (!pCommandBuffers->IsNull() && (pCommandBuffers->HasData()))
-    {
-        auto pCommandBuffers_ptr = pCommandBuffers->GetPointer();
-        size_t pCommandBuffers_count = pCommandBuffers->GetLength();
-        for (size_t pCommandBuffers_index = 0; pCommandBuffers_index < pCommandBuffers_count; ++pCommandBuffers_index)
-        {
-            GetTable().AddUserToUser(commandBuffer, pCommandBuffers_ptr[pCommandBuffers_index]);
-        }
     }
 }
 
@@ -549,7 +558,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
 
-    assert(pRenderPassBegin != nullptr);
+    GFXRECON_ASSERT(pRenderPassBegin != nullptr);
 
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
@@ -573,6 +582,98 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+{
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
+
+    if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
+    {
+        auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
+        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
+        {
+            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
+            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
+            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
+            }
+        }
+
+        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
+        {
+            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
+            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
+            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
+            {
+                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
+            }
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
+{
+    GFXRECON_ASSERT(pCopyBufferInfo != nullptr);
+
+    if (!pCopyBufferInfo->IsNull() && (pCopyBufferInfo->HasData()))
+    {
+        auto pCopyBufferInfo_ptr = pCopyBufferInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferInfo_ptr->srcBuffer);
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferInfo_ptr->dstBuffer);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
+{
+    GFXRECON_ASSERT(pCopyImageInfo != nullptr);
+
+    if (!pCopyImageInfo->IsNull() && (pCopyImageInfo->HasData()))
+    {
+        auto pCopyImageInfo_ptr = pCopyImageInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageInfo_ptr->srcImage);
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageInfo_ptr->dstImage);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
+{
+    GFXRECON_ASSERT(pCopyBufferToImageInfo != nullptr);
+
+    if (!pCopyBufferToImageInfo->IsNull() && (pCopyBufferToImageInfo->HasData()))
+    {
+        auto pCopyBufferToImageInfo_ptr = pCopyBufferToImageInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferToImageInfo_ptr->srcBuffer);
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferToImageInfo_ptr->dstImage);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
+{
+    GFXRECON_ASSERT(pCopyImageToBufferInfo != nullptr);
+
+    if (!pCopyImageToBufferInfo->IsNull() && (pCopyImageToBufferInfo->HasData()))
+    {
+        auto pCopyImageToBufferInfo_ptr = pCopyImageToBufferInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageToBufferInfo_ptr->srcImage);
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageToBufferInfo_ptr->dstBuffer);
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -581,7 +682,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2(
 {
     GFXRECON_UNREFERENCED_PARAMETER(event);
 
-    assert(pDependencyInfo != nullptr);
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
 
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
@@ -618,7 +719,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2(
     GFXRECON_UNREFERENCED_PARAMETER(eventCount);
     GFXRECON_UNREFERENCED_PARAMETER(pEvents);
 
-    assert(pDependencyInfos != nullptr);
+    GFXRECON_ASSERT(pDependencyInfos != nullptr);
 
     if (!pDependencyInfos->IsNull() && (pDependencyInfos->HasData()))
     {
@@ -649,104 +750,12 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2(
     }
 }
 
-void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
-{
-    assert(pDependencyInfo != nullptr);
-
-    if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
-    {
-        auto pDependencyInfo_ptr = pDependencyInfo->GetMetaStructPointer();
-        if (!pDependencyInfo_ptr->pBufferMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pBufferMemoryBarriers->HasData()))
-        {
-            auto pBufferMemoryBarriers_ptr = pDependencyInfo_ptr->pBufferMemoryBarriers->GetMetaStructPointer();
-            size_t pBufferMemoryBarriers_count = pDependencyInfo_ptr->pBufferMemoryBarriers->GetLength();
-            for (size_t pBufferMemoryBarriers_index = 0; pBufferMemoryBarriers_index < pBufferMemoryBarriers_count; ++pBufferMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pBufferMemoryBarriers_ptr[pBufferMemoryBarriers_index].buffer);
-            }
-        }
-
-        if (!pDependencyInfo_ptr->pImageMemoryBarriers->IsNull() && (pDependencyInfo_ptr->pImageMemoryBarriers->HasData()))
-        {
-            auto pImageMemoryBarriers_ptr = pDependencyInfo_ptr->pImageMemoryBarriers->GetMetaStructPointer();
-            size_t pImageMemoryBarriers_count = pDependencyInfo_ptr->pImageMemoryBarriers->GetLength();
-            for (size_t pImageMemoryBarriers_index = 0; pImageMemoryBarriers_index < pImageMemoryBarriers_count; ++pImageMemoryBarriers_index)
-            {
-                GetTable().AddResourceToUser(commandBuffer, pImageMemoryBarriers_ptr[pImageMemoryBarriers_index].image);
-            }
-        }
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
-{
-    assert(pCopyBufferInfo != nullptr);
-
-    if (!pCopyBufferInfo->IsNull() && (pCopyBufferInfo->HasData()))
-    {
-        auto pCopyBufferInfo_ptr = pCopyBufferInfo->GetMetaStructPointer();
-        GetTable().AddResourceToUser(commandBuffer, pCopyBufferInfo_ptr->srcBuffer);
-        GetTable().AddResourceToUser(commandBuffer, pCopyBufferInfo_ptr->dstBuffer);
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
-{
-    assert(pCopyImageInfo != nullptr);
-
-    if (!pCopyImageInfo->IsNull() && (pCopyImageInfo->HasData()))
-    {
-        auto pCopyImageInfo_ptr = pCopyImageInfo->GetMetaStructPointer();
-        GetTable().AddResourceToUser(commandBuffer, pCopyImageInfo_ptr->srcImage);
-        GetTable().AddResourceToUser(commandBuffer, pCopyImageInfo_ptr->dstImage);
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
-{
-    assert(pCopyBufferToImageInfo != nullptr);
-
-    if (!pCopyBufferToImageInfo->IsNull() && (pCopyBufferToImageInfo->HasData()))
-    {
-        auto pCopyBufferToImageInfo_ptr = pCopyBufferToImageInfo->GetMetaStructPointer();
-        GetTable().AddResourceToUser(commandBuffer, pCopyBufferToImageInfo_ptr->srcBuffer);
-        GetTable().AddResourceToUser(commandBuffer, pCopyBufferToImageInfo_ptr->dstImage);
-    }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
-{
-    assert(pCopyImageToBufferInfo != nullptr);
-
-    if (!pCopyImageToBufferInfo->IsNull() && (pCopyImageToBufferInfo->HasData()))
-    {
-        auto pCopyImageToBufferInfo_ptr = pCopyImageToBufferInfo->GetMetaStructPointer();
-        GetTable().AddResourceToUser(commandBuffer, pCopyImageToBufferInfo_ptr->srcImage);
-        GetTable().AddResourceToUser(commandBuffer, pCopyImageToBufferInfo_ptr->dstBuffer);
-    }
-}
-
 void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage2(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
-    assert(pBlitImageInfo != nullptr);
+    GFXRECON_ASSERT(pBlitImageInfo != nullptr);
 
     if (!pBlitImageInfo->IsNull() && (pBlitImageInfo->HasData()))
     {
@@ -761,7 +770,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
-    assert(pResolveImageInfo != nullptr);
+    GFXRECON_ASSERT(pResolveImageInfo != nullptr);
 
     if (!pResolveImageInfo->IsNull() && (pResolveImageInfo->HasData()))
     {
@@ -776,7 +785,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRendering(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    assert(pRenderingInfo != nullptr);
+    GFXRECON_ASSERT(pRenderingInfo != nullptr);
 
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
@@ -839,7 +848,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2(
     GFXRECON_UNREFERENCED_PARAMETER(pSizes);
     GFXRECON_UNREFERENCED_PARAMETER(pStrides);
 
-    assert(pBuffers != nullptr);
+    GFXRECON_ASSERT(pBuffers != nullptr);
 
     if (!pBuffers->IsNull() && (pBuffers->HasData()))
     {
@@ -850,21 +859,6 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2(
             GetTable().AddResourceToUser(commandBuffer, pBuffers_ptr[pBuffers_index]);
         }
     }
-}
-
-void VulkanReferencedResourceConsumer::Process_vkCmdBindIndexBuffer2(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    format::HandleId                            buffer,
-    VkDeviceSize                                offset,
-    VkDeviceSize                                size,
-    VkIndexType                                 indexType)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(offset);
-    GFXRECON_UNREFERENCED_PARAMETER(size);
-    GFXRECON_UNREFERENCED_PARAMETER(indexType);
-
-    GetTable().AddResourceToUser(commandBuffer, buffer);
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet(
@@ -881,7 +875,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet(
     GFXRECON_UNREFERENCED_PARAMETER(set);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
 
-    assert(pDescriptorWrites != nullptr);
+    GFXRECON_ASSERT(pDescriptorWrites != nullptr);
 
     if (!pDescriptorWrites->IsNull() && (pDescriptorWrites->HasData()))
     {
@@ -944,7 +938,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
-    assert(pBindDescriptorSetsInfo != nullptr);
+    GFXRECON_ASSERT(pBindDescriptorSetsInfo != nullptr);
 
     if (!pBindDescriptorSetsInfo->IsNull() && (pBindDescriptorSetsInfo->HasData()))
     {
@@ -966,7 +960,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
-    assert(pPushDescriptorSetInfo != nullptr);
+    GFXRECON_ASSERT(pPushDescriptorSetInfo != nullptr);
 
     if (!pPushDescriptorSetInfo->IsNull() && (pPushDescriptorSetInfo->HasData()))
     {
@@ -1028,12 +1022,27 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdBindIndexBuffer2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    VkDeviceSize                                size,
+    VkIndexType                                 indexType)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(offset);
+    GFXRECON_UNREFERENCED_PARAMETER(size);
+    GFXRECON_UNREFERENCED_PARAMETER(indexType);
+
+    GetTable().AddResourceToUser(commandBuffer, buffer);
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBeginVideoCodingKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoBeginCodingInfoKHR>* pBeginInfo)
 {
-    assert(pBeginInfo != nullptr);
+    GFXRECON_ASSERT(pBeginInfo != nullptr);
 
     if (!pBeginInfo->IsNull() && (pBeginInfo->HasData()))
     {
@@ -1059,7 +1068,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDecodeVideoKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoDecodeInfoKHR>* pDecodeInfo)
 {
-    assert(pDecodeInfo != nullptr);
+    GFXRECON_ASSERT(pDecodeInfo != nullptr);
 
     if (!pDecodeInfo->IsNull() && (pDecodeInfo->HasData()))
     {
@@ -1098,7 +1107,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    assert(pRenderingInfo != nullptr);
+    GFXRECON_ASSERT(pRenderingInfo != nullptr);
 
     if (!pRenderingInfo->IsNull() && (pRenderingInfo->HasData()))
     {
@@ -1159,7 +1168,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
     GFXRECON_UNREFERENCED_PARAMETER(set);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
 
-    assert(pDescriptorWrites != nullptr);
+    GFXRECON_ASSERT(pDescriptorWrites != nullptr);
 
     if (!pDescriptorWrites->IsNull() && (pDescriptorWrites->HasData()))
     {
@@ -1225,7 +1234,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
 {
     GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
 
-    assert(pRenderPassBegin != nullptr);
+    GFXRECON_ASSERT(pRenderPassBegin != nullptr);
 
     if (!pRenderPassBegin->IsNull() && (pRenderPassBegin->HasData()))
     {
@@ -1292,7 +1301,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEncodeVideoKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkVideoEncodeInfoKHR>* pEncodeInfo)
 {
-    assert(pEncodeInfo != nullptr);
+    GFXRECON_ASSERT(pEncodeInfo != nullptr);
 
     if (!pEncodeInfo->IsNull() && (pEncodeInfo->HasData()))
     {
@@ -1341,7 +1350,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetEvent2KHR(
 {
     GFXRECON_UNREFERENCED_PARAMETER(event);
 
-    assert(pDependencyInfo != nullptr);
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
 
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
@@ -1378,7 +1387,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWaitEvents2KHR(
     GFXRECON_UNREFERENCED_PARAMETER(eventCount);
     GFXRECON_UNREFERENCED_PARAMETER(pEvents);
 
-    assert(pDependencyInfos != nullptr);
+    GFXRECON_ASSERT(pDependencyInfos != nullptr);
 
     if (!pDependencyInfos->IsNull() && (pDependencyInfos->HasData()))
     {
@@ -1414,7 +1423,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
 {
-    assert(pDependencyInfo != nullptr);
+    GFXRECON_ASSERT(pDependencyInfo != nullptr);
 
     if (!pDependencyInfo->IsNull() && (pDependencyInfo->HasData()))
     {
@@ -1441,12 +1450,40 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPipelineBarrier2KHR(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToImageKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+    GFXRECON_ASSERT(pCopyMemoryInfo != nullptr);
+
+    if (!pCopyMemoryInfo->IsNull() && (pCopyMemoryInfo->HasData()))
+    {
+        auto pCopyMemoryInfo_ptr = pCopyMemoryInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyMemoryInfo_ptr->image);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+    GFXRECON_ASSERT(pCopyMemoryInfo != nullptr);
+
+    if (!pCopyMemoryInfo->IsNull() && (pCopyMemoryInfo->HasData()))
+    {
+        auto pCopyMemoryInfo_ptr = pCopyMemoryInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyMemoryInfo_ptr->image);
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferInfo2>* pCopyBufferInfo)
 {
-    assert(pCopyBufferInfo != nullptr);
+    GFXRECON_ASSERT(pCopyBufferInfo != nullptr);
 
     if (!pCopyBufferInfo->IsNull() && (pCopyBufferInfo->HasData()))
     {
@@ -1461,7 +1498,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageInfo2>* pCopyImageInfo)
 {
-    assert(pCopyImageInfo != nullptr);
+    GFXRECON_ASSERT(pCopyImageInfo != nullptr);
 
     if (!pCopyImageInfo->IsNull() && (pCopyImageInfo->HasData()))
     {
@@ -1476,7 +1513,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2>* pCopyBufferToImageInfo)
 {
-    assert(pCopyBufferToImageInfo != nullptr);
+    GFXRECON_ASSERT(pCopyBufferToImageInfo != nullptr);
 
     if (!pCopyBufferToImageInfo->IsNull() && (pCopyBufferToImageInfo->HasData()))
     {
@@ -1491,7 +1528,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2>* pCopyImageToBufferInfo)
 {
-    assert(pCopyImageToBufferInfo != nullptr);
+    GFXRECON_ASSERT(pCopyImageToBufferInfo != nullptr);
 
     if (!pCopyImageToBufferInfo->IsNull() && (pCopyImageToBufferInfo->HasData()))
     {
@@ -1506,7 +1543,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBlitImageInfo2>* pBlitImageInfo)
 {
-    assert(pBlitImageInfo != nullptr);
+    GFXRECON_ASSERT(pBlitImageInfo != nullptr);
 
     if (!pBlitImageInfo->IsNull() && (pBlitImageInfo->HasData()))
     {
@@ -1521,7 +1558,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkResolveImageInfo2>* pResolveImageInfo)
 {
-    assert(pResolveImageInfo != nullptr);
+    GFXRECON_ASSERT(pResolveImageInfo != nullptr);
 
     if (!pResolveImageInfo->IsNull() && (pResolveImageInfo->HasData()))
     {
@@ -1551,7 +1588,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkBindDescriptorSetsInfo>* pBindDescriptorSetsInfo)
 {
-    assert(pBindDescriptorSetsInfo != nullptr);
+    GFXRECON_ASSERT(pBindDescriptorSetsInfo != nullptr);
 
     if (!pBindDescriptorSetsInfo->IsNull() && (pBindDescriptorSetsInfo->HasData()))
     {
@@ -1573,7 +1610,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
-    assert(pPushDescriptorSetInfo != nullptr);
+    GFXRECON_ASSERT(pPushDescriptorSetInfo != nullptr);
 
     if (!pPushDescriptorSetInfo->IsNull() && (pPushDescriptorSetInfo->HasData()))
     {
@@ -1635,6 +1672,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
     }
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryToImageIndirectInfoKHR>* pCopyMemoryToImageIndirectInfo)
+{
+    GFXRECON_ASSERT(pCopyMemoryToImageIndirectInfo != nullptr);
+
+    if (!pCopyMemoryToImageIndirectInfo->IsNull() && (pCopyMemoryToImageIndirectInfo->HasData()))
+    {
+        auto pCopyMemoryToImageIndirectInfo_ptr = pCopyMemoryToImageIndirectInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyMemoryToImageIndirectInfo_ptr->dstImage);
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -1649,7 +1700,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffers
     GFXRECON_UNREFERENCED_PARAMETER(pOffsets);
     GFXRECON_UNREFERENCED_PARAMETER(pSizes);
 
-    assert(pBuffers != nullptr);
+    GFXRECON_ASSERT(pBuffers != nullptr);
 
     if (!pBuffers->IsNull() && (pBuffers->HasData()))
     {
@@ -1674,7 +1725,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     GFXRECON_UNREFERENCED_PARAMETER(counterBufferCount);
     GFXRECON_UNREFERENCED_PARAMETER(pCounterBufferOffsets);
 
-    assert(pCounterBuffers != nullptr);
+    GFXRECON_ASSERT(pCounterBuffers != nullptr);
 
     if (!pCounterBuffers->IsNull() && (pCounterBuffers->HasData()))
     {
@@ -1699,7 +1750,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEndTransformFeedbackEXT(
     GFXRECON_UNREFERENCED_PARAMETER(counterBufferCount);
     GFXRECON_UNREFERENCED_PARAMETER(pCounterBufferOffsets);
 
-    assert(pCounterBuffers != nullptr);
+    GFXRECON_ASSERT(pCounterBuffers != nullptr);
 
     if (!pCounterBuffers->IsNull() && (pCounterBuffers->HasData()))
     {
@@ -1774,7 +1825,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginConditionalRenderingEXT
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>* pConditionalRenderingBegin)
 {
-    assert(pConditionalRenderingBegin != nullptr);
+    GFXRECON_ASSERT(pConditionalRenderingBegin != nullptr);
 
     if (!pConditionalRenderingBegin->IsNull() && (pConditionalRenderingBegin->HasData()))
     {
@@ -1812,7 +1863,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructureNV
     GFXRECON_UNREFERENCED_PARAMETER(src);
     GFXRECON_UNREFERENCED_PARAMETER(scratchOffset);
 
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -1949,7 +2000,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindVertexBuffers2EXT(
     GFXRECON_UNREFERENCED_PARAMETER(pSizes);
     GFXRECON_UNREFERENCED_PARAMETER(pStrides);
 
-    assert(pBuffers != nullptr);
+    GFXRECON_ASSERT(pBuffers != nullptr);
 
     if (!pBuffers->IsNull() && (pBuffers->HasData()))
     {
@@ -1967,11 +2018,13 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsN
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
 {
-    assert(pGeneratedCommandsInfo != nullptr);
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
 
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
         auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->pipeline);
+
         if (!pGeneratedCommandsInfo_ptr->pStreams->IsNull() && (pGeneratedCommandsInfo_ptr->pStreams->HasData()))
         {
             auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
@@ -1995,11 +2048,13 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
 {
     GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
 
-    assert(pGeneratedCommandsInfo != nullptr);
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
 
     if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
     {
         auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->pipeline);
+
         if (!pGeneratedCommandsInfo_ptr->pStreams->IsNull() && (pGeneratedCommandsInfo_ptr->pStreams->HasData()))
         {
             auto pStreams_ptr = pGeneratedCommandsInfo_ptr->pStreams->GetMetaStructPointer();
@@ -2012,6 +2067,46 @@ void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->preprocessBuffer);
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesCountBuffer);
         GetTable().AddResourceToUser(commandBuffer, pGeneratedCommandsInfo_ptr->sequencesIndexBuffer);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindPipelineShaderGroupNV(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline,
+    uint32_t                                    groupIndex)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+    GFXRECON_UNREFERENCED_PARAMETER(groupIndex);
+
+    GetTable().AddResourceToUser(commandBuffer, pipeline);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorBuffersEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    bufferCount,
+    StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(bufferCount);
+
+    GFXRECON_ASSERT(pBindingInfos != nullptr);
+
+    if (!pBindingInfos->IsNull() && (pBindingInfos->HasData()))
+    {
+        auto pBindingInfos_ptr = pBindingInfos->GetMetaStructPointer();
+        size_t pBindingInfos_count = pBindingInfos->GetLength();
+        for (size_t pBindingInfos_index = 0; pBindingInfos_index < pBindingInfos_count; ++pBindingInfos_index)
+        {
+            {
+                const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkDescriptorBufferBindingPushDescriptorBufferHandleEXT>(pBindingInfos_ptr->pNext);
+                if (ext_struct_info != nullptr)
+                {
+                    GetTable().AddResourceToUser(commandBuffer, ext_struct_info->buffer);
+                }
+            }
+        }
     }
 }
 
@@ -2037,15 +2132,60 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawClusterIndirectHUAWEI(
     GetTable().AddResourceToUser(commandBuffer, buffer);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdUpdatePipelineIndirectBufferNV(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+
+    GetTable().AddResourceToUser(commandBuffer, pipeline);
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdPreprocessGeneratedCommandsEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
     format::HandleId                            stateCommandBuffer)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(pGeneratedCommandsInfo);
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
 
+    if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
+    {
+        auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        {
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkGeneratedCommandsPipelineInfoEXT>(pGeneratedCommandsInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
+            {
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->pipeline);
+            }
+        }
+    }
     GetTable().AddUserToUser(commandBuffer, stateCommandBuffer);
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkBool32                                    isPreprocessed,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(isPreprocessed);
+
+    GFXRECON_ASSERT(pGeneratedCommandsInfo != nullptr);
+
+    if (!pGeneratedCommandsInfo->IsNull() && (pGeneratedCommandsInfo->HasData()))
+    {
+        auto pGeneratedCommandsInfo_ptr = pGeneratedCommandsInfo->GetMetaStructPointer();
+        {
+            const auto* ext_struct_info = GetPNextMetaStruct<Decoded_VkGeneratedCommandsPipelineInfoEXT>(pGeneratedCommandsInfo_ptr->pNext);
+            if (ext_struct_info != nullptr)
+            {
+                GetTable().AddResourceToUser(commandBuffer, ext_struct_info->pipeline);
+            }
+        }
+    }
 }
 
 void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresKHR(
@@ -2058,7 +2198,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresK
     GFXRECON_UNREFERENCED_PARAMETER(infoCount);
     GFXRECON_UNREFERENCED_PARAMETER(ppBuildRangeInfos);
 
-    assert(pInfos != nullptr);
+    GFXRECON_ASSERT(pInfos != nullptr);
 
     if (!pInfos->IsNull() && (pInfos->HasData()))
     {
@@ -2086,7 +2226,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBuildAccelerationStructuresI
     GFXRECON_UNREFERENCED_PARAMETER(pIndirectStrides);
     GFXRECON_UNREFERENCED_PARAMETER(ppMaxPrimitiveCounts);
 
-    assert(pInfos != nullptr);
+    GFXRECON_ASSERT(pInfos != nullptr);
 
     if (!pInfos->IsNull() && (pInfos->HasData()))
     {
@@ -2105,7 +2245,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyAccelerationStructureKHR
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
 {
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -2120,7 +2260,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyAccelerationStructureToM
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
 {
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -2134,7 +2274,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdCopyMemoryToAccelerationStru
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
 {
-    assert(pInfo != nullptr);
+    GFXRECON_ASSERT(pInfo != nullptr);
 
     if (!pInfo->IsNull() && (pInfo->HasData()))
     {
@@ -2157,7 +2297,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdWriteAccelerationStructuresP
     GFXRECON_UNREFERENCED_PARAMETER(queryPool);
     GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
 
-    assert(pAccelerationStructures != nullptr);
+    GFXRECON_ASSERT(pAccelerationStructures != nullptr);
 
     if (!pAccelerationStructures->IsNull() && (pAccelerationStructures->HasData()))
     {

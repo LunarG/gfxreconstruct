@@ -64,7 +64,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual ~Dx12ReplayConsumerBase() override;
 
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record)
+    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record)
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
@@ -94,9 +94,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual void ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size) override;
 
-    virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
-                                                 uint64_t         max_resource_size,
-                                                 uint64_t         max_copy_size) override;
+    void ProcessBeginResourceInitCommand(format::HandleId device_id,
+                                         uint64_t         total_copy_size,
+                                         uint64_t         max_copy_size) override;
 
     virtual void ProcessEndResourceInitCommand(format::HandleId device_id) override;
 
@@ -110,9 +110,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                const uint8_t*                              data) override;
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data) override;
+        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                        build_inputs_data) override;
 
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data) override;
@@ -284,6 +284,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                      Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
                                                      Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
                                                      D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType);
+
+    void PostCall_ID3D12Object_SetPrivateDataInterface(const ApiCallInfo& call_info,
+                                                       DxObjectInfo*      object_info,
+                                                       HRESULT            original_result,
+                                                       HRESULT            replay_result,
+                                                       Decoded_GUID       guid,
+                                                       format::HandleId   data_object_id);
+
+    void PostCall_IDXGIObject_SetPrivateDataInterface(const ApiCallInfo& call_info,
+                                                      DxObjectInfo*      object_info,
+                                                      HRESULT            original_result,
+                                                      HRESULT            replay_result,
+                                                      Decoded_GUID       guid,
+                                                      format::HandleId   unknown_object_id);
 
     template <typename T>
     T* MapObject(const format::HandleId id)
@@ -457,7 +471,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
     void PostProcessExternalObject(
-        HRESULT replay_result, void* object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
+        HRESULT replay_result, void** object, uint64_t* object_id, format::ApiCallId call_id, const char* call_name);
 
     ULONG OverrideAddRef(DxObjectInfo* replay_object_info, ULONG original_result);
 
@@ -737,6 +751,21 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         Decoded_GUID                 riid,
                                         HandlePointerDecoder<void*>* heap);
 
+    HRESULT
+    OverrideOpenExistingHeapFromFileMapping(DxObjectInfo*                replay_object_info,
+                                            HRESULT                      original_result,
+                                            uint64_t                     allocation_id,
+                                            Decoded_GUID                 riid,
+                                            HandlePointerDecoder<void*>* heap);
+
+    HRESULT
+    OverrideOpenExistingHeapFromAddress1(DxObjectInfo*                replay_object_info,
+                                         HRESULT                      original_result,
+                                         uint64_t                     allocation_id,
+                                         SIZE_T                       size,
+                                         Decoded_GUID                 riid,
+                                         HandlePointerDecoder<void*>* heap);
+
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,
                                 UINT                                       subresource,
@@ -764,6 +793,25 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     dst_depth_pitch,
                                 UINT                                     src_subresource,
                                 StructPointerDecoder<Decoded_D3D12_BOX>* src_box);
+
+    HRESULT OverrideGetApplicationDesc(DxObjectInfo* state_object_database_object_info,
+                                       HRESULT       original_result,
+                                       uint64_t      callback_func,
+                                       uint64_t      context);
+
+    HRESULT OverrideFindPipelineStateDesc(DxObjectInfo*            state_object_database_object_info,
+                                          HRESULT                  original_result,
+                                          PointerDecoder<uint8_t>* key,
+                                          UINT                     key_size,
+                                          uint64_t                 callback_func,
+                                          uint64_t                 context);
+
+    HRESULT OverrideFindStateObjectDesc(DxObjectInfo*            state_object_database_object_info,
+                                        HRESULT                  original_result,
+                                        PointerDecoder<uint8_t>* key,
+                                        UINT                     key_size,
+                                        uint64_t                 callback_func,
+                                        uint64_t                 context);
 
     void OverrideExecuteCommandLists(DxObjectInfo*                             replay_object_info,
                                      UINT                                      num_command_lists,
@@ -978,6 +1026,12 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         SIZE_T                       blob_length_in_bytes,
                                         Decoded_GUID                 riid,
                                         HandlePointerDecoder<void*>* root_signature_decoder);
+
+    HRESULT OverrideOpenSharedHandle(DxObjectInfo*                device_object_info,
+                                     HRESULT                      original_result,
+                                     uint64_t                     NTHandle,
+                                     Decoded_GUID                 riid,
+                                     HandlePointerDecoder<void*>* ppvObj);
 
     HRESULT OverrideCreateStateObject(DxObjectInfo*                                          device5_object_info,
                                       HRESULT                                                original_result,
@@ -1196,15 +1250,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void RaiseFatalError(const char* message) const;
 
+    uint64_t GetUniqueProxyWindowId()
+    {
+        return ++unique_proxy_window_id_counter_;
+    }
+
     HRESULT
-    CreateSwapChainForHwnd(DxObjectInfo*                                                  replay_object_info,
-                           HRESULT                                                        original_result,
-                           DxObjectInfo*                                                  device_info,
-                           uint64_t                                                       hwnd_id,
-                           StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC1>*           desc,
-                           StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_FULLSCREEN_DESC>* full_screen_desc,
-                           DxObjectInfo*                                                  restrict_to_output_info,
-                           HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
+    CreateSwapChainForHwnd(DxObjectInfo*                           replay_object_info,
+                           HRESULT                                 original_result,
+                           DxObjectInfo*                           device_info,
+                           uint64_t                                hwnd_id,
+                           DXGI_SWAP_CHAIN_DESC1*                  desc,
+                           DXGI_SWAP_CHAIN_FULLSCREEN_DESC*        full_screen_desc,
+                           DxObjectInfo*                           restrict_to_output_info,
+                           HandlePointerDecoder<IDXGISwapChain1*>* swapchain);
 
     void SetSwapchainInfo(DxObjectInfo* info,
                           Window*       window,
@@ -1292,6 +1351,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, void*>                   heap_allocations_;
     std::unordered_map<uint64_t, HANDLE>                  event_objects_;
     std::unordered_map<uint64_t, LUID>                    adapter_luid_map_;
+    std::unordered_map<uint64_t, void*>                   shared_handles_;
     std::function<void(const char*)>                      fatal_error_handler_;
     Dx12DescriptorMap                                     descriptor_map_;
     graphics::Dx12GpuVaMap                                gpu_va_map_;
@@ -1314,6 +1374,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::string                                           screenshot_file_prefix_;
     util::ScreenshotFormat                                screenshot_format_;
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
+    uint64_t                                              unique_proxy_window_id_counter_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
     std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;

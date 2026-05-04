@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class MetadataConsumerBase
 {
   public:
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
+    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) {}
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
     virtual void
@@ -74,9 +74,17 @@ class MetadataConsumerBase
                                                          const std::vector<format::DeviceMemoryType>& memory_types,
                                                          const std::vector<format::DeviceMemoryHeap>& memory_heaps)
     {}
+
     virtual void
     ProcessSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address)
     {}
+
+    virtual void ProcessSetOpaqueDescriptorDataCommand(format::HandleId device_id,
+                                                       format::HandleId object_id,
+                                                       uint32_t         data_size,
+                                                       const uint8_t*   data)
+    {}
+
     virtual void ProcessSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                                format::HandleId pipeline_id,
                                                                size_t           data_size,
@@ -87,9 +95,11 @@ class MetadataConsumerBase
                                                       uint32_t         last_presented_image,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
     {}
+
     virtual void
-    ProcessBeginResourceInitCommand(format::HandleId device_id, uint64_t max_resource_size, uint64_t max_copy_size)
+    ProcessBeginResourceInitCommand(format::HandleId device_id, uint64_t total_copy_size, uint64_t max_copy_size)
     {}
+
     virtual void ProcessEndResourceInitCommand(format::HandleId device_id) {}
     virtual void ProcessInitBufferCommand(format::HandleId device_id,
                                           format::HandleId buffer_id,
@@ -111,22 +121,24 @@ class MetadataConsumerBase
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 
-    virtual void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+    virtual void ProcessVulkanBuildAccelerationStructuresCommand(
         format::HandleId                                                           device_id,
         uint32_t                                                                   info_count,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* geometry_infos,
         StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   range_infos)
     {}
 
-    virtual void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+    virtual void ProcessVulkanCopyAccelerationStructuresCommand(
         format::HandleId device_id, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos)
     {}
 
-    virtual void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
-        format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id)
+    virtual void ProcessVulkanWriteAccelerationStructuresPropertiesCommand(format::HandleId device_id,
+                                                                           VkQueryType      query_type,
+                                                                           format::HandleId acceleration_structure_id)
     {}
 
-    virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
+    virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, const format::ViewRelativeLocation& location) {
+    };
 
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data)

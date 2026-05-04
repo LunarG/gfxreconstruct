@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(bufferwriter)
 
-bool WriteBuffer(const std::string& filename, const void* data, size_t size, const Compressor* compressor = nullptr);
+size_t WriteBuffer(const std::string& filename, const void* data, size_t size, const Compressor* compressor = nullptr);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(util)

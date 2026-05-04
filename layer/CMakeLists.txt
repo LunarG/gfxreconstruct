@@ -69,7 +69,8 @@ target_link_libraries(VkLayer_gfxreconstruct
                         gfxrecon_util
                         vulkan_registry
                         $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR>
-                        platform_specific)
+                        platform_specific
+                        project_version)
 
 # Limit what symbols are exported
 if(MSVC)

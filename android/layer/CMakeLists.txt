@@ -58,6 +58,7 @@ target_link_libraries(VkLayer_gfxreconstruct
                       android
                       log)
 
+target_link_options(VkLayer_gfxreconstruct PRIVATE "-Wl,-z,max-page-size=16384")
 
 if (GFXRECON_ENABLE_OPENXR)
     include("FindVulkanVersion")

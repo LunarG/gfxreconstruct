@@ -24,7 +24,6 @@
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/struct_pointer_encoder.h"
 #include "graphics/vulkan_resources_util.h"
-#include "util/defines.h"
 #include "util/logging.h"
 
 #include <cassert>
@@ -351,15 +350,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& valu
         for (size_t i = 0; i < value.regionCount; ++i)
         {
             const auto& region = value.pRegions[i];
-
-            // Calculate how many bytes we need to capture from pHostPointer
-            uint32_t row_length   = region.memoryRowLength ? region.memoryRowLength : region.imageExtent.width;
-            uint32_t image_height = region.memoryImageHeight ? region.memoryImageHeight : region.imageExtent.height;
-            uint32_t texel_count  = region.imageExtent.width + ((region.imageExtent.height - 1) * row_length) +
-                                   ((region.imageExtent.depth - 1) * image_height);
-            VkDeviceSize texel_size;
-            graphics::GetImageTexelSize(image_info->format, &texel_size, nullptr, nullptr, nullptr);
-            size_t host_size = texel_count * texel_size;
+            VkDeviceSize host_size =
+                graphics::GetBufferSizeFromCopyImage(region, image_info->array_layers, image_info->format);
 
             encoder->EncodeEnumValue(region.sType);
             EncodePNextStruct(encoder, region.pNext);
@@ -371,6 +363,20 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToImageInfo& valu
             EncodeStruct(encoder, region.imageExtent);
         }
     }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopy& value)
+{
+    GFXRECON_LOG_WARNING(
+        "Encoding stand-alone VkMemoryToImageCopy.  Expected to be part of VkCopyMemoryToImageInfo not standalone.")
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVoidPtr(value.pHostPointer);
+    encoder->EncodeUInt32Value(value.memoryRowLength);
+    encoder->EncodeUInt32Value(value.memoryImageHeight);
+    EncodeStruct(encoder, value.imageSubresource);
+    EncodeStruct(encoder, value.imageOffset);
+    EncodeStruct(encoder, value.imageExtent);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& value)
@@ -390,16 +396,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
         const auto* image_info = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(value.srcImage);
         for (size_t i = 0; i < value.regionCount; ++i)
         {
-            const auto& region = value.pRegions[i];
-
-            // Calculate how many bytes we need to capture from pHostPointer
-            uint32_t row_length   = region.memoryRowLength ? region.memoryRowLength : region.imageExtent.width;
-            uint32_t image_height = region.memoryImageHeight ? region.memoryImageHeight : region.imageExtent.height;
-            uint32_t texel_count  = region.imageExtent.width + ((region.imageExtent.height - 1) * row_length) +
-                                   ((region.imageExtent.depth - 1) * image_height);
-            VkDeviceSize texel_size;
-            graphics::GetImageTexelSize(image_info->format, &texel_size, nullptr, nullptr, nullptr);
-            size_t host_size = texel_count * texel_size;
+            const auto&  region = value.pRegions[i];
+            VkDeviceSize host_size =
+                graphics::GetBufferSizeFromCopyImage(region, image_info->array_layers, image_info->format);
 
             encoder->EncodeEnumValue(region.sType);
             EncodePNextStruct(encoder, region.pNext);
@@ -410,6 +409,121 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToMemoryInfo& valu
             EncodeStruct(encoder, region.imageOffset);
             EncodeStruct(encoder, region.imageExtent);
         }
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopy& value)
+{
+    GFXRECON_LOG_WARNING(
+        "Encoding stand-alone VkImageToMemoryCopy.  Expected to be part of VkCopyImageToMemoryInfo not standalone.")
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVoidPtr(value.pHostPointer);
+    encoder->EncodeUInt32Value(value.memoryRowLength);
+    encoder->EncodeUInt32Value(value.memoryImageHeight);
+    EncodeStruct(encoder, value.imageSubresource);
+    EncodeStruct(encoder, value.imageOffset);
+    EncodeStruct(encoder, value.imageExtent);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkLayerSettingEXT& value)
+{
+    encoder->EncodeString(value.pLayerName);
+    encoder->EncodeString(value.pSettingName);
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeUInt32Value(value.valueCount);
+
+    switch (value.type)
+    {
+        case VK_LAYER_SETTING_TYPE_BOOL32_EXT:
+            encoder->EncodeUInt32Array(static_cast<const VkBool32*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_INT32_EXT:
+            encoder->EncodeInt32Array(static_cast<const int32_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_INT64_EXT:
+            encoder->EncodeInt64Array(static_cast<const int64_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_UINT32_EXT:
+            encoder->EncodeUInt32Array(static_cast<const uint32_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_UINT64_EXT:
+            encoder->EncodeUInt64Array(static_cast<const uint64_t*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT32_EXT:
+            encoder->EncodeFloatArray(static_cast<const float*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_FLOAT64_EXT:
+            encoder->EncodeFloat64Array(static_cast<const double*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_STRING_EXT:
+            encoder->EncodeStringArray(static_cast<const char* const*>(value.pValues), value.valueCount);
+            break;
+        case VK_LAYER_SETTING_TYPE_MAX_ENUM_EXT:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorGetInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+            encoder->EncodeVulkanHandlePtr<vulkan_wrappers::SamplerWrapper>(value.data.pSampler);
+            break;
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            encoder->EncodeStructPtrPreamble(value.data.pCombinedImageSampler);
+
+            if (value.data.pCombinedImageSampler)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pCombinedImageSampler);
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            encoder->EncodeStructPtrPreamble(value.data.pInputAttachmentImage);
+
+            if (value.data.pInputAttachmentImage)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pInputAttachmentImage);
+            }
+
+            break;
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            encoder->EncodeStructPtrPreamble(value.data.pSampledImage);
+
+            if (value.data.pSampledImage)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pSampledImage);
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            encoder->EncodeStructPtrPreamble(value.data.pStorageImage);
+
+            if (value.data.pStorageImage)
+            {
+                EncodeStruct(encoder, value.type, *value.data.pStorageImage);
+            }
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            EncodeStructPtr(encoder, value.data.pUniformTexelBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            EncodeStructPtr(encoder, value.data.pStorageTexelBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            EncodeStructPtr(encoder, value.data.pUniformBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            EncodeStructPtr(encoder, value.data.pStorageBuffer);
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            encoder->EncodeUInt64Value(value.data.accelerationStructure);
+            break;
+        default:
+            break;
     }
 }
 

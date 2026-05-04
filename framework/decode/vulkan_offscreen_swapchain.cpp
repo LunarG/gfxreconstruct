@@ -33,12 +33,7 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
                                                  VkFlags                              flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>*  surface,
                                                  const graphics::VulkanInstanceTable* instance_table,
-                                                 application::Application*            application,
-                                                 const int32_t                        xpos,
-                                                 const int32_t                        ypos,
-                                                 const uint32_t                       width,
-                                                 const uint32_t                       height,
-                                                 bool                                 force_windowed)
+                                                 application::Application*            application)
 {
     GFXRECON_ASSERT(surface);
 
@@ -100,6 +95,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
     {
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
+    swapchain_resources_[*replay_swapchain]->forced_offscreen = true;
 
     default_queue_ = GetDeviceQueue(device_table_, device_info, default_queue_family_index_, 0);
 
@@ -155,7 +151,7 @@ VkResult VulkanOffscreenSwapchain::GetSwapchainImagesKHR(VkResult               
     }
 
     VkResult result =
-        CreateSwapchainResourceData(device_info, swapchain_info, capture_image_count, replay_image_count, images, true);
+        CreateSwapchainResourceData(device_info, swapchain_info, capture_image_count, replay_image_count, images);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Offscreen swapchain failed to CreateSwapchainResourceData for swapchain (ID = %" PRIu64 ")",
@@ -254,7 +250,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
                             ->virtual_swapchain_images[present_info->pImageIndices[i]]
                             .image;
         }
-        frame_boundary_.imageCount = images.size();
+        GFXRECON_NARROWING_ASSIGN(frame_boundary_.imageCount, images.size());
         frame_boundary_.pImages    = images.data();
         ++frame_boundary_.frameID;
 
@@ -291,6 +287,27 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
     return original_result;
 }
 
+void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+                                                 const VulkanSemaphoreInfo*                 semaphore_info,
+                                                 const VulkanImageInfo*                     image_info,
+                                                 VulkanInstanceInfo*                        instance_info,
+                                                 const graphics::VulkanInstanceTable*       instance_table,
+                                                 const graphics::VulkanDeviceTable*         device_table,
+                                                 application::Application*                  application,
+                                                 const std::optional<std::array<float, 2>>& scale)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(semaphore_info);
+    GFXRECON_UNREFERENCED_PARAMETER(image_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_info);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_table);
+    GFXRECON_UNREFERENCED_PARAMETER(device_table);
+    GFXRECON_UNREFERENCED_PARAMETER(application);
+    GFXRECON_UNREFERENCED_PARAMETER(scale);
+
+    GFXRECON_LOG_WARNING("%s is not implemented and should not be called", __func__);
+}
+
 // queue_info could be nullptr. It means it doesn't specify a VkQueue and use default_queue. Its purpose is to singal
 // semaphores or fence. All VkQueue should work.
 VkResult VulkanOffscreenSwapchain::SignalSemaphoresFence(const VulkanQueueInfo* queue_info,
@@ -300,12 +317,6 @@ VkResult VulkanOffscreenSwapchain::SignalSemaphoresFence(const VulkanQueueInfo* 
                                                          const VkSemaphore*     signal_semaphores,
                                                          VkFence                fence)
 {
-    uint32_t queue_family_index = default_queue_family_index_;
-    if (queue_info)
-    {
-        queue_family_index = queue_info->family_index;
-    }
-
     VkPipelineStageFlags wait_stage  = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     VkSubmitInfo         submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
 

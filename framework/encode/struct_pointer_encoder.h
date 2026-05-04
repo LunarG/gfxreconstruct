@@ -110,6 +110,35 @@ typename std::enable_if<!std::is_integral<SizeT>::value>::type EncodeStructArray
     }
 }
 
+/// For some structs, spec mandates that `pNext` must be `NULL`.
+/// On the other hand, vendor extensions may add structures to the pNext chain.
+/// To handle this, we encode the pNext chain if it is valid, otherwise we encode a null pNext pointer.
+inline void EncodePNextStructIfValid(ParameterEncoder* encoder, const void* pNext)
+{
+    if (util::platform::PointerIsValid(pNext))
+    {
+        EncodePNextStruct(encoder, pNext);
+    }
+    else
+    {
+        encoder->EncodeStructPtrPreamble(nullptr);
+    }
+}
+
+#if ENABLE_OPENXR_SUPPORT
+inline void EncodeNextStructIfValid(ParameterEncoder* encoder, const void* value)
+{
+    if (util::platform::PointerIsValid(value))
+    {
+        EncodeNextStruct(encoder, value);
+    }
+    else
+    {
+        encoder->EncodeStructPtrPreamble(nullptr);
+    }
+}
+#endif
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

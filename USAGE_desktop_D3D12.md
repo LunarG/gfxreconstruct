@@ -110,7 +110,7 @@ Quit after capturing frame ranges | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES | BOOL | 
 Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER | STRING | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).
 Hotkey Capture Trigger Frames | GFXRECON_CAPTURE_TRIGGER_FRAMES | STRING | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)
 Capture Specific GPU Queue Submits | GFXRECON_CAPTURE_QUEUE_SUBMITS | STRING | Specify one or more comma-separated GPU queue submit call ranges to capture.  Queue submit calls are `vkQueueSubmit` for Vulkan and `ID3D12CommandQueue::ExecuteCommandLists` for DX12. Queue submit ranges work as described above in `GFXRECON_CAPTURE_FRAMES` but on GPU queue submit calls instead of frames. The index is 0-based. Default is: Empty string (all queue submits are captured).
-Capture Specific Draw Calls | GFXRECON_CAPTURE_DRAW_CALLS | STRING | Specify one index or a range indices drawacalls(include dispatch) based on a ExecuteCommandList index and a CommandList index to capture. The index is 0-based. The args are one submit index, one command index, one or a range indices of draw calls, one or a range indices of bundle draw calls(option), like "0,0,0" or "0,0,0-2" or "0,0,0-2,0". The forth arg is an option for bundle case. If the the 3rd arg is a bundle commandlist, but it doesn't set the 4th arg, it will set 0 as default. Default is: Empty string (all draw calls are captured).
+Capture Specific Draw Calls | GFXRECON_CAPTURE_DRAW_CALLS | STRING | Specify one index or a range indices draw calls(include dispatch) based on a ExecuteCommandList index and a CommandList index to capture. The index is 0-based. The args are one submit index, one command index, one or a range indices of draw calls, one or a range indices of bundle draw calls(option), like "0,0,0" or "0,0,0-2" or "0,0,0-2,0". The forth arg is an option for bundle case. If the the 3rd arg is a bundle commandlist, but it doesn't set the 4th arg, it will set 0 as default. Default is: Empty string (all draw calls are captured).
 Capture File Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
 Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
 Capture File Flush After Write | GFXRECON_CAPTURE_FILE_FLUSH | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
@@ -133,7 +133,7 @@ Page Guard Persistent Memory | GFXRECON_PAGE_GUARD_PERSISTENT_MEMORY | BOOL | Wh
 Enable Debug Layer | GFXRECON_DEBUG_LAYER | BOOL | Direct3D 12 only option. Enable the Direct3D debug layer for Direct3D 12 application captures. Default is `false`
  Debug Device Lost                 | GFXRECON_DEBUG_DEVICE_LOST             | BOOL   | Direct3D 12 only option. Enables automatic injection of breadcrumbs into command buffers and page fault reporting.                  Used to debug device removed problems. 
  Disable DXR Support               | GFXRECON_DISABLE_DXR                   | BOOL   | Direct3D 12 only option. Override the result of `CheckFeatureSupport` to report the `RaytracingTier` as `D3D12_RAYTRACING_TIER_NOT_SUPPORTED`. Default is `false` 
- Disable MetaCommmand Support      | GFXRECON_DISABLE_META_COMMAND          | BOOL   | Direct3D 12 only option. Override the result of `CheckFeatureSupport` to report the D3D12_FEATURE_QUERY_META_COMMAND is invalid. Default is `false`. Some games might use DirectStorage to improve performance, GFXR could not fully support the feature. By using this option, could bypass the feature and force game to use regular I/O to read from harddisk.
+ Disable MetaCommmand Support      | GFXRECON_DISABLE_META_COMMAND          | BOOL   | Direct3D 12 only option. Override the result of `CheckFeatureSupport` to report the D3D12_FEATURE_QUERY_META_COMMAND is invalid. Default is `false`. Some games might use DirectStorage to improve performance, GFXR could not fully support the feature. By using this option, could bypass the feature and force game to use regular I/O to read from hard disk.
 Acceleration Struct Size Padding | GFXRECON_ACCEL_STRUCT_PADDING | UINT | Direct3D 12 only option. Increase the required acceleration structure size that is reported to the application by calls to `GetRaytracingAccelerationStructurePrebuildInfo`. This can enable replay in environments with increased acceleration structure size requirements. The value should be specified as a percent of size increase. For example, a value of `5` would increase the reported acceleration structure sizes by `5%`. Default is `0` 
 Force Command Serialization | GFXRECON_FORCE_COMMAND_SERIALIZATION | BOOL | Sets exclusive locks(unique_lock) for every ApiCall. It can avoid external multi-thread to cause captured issue.
 Enable Experimental RV Search | GFXRECON_RV_ANNOTATION_EXPERIMENTAL | BOOL | Direct3D 12 only option. Experimental feature to help enable replay of certain DXR/ExecuteIndirect workloads. RV annotation is a capture mode which attempts to detect when applications write Resource Values (RVs) to memory. Conceptually, RVs represent different types of GPU pointers that applications write as resource data. This capture mode writes GFXR-specific identifier values into unoccupied bits of application-facing RVs and then searches for the identifier values when the application performs a memory write. This allows GFXR to better track RV locations and eventually produce an RV-optimized capture file that may be replayed. Enabling this feature introduces performance overhead during capture, and may result in unstable capture and/or replay.
@@ -442,21 +442,25 @@ gfxrecon-optimize.exe - Produce new captures with enhanced performance character
                         For D3D12, the optimizer will improve DXR replay performance and remove unused PSOs (for all captures)
 
 Usage:
-  gfxrecon-optimize.exe [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] [--gpu <index>] <input-file> <output-file>
+  gfxrecon-optimize.exe [-h | --help] [--version] [--d3d12-pso-removal] [--d3d12-resource-removal] [--dxr] [--gpu <index>] <input-file> <output-file>
 
 Required arguments:
   <input-file>          The path to input GFXReconstruct capture file to be processed.
   <output-file>         The path to output GFXReconstruct capture file to be created.
 
 Optional arguments:
-  -h                    Print usage information and exit (same as --help).
-  --version             Print version information and exit.
-  --d3d12-pso-removal   D3D12-only: Remove creation of unreferenced PSOs.
-  --dxr                 D3D12-only: Optimize for DXR replay.
-  --gpu <index>         D3D12-only: Use the specified device for the optimizer replay, where index is the zero-based index to the array 
-                        of physical devices returned by vkEnumeratePhysicalDevices or the optimizer replay may fail if the specified 
-                        device is not compatible with the IDXGIFactory1::EnumAdapters1. The optimizer replay may fail if the specified 
-                        device is not compatible with the original capture devices.
+  -h                            Print usage information and exit (same as --help).
+  --version                     Print version information and exit.
+  --no-debug-popup              Disable the 'Abort, Retry, Ignore' message box
+                                displayed when abort() is called (Windows debug only).
+  --d3d12-pso-removal           D3D12-only: Remove creation of unreferenced PSOs.
+  --d3d12-resource-removal      D3D12-only: Remove initialization of unreferenced resources (experimental, off by default).
+  --dxr                         D3D12-only: Optimize for DXR and ExecuteIndirect replay.
+  --gpu <index>                 Use the specified device for the optimizer replay, where index
+                                is the zero-based index to the array of physical devices
+                                returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
+                                The optimizer replay may fail if the specified device is not compatible with the
+                                original capture devices.
 
 Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.
 ```

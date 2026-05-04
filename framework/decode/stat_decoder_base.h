@@ -45,9 +45,9 @@ class StatDecoderBase : public ApiDecoder
 
     virtual void WaitIdle() override{};
 
-    virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) override {}
+    virtual void DispatchDriverInfo(format::ThreadId thread_id, const format::DriverInfoBlock& info) override {}
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override {}
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, const format::ExeFileInfoBlock& info) override {}
 
     void AddConsumer(StatConsumerBase* consumer) { consumers_.push_back(consumer); }
 
@@ -143,6 +143,13 @@ class StatDecoderBase : public ApiDecoder
                                                  uint64_t         address) override
     {}
 
+    void DispatchSetOpaqueDescriptorDataCommand(format::ThreadId thread_id,
+                                                format::HandleId device_id,
+                                                format::HandleId object_id,
+                                                uint32_t         data_size,
+                                                const uint8_t*   data) override
+    {}
+
     virtual void DispatchSetRayTracingShaderGroupHandlesCommand(format::ThreadId thread_id,
                                                                 format::HandleId device_id,
                                                                 format::HandleId buffer_id,
@@ -188,9 +195,9 @@ class StatDecoderBase : public ApiDecoder
     {}
 
     virtual void DispatchInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&       command_header,
-        std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                  build_inputs_data) override
+        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const uint8_t*                                                        build_inputs_data) override
     {}
 
   private:

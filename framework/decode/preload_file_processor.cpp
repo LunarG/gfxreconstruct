@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2023-2026 LunarG, Inc.
 ** Copyright (c) 2023 Arm Limited and/or its affiliates <open-source-office@arm.com>
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -21,324 +21,328 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/block_allocator.h"
 #include "decode/preload_file_processor.h"
 #include "util/logging.h"
+
+#include <memory>
+#include "preload_file_processor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-PreloadFileProcessor::PreloadFileProcessor() : status_(PreloadStatus::kInactive) {}
+PreloadFileProcessor::PreloadFileProcessor() : working_uncompressed_store_(kWorkingStoreInitialSize) {}
 
+void PreloadFileProcessor::PreloadLoopFrame()
+{
+    PreloadNextFrames(1);
+    loop_replay_      = true;
+    loop_reset_point_ = SkipStateBlocks(current_frame_number_, replay_cursor_);
+}
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {
-    status_ = PreloadStatus::kRecord;
-    while (--count != 0U)
+    size_t expected_count = count;
+    if (!IsFileValid())
     {
-        ProcessNextFrame();
+        error_state_ = CheckFileStatus();
+        return;
     }
-    status_ = PreloadStatus::kReplay;
-}
 
-PreloadFileProcessor::PreloadBuffer::PreloadBuffer() : replay_offset_(0) {}
+    // Block processing will update current_frame_number_, so save and restore it,
+    // as callers rely on it remaining unchanged by preload.
+    const uint64_t save_current_frame = current_frame_number_;
 
-void PreloadFileProcessor::PreloadBuffer::Reserve(size_t size)
-{
-    container_.reserve(container_.size() + size);
-}
-
-size_t PreloadFileProcessor::PreloadBuffer::Read(void* destination, size_t destination_size)
-{
-    auto remaining_buffer_data = container_.size() - replay_offset_;
-    auto read_size             = destination_size > remaining_buffer_data ? remaining_buffer_data : destination_size;
-    memcpy(destination, &container_[replay_offset_], read_size);
-    replay_offset_ += read_size;
-    return read_size;
-}
-
-void PreloadFileProcessor::PreloadBuffer::Reset()
-{
-    container_.clear();
-    container_.shrink_to_fit();
-    replay_offset_ = 0;
-}
-
-bool PreloadFileProcessor::ProcessBlocks()
-{
-    format::BlockHeader block_header;
-    bool                success = true;
-
-    while (success)
+    // Escalate operation mode to enqueueing if needed, saving previous mode
+    auto save_operation_mode = block_parser_->GetOperationMode();
+    // NOTE: Preload only works when starting from immediate mode, currently, as there is no
+    //       support for draining enqueued blocks back into immediate mode.
+    GFXRECON_ASSERT(save_operation_mode == BlockParser::OperationMode::kImmediate);
+    if (save_operation_mode == BlockParser::OperationMode::kImmediate)
     {
-        PrintBlockInfo();
-        success = ContinueDecoding();
+        // Only need to change if wasn't enqueueing already
+        // When changing from Immediate need to clear out the last immediate block,
+        // as StartBlock does it lazily, and thus the last will be present.
+        // NOTE: This must be done before SetBatchSinkProc, or we'll record it to preload
+        block_parser_->GetBlockAllocator().FlushBatch();
+        block_parser_->SetOperationMode(BlockParser::OperationMode::kEnqueued);
+    }
 
-        if (success)
+    // Set up block batch sink to collect preloaded blocks, as a single queue of batches.
+    // Parsed blocks are tagged with frame boundaries when parsed.
+
+    block_parser_->GetBlockAllocator().SetBatchSinkProc(
+        [this](BlockBatch::BatchPtr&& completed_batch) { this->EnqueueBatch(std::move(completed_batch)); });
+
+    // Use kAlways decompression policy to move the maximum amount of work outside the measurement loop
+    auto save_decompression_policy = block_parser_->GetDecompressionPolicy();
+
+    // Use kAlways when preloading for frame looping.
+    // This is required not only to move decompression work out of the measurement loop,
+    // but also to ensure queued blocks have stable decompressed argument data for replay.
+    // If decompression were deferred to replay, dispatch args for compressed blocks could
+    // point into the temporary working decompression store, which is overwritten/resized
+    // by subsequent decompressions, leading to invalid or stale pointers.
+    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
+
+    // Multiple appended preload not supported.
+    GFXRECON_ASSERT(!preload_head_);
+    ResetPreload();
+
+    ProcessBlockState preload_result        = ProcessBlockState::kFrameBoundary;
+    bool              first_preloaded_frame = true;
+    while ((count != 0U) && (preload_result == ProcessBlockState::kFrameBoundary))
+    {
+        uint64_t current_preload_frame = current_frame_number_;
+        preload_result                 = PreloadBlocksOneFrame();
+
+        if (preload_result != ProcessBlockState::kError)
         {
-            success = ReadBlockHeader(&block_header);
+            // This is for the corner case where we are seeing an explicit frame boundary, for a file
+            // that assumes implicit frame boundaries on specific function call blocks.
+            // A WARNING is logged during block processing when this occurs.
 
-            if (status_ != PreloadStatus::kRecord)
+            // We have two strategies to deal with this case:
+            const bool frame_stutter = (preload_result == ProcessBlockState::kFrameBoundary) &&
+                                       (current_frame_number_ == current_preload_frame);
+            if (frame_stutter)
             {
-                // Since block_index isn't relevant during recording, skip setting it in the decoders
-                for (auto* decoder : decoders_)
+                // Deal with the frame marker after implied frame kFunctionCallBlock frame boundary case
+                GFXRECON_ASSERT(current_frame_number_ == (kFirstFrame + 1));
+                if (first_preloaded_frame)
                 {
-                    decoder->SetCurrentBlockIndex(block_index_);
-                }
-            }
-
-            if (success)
-            {
-                if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
-                {
-                    format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                    success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                    if (success)
-                    {
-                        const auto is_frame_delimiter = IsFrameDelimiter(api_call_id);
-                        if (status_ == PreloadStatus::kRecord)
-                        {
-                            success = ReadParameterBytes(block_header, api_call_id, preload_buffer_);
-                            if (!success)
-                            {
-                                HandleBlockReadError(kErrorReadingBlockData, "Failed to read function call block data");
-                            }
-
-                            if (is_frame_delimiter)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            bool should_break = false;
-                            success           = ProcessFunctionCall(block_header, api_call_id, should_break);
-                            if (should_break)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                    }
-                }
-                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMethodCallBlock)
-                {
-                    format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                    success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                    if (success)
-                    {
-                        const auto is_frame_delimiter = IsFrameDelimiter(api_call_id);
-                        if (status_ == PreloadStatus::kRecord)
-                        {
-                            success = ReadParameterBytes(block_header, api_call_id, preload_buffer_);
-                            if (!success)
-                            {
-                                HandleBlockReadError(kErrorReadingBlockData,
-                                                     "Failed to preload method call block data");
-                            }
-                            if (is_frame_delimiter)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            bool should_break = false;
-                            success           = ProcessMethodCall(block_header, api_call_id, should_break);
-                            if (should_break)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
-                    }
-                }
-                else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
-                {
-                    if (status_ == PreloadStatus::kRecord)
-                    {
-                        success = ReadParameterBytes(block_header, preload_buffer_);
-                        if (!success)
-                        {
-                            HandleBlockReadError(kErrorReadingBlockData, "Failed to preload meta-data block");
-                        }
-                    }
-                    else
-                    {
-                        format::MetaDataId meta_data_id = format::MakeMetaDataId(
-                            format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kUnknownMetaDataType);
-
-                        success = ReadBytes(&meta_data_id, sizeof(meta_data_id));
-
-                        if (success)
-                        {
-                            success = ProcessMetaData(block_header, meta_data_id);
-                        }
-                        else
-                        {
-                            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
-                        }
-                    }
-                }
-                else if (block_header.type == format::BlockType::kFrameMarkerBlock)
-                {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
-
-                    success = ReadBytes(&marker_type, sizeof(marker_type));
-
-                    if (success)
-                    {
-                        if (status_ == PreloadStatus::kRecord)
-                        {
-                            const auto is_frame_delimiter = IsFrameDelimiter(block_header.type, marker_type);
-                            success = ReadParameterBytes(block_header, marker_type, preload_buffer_);
-                            if (!success)
-                            {
-                                HandleBlockReadError(kErrorReadingBlockData, "Failed to preload frame marker block");
-                            }
-                            if (is_frame_delimiter)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            bool should_break = false;
-                            success           = ProcessFrameMarker(block_header, marker_type, should_break);
-
-                            if (should_break)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker header");
-                    }
-                }
-                else if (block_header.type == format::BlockType::kStateMarkerBlock)
-                {
-                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
-                    uint64_t           frame_number = 0;
-
-                    if (status_ == PreloadStatus::kRecord)
-                    {
-                        success = ReadParameterBytes(block_header, preload_buffer_);
-                        if (!success)
-                        {
-                            HandleBlockReadError(kErrorReadingBlockData, "Failed to preload state marker block data");
-                        }
-                    }
-                    else
-                    {
-                        success = ReadBytes(&marker_type, sizeof(marker_type));
-
-                        if (success)
-                        {
-                            success = ProcessStateMarker(block_header, marker_type);
-                        }
-                        else
-                        {
-                            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
-                        }
-                    }
-                }
-                else if (block_header.type == format::BlockType::kAnnotation)
-                {
-                    if (annotation_handler_ != nullptr)
-                    {
-                        if (status_ == PreloadStatus::kRecord)
-                        {
-                            success = ReadParameterBytes(block_header, preload_buffer_);
-                            if (!success)
-                            {
-                                HandleBlockReadError(kErrorReadingBlockData, "Failed to preload annotation block data");
-                            }
-                        }
-                        else
-                        {
-                            format::AnnotationType annotation_type = format::AnnotationType::kUnknown;
-
-                            success = ReadBytes(&annotation_type, sizeof(annotation_type));
-
-                            if (success)
-                            {
-                                success = ProcessAnnotation(block_header, annotation_type);
-                            }
-                            else
-                            {
-                                HandleBlockReadError(kErrorReadingBlockHeader,
-                                                     "Failed to read annotation block header");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // If there is no annotation handler to process the annotation, we can skip the annotation
-                        // block.
-                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                        success = SkipBytes(static_cast<size_t>(block_header.size));
-                    }
+                    // This is really part of the non-preloaded previous (first) frame,
+                    // so immediately replay it to complete that frame
+                    block_parser_->GetBlockAllocator().FlushBatch();
+                    ProcessBlockState replay_result = ReplayOneFrame();
+                    ResetPreload();
+                    GFXRECON_ASSERT(replay_result == ProcessBlockState::kFrameBoundary);
                 }
                 else
                 {
-                    // Unrecognized block type.
-                    GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                    success = SkipBytes(static_cast<size_t>(block_header.size));
+                    // Marking the preloaded queue as having a stuttered frame,
+                    // and have replay skip the first frame boundary when replaying
+                    GFXRECON_ASSERT(!first_preloaded_frame);
+                    preload_contains_frame_stutter_ = true;
                 }
             }
             else
             {
-                if (feof(GetFileDescriptor()) == 0)
-                {
-                    // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as
-                    // it assumes that the block header has been successfully read and will print an incomplete
-                    // block at end of file warning when the file is at EOF without an error. For this case (the
-                    // normal EOF case) we print nothing at EOF, or print an error message and set the error code
-                    // directly when not at EOF.
-                    GFXRECON_LOG_ERROR("Failed to read block header");
-                    error_state_ = kErrorReadingBlockHeader;
-                }
+                // Normal case, just count the preloaded frame
+                count--;
             }
-        }
-        if (status_ != PreloadStatus::kRecord)
-        {
-            ++block_index_;
+
+            first_preloaded_frame = false;
         }
     }
 
-    return success;
+    // Ensure we have even non-full batches
+    block_parser_->GetBlockAllocator().FlushBatch();
+
+    // Need to remember how preloading ended to know what to do after replay completes
+    final_process_state_ = preload_result;
+
+    if (count)
+    {
+        const uint64_t found = expected_count - count;
+        const uint64_t total = expected_count;
+        GFXRECON_LOG_INFO("Preload did not load all measurement frames. %" PRIu64 " frames found, %" PRIu64 " expected",
+                          found,
+                          total);
+    }
+
+    // Restore the original parser policies
+    block_parser_->SetOperationMode(save_operation_mode);
+    block_parser_->SetDecompressionPolicy(save_decompression_policy);
+    block_parser_->GetBlockAllocator().ResetBatchSinkProc();
+
+    // Restore saved frame number callers expect it to be unchanged by preload
+    current_frame_number_ = save_current_frame;
 }
 
-bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
+void PreloadFileProcessor::ResetPreload()
 {
-    size_t bytes_read = 0;
-    if (status_ == PreloadStatus::kReplay)
+    preload_head_  = BlockBatch::iterator();
+    replay_cursor_ = BlockBatch::iterator();
+    preload_tail_  = nullptr;
+}
+
+FileProcessor::ProcessBlockState PreloadFileProcessor::PreloadBlocksOneFrame()
+{
+    DispatchFunction dispatch = [](uint64_t block_index, ParsedBlock& block) {
+        // NULL dispatch function.  The block batch sink will collect the parsed blocks.
+        return ProcessBlockState::kRunning;
+    };
+
+    return ProcessBlocks(dispatch, false /* check decoder completion */);
+}
+
+bool PreloadFileProcessor::ProcessNextFrame()
+{
+    // Clean up preloaded frames if we're at the end of the preloaded frames.  It's done here
+    // so that the clean up time is not measured in the measurement-frame-range timing.
+    if (!replay_cursor_)
     {
-        bytes_read = preload_buffer_.Read(buffer, buffer_size);
-        if (preload_buffer_.ReplayFinished())
+        if (preload_head_)
         {
-            status_ = PreloadStatus::kInactive;
+            ResetPreload();
+        }
+        return FileProcessor::ProcessNextFrame();
+    }
+
+    ProcessBlockState process_result = ReplayOneFrame();
+
+    const bool at_end = (!replay_cursor_);
+    if (loop_replay_)
+    {
+        // We're resetting the command stream, wait for all referenced resouces
+        // to be non-busy
+        WaitDecodersIdle();
+        replay_cursor_ = loop_reset_point_;
+        // We keep going as long we get the expected result
+        return process_result != ProcessBlockState::kError;
+    }
+
+    if (at_end)
+    {
+        if (IsFrameBoundary(process_result) && IsFrameBoundary(final_process_state_))
+        {
+            // If we reached the end of preloaded frames on a frame boundary, increment the frame number
+            current_frame_number_++;
+        }
+        // Return true only if both the replay and preload are in a continue state
+        return ContinueProcessing(process_result) && ContinueProcessing(final_process_state_);
+    }
+
+    if (IsFrameBoundary(process_result))
+    {
+        current_frame_number_++;
+    }
+    return ContinueProcessing(process_result);
+}
+
+BlockBatch::iterator PreloadFileProcessor::SkipStateBlocks(uint64_t frame_number, BlockBatch::iterator start)
+{
+    GFXRECON_ASSERT(start);
+    for (auto drop_cursor = start; drop_cursor; ++drop_cursor)
+    {
+        ParsedBlock& block = *drop_cursor;
+        if (block.Holds<StateEndMarkerArgs>())
+        {
+            ++drop_cursor;
+            auto blocks_skipped = std::distance(start, drop_cursor);
+            GFXRECON_LOG_INFO(
+                "Skipped %" PRIu64 " state blocks from preloaded frame %" PRIu64, blocks_skipped, frame_number);
+            return drop_cursor;
+        }
+    }
+    return start;
+}
+
+FileProcessor::ProcessBlockState PreloadFileProcessor::ReplayOneFrame()
+{
+    GFXRECON_ASSERT(replay_cursor_);
+
+    BlockParser&    block_parser = GetBlockParser();
+    DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
+    SetDecoderFrameNumber(current_frame_number_);
+
+    ProcessBlockState process_state = ProcessBlockState::kRunning;
+    while (process_state == ProcessBlockState::kRunning)
+    {
+        ParsedBlock& queued_block = *replay_cursor_;
+        uint64_t     block_index  = queued_block.GetBlockIndex();
+        if (!ContinueDecoding(block_index, true /* check decoder completion */))
+        {
+            process_state = ProcessBlockState::kEndProcessing;
+            break;
+        }
+
+        // We assume that only known, visitable blocks were preloaded
+        GFXRECON_ASSERT(queued_block.IsVisitable());
+
+        if (queued_block.NeedsDecompression())
+        {
+            // Note: This replay path is destructive to preloaded blocks.
+            //
+            // Decompression during replay sets the args data pointer to the working_uncompressed_store_ data.
+            // The block is ready to dispatch; however, it will become invalid as soon as the next block is
+            // decompressed. This is because the working store will be overwritten with the most recently
+            // decompressed data, and since the working store automatically resizes as needed, the data
+            // pointer may become stale.
+            //
+            // For performance reasons, we are neither updating the block state nor deleting the block until
+            // *after* all preloaded blocks have been replayed. This means that replayed blocks are effectively
+            // invalid, yet they are retained and still marked as valid.
+            //
+            // If in the future we need to support the reuse of preloaded blocks, we will need a way to:
+            //  1: restore the args data pointer, or
+            //  2: retain the decompressed data in the block batch (likely as a dynamic allocation in the HLA), or
+            //  3: allocate the decompressed buffer storage at block creation time, but still defer decompression.
+            if (!queued_block.Decompress(block_parser, working_uncompressed_store_))
+            {
+                // As is the case with decompression failure during block parsing, decompression failure on replay
+                // is fatal.
+                //
+                // Note: Error message generation is done by the block decompression code
+                process_state = ProcessBlockState::kError;
+                break;
+            }
+        }
+
+        dispatch_visitor.SetBlockIndex(block_index);
+        std::visit(dispatch_visitor, queued_block.GetArgs());
+
+        if (queued_block.IsFrameBoundary())
+        {
+            if (!preload_contains_frame_stutter_)
+            {
+                process_state = ProcessBlockState::kFrameBoundary;
+            }
+            else
+            {
+                // There is at most one spurious frame boundary
+                preload_contains_frame_stutter_ = false;
+            }
+        }
+
+        // Advance
+        ++replay_cursor_;
+
+        if ((process_state == ProcessBlockState::kRunning) && !replay_cursor_)
+        {
+            // We did not end on a frame boundary, but that's okay if preloading end frame is beyond last complete frame
+            // and there is a last incomplete frame, because of interrupt during record
+            process_state = ProcessBlockState::kEndProcessing;
+        }
+    }
+
+    return process_state;
+}
+
+void PreloadFileProcessor::EnqueueBatch(BlockBatch::BatchPtr&& batch)
+{
+    GFXRECON_ASSERT(batch.get() != nullptr);
+    if (preload_tail_)
+    {
+        GFXRECON_ASSERT(preload_head_ && replay_cursor_);
+        batch = BlockBatch::NonEmptyBatch(std::move(batch));
+        if (batch.get() != nullptr)
+        {
+            // The batch was non-empty, so add it to the end of the queue.
+            preload_tail_->SetNext(std::move(batch));
+            preload_tail_ = preload_tail_->GetTail();
         }
     }
     else
     {
-        bytes_read = util::platform::FileRead(buffer, buffer_size, GetFileDescriptor());
+        preload_head_ = BlockBatch::MakeIteratorFromBatch(std::move(batch));
+        if (preload_head_ != BlockBatch::iterator())
+        {
+            // We aren't expecting chains of batches, but preload_tail_ will be wrong if we don't get the tail.
+            preload_tail_  = preload_head_.GetBatch()->GetTail();
+            replay_cursor_ = preload_head_;
+        }
     }
-
-    bytes_read_ += bytes_read;
-    return bytes_read == buffer_size;
 }
 
 GFXRECON_END_NAMESPACE(decode)

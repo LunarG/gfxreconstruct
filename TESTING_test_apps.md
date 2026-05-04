@@ -53,6 +53,7 @@ Required arguments:
                   external-memory-fd-export
                   external-memory-fd-import
                   wait-for-present
+                  trigger-trimming
                   [...]
 ```
 
@@ -90,7 +91,7 @@ To run the test apps and validate output against known good '.gfxr' files, build
 |---------------|------------------------------------|------------|
 |Windows| build/windows/x64/output/test      |run-tests.ps1|
 |Linux| build/linux/x64/output/test        |run-tests.sh|
-|MacOs| build/darwin/universal/output/test |run-tests_macos.sh|
+|macOS| build/darwin/universal/output/test |run-tests_macos.sh|
 
 ## **Run A Single Test App**
 

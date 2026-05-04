@@ -109,12 +109,6 @@ static T** MapObjectArray(HandlePointerDecoder<T*>* handles_pointer, const Dx12O
 }
 
 template <typename T>
-static void AddObject(const format::HandleId* p_id, T** pp_object, Dx12ObjectInfoTable* object_info_table)
-{
-    AddObject(p_id, pp_object, DxObjectInfo{}, object_info_table);
-}
-
-template <typename T>
 static void AddObject(const format::HandleId* p_id,
                       T**                     pp_object,
                       DxObjectInfo&&          initial_info,
@@ -144,6 +138,12 @@ static void AddObject(const format::HandleId* p_id,
         // Release the object to avoid leaking.
         reinterpret_cast<IUnknown*>(*pp_object)->Release();
     }
+}
+
+template <typename T>
+static void AddObject(const format::HandleId* p_id, T** pp_object, Dx12ObjectInfoTable* object_info_table)
+{
+    AddObject(p_id, pp_object, DxObjectInfo{}, object_info_table);
 }
 
 static void RemoveObject(format::HandleId id, Dx12ObjectInfoTable* object_info_table)

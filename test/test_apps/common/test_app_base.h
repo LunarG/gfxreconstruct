@@ -196,6 +196,8 @@ std::runtime_error to_exception(QueueError err, VkResult result);
 std::runtime_error to_exception(DeviceError err, VkResult result);
 std::runtime_error to_exception(SwapchainError err, VkResult result);
 
+std::runtime_error to_exception(const char* message);
+
 // Gathers useful information about the available vulkan capabilities, like layers and instance
 // extensions. Use this for enabling features conditionally, ie if you would like an extension but
 // can use a fallback if it isn't supported but need to know if support is available first.
@@ -1063,6 +1065,12 @@ VkShaderModule readShaderFromFile(vkb::DispatchTable const& disp, const std::str
         VkResult verify_vk_result_result = (result);                                    \
         if (verify_vk_result_result != VK_SUCCESS)                                      \
             throw gfxrecon::test::vulkan_exception((message), verify_vk_result_result); \
+    }
+
+#define VERIFY_CONDITION(_message_, _condition_)           \
+    {                                                      \
+        if (!(_condition_))                                \
+            throw gfxrecon::test::to_exception(_message_); \
     }
 
 struct InitInfo

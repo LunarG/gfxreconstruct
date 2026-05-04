@@ -352,7 +352,7 @@ bool App::frame(const int frame_num)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers    = &command_buffer;
 
-    VkSemaphore signal_semaphores[] = { sync_.finished_semaphore[current_frame_] };
+    VkSemaphore signal_semaphores[] = { sync_.finished_semaphore[image_index] };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores    = signal_semaphores;
 
@@ -388,9 +388,12 @@ bool App::frame(const int frame_num)
 
 void App::cleanup()
 {
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    for (size_t i = 0; i < sync_.finished_semaphore.size(); i++)
     {
         init.disp.destroySemaphore(sync_.finished_semaphore[i], nullptr);
+    }
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
         init.disp.destroySemaphore(sync_.available_semaphores[i], nullptr);
         init.disp.destroyFence(sync_.in_flight_fences[i], nullptr);
     }

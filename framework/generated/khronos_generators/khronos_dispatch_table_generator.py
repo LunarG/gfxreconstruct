@@ -148,12 +148,6 @@ class KhronosDispatchTableGenerator():
             self.generate_load_device_table_func(api_data)
         self.newline()
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
     def generate_instance_cmd_table(self, api_data):
         """Generate instance dispatch table structure."""
         write(

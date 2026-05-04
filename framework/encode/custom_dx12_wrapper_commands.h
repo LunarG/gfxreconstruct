@@ -353,6 +353,46 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExisti
 };
 
 template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D12Device3_OpenExistingHeapFromFileMapping(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device3_OpenExistingHeapFromFileMapping>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device3_OpenExistingHeapFromFileMapping(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12Device13_OpenExistingHeapFromAddress1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D12Device13_OpenExistingHeapFromAddress1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device13_OpenExistingHeapFromAddress1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device13_OpenExistingHeapFromAddress1(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Resource_Map>
 {
     template <typename... Args>
@@ -695,6 +735,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateD
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_SetPrivateDataInterface(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority>
 {
     template <typename... Args>
@@ -821,6 +871,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandLis
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_InitializeMetaCommand(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12Device_CreateRootSignature>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D12Device_CreateRootSignature(args...);
     }
 };
 

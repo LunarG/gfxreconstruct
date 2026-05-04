@@ -101,6 +101,7 @@ class Dx12StateWriter
         StandardCreateWrite(wrapper->GetCaptureId(), *wrapper_info.get());
         WriteAddRefAndReleaseCommands(wrapper);
         WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+        WritePrivateDataInterface(wrapper->GetCaptureId(), *wrapper_info.get());
     }
 
     void StandardCreateWrite(format::HandleId object_id, const DxWrapperInfo& wrapper_info);
@@ -111,6 +112,17 @@ class Dx12StateWriter
 
     void
     WriteMethodCall(format::ApiCallId call_id, format::HandleId object_id, util::MemoryOutputStream* parameter_buffer);
+
+    bool IsCachedPSOBlob(const ID3D10Blob_Wrapper* wrapper) const;
+
+    bool IsRootSignatureBlob(const ID3D10Blob_Wrapper* wrapper) const
+    {
+        return !IsCachedPSOBlob(wrapper);
+    }
+
+    void WriteRootSignatureBlobState(const Dx12StateTable& state_table);
+
+    void WriteCachedPSOBlobState(const Dx12StateTable& state_table);
 
     void WriteHeapState(const Dx12StateTable& state_table);
 
@@ -124,6 +136,8 @@ class Dx12StateWriter
     void WriteAddRefAndReleaseCommands(const IUnknown_Wrapper* wrapper);
 
     void WritePrivateData(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
+
+    void WritePrivateDataInterface(format::HandleId handle_id, const DxWrapperInfo& wrapper_info);
 
     void WriteResidencyPriority(const Dx12StateTable& state_table);
 

@@ -80,7 +80,7 @@ bool FpsInfo::ShouldWaitIdleBeforeFrame(uint64_t frame)
 
 bool FpsInfo::ShouldQuit(uint64_t frame)
 {
-    return (quit_after_range_ && (frame > measurement_end_frame_)) || (quit_after_frame_ && frame > quit_frame_);
+    return (quit_after_range_ && (frame >= measurement_end_frame_)) || (quit_after_frame_ && frame > quit_frame_);
 }
 
 void FpsInfo::BeginFrame(uint64_t frame)
@@ -118,6 +118,8 @@ void FpsInfo::EndFrame(uint64_t frame)
             GFXRECON_WRITE_CONSOLE("================== End timer (Frame: %llu) ==================", frame);
         }
     }
+
+    SetFirstSubmitDone(false);
 }
 
 bool FpsInfo::ShouldWaitIdleAfterFrame(uint64_t frame)

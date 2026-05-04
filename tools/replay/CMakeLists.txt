@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2021 LunarG, Inc.
+# Copyright (c) 2018-2026 LunarG, Inc.
 # Copyright (c) 2020-2022 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -40,6 +40,7 @@ target_sources(gfxrecon-replay
                     ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
                     $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
+                    $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
 )
 
 target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})
@@ -51,11 +52,10 @@ target_link_libraries(gfxrecon-replay
                           gfxrecon_graphics
                           gfxrecon_format
                           platform_specific
+                          project_version
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
                           $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
-
-target_link_options(gfxrecon-replay PUBLIC "-rdynamic")
 
 if (MSVC)
     # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
@@ -65,6 +65,8 @@ if (MSVC)
     else()
       target_link_options(gfxrecon-replay PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
     endif()
+else ()
+    target_link_options(gfxrecon-replay PUBLIC "-rdynamic")
 endif()
 
 # A multithreaded Vulkan driver loaded through dlopen() mechanism

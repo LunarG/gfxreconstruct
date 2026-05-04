@@ -84,11 +84,6 @@ class EncodePNextStructGenerator(VulkanBaseGenerator, KhronosEncodeExtendedStruc
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_extended_structs:
-            return True
-        return False
 
     def get_encode_struct_while_loop_statement(self, current_api_data):
         """Method Override"""

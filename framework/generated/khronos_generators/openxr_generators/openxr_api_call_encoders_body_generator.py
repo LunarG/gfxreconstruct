@@ -583,13 +583,11 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
     def make_handle_unwrapping(self, name, values):
         args = []
         unwraps = []
-        need_unwrap_memory = False
         for value in values:
             arg_name = value.name
             if value.is_pointer or value.is_array:
                 if self.is_input_pointer(value):
-                    if (value.base_type in self.structs_with_handles
-                        ) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
+                    if self.struct_might_have_handles(value.base_type):
                         arg_name += '_unwrapped'
                         wrapper_prefix = self.get_wrapper_prefix_from_type(
                             value.base_type
@@ -602,6 +600,7 @@ class OpenXrApiCallEncodersBodyGenerator(OpenXrBaseGenerator, KhronosApiCallEnco
                         }
                         if value.is_array:
                             unwrap['length'] = value.array_length
+                            print(f"{name} {unwrap['length']}")
                             unwrap[
                                 'call'
                             ] = '{prefix}UnwrapStructArrayHandles({name}, {length}, handle_unwrap_memory)'.format(

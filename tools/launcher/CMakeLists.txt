@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2018-2026 LunarG, Inc.
 # Copyright (c) 2020-2023 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -34,6 +34,7 @@ if(BUILD_LAUNCHER_AND_INTERCEPTOR)
                    PRIVATE
                         ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
                         $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
+                        $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
     )
 
     target_include_directories(gfxrecon-launcher PUBLIC ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/layer/d3d12_hook ${PROJECT_SOURCE_DIR}/framework/util ${PROJECT_SOURCE_DIR}/framework/interception_util)

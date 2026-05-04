@@ -18,6 +18,6 @@ void run_in_background(const char* test_name);
  * GFXRECON_CAPTURE_FILE_TIMESTAMP=false
  * GFXRECON_CAPTURE_FILE=actual.gfxr
  */
-void verify_gfxr(const char* test_name, char const* trimming_frames = nullptr);
+void verify_gfxr(const char* test_name, char const* trimming_frames = nullptr, bool trigger_trimming = false);
 
 #endif // GFXRECONSTRUCT_VERIFY_GFXR_H

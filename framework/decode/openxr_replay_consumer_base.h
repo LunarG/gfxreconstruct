@@ -161,7 +161,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                     format::HandleId                                           swapchain,
                                     StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
 
-    void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location) override;
+    void ProcessViewRelativeLocation(format::ThreadId thread_id, const format::ViewRelativeLocation& location) override;
 
     virtual void Process_xrEndFrame(const ApiCallInfo&                            call_info,
                                     XrResult                                      returnValue,

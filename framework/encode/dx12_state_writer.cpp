@@ -118,7 +118,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     WriteFenceState(state_table);
 
     // Heaps
-    StandardCreateWrite<ID3D10Blob_Wrapper>(state_table);
+    WriteRootSignatureBlobState(state_table);
     WriteHeapState(state_table);
 
     // Root signatures
@@ -153,6 +153,7 @@ void Dx12StateWriter::WriteState(const Dx12StateTable& state_table, uint64_t fra
     // Pipelines
     StandardCreateWrite<ID3D12PipelineLibrary_Wrapper>(state_table);
     StandardCreateWrite<ID3D12PipelineState_Wrapper>(state_table);
+    WriteCachedPSOBlobState(state_table);
 
     // Debug objects
     StandardCreateWrite<ID3D12Debug2_Wrapper>(state_table);
@@ -361,6 +362,49 @@ void Dx12StateWriter::WriteMethodCall(format::ApiCallId         call_id,
     output_stream_->Write(data_pointer, data_size);
 }
 
+bool Dx12StateWriter::IsCachedPSOBlob(const ID3D10Blob_Wrapper* wrapper) const
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    auto wrapper_info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(wrapper_info != nullptr);
+
+    return (wrapper_info->create_call_id == format::ApiCall_ID3D12PipelineState_GetCachedBlob);
+}
+
+void Dx12StateWriter::WriteRootSignatureBlobState(const Dx12StateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const ID3D10Blob_Wrapper* wrapper) {
+        GFXRECON_ASSERT(wrapper != nullptr);
+
+        if (IsRootSignatureBlob(wrapper))
+        {
+            // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+            // all reference the same parameter buffer.
+            auto wrapper_info = wrapper->GetObjectInfo();
+            GFXRECON_ASSERT((wrapper_info != nullptr) && (wrapper_info->create_parameters != nullptr));
+
+            if (processed.find(wrapper_info->create_parameters.get()) == processed.end())
+            {
+                StandardCreateWrite(wrapper);
+                processed.insert(wrapper_info->create_parameters.get());
+            }
+        }
+    });
+}
+
+void Dx12StateWriter::WriteCachedPSOBlobState(const Dx12StateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+    state_table.VisitWrappers([&](const ID3D10Blob_Wrapper* wrapper) {
+        if (IsCachedPSOBlob(wrapper))
+        {
+            StandardCreateWrite(wrapper);
+        }
+    });
+}
+
 void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
 {
     std::set<util::MemoryOutputStream*> processed;
@@ -376,6 +420,18 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
             {
                 GFXRECON_LOG_ERROR("Failed to retrieve memory information for address specified to "
                                    "ID3D12Device3::OpenExistingHeapFromAddress (error = %d)",
+                                   GetLastError());
+            }
+        }
+        if (wrapper_info->open_existing_handle != nullptr)
+        {
+            HANDLE hFileHandle = reinterpret_cast<HANDLE>(const_cast<void*>(wrapper_info->open_existing_handle));
+            void*  pAddress    = MapViewOfFile(hFileHandle, FILE_MAP_READ, 0, 0, 0);
+
+            if ((pAddress == nullptr) || !WriteCreateHeapAllocationCmd(pAddress))
+            {
+                GFXRECON_LOG_ERROR("Failed to retrieve memory information for handle specified to "
+                                   "ID3D12Device3::OpenExistingHeapFromFileMapping (error = %d)",
                                    GetLastError());
             }
         }
@@ -446,6 +502,14 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         auto        heap_info = heap_wrapper->GetObjectInfo();
         const auto& heap_desc = heap->GetDesc();
 
+        // Write call to query the device for heap increment size.
+        encoder_.EncodeEnumValue(heap_desc.Type);
+        encoder_.EncodeUInt32Value(heap_info->descriptor_increment);
+        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
+                        heap_info->create_object_id,
+                        &parameter_stream_);
+        parameter_stream_.Clear();
+
         // Write heap creation call.
         StandardCreateWrite(heap_wrapper);
 
@@ -472,14 +536,6 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
                             &parameter_stream_);
             parameter_stream_.Clear();
         }
-
-        // Write call to query the device for heap increment size.
-        encoder_.EncodeEnumValue(heap_desc.Type);
-        encoder_.EncodeUInt32Value(heap_info->descriptor_increment);
-        WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
-                        heap_info->create_object_id,
-                        &parameter_stream_);
-        parameter_stream_.Clear();
 
         // Write descriptor creation calls, not use StandardCreateWrite.
         for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)
@@ -547,6 +603,27 @@ void Dx12StateWriter::WritePrivateData(format::HandleId handle_id, const DxWrapp
         else
         {
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData, handle_id, &parameter_stream_);
+        }
+        parameter_stream_.Clear();
+    }
+}
+
+void Dx12StateWriter::WritePrivateDataInterface(format::HandleId handle_id, const DxWrapperInfo& wrapper_info)
+{
+    for (auto& data : wrapper_info.private_data_interface)
+    {
+        EncodeStruct(&encoder_, data.first);
+        encoder_.EncodeObjectValue(data.second.GetInterfacePtr());
+        encoder_.EncodeInt32Value(S_OK);
+        if (wrapper_info.IsDxgi())
+        {
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface, handle_id, &parameter_stream_);
+        }
+        else
+        {
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface, handle_id, &parameter_stream_);
         }
         parameter_stream_.Clear();
     }
@@ -746,7 +823,7 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
         for (auto wrapper : metacommand_wrappers)
         {
             // Write the meta command init call.
-            auto                          wrapper_info = wrapper->GetObjectInfo();
+            auto wrapper_info = wrapper->GetObjectInfo();
             if (wrapper_info->was_initialized == true)
             {
                 format::InitializeMetaCommand init_meta_command;
@@ -757,8 +834,7 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
                     format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitializeMetaCommand);
                 init_meta_command.thread_id  = thread_id_;
                 init_meta_command.capture_id = wrapper->GetCaptureId();
-                init_meta_command.initialization_parameters_data_size =
-                    wrapper_info->initialize_parameters->GetDataSize();
+                init_meta_command.data_size  = wrapper_info->initialize_parameters->GetDataSize();
                 init_meta_command.total_number_of_initializemetacommand = metacommand_wrappers.size();
                 init_meta_command.block_index                           = ++block_index;
 
@@ -803,10 +879,13 @@ void Dx12StateWriter::WriteResourceSnapshots(
             begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                 format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kBeginResourceInitCommand);
-            begin_cmd.thread_id         = thread_id_;
-            begin_cmd.device_id         = device_id;
-            begin_cmd.max_resource_size = max_resource_size;
-            begin_cmd.max_copy_size     = max_resource_size;
+            begin_cmd.thread_id = thread_id_;
+            begin_cmd.device_id = device_id;
+
+            // TODO: adjust to hold sum of resource-sizes
+            begin_cmd.total_copy_size = max_resource_size;
+
+            begin_cmd.max_copy_size = max_resource_size;
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
 
@@ -1873,6 +1952,7 @@ void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& stat
         }
 
         WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+        WritePrivateDataInterface(wrapper->GetCaptureId(), *wrapper_info.get());
         WriteAddRefAndReleaseCommands(wrapper);
     });
 }

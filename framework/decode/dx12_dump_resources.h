@@ -245,7 +245,6 @@ class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
 
     void TestWriteImageResource(const std::string& prefix_file_name, const CopyResourceDataPtr resource_data);
 
-    util::JsonOptions      json_options_;
     std::string            json_filename_;
     FILE*                  json_file_handle_{ nullptr };
     nlohmann::ordered_json json_data_;

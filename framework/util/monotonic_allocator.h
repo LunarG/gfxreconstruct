@@ -58,7 +58,7 @@ class MonotonicAllocator
             for (size_t i = 0; i < count; ++i)
             {
                 T* obj = new (result + i) T();
-                if (!std::is_trivially_destructible<T>())
+                if constexpr (!std::is_trivially_destructible_v<T>)
                 {
                     destructors_.push_back({ obj, [](const void* x) { static_cast<const T*>(x)->~T(); } });
                 }

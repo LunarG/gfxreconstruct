@@ -30,7 +30,6 @@
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
 #include "encode/parameter_buffer.h"
-#include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_tracker.h"
@@ -38,7 +37,6 @@
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-#include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -50,7 +48,6 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
-#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -310,6 +307,16 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  const VkAllocationCallbacks* pAllocator,
                                  VkImage*                     pImage);
 
+    VkResult OverrideCreateImageView(VkDevice                     device,
+                                     const VkImageViewCreateInfo* pCreateInfo,
+                                     const VkAllocationCallbacks* pAllocator,
+                                     VkImageView*                 pImageView);
+
+    VkResult OverrideCreateSampler(VkDevice                     device,
+                                   const VkSamplerCreateInfo*   pCreateInfo,
+                                   const VkAllocationCallbacks* pAllocator,
+                                   VkSampler*                   pSampler);
+
     VkResult OverrideCreateAccelerationStructureKHR(VkDevice                                    device,
                                                     const VkAccelerationStructureCreateInfoKHR* pCreateInfo,
                                                     const VkAllocationCallbacks*                pAllocator,
@@ -528,6 +535,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAllocationCallbacks*         pAllocator,
                                               VkSurfaceKHR*                        pSurface);
 
+    void
+    PreProcess_vkDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR pSurface, const VkAllocationCallbacks* pAllocator);
+
     void PreProcess_vkCreateSwapchainKHR(VkDevice                        device,
                                          const VkSwapchainCreateInfoKHR* pCreateInfo,
                                          const VkAllocationCallbacks*    pAllocator,
@@ -663,9 +673,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  bind_memory_range_index++)
                             {
                                 auto& bind_memory_range = image_bind.pBinds[bind_memory_range_index];
-                                // TODO: Implement handling for tracking binding information of sparse image
-                                // subresources.
-                                GFXRECON_LOG_ERROR_ONCE("Binding of sparse image blocks is not supported!");
+                                graphics::UpdateSparseImageMemoryBindMap(wrapper->sparse_subresource_memory_bind_map,
+                                                                         bind_memory_range);
                             }
                         }
                     }
@@ -1323,6 +1332,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  VkMemoryMapFlags flags,
                                  void**           ppData);
 
+    void
+    PostProcess_vkMapMemory2(VkResult result, VkDevice device, const VkMemoryMapInfo* pMemoryMapInfo, void** ppData);
+
     void PostProcess_vkAcquireFullScreenExclusiveModeEXT(VkResult result, VkDevice device, VkSwapchainKHR swapchain);
 
     void PostProcess_vkGetPhysicalDeviceSurfacePresentModes2EXT(VkResult                               result,
@@ -1348,6 +1360,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkMappedMemoryRange* pMemoryRanges);
 
     void PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory);
+
+    void PreProcess_vkUnmapMemory2(VkDevice device, const VkMemoryUnmapInfo* pMemoryUnmapInfo);
 
     void PreProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
@@ -1405,6 +1419,11 @@ class VulkanCaptureManager : public ApiCaptureManager
     void
     PreProcess_vkBindImageMemory2(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfo* pBindInfos);
 
+    void PreProcess_vkQueueBindSparse(VkQueue                 queue,
+                                      uint32_t                bindInfoCount,
+                                      const VkBindSparseInfo* pBindInfo,
+                                      VkFence                 fence);
+
 #if ENABLE_OPENXR_SUPPORT
     void PreProcess_vkDestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator);
     void PreProcess_vkResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences);
@@ -1412,6 +1431,15 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PreProcess_vkWaitForFences(
         VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout);
 #endif
+
+    void PostProcess_vkResetFences(VkResult result, VkDevice device, uint32_t fenceCount, const VkFence* pFences);
+    void PostProcess_vkWaitForFences(VkResult       result,
+                                     VkDevice       device,
+                                     uint32_t       fenceCount,
+                                     const VkFence* pFences,
+                                     VkBool32       waitAll,
+                                     uint64_t       timeout);
+    void PostProcess_vkGetFenceStatus(VkResult result, VkDevice device, VkFence fence);
 
     void PostProcess_vkSetPrivateData(VkResult          result,
                                       VkDevice          device,
@@ -1450,6 +1478,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
                                                  const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+
+    void PostProcess_vkCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                              const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
 
     void PostProcess_vkCmdCopyBuffer(VkCommandBuffer     commandBuffer,
                                      VkBuffer            srcBuffer,
@@ -1719,6 +1750,11 @@ class VulkanCaptureManager : public ApiCaptureManager
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
+    void PostProcess_vkTransitionImageLayout(VkResult                               result,
+                                             VkDevice                               device,
+                                             uint32_t                               transitionCount,
+                                             const VkHostImageLayoutTransitionInfo* pTransitions);
+
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 
@@ -1771,6 +1807,11 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
     void WriteSetOpaqueAddressCommand(format::HandleId device_id, format::HandleId object_id, uint64_t address);
 
+    void WriteSetOpaqueCaptureDescriptorData(format::HandleId device_id,
+                                             format::HandleId object_id,
+                                             size_t           data_size,
+                                             const void*      data);
+
     void WriteSetRayTracingShaderGroupHandlesCommand(format::HandleId device_id,
                                                      format::HandleId pipeline_id,
                                                      size_t           data_size,
@@ -1817,6 +1858,7 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::mutex sparse_resource_mutex;
 
 #if ENABLE_OPENXR_SUPPORT
+    std::mutex        fence_mutex;
     std::set<VkFence> valid_fences_;
 #endif
 

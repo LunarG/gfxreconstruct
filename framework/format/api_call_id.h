@@ -32,21 +32,12 @@
 #define GFXRECON_FORMAT_API_CALL_ID_H
 
 #include "util/defines.h"
+#include "util/logging.h" // For GFXRECON_ASSERT
 
 #include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
-
-constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
-{
-    return ((static_cast<uint32_t>(family) << 16) & 0xffff0000) | (static_cast<uint32_t>(api_call) & 0x0000ffff);
-}
-
-constexpr uint16_t GetApiCallFamily(uint32_t call_id)
-{
-    return static_cast<uint16_t>((call_id >> 16) & 0x0000ffff);
-}
 
 enum ApiFamilyId : uint16_t
 {
@@ -57,8 +48,22 @@ enum ApiFamilyId : uint16_t
     ApiFamily_AGS       = 4,
     ApiFamily_D3D11     = 5,
     ApiFamily_D3D11On12 = 6,
-    ApiFamily_OpenXR    = 7
+    ApiFamily_OpenXR    = 7,
+
+    // Family IDs greater than ApiFamily_Reserve_Start are reserved for future use
+    ApiFamily_Reserve_Start = 128,
 };
+
+constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
+{
+    GFXRECON_ASSERT(family < ApiFamily_Reserve_Start);
+    return ((static_cast<uint32_t>(family) << 16) & 0xffff0000) | (static_cast<uint32_t>(api_call) & 0x0000ffff);
+}
+
+constexpr uint16_t GetApiCallFamily(uint32_t call_id)
+{
+    return static_cast<uint16_t>((call_id >> 16) & 0x0000ffff);
+}
 
 enum ApiCallId : uint32_t
 {
@@ -803,6 +808,49 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetImageViewOpaqueCaptureDescriptorDataEXT                                          = MakeApiCallId(ApiFamily_Vulkan, 0x133e),
     ApiCall_vkGetSamplerOpaqueCaptureDescriptorDataEXT                                            = MakeApiCallId(ApiFamily_Vulkan, 0x133f),
     ApiCall_vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT                              = MakeApiCallId(ApiFamily_Vulkan, 0x1340),
+    ApiCall_vkCmdCopyMemoryIndirectKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1341),
+    ApiCall_vkCmdCopyMemoryToImageIndirectKHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1342),
+    ApiCall_vkCmdEndRendering2KHR                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1343),
+    ApiCall_vkCmdDecompressMemoryEXT                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1344),
+    ApiCall_vkCmdDecompressMemoryIndirectCountEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1345),
+    ApiCall_vkCmdBeginCustomResolveEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1346),
+    ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM                    = MakeApiCallId(ApiFamily_Vulkan, 0x1347),
+    ApiCall_Reserved_0x1348                                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1348),
+    ApiCall_vkGetPastPresentationTimingEXT                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1349),
+    ApiCall_vkGetSwapchainTimeDomainPropertiesEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x134a),
+    ApiCall_vkGetSwapchainTimingPropertiesEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x134b),
+    ApiCall_vkSetSwapchainPresentTimingQueueSizeEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134c),
+    ApiCall_vkCmdSetComputeOccupancyPriorityNV                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x134d),
+    ApiCall_vkGetDeviceCombinedImageSamplerIndexNVX                                               = MakeApiCallId(ApiFamily_Vulkan, 0x134e),
+    ApiCall_vkGetDeviceFaultDebugInfoKHR                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x134f),
+    ApiCall_vkGetDeviceFaultReportsKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1350),
+    ApiCall_vkQueueSetPerfHintQCOM                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1351),
+    ApiCall_vkCmdSetDispatchParametersARM                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1352),
+    ApiCall_vkCmdSetPrimitiveRestartIndexEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1353),
+    ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM                   = MakeApiCallId(ApiFamily_Vulkan, 0x1354),
+    ApiCall_vkCmdBindIndexBuffer3KHR                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x1355),
+    ApiCall_vkCmdBeginConditionalRendering2EXT                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1356),
+    ApiCall_vkCmdBeginTransformFeedback2EXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1357),
+    ApiCall_vkCmdBindTransformFeedbackBuffers2EXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1358),
+    ApiCall_vkCmdBindVertexBuffers3KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1359),
+    ApiCall_vkCmdCopyImageToMemoryKHR                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x135a),
+    ApiCall_vkCmdCopyMemoryKHR                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x135b),
+    ApiCall_vkCmdCopyMemoryToImageKHR                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x135c),
+    ApiCall_vkCmdCopyQueryPoolResultsToMemoryKHR                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x135d),
+    ApiCall_vkCmdDispatchIndirect2KHR                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x135e),
+    ApiCall_vkCmdDrawIndexedIndirect2KHR                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x135f),
+    ApiCall_vkCmdDrawIndexedIndirectCount2KHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1360),
+    ApiCall_vkCmdDrawIndirect2KHR                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1361),
+    ApiCall_vkCmdDrawIndirectByteCount2EXT                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1362),
+    ApiCall_vkCmdDrawIndirectCount2KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1363),
+    ApiCall_vkCmdDrawMeshTasksIndirect2EXT                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1364),
+    ApiCall_vkCmdDrawMeshTasksIndirectCount2EXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1365),
+    ApiCall_vkCmdEndTransformFeedback2EXT                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1366),
+    ApiCall_vkCmdFillMemoryKHR                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1367),
+    ApiCall_vkCmdUpdateMemoryKHR                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1368),
+    ApiCall_vkCmdWriteMarkerToMemoryAMD                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1369),
+    ApiCall_vkCreateAccelerationStructure2KHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x136a),
+    ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM                     = MakeApiCallId(ApiFamily_Vulkan, 0x136b),
 
     ApiCall_VulkanLast,
 
@@ -1353,6 +1401,28 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D12GBVDiagnostics_GetGBVResourceInfo                                               = MakeApiCallId(ApiFamily_D3D12, 0x1165),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved0                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1166),
     ApiCall_ID3D12GBVDiagnostics_GBVReserved1                                                     = MakeApiCallId(ApiFamily_D3D12, 0x1167),
+
+    // Agility SDK 1.616.1
+    ApiCall_ID3D12Tools2_SetApplicationSpecificDriverState                                        = MakeApiCallId(ApiFamily_D3D12, 0x1168),
+    ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverState                                  = MakeApiCallId(ApiFamily_D3D12, 0x1169),
+    ApiCall_ID3D12DeviceTools1_GetApplicationSpecificDriverBlobStatus                             = MakeApiCallId(ApiFamily_D3D12, 0x116a),
+
+    // Agility SDK 1.618.5
+    ApiCall_ID3D12PipelineState1_GetRootSignature                                                 = MakeApiCallId(ApiFamily_D3D12, 0x116b),
+    ApiCall_ID3D12CommandQueue1_SetProcessPriority                                                = MakeApiCallId(ApiFamily_D3D12, 0x116c),
+    ApiCall_ID3D12CommandQueue1_GetProcessPriority                                                = MakeApiCallId(ApiFamily_D3D12, 0x116d),
+    ApiCall_ID3D12CommandQueue1_SetGlobalPriority                                                 = MakeApiCallId(ApiFamily_D3D12, 0x116e),
+    ApiCall_ID3D12CommandQueue1_GetGlobalPriority                                                 = MakeApiCallId(ApiFamily_D3D12, 0x116f),
+    ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram                         = MakeApiCallId(ApiFamily_D3D12, 0x1170),
+    ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader                          = MakeApiCallId(ApiFamily_D3D12, 0x1171),
+    ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc                                          = MakeApiCallId(ApiFamily_D3D12, 0x1172),
+    ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc                                          = MakeApiCallId(ApiFamily_D3D12, 0x1173),
+    ApiCall_ID3D12StateObjectDatabase_StorePipelineStateDesc                                      = MakeApiCallId(ApiFamily_D3D12, 0x1174),
+    ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc                                       = MakeApiCallId(ApiFamily_D3D12, 0x1175),
+    ApiCall_ID3D12StateObjectDatabase_StoreStateObjectDesc                                        = MakeApiCallId(ApiFamily_D3D12, 0x1176),
+    ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc                                         = MakeApiCallId(ApiFamily_D3D12, 0x1177),
+    ApiCall_ID3D12StateObjectDatabase_FindObjectVersion                                           = MakeApiCallId(ApiFamily_D3D12, 0x1178),
+    ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile                    = MakeApiCallId(ApiFamily_D3D12, 0x1179),
 
     // AGS API
     // amd_ags.h

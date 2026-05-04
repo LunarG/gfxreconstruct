@@ -600,12 +600,6 @@ class VulkanCppConsumerBodyGenerator(VulkanBaseGenerator):
     def writeout(self, *args, **kwargs):
         write(*args, **kwargs, file=self.outFile)
 
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_cmd_params or self.struct_names:
-            return True
-        return False
 
     #
     # Performs C++ code generation for the feature.

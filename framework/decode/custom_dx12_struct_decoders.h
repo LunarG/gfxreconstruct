@@ -167,17 +167,19 @@ struct Decoded_D3D12_INDIRECT_ARGUMENT_DESC
 struct Decoded_D3D12_RAYTRACING_GEOMETRY_DESC
 {
     using struct_type = D3D12_RAYTRACING_GEOMETRY_DESC;
-    D3D12_RAYTRACING_GEOMETRY_DESC*                   decoded_value{ nullptr };
-    Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC* Triangles{ nullptr };
-    Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC*     AABBs{ nullptr };
+    D3D12_RAYTRACING_GEOMETRY_DESC*                       decoded_value{ nullptr };
+    Decoded_D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC*     Triangles{ nullptr };
+    Decoded_D3D12_RAYTRACING_GEOMETRY_AABBS_DESC*         AABBs{ nullptr };
+    Decoded_D3D12_RAYTRACING_GEOMETRY_OMM_TRIANGLES_DESC* OmmTriangles{ nullptr };
 };
 
 struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS
 {
     using struct_type = D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS*          decoded_value{ nullptr };
-    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC>*  pGeometryDescs{ nullptr };
-    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC*>* ppGeometryDescs{ nullptr };
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS*                       decoded_value{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC>*               pGeometryDescs{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_GEOMETRY_DESC*>*              ppGeometryDescs{ nullptr };
+    StructPointerDecoder<Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC>* pOpacityMicromapArrayDesc{ nullptr };
 };
 
 struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA
@@ -219,26 +221,30 @@ struct Decoded_D3D12_PIPELINE_STATE_STREAM_DESC
     using struct_type = D3D12_PIPELINE_STATE_STREAM_DESC;
     D3D12_PIPELINE_STATE_STREAM_DESC* decoded_value{ nullptr };
 
-    format::HandleId                    root_signature{ format::kNullHandleId };
-    ID3D12RootSignature**               root_signature_ptr{ nullptr };
-    Decoded_D3D12_SHADER_BYTECODE       vs_bytecode;
-    Decoded_D3D12_SHADER_BYTECODE       ps_bytecode;
-    Decoded_D3D12_SHADER_BYTECODE       ds_bytecode;
-    Decoded_D3D12_SHADER_BYTECODE       hs_bytecode;
-    Decoded_D3D12_SHADER_BYTECODE       gs_bytecode;
-    Decoded_D3D12_SHADER_BYTECODE       cs_bytecode;
-    Decoded_D3D12_SHADER_BYTECODE       as_bytecode;
-    Decoded_D3D12_SHADER_BYTECODE       ms_bytecode;
-    Decoded_D3D12_STREAM_OUTPUT_DESC    stream_output;
-    Decoded_D3D12_BLEND_DESC            blend;
-    Decoded_D3D12_RASTERIZER_DESC       rasterizer;
-    Decoded_D3D12_DEPTH_STENCIL_DESC    depth_stencil;
-    Decoded_D3D12_INPUT_LAYOUT_DESC     input_layout;
-    Decoded_D3D12_RT_FORMAT_ARRAY       render_target_formats;
-    Decoded_DXGI_SAMPLE_DESC            sample_desc;
-    Decoded_D3D12_CACHED_PIPELINE_STATE cached_pso;
-    Decoded_D3D12_DEPTH_STENCIL_DESC1   depth_stencil1;
-    Decoded_D3D12_VIEW_INSTANCING_DESC  view_instancing;
+    format::HandleId                             root_signature{ format::kNullHandleId };
+    ID3D12RootSignature**                        root_signature_ptr{ nullptr };
+    Decoded_D3D12_SHADER_BYTECODE                vs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE                ps_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE                ds_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE                hs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE                gs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE                cs_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE                as_bytecode;
+    Decoded_D3D12_SHADER_BYTECODE                ms_bytecode;
+    Decoded_D3D12_STREAM_OUTPUT_DESC             stream_output;
+    Decoded_D3D12_BLEND_DESC                     blend;
+    Decoded_D3D12_RASTERIZER_DESC                rasterizer;
+    Decoded_D3D12_DEPTH_STENCIL_DESC             depth_stencil;
+    Decoded_D3D12_INPUT_LAYOUT_DESC              input_layout;
+    Decoded_D3D12_RT_FORMAT_ARRAY                render_target_formats;
+    Decoded_DXGI_SAMPLE_DESC                     sample_desc;
+    Decoded_D3D12_CACHED_PIPELINE_STATE          cached_pso;
+    Decoded_D3D12_DEPTH_STENCIL_DESC1            depth_stencil1;
+    Decoded_D3D12_VIEW_INSTANCING_DESC           view_instancing;
+    Decoded_D3D12_RASTERIZER_DESC1               rasterizer1;
+    Decoded_D3D12_RASTERIZER_DESC2               rasterizer2;
+    Decoded_D3D12_DEPTH_STENCIL_DESC2            depth_stencil2;
+    Decoded_D3D12_SERIALIZED_ROOT_SIGNATURE_DESC serialized_root_signature;
 };
 
 struct Decoded_D3D12_STATE_OBJECT_DESC
@@ -330,7 +336,7 @@ struct Decoded_D3D12_SHADER_NODE
     using struct_type = D3D12_SHADER_NODE;
 
     D3D12_SHADER_NODE* decoded_value{ nullptr };
-    
+
     WStringDecoder                                                     Shader;
     StructPointerDecoder<Decoded_D3D12_BROADCASTING_LAUNCH_OVERRIDES>* broadcasting_launch_overrides{ nullptr };
     StructPointerDecoder<Decoded_D3D12_COALESCING_LAUNCH_OVERRIDES>*   coalescing_launch_overrides{ nullptr };
@@ -366,6 +372,49 @@ struct Decoded_D3D12_DISPATCH_GRAPH_DESC
 
     Decoded_D3D12_NODE_CPU_INPUT*       node_cpu_input{ nullptr };
     Decoded_D3D12_MULTI_NODE_CPU_INPUT* multi_node_cpu_input{ nullptr };
+};
+
+struct Decoded_D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1
+{
+    using struct_type = D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1;
+
+    D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1* decoded_value{ nullptr };
+
+    Decoded_D3D12_SERIALIZED_DATA_DRIVER_MATCHING_IDENTIFIER* DriverMatchingIdentifier{ nullptr };
+};
+
+struct Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC
+{
+    using struct_type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC;
+
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_RAYTRACING_OPACITY_MICROMAP_DESC
+{
+    using struct_type = D3D12_RAYTRACING_OPACITY_MICROMAP_DESC;
+
+    D3D12_RAYTRACING_OPACITY_MICROMAP_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT
+{
+    using struct_type = D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT;
+
+    D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* decoded_value{ nullptr };
+
+    WStringDecoder szAdapterFamily;
+};
+
+struct Decoded_D3D12_APPLICATION_DESC
+{
+    using struct_type = D3D12_APPLICATION_DESC;
+
+    D3D12_APPLICATION_DESC* decoded_value{ nullptr };
+
+    WStringDecoder pExeFilename;
+    WStringDecoder pName;
+    WStringDecoder pEngineName;
 };
 
 GFXRECON_END_NAMESPACE(decode)

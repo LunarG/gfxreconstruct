@@ -145,6 +145,15 @@ void TrackRaytracingGeometry(ID3D12CommandListInfo*                info,
     {
         info->command_gpu_virtual_addresses.insert(geometry_desc->AABBs.AABBs.StartAddress);
     }
+    else if (type == D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES)
+    {
+        info->command_gpu_virtual_addresses.insert(geometry_desc->OmmTriangles.pTriangles->Transform3x4);
+        info->command_gpu_virtual_addresses.insert(geometry_desc->OmmTriangles.pTriangles->IndexBuffer);
+        info->command_gpu_virtual_addresses.insert(geometry_desc->OmmTriangles.pTriangles->VertexBuffer.StartAddress);
+        info->command_gpu_virtual_addresses.insert(
+            geometry_desc->OmmTriangles.pOmmLinkage->OpacityMicromapIndexBuffer.StartAddress);
+        info->command_gpu_virtual_addresses.insert(geometry_desc->OmmTriangles.pOmmLinkage->OpacityMicromapArray);
+    }
 }
 
 void Track_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
@@ -180,6 +189,14 @@ void Track_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure(
                         TrackRaytracingGeometry(
                             info.get(), pDesc->Inputs.ppGeometryDescs[i]->Type, pDesc->Inputs.ppGeometryDescs[i]);
                     }
+                }
+                break;
+            case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+                for (UINT i = 0; i < pDesc->Inputs.NumDescs; ++i)
+                {
+                    info->command_gpu_virtual_addresses.insert(pDesc->Inputs.pOpacityMicromapArrayDesc[i].InputBuffer);
+                    info->command_gpu_virtual_addresses.insert(
+                        pDesc->Inputs.pOpacityMicromapArrayDesc[i].PerOmmDescs.StartAddress);
                 }
                 break;
             default:

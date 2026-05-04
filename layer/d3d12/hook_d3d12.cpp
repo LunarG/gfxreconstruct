@@ -188,7 +188,8 @@ bool GetD3d12DispatchTable(gfxrecon::encode::D3D12DispatchTable& d3d12_table)
 
             d3d12_table.D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary =
                 reinterpret_cast<PFN_D3D12_CREATE_VERSIONED_ROOT_SIGNATURE_DESERIALIZER_FROM_SUBOBJECT_IN_LIBRARY>(
-                    GetProcAddress(hook_info_.d3d12_dll, "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary"));
+                    GetProcAddress(hook_info_.d3d12_dll,
+                                   "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary"));
 
             d3d12_table.D3D12EnableExperimentalFeatures =
                 reinterpret_cast<decltype(D3D12EnableExperimentalFeatures)*>(

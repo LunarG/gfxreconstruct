@@ -48,11 +48,7 @@ class KhronosStructHandleMappersHeaderGenerator():
         extended_struct_func_name = self.get_extended_struct_func_prefix()
 
         for struct in self.get_all_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles) or
-                self.child_struct_has_handles(struct) or
-                (struct in self.GENERIC_HANDLE_STRUCTS)
-            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
+            if struct not in self.STRUCT_MAPPERS_BLACKLIST:
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const CommonObjectInfoTable& object_info_table);'.format(
                     struct
@@ -89,6 +85,14 @@ class KhronosStructHandleMappersHeaderGenerator():
         for struct in self.output_structs:
             write(
                 'void AddStructHandles(format::HandleId parent_id, const Decoded_{type}* id_wrapper, const {type}* handle_struct, CommonObjectInfoTable* object_info_table);'
+                .format(type=struct),
+                file=self.outFile
+            )
+            self.newline()
+
+        for struct in self.output_structs:
+            write(
+                'void PushRecaptureStructHandleIds(const Decoded_{type}* id_wrapper, CommonConsumerBase* consumer);'
                 .format(type=struct),
                 file=self.outFile
             )

@@ -66,9 +66,6 @@ _emit_extensions = []
 _remove_extensions = [
     "VK_AMDX_shader_enqueue",
     "VK_ARM_tensors",
-    "VK_ARM_data_graph",
-    ## @todo <https://github.com/LunarG/gfxreconstruct/issues/917>
-    "VK_EXT_descriptor_buffer",
     "VK_EXT_metal_objects",
     "VK_EXT_pipeline_properties",
     "VK_FUCHSIA_buffer_collection",
@@ -81,6 +78,26 @@ _remove_extensions = [
     "VK_NV_cluster_acceleration_structure",
     "VK_NV_external_compute_queue",
     "VK_OHOS_surface",
+    "VK_OHOS_external_memory",
+    "VK_OHOS_native_buffer",
+    "VK_AMDX_dense_geometry_format",
+    "VK_KHR_video_decode_h265",
+    "VK_KHR_video_encode_h265",
+    "VK_KHR_video_maintenance2",
+    "VK_EXT_descriptor_heap",
+    "VK_SEC_ubm_surface",
+    "VK_ARM_shader_instrumentation",
+    "VK_ARM_data_graph_optical_flow",
+    "VK_ARM_data_graph_instruction_set_tosa",
+]
+
+# Exclude *video* extensions from code generation.  This excludes all
+# generation of struct and enums under these video extensions
+# TODO: This should probably behave like _remove_extensions
+_remove_video_extensions = [
+    "vulkan_video_codec_h265std",
+    "vulkan_video_codec_h265std_decode",
+    "vulkan_video_codec_h265std_encode",
 ]
 
 # Turn lists of names/patterns into matching regular expressions.
@@ -255,6 +272,9 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             },
             'VkDebugUtilsObjectTagInfoEXT': {
                 'objectHandle': 'objectType'
+            },
+            'VkDescriptorGetInfoEXT': {
+                'objectHandle': 'objectType'
             }
         }
 
@@ -274,6 +294,10 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
         }
 
+        self.ADD_AS_CHAINABLE_STRUCTS = [
+            "VkSurfaceCapabilities2KHR",
+        ]
+
         self.VIDEO_TREE = None
 
         self.generate_video = False
@@ -290,13 +314,35 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
         """Method override. Generate code for the feature."""
         KhronosBaseGenerator.endFeature(self)
 
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        return True
+
     def gen_video_type(self):
         if not self.VIDEO_TREE:
             return
 
+        # Which video types should be omitted
+        omit_video_types = set()
+
+        # for all extensions in _remove_video_extensions, collect types
+        # that should not be omitted.
+        extensions = self.VIDEO_TREE.find('extensions')
+        for element in extensions.iter('extension'):
+            name = element.get('name')
+            if name in _remove_video_extensions:
+                for type_element in element.iter('type'):
+                    omit_video_types.add(type_element.get('name'))
+
         types = self.VIDEO_TREE.find('types')
         for element in types.iter('type'):
             name = element.get('name')
+
+            # if this type (struct) was in a removed video extension,
+            # don't process it
+            if name in omit_video_types:
+                continue
+
             category = element.get('category')
             if name and category and (category == 'struct' or category == 'union'):
                 self.struct_names.add(name)
@@ -305,6 +351,12 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
 
         for element in self.VIDEO_TREE.iter('enums'):
             group_name = element.get('name')
+
+            # if this enum group was in a removed video extension,
+            # don't process it
+            if group_name in omit_video_types:
+                continue
+
             self.enum_names.add(group_name)
             enumerants = dict()
             for elem in element.findall('enum'):
@@ -315,7 +367,7 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
             self.enumEnumerants[group_name] = enumerants
 
     def make_dump_resources_func_decl(
-        self, return_type, name, values, is_override
+        self, return_type, name, values, is_override, is_transfer
     ):
         """make_consumer_decl - return VulkanConsumer class member function declaration.
         Generate VulkanConsumer class member function declaration.
@@ -350,9 +402,15 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
                     count = value.pointer_count
 
                     if self.is_struct(type_name):
-                        param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
-                            type_name
-                        )
+                        if count > 1:
+                            param_type = 'StructPointerDecoder<Decoded_{}*>*'.format(
+                                type_name
+                            )
+                        else:
+                            param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
+                                type_name
+                            )
+
                     elif self.is_handle(type_name) and type_name != 'VkCommandBuffer':
                         param_type = 'HandlePointerDecoder<{}>*'.format(type_name)
                     else:
@@ -375,6 +433,10 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
                 param_type, value.name, self.INDENT_SIZE,
                 self.genOpts.align_func_param
             )
+            param_decls.append(param_decl)
+
+        if is_transfer:
+            param_decl = ' ' * self.INDENT_SIZE + "bool before_command"
             param_decls.append(param_decl)
 
         if param_decls:

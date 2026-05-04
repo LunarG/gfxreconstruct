@@ -79,9 +79,6 @@ class OpenXrExportJsonConsumerBodyGenerator(OpenXrBaseGenerator, KhronosExportJs
 
         self.formatAsHex = {}
 
-        # Parameters using this name should be output as handles even though they are uint64_t
-        self.formatAsHandle = {}
-
         self.external_structs = set(['LARGE_INTEGER', 'LUID'])
 
     def endFile(self):
@@ -101,16 +98,6 @@ class OpenXrExportJsonConsumerBodyGenerator(OpenXrBaseGenerator, KhronosExportJs
         """Method override"""
         return self.is_manually_generated_cmd_name(command)
 
-    def decode_as_handle(self, value):
-        """Method override
-        Indicates that the given type should be decoded as a handle."""
-        return (
-            (
-                self.is_handle_like(value.base_type)
-                or value.name in self.formatAsHandle
-            )
-        )
-
     def decode_as_hex(self, value):
         """Method override"""
         return value.base_type in self.formatAsHex
@@ -123,7 +110,7 @@ class OpenXrExportJsonConsumerBodyGenerator(OpenXrBaseGenerator, KhronosExportJs
         """Method may be overridden."""
         to_json = ''
         if self.has_special_case_json_export(name):
-            to_json = 'FieldToJson(args["{0}"], *{0}->GetPointer(), json_options)'
+            to_json = 'FieldToJson(args["{0}"], *{0}->GetPointer())'
 
         return to_json
     # yapf: disable

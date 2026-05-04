@@ -24,6 +24,7 @@
 #ifndef GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
 #define GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
 
+#include "string_array_decoder.h"
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -33,7 +34,6 @@
 #include "decode/struct_pointer_decoder.h"
 #include "decode/vulkan_pnext_node.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
-#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
@@ -99,15 +99,27 @@ struct Decoded_VkPerformanceValueDataINTEL
     StringDecoder valueString;
 };
 
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the
+// Decoded_VkAccelerationStructureMotionInstanceNV DecodeStruct function, based on the value of
+// VkAccelerationStructureMotionInstanceNV::type.
+struct Decoded_VkAccelerationStructureMotionInstanceDataNV
+{
+    using struct_type = VkAccelerationStructureMotionInstanceDataNV;
+
+    VkAccelerationStructureMotionInstanceDataNV* decoded_value{ nullptr };
+
+    Decoded_VkAccelerationStructureInstanceKHR*            staticInstance{ nullptr };
+    Decoded_VkAccelerationStructureMatrixMotionInstanceNV* matrixMotionInstance{ nullptr };
+    Decoded_VkAccelerationStructureSRTMotionInstanceNV*    srtMotionInstance{ nullptr };
+};
+
 struct Decoded_VkAccelerationStructureMotionInstanceNV
 {
     using struct_type = VkAccelerationStructureMotionInstanceNV;
 
     VkAccelerationStructureMotionInstanceNV* decoded_value{ nullptr };
 
-    Decoded_VkAccelerationStructureInstanceKHR*            staticInstance{ nullptr };
-    Decoded_VkAccelerationStructureMatrixMotionInstanceNV* matrixMotionInstance{ nullptr };
-    Decoded_VkAccelerationStructureSRTMotionInstanceNV*    srtMotionInstance{ nullptr };
+    Decoded_VkAccelerationStructureMotionInstanceDataNV* data{ nullptr };
 };
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
@@ -202,10 +214,12 @@ struct Decoded_SECURITY_ATTRIBUTES
 // VkIndirectExecutionSetCreateInfoEXT::type.
 struct Decoded_VkIndirectExecutionSetInfoEXT
 {
-    using struct_type = VkIndirectExecutionSetEXT;
+    using struct_type = VkIndirectExecutionSetInfoEXT;
 
-    Decoded_VkIndirectExecutionSetPipelineInfoEXT* pPipelineInfo;
-    Decoded_VkIndirectExecutionSetShaderInfoEXT*   pShaderInfo;
+    VkIndirectExecutionSetInfoEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetPipelineInfoEXT>* pPipelineInfo{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectExecutionSetShaderInfoEXT>*   pShaderInfo{ nullptr };
 };
 
 struct Decoded_VkIndirectExecutionSetCreateInfoEXT
@@ -215,30 +229,33 @@ struct Decoded_VkIndirectExecutionSetCreateInfoEXT
     VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
 
     PNextNode*                             pNext{ nullptr };
-    VkIndirectExecutionSetInfoTypeEXT      decoded_type;
-    Decoded_VkIndirectExecutionSetInfoEXT* info;
+    Decoded_VkIndirectExecutionSetInfoEXT* info{ nullptr };
 };
 
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the
+// Decoded_VkIndirectCommandsLayoutTokenEXT DecodeStruct function, based on the value of
+// VkIndirectCommandsLayoutTokenEXT::type.
 struct Decoded_VkIndirectCommandsTokenDataEXT
 {
     using struct_type = VkIndirectCommandsTokenDataEXT;
 
-    Decoded_VkIndirectCommandsPushConstantTokenEXT* pPushConstant;
-    Decoded_VkIndirectCommandsVertexBufferTokenEXT* pVertexBuffer;
-    Decoded_VkIndirectCommandsIndexBufferTokenEXT*  pIndexBuffer;
-    Decoded_VkIndirectCommandsExecutionSetTokenEXT* pExecutionSet;
+    VkIndirectCommandsTokenDataEXT* decoded_value{ nullptr };
+
+    StructPointerDecoder<Decoded_VkIndirectCommandsPushConstantTokenEXT>* pPushConstant{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsVertexBufferTokenEXT>* pVertexBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsIndexBufferTokenEXT>*  pIndexBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkIndirectCommandsExecutionSetTokenEXT>* pExecutionSet{ nullptr };
 };
 
 struct Decoded_VkIndirectCommandsLayoutTokenEXT
 {
     using struct_type = VkIndirectCommandsLayoutTokenEXT;
 
-    VkIndirectCommandsLayoutTokenEXT* decoded_value;
+    VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
 
     PNextNode*                              pNext{ nullptr };
-    VkIndirectCommandsTokenTypeEXT          decoded_type;
-    Decoded_VkIndirectCommandsTokenDataEXT* data;
-    uint32_t                                offset;
+    Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
+    uint32_t                                offset{};
 };
 
 struct Decoded_VkCopyMemoryToImageInfo
@@ -287,6 +304,47 @@ struct Decoded_VkImageToMemoryCopy
     Decoded_VkImageSubresourceLayers* imageSubresource{ nullptr };
     Decoded_VkOffset3D*               imageOffset{ nullptr };
     Decoded_VkExtent3D*               imageExtent{ nullptr };
+};
+
+struct Decoded_VkLayerSettingEXT
+{
+    using struct_type = VkLayerSettingEXT;
+
+    VkLayerSettingEXT* decoded_value{ nullptr };
+
+    StringDecoder           pLayerName;
+    StringDecoder           pSettingName;
+    PointerDecoder<uint8_t> pValues;
+
+    // if type is VK_LAYER_SETTING_TYPE_STRING_EXT we need to decode an array of strings
+    StringArrayDecoder string_decoder;
+};
+
+struct Decoded_VkDescriptorDataEXT
+{
+    using struct_type = VkDescriptorDataEXT;
+
+    VkDescriptorDataEXT* decoded_value{ nullptr };
+
+    HandlePointerDecoder<VkSampler>                           pSampler;
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pCombinedImageSampler{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pInputAttachmentImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pSampledImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorImageInfo>*      pStorageImage{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pUniformTexelBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pStorageTexelBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pUniformBuffer{ nullptr };
+    StructPointerDecoder<Decoded_VkDescriptorAddressInfoEXT>* pStorageBuffer{ nullptr };
+};
+
+struct Decoded_VkDescriptorGetInfoEXT
+{
+    using struct_type = VkDescriptorGetInfoEXT;
+
+    VkDescriptorGetInfoEXT* decoded_value{ nullptr };
+
+    PNextNode*                   pNext{ nullptr };
+    Decoded_VkDescriptorDataEXT* data{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)

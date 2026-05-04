@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2024 LunarG, Inc.
+** Copyright (c) 2024-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -23,11 +23,20 @@
 #ifndef GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMMON_H
 #define GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMMON_H
 
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/common_object_info_table.h"
-#include "vulkan/vulkan_core.h"
-#include "util/compressor.h"
+#include "decode/vulkan_object_info.h"
+#include "decode/vulkan_replay_dump_resources_as.h"
+#include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
+#include "decode/vulkan_replay_options.h"
+#include "generated/generated_vulkan_dispatch_table.h"
+#include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_util.h"
+#include "util/logging.h"
 #include "util/defines.h"
 #include "util/options.h"
+
+#include <cstdint>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -61,12 +70,12 @@ struct MinMaxVertexIndex
     uint32_t max = 0;
 };
 
-using BoundDescriptorSets = std::unordered_map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
+using BoundDescriptorSets = std::map<uint32_t, VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo>;
 
 DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              device_info,
                                        const graphics::VulkanDeviceTable*   device_table,
                                        const graphics::VulkanInstanceTable* instance_table,
-                                       VulkanObjectInfoTable&               object_info_table,
+                                       const CommonObjectInfoTable&         object_info_table,
                                        VkFormat                             src_format,
                                        VkImageTiling                        src_image_tiling,
                                        VkImageType                          type,
@@ -75,24 +84,12 @@ DumpedImageFormat GetDumpedImageFormat(const VulkanDeviceInfo*              devi
 
 const char* ImageFileExtension(DumpedImageFormat image_format);
 
-uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
-                            uint32_t                                type_bits,
-                            VkMemoryPropertyFlags                   property_flags);
-
-VkResult CloneImage(CommonObjectInfoTable&                  object_info_table,
-                    const graphics::VulkanDeviceTable*      device_table,
-                    const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                    const VulkanImageInfo*                  image_info,
-                    VkImage*                                new_image,
-                    VkDeviceMemory*                         new_image_memory);
-
-VkResult CloneBuffer(CommonObjectInfoTable&                  object_info_table,
-                     const graphics::VulkanDeviceTable*      device_table,
-                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
-                     const VulkanBufferInfo*                 buffer_info,
-                     VkBuffer*                               new_buffer,
-                     VkDeviceMemory*                         new_buffer_memory,
-                     VkDeviceSize                            override_size = 0);
+VkResult CreateVkImage(const CommonObjectInfoTable&            object_info_table,
+                       const graphics::VulkanDeviceTable*      device_table,
+                       const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
+                       const VulkanImageInfo*                  image_info,
+                       VkImage*                                new_image,
+                       VkDeviceMemory*                         new_image_memory);
 
 uint32_t VkIndexTypeToBytes(VkIndexType type);
 
@@ -102,20 +99,41 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                                           int32_t                     vertex_offset,
                                           VkIndexType                 type);
 
-VkResult DumpImageToFile(const VulkanImageInfo*               image_info,
-                         const VulkanDeviceInfo*              device_info,
-                         const graphics::VulkanDeviceTable*   device_table,
-                         const graphics::VulkanInstanceTable* instance_table,
-                         CommonObjectInfoTable&               object_info_table,
-                         const std::vector<std::string>&      filenames,
-                         float                                scale,
-                         bool&                                scaling_supported,
-                         util::ScreenshotFormat               image_file_format,
-                         const util::Compressor*              compressor            = nullptr,
-                         bool                                 dump_all_subresources = false,
-                         bool                                 dump_image_raw        = false,
-                         bool                                 dump_separate_alpha   = false,
-                         VkImageLayout                        layout                = VK_IMAGE_LAYOUT_MAX_ENUM);
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
+                             VkPhysicalDevice                     phys_dev,
+                             const VulkanImageInfo*               image_info);
+
+// Fetch image from the GPU into host memory
+VkResult DumpImage(DumpedImage&                         dumped_image,
+                   VkImageLayout                        layout,
+                   float                                scale,
+                   bool                                 dump_image_raw,
+                   const VkImageSubresourceRange&       subresource_range,
+                   DumpedImageHostData&                 data,
+                   const VulkanDeviceInfo*              device_info,
+                   const graphics::VulkanDeviceTable*   device_table,
+                   const graphics::VulkanInstanceTable* instance_table,
+                   const CommonObjectInfoTable&         object_info_table);
+
+// Fetch a buffer from the GPU into host memory
+VkResult DumpBuffer(const DumpedBuffer&                  buffer,
+                    DumpedHostData&                      data,
+                    const VulkanDeviceInfo*              device_info,
+                    const graphics::VulkanDeviceTable*   device_table,
+                    const graphics::VulkanInstanceTable* instance_table,
+                    const CommonObjectInfoTable&         object_info_table);
+
+// Fetch an acceleration structure from the GPU into host memory
+VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                      dumped_as,
+                                   AccelerationStructureDumpedHostData&              dumped_as_data,
+                                   AccelerationStructureDumpResourcesContext*        as_context,
+                                   const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
+                                   const VulkanDeviceInfo*                           device_info,
+                                   const graphics::VulkanDeviceTable&                device_table,
+                                   const CommonObjectInfoTable&                      object_info_table,
+                                   const graphics::VulkanInstanceTable&              instance_table,
+                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   bool                                              use_capture_addresses = false);
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
 
@@ -126,14 +144,14 @@ std::string FormatToStr(VkFormat format);
 std::string IndexTypeToStr(VkIndexType type);
 
 VkResult CreateVkBuffer(VkDeviceSize                            size,
-                        const graphics::VulkanDeviceTable*      device_table,
+                        const graphics::VulkanDeviceTable&      device_table,
                         VkDevice                                parent_device,
-                        VkBaseInStructure*                      pNext,
+                        const VkBaseInStructure*                pNext,
+                        const VkBaseInStructure*                allocate_memory_info_pNext,
                         const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
+                        VkBufferUsageFlags                      usage_flags,
                         VkBuffer*                               new_buffer,
                         VkDeviceMemory*                         new_memory);
-
-void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects);
 
 std::string ShaderStageFlagsToString(VkShaderStageFlags flags);
 
@@ -141,30 +159,76 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
 
 std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
 
-uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families);
+// Inject a CmdCopyBuffer(command_buffer, src, dst, regions.count(), regions.size()) into the provided command buffer
+// followed by the appropriate pipeline barrier
+void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
+                          const graphics::VulkanDeviceTable& device_table,
+                          VkBuffer                           src,
+                          VkBuffer                           dst,
+                          const std::vector<VkBufferCopy>&   regions,
+                          VkAccessFlags src_access_mask = VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+                          VkAccessFlags dst_access_mask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_HOST_READ_BIT,
+                          VkPipelineStageFlags src_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT,
+                          VkPipelineStageFlags dst_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT |
+                                                                VK_PIPELINE_STAGE_HOST_BIT);
+
+static constexpr VkImageSubresourceRange FilterImageSubresourceRange(const VkImageSubresourceRange& subresource_range,
+                                                                     const VulkanImageInfo*         image_info)
+{
+    GFXRECON_ASSERT(image_info != nullptr);
+
+    VkImageSubresourceRange modified_subresource_range;
+    modified_subresource_range.aspectMask = subresource_range.aspectMask;
+
+    // Handle base mip level and count
+    if (subresource_range.baseMipLevel > image_info->level_count)
+    {
+        modified_subresource_range.baseMipLevel = 0;
+    }
+    else
+    {
+        modified_subresource_range.baseMipLevel = subresource_range.baseMipLevel;
+    }
+
+    if (subresource_range.levelCount == VK_REMAINING_MIP_LEVELS)
+    {
+        modified_subresource_range.levelCount = image_info->level_count - modified_subresource_range.baseMipLevel;
+    }
+    else
+    {
+        modified_subresource_range.levelCount = std::min(image_info->level_count, subresource_range.levelCount);
+    }
+
+    // Handle base array layer and count
+    if (subresource_range.baseArrayLayer > image_info->layer_count)
+    {
+        modified_subresource_range.baseArrayLayer = 0;
+    }
+    else
+    {
+        modified_subresource_range.baseArrayLayer = subresource_range.baseArrayLayer;
+    }
+
+    if (subresource_range.layerCount == VK_REMAINING_ARRAY_LAYERS)
+    {
+        modified_subresource_range.layerCount = image_info->layer_count - modified_subresource_range.baseArrayLayer;
+    }
+    else
+    {
+        modified_subresource_range.layerCount = std::min(image_info->layer_count, subresource_range.layerCount);
+    }
+
+    return modified_subresource_range;
+}
+
+bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
+                    uint32_t                        desc_set,
+                    uint32_t                        binding,
+                    uint32_t                        array_index,
+                    VkImageSubresourceRange*        subresource_range = nullptr);
 
 class VulkanDumpResourcesDelegate;
 class DefaultVulkanDumpResourcesDelegate;
-
-enum class DumpResourceType : uint32_t
-{
-    kUnknown,
-    kRtv,
-    kDsv,
-    kVertex,
-    kIndex,
-    kImageDescriptor,
-    kBufferDescriptor,
-    kInlineUniformBufferDescriptor,
-    kDrawCallInfo,
-    kDispatchInfo,
-    kTraceRaysIndex,
-    kDispatchTraceRaysImage,
-    kDispatchTraceRaysBuffer,
-    kDispatchTraceRaysImageDescriptor,
-    kDispatchTraceRaysBufferDescriptor,
-    kDispatchTraceRaysInlineUniformBufferDescriptor,
-};
 
 enum class DumpResourcesCommandBufferLevel
 {
@@ -175,7 +239,103 @@ enum class DumpResourcesCommandBufferLevel
 
 #define DEPTH_ATTACHMENT ~0
 
-GFXRECON_END_NAMESPACE(gfxrecon)
-GFXRECON_END_NAMESPACE(decode)
+// Wrapper class for VkFence. Either holds an existing VkFence or creates and handles destruction of one
+struct TemporaryFence
+{
+    TemporaryFence(VkFence other, VkDevice device, const graphics::VulkanDeviceTable& dt) :
+        handle(other), parent_device(device), device_table(dt)
+    {
+        if (other == VK_NULL_HANDLE)
+        {
+            VkFenceCreateInfo fence_ci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
+            const VkResult    res      = device_table.CreateFence(parent_device, &fence_ci, nullptr, &handle);
+            needs_cleanup              = (res == VK_SUCCESS);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR(
+                    "[%s:%u] CreateFence failed with %s", __FILE__, __LINE__, util::ToString(res).c_str());
+            }
+        }
+        else
+        {
+            needs_cleanup = false;
+        }
+    }
+
+    TemporaryFence(VkDevice device, const graphics::VulkanDeviceTable& dt) : TemporaryFence(VK_NULL_HANDLE, device, dt)
+    {}
+
+    VkResult Wait()
+    {
+        GFXRECON_ASSERT(parent_device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
+
+        // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
+        VkResult res = device_table.WaitForFences(parent_device, 1, &handle, VK_TRUE, 10000000000);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("WaitForFences failed with %s", util::ToString(res).c_str());
+        }
+
+        return res;
+    }
+
+    VkResult Reset()
+    {
+        GFXRECON_ASSERT(parent_device != VK_NULL_HANDLE);
+        GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
+
+        VkResult res = device_table.ResetFences(parent_device, 1, &handle);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("ResetFences failed with %s", util::ToString(res).c_str());
+        }
+
+        return res;
+    }
+
+    ~TemporaryFence()
+    {
+        if (needs_cleanup)
+        {
+            GFXRECON_ASSERT(parent_device != VK_NULL_HANDLE);
+            GFXRECON_ASSERT(handle != VK_NULL_HANDLE);
+
+            device_table.DestroyFence(parent_device, handle, nullptr);
+        }
+    }
+
+    VkFence                            handle;
+    VkDevice                           parent_device;
+    const graphics::VulkanDeviceTable& device_table;
+    bool                               needs_cleanup;
+};
+
+struct TemporaryCommandBuffer
+{
+    TemporaryCommandBuffer(const VulkanDeviceInfo& dev_info, const graphics::VulkanDeviceTable& dev_table) :
+        device_info(dev_info), device_table(dev_table)
+    {}
+
+    ~TemporaryCommandBuffer()
+    {
+        if (command_pool != VK_NULL_HANDLE)
+        {
+            device_table.DestroyCommandPool(device_info.handle, command_pool, nullptr);
+        }
+    };
+
+    VkResult CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp);
+
+    VkResult SubmitAndDestroy();
+
+    const VulkanDeviceInfo&            device_info{ nullptr };
+    const graphics::VulkanDeviceTable& device_table{ nullptr };
+    VkCommandPool                      command_pool{ VK_NULL_HANDLE };
+    VkCommandBuffer                    command_buffer{ VK_NULL_HANDLE };
+    VkQueue                            queue{ VK_NULL_HANDLE };
+};
+
+GFXRECON_END_NAMESPACE(gfxrecon) GFXRECON_END_NAMESPACE(decode)
 
 #endif /* GFXRECON_GENERATED_VULKAN_REPLAY_DUMP_RESOURCES_COMMON_H */

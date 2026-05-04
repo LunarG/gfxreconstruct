@@ -78,7 +78,7 @@ void TestDx12BufferNotInMap(GpuVaMap& gpu_va_map, const Dx12ResourcePtr& dx12_bu
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get tests", "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 32;
     static constexpr int         kBufferSize      = 1024;
@@ -98,7 +98,7 @@ TEST_CASE("GpuVaMap::Add(ID3D12Resource*, D3D12_GPU_VIRTUAL_ADDRESS, "
           "D3D12_RESOURCE_DESC*) override and GpuVaMap::Get tests",
           "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 32;
     static constexpr int         kBufferSize      = 1024;
@@ -120,7 +120,7 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get equal range overlapping buffer "
           "tests",
           "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferBoundCount   = 16;
     static constexpr int         kBufferOverlapCount = 2;
@@ -142,7 +142,7 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
           "sequential buffer tests",
           "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kListsize        = 8;
     static constexpr int         kBufferSize      = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT + 2048;
@@ -174,7 +174,7 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
           "non sequential buffer tests",
           "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kListsize        = 16;
     static constexpr int         kBufferSize      = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT + 2048;
@@ -194,7 +194,7 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get partial range overlapping "
 
 TEST_CASE("GpuVaMap::Add and GpuVaMap::Get negative tests", "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 2;
     static constexpr int         kBufferSize      = 1024;
@@ -224,7 +224,7 @@ TEST_CASE("GpuVaMap::Add(ID3D12Resource*, D3D12_GPU_VIRTUAL_ADDRESS, "
           "D3D12_RESOURCE_DESC*) override and GpuVaMap::Get negative tests",
           "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 2;
     static constexpr int         kBufferSize      = 1024;
@@ -257,7 +257,7 @@ TEST_CASE("GpuVaMap::Add(ID3D12Resource*, D3D12_GPU_VIRTUAL_ADDRESS, "
 
 TEST_CASE("GpuVaMap::Remove tests", "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize  = 32;
     static constexpr int         kBufferSize      = 1024;
@@ -303,7 +303,7 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get capture to replay GPU VA mapping "
           "tests",
           "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                     gpu_va_map;
     static constexpr int         kBufferListSize          = 1;
     static constexpr int         kBufferSize              = 1024;
@@ -337,7 +337,7 @@ TEST_CASE("GpuVaMap::Add and GpuVaMap::Get capture to replay GPU VA mapping "
 
 TEST_CASE("GpuVaMap::GetReplayGpuVa 4K page tests", "[gpu_va_map][pre_submit]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
     GpuVaMap                                   gpu_va_map;
     static constexpr int                       kBufferListSize  = 4;
     static constexpr int                       kBufferSize      = 1024;

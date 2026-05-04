@@ -420,6 +420,35 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                 ->DestroyShaderModule(parent_info->handle, object_info->handle, nullptr);
         });
 
+    FreeChildObjects<VulkanDeviceInfo, VulkanShaderEXTInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkShaderEXT),
+        remove_entries,
+        report_leaks,
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkShaderEXTInfo,
+        &CommonObjectInfoTable::RemoveVkShaderEXTInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanShaderEXTInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+            get_device_table(parent_info->handle)->DestroyShaderEXT(parent_info->handle, object_info->handle, nullptr);
+        });
+
+    FreeChildObjects<VulkanDeviceInfo, VulkanPipelineBinaryKHRInfo>(
+        table,
+        GFXRECON_STR(VkDevice),
+        GFXRECON_STR(VkPipelineBinaryKHR),
+        remove_entries,
+        report_leaks,
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkPipelineBinaryKHRInfo,
+        &CommonObjectInfoTable::RemoveVkPipelineBinaryKHRInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineBinaryKHRInfo* object_info) {
+            assert((parent_info != nullptr) && (object_info != nullptr));
+            get_device_table(parent_info->handle)
+                ->DestroyPipelineBinaryKHR(parent_info->handle, object_info->handle, nullptr);
+        });
+
     FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorSetLayoutInfo>(
         table,
         GFXRECON_STR(VkDevice),
@@ -693,10 +722,12 @@ void FreeAllLiveObjects(CommonObjectInfoTable*                                  
                                         &CommonObjectInfoTable::VisitVkDeviceInfo,
                                         &CommonObjectInfoTable::RemoveVkDeviceInfo,
                                         [&](const VulkanDeviceInfo* object_info) {
-                                            assert(object_info != nullptr);
+                                            GFXRECON_ASSERT(object_info != nullptr);
+                                            GFXRECON_ASSERT(swapchain != nullptr)
+                                            auto* device_table = get_device_table(object_info->handle);
+                                            swapchain->CleanDeviceResources(object_info->handle, device_table);
                                             object_info->allocator->Destroy();
-                                            auto table = get_device_table(object_info->handle);
-                                            table->DestroyDevice(object_info->handle, nullptr);
+                                            device_table->DestroyDevice(object_info->handle, nullptr);
                                         });
 
     // Remove the objects that are not destroyed from the table.

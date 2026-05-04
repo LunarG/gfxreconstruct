@@ -1,0 +1,173 @@
+/*
+** Copyright (c) 2026 Valve Corporation
+** Copyright (c) 2026 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+pipeline {
+    agent none
+
+    parameters {
+        string(
+            name: 'PROJECT_REPO',
+            defaultValue: 'git@github.com:LunarG/gfxreconstruct.git',
+            description: 'Project repository URL'
+        )
+        string(
+            name: 'PROJECT_BRANCH',
+            defaultValue: 'dev',
+            description: 'Project branch to build'
+        )
+        string(
+            name: 'TEST_REPO',
+            defaultValue: 'git@github.com:LunarG/VulkanTests',
+            description: 'Test repository URL'
+        )
+        string(
+            name: 'TEST_BRANCH',
+            defaultValue: '',
+            description: 'Test repository branch (leave empty for default)'
+        )
+        string(
+            name: 'TEST_SUITE_REPO',
+            defaultValue: 'git@github.com:LunarG/ci-gfxr-suites',
+            description: 'Test suite repository URL'
+        )
+        string(
+            name: 'TEST_SUITE_BRANCH',
+            defaultValue: '',
+            description: 'Test suite repository branch (leave empty for default)'
+        )
+        string(
+            name: 'TEST_SUITE',
+            defaultValue: 'commit-suite.json',
+            description: 'Test suite filename'
+        )
+        choice(
+            name: 'BUILD_MODE',
+            choices: ['Release', 'Debug'],
+            description: 'Build mode'
+        )
+        choice(
+            name: 'BITS',
+            choices: ['64', '32'],
+            description: 'Build architecture'
+        )
+        string(
+            name: 'NODES',
+            defaultValue: '',
+            description: 'Comma-separated list of nodes to run tests on'
+        )
+    }
+
+    options {
+        buildDiscarder(logRotator(
+            daysToKeepStr: '14',
+            artifactDaysToKeepStr: '7'
+        ))
+    }
+
+    stages {
+        stage('Run Tests') {
+            steps {
+                script {
+                    def tests = [:]
+
+                    node {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: params.PROJECT_BRANCH]],
+                            userRemoteConfigs: [[url: params.PROJECT_REPO]]
+                        ])
+                        def runJob = load 'ci/runJob.groovy'
+
+                        def selectedNodes = params.NODES?.split(',')?.collect { it.trim() }?.findAll { it }
+
+                        if (!selectedNodes) {
+                            currentBuild.result = 'NOT_BUILT'
+                            echo 'No nodes selected. Run again with Build with Parameters.'
+                            return
+                        }
+
+                        selectedNodes.each { nodeName ->
+                            def type = runJob.getNodeType(nodeName)
+                            if (!type) {
+                                error "Cannot determine type for node: ${nodeName}. Name must contain 'and', 'ubu', 'mac', 'wnapl', or 'win'."
+                            }
+
+                            def closure
+                            switch (type) {
+                                case 'android':
+                                    closure = runJob.gfxrTestAndroidManual(
+                                        nodeName,
+                                        nodeName,
+                                        params.BUILD_MODE,
+                                        params.BITS,
+                                        params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH
+                                    )
+                                    break
+                                case 'linux':
+                                    closure = runJob.gfxrTestLinuxManual(
+                                        nodeName,
+                                        nodeName,
+                                        params.BUILD_MODE,
+                                        params.BITS,
+                                        params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH
+                                    )
+                                    break
+                                case 'windows':
+                                    closure = runJob.gfxrTestWindowsManual(
+                                        nodeName,
+                                        nodeName,
+                                        params.BUILD_MODE,
+                                        params.BITS,
+                                        params.TEST_SUITE,
+                                        params.PROJECT_REPO,
+                                        params.PROJECT_BRANCH,
+                                        params.TEST_REPO,
+                                        params.TEST_BRANCH,
+                                        params.TEST_SUITE_REPO,
+                                        params.TEST_SUITE_BRANCH
+                                    )
+                                    break
+                            }
+
+                            tests[nodeName] = closure
+                        }
+                    }
+
+                    parallel tests
+                }
+            }
+        }
+    }
+}

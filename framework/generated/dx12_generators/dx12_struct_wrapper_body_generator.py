@@ -86,8 +86,9 @@ class Dx12StructWrapperBodyGenerator(Dx12BaseGenerator):
                 elif self.is_class(value):
                     if value.is_const:
                         expr += '    if(value->{1})\n'\
-                                '    {{\n'\
-                                '        WrapObject(IID_{0}, reinterpret_cast<void**>(&const_cast<{0}*>(value->{1})), nullptr);\n'\
+                                '    {{\n' \
+                                '        {0}* casted = const_cast<{0}*>(value->{1});\n' \
+                                '        WrapObject(IID_{0}, reinterpret_cast<void**>(&casted), nullptr);\n' \
                                 '    }}\n'.format(value.base_type, value.name)
                     else:
                         expr += '    if(value->{1})\n'\

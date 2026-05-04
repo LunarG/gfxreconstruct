@@ -622,9 +622,7 @@ class VulkanApiCallEncodersBodyGenerator(VulkanBaseGenerator, KhronosApiCallEnco
             arg_name = value.name
             if value.is_pointer or value.is_array:
                 if self.is_input_pointer(value):
-                    if (value.base_type in self.structs_with_handles) or (
-                        value.base_type in self.GENERIC_HANDLE_STRUCTS
-                    ):
+                    if self.struct_might_have_handles(value.base_type):
                         need_unwrap_memory = True
                         arg_name += '_unwrapped'
                         if value.is_array:

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2025 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -28,14 +28,24 @@
 #include "format/format.h"
 #include "decode/annotation_handler.h"
 #include "decode/api_decoder.h"
+#include "decode/api_payload.h"
+#include "decode/block_parser.h"
+#include "util/clock_cache.h"
 #include "util/compressor.h"
 #include "util/defines.h"
+#include "decode/decode_allocator.h"
+#include "util/logging.h"
+#include "util/file_input_stream.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <deque>
+#include <functional>
+#include <memory>
+#include <optional>
 #include <string>
+#include <type_traits> // ParsedBlock
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -43,24 +53,47 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// TODO: Find a better home for the visitors and utilities
+template <bool HasAllocGuard = false>
+struct DecoderAllocGuard
+{};
+
+template <>
+struct DecoderAllocGuard<true>
+{
+    DecoderAllocGuard& operator=(const DecoderAllocGuard&) = delete;
+    DecoderAllocGuard(DecoderAllocGuard&&)                 = delete;
+    DecoderAllocGuard& operator=(DecoderAllocGuard&&)      = delete;
+    DecoderAllocGuard() { DecodeAllocator::Begin(); }
+    ~DecoderAllocGuard() noexcept { DecodeAllocator::End(); }
+};
+
+template <typename Args>
+static bool DecoderSupportsDispatch(ApiDecoder& decoder, const Args& args)
+{
+    if constexpr (DispatchTraits<Args>::kHasCallId)
+    {
+        return decoder.SupportsApiCall(args.call_id);
+    }
+    else if constexpr (DispatchTraits<Args>::kHasMetaDataId)
+    {
+        return decoder.SupportsMetaDataId(args.meta_data_id);
+    }
+    return true;
+}
+
+template <typename Args>
+static void SetDecoderApiCallId(ApiDecoder& decoder, const Args& args)
+{
+    if constexpr (DispatchTraits<Args>::kHasCallId)
+    {
+        decoder.SetCurrentApiCallId(args.call_id);
+    }
+}
+
 class FileProcessor
 {
   public:
-    enum Error : int32_t
-    {
-        kErrorNone                         = 0,
-        kErrorInvalidFileDescriptor        = -1,
-        kErrorOpeningFile                  = -2,
-        kErrorReadingFile                  = -3, // ferror() returned true at start of frame processing.
-        kErrorReadingFileHeader            = -4,
-        kErrorReadingBlockHeader           = -5,
-        kErrorReadingCompressedBlockHeader = -6,
-        kErrorReadingBlockData             = -7,
-        kErrorReadingCompressedBlockData   = -8,
-        kErrorInvalidFourCC                = -9,
-        kErrorUnsupportedCompressionType   = -10
-    };
-
     enum BlockProcessReturn : int32_t
     {
         kSuccess = 0,
@@ -69,6 +102,8 @@ class FileProcessor
     };
 
   public:
+    constexpr static uint32_t kFirstFrame = 0;
+
     FileProcessor();
 
     FileProcessor(uint64_t block_limit);
@@ -90,7 +125,7 @@ class FileProcessor
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.
-    bool ProcessNextFrame();
+    virtual bool ProcessNextFrame();
 
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
@@ -105,7 +140,7 @@ class FileProcessor
 
     uint64_t GetNumBytesRead() const { return bytes_read_; }
 
-    Error GetErrorState() const { return error_state_; }
+    BlockIOError GetErrorState() const { return error_state_; }
 
     bool EntireFileWasProcessed() const
     {
@@ -114,18 +149,12 @@ class FileProcessor
             return true;
         }
 
-        const auto file_desc = file_stack_.front().active_file.GetFile();
-        if (file_desc)
-        {
-            return (feof(file_desc) != 0);
-        }
-        else
-        {
-            return false;
-        }
+        return file_stack_.front().active_file->IsEof();
     }
 
-    bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
+    bool                      UsesFrameMarkers() const { return capture_uses_frame_markers_; }
+    bool                      FileSupportsFrameMarkers() const { return file_supports_frame_markers_; }
+    const format::FileHeader& GetFileHeader() const { return file_header_; }
 
     void SetPrintBlockInfoFlag(bool enable_print_block_info, int64_t block_index_from, int64_t block_index_to)
     {
@@ -134,140 +163,259 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
-  protected:
-    bool ContinueDecoding();
-
-    bool ReadBlockHeader(format::BlockHeader* block_header);
-
-    virtual bool ReadBytes(void* buffer, size_t buffer_size);
-
-    bool SkipBytes(size_t skip_size);
-
-    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
-
-    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
-
-    bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
-
     bool IsFrameDelimiter(format::BlockType block_type, format::MarkerType marker_type) const;
-
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
-    void HandleBlockReadError(Error error_code, const char* error_message);
+    void HandleBlockReadError(BlockIOError error_code, const char* error_message);
 
-    bool
-    ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
+    bool ProcessExecuteBlocksFromFile(const ExecuteBlocksFromFileArgs& execute_blocks_info);
+    void ProcessStateBeginMarker(const StateBeginMarkerArgs& state_begin);
+    void ProcessStateEndMarker(const StateEndMarkerArgs& state_end);
+    void ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end);
+    void ProcessAnnotation(const AnnotationArgs& annotation);
 
-    bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
+  protected:
+    using BlockProcessor = std::function<bool()>;
 
-    bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type);
+    bool ContinueDecoding(uint64_t block_index, bool check_decoders);
+    bool ReadBytes(void* buffer, size_t buffer_size);
+
+    // Reads block header, from input stream.
+    bool ReadBlockBuffer(BlockParser& parser, BlockBuffer& buffer);
+
+    void UpdateEndFrameState();
+
+    // Returns whether the call_id is a frame delimiter and handles frame delimiting logic
+    bool ProcessFrameDelimiter(format::ApiCallId call_id);
+    bool ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame);
 
     void PrintBlockInfo() const;
+
+    enum class ProcessBlockState : int32_t
+    {
+        // Negative values indicate terminal states. Do not call ProcessBlocks again after receiving these.
+        //
+        // Returned when ProcessBlocks ...
+        kFrameBoundary = 1,  // encountered a frame boundary
+        kRunning       = 0,  // never. Internal state: continue looping in ProcessBlocks
+        kEndProcessing = -1, // completed processing (!ContinueDecoding or clean EOF)
+        kError         = -2, // encountered an error
+    };
+    static bool ContinueProcessing(ProcessBlockState state) { return static_cast<int32_t>(state) >= 0; }
+    static bool IsFrameBoundary(ProcessBlockState state) { return state == ProcessBlockState::kFrameBoundary; }
+
+    ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
 
   protected:
     uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
-    Error                    error_state_;
+    BlockIOError             error_state_;
     uint64_t                 bytes_read_;
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
 
   protected:
-    FILE* GetFileDescriptor()
+    bool IsFileValid() const;
+
+    BlockIOError CheckFileStatus() const
     {
-        assert(!file_stack_.empty());
-
-        if (!file_stack_.empty())
+        if (file_stack_.empty())
         {
-            auto& file_entry = file_stack_.back().active_file;
-            assert(file_entry);
-
-            return file_entry.GetFile();
+            return kErrorInvalidFileDescriptor;
         }
-        else
+        const auto& active_file = file_stack_.back().active_file;
+        // If not EOF, determine reason for invalid state.
+        if (!active_file->IsOpen())
         {
-            return nullptr;
+            return kErrorInvalidFileDescriptor;
         }
+        else if (active_file->IsError())
+        {
+            return kErrorReadingFile;
+        }
+
+        return kErrorNone;
     }
 
-  private:
-    // Must be define before the Seek calls below
-    class ActiveFiles
+    bool AtEof() const
+    {
+        if (file_stack_.empty())
+        {
+            return true;
+        }
+        return file_stack_.back().active_file->IsEof();
+    }
+
+    // Dispatch function is allowed to modify the ParsedBlock as needed before processing
+    // including decompression, or even stealing the contents for deferred processing.
+    using DispatchFunction = std::function<ProcessBlockState(uint64_t, ParsedBlock&)>;
+    ProcessBlockState ProcessBlocks(DispatchFunction& dispatch, bool check_decoder_completeness);
+
+    void SetDecoderFrameNumber(uint64_t frame_number);
+
+    BlockParser& GetBlockParser()
+    {
+        GFXRECON_ASSERT(block_parser_.get() != nullptr);
+        return *block_parser_;
+    }
+
+    class DispatchVisitor
     {
       public:
-        class Ref
+        // No valid dispatch args, nothing to do. It is possible to modify in future to support passing down
+        // raw block data to some raw block handler if needed
+        void operator()(const std::monostate&) {}
+
+        // Dispatch based on the Args traits.
+        template <typename Args>
+        void operator()(const Args* args)
         {
-          public:
-            ~Ref();
-            Ref(const Ref&) = delete;
-            Ref(Ref&&)      = delete;
+            DispatchArgs(args);
+        }
 
-            std::string GetFilename() const;
-            FILE*       GetFile() const;
-            bool        FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-            explicit    operator bool() const { return GetFile() != nullptr; }
+        // State Marker control
+        void operator()(const StateBeginMarkerArgs* state_begin)
+        {
+            // The block and marker type are implied by the Args type
+            file_processor_.ProcessStateBeginMarker(*state_begin);
+            DispatchArgs(state_begin);
+        }
 
-          private:
-            ActiveFiles& active_file;
-            friend class ActiveFiles;
-            Ref(ActiveFiles& active_file_);
-        };
+        void operator()(const StateEndMarkerArgs* state_end)
+        {
+            // The block and marker type are implied by the Args type
+            file_processor_.ProcessStateEndMarker(*state_end);
+            DispatchArgs(state_end);
+        }
 
-        ActiveFiles(const std::string& filename, FILE* fd) : filename_(filename), fd_(fd), ref_count_(0) {}
+        void operator()(const AnnotationArgs* annotation)
+        {
+            if (annotation_handler_)
+            {
+                auto annotation_call = [this](auto&&... expanded_args) {
+                    annotation_handler_->ProcessAnnotation(std::forward<decltype(expanded_args)>(expanded_args)...);
+                };
+                std::apply(annotation_call, annotation->GetTuple());
+            }
+        }
 
-        friend class Ref;
-        Ref GetRef();
+        DispatchVisitor(FileProcessor&                  file_processor,
+                        const std::vector<ApiDecoder*>& decoders,
+                        AnnotationHandler*              annotation_handler) :
+            file_processor_(file_processor),
+            decoders_(decoders), annotation_handler_(annotation_handler)
+        {}
 
-        void FileClose();
-        bool IsFileOpen() const { return (fd_ != nullptr); }
-        bool FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-
-        std::string GetFilename() const { return filename_; }
-        FILE*       GetFile() const { return fd_; }
+        void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }
 
       private:
-        void IncRef();
-        void DecRef();
+        template <typename Args>
+        void DispatchArgs(const Args* args)
+        {
+            constexpr auto decode_method = DispatchTraits<Args>::kDecoderMethod;
+            for (auto decoder : decoders_)
+            {
+                if (DecoderSupportsDispatch(*decoder, *args))
+                {
+                    [[maybe_unused]] DecoderAllocGuard<DispatchTraits<Args>::kHasAllocGuard> alloc_guard{};
+                    SetDecoderApiCallId(*decoder, *args);
+                    decoder->SetCurrentBlockIndex(block_index_);
+                    auto dispatch_call = [&decoder, decode_method](auto&&... expanded_args) {
+                        (decoder->*decode_method)(std::forward<decltype(expanded_args)>(expanded_args)...);
+                    };
+                    std::apply(dispatch_call, args->GetTuple());
+                }
+            }
+        }
 
-        std::string filename_;
-        FILE*       fd_{ nullptr };
-        size_t      ref_count_{ 0 };
+        FileProcessor&                  file_processor_;
+        const std::vector<ApiDecoder*>& decoders_;
+        AnnotationHandler*              annotation_handler_;
+        uint64_t                        block_index_;
     };
 
-    using ActiveFilePtr      = std::unique_ptr<ActiveFiles>;
-    using ActiveFileMap      = std::unordered_map<std::string, ActiveFilePtr>;
-    using ActiveFileIterator = ActiveFileMap::iterator;
+  private:
+    class ProcessVisitor
+    {
+      public:
+        // NOTE: All overloads should set all state, as the caller is *reusing* the Visitor object across a number of
+        //       std::visit calls
+
+        // Frame boundary control
+        void operator()(const FunctionCallArgs* function_call)
+        {
+            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call->call_id);
+            success            = true;
+        }
+
+        void operator()(const MethodCallArgs* method_call)
+        {
+            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call->call_id);
+            success            = true;
+        }
+
+        void operator()(const FrameEndMarkerArgs* end_frame)
+        {
+            // The block and marker type are implied by the Args type
+            is_frame_delimiter = file_processor_.ProcessFrameDelimiter(*end_frame);
+            success            = true;
+        }
+
+        // I/O Control
+        void operator()(const ExecuteBlocksFromFileArgs* execute_blocks)
+        {
+            // The block and marker type are implied by the Args type
+            is_frame_delimiter = false;
+            success            = file_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
+        }
+
+        void operator()(const StateEndMarkerArgs* state_end)
+        {
+            // The block and marker type are implied by the Args type
+            is_frame_delimiter = false;
+            success            = true;
+            file_processor_.ProcessStateEndMarkerFrameState(*state_end);
+        }
+
+        void operator()(const AnnotationArgs* annotation)
+        {
+            // The block and marker type are implied by the Command type
+            is_frame_delimiter = false;
+            success            = true;
+            file_processor_.ProcessAnnotation(*annotation);
+        }
+
+        void operator()(const std::monostate&) { Reset(); }
+
+        template <typename Args>
+        void operator()(const Args*)
+        {
+            Reset();
+        }
+
+        bool IsSuccess() const { return success; }
+        bool IsFrameDelimiter() const { return is_frame_delimiter; }
+        ProcessVisitor(FileProcessor& file_processor) : file_processor_(file_processor) {}
+        void Reset()
+        {
+            is_frame_delimiter = false;
+            success            = true;
+        }
+
+      private:
+        bool           is_frame_delimiter = false;
+        bool           success            = true;
+        FileProcessor& file_processor_;
+    };
 
     bool ProcessFileHeader();
 
-    virtual bool ProcessBlocks();
+    // NOTE: These two can't be const as derived class updates state.
+    virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
 
-    bool ReadParameterBuffer(size_t buffer_size);
-
-    bool ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
-                                       size_t  expected_uncompressed_size,
-                                       size_t* uncompressed_buffer_size);
-
-    bool IsFileValid() const
-    {
-        if (!file_stack_.empty())
-        {
-            const auto& file_desc = file_stack_.back().active_file.GetFile();
-            assert(file_desc);
-
-            return (file_desc && !feof(file_desc) && !ferror(file_desc));
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    bool OpenFile(const std::string& filename);
-
-    bool SeekActiveFile(ActiveFiles::Ref& file_entry, int64_t offset, util::platform::FileSeekOrigin origin);
+    bool SeekActiveFile(const FileInputStreamPtr& file, int64_t offset, util::platform::FileSeekOrigin origin);
 
     bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
 
@@ -280,45 +428,56 @@ class FileProcessor
 
     void DecrementRemainingCommands();
 
-    std::string ApplyAbsolutePath(const std::string& file);
-
   private:
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
-    std::vector<uint8_t>                parameter_buffer_;
-    std::vector<uint8_t>                compressed_parameter_buffer_;
-    util::Compressor*                   compressor_;
-    uint64_t                            api_call_index_;
+    std::vector<uint8_t>                uncompressed_buffer_;
     uint64_t                            block_limit_;
-    bool                                capture_uses_frame_markers_;
+    bool                                pending_capture_uses_frame_markers_{ false };
+    bool                                capture_uses_frame_markers_{ false };
+    bool                                file_supports_frame_markers_{ false };
     uint64_t                            first_frame_;
     bool                                enable_print_block_info_{ false };
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
     bool                                loading_trimmed_capture_state_;
 
-    ActiveFileMap active_files_;
+    std::string        absolute_path_;
+    format::FileHeader file_header_;
+
+  protected:
+    std::unique_ptr<util::Compressor> compressor_;
+    std::unique_ptr<BlockParser>      block_parser_;
 
     struct ActiveFileContext
     {
-        ActiveFileContext(const ActiveFileIterator& active_file_, bool execute_til_eof_ = false) :
-            active_file(active_file_->second->GetRef()), execute_till_eof(execute_til_eof_){};
+        ActiveFileContext(FileInputStreamPtr&& active_file_, bool execute_til_eof_ = false) :
+            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
 
-        ActiveFiles::Ref active_file;
-        uint32_t    remaining_commands{ 0 };
-        bool        execute_till_eof{ false };
+        FileInputStreamPtr active_file;
+        uint32_t           remaining_commands{ 0 };
+        bool               execute_till_eof{ false };
     };
-    std::deque<ActiveFileContext> file_stack_;
 
-    std::string absolute_path_;
+    std::deque<ActiveFileContext> file_stack_;
 
   private:
     ActiveFileContext& GetCurrentFile()
     {
-        assert(file_stack_.size());
-
+        GFXRECON_ASSERT(file_stack_.size());
         return file_stack_.back();
     }
+
+    struct InputStreamGetKey
+    {
+        const std::string& operator()(const FileInputStreamPtr& input_stream)
+        {
+            GFXRECON_ASSERT(input_stream);
+            return input_stream->GetFilename();
+        }
+    };
+    using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
+    ActiveStreamCache stream_cache_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

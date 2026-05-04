@@ -82,7 +82,8 @@ void OpenXrDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
-void OpenXrDecoderBase::DispatchViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location)
+void OpenXrDecoderBase::DispatchViewRelativeLocation(format::ThreadId                    thread_id,
+                                                     const format::ViewRelativeLocation& location)
 {
     for (auto consumer : consumers_)
     {
