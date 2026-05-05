@@ -224,8 +224,8 @@ class TransferDumpingContext
 
         struct CopiedImage
         {
-            CopiedImage(const VulkanImageInfo* img_info) :
-                image_info(*img_info), image(VK_NULL_HANDLE), memory(VK_NULL_HANDLE)
+            CopiedImage(const VulkanImageInfo& img_info) :
+                image_info(img_info), image(VK_NULL_HANDLE), memory(VK_NULL_HANDLE)
             {}
 
             VkImage         image;
@@ -281,7 +281,7 @@ class TransferDumpingContext
                                  bool                               hb,
                                  const graphics::VulkanDeviceTable& dt,
                                  const VulkanDeviceInfo*            pdi,
-                                 const VulkanImageInfo*             ii,
+                                 const VulkanImageInfo&             ii,
                                  VkImageAspectFlagBits              a,
                                  VkImageLayout                      l) :
                 TransferParamsBase(t, hb, dt, pdi),
@@ -362,7 +362,7 @@ class TransferDumpingContext
                               const VulkanDeviceInfo*            pdi,
                               format::HandleId                   sb,
                               VkImageLayout                      dil,
-                              const VulkanImageInfo*             ii) :
+                              const VulkanImageInfo&             ii) :
                 TransferParamsBase(t, hb, dt, pdi),
                 src_buffer(sb), dst_image(ii, dil), copied_image(ii)
             {}
@@ -407,9 +407,9 @@ class TransferDumpingContext
                       bool                               hb,
                       const graphics::VulkanDeviceTable& dt,
                       const VulkanDeviceInfo*            pdi,
-                      const VulkanImageInfo*             si,
+                      const VulkanImageInfo&             si,
                       VkImageLayout                      sl,
-                      const VulkanImageInfo*             di,
+                      const VulkanImageInfo&             di,
                       VkImageLayout                      dl) :
                 TransferParamsBase(t, hb, dt, pdi),
                 src_image(si, sl), dst_image(di, dl), copied_image(di)
@@ -455,7 +455,7 @@ class TransferDumpingContext
                               bool                               hb,
                               const graphics::VulkanDeviceTable& dt,
                               const VulkanDeviceInfo*            pdi,
-                              const VulkanImageInfo*             si,
+                              const VulkanImageInfo&             si,
                               VkImageLayout                      sl,
                               format::HandleId                   d) :
                 TransferParamsBase(t, hb, dt, pdi),
@@ -502,9 +502,9 @@ class TransferDumpingContext
                       bool                               hb,
                       const graphics::VulkanDeviceTable& dt,
                       const VulkanDeviceInfo*            pdi,
-                      const VulkanImageInfo*             si,
+                      const VulkanImageInfo&             si,
                       VkImageLayout                      sl,
-                      const VulkanImageInfo*             di,
+                      const VulkanImageInfo&             di,
                       VkImageLayout                      dl,
                       VkFilter                           f) :
                 TransferParamsBase(t, hb, dt, pdi),
@@ -667,7 +667,7 @@ class TransferDumpingContext
         }
 
         // kInitImageCommand
-        TransferParams(const VulkanImageInfo*             img_info,
+        TransferParams(const VulkanImageInfo&             img_info,
                        VkImageAspectFlagBits              a,
                        VkImageLayout                      il,
                        const graphics::VulkanDeviceTable& dt,
@@ -697,7 +697,7 @@ class TransferDumpingContext
 
         // CmdCopyBufferToImage
         TransferParams(format::HandleId                   sb,
-                       const VulkanImageInfo*             ii,
+                       const VulkanImageInfo&             ii,
                        VkImageLayout                      dil,
                        const graphics::VulkanDeviceTable& dt,
                        const VulkanDeviceInfo*            pdi,
@@ -714,9 +714,9 @@ class TransferDumpingContext
         }
 
         // CmdCopyImage
-        TransferParams(const VulkanImageInfo*             si,
+        TransferParams(const VulkanImageInfo&             si,
                        VkImageLayout                      sl,
-                       const VulkanImageInfo*             di,
+                       const VulkanImageInfo&             di,
                        VkImageLayout                      dl,
                        const graphics::VulkanDeviceTable& dt,
                        const VulkanDeviceInfo*            pdi,
@@ -733,7 +733,7 @@ class TransferDumpingContext
         }
 
         // CmdCopyImageToBuffer
-        TransferParams(const VulkanImageInfo*             si,
+        TransferParams(const VulkanImageInfo&             si,
                        VkImageLayout                      sl,
                        format::HandleId                   d,
                        const graphics::VulkanDeviceTable& dt,
@@ -751,9 +751,9 @@ class TransferDumpingContext
         }
 
         // CmdBlitImage
-        TransferParams(const VulkanImageInfo*             si,
+        TransferParams(const VulkanImageInfo&             si,
                        VkImageLayout                      sl,
-                       const VulkanImageInfo*             di,
+                       const VulkanImageInfo&             di,
                        VkImageLayout                      dl,
                        VkFilter                           f,
                        const graphics::VulkanDeviceTable& dt,

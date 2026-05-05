@@ -579,18 +579,12 @@ struct TransferedImageInfo
 {
     TransferedImageInfo() = delete;
 
-    TransferedImageInfo(const VulkanImageInfo* img_info, VkImageLayout l) : image_info(img_info), layout(l)
-    {
-        GFXRECON_ASSERT(img_info != nullptr);
-    }
+    TransferedImageInfo(const VulkanImageInfo& img_info, VkImageLayout l) : image_info(img_info), layout(l) {}
 
-    TransferedImageInfo(const TransferedImageInfo& other, VkImageLayout l) : image_info(other.image_info), layout(l)
-    {
-        GFXRECON_ASSERT(other.image_info != nullptr);
-    }
+    TransferedImageInfo(const TransferedImageInfo& other) : image_info(other.image_info), layout(other.layout) {}
 
-    const VulkanImageInfo* image_info;
-    VkImageLayout          layout;
+    const VulkanImageInfo image_info;
+    VkImageLayout         layout;
 };
 
 struct DumpedInitBufferMetaCommand
@@ -826,7 +820,7 @@ struct DumpedTransferCommand : DumpedResourceBase
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyBufferToImage(s, transf_img_info);
+            dumped_resource_before.emplace<DumpedCopyBufferToImage>(s, transf_img_info);
         }
     }
 
@@ -844,7 +838,7 @@ struct DumpedTransferCommand : DumpedResourceBase
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyImage(si, di);
+            dumped_resource_before.emplace<DumpedCopyImage>(si, di);
         }
     }
 
@@ -858,7 +852,7 @@ struct DumpedTransferCommand : DumpedResourceBase
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyImageToBuffer(si, d);
+            dumped_resource_before.emplace<DumpedCopyImageToBuffer>(si, d);
         }
     }
 
@@ -877,7 +871,7 @@ struct DumpedTransferCommand : DumpedResourceBase
 
         if (hb)
         {
-            dumped_resource_before = DumpedBlitImage(si, di, f);
+            dumped_resource_before.emplace<DumpedBlitImage>(si, di, f);
         }
     }
 

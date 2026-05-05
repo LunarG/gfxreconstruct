@@ -279,8 +279,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         if (entry != transfer_params_.end())
         {
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(entry->second.params.get());
-            GFXRECON_ASSERT(init_image_params->dst_image.image_info != nullptr);
-            if (init_image_params != nullptr && init_image_params->dst_image.image_info->capture_id == image_id)
+            if (init_image_params != nullptr && init_image_params->dst_image.image_info.capture_id == image_id)
             {
                 insert_new_entry = false;
             }
@@ -307,11 +306,12 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
 
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(img_info != nullptr);
             auto [new_entry, success] = transfer_params_.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(cmd_index),
                 std::forward_as_tuple(
-                    img_info, aspect, layout, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
+                    *img_info, aspect, layout, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
             GFXRECON_ASSERT(success);
 
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(new_entry->second.params.get());
@@ -347,6 +347,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(srcBuffer != nullptr);
         GetDispatchTables(srcBuffer->parent_id);
 
         // If we also are dumping resources before the command, we insert only one entry in transfer_params_ and store
@@ -356,6 +357,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
         TransferParams::CopyBuffer* copy_buffer_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(dstBuffer != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
@@ -472,6 +474,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(dstImage != nullptr);
         GetDispatchTables(dstImage->parent_id);
         const VkDevice device = device_info_->handle;
 
@@ -482,11 +485,12 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
         TransferParams::CopyBufferToImage* copy_buffer_to_image_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(srcBuffer != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
                                          std::forward_as_tuple(srcBuffer->capture_id,
-                                                               dstImage,
+                                                               *dstImage,
                                                                dstImageLayout,
                                                                *device_table_,
                                                                device_info_,
@@ -568,6 +572,8 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(srcImage != nullptr);
+        GFXRECON_ASSERT(dstImage != nullptr);
         GetDispatchTables(srcImage->parent_id);
         const VkDevice device = device_info_->handle;
 
@@ -581,9 +587,9 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage,
+                                         std::forward_as_tuple(*srcImage,
                                                                srcImageLayout,
-                                                               dstImage,
+                                                               *dstImage,
                                                                dstImageLayout,
                                                                *device_table_,
                                                                device_info_,
@@ -661,6 +667,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(dstBuffer != nullptr);
         GetDispatchTables(dstBuffer->parent_id);
 
         // If we also are dumping resources before the command, we insert only one entry in transfer_params_ and store
@@ -670,10 +677,11 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
         TransferParams::CopyImageToBuffer* copy_image_to_buffer_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(srcImage != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage,
+                                         std::forward_as_tuple(*srcImage,
                                                                srcImageLayout,
                                                                dstBuffer->capture_id,
                                                                *device_table_,
@@ -814,6 +822,7 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(dstImage != nullptr);
         GetDispatchTables(dstImage->parent_id);
 
         // If we also are dumping resources before the command, we insert only one entry in transfer_params_ and store
@@ -823,12 +832,13 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
         TransferParams::BlitImage* blit_image_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(srcImage != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage,
+                                         std::forward_as_tuple(*srcImage,
                                                                srcImageLayout,
-                                                               dstImage,
+                                                               *dstImage,
                                                                dstImageLayout,
                                                                filter,
                                                                *device_table_,

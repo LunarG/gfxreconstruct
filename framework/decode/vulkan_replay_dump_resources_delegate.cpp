@@ -2172,9 +2172,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
                                                                          const TransferedImageInfo& transf_img_info)
 {
-    GFXRECON_ASSERT(transf_img_info.image_info != nullptr);
-
-    dump_json_.InsertImageInfo(json_entry, *transf_img_info.image_info);
+    dump_json_.InsertImageInfo(json_entry, transf_img_info.image_info);
     json_entry["layout"] = util::ToString<VkImageLayout>(transf_img_info.layout);
 }
 
