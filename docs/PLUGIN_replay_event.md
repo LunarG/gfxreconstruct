@@ -351,7 +351,8 @@ This sketch is intentionally narrow. The eventual public header should stay mate
 The replay-side flow is:
 
 1. Parse a plugin-library path from replay options.
-2. On Android, copy any externally supplied plugin library into package-visible app storage and use that copied absolute path for loading.
+2. On Android, use a plugin-library path that the developer has already staged under the app's
+   internal files directory.
 3. Load the shared library.
 4. Resolve the plugin factory symbol.
 5. Create the plugin instance.
@@ -379,5 +380,79 @@ Android expectations:
 
 * `replay-debug.apk` reuses the existing replay argument path rather than inventing a second mechanism
 * the plugin path is passed through the existing `args` intent extra parsed by `tools/replay/android_main.cpp`
-* if the plugin library originates outside package-visible storage, the launcher copies it into `getFilesDir()` or an equivalent app-private directory first and passes that copied absolute path
+* for security reasons, the developer explicitly stages the plugin library into the app's internal
+  files directory and passes that staged absolute path
 * failure diagnostics must be visible in normal replay logging and logcat
+
+The Android staging workflow assumes a debuggable replay APK because it uses `run-as`.
+Set the package name, local plugin path, and plugin file name on the host first:
+
+```bash
+export PKG="com.lunarg.gfxreconstruct.replay"
+export SO="/path/to/libcustomer_replay_event_plugin.so"
+export PLUGIN_NAME="$(basename "$SO")"
+```
+
+Confirm the app-internal base directory. This is the directory that replay can access as
+the app user:
+
+```bash
+adb shell run-as "$PKG" pwd
+```
+
+Create an app-internal directory for replay event plugins:
+
+```bash
+adb shell run-as "$PKG" mkdir -p files/plugins
+```
+
+Push the local shared library to a temporary device path that `adb push` can write:
+
+```bash
+adb push "$SO" "/data/local/tmp/$PLUGIN_NAME"
+```
+
+Make the temporary copy readable so the app user can copy it:
+
+```bash
+adb shell chmod 0644 "/data/local/tmp/$PLUGIN_NAME"
+```
+
+Copy the temporary library into the replay app's internal `files/plugins` directory:
+
+```bash
+adb shell run-as "$PKG" cp "/data/local/tmp/$PLUGIN_NAME" "files/plugins/$PLUGIN_NAME"
+```
+
+Remove the temporary world-readable copy after it has been staged:
+
+```bash
+adb shell rm "/data/local/tmp/$PLUGIN_NAME"
+```
+
+Restrict the staged plugin library to the app user:
+
+```bash
+adb shell run-as "$PKG" chmod 0600 "files/plugins/$PLUGIN_NAME"
+```
+
+Verify the staged library path and permissions:
+
+```bash
+adb shell run-as "$PKG" ls -l "files/plugins/$PLUGIN_NAME"
+```
+
+Capture the absolute app-internal directory path on the host and build the plugin path
+to pass to replay:
+
+```bash
+export APP_DIR="$(adb shell run-as "$PKG" pwd | tr -d '\r')"
+export PLUGIN_PATH="${APP_DIR}/files/plugins/${PLUGIN_NAME}"
+echo "$PLUGIN_PATH"
+```
+
+Start replay with the staged plugin path through the existing Android `args` extra:
+
+```bash
+adb shell am start ... --es args "--replay-event-plugin-path $PLUGIN_PATH ..."
+```
