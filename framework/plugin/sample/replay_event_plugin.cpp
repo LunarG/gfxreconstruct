@@ -22,34 +22,34 @@
 
 #include <gfxr/replay_event_plugin.h>
 
-#include <stdio.h>
+#include <util/logging.h>
 
 static void destroy(GfxrReplayPluginV1* self)
 {
     if (self == NULL)
     {
-        printf("Received NULL plugin instance\n");
+        GFXRECON_LOG_ERROR("Received NULL plugin instance");
         return;
     }
 
-    printf("Destroying plugin\n");
+    GFXRECON_LOG_INFO("Destroying plugin");
 }
 
 static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrReplayEventHeader* event)
 {
     if (self == NULL)
     {
-        printf("Received NULL plugin instance\n");
+        GFXRECON_LOG_ERROR("Received NULL plugin instance");
         return GFXR_REPLAY_PLUGIN_RESULT_ERROR;
     }
 
     if (event == NULL)
     {
-        printf("Received NULL event\n");
+        GFXRECON_LOG_ERROR("Received NULL event");
         return GFXR_REPLAY_PLUGIN_RESULT_ERROR;
     }
 
-    printf("Received event type %u at timestamp %llu ns\n", event->type, event->timestamp_ns);
+    GFXRECON_LOG_INFO("Received event type %u at timestamp %llu ns", event->type, event->timestamp_ns);
     return GFXR_REPLAY_PLUGIN_RESULT_OK;
 }
 
@@ -64,21 +64,25 @@ GFXR_REPLAY_PLUGIN_EXPORT GfxrReplayPluginV1* gfxrCreateReplayPluginV1(const Gfx
 {
     if (create_info == NULL)
     {
-        printf("Create info is NULL\n");
+        GFXRECON_LOG_ERROR("Create info is NULL");
         return NULL;
     }
 
     if (create_info->abi_version != GFXR_REPLAY_PLUGIN_ABI_VERSION)
     {
-        printf("Unsupported plugin ABI version %u\n", create_info->abi_version);
+        GFXRECON_LOG_ERROR("Unsupported plugin ABI version %u", create_info->abi_version);
         return NULL;
     }
 
     if (create_info->struct_size != sizeof(GfxrReplayPluginCreateInfo))
     {
-        printf("Unexpected create info struct size %u\n", create_info->struct_size);
+        GFXRECON_LOG_ERROR("Unexpected create info struct size %u", create_info->struct_size);
         return NULL;
     }
+
+    gfxrecon::util::Log::Init();
+    GFXRECON_LOG_INFO("Creating sample plugin with params: %s",
+                      create_info->plugin_params ? create_info->plugin_params : "null");
 
     return &plugin;
 }

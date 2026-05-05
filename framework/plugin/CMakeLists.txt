@@ -58,7 +58,8 @@ add_library(${TARGET_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/sample/replay_event_plugin.cpp)
 target_link_libraries(${TARGET_NAME}
     PRIVATE
-        ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME})
+        ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME}
+        gfxrecon_util)
 
 if(NOT ANDROID)
     common_build_directives(${TARGET_NAME})
