@@ -992,12 +992,12 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
-void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
-                     const BoundDescriptorSets&            referenced_descriptors,
-                     const DescriptorImageSubresourcesMap* requested_descriptors,
-                     decode::Index                         call_index,
-                     bool                                  dump_all_image_subresources,
-                     DescriptorImageSubresourcesMap&       descriptors_to_dump)
+void CullDescriptors(const CommonObjectInfoTable&             object_info_table_,
+                     const BoundDescriptorSets&               referenced_descriptors,
+                     const DescriptorImageSubresourcesVector* requested_descriptors,
+                     decode::Index                            call_index,
+                     bool                                     dump_all_image_subresources,
+                     DescriptorImageSubresourcesVector&       descriptors_to_dump)
 {
     descriptors_to_dump.clear();
     if (referenced_descriptors.empty() || (requested_descriptors != nullptr && requested_descriptors->empty()))
@@ -1007,6 +1007,8 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
 
     if (requested_descriptors != nullptr)
     {
+        descriptors_to_dump.reserve(referenced_descriptors.size());
+
         // Only dump the requested descriptors. Verify if they are valid based on the call's referenced descriptors
         for (const auto& [requested_descriptor_tuple, img_subres_range] : *requested_descriptors)
         {
@@ -1168,9 +1170,7 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
 
                     if (valid_array_index)
                     {
-                        descriptors_to_dump.emplace(std::piecewise_construct,
-                                                    std::forward_as_tuple(requested_descriptor_tuple),
-                                                    std::forward_as_tuple(modified_img_subres_range));
+                        descriptors_to_dump.emplace_back(requested_descriptor_tuple, modified_img_subres_range);
                     }
                     else
                     {
@@ -1232,9 +1232,8 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
                                     dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
                                 };
                                 const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
-                                descriptors_to_dump.emplace(std::piecewise_construct,
-                                                            std::forward_as_tuple(desc_tuple),
-                                                            std::forward_as_tuple(img_subres_range));
+
+                                descriptors_to_dump.emplace_back(desc_tuple, img_subres_range);
                             }
                         }
                     }
@@ -1246,8 +1245,7 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
                         for (const auto& [ai, img_desc] : desc_binding.texel_buffer_view_info)
                         {
                             const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
-                            descriptors_to_dump.emplace(
-                                std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                            descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
                         }
                     }
                     break;
@@ -1260,8 +1258,7 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
                         for (const auto& [ai, img_desc] : desc_binding.buffer_info)
                         {
                             const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
-                            descriptors_to_dump.emplace(
-                                std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                            descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
                         }
                     }
                     break;
@@ -1270,8 +1267,7 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
                     {
                         // Inline uniform blocks do not have arrays
                         const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, 0 };
-                        descriptors_to_dump.emplace(
-                            std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                        descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
                     }
                     break;
 
@@ -1280,8 +1276,7 @@ void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
                         for (const auto& [ai, img_desc] : desc_binding.acceleration_structs_khr_info)
                         {
                             const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
-                            descriptors_to_dump.emplace(
-                                std::piecewise_construct, std::forward_as_tuple(desc_tuple), std::forward_as_tuple());
+                            descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
                         }
                     }
                     break;

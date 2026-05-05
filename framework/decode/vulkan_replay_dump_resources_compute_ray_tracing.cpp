@@ -1328,9 +1328,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t cmd_inde
     const auto& referenced_descriptors =
         is_dispatch ? dis_params->second->referenced_descriptors : tr_params->second->referenced_descriptors;
 
-    const DescriptorImageSubresourcesMap* requested_descriptors =
+    const DescriptorImageSubresourcesVector* requested_descriptors =
         cull_resources ? &cmd_subresources_entry->second : nullptr;
-    DescriptorImageSubresourcesMap descriptors_to_dump;
+    DescriptorImageSubresourcesVector descriptors_to_dump;
     CullDescriptors(object_info_table_,
                     referenced_descriptors,
                     requested_descriptors,
@@ -1341,7 +1341,11 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t cmd_inde
     // Dump images
     for (const auto& [desc_tuple, cloned_desc] : mutable_resources_clones.cloned_descriptors)
     {
-        const auto descriptor_to_dump_entry = descriptors_to_dump.find(desc_tuple);
+        // const auto descriptor_to_dump_entry = descriptors_to_dump.find(desc_tuple);
+        const auto descriptor_to_dump_entry = std::find_if(
+            descriptors_to_dump.begin(),
+            descriptors_to_dump.end(),
+            [&desc_tuple](const DescriptorImageSubresourcesPair& element) { return element.first == desc_tuple; });
         if (descriptor_to_dump_entry == descriptors_to_dump.end())
         {
             continue;
@@ -1587,9 +1591,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(uint64_t cmd_index, bo
     }
 
     // Filter requested descriptors based on which are actually relevant to this draw call
-    const DescriptorImageSubresourcesMap* requested_descriptors =
+    const DescriptorImageSubresourcesVector* requested_descriptors =
         cull_resources ? &cmd_subresources_entry->second : nullptr;
-    DescriptorImageSubresourcesMap descriptors_to_dump;
+    DescriptorImageSubresourcesVector descriptors_to_dump;
     CullDescriptors(object_info_table_,
                     referenced_descriptors,
                     requested_descriptors,

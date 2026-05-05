@@ -143,9 +143,10 @@ struct CommandLocation
     Index cmd_index;
 };
 
-using DescriptorImageSubresourcesMap = std::map<DescriptorLocation, VkImageSubresourceRange>;
-using CommandImageSubresource        = std::map<CommandLocation, DescriptorImageSubresourcesMap>;
-using BeginCmdBufQueueSubmitPair     = std::pair<decode::Index, decode::Index>;
+using DescriptorImageSubresourcesPair   = std::pair<DescriptorLocation, VkImageSubresourceRange>;
+using DescriptorImageSubresourcesVector = std::vector<DescriptorImageSubresourcesPair>;
+using CommandImageSubresource           = std::map<CommandLocation, DescriptorImageSubresourcesVector>;
+using BeginCmdBufQueueSubmitPair        = std::pair<decode::Index, decode::Index>;
 
 // Default color attachment index selection for dump resources feature.
 // This default value essentially defines to dump all attachments.

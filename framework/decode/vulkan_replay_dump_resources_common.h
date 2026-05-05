@@ -221,12 +221,12 @@ static constexpr VkImageSubresourceRange FilterImageSubresourceRange(const VkIma
     return modified_subresource_range;
 }
 
-void CullDescriptors(const CommonObjectInfoTable&          object_info_table_,
-                     const BoundDescriptorSets&            call_referenced_descriptors,
-                     const DescriptorImageSubresourcesMap* requested_descriptors,
-                     decode::Index                         call_index,
-                     bool                                  dump_all_image_subresources,
-                     DescriptorImageSubresourcesMap&       descriptors_to_dump);
+void CullDescriptors(const CommonObjectInfoTable&             object_info_table_,
+                     const BoundDescriptorSets&               call_referenced_descriptors,
+                     const DescriptorImageSubresourcesVector* requested_descriptors,
+                     decode::Index                            call_index,
+                     bool                                     dump_all_image_subresources,
+                     DescriptorImageSubresourcesVector&       descriptors_to_dump);
 
 class VulkanDumpResourcesDelegate;
 class DefaultVulkanDumpResourcesDelegate;

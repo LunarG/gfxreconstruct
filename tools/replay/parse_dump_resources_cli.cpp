@@ -413,7 +413,7 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                         }
                     }
 
-                    command_subresources[command_location].emplace(
+                    command_subresources[command_location].emplace_back(
                         decode::DescriptorLocation{ set, binding, ai },
                         VkImageSubresourceRange{ aspect, base_level, level_count, base_layer, layer_count });
                 }
@@ -423,9 +423,7 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                     // 1) If it is not an image based descriptor then the subresource range will ne be used
                     // 2) If it is an image based descriptor we will dump subresources depending on the value of the
                     //    dump_resources_dump_all_image_subresources option
-                    // subresource_range = ;
-
-                    command_subresources[command_location].emplace(
+                    command_subresources[command_location].emplace_back(
                         decode::DescriptorLocation{ set, binding, ai },
                         VkImageSubresourceRange{
                             VK_IMAGE_ASPECT_NONE, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS });

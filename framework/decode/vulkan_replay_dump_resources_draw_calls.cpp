@@ -1559,9 +1559,9 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t dc_index, uint64_t rp
     DrawCallParams& dc_params = *draw_call_params_[dc_index];
 
     // Filter requested descriptors based on which are actually relevant to this draw call
-    const DescriptorImageSubresourcesMap* requested_descriptors =
+    const DescriptorImageSubresourcesVector* requested_descriptors =
         cull_resources ? &cmd_subresources_entry->second : nullptr;
-    DescriptorImageSubresourcesMap descriptors_to_dump;
+    DescriptorImageSubresourcesVector descriptors_to_dump;
     CullDescriptors(object_info_table_,
                     dc_params.referenced_descriptors,
                     requested_descriptors,
