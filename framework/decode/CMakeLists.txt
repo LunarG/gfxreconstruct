@@ -310,6 +310,8 @@ target_sources(gfxrecon_decode
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
