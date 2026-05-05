@@ -241,23 +241,17 @@ void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& jso
 }
 
 void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
-                                                    format::HandleId        id,
-                                                    VkFormat                format,
-                                                    const VkExtent3D&       extent,
-                                                    VkImageType             type,
-                                                    uint32_t                levels,
-                                                    uint32_t                layers,
-                                                    VkSampleCountFlagBits   sample_count)
+                                                    const VulkanImageInfo&  image_info)
 {
-    json_entry["imageId"]     = id;
-    json_entry["format"]      = util::ToString<VkFormat>(format);
-    json_entry["extent"][0]   = extent.width;
-    json_entry["extent"][1]   = extent.height;
-    json_entry["extent"][2]   = extent.depth;
-    json_entry["imageType"]   = util::ToString<VkImageType>(type);
-    json_entry["levels"]      = levels;
-    json_entry["layers"]      = layers;
-    json_entry["sampleCount"] = static_cast<uint32_t>(sample_count);
+    json_entry["imageId"]     = image_info.capture_id;
+    json_entry["format"]      = util::ToString<VkFormat>(image_info.format);
+    json_entry["extent"][0]   = image_info.extent.width;
+    json_entry["extent"][1]   = image_info.extent.height;
+    json_entry["extent"][2]   = image_info.extent.depth;
+    json_entry["imageType"]   = util::ToString<VkImageType>(image_info.type);
+    json_entry["levels"]      = image_info.level_count;
+    json_entry["layers"]      = image_info.layer_count;
+    json_entry["sampleCount"] = static_cast<uint32_t>(image_info.sample_count);
 }
 
 void VulkanReplayDumpResourcesJson::InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry,

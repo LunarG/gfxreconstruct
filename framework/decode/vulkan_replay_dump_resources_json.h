@@ -23,6 +23,7 @@
 #ifndef GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 
+#include "decode/vulkan_object_info.h"
 #include "format/format.h"
 #include "util/json_util.h"
 #include "decode/vulkan_replay_options.h"
@@ -72,14 +73,7 @@ class VulkanReplayDumpResourcesJson
 
     void InsertBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
 
-    void InsertImageInfo(nlohmann::ordered_json& json_entry,
-                         format::HandleId        id,
-                         VkFormat                format,
-                         const VkExtent3D&       extent,
-                         VkImageType             type,
-                         uint32_t                levels,
-                         uint32_t                layers,
-                         VkSampleCountFlagBits   sample_count);
+    void InsertImageInfo(nlohmann::ordered_json& json_entry, const VulkanImageInfo& image_info);
 
     void InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry, const DumpedBuffer& dumped_buffer);
 

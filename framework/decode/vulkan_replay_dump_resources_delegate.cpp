@@ -1144,14 +1144,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         const VulkanImageInfo* image_info = image.image_info;
         GFXRECON_ASSERT(image_info != nullptr);
 
-        dump_json_.InsertImageInfo(rt_entry,
-                                   image_info->capture_id,
-                                   image_info->format,
-                                   image_info->extent,
-                                   image_info->type,
-                                   image_info->level_count,
-                                   image_info->layer_count,
-                                   image_info->sample_count);
+        dump_json_.InsertImageInfo(rt_entry, *image_info);
         if (!is_depth_attachment)
         {
             rt_entry["location"] = rt.location;
@@ -1587,14 +1580,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 entry["set"]                = desc.desc_tuple.set;
                 entry["binding"]            = desc.desc_tuple.binding;
                 entry["arrayIndex"]         = desc.desc_tuple.array_index;
-                dump_json_.InsertImageInfo(entry,
-                                           img_info->capture_id,
-                                           img_info->format,
-                                           img_info->extent,
-                                           img_info->type,
-                                           img_info->level_count,
-                                           img_info->layer_count,
-                                           img_info->sample_count);
+                dump_json_.InsertImageInfo(entry, *img_info);
 
                 if (dumped_image->scaling_failed)
                 {
@@ -2188,14 +2174,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferImage(nlohman
 {
     GFXRECON_ASSERT(transf_img_info.image_info != nullptr);
 
-    dump_json_.InsertImageInfo(json_entry,
-                               transf_img_info.image_info->capture_id,
-                               transf_img_info.image_info->format,
-                               transf_img_info.image_info->extent,
-                               transf_img_info.image_info->type,
-                               transf_img_info.image_info->level_count,
-                               transf_img_info.image_info->layer_count,
-                               transf_img_info.image_info->sample_count);
+    dump_json_.InsertImageInfo(json_entry, *transf_img_info.image_info);
     json_entry["layout"] = util::ToString<VkImageLayout>(transf_img_info.layout);
 }
 
