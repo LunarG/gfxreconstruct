@@ -325,7 +325,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
     // Get device
-    Decoded_VkPresentInfoKHR* meta       = pPresentInfo->GetMetaStructPointer();
     CommonObjectInfoTable&    table      = GetObjectInfoTable();
     VulkanQueueInfo*          queue_info = table.GetVkQueueInfo(queue);
     VkDevice                  device     = queue_info->parent;
