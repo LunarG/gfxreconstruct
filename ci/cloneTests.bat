@@ -41,7 +41,7 @@ waitfor forever /t 60 2>nul
 goto :clone_tests
 :clone_tests_done
 cd VulkanTests
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" & :: Allows git to pull from hashes in forks of the repo that are submitted as PRs
 git fetch origin
 git checkout %TEST_BRANCH% || exit /b
 git submodule update --init --recursive

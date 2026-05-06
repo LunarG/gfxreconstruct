@@ -32,7 +32,7 @@ if not defined TEST_SUITE_BRANCH (
 git init ci-gfxr-suites
 cd ci-gfxr-suites
 git remote add origin %TEST_SUITE_REPO%
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" & :: Allows git to pull from hashes in forks of the repo that are submitted as PRs
 
 git config remote.origin.promisor true
 git config remote.origin.partialclonefilter "blob:none"
