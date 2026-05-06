@@ -747,7 +747,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpAccelerationStructureToFile(
     return true;
 }
 
-void DefaultVulkanDumpResourcesDelegate::HashDumpedResourceBase(uint64_t&              seed,
+void DefaultVulkanDumpResourcesDelegate::HashDumpedResourceBase(uint64_t&                 seed,
                                                                 const DumpedResourceBase& dumped_resource) const
 {
     GFXRECON_ASSERT(dumped_resource.type != DumpResourceType::kNone);
