@@ -342,15 +342,28 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
 
         if (it->contains("Descriptors"))
         {
-            command_subresources.emplace(
+            auto [requested_descriptors_entry, success] = command_subresources.emplace(
                 std::piecewise_construct, std::forward_as_tuple(command_location), std::forward_as_tuple());
 
-            const auto& subresources = it->at("Descriptors");
+            auto&       requested_descriptors = requested_descriptors_entry->second;
+            const auto& subresources          = it->at("Descriptors");
             for (const auto& sr : subresources)
             {
                 const uint32_t set     = sr["Set"];
                 const uint32_t binding = sr["Binding"];
                 const uint32_t ai      = sr["ArrayIndex"];
+
+                const decode::DescriptorLocation desc_tuple(set, binding, ai);
+
+                // DescriptorImageSubresourcesVector is a vector so we need to filter duplicate entries manually
+                if (std::find_if(requested_descriptors.begin(),
+                                 requested_descriptors.end(),
+                                 [&desc_tuple](const decode::DescriptorImageSubresourcesPair& element) {
+                                     return element.first == desc_tuple;
+                                 }) != requested_descriptors.end())
+                {
+                    continue;
+                }
 
                 if (sr.contains("SubresourceRange"))
                 {
@@ -414,7 +427,7 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                     }
 
                     command_subresources[command_location].emplace_back(
-                        decode::DescriptorLocation{ set, binding, ai },
+                        desc_tuple,
                         VkImageSubresourceRange{ aspect, base_level, level_count, base_layer, layer_count });
                 }
                 else
@@ -424,7 +437,7 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                     // 2) If it is an image based descriptor we will dump subresources depending on the value of the
                     //    dump_resources_dump_all_image_subresources option
                     command_subresources[command_location].emplace_back(
-                        decode::DescriptorLocation{ set, binding, ai },
+                        desc_tuple,
                         VkImageSubresourceRange{
                             VK_IMAGE_ASPECT_NONE, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS });
                 }
