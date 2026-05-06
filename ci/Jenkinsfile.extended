@@ -21,12 +21,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+def testedCommit = ''
+def runExtended = true
+def scriptLabel = null
+
 pipeline {
     agent none
-
-    parameters {
-        string(name: 'GIT_COMMIT', defaultValue: '', description: 'Commit SHA to test for all parallel jobs.')
-    }
 
     options {
         disableConcurrentBuilds(abortPrevious: true)
@@ -36,16 +36,58 @@ pipeline {
         ))
     }
 
+    triggers {
+        cron('TZ=America/Denver\nH 22 * * 1-5')
+    }
+
     stages {
+        stage('Select Candidate') {
+            steps {
+                script {
+                    node {
+                        cleanWs(deleteDirs: true)
+                        checkout scm
+                        def runJob = load 'ci/runJob.groovy'
+                        scriptLabel = runJob.ScriptLabel
+                    }
+
+                    if (!scriptLabel?.trim()) {
+                        error('Unable to resolve script runner label')
+                    }
+
+                    node(scriptLabel) {
+                        cleanWs(deleteDirs: true)
+                        checkout scm
+                        sh './ci/selectExtendedCandidate.sh ci-metadata'
+
+                        testedCommit = readFile('ci-metadata/extended-tested-commit.txt').trim()
+                        if (!(testedCommit ==~ /[0-9a-fA-F]{40}/)) {
+                            error("Invalid tested commit SHA from dev tested marker: ${testedCommit}")
+                        }
+
+                        currentBuild.description = "candidate ${testedCommit.take(12)}"
+
+                        if (readFile('ci-metadata/extended-should-run.txt').trim() != 'true') {
+                            echo "origin/main already points to ${testedCommit}; skipping extended tests."
+                            currentBuild.result = 'NOT_BUILT'
+                            currentBuild.description = "Skipped: main already at ${testedCommit.take(12)}"
+                            runExtended = false
+                            return
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Extended Tests') {
+            when {
+                expression { return runExtended }
+            }
+
             steps {
                 script {
                     def tests
-                    def requestedCommit = params.GIT_COMMIT?.trim()
-                    if (!requestedCommit) {
-                        error('GIT_COMMIT parameter is required.')
-                    }
-                    def requestedBranches = [[name: requestedCommit]]
+                    def requestedBranches = [[name: testedCommit]]
 
                     node {
                         checkout([
@@ -69,6 +111,31 @@ pipeline {
                         ]
                     }
                     parallel tests
+                }
+            }
+        }
+
+        stage('Promote Main') {
+            when {
+                expression { return runExtended }
+            }
+
+            steps {
+                script {
+                    node(scriptLabel) {
+                        cleanWs(deleteDirs: true)
+
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '*/main']],
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+
+                        sh "./ci/promoteMain.sh ${testedCommit}"
+                    }
                 }
             }
         }
