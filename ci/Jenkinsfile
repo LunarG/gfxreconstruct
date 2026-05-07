@@ -97,9 +97,15 @@ pipeline {
 
         stage('Publish Extended Candidate') {
             when {
-                // Only the dev branch publishes a candidate for the scheduled
-                // extended job.  PR and other branch builds only run commit tests.
-                branch 'dev'
+                allOf {
+                    // Only the dev branch publishes a candidate for the scheduled
+                    // extended job.  PR and other branch builds only run commit tests.
+                    branch 'dev'
+                    // Some test helpers use catchError, which marks the build
+                    // failed but lets the pipeline continue.  Do not publish a
+                    // candidate unless every parallel test branch succeeded.
+                    expression { return currentBuild.currentResult == 'SUCCESS' }
+                }
             }
 
             steps {
