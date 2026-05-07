@@ -1929,6 +1929,19 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                     submit_cbs.push_back(command_buffer);
                     has_transfer_or_dispatch = true;
                 }
+                else
+                {
+                    // Look for transfer contexts from secondaries
+                    for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
+                    {
+                        if (bcb_qs_pair.second == qs_index)
+                        {
+                            transfer_contexts.push_back(transf_context);
+                            submit_cbs.push_back(command_buffer);
+                            has_transfer_or_dispatch = true;
+                        }
+                    }
+                }
 
                 // Handle Dispatch/TraceRays commands
                 if (auto dispatch_context = FindDispatchTraceRaysContext(command_buffer, qs_index))
