@@ -26,9 +26,13 @@ def runExtended = true
 def scriptLabel = 'linux'
 
 pipeline {
+    // The pipeline itself does not hold an agent.  Individual stages allocate
+    // Linux or test-machine agents only when they need a workspace.
     agent none
 
     options {
+        // Extended is scheduled and can also be launched manually.  Keep only
+        // one active run so two extended runs cannot promote main at once.
         disableConcurrentBuilds(abortPrevious: true)
         buildDiscarder(logRotator(
             daysToKeepStr: '90',
@@ -37,10 +41,14 @@ pipeline {
     }
 
     triggers {
+        // Scheduled gate: Jenkins runs this once on weekday evenings.  The
+        // candidate selection stage decides whether there is anything to test.
         cron('TZ=America/Denver\nH 22 * * 1-5')
     }
 
     parameters {
+        // Manual escape hatch.  Normally extended skips when main already points
+        // at the tested commit, but this lets someone rerun the matrix anyway.
         booleanParam(
             name: 'FORCE_EXTENDED_RUN',
             defaultValue: false,
@@ -52,9 +60,14 @@ pipeline {
         stage('Select Candidate') {
             steps {
                 script {
+                    // The selection script uses sh and Git, so run it on a
+                    // Linux agent instead of allowing Jenkins to pick Windows.
                     node(scriptLabel) {
                         cleanWs(deleteDirs: true)
+                        // Checkout gives this fresh workspace the CI scripts.
                         checkout scm
+                        // This script fetches origin/main and the dev-tested
+                        // marker ref, then writes small files Jenkins can read.
                         sh './ci/selectExtendedCandidate.sh ci-metadata'
 
                         testedCommit = readFile('ci-metadata/extended-tested-commit.txt').trim()
@@ -64,6 +77,8 @@ pipeline {
 
                         currentBuild.description = "candidate ${testedCommit.take(12)}"
 
+                        // Shell scripts communicate simple booleans through
+                        // files because Jenkins Pipeline state is Groovy-side.
                         def shouldRunExtended = readFile('ci-metadata/extended-should-run.txt').trim() == 'true'
 
                         if (!shouldRunExtended && !params.FORCE_EXTENDED_RUN) {
@@ -75,6 +90,8 @@ pipeline {
                         }
 
                         if (!shouldRunExtended) {
+                            // FORCE_EXTENDED_RUN keeps runExtended true, so the
+                            // matrix runs even though there will be no promotion.
                             echo "Forcing extended tests even though origin/main already points to ${testedCommit}."
                             currentBuild.description = "forced candidate ${testedCommit.take(12)}"
                         }
@@ -85,15 +102,22 @@ pipeline {
 
         stage('Extended Tests') {
             when {
+                // Declarative Pipeline evaluates this before entering the stage.
+                // Select Candidate sets runExtended false for a normal skip.
                 expression { return runExtended }
             }
 
             steps {
                 script {
                     def tests
+                    // Each helper below receives the exact commit SHA to check
+                    // out.  This pins all test machines to the same commit even
+                    // if dev advances while extended is running.
                     def requestedBranches = [[name: testedCommit]]
 
                     node {
+                        // Checkout once on any agent so runJob.groovy can be
+                        // loaded and used to construct the parallel closures.
                         checkout([
                             $class: 'GitSCM',
                             branches: requestedBranches,
@@ -114,6 +138,7 @@ pipeline {
                             'Windows11 Nvidia 50XX Rel64': runJob.gfxrTestWindows('Win11 Nvidia 50XX Rel64 Ext', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
                         ]
                     }
+                    // The closures allocate their own platform-specific agents.
                     parallel tests
                 }
             }
@@ -121,14 +146,19 @@ pipeline {
 
         stage('Promote Main') {
             when {
+                // Promote only after an actual extended run and only if the
+                // previous stages have not marked the build failed/unstable.
                 expression { return runExtended && currentBuild.currentResult == 'SUCCESS' }
             }
 
             steps {
                 script {
+                    // Promotion uses sh and Git push, so keep it on Linux.
                     node(scriptLabel) {
                         cleanWs(deleteDirs: true)
 
+                        // Start from a clean checkout of main.  The script will
+                        // re-fetch main and fast-forward it to testedCommit.
                         checkout([
                             $class: 'GitSCM',
                             branches: [[name: '*/main']],
@@ -138,6 +168,8 @@ pipeline {
                             userRemoteConfigs: scm.userRemoteConfigs
                         ])
 
+                        // promoteMain.sh uses the exact tested SHA.  It does not
+                        // merge the moving dev branch and it never force-pushes.
                         sh "./ci/promoteMain.sh ${testedCommit}"
                     }
                 }

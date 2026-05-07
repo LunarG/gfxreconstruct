@@ -25,9 +25,13 @@ def devTestedCommit = null
 def scriptLabel = 'linux'
 
 pipeline {
+    // Do not reserve one Jenkins agent for the whole pipeline.  Each stage or
+    // test branch asks for the agent it needs with node { ... }.
     agent none
 
     options {
+        // Only one build of a branch should run at a time.  For dev, a newer
+        // build aborts an older one instead of letting both publish candidates.
         disableConcurrentBuilds(abortPrevious: true)
     }
 
@@ -51,8 +55,14 @@ pipeline {
 
                     // Checkout and load on any available node
                     node {
+                        // checkout scm checks out the branch/commit Jenkins is
+                        // building and returns metadata from the Git plugin.
                         def scmVars = checkout scm
+                        // Save the exact commit tested by this dev build.  Do
+                        // not use the dev branch name later because it can move.
                         devTestedCommit = scmVars.GIT_COMMIT
+                        // load evaluates runJob.groovy and returns its map of
+                        // labels and helper functions for creating test stages.
                         def runJob = load 'ci/runJob.groovy'
 
                         tests = [
@@ -77,7 +87,9 @@ pipeline {
                             'Windows11 Nvidia 5080 Dbg32': runJob.gfxrTestWindows('Win11 Nvidia 5080 Dbg32', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit32, "commit-suite.json", scm.branches),
                         ]
                     }
-                    // parallel runs OUTSIDE the node block - each branch allocates its own node
+                    // Run the test closures in parallel.  This is outside the
+                    // setup node above, so each closure allocates its own test
+                    // machine instead of sharing one workspace.
                     parallel tests
                 }
             }
@@ -85,6 +97,8 @@ pipeline {
 
         stage('Publish Extended Candidate') {
             when {
+                // Only the dev branch publishes a candidate for the scheduled
+                // extended job.  PR and other branch builds only run commit tests.
                 branch 'dev'
             }
 
@@ -94,7 +108,12 @@ pipeline {
                         error('Unable to resolve tested commit SHA')
                     }
 
+                    // The marker update script uses sh, so run it on a Linux
+                    // agent.  It pushes refs/heads/ci/gfxr-dev-tested to the
+                    // exact commit this dev build validated.
                     node(scriptLabel) {
+                        // This node has a fresh workspace, so checkout before
+                        // running the script from the repository.
                         checkout scm
                         sh "./ci/updateDevTestedRef.sh ${devTestedCommit.trim()}"
                     }
