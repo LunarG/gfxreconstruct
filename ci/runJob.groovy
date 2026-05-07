@@ -529,7 +529,6 @@ return [
     Win11Nvidia50XXLabel : 'Windows11-NVIDIA-50XX',
     WinAMDExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
     WinNvidiaExtendedLabel: 'Windows-NVIDIA-2080-stable-exclusive',
-    ScriptLabel: 'linux',
 
     gfxrTestWindows: this.&gfxrTestWindows,
     gfxrTestLinux: this.&gfxrTestLinux,

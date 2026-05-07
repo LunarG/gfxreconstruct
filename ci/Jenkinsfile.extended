@@ -23,7 +23,7 @@
 
 def testedCommit = ''
 def runExtended = true
-def scriptLabel = null
+def scriptLabel = 'linux'
 
 pipeline {
     agent none
@@ -52,17 +52,6 @@ pipeline {
         stage('Select Candidate') {
             steps {
                 script {
-                    node {
-                        cleanWs(deleteDirs: true)
-                        checkout scm
-                        def runJob = load 'ci/runJob.groovy'
-                        scriptLabel = runJob.ScriptLabel
-                    }
-
-                    if (!scriptLabel?.trim()) {
-                        error('Unable to resolve script runner label')
-                    }
-
                     node(scriptLabel) {
                         cleanWs(deleteDirs: true)
                         checkout scm

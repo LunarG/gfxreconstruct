@@ -22,7 +22,7 @@
 */
 
 def devTestedCommit = null
-def scriptLabel = null
+def scriptLabel = 'linux'
 
 pipeline {
     agent none
@@ -54,7 +54,6 @@ pipeline {
                         def scmVars = checkout scm
                         devTestedCommit = scmVars.GIT_COMMIT
                         def runJob = load 'ci/runJob.groovy'
-                        scriptLabel = runJob.ScriptLabel
 
                         tests = [
                             'Android Rel64': runJob.gfxrTestAndroid('Android R64', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "commit-suite.json", scm.branches),
@@ -93,10 +92,6 @@ pipeline {
                 script {
                     if (!devTestedCommit?.trim()) {
                         error('Unable to resolve tested commit SHA')
-                    }
-
-                    if (!scriptLabel?.trim()) {
-                        error('Unable to resolve script runner label')
                     }
 
                     node(scriptLabel) {
