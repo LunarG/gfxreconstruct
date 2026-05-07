@@ -2032,7 +2032,7 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(Dispatc
         buf_barrier.pNext               = nullptr;
         buf_barrier.buffer              = disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer;
         buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-        buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+        buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
         buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         buf_barrier.size                = size;
@@ -2120,7 +2120,7 @@ VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(TraceR
     buf_barrier.pNext               = nullptr;
     buf_barrier.buffer              = new_params_buffer;
     buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-    buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+    buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
     buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     buf_barrier.size                = size;
