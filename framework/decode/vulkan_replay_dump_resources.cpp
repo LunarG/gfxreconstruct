@@ -1864,7 +1864,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderingKHR(const ApiCallInfo
     OverrideCmdEndRendering(call_info, func, original_command_buffer);
 }
 
-VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitInfo>&   submit_infos,
+VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo>      submit_infos,
                                                     const graphics::VulkanDeviceTable& device_table,
                                                     const VulkanQueueInfo*             queue_info,
                                                     VkFence                            fence,

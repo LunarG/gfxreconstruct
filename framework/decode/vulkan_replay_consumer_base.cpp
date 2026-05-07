@@ -4287,14 +4287,17 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         options_.MaybeWaitBeforeFrame();
     }
 
-    assert((queue_info != nullptr) && (pSubmits != nullptr));
+    GFXRECON_ASSERT((queue_info != nullptr) && (pSubmits != nullptr));
 
-    VkResult            result       = VK_SUCCESS;
-    const VkSubmitInfo* submit_infos = pSubmits->GetPointer();
-    assert(submitCount == 0 || submit_infos != nullptr);
-    auto    submit_info_data = pSubmits->GetMetaStructPointer();
-    VkFence fence            = VK_NULL_HANDLE;
+    VkResult result = VK_SUCCESS;
+    GFXRECON_ASSERT(submitCount == 0 || pSubmits->GetPointer() != nullptr);
 
+    std::span<VkSubmitInfo> current_submits_span = pSubmits->GetSpan();
+    GFXRECON_ASSERT(current_submits_span.size() == submitCount);
+
+    auto submit_info_data = pSubmits->GetMetaStructPointer();
+
+    VkFence fence = VK_NULL_HANDLE;
     if (fence_info != nullptr)
     {
         fence = fence_info->handle;
@@ -4346,27 +4349,23 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     }
 
     VulkanSubmitJobExecution execution = GetDeviceSubmitJobExecutor(device_info).CreateExecution();
-    execution.InjectBefore(std::move(plan), pSubmits->GetSpan());
+    execution.InjectBefore(std::move(plan), current_submits_span);
 
     if (options_.serialize_queue_submissions)
     {
-        execution.SerializeExecution(pSubmits->GetSpan());
+        execution.SerializeExecution(current_submits_span);
     }
+
+    // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
+    // imported semaphore info structures.
+    std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
+    std::vector<const VulkanSemaphoreInfo*>                               removed_semaphores;
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
-    if ((!have_imported_semaphores_) && (options_.surface_index == -1) && (!options_.dumping_resources))
+    if (have_imported_semaphores_ || options_.surface_index != -1)
     {
-        result = func(queue_info->handle, submitCount, submit_infos, fence);
-    }
-    else
-    {
-        // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
-        // imported semaphore info structures.
-        std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
-        std::vector<const VulkanSemaphoreInfo*>                               removed_semaphores;
-
         if (submit_info_data != nullptr)
         {
             for (uint32_t i = 0; i < submitCount; i++)
@@ -4384,81 +4383,82 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
                 if (!removed_semaphores.empty())
                 {
                     altered_submits[i].swap(removed_semaphores);
-                    assert(removed_semaphores.empty());
+                    GFXRECON_ASSERT(removed_semaphores.empty());
                 }
             }
         }
+    }
 
-        if (altered_submits.empty() && !options_.dumping_resources)
+    std::vector<VkSubmitInfo> modified_submit_infos;
+
+    std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>> per_submit_wait_semaphores;
+    std::unordered_map<const VkSubmitInfo*, std::vector<VkSemaphore>> per_submit_signal_semaphores;
+
+    if (!altered_submits.empty())
+    {
+        // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
+        // original semaphore array with the imported semaphores omitted.
+        modified_submit_infos = std::vector<VkSubmitInfo>(current_submits_span.begin(), current_submits_span.end());
+        const VkSubmitInfo*       submit_info_key   = modified_submit_infos.data();
+        std::vector<VkSemaphore>& wait_semaphores   = per_submit_wait_semaphores[submit_info_key];
+        std::vector<VkSemaphore>& signal_semaphores = per_submit_signal_semaphores[submit_info_key];
+
+        for (const auto& submit_iter : altered_submits)
         {
-            result = func(queue_info->handle, submitCount, submit_infos, fence);
-        }
-        else
-        {
-            // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
-            // original semaphore array with the imported semaphores omitted.
-            std::vector<VkSubmitInfo> modified_submit_infos(submit_infos, std::next(submit_infos, submitCount));
-            std::vector<std::vector<VkSemaphore>> semaphore_memory(altered_submits.size());
+            // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
+            VkSubmitInfo& modified_submit_info = modified_submit_infos[submit_iter.first];
+            auto          semaphore_iter       = submit_iter.second.begin();
 
-            std::vector<VkSemaphore> wait_semaphores;
-            std::vector<VkSemaphore> signal_semaphores;
-
-            for (const auto& submit_iter : altered_submits)
+            for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreCount; ++i)
             {
-                // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
-                VkSubmitInfo& modified_submit_info = modified_submit_infos[submit_iter.first];
-                auto          semaphore_iter       = submit_iter.second.begin();
+                VkSemaphore semaphore = modified_submit_info.pWaitSemaphores[i];
 
-                for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreCount; ++i)
+                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
                 {
-                    VkSemaphore semaphore = modified_submit_info.pWaitSemaphores[i];
-
-                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
-                    {
-                        wait_semaphores.push_back(semaphore);
-                    }
-                    else
-                    {
-                        // Omit the ignored semaphore from the current submission.
-                        ++semaphore_iter;
-                    }
+                    wait_semaphores.push_back(semaphore);
                 }
-
-                for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreCount; ++i)
+                else
                 {
-                    VkSemaphore semaphore = modified_submit_info.pSignalSemaphores[i];
-
-                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
-                    {
-                        signal_semaphores.push_back(semaphore);
-                    }
-                    else
-                    {
-                        // Omit the ignored semaphore from the current submission.
-                        ++semaphore_iter;
-                    }
+                    // Omit the ignored semaphore from the current submission.
+                    ++semaphore_iter;
                 }
-
-                modified_submit_info.waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores.size());
-                modified_submit_info.pWaitSemaphores      = wait_semaphores.data();
-                modified_submit_info.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
-                modified_submit_info.pSignalSemaphores    = signal_semaphores.data();
             }
 
-            if (submit_info_data != nullptr && (options_.dumping_resources) &&
-                resource_dumper_->MustDumpQueueSubmitIndex(index))
+            for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreCount; ++i)
             {
-                resource_dumper_->QueueSubmit(
-                    modified_submit_infos, *GetDeviceTable(queue_info->handle), queue_info, fence, index);
+                VkSemaphore semaphore = modified_submit_info.pSignalSemaphores[i];
+
+                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                {
+                    signal_semaphores.push_back(semaphore);
+                }
+                else
+                {
+                    // Omit the ignored semaphore from the current submission.
+                    ++semaphore_iter;
+                }
             }
-            else
-            {
-                result = func(queue_info->handle,
-                              static_cast<uint32_t>(modified_submit_infos.size()),
-                              modified_submit_infos.data(),
-                              fence);
-            }
+
+            modified_submit_info.waitSemaphoreCount   = static_cast<uint32_t>(wait_semaphores.size());
+            modified_submit_info.pWaitSemaphores      = wait_semaphores.data();
+            modified_submit_info.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
+            modified_submit_info.pSignalSemaphores    = signal_semaphores.data();
         }
+
+        // Update current submits span to reference modified submit info vector.
+        current_submits_span = std::span(modified_submit_infos.data(), modified_submit_infos.size());
+    }
+
+    if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
+    {
+        auto* device_table = GetDeviceTable(queue_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+        resource_dumper_->QueueSubmit(current_submits_span, *device_table, queue_info, fence, index);
+    }
+    else
+    {
+        result = func(
+            queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
     }
 
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
@@ -4529,12 +4529,15 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
     GFXRECON_ASSERT((queue_info != nullptr) && (pSubmits != nullptr));
 
-    VkResult             result       = VK_SUCCESS;
-    const VkSubmitInfo2* submit_infos = pSubmits->GetPointer();
-    assert(submitCount == 0 || submit_infos != nullptr);
-    auto    submit_info_data = pSubmits->GetMetaStructPointer();
-    VkFence fence            = VK_NULL_HANDLE;
+    VkResult result = VK_SUCCESS;
+    GFXRECON_ASSERT(submitCount == 0 || pSubmits->GetPointer() != nullptr);
 
+    std::span<VkSubmitInfo2> current_submits_span = pSubmits->GetSpan();
+    GFXRECON_ASSERT(current_submits_span.size() == submitCount);
+
+    auto submit_info_data = pSubmits->GetMetaStructPointer();
+
+    VkFence fence = VK_NULL_HANDLE;
     if (fence_info != nullptr)
     {
         fence = fence_info->handle;
@@ -4586,27 +4589,23 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     }
 
     VulkanSubmitJobExecution execution = GetDeviceSubmitJobExecutor(device_info).CreateExecution();
-    execution.InjectBefore(std::move(plan), pSubmits->GetSpan());
+    execution.InjectBefore(std::move(plan), current_submits_span);
 
     if (options_.serialize_queue_submissions)
     {
-        execution.SerializeExecution(pSubmits->GetSpan());
+        execution.SerializeExecution(current_submits_span);
     }
+
+    // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
+    // imported semaphore info structures.
+    std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
+    std::vector<const VulkanSemaphoreInfo*>                               removed_semaphores;
 
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
-    if ((!have_imported_semaphores_) && (options_.surface_index == -1))
+    if (have_imported_semaphores_ || options_.surface_index != -1)
     {
-        result = func(queue_info->handle, submitCount, submit_infos, fence);
-    }
-    else
-    {
-        // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
-        // imported semaphore info structures.
-        std::unordered_map<uint32_t, std::vector<const VulkanSemaphoreInfo*>> altered_submits;
-        std::vector<const VulkanSemaphoreInfo*>                               removed_semaphores;
-
         if (submit_info_data != nullptr)
         {
             for (uint32_t i = 0; i < submitCount; i++)
@@ -4628,77 +4627,77 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 }
             }
         }
+    }
 
-        if (altered_submits.empty())
+    std::vector<VkSubmitInfo2> modified_submit_infos;
+
+    std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>> per_submit_wait_semaphore_infos;
+    std::unordered_map<const VkSubmitInfo2*, std::vector<VkSemaphoreSubmitInfo>> per_submit_signal_semaphore_infos;
+
+    if (!altered_submits.empty())
+    {
+        // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
+        // original semaphore array with the imported semaphores omitted.
+        modified_submit_infos = std::vector<VkSubmitInfo2>(current_submits_span.begin(), current_submits_span.end());
+        const VkSubmitInfo2*                submit_info_key        = modified_submit_infos.data();
+        std::vector<VkSemaphoreSubmitInfo>& wait_semaphore_infos   = per_submit_wait_semaphore_infos[submit_info_key];
+        std::vector<VkSemaphoreSubmitInfo>& signal_semaphore_infos = per_submit_signal_semaphore_infos[submit_info_key];
+
+        for (const auto& submit_iter : altered_submits)
         {
-            result = func(queue_info->handle, submitCount, submit_infos, fence);
-        }
-        else
-        {
-            // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
-            // original semaphore array with the imported semaphores omitted.
-            std::vector<VkSubmitInfo2> modified_submit_infos(submit_infos, std::next(submit_infos, submitCount));
-            std::vector<std::vector<VkSemaphore>> semaphore_memory(altered_submits.size());
+            // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
+            VkSubmitInfo2& modified_submit_info = modified_submit_infos[submit_iter.first];
+            auto           semaphore_iter       = submit_iter.second.begin();
 
-            std::vector<VkSemaphoreSubmitInfo> wait_semaphore_infos;
-            std::vector<VkSemaphoreSubmitInfo> signal_semaphore_infos;
-
-            for (const auto& submit_iter : altered_submits)
+            for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreInfoCount; ++i)
             {
-                // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
-                VkSubmitInfo2& modified_submit_info = modified_submit_infos[submit_iter.first];
-                auto           semaphore_iter       = submit_iter.second.begin();
+                VkSemaphore semaphore = modified_submit_info.pWaitSemaphoreInfos[i].semaphore;
 
-                for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreInfoCount; ++i)
+                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
                 {
-                    VkSemaphore semaphore = modified_submit_info.pWaitSemaphoreInfos[i].semaphore;
+                    VkSemaphoreSubmitInfo info{};
+                    info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                    info.semaphore = semaphore;
 
-                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
-                    {
-                        VkSemaphoreSubmitInfo info{};
-                        info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-                        info.semaphore = semaphore;
-
-                        wait_semaphore_infos.emplace_back(info);
-                    }
-                    else
-                    {
-                        // Omit the ignored semaphore from the current submission.
-                        ++semaphore_iter;
-                    }
+                    wait_semaphore_infos.emplace_back(info);
                 }
-
-                for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreInfoCount; ++i)
+                else
                 {
-                    VkSemaphore semaphore = modified_submit_info.pSignalSemaphoreInfos[i].semaphore;
-
-                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
-                    {
-                        VkSemaphoreSubmitInfo info{};
-                        info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-                        info.semaphore = semaphore;
-
-                        signal_semaphore_infos.emplace_back(info);
-                    }
-                    else
-                    {
-                        // Omit the ignored semaphore from the current submission.
-                        ++semaphore_iter;
-                    }
+                    // Omit the ignored semaphore from the current submission.
+                    ++semaphore_iter;
                 }
-
-                modified_submit_info.waitSemaphoreInfoCount   = static_cast<uint32_t>(wait_semaphore_infos.size());
-                modified_submit_info.pWaitSemaphoreInfos      = wait_semaphore_infos.data();
-                modified_submit_info.signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphore_infos.size());
-                modified_submit_info.pSignalSemaphoreInfos    = signal_semaphore_infos.data();
             }
 
-            result = func(queue_info->handle,
-                          static_cast<uint32_t>(modified_submit_infos.size()),
-                          modified_submit_infos.data(),
-                          fence);
+            for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreInfoCount; ++i)
+            {
+                VkSemaphore semaphore = modified_submit_info.pSignalSemaphoreInfos[i].semaphore;
+
+                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                {
+                    VkSemaphoreSubmitInfo info{};
+                    info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                    info.semaphore = semaphore;
+
+                    signal_semaphore_infos.emplace_back(info);
+                }
+                else
+                {
+                    // Omit the ignored semaphore from the current submission.
+                    ++semaphore_iter;
+                }
+            }
+
+            modified_submit_info.waitSemaphoreInfoCount   = static_cast<uint32_t>(wait_semaphore_infos.size());
+            modified_submit_info.pWaitSemaphoreInfos      = wait_semaphore_infos.data();
+            modified_submit_info.signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphore_infos.size());
+            modified_submit_info.pSignalSemaphoreInfos    = signal_semaphore_infos.data();
         }
+
+        current_submits_span = std::span(modified_submit_infos.data(), modified_submit_infos.size());
     }
+
+    result = func(
+        queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
 
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {

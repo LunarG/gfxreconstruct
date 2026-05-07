@@ -419,7 +419,7 @@ class VulkanReplayDumpResourcesBase
                                     uint32_t                 commandBufferCount,
                                     const VkCommandBuffer*   pCommandBuffers);
 
-    VkResult QueueSubmit(const std::vector<VkSubmitInfo>&   modified_submit_infos,
+    VkResult QueueSubmit(std::span<const VkSubmitInfo>      submit_infos,
                          const graphics::VulkanDeviceTable& device_table,
                          const VulkanQueueInfo*             queue,
                          VkFence                            fence,
