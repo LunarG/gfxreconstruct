@@ -40,6 +40,14 @@ pipeline {
         cron('TZ=America/Denver\nH 22 * * 1-5')
     }
 
+    parameters {
+        booleanParam(
+            name: 'FORCE_EXTENDED_RUN',
+            defaultValue: false,
+            description: 'Run extended tests even if main already points at the tested commit.'
+        )
+    }
+
     stages {
         stage('Select Candidate') {
             steps {
@@ -67,12 +75,19 @@ pipeline {
 
                         currentBuild.description = "candidate ${testedCommit.take(12)}"
 
-                        if (readFile('ci-metadata/extended-should-run.txt').trim() != 'true') {
+                        def shouldRunExtended = readFile('ci-metadata/extended-should-run.txt').trim() == 'true'
+
+                        if (!shouldRunExtended && !params.FORCE_EXTENDED_RUN) {
                             echo "origin/main already points to ${testedCommit}; skipping extended tests."
                             currentBuild.result = 'NOT_BUILT'
                             currentBuild.description = "Skipped: main already at ${testedCommit.take(12)}"
                             runExtended = false
                             return
+                        }
+
+                        if (!shouldRunExtended) {
+                            echo "Forcing extended tests even though origin/main already points to ${testedCommit}."
+                            currentBuild.description = "forced candidate ${testedCommit.take(12)}"
                         }
                     }
                 }
