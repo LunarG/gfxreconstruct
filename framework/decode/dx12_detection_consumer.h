@@ -37,13 +37,13 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12DetectionConsumer : public Dx12Consumer
 {
   public:
-    static const uint64_t kDefaultBlockLimit = 1000;
-    static const uint64_t kNoBlockLimit      = 0;
+    static constexpr uint64_t kDefaultBlockLimit = 1000;
+    static constexpr uint64_t kNoBlockLimit      = 0;
 
     Dx12DetectionConsumer(uint64_t block_limit = kDefaultBlockLimit) :
         block_limit_(block_limit), dx12_consumer_usage_(false)
     {}
-    bool         WasD3D12APIDetected() { return dx12_consumer_usage_; }
+    bool         WasD3D12APIDetected() const { return dx12_consumer_usage_; }
     virtual void Process_D3D12CreateDevice(const gfxrecon::decode::ApiCallInfo&           call_info,
                                            HRESULT                                        return_value,
                                            gfxrecon::format::HandleId                     pAdapter,

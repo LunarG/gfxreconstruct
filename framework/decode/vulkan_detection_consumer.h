@@ -36,13 +36,13 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanDetectionConsumer : public VulkanConsumer
 {
   public:
-    static const uint64_t kDefaultBlockLimit = 1000;
-    static const uint64_t kNoBlockLimit      = 0;
+    static constexpr uint64_t kDefaultBlockLimit = 1000;
+    static constexpr uint64_t kNoBlockLimit      = 0;
 
     VulkanDetectionConsumer(uint64_t block_limit = kDefaultBlockLimit) :
         block_limit_(block_limit), vulkan_consumer_usage_(false)
     {}
-    bool         WasVulkanAPIDetected() { return vulkan_consumer_usage_; }
+    bool         WasVulkanAPIDetected() const { return vulkan_consumer_usage_; }
     virtual void Process_vkCreateDevice(const ApiCallInfo&         call_info,
                                         VkResult                   returnValue,
                                         gfxrecon::format::HandleId physicalDevice,

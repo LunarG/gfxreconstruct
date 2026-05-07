@@ -38,28 +38,36 @@ class ConvertFeatureBase
     virtual ~ConvertFeatureBase() = default;
 
     virtual void Initialize(decode::FileProcessor& file_processor, decode::JsonWriter* json_writer) = 0;
+    virtual bool WasDetected() const                                                                = 0;
     virtual void Destroy()                                                                          = 0;
 };
 
 // Template used by all API instantiations.
-template <class ConsumerT, class DecoderT>
+template <class ConsumerT, class DecoderT, class DetectConsumerT>
 class ConvertFeature : public ConvertFeatureBase
 {
   public:
+    // Allow forwarding of constructor arguments from children so we can properly initialize
+    // the detect_consumer_.
+    template <typename... DetectArgs>
+    ConvertFeature(DetectArgs&&... args) : detect_consumer_(std::forward<DetectArgs>(args)...)
+    {}
+
     ~ConvertFeature() { Destroy(); }
 
     void Initialize(decode::FileProcessor& file_processor, decode::JsonWriter* json_writer) final
     {
         json_consumer_.Initialize(json_writer);
+        decoder_.AddConsumer(&detect_consumer_);
         decoder_.AddConsumer(&json_consumer_);
         file_processor.AddDecoder(&decoder_);
     }
-
     void Destroy() final { json_consumer_.Destroy(); }
 
-  private:
-    ConsumerT json_consumer_;
-    DecoderT  decoder_;
+  protected:
+    ConsumerT       json_consumer_;
+    DetectConsumerT detect_consumer_;
+    DecoderT        decoder_;
 };
 
 GFXRECON_END_NAMESPACE(convert)

@@ -256,19 +256,6 @@ int main(int argc, const char** argv)
 
     gfxrecon::decode::FileProcessor file_processor;
 
-#ifndef D3D12_SUPPORT
-    bool detected_d3d12  = false;
-    bool detected_vulkan = false;
-    bool detected_openxr = false;
-    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, detected_openxr);
-
-    if (!detected_vulkan && !is_asset_file)
-    {
-        GFXRECON_LOG_INFO("Capture file does not contain Vulkan content.  D3D12 content may be present but "
-                          "gfxrecon-convert is not compiled with D3D12 support.");
-        goto exit;
-    }
-#endif
     if (file_per_frame && output_to_stdout)
     {
         GFXRECON_LOG_WARNING("Outputting a file per frame is not consistent with outputting to stdout.");
@@ -317,7 +304,8 @@ int main(int argc, const char** argv)
         }
         else
         {
-            bool                                   success = true;
+            bool                                   success         = true;
+            bool                                   check_detection = true;
             gfxrecon::util::FileNoLockOutputStream out_stream{ out_file_handle, false };
 
             gfxrecon::util::JsonOptions::root_dir      = output_dir;
@@ -366,6 +354,25 @@ int main(int argc, const char** argv)
 
                 if (success)
                 {
+                    // Check to see if we've detected any API.  If not, throw a warning and exit.
+                    if (check_detection)
+                    {
+                        bool apis_detected = false;
+                        for (auto& feature : convert_features)
+                        {
+                            apis_detected |= feature->WasDetected();
+                        }
+
+                        if (!apis_detected)
+                        {
+                            GFXRECON_LOG_INFO("Capture file does not contain detectable API content.  "
+                                              "Platform-specific content may be present but "
+                                              "gfxrecon-convert is not currently compiled to support it.");
+                            goto exit;
+                        }
+                        check_detection = false;
+                    }
+
                     if (frame_range_option)
                     {
                         if (frame_indices.empty())
