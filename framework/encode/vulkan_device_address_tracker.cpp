@@ -53,7 +53,8 @@ void encode::VulkanDeviceAddressTracker::TrackBuffer(const vulkan_wrappers::Buff
     {
         std::unique_lock lock(mutex_);
 
-        if (auto iter = buffer_addresses_.find(wrapper->address); iter != buffer_addresses_.end())
+        if (auto iter = buffer_addresses_.find(wrapper->address);
+            iter != buffer_addresses_.end() && iter->second.handle != wrapper->handle)
         {
             GFXRECON_LOG_WARNING("[VulkanDeviceAddressTracker] Buffer already exists for address: %" PRIu64
                                  ". Replacing old buffer: %p with new buffer: %p",
