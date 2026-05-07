@@ -117,7 +117,7 @@ pipeline {
 
         stage('Promote Main') {
             when {
-                expression { return runExtended }
+                expression { return runExtended && currentBuild.currentResult == 'SUCCESS' }
             }
 
             steps {
