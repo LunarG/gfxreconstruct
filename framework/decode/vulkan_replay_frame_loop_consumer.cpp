@@ -57,13 +57,14 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
     StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
     HandlePointerDecoder<VkDescriptorSet>*                     pDescriptorSets)
 {
+    if (frame_loop_info_.IsRepetition())
+    {
+        // Only allocate descriptor sets during the first iteration of the looping frame
+        return;
+    }
+
     VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
         call_info, returnValue, device, pAllocateInfo, pDescriptorSets);
-    if (frame_loop_info_.IsLooping())
-    {
-        VkDescriptorPool pool = pAllocateInfo->GetPointer()->descriptorPool;
-        active_descriptor_pools_.insert(pool);
-    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
@@ -81,16 +82,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     GFXRECON_ASSERT(device_table);
 
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, returnValue, queue, pPresentInfo);
-
-    if (frame_loop_info_.IsLooping())
-    {
-        device_table->DeviceWaitIdle(device);
-        for (VkDescriptorPool pool : active_descriptor_pools_)
-        {
-            device_table->ResetDescriptorPool(device, pool, 0);
-        }
-        active_descriptor_pools_.clear();
-    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
