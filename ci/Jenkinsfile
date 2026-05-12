@@ -22,7 +22,7 @@
 */
 
 def devTestedCommit = null
-def scriptLabel = 'linux'
+def scriptLabel = 'Linux'
 
 pipeline {
     // Do not reserve one Jenkins agent for the whole pipeline.  Each stage or
