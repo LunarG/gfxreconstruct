@@ -80,6 +80,18 @@ class VulkanReferencedBlockConsumerBase : public VulkanConsumer
                                                       size_t                   dataSize,
                                                       PointerDecoder<uint8_t>* pData) override;
 
+    void Process_vkSetDebugUtilsObjectNameEXT(
+        const ApiCallInfo&                                           call_info,
+        VkResult                                                     returnValue,
+        format::HandleId                                             device,
+        StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo) override;
+
+    void
+    Process_vkSetDebugUtilsObjectTagEXT(const ApiCallInfo&                                          call_info,
+                                        VkResult                                                    returnValue,
+                                        format::HandleId                                            device,
+                                        StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo) override;
+
   protected:
     // check if a handle_id is not used throughout the entire capture
     bool check_handle_id_unused(format::HandleId handle_id) const { return unreferenced_ids_.contains(handle_id); }

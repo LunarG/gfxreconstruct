@@ -119,5 +119,35 @@ void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandle
     }
 }
 
+void VulkanReferencedBlockConsumerBase::Process_vkSetDebugUtilsObjectNameEXT(
+    const ApiCallInfo&                                           call_info,
+    VkResult                                                     returnValue,
+    format::HandleId                                             device,
+    StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    if (check_handle_id_unused(pNameInfo->GetMetaStructPointer()->objectHandle))
+    {
+        set_block_index_unused(call_info.index);
+    }
+}
+
+void VulkanReferencedBlockConsumerBase::Process_vkSetDebugUtilsObjectTagEXT(
+    const ApiCallInfo&                                          call_info,
+    VkResult                                                    returnValue,
+    format::HandleId                                            device,
+    StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* pTagInfo)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+
+    if (check_handle_id_unused(pTagInfo->GetMetaStructPointer()->objectHandle))
+    {
+        set_block_index_unused(call_info.index);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
