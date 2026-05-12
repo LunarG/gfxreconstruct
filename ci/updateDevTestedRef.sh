@@ -55,8 +55,14 @@ fi
 git cat-file -e "${tested_commit}^{commit}"
 
 # If the marker already exists, fetch its current value so we can decide whether
-# this build is allowed to update it.
-if git ls-remote --exit-code --heads origin ci/gfxr-dev-tested >/dev/null 2>&1; then
+# this build is allowed to update it.  git ls-remote exits 2 when the ref is not
+# found; other failures, including auth and network failures, should stop here.
+set +e
+git ls-remote --exit-code --heads origin ci/gfxr-dev-tested >/dev/null
+ls_remote_status=$?
+set -e
+
+if [[ $ls_remote_status -eq 0 ]]; then
     git fetch origin "+${marker_ref}:${remote_tracking_ref}"
     current_marker="$(git rev-parse "$remote_tracking_ref")"
 
@@ -79,6 +85,9 @@ if git ls-remote --exit-code --heads origin ci/gfxr-dev-tested >/dev/null 2>&1; 
         echo "Refusing to update dev tested marker from divergent commit $current_marker to $tested_commit" >&2
         exit 1
     fi
+elif [[ $ls_remote_status -ne 2 ]]; then
+    echo "Unable to query dev tested marker ref" >&2
+    exit "$ls_remote_status"
 fi
 
 # Publish the tested commit.  This is a non-force push, so GitHub also protects

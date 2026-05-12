@@ -25,6 +25,14 @@ def testedCommit = ''
 def runExtended = true
 def scriptLabel = 'Linux'
 
+def gitRemoteCredentialsId(scmConfig) {
+    def remoteConfig = scmConfig.userRemoteConfigs?.first()
+    if (!remoteConfig?.credentialsId) {
+        error('Unable to resolve Git credentials ID from Jenkins SCM configuration')
+    }
+    return remoteConfig.credentialsId
+}
+
 pipeline {
     // The pipeline itself does not hold an agent.  Individual stages allocate
     // Linux or test-machine agents only when they need a workspace.
@@ -170,7 +178,12 @@ pipeline {
 
                         // promoteMain.sh uses the exact tested SHA.  It does not
                         // merge the moving dev branch and it never force-pushes.
-                        sh "./ci/promoteMain.sh ${testedCommit}"
+                        withCredentials([gitUsernamePassword(
+                            credentialsId: gitRemoteCredentialsId(scm),
+                            gitToolName: 'Default'
+                        )]) {
+                            sh "./ci/promoteMain.sh ${testedCommit}"
+                        }
                     }
                 }
             }

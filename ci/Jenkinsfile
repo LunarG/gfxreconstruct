@@ -24,6 +24,14 @@
 def devTestedCommit = null
 def scriptLabel = 'Linux'
 
+def gitRemoteCredentialsId(scmConfig) {
+    def remoteConfig = scmConfig.userRemoteConfigs?.first()
+    if (!remoteConfig?.credentialsId) {
+        error('Unable to resolve Git credentials ID from Jenkins SCM configuration')
+    }
+    return remoteConfig.credentialsId
+}
+
 pipeline {
     // Do not reserve one Jenkins agent for the whole pipeline.  Each stage or
     // test branch asks for the agent it needs with node { ... }.
@@ -121,7 +129,12 @@ pipeline {
                         // This node has a fresh workspace, so checkout before
                         // running the script from the repository.
                         checkout scm
-                        sh "./ci/updateDevTestedRef.sh ${devTestedCommit.trim()}"
+                        withCredentials([gitUsernamePassword(
+                            credentialsId: gitRemoteCredentialsId(scm),
+                            gitToolName: 'Default'
+                        )]) {
+                            sh "./ci/updateDevTestedRef.sh ${devTestedCommit.trim()}"
+                        }
                     }
                 }
             }
