@@ -413,6 +413,87 @@ class VulkanReplayDumpResourcesBase
                              const VulkanQueryPoolInfo* queryPool,
                              uint32_t                   query);
 
+    void OverrideCmdResetQueryPool(const ApiCallInfo&         call_info,
+                                   PFN_vkCmdResetQueryPool    func,
+                                   VkCommandBuffer            original_command_buffer,
+                                   const VulkanQueryPoolInfo* queryPool,
+                                   uint32_t                   firstQuery,
+                                   uint32_t                   queryCount);
+
+    void OverrideCmdWriteTimestamp(const ApiCallInfo&         call_info,
+                                   PFN_vkCmdWriteTimestamp    func,
+                                   VkCommandBuffer            original_command_buffer,
+                                   VkPipelineStageFlagBits    pipelineStage,
+                                   const VulkanQueryPoolInfo* queryPool,
+                                   uint32_t                   query);
+
+    void OverrideCmdCopyQueryPoolResults(const ApiCallInfo&            call_info,
+                                         PFN_vkCmdCopyQueryPoolResults func,
+                                         VkCommandBuffer               original_command_buffer,
+                                         const VulkanQueryPoolInfo*    queryPool,
+                                         uint32_t                      firstQuery,
+                                         uint32_t                      queryCount,
+                                         const VulkanBufferInfo*       dstBuffer,
+                                         VkDeviceSize                  dstOffset,
+                                         VkDeviceSize                  stride,
+                                         VkQueryResultFlags            flags);
+
+    void OverrideCmdWriteTimestamp2(const ApiCallInfo&         call_info,
+                                    PFN_vkCmdWriteTimestamp2   func,
+                                    VkCommandBuffer            original_command_buffer,
+                                    VkPipelineStageFlags2      stage,
+                                    const VulkanQueryPoolInfo* queryPool,
+                                    uint32_t                   query);
+
+    void OverrideCmdWriteTimestamp2KHR(const ApiCallInfo&          call_info,
+                                       PFN_vkCmdWriteTimestamp2KHR func,
+                                       VkCommandBuffer             original_command_buffer,
+                                       VkPipelineStageFlags2       stage,
+                                       const VulkanQueryPoolInfo*  queryPool,
+                                       uint32_t                    query);
+
+    void OverrideCmdBeginQueryIndexedEXT(const ApiCallInfo&            call_info,
+                                         PFN_vkCmdBeginQueryIndexedEXT func,
+                                         VkCommandBuffer               original_command_buffer,
+                                         const VulkanQueryPoolInfo*    queryPool,
+                                         uint32_t                      query,
+                                         VkQueryControlFlags           flags,
+                                         uint32_t                      index);
+
+    void OverrideCmdEndQueryIndexedEXT(const ApiCallInfo&          call_info,
+                                       PFN_vkCmdEndQueryIndexedEXT func,
+                                       VkCommandBuffer             original_command_buffer,
+                                       const VulkanQueryPoolInfo*  queryPool,
+                                       uint32_t                    query,
+                                       uint32_t                    index);
+
+    void OverrideCmdWriteAccelerationStructuresPropertiesNV(const ApiCallInfo&                               call_info,
+                                                            PFN_vkCmdWriteAccelerationStructuresPropertiesNV func,
+                                                            VkCommandBuffer            original_command_buffer,
+                                                            uint32_t                   accelerationStructureCount,
+                                                            const format::HandleId*    pAccelerationStructures,
+                                                            VkQueryType                queryType,
+                                                            const VulkanQueryPoolInfo* queryPool,
+                                                            uint32_t                   firstQuery);
+
+    void OverrideCmdWriteMicromapsPropertiesEXT(const ApiCallInfo&                   call_info,
+                                                PFN_vkCmdWriteMicromapsPropertiesEXT func,
+                                                VkCommandBuffer                      original_command_buffer,
+                                                uint32_t                             micromapCount,
+                                                const format::HandleId*              pMicromaps,
+                                                VkQueryType                          queryType,
+                                                const VulkanQueryPoolInfo*           queryPool,
+                                                uint32_t                             firstQuery);
+
+    void OverrideCmdWriteAccelerationStructuresPropertiesKHR(const ApiCallInfo& call_info,
+                                                             PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
+                                                             VkCommandBuffer            original_command_buffer,
+                                                             uint32_t                   accelerationStructureCount,
+                                                             const format::HandleId*    pAccelerationStructures,
+                                                             VkQueryType                queryType,
+                                                             const VulkanQueryPoolInfo* queryPool,
+                                                             uint32_t                   firstQuery);
+
     void OverrideCmdExecuteCommands(const ApiCallInfo&       call_info,
                                     PFN_vkCmdExecuteCommands func,
                                     VkCommandBuffer          commandBuffer,

@@ -3256,13 +3256,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginQuery(const ApiCallInfo&    
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(original_command_buffer);
-        for (auto dc_context : dc_contexts)
-        {
-            dc_context->CmdBeginQuery(queryPool->handle, query);
-        }
-
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
             FindDispatchTraceRaysContexts(original_command_buffer);
         for (auto dr_context : dr_contexts)
@@ -3284,11 +3277,203 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndQuery(const ApiCallInfo&      
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
-            FindDrawCallDumpingContexts(original_command_buffer);
-        for (auto dc_context : dc_contexts)
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
         {
-            dc_context->CmdEndQuery(queryPool->handle, query);
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, query);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdResetQueryPool(const ApiCallInfo&         call_info,
+                                                              PFN_vkCmdResetQueryPool    func,
+                                                              VkCommandBuffer            original_command_buffer,
+                                                              const VulkanQueryPoolInfo* queryPool,
+                                                              uint32_t                   firstQuery,
+                                                              uint32_t                   queryCount)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, firstQuery, queryCount);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp(const ApiCallInfo&         call_info,
+                                                              PFN_vkCmdWriteTimestamp    func,
+                                                              VkCommandBuffer            original_command_buffer,
+                                                              VkPipelineStageFlagBits    pipelineStage,
+                                                              const VulkanQueryPoolInfo* queryPool,
+                                                              uint32_t                   query)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, pipelineStage, queryPool->handle, query);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdCopyQueryPoolResults(const ApiCallInfo&            call_info,
+                                                                    PFN_vkCmdCopyQueryPoolResults func,
+                                                                    VkCommandBuffer            original_command_buffer,
+                                                                    const VulkanQueryPoolInfo* queryPool,
+                                                                    uint32_t                   firstQuery,
+                                                                    uint32_t                   queryCount,
+                                                                    const VulkanBufferInfo*    dstBuffer,
+                                                                    VkDeviceSize               dstOffset,
+                                                                    VkDeviceSize               stride,
+                                                                    VkQueryResultFlags         flags)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer,
+                     queryPool->handle,
+                     firstQuery,
+                     queryCount,
+                     dstBuffer->handle,
+                     dstOffset,
+                     stride,
+                     flags);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp2(const ApiCallInfo&         call_info,
+                                                               PFN_vkCmdWriteTimestamp2   func,
+                                                               VkCommandBuffer            original_command_buffer,
+                                                               VkPipelineStageFlags2      stage,
+                                                               const VulkanQueryPoolInfo* queryPool,
+                                                               uint32_t                   query)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, stage, queryPool->handle, query);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdWriteTimestamp2KHR(const ApiCallInfo&          call_info,
+                                                                  PFN_vkCmdWriteTimestamp2KHR func,
+                                                                  VkCommandBuffer             original_command_buffer,
+                                                                  VkPipelineStageFlags2       stage,
+                                                                  const VulkanQueryPoolInfo*  queryPool,
+                                                                  uint32_t                    query)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, stage, queryPool->handle, query);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdBeginQueryIndexedEXT(const ApiCallInfo&            call_info,
+                                                                    PFN_vkCmdBeginQueryIndexedEXT func,
+                                                                    VkCommandBuffer            original_command_buffer,
+                                                                    const VulkanQueryPoolInfo* queryPool,
+                                                                    uint32_t                   query,
+                                                                    VkQueryControlFlags        flags,
+                                                                    uint32_t                   index)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, query, flags, index);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdEndQueryIndexedEXT(const ApiCallInfo&          call_info,
+                                                                  PFN_vkCmdEndQueryIndexedEXT func,
+                                                                  VkCommandBuffer             original_command_buffer,
+                                                                  const VulkanQueryPoolInfo*  queryPool,
+                                                                  uint32_t                    query,
+                                                                  uint32_t                    index)
+{
+    if (IsRecording())
+    {
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer, queryPool->handle, query, index);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdWriteAccelerationStructuresPropertiesNV(
+    const ApiCallInfo&                               call_info,
+    PFN_vkCmdWriteAccelerationStructuresPropertiesNV func,
+    VkCommandBuffer                                  original_command_buffer,
+    uint32_t                                         accelerationStructureCount,
+    const format::HandleId*                          pAccelerationStructures,
+    VkQueryType                                      queryType,
+    const VulkanQueryPoolInfo*                       queryPool,
+    uint32_t                                         firstQuery)
+{
+    if (IsRecording())
+    {
+        std::vector<VkAccelerationStructureNV> acceleration_structures(accelerationStructureCount, VK_NULL_HANDLE);
+        for (uint32_t i = 0; i < accelerationStructureCount; ++i)
+        {
+            const VulkanAccelerationStructureNVInfo* as_info =
+                object_info_table_->GetVkAccelerationStructureNVInfo(pAccelerationStructures[i]);
+            acceleration_structures[i] = (as_info != nullptr) ? as_info->handle : VK_NULL_HANDLE;
         }
 
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
@@ -3298,7 +3483,86 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndQuery(const ApiCallInfo&      
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
             if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
             {
-                func(dispatch_rays_command_buffer, queryPool->handle, query);
+                func(dispatch_rays_command_buffer,
+                     accelerationStructureCount,
+                     acceleration_structures.data(),
+                     queryType,
+                     queryPool->handle,
+                     firstQuery);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdWriteMicromapsPropertiesEXT(const ApiCallInfo& call_info,
+                                                                           PFN_vkCmdWriteMicromapsPropertiesEXT func,
+                                                                           VkCommandBuffer original_command_buffer,
+                                                                           uint32_t        micromapCount,
+                                                                           const format::HandleId*    pMicromaps,
+                                                                           VkQueryType                queryType,
+                                                                           const VulkanQueryPoolInfo* queryPool,
+                                                                           uint32_t                   firstQuery)
+{
+    if (IsRecording())
+    {
+        std::vector<VkMicromapEXT> micromaps(micromapCount, VK_NULL_HANDLE);
+        for (uint32_t i = 0; i < micromapCount; ++i)
+        {
+            const VulkanMicromapEXTInfo* micromap_info = object_info_table_->GetVkMicromapEXTInfo(pMicromaps[i]);
+            micromaps[i] = (micromap_info != nullptr) ? micromap_info->handle : VK_NULL_HANDLE;
+        }
+
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer,
+                     micromapCount,
+                     micromaps.data(),
+                     queryType,
+                     queryPool->handle,
+                     firstQuery);
+            }
+        }
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdWriteAccelerationStructuresPropertiesKHR(
+    const ApiCallInfo&                                call_info,
+    PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
+    VkCommandBuffer                                   original_command_buffer,
+    uint32_t                                          accelerationStructureCount,
+    const format::HandleId*                           pAccelerationStructures,
+    VkQueryType                                       queryType,
+    const VulkanQueryPoolInfo*                        queryPool,
+    uint32_t                                          firstQuery)
+{
+    if (IsRecording())
+    {
+        std::vector<VkAccelerationStructureKHR> acceleration_structures(accelerationStructureCount, VK_NULL_HANDLE);
+        for (uint32_t i = 0; i < accelerationStructureCount; ++i)
+        {
+            const VulkanAccelerationStructureKHRInfo* as_info =
+                object_info_table_->GetVkAccelerationStructureKHRInfo(pAccelerationStructures[i]);
+            acceleration_structures[i] = (as_info != nullptr) ? as_info->handle : VK_NULL_HANDLE;
+        }
+
+        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+            FindDispatchTraceRaysContexts(original_command_buffer);
+        for (auto dr_context : dr_contexts)
+        {
+            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
+            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+            {
+                func(dispatch_rays_command_buffer,
+                     accelerationStructureCount,
+                     acceleration_structures.data(),
+                     queryType,
+                     queryPool->handle,
+                     firstQuery);
             }
         }
     }

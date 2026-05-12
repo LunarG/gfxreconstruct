@@ -158,7 +158,7 @@ void Process_vkCmdResetQueryPool(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdResetQueryPool                     func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount);
 
@@ -167,17 +167,17 @@ void Process_vkCmdWriteTimestamp(
     PFN_vkCmdWriteTimestamp                     func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlagBits                     pipelineStage,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query);
 
 void Process_vkCmdCopyQueryPoolResults(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyQueryPoolResults               func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount,
-    VkBuffer                                    dstBuffer,
+    const VulkanBufferInfo*                     dstBuffer,
     VkDeviceSize                                dstOffset,
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags);
@@ -521,7 +521,7 @@ void Process_vkCmdWriteTimestamp2(
     PFN_vkCmdWriteTimestamp2                    func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags2                       stage,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query);
 
 void Process_vkCmdCopyBuffer2(
@@ -941,7 +941,7 @@ void Process_vkCmdWriteTimestamp2KHR(
     PFN_vkCmdWriteTimestamp2KHR                 func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags2                       stage,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query);
 
 void Process_vkCmdBindIndexBuffer3KHR(
@@ -1258,7 +1258,7 @@ void Process_vkCmdBeginQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginQueryIndexedEXT               func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
     VkQueryControlFlags                         flags,
     uint32_t                                    index);
@@ -1267,7 +1267,7 @@ void Process_vkCmdEndQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdEndQueryIndexedEXT                 func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
     uint32_t                                    index);
 
@@ -1434,9 +1434,9 @@ void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     PFN_vkCmdWriteAccelerationStructuresPropertiesNV func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    const VkAccelerationStructureNV*            pAccelerationStructures,
+    HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
     VkQueryType                                 queryType,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery);
 
 void Process_vkCmdWriteBufferMarkerAMD(
@@ -1799,9 +1799,9 @@ void Process_vkCmdWriteMicromapsPropertiesEXT(
     PFN_vkCmdWriteMicromapsPropertiesEXT        func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    micromapCount,
-    const VkMicromapEXT*                        pMicromaps,
+    HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
     VkQueryType                                 queryType,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery);
 
 void Process_vkCmdDrawClusterHUAWEI(
@@ -2181,9 +2181,9 @@ void Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
     PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    const VkAccelerationStructureKHR*           pAccelerationStructures,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
     VkQueryType                                 queryType,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery);
 
 void Process_vkCmdTraceRaysKHR(
