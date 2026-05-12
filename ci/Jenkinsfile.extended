@@ -23,7 +23,7 @@
 
 def testedCommit = ''
 def runExtended = true
-def scriptLabel = 'linux'
+def scriptLabel = 'Linux'
 
 pipeline {
     // The pipeline itself does not hold an agent.  Individual stages allocate
