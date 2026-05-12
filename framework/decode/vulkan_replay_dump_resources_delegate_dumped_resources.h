@@ -324,38 +324,11 @@ struct DumpedResourceBase
 {
     DumpedResourceBase() = default;
 
-    DumpedResourceBase(DumpResourceType t, DumpResourcesPipelineStage ps, uint64_t bcb, uint64_t cmd, uint64_t qs) :
-        type(t), ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs)
-    {}
-
-    DumpedResourceBase(DumpResourceType           t,
-                       DumpResourcesPipelineStage ps,
-                       uint64_t                   bcb,
-                       uint64_t                   cmd,
-                       uint64_t                   qs,
-                       uint64_t                   rp,
-                       uint64_t                   sp) :
-        type(t),
-        ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp)
-    {}
-
-    DumpedResourceBase(DumpResourceType t, DumpResourcesPipelineStage ps, uint64_t cmd, uint64_t qs) :
-        type(t), ppl_stage(ps), bcb_index(0), cmd_index(cmd), qs_index(qs), render_pass(0), subpass(0)
-    {}
-
-    DumpedResourceBase(DumpResourcesPipelineStage ps,
-                       uint64_t                   bcb,
-                       uint64_t                   cmd,
-                       uint64_t                   qs,
-                       Index                      sii,
-                       uint64_t                   sicbi,
-                       uint64_t                   rp,
-                       uint64_t                   sp,
-                       Index                      sci,
-                       Index                      eccbi) :
-        ppl_stage(ps),
-        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp), submit_info_index(sii),
-        submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci), execute_cmds_cmd_buf_index(eccbi)
+    DumpedResourceBase(const DumpedResourceBase& other) :
+        bcb_index(other.bcb_index), cmd_index(other.cmd_index), qs_index(other.qs_index),
+        render_pass(other.render_pass), subpass(other.subpass), submit_info_index(other.submit_info_index),
+        submit_info_cmd_buf_index(other.submit_info_cmd_buf_index), execute_cmds_index(other.execute_cmds_index),
+        execute_cmds_cmd_buf_index(other.execute_cmds_cmd_buf_index)
     {}
 
     DumpedResourceBase(DumpResourcesPipelineStage ps,
@@ -370,6 +343,21 @@ struct DumpedResourceBase
         bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(UNDEFINED_INDEX), subpass(UNDEFINED_INDEX),
         submit_info_index(sii), submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci),
         execute_cmds_cmd_buf_index(eccbi)
+    {}
+
+    DumpedResourceBase(DumpResourcesPipelineStage ps,
+                       uint64_t                   bcb,
+                       uint64_t                   cmd,
+                       uint64_t                   qs,
+                       uint64_t                   rp,
+                       uint64_t                   sp,
+                       Index                      sii,
+                       uint64_t                   sicbi,
+                       Index                      sci,
+                       Index                      eccbi) :
+        ppl_stage(ps),
+        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp), submit_info_index(sii),
+        submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci), execute_cmds_cmd_buf_index(eccbi)
     {}
 
     DumpedResourceBase(const DumpedResourceBase& other, DumpResourceType t) : DumpedResourceBase(other) { type = t; }

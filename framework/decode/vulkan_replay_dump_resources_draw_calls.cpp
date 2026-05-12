@@ -1209,10 +1209,10 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
                                                       bcb_index_,
                                                       dc_index,
                                                       qs_index_,
-                                                      submit_info_index,
-                                                      submit_info_cmd_buf_index,
                                                       rp,
                                                       sp,
+                                                      submit_info_index,
+                                                      submit_info_cmd_buf_index,
                                                       secondary_indices.execute_cmds_index,
                                                       secondary_indices.execute_cmds_cmd_buf_index);
 
