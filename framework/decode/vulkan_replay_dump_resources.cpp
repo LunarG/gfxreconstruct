@@ -1938,7 +1938,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
                     {
                         if (bcb_qs_pair.second == qs_index)
                         {
-                            transfer_contexts.push_back(transf_context);
+                            transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                                      transfer_context);
                             submit_cbs.push_back(command_buffer);
                             has_transfer_or_dispatch = true;
                         }

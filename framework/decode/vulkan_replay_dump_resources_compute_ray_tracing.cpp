@@ -572,7 +572,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.image               = src_image_info->handle;
     img_barrier.subresourceRange    = {
-        graphics::GetFormatAspects(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           graphics::GetFormatAspects(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     assert(device_table_ != nullptr);
@@ -1203,7 +1203,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         return res;
     }
 
-    uint32_t i = 0;
+    uint32_t index = 0;
     for (const auto& [disp_index, disp_params] : dispatch_params_)
     {
         GFXRECON_LOG_INFO("Dumping mutable resources for dispatch index %" PRIu64, disp_index);
@@ -1212,7 +1212,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         if (disp_params->command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
         {
             // This map is updated in UpdateSecondaries accordingly
-            const auto entry = disp_params->secondary_identifiers.find(i);
+            const auto entry = disp_params->secondary_identifiers.find(index++);
             GFXRECON_ASSERT(entry != disp_params->secondary_identifiers.end());
             if (entry != disp_params->secondary_identifiers.end())
             {
@@ -1253,6 +1253,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         delegate_.DumpDrawCallInfo(draw_call_info);
     }
 
+    index = 0;
     for (const auto& [tr_index, tr_params] : trace_rays_params_)
     {
         GFXRECON_LOG_INFO("Dumping mutable resources for trace rays index %" PRIu64, tr_index);
@@ -1261,7 +1262,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(Index submit_inf
         if (tr_params->command_buffer_level == DumpResourcesCommandBufferLevel::kSecondary)
         {
             // This map is updated in UpdateSecondaries accordingly
-            const auto entry = tr_params->secondary_identifiers.find(i);
+            const auto entry = tr_params->secondary_identifiers.find(index++);
             GFXRECON_ASSERT(entry != tr_params->secondary_identifiers.end());
             if (entry != tr_params->secondary_identifiers.end())
             {
@@ -1402,6 +1403,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(const DumpedResou
         }
 
         const auto& img_subresource_range = descriptor_to_dump_entry->second;
+
         switch (cloned_desc->desc_type)
         {
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:

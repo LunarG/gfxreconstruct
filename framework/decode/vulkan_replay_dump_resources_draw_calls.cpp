@@ -64,9 +64,9 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(
     current_subpass_(0), delegate_(delegate), options_(options), compressor_(compressor),
     current_render_pass_type_(kNone), aux_command_buffer_(VK_NULL_HANDLE), aux_fence_(VK_NULL_HANDLE),
     command_buffer_level_(DumpResourcesCommandBufferLevel::kPrimary), device_table_(nullptr), instance_table_(nullptr),
-    object_info_table_(object_info_table), replay_device_phys_mem_props_(nullptr),
-    secondary_with_dynamic_rendering_{ false }, acceleration_structures_context_(acceleration_structures_context),
-    address_trackers_(address_trackers)
+    object_info_table_(object_info_table),
+    replay_device_phys_mem_props_(nullptr), secondary_with_dynamic_rendering_{ false },
+    acceleration_structures_context_(acceleration_structures_context), address_trackers_(address_trackers)
 {
     if (draw_indices != nullptr)
     {
@@ -1164,7 +1164,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
         // to index inside dc_indices_
         const size_t cb_absolute = CmdBufToDCVectorIndex(cb);
 
-        const size_t                dc_index = dc_indices_[cb_absolute];
+        const Index                 dc_index = dc_indices_[cb_absolute];
         const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
         const uint64_t              sp       = RP_index.second;
         const uint64_t              rp       = RP_index.first;
@@ -1279,7 +1279,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
 
 VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallParams& dc_params)
 {
-    const size_t                dc_index = dc_params.draw_call_index;
+    const Index                 dc_index = dc_params.draw_call_index;
     const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
     const uint64_t              rp       = RP_index.first;
     const uint64_t              sp       = RP_index.second;
@@ -1316,7 +1316,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.subresourceRange    = {
-        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     for (size_t i = 0; i < render_targets_[rp][sp].color_att_imgs.size(); ++i)
@@ -1937,66 +1937,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                 }
                 else
                 {
-                    for (const auto& [array_index, as_info] : desc_binding.acceleration_structs_khr_info)
-                    {
-                        if (as_info == nullptr)
-                        {
-                            continue;
-                        }
-
-                        GFXRECON_ASSERT(as_info->type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR);
-                        auto& new_dumped_desc = dc_params.dumped_resources.dumped_descriptors.emplace_back(
-                            dumped_resource_base,
-                            DumpResourceType::kAccelerationStructure,
-                            desc_binding.stage_flags,
-                            desc_binding.desc_type,
-                            desc_tuple,
-                            as_info,
-                            options_.dump_resources_dump_build_AS_input_buffers);
-
-                        auto& new_dumped_as = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
-                        const auto& dumped_descs_entry =
-                            render_pass_dumped_descriptors_[rp].acceleration_structures.find(desc_tuple);
-                        if (dumped_descs_entry == render_pass_dumped_descriptors_[rp].acceleration_structures.end())
-                        {
-                            render_pass_dumped_descriptors_[rp].acceleration_structures.emplace(desc_tuple,
-                                                                                                new_dumped_as);
-
-                            VulkanDelegateDumpResourceContext res_info = res_info_base;
-                            res_info.dumped_resource                   = &new_dumped_desc;
-                            res_info.dumped_data = VulkanDelegateAccelerationStructureDumpedData();
-                            auto& dumped_as_data =
-                                std::get<VulkanDelegateAccelerationStructureDumpedData>(res_info.dumped_data);
-
-                            auto tlas_context_entry = acceleration_structures_context_.find(as_info);
-                            GFXRECON_ASSERT(tlas_context_entry != acceleration_structures_context_.end());
-                            AccelerationStructureDumpResourcesContext* tlas_context = tlas_context_entry->second.get();
-
-                            VkResult res = DumpAccelerationStructure(new_dumped_as,
-                                                                     dumped_as_data.data,
-                                                                     tlas_context,
-                                                                     acceleration_structures_context_,
-                                                                     device_info,
-                                                                     *device_table_,
-                                                                     object_info_table_,
-                                                                     *instance_table_,
-                                                                     address_trackers_);
-                            if (res != VK_SUCCESS)
-                            {
-                                GFXRECON_LOG_ERROR("Dumping acceleration structure %" PRIu64 " failed (%s)",
-                                                   as_info->capture_id,
-                                                   util::ToString(res).c_str());
-                                dc_params.dumped_resources.dumped_descriptors.pop_back();
-                                return res;
-                            }
-
-                            delegate_.DumpResource(res_info);
-                        }
-                        else
-                        {
-                            new_dumped_as = dumped_descs_entry->second;
-                        }
-                    }
+                    new_dumped_as = dumped_descs_entry->second;
                 }
             }
             break;

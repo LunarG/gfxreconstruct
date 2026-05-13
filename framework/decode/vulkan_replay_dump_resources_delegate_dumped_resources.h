@@ -324,13 +324,6 @@ struct DumpedResourceBase
 {
     DumpedResourceBase() = default;
 
-    DumpedResourceBase(const DumpedResourceBase& other) :
-        bcb_index(other.bcb_index), cmd_index(other.cmd_index), qs_index(other.qs_index),
-        render_pass(other.render_pass), subpass(other.subpass), submit_info_index(other.submit_info_index),
-        submit_info_cmd_buf_index(other.submit_info_cmd_buf_index), execute_cmds_index(other.execute_cmds_index),
-        execute_cmds_cmd_buf_index(other.execute_cmds_cmd_buf_index)
-    {}
-
     DumpedResourceBase(DumpResourcesPipelineStage ps,
                        uint64_t                   bcb,
                        uint64_t                   cmd,
