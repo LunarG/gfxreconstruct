@@ -11909,7 +11909,8 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
             const uint32_t binding = write->dstBinding;
             GFXRECON_ASSERT(dst_desc_set_info->descriptors.find(binding) != dst_desc_set_info->descriptors.end());
             auto& descriptor_set_binding_info = dst_desc_set_info->descriptors[binding];
-            GFXRECON_ASSERT(descriptor_set_binding_info.desc_type == write->descriptorType);
+            GFXRECON_ASSERT(descriptor_set_binding_info.desc_type == write->descriptorType ||
+                            descriptor_set_binding_info.desc_type == VK_DESCRIPTOR_TYPE_MUTABLE_EXT);
 
             if (auto* inline_uniform_block_write =
                     graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write);
