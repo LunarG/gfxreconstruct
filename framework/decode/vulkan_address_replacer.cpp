@@ -600,8 +600,11 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
                                                     const decode::VulkanDeviceAddressTracker& address_tracker)
 {
     GFXRECON_UNREFERENCED_PARAMETER(stage_flags);
-    GFXRECON_UNREFERENCED_PARAMETER(size);
     GFXRECON_ASSERT(command_buffer_info != nullptr && data != nullptr);
+
+    const uint64_t update_start = offset;
+    const uint64_t update_end   = update_start + size;
+
     for (const auto& [bind_point, pipeline_id] : command_buffer_info->bound_pipelines)
     {
         const auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
@@ -612,9 +615,17 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
             {
                 if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
                 {
+                    const uint64_t field_offset = buffer_ref_info.buffer_offset;
+                    const uint64_t field_end    = field_offset + sizeof(VkDeviceAddress);
+
+                    if (field_offset < update_start || field_end > update_end)
+                    {
+                        continue;
+                    }
+
                     // find addresses in push-constant memory and replace in-place.
-                    auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
-                                                                       buffer_ref_info.buffer_offset);
+                    auto* address =
+                        reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + (field_offset - update_start));
 
                     auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
                     if (buffer_info != nullptr && buffer_info->replay_address != 0)
