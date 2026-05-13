@@ -1015,10 +1015,10 @@ void Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyQueryPoolResultsToMemoryKHR    func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount,
-    const VkStridedDeviceAddressRangeKHR*       pDstRange,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
     VkAddressCommandFlagsKHR                    dstFlags,
     VkQueryResultFlags                          queryResultFlags);
 

@@ -6458,7 +6458,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdCopyQueryPoolResultsToMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyQueryPoolResultsToMemoryKHR, in_commandBuffer, in_queryPool, firstQuery, queryCount, in_pDstRange, dstFlags, queryResultFlags);
+        resource_dumper_->Process_vkCmdCopyQueryPoolResultsToMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyQueryPoolResultsToMemoryKHR, in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(queryPool), firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
     }
 }
 

@@ -45,6 +45,7 @@
     "vkCmdResetQueryPool": "OverrideCmdResetQueryPool",
     "vkCmdWriteTimestamp": "OverrideCmdWriteTimestamp",
     "vkCmdCopyQueryPoolResults": "OverrideCmdCopyQueryPoolResults",
+    "vkCmdCopyQueryPoolResultsToMemoryKHR": "OverrideCmdCopyQueryPoolResultsToMemoryKHR",
     "vkCmdWriteTimestamp2": "OverrideCmdWriteTimestamp2",
     "vkCmdWriteTimestamp2KHR": "OverrideCmdWriteTimestamp2KHR",
     "vkCmdBeginQueryIndexedEXT": "OverrideCmdBeginQueryIndexedEXT",
