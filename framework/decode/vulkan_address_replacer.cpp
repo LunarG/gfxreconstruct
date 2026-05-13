@@ -662,6 +662,9 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
     // map used to identify chained pointer-accesses (identical set/binding/offsets)
     std::set<set_key_t> dup_map;
 
+    const uint64_t first_bound_set = firstSet;
+    const uint64_t last_bound_set  = first_bound_set + descriptorSetCount;
+
     for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
     {
         if (buffer_ref_info.source != util::SpirVParsingUtil::BufferReferenceLocation::UNIFORM_BUFFER &&
@@ -670,7 +673,13 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             // non-buffer descriptor, handled elsewhere
             continue;
         }
-        GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
+
+        if (buffer_ref_info.set < first_bound_set || buffer_ref_info.set >= last_bound_set)
+        {
+            continue;
+        }
+
+        const uint32_t descriptor_set_index = buffer_ref_info.set - firstSet;
 
         set_key_t set_key = { static_cast<uint32_t>(buffer_ref_info.source),
                               buffer_ref_info.set,
@@ -679,7 +688,7 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
 
         // we need a mutable pointer, to allow for in-place corrections
         auto* descriptor_set_info =
-            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
+            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[descriptor_set_index]);
 
         if (descriptor_set_info == nullptr)
         {
