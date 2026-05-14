@@ -97,6 +97,21 @@ void VulkanReferencedBlockConsumerBase::Process_vkCreateRayTracingPipelinesKHR(
     }
 }
 
+void VulkanReferencedBlockConsumerBase::Process_vkDestroyPipeline(
+    const ApiCallInfo&                                   call_info,
+    format::HandleId                                     device,
+    format::HandleId                                     pipeline,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
+    if (check_handle_id_unused(pipeline))
+    {
+        set_block_index_unused(call_info.index);
+    }
+}
+
 void VulkanReferencedBlockConsumerBase::Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo& call_info,
                                                                                      VkResult           returnValue,
                                                                                      format::HandleId   device,

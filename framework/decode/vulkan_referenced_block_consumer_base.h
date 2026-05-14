@@ -71,6 +71,11 @@ class VulkanReferencedBlockConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
+    void Process_vkDestroyPipeline(const ApiCallInfo&                                   call_info,
+                                   format::HandleId                                     device,
+                                   format::HandleId                                     pipeline,
+                                   StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
     void Process_vkGetRayTracingShaderGroupHandlesKHR(const ApiCallInfo&       call_info,
                                                       VkResult                 returnValue,
                                                       format::HandleId         device,
