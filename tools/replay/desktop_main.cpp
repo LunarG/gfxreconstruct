@@ -120,6 +120,14 @@ int main(int argc, const char** argv)
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
+        if (arg_parser.GetPositionalArgumentsCount() > 1)
+        {
+            GFXRECON_LOG_ERROR("Unexpected positional argument \'%s\'", arg_parser.GetPositionalArguments()[1].c_str());
+        }
+        else if (arg_parser.GetPositionalArgumentsCount() == 0)
+        {
+            GFXRECON_LOG_ERROR("Missing gfxr file argument");
+        }
         PrintUsage(argv[0]);
         gfxrecon::util::Log::Release();
         exit(-1);

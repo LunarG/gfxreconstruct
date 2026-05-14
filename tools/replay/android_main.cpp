@@ -125,6 +125,10 @@ void android_main(struct android_app* app)
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() > 1))
     {
+        if (arg_parser.GetPositionalArgumentsCount() > 1)
+        {
+            GFXRECON_LOG_ERROR("Unexpected positional argument \'%s\'", arg_parser.GetPositionalArguments()[1].c_str());
+        }
         PrintUsage(kApplicationName);
         run = false;
     }
