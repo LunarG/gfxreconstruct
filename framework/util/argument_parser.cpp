@@ -35,7 +35,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 ArgumentParser::ArgumentParser(int32_t            argc,
                                const char** const argv,
                                const std::string& options,
-                               const std::string& arguments) : is_invalid_(false)
+                               const std::string& arguments) :
+    is_invalid_(false)
 {
     if (argc > 1 && nullptr != argv)
     {
@@ -53,7 +54,8 @@ ArgumentParser::ArgumentParser(int32_t            argc,
 ArgumentParser::ArgumentParser(bool               first_is_exe_name,
                                const char*        args,
                                const std::string& options,
-                               const std::string& arguments) : is_invalid_(false)
+                               const std::string& arguments) :
+    is_invalid_(false)
 {
     std::vector<std::string> command_line_args;
     size_t                   args_len = strlen(args);
