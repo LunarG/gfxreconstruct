@@ -438,16 +438,16 @@ class VulkanReplayDumpResourcesBase
                                          VkDeviceSize                  stride,
                                          VkQueryResultFlags            flags);
 
-    void OverrideCmdCopyQueryPoolResultsToMemoryKHR(
-        const ApiCallInfo&                                  call_info,
-        PFN_vkCmdCopyQueryPoolResultsToMemoryKHR            func,
-        VkCommandBuffer                                     original_command_buffer,
-        const VulkanQueryPoolInfo*                          queryPool,
-        uint32_t                                            firstQuery,
-        uint32_t                                            queryCount,
-        StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
-        VkAddressCommandFlagsKHR                            dstFlags,
-        VkQueryResultFlags                                  queryResultFlags);
+    void
+    OverrideCmdCopyQueryPoolResultsToMemoryKHR(const ApiCallInfo&                       call_info,
+                                               PFN_vkCmdCopyQueryPoolResultsToMemoryKHR func,
+                                               VkCommandBuffer                          original_command_buffer,
+                                               const VulkanQueryPoolInfo*               queryPool,
+                                               uint32_t                                 firstQuery,
+                                               uint32_t                                 queryCount,
+                                               StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
+                                               VkAddressCommandFlagsKHR                                      dstFlags,
+                                               VkQueryResultFlags queryResultFlags);
 
     void OverrideCmdWriteTimestamp2(const ApiCallInfo&         call_info,
                                     PFN_vkCmdWriteTimestamp2   func,
@@ -798,7 +798,7 @@ class VulkanReplayDumpResourcesBase
     {
         const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
             FindDrawCallDumpingContexts(original_command_buffer);
-        for (auto dc_context : dc_contexts)
+        for (const auto& dc_context : dc_contexts)
         {
             CommandBufferIterator first, last;
             dc_context->GetDrawCallActiveCommandBuffers(first, last);
@@ -814,7 +814,7 @@ class VulkanReplayDumpResourcesBase
     {
         const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
             FindDispatchTraceRaysContexts(original_command_buffer);
-        for (auto dr_context : dr_contexts)
+        for (const auto& dr_context : dr_contexts)
         {
             VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
             if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
