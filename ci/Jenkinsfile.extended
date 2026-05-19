@@ -165,11 +165,13 @@ pipeline {
                     node(scriptLabel) {
                         cleanWs(deleteDirs: true)
 
-                        // Start from a clean checkout of main.  The script will
-                        // re-fetch main and fast-forward it to testedCommit.
+                        // Start from the exact commit that passed extended tests
+                        // so this workspace has the CI scripts from that tested
+                        // revision.  promoteMain.sh will re-fetch main and
+                        // fast-forward it to testedCommit.
                         checkout([
                             $class: 'GitSCM',
-                            branches: [[name: '*/main']],
+                            branches: [[name: testedCommit]],
                             doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
                             extensions: scm.extensions,
                             submoduleCfg: scm.submoduleCfg,
