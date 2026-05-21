@@ -705,8 +705,6 @@ class VulkanReplayDumpResourcesBase
     std::vector<std::shared_ptr<const TransferDumpingContext>> FindTransferContextBcbIndex(uint64_t bcb_index) const;
     std::vector<std::shared_ptr<TransferDumpingContext>>       FindTransferContextCmdIndex(uint64_t cmd_index);
     std::shared_ptr<TransferDumpingContext> FindTransferContextBcbQsIndex(uint64_t bcb_index, uint64_t qs_index);
-    std::shared_ptr<TransferDumpingContext> FindTransferContext(VkCommandBuffer original_command_buffer,
-                                                                decode::Index   qs_index);
 
     // Context tracking. This functions should be called when a dumping context has done its job.
     // The context will be erased from its corresponding map and the active_contexts_ counter will be

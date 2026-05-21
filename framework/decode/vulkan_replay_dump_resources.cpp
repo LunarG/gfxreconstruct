@@ -488,27 +488,6 @@ std::shared_ptr<TransferDumpingContext> VulkanReplayDumpResourcesBase::FindTrans
     return nullptr;
 }
 
-std::shared_ptr<TransferDumpingContext>
-VulkanReplayDumpResourcesBase::FindTransferContext(VkCommandBuffer original_command_buffer, decode::Index qs_index)
-{
-    auto bcb_entry = cb_bcb_map_.find(original_command_buffer);
-    if (bcb_entry == cb_bcb_map_.end())
-    {
-        return nullptr;
-    }
-
-    const decode::Index bcb_index = bcb_entry->second;
-    for (auto& transf_context : transfer_contexts_)
-    {
-        if (transf_context.first.first == bcb_index && transf_context.first.second == qs_index)
-        {
-            return transf_context.second;
-        }
-    }
-
-    return nullptr;
-}
-
 template <typename MapOfContexts>
 void VulkanReplayDumpResourcesBase::ReleaseDumpingContexts(MapOfContexts& contexts, decode::Index qs_index)
 {
@@ -1904,11 +1883,14 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
             const bool            last_cmd_buf   = (cb == submit_infos[si].commandBufferCount - 1);
             const VkCommandBuffer command_buffer = submit_infos[si].pCommandBuffers[cb];
 
+            // The command_buffer (primary) is not marked for dumping
             if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
             {
                 submit_cbs.push_back(command_buffer);
 
-                // Look for transfer contexts from secondaries
+                // Look for transfer contexts from secondaries. This case can happen when command_buffer is a primary
+                // which is not marked for dumping but contains vkCmdExecuteCommands with secondaries that are marked to
+                // dump transfer
                 for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
                 {
                     if (bcb_qs_pair.second == qs_index)
@@ -1922,27 +1904,15 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
             {
                 bool has_transfer_or_dispatch = false;
 
-                // Handle Transfer commands
-                if (auto transfer_context = FindTransferContext(command_buffer, qs_index))
+                // Look for transfer contexts (both primary and secondary) submitted in this queue submission.
+                for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
                 {
-                    transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
-                                              transfer_context);
-                    // Transfer context does not use a clone command buffer. We submit the original one.
-                    submit_cbs.push_back(command_buffer);
-                    has_transfer_or_dispatch = true;
-                }
-                else
-                {
-                    // Look for transfer contexts from secondaries
-                    for (auto& [bcb_qs_pair, transf_context] : transfer_contexts_)
+                    if (bcb_qs_pair.second == qs_index)
                     {
-                        if (bcb_qs_pair.second == qs_index)
-                        {
-                            transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
-                                                      transfer_context);
-                            submit_cbs.push_back(command_buffer);
-                            has_transfer_or_dispatch = true;
-                        }
+                        transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
+                                                  transf_context);
+                        submit_cbs.push_back(command_buffer);
+                        has_transfer_or_dispatch = true;
                     }
                 }
 
