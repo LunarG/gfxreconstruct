@@ -74,8 +74,9 @@ def gfxrTestWindows(
                             ]) {
                                 bat(script: 'git submodule update --init --recursive --depth 1')
                                 bat(script: 'git describe --tags --always')
-                                bat(script: 'ci/cloneSuites.bat')
                                 bat(script: 'ci/cloneTests.bat')
+                                bat(script: 'ci/buildGfxr.bat')
+                                bat(script: 'ci/cloneSuites.bat')
                                 bat(script: 'ci/runTest.bat')
                             }
                         }
@@ -151,8 +152,9 @@ def gfxrTestLinux(
                             ]) {
                                 sh(script: 'git submodule update --init --recursive --depth 1')
                                 sh(script: 'git describe --tags --always')
-                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxr.sh')
+                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/runTest.sh')
                             }
                         }
@@ -228,8 +230,9 @@ def gfxrTestAndroid(
                             ]) {
                                 sh(script: 'git submodule update --init --recursive --depth 1')
                                 sh(script: 'git describe --tags --always')
-                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxrAndroid.sh')
+                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/runTestAndroid.sh')
                             }
                         }
@@ -323,8 +326,9 @@ def gfxrTestWindowsManual(
                             ]) {
                                 bat(script: 'git submodule update --init --recursive --depth 1')
                                 bat(script: 'git describe --tags --always')
-                                bat(script: 'ci/cloneSuites.bat')
                                 bat(script: 'ci/cloneTests.bat')
+                                bat(script: 'ci/buildGfxr.bat')
+                                bat(script: 'ci/cloneSuites.bat')
                                 bat(script: 'ci/runTest.bat')
                             }
                         }
@@ -403,8 +407,9 @@ def gfxrTestLinuxManual(
                             ]) {
                                 sh(script: 'git submodule update --init --recursive --depth 1')
                                 sh(script: 'git describe --tags --always')
-                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxr.sh')
+                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/runTest.sh')
                             }
                         }
@@ -483,8 +488,9 @@ def gfxrTestAndroidManual(
                             ]) {
                                 sh(script: 'git submodule update --init --recursive --depth 1')
                                 sh(script: 'git describe --tags --always')
-                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxrAndroid.sh')
+                                sh(script: 'ci/cloneSuites.sh')
                                 sh(script: 'ci/runTestAndroid.sh')
                             }
                         }
