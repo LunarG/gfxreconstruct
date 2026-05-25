@@ -600,8 +600,11 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
                                                     const decode::VulkanDeviceAddressTracker& address_tracker)
 {
     GFXRECON_UNREFERENCED_PARAMETER(stage_flags);
-    GFXRECON_UNREFERENCED_PARAMETER(size);
     GFXRECON_ASSERT(command_buffer_info != nullptr && data != nullptr);
+
+    const uint64_t update_start = offset;
+    const uint64_t update_end   = update_start + size;
+
     for (const auto& [bind_point, pipeline_id] : command_buffer_info->bound_pipelines)
     {
         const auto* pipeline_info = object_table_->GetVkPipelineInfo(pipeline_id);
@@ -612,9 +615,17 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
             {
                 if (buffer_ref_info.source == util::SpirVParsingUtil::BufferReferenceLocation::PUSH_CONSTANT_BLOCK)
                 {
+                    const uint64_t field_offset = buffer_ref_info.buffer_offset;
+                    const uint64_t field_end    = field_offset + sizeof(VkDeviceAddress);
+
+                    if (field_offset < update_start || field_end > update_end)
+                    {
+                        continue;
+                    }
+
                     // find addresses in push-constant memory and replace in-place.
-                    auto* address = reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + offset +
-                                                                       buffer_ref_info.buffer_offset);
+                    auto* address =
+                        reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(data) + (field_offset - update_start));
 
                     auto* buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(*address);
                     if (buffer_info != nullptr && buffer_info->replay_address != 0)
@@ -651,6 +662,9 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
     // map used to identify chained pointer-accesses (identical set/binding/offsets)
     std::set<set_key_t> dup_map;
 
+    const uint64_t first_bound_set = firstSet;
+    const uint64_t last_bound_set  = first_bound_set + descriptorSetCount;
+
     for (const auto& buffer_ref_info : pipeline_info->buffer_reference_infos)
     {
         if (buffer_ref_info.source != util::SpirVParsingUtil::BufferReferenceLocation::UNIFORM_BUFFER &&
@@ -659,7 +673,13 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
             // non-buffer descriptor, handled elsewhere
             continue;
         }
-        GFXRECON_ASSERT(buffer_ref_info.set <= descriptorSetCount);
+
+        if (buffer_ref_info.set < first_bound_set || buffer_ref_info.set >= last_bound_set)
+        {
+            continue;
+        }
+
+        const uint32_t descriptor_set_index = buffer_ref_info.set - firstSet;
 
         set_key_t set_key = { static_cast<uint32_t>(buffer_ref_info.source),
                               buffer_ref_info.set,
@@ -668,7 +688,7 @@ void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo
 
         // we need a mutable pointer, to allow for in-place corrections
         auto* descriptor_set_info =
-            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[buffer_ref_info.set]);
+            object_table_->GetVkDescriptorSetInfo(pDescriptorSets->GetPointer()[descriptor_set_index]);
 
         if (descriptor_set_info == nullptr)
         {
