@@ -285,7 +285,15 @@ void VulkanReplayConsumerBase::SavePipelineCachesToFile()
 {
     for (const auto& [handle_id, cache] : tracked_pipeline_caches_)
     {
-        SavePipelineCache(handle_id, cache.device_info, cache.vk_cache);
+        // When --load-pipeline-cache and --save-pipeline-cache point to the same file it is possible that entries in
+        // the tracked_pipeline_caches_ are left with device_info and vk_cache as null. When caches are loaded at the
+        // beginning from the cache file and the map is populated with new entries, the device_info and vk_cache member
+        // variables are default initialized to null. These entries are expected to be set when the cache is actually
+        // created when vkCreatePipelineCache is encountered.
+        if (cache.device_info != nullptr && cache.vk_cache != VK_NULL_HANDLE)
+        {
+            SavePipelineCache(handle_id, cache.device_info, cache.vk_cache);
+        }
     }
 
     tracked_pipeline_caches_.clear();
@@ -7511,6 +7519,7 @@ void VulkanReplayConsumerBase::OverrideDestroyPipelineCache(
     {
         if (save_pipeline_caches_to_file)
         {
+            GFXRECON_ASSERT(pipeline_cache_info->handle != VK_NULL_HANDLE);
             SavePipelineCache(pipeline_cache_info->capture_id, device_info, pipeline_cache_info->handle);
         }
 
@@ -12397,6 +12406,8 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
 
                 if (save_pipeline_caches_to_file)
                 {
+                    GFXRECON_ASSERT(itTracked->second.device_info != nullptr);
+                    GFXRECON_ASSERT(itTracked->second.vk_cache != VK_NULL_HANDLE);
                     SavePipelineCache(id, itTracked->second.device_info, itTracked->second.vk_cache);
                 }
                 auto device_table = GetDeviceTable(device_info->handle);
@@ -13024,6 +13035,8 @@ void VulkanReplayConsumerBase::SavePipelineCache(format::HandleId        id,
                                                  const VulkanDeviceInfo* device_info,
                                                  VkPipelineCache         pipelineCache)
 {
+    GFXRECON_ASSERT(device_info != nullptr);
+    GFXRECON_ASSERT(pipelineCache != VK_NULL_HANDLE);
     GFXRECON_ASSERT(save_pipeline_caches_to_file);
     GFXRECON_ASSERT(!options_.save_pipeline_cache_filename.empty());
 
