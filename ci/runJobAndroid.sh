@@ -32,7 +32,7 @@ if [ -z "${TEST_SUITE_BRANCH:-}" ]; then
 fi
 
 git clone --verbose $TEST_SUITE_REPO ci-gfxr-suites
-git -C ci-gfxr-suites config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C ci-gfxr-suites config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" # Allows git to pull from hashes in forks of the repo that are submitted as PRs
 git -C ci-gfxr-suites fetch origin
 git -C ci-gfxr-suites checkout $TEST_SUITE_BRANCH
 git -C ci-gfxr-suites submodule update --init --recursive
@@ -48,7 +48,7 @@ if [ -z "${TEST_BRANCH:-}" ]; then
 fi
 
 git clone --verbose $TEST_REPO VulkanTests
-git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" # Allows git to pull from hashes in forks of the repo that are submitted as PRs
 git -C VulkanTests fetch origin
 git -C VulkanTests checkout $TEST_BRANCH
 git -C VulkanTests submodule update --init --recursive

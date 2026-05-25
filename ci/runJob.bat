@@ -43,7 +43,7 @@ if %clonetestloop% gtr 3 (
 waitfor forever /t 60 2>nul
 goto :clone_suites
 :clone_suites_done
-git -C ci-gfxr-suites config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C ci-gfxr-suites config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" & :: Allows git to pull from hashes in forks of the repo that are submitted as PRs
 git -C ci-gfxr-suites fetch origin
 git -C ci-gfxr-suites checkout %TEST_SUITE_BRANCH% || exit /b
 git -C ci-gfxr-suites submodule update --init --recursive
@@ -70,7 +70,7 @@ if %clonetestloop% gtr 3 (
 waitfor forever /t 60 2>nul
 goto :clone_tests
 :clone_tests_done
-git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git -C VulkanTests config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" & :: Allows git to pull from hashes in forks of the repo that are submitted as PRs
 git -C VulkanTests fetch origin
 git -C VulkanTests checkout %TEST_BRANCH% || exit /b
 git -C VulkanTests submodule update --init --recursive
