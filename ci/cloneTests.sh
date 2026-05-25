@@ -30,7 +30,7 @@ fi
 
 git clone --verbose $TEST_REPO VulkanTests
 cd VulkanTests
-git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*"
+git config --add remote.origin.fetch "+refs/pull/*/head:refs/remotes/origin/pr/*" # Allows git to pull from hashes in forks of the repo that are submitted as PRs
 git fetch origin
 git checkout $TEST_BRANCH
 git submodule update --init --recursive
