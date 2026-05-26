@@ -170,12 +170,6 @@ void Application::Run()
                 fps_info_->BeginFrame(frame_number);
             }
 
-            if (replay_event_sink_)
-            {
-                // Replay event plugin uses a 0-based frame index.
-                replay_event_sink_->FrameBegin(file_processor_->GetCurrentFrameNumber());
-            }
-
             // PlaySingleFrame() increments this->current_frame_number_ *if* there's an end-of-frame
             PlaySingleFrame();
 
@@ -198,11 +192,6 @@ void Application::Run()
                 {
                     file_processor_->WaitDecodersIdle();
                 }
-            }
-
-            if (replay_event_sink_)
-            {
-                replay_event_sink_->FrameEnd();
             }
         }
     }
@@ -232,6 +221,12 @@ bool Application::PlaySingleFrame()
 
     if (file_processor_)
     {
+        if (replay_event_sink_)
+        {
+            // Replay event plugin uses a 0-based frame index.
+            replay_event_sink_->FrameBegin(file_processor_->GetCurrentFrameNumber());
+        }
+
         success = file_processor_->ProcessNextFrame();
 
         if (success)
@@ -252,6 +247,11 @@ bool Application::PlaySingleFrame()
         else
         {
             running_ = false;
+        }
+
+        if (replay_event_sink_)
+        {
+            replay_event_sink_->FrameEnd();
         }
     }
 
