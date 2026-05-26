@@ -712,7 +712,14 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
                                               uint32_t               command_buffer_count,
                                               const VkCommandBuffer* command_buffers)
 {
-    assert((command_buffer != VK_NULL_HANDLE) && (command_buffers != nullptr));
+    assert(command_buffer != VK_NULL_HANDLE);
+
+    if (command_buffer_count == 0)
+    {
+        return;
+    }
+
+    assert(command_buffers != nullptr);
 
     auto primary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
 
