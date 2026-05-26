@@ -85,8 +85,8 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
     device_table_ = device_table;
 
     VkSwapchainCreateInfoKHR modified_create_info = *create_info;
-    modified_create_info.imageUsage =
-        modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+    modified_create_info.imageUsage = modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
     VkResult result = instance_table_->GetPhysicalDeviceSurfaceCapabilitiesKHR(
         physical_device, create_info->surface, &surfCapabilities);
