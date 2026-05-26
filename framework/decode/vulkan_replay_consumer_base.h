@@ -1870,16 +1870,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     bool CheckPipelineCacheUUID(const VulkanDeviceInfo* device_info, const VkPipelineCacheCreateInfo* create_info);
 
-    void LoadPipelineCachesFromFile();
-    void SavePipelineCachesToFile();
-    void SavePipelineCache(format::HandleId id, const VulkanDeviceInfo* device_info, VkPipelineCache pipelineCache);
-    VkPipelineCache CreateNewPipelineCache(const VulkanDeviceInfo* device_info, format::HandleId id);
-    void            TrackNewPipelineCache(const VulkanDeviceInfo* device_info,
-                                          format::HandleId        id,
-                                          VkPipelineCache         pipelineCache,
-                                          VkPipeline*             pipelines,
-                                          size_t                  pipelineCount);
-
     bool IsExtensionBeingFaked(const char* extension);
 
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
@@ -2045,11 +2035,21 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     {
         const VulkanDeviceInfo* device_info{ nullptr };
         VkPipelineCache         vk_cache{ VK_NULL_HANDLE };
-        std::vector<uint8_t>    cache_data;
+        bool                    dirty{ false };
     };
 
     std::unordered_map<format::HandleId, TrackedPipelineCache> tracked_pipeline_caches_;
     std::unordered_map<VkPipeline, format::HandleId>           pipeline_cache_correspondances_;
+
+    bool            LoadPipelineCacheFromFile(format::HandleId id, std::vector<uint8_t>& cache_data);
+    void            SavePipelineCachesToFile();
+    void            SavePipelineCache(format::HandleId id, const TrackedPipelineCache& tracked_cache);
+    VkPipelineCache CreateNewPipelineCache(const VulkanDeviceInfo* device_info, format::HandleId id);
+    void            TrackNewPipelineCache(const VulkanDeviceInfo* device_info,
+                                          format::HandleId        id,
+                                          VkPipelineCache         pipelineCache,
+                                          VkPipeline*             pipelines,
+                                          size_t                  pipelineCount);
 
     const bool save_pipeline_caches_to_file;
     const bool load_pipeline_caches_from_file;
