@@ -67,7 +67,8 @@ typedef void (^GFXReconKeyCallback)(gfxrecon::application::Application*);
 
 - (void)keyDown:(NSEvent*)event
 {
-    if (!_app) {
+    if (!_app)
+    {
         return;
     }
     switch ([event keyCode])
@@ -83,7 +84,8 @@ typedef void (^GFXReconKeyCallback)(gfxrecon::application::Application*);
 
         case kVK_RightArrow:
         case kVK_ANSI_N:
-            if (_app->GetPaused()) {
+            if (_app->GetPaused())
+            {
                 _app->PlaySingleFrame();
             }
             break;
@@ -125,7 +127,8 @@ bool MetalWindow::Create(const std::string& title,
         NSRect            screen_frame = [screen convertRectToBacking:[screen frame]];
         NSWindowStyleMask style        = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
                                   NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
-        if (width >= screen_frame.size.width && height >= screen_frame.size.height) {
+        if (width >= screen_frame.size.width && height >= screen_frame.size.height)
+        {
             style |= NSWindowStyleMaskFullScreen;
         }
 
@@ -184,7 +187,8 @@ void MetalWindow::SetPosition(const int32_t x, const int32_t y)
 {
     @autoreleasepool
     {
-        if ([window_ styleMask] & NSWindowStyleMaskFullScreen) {
+        if ([window_ styleMask] & NSWindowStyleMaskFullScreen)
+        {
             return;
         }
         NSScreen* screen       = [window_ screen];
@@ -200,7 +204,8 @@ void MetalWindow::SetPosition(const int32_t x, const int32_t y)
 
 void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
 {
-    if (width_ == width && height_ == height) {
+    if (width_ == width && height_ == height)
+    {
         return;
     }
     @autoreleasepool
@@ -213,13 +218,15 @@ void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
         NSWindowStyleMask style        = [window_ styleMask];
         if (fullscreen)
         {
-            if (!(style & NSWindowStyleMaskFullScreen)) {
+            if (!(style & NSWindowStyleMaskFullScreen))
+            {
                 [window_ toggleFullScreen:nil];
             }
         }
         else
         {
-            if (style & NSWindowStyleMaskFullScreen) {
+            if (style & NSWindowStyleMaskFullScreen)
+            {
                 [window_ toggleFullScreen:nil];
             }
             NSRect window_frame      = [screen convertRectToBacking:[window_ contentRectForFrameRect:[window_ frame]]];
@@ -295,7 +302,8 @@ VkResult MetalWindow::CreateSurface(const graphics::VulkanInstanceTable* table,
 
 void MetalWindow::DestroySurface(const graphics::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
-    if (table) {
+    if (table)
+    {
         table->DestroySurfaceKHR(instance, surface, nullptr);
     }
 }
