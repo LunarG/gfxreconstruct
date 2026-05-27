@@ -1755,32 +1755,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                              uint32_t                               transitionCount,
                                              const VkHostImageLayoutTransitionInfo* pTransitions);
 
-  protected:
-    VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
-
-    virtual ~VulkanCaptureManager() {}
-
-    virtual void CreateStateTracker() override
-    {
-        state_tracker_ = std::make_unique<VulkanStateTracker>();
-    }
-
-    virtual void DestroyStateTracker() override
-    {
-        state_tracker_ = nullptr;
-    }
-
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
-
-    virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
-                                                util::ThreadData*       thread_data,
-                                                util::FileOutputStream* asset_file_stream,
-                                                const std::string*      asset_file_name) override;
-
-    virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
-                             const std::string*      asset_file_name,
-                             util::ThreadData*       thread_data) override;
-
     void PostProcess_vkBindDataGraphPipelineSessionMemoryARM(VkResult,
                                                              VkDevice device,
                                                              uint32_t bindInfoCount,
@@ -1793,7 +1767,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         {
             state_tracker_->TrackDataGraphPipelineSessionMemoryBinding(
                 device, pBindInfos[i].session, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
-            auto wrapper          = GetWrapper<DataGraphPipelineSessionARMWrapper>(pBindInfos[i].session);
+            auto wrapper          = vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(pBindInfos[i].session);
             wrapper->object_index = pBindInfos[i].objectIndex;
             wrapper->bind_point   = pBindInfos[i].bindPoint;
         }
@@ -1820,8 +1794,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                            const VkAllocationCallbacks*,
                                            VkTensorViewARM* pView)
     {
-        auto view   = GetWrapper<TensorViewARMWrapper>(*pView);
-        auto tensor = GetWrapper<TensorARMWrapper>(pCreateInfo->tensor);
+        auto view   = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(*pView);
+        auto tensor = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorARMWrapper>(pCreateInfo->tensor);
         tensor->tensor_views.insert(view);
         view->tensor = tensor;
     }
@@ -1830,6 +1804,32 @@ class VulkanCaptureManager : public ApiCaptureManager
     {
         return layer_settings_;
     }
+
+  protected:
+    VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
+
+    virtual ~VulkanCaptureManager() {}
+
+    virtual void CreateStateTracker() override
+    {
+        state_tracker_ = std::make_unique<VulkanStateTracker>();
+    }
+
+    virtual void DestroyStateTracker() override
+    {
+        state_tracker_ = nullptr;
+    }
+
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream, util::ThreadData* thread_data) override;
+
+    virtual void WriteTrackedStateWithAssetFile(util::FileOutputStream* file_stream,
+                                                util::ThreadData*       thread_data,
+                                                util::FileOutputStream* asset_file_stream,
+                                                const std::string*      asset_file_name) override;
+
+    virtual void WriteAssets(util::FileOutputStream* asset_file_stream,
+                             const std::string*      asset_file_name,
+                             util::ThreadData*       thread_data) override;
 
   private:
     struct HardwareBufferInfo

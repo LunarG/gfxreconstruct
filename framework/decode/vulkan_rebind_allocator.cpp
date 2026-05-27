@@ -3372,7 +3372,6 @@ VkResult VulkanRebindAllocator::CreateTensor(const VkTensorCreateInfoARM* create
             auto resource_alloc_info         = new ResourceAllocInfo;
             resource_alloc_info->usage       = create_info->pDescription->usage;
             resource_alloc_info->object_type = VK_OBJECT_TYPE_TENSOR_ARM;
-            resource_alloc_info->capture_id  = capture_id;
             (*allocator_data)                = reinterpret_cast<uintptr_t>(resource_alloc_info);
 
             if (create_info->pNext != nullptr)

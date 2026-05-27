@@ -655,5 +655,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorGetInf
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDataGraphPipelineConstantARM* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkDataGraphPipelineConstantARM&         decoded_value = *data->decoded_value;
+        const Decoded_VkDataGraphPipelineConstantARM& meta_struct   = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["id"]    = decoded_value.id;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

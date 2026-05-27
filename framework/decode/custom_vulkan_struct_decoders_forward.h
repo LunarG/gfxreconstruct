@@ -42,6 +42,7 @@ struct Decoded_VkPerformanceValueDataINTEL;
 struct Decoded_VkIndirectExecutionSetInfoEXT;
 struct Decoded_VkIndirectCommandsTokenDataEXT;
 struct Decoded_VkDescriptorDataEXT;
+struct Decoded_VkDataGraphPipelineConstantARM;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
@@ -52,6 +53,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
 size_t
 DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureMotionInstanceNV* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorDataEXT* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDataGraphPipelineConstantARM* wrapper);
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo;

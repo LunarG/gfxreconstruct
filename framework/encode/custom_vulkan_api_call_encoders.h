@@ -119,6 +119,27 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetSamplerOpaqueCaptureDescriptorDataEXT(
 VKAPI_ATTR VkResult VKAPI_CALL vkGetImageViewOpaqueCaptureDescriptorDataEXT(
     VkDevice device, const VkImageViewCaptureDescriptorDataInfoEXT* pInfo, void* pData);
 
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDataGraphPipelinesARM(VkDevice                                device,
+                                                             VkDeferredOperationKHR                  deferredOperation,
+                                                             VkPipelineCache                         pipelineCache,
+                                                             uint32_t                                createInfoCount,
+                                                             const VkDataGraphPipelineCreateInfoARM* pCreateInfos,
+                                                             const VkAllocationCallbacks*            pAllocator,
+                                                             VkPipeline*                             pPipelines);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDescriptorDataARM(VkDevice,
+                                                                         const VkTensorCaptureDescriptorDataInfoARM*,
+                                                                         void*);
+
+VKAPI_ATTR VkResult VKAPI_CALL
+vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptureDescriptorDataInfoARM*, void*);
+
+VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
+    VkPhysicalDevice physicalDevice,
+    uint32_t         queueFamilyIndex,
+    VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties,
+    VkBaseOutStructure*                  pProperties);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
