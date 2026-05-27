@@ -778,10 +778,32 @@ struct VulkanAccelerationStructureNVInfo : public VulkanObjectInfo<VkAcceleratio
     VkMemoryPropertyFlags memory_property_flags{ 0 };
 };
 
+struct VulkanTensorARMInfo : public VulkanObjectInfo<VkTensorARM>
+{
+    // The following values are only used for memory portability.
+    VulkanResourceAllocator::ResourceData allocator_data{ 0 };
+
+    // This is only used when loading the initial state for trimmed files.
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
+    VkTensorTilingARM     tiling{};
+    VkFormat              format{};
+    uint32_t              dimensionCount{};
+    VkTensorUsageFlagsARM usage{};
+    std::vector<uint64_t> pDimensions{};
+    std::vector<int64_t>  pStrides{};
+
+    VkDeviceSize size{ 0 };
+    uint32_t     queue_family_index{ 0 };
+};
+
+struct VulkanTensorViewARMInfo : public VulkanObjectInfo<VkTensorViewARM>
+{};
+
 struct VulkanDataGraphPipelineSessionARMInfo : public VulkanObjectInfo<VkDataGraphPipelineSessionARM>
 {
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData    allocator_data{ 0 };
+    VkMemoryPropertyFlags                    memory_property_flags{ 0 };
     VkDataGraphPipelineSessionCreateFlagsARM flags{};
 };
 
