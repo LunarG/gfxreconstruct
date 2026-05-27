@@ -64,7 +64,6 @@ _emit_extensions = []
 # be added to the list kUnsupportedDeviceExtensions in trace_layer.cpp.
 _remove_extensions = [
     "VK_AMDX_shader_enqueue",
-    "VK_ARM_tensors",
     "VK_EXT_metal_objects",
     "VK_EXT_pipeline_properties",
     "VK_FUCHSIA_buffer_collection",
@@ -86,7 +85,6 @@ _remove_extensions = [
     "VK_EXT_descriptor_heap",
     "VK_SEC_ubm_surface",
     "VK_ARM_shader_instrumentation",
-    "VK_ARM_data_graph_optical_flow",
     "VK_ARM_data_graph_instruction_set_tosa",
 ]
 

@@ -23,7 +23,10 @@
     "vkGetBufferOpaqueCaptureDescriptorDataEXT",
     "vkGetImageOpaqueCaptureDescriptorDataEXT",
     "vkGetImageViewOpaqueCaptureDescriptorDataEXT",
-    "vkGetSamplerOpaqueCaptureDescriptorDataEXT"
+    "vkGetSamplerOpaqueCaptureDescriptorDataEXT",
+    "vkGetTensorOpaqueCaptureDescriptorDataARM",
+    "vkGetTensorViewOpaqueCaptureDescriptorDataARM",
+    "vkCreateDataGraphPipelinesARM"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
@@ -53,6 +56,7 @@
     "VkCopyImageToMemoryInfo",
     "VkImageToMemoryCopy",
     "VkLayerSettingEXT",
-    "VkDescriptorGetInfoEXT"
+    "VkDescriptorGetInfoEXT",
+    "VkDataGraphPipelineConstantARM"
   ]
 }
