@@ -61,6 +61,10 @@ target_link_libraries(${TARGET_NAME}
         ${GFXR_REPLAY_PLUGIN_ABI_TARGET_NAME}
         gfxrecon_util)
 
+if(ANDROID)
+    target_link_options(${TARGET_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
+endif()
+
 if(NOT ANDROID)
     common_build_directives(${TARGET_NAME})
 endif()
