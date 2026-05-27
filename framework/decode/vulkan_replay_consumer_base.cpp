@@ -2428,6 +2428,15 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     functions.create_fence                                = device_table->CreateFence;
     functions.wait_for_fences                             = device_table->WaitForFences;
     functions.destroy_fence                               = device_table->DestroyFence;
+    functions.create_tensor                                              = device_table->CreateTensorARM;
+    functions.destroy_tensor                                             = device_table->DestroyTensorARM;
+    functions.get_tensor_memory_requirements                             = device_table->GetTensorMemoryRequirementsARM;
+    functions.bind_tensor_memory                                         = device_table->BindTensorMemoryARM;
+    functions.create_data_graph_pipeline_session                         = device_table->CreateDataGraphPipelineSessionARM;
+    functions.get_data_graph_pipeline_session_memory_requirements        = device_table->GetDataGraphPipelineSessionMemoryRequirementsARM;
+    functions.bind_data_graph_pipeline_session_memory                    = device_table->BindDataGraphPipelineSessionMemoryARM;
+    functions.destroy_data_graph_pipeline_session                        = device_table->DestroyDataGraphPipelineSessionARM;
+    functions.get_data_graph_pipeline_session_bind_point_requirements    = device_table->GetDataGraphPipelineSessionBindPointRequirementsARM;
 
     if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
