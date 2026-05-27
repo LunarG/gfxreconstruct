@@ -195,6 +195,22 @@ struct VulkanReplayDeviceInfo
     std::optional<VkPhysicalDeviceAccelerationStructurePropertiesKHR> acceleration_structure_properties;
     std::optional<VkPhysicalDeviceDescriptorBufferPropertiesEXT>      descriptor_buffer_properties;
 
+    struct DataGraphOpticalFlowInfo
+    {
+        uint32_t                            queue_family_index{ 0 };
+        VkQueueFamilyDataGraphPropertiesARM queue_family_data_graph_properties{
+            VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROPERTIES_ARM, nullptr
+        };
+        std::optional<VkQueueFamilyDataGraphOpticalFlowPropertiesARM> optical_flow_properties;
+        std::vector<VkFormat>                                         input_formats;
+        std::vector<VkFormat>                                         output_formats;
+        std::vector<VkFormat>                                         hint_formats;
+        std::vector<VkFormat>                                         cost_formats;
+    };
+
+    bool                                  data_graph_optical_flow_initialized{ false };
+    std::vector<DataGraphOpticalFlowInfo> data_graph_optical_flow_infos;
+
     bool IsPropertiesNull() const
     {
         // Not include memory properties.

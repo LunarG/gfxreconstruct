@@ -841,6 +841,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         uint32_t                                                       bindSessionMemoryInfoCount,
         StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos);
 
+    VkResult OverrideBindDataGraphPipelineSessionMemoryARM(
+        PFN_vkBindDataGraphPipelineSessionMemoryARM                                func,
+        VkResult                                                                   returnValue,
+        const VulkanDeviceInfo*                                                    device_info,
+        uint32_t                                                                   bindInfoCount,
+        StructPointerDecoder<Decoded_VkBindDataGraphPipelineSessionMemoryInfoARM>* pBindInfos);
+
     VkResult OverrideCreateBuffer(PFN_vkCreateBuffer                                         func,
                                   VkResult                                                   original_result,
                                   VulkanDeviceInfo*                                          device_info,
@@ -1580,6 +1587,57 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const VulkanDeviceInfo*                                               device_info,
         StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo);
 
+    void InitializeReplayDataGraphOpticalFlowInfo(VulkanPhysicalDeviceInfo* physical_device_info);
+
+    VkResult OverrideCreateDataGraphPipelinesARM(
+        PFN_vkCreateDataGraphPipelinesARM                               func,
+        VkResult                                                        original_result,
+        const VulkanDeviceInfo*                                         device_info,
+        const VulkanDeferredOperationKHRInfo*                           deferred_operation_info,
+        const VulkanPipelineCacheInfo*                                  pipeline_cache_info,
+        uint32_t                                                        createInfoCount,
+        StructPointerDecoder<Decoded_VkDataGraphPipelineCreateInfoARM>* pCreateInfos,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*            pAllocator,
+        HandlePointerDecoder<VkPipeline>*                               pPipelines);
+
+    VkResult OverrideCreateDataGraphPipelineSessionARM(
+        PFN_vkCreateDataGraphPipelineSessionARM                                func,
+        VkResult                                                               returnValue,
+        const VulkanDeviceInfo*                                                device_info,
+        StructPointerDecoder<Decoded_VkDataGraphPipelineSessionCreateInfoARM>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                   pAllocator,
+        HandlePointerDecoder<VkDataGraphPipelineSessionARM>*                   pSession);
+
+    VkResult OverrideCreateTensorARM(PFN_vkCreateTensorARM                                func,
+                                     VkResult                                             result,
+                                     const VulkanDeviceInfo*                              device_info,
+                                     StructPointerDecoder<Decoded_VkTensorCreateInfoARM>* pCreateInfo,
+                                     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                     HandlePointerDecoder<VkTensorARM>*                   tensor);
+
+    void OverrideDestroyDataGraphPipelineSessionARM(
+        PFN_vkDestroyDataGraphPipelineSessionARM             func,
+        VulkanDeviceInfo*                                    device_info,
+        VulkanDataGraphPipelineSessionARMInfo*               data_graph_pipeline_session_info,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideDestroyTensorARM(PFN_vkDestroyTensorARM                               func,
+                                  VulkanDeviceInfo*                                    device_info,
+                                  VulkanTensorARMInfo*                                 tensor_info,
+                                  StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    VkResult OverrideBindTensorMemoryARM(PFN_vkBindTensorMemoryARM                                func,
+                                         VkResult                                                 result,
+                                         const VulkanDeviceInfo*                                  device_info,
+                                         uint32_t                                                 bind_info_count,
+                                         StructPointerDecoder<Decoded_VkBindTensorMemoryInfoARM>* pBindInfos);
+
+    void OverrideGetTensorMemoryRequirementsARM(
+        PFN_vkGetTensorMemoryRequirementsARM                             func,
+        const VulkanDeviceInfo*                                          device_info,
+        StructPointerDecoder<Decoded_VkTensorMemoryRequirementsInfoARM>* pInfo,
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>*             pMemoryRequirements);
+
     VkResult OverrideGetPastPresentationTimingGOOGLE(
         PFN_vkGetPastPresentationTimingGOOGLE                         func,
         VkResult                                                      original_result,
@@ -1710,6 +1768,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     //// End recapture members
 
   private:
+    static bool SupportsDataGraphOpticalFlowPipeline(const VulkanReplayDeviceInfo::DataGraphOpticalFlowInfo& info,
+                                                     const VkDataGraphPipelineOpticalFlowCreateInfoARM&      create_info);
+
     void InitializeLoader();
 
     void AddInstanceTable(VkInstance instance);
