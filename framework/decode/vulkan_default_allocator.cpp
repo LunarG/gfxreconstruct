@@ -966,12 +966,12 @@ VkResult VulkanDefaultAllocator::Allocate(const VkMemoryAllocateInfo*  allocate_
     return result;
 }
 
-VkResult VulkanDefaultAllocator::CreateDataGraphPipelineSession(
-    const VkDataGraphPipelineSessionCreateInfoARM* create_info,
-    const VkAllocationCallbacks*                   allocation_callbacks,
-    format::HandleId                               capture_id,
-    VkDataGraphPipelineSessionARM*                 data_graph_pipeline_session,
-    ResourceData*                                  allocator_data)
+VkResult
+VulkanDefaultAllocator::CreateDataGraphPipelineSession(const VkDataGraphPipelineSessionCreateInfoARM* create_info,
+                                                       const VkAllocationCallbacks*   allocation_callbacks,
+                                                       format::HandleId               capture_id,
+                                                       VkDataGraphPipelineSessionARM* data_graph_pipeline_session,
+                                                       ResourceData*                  allocator_data)
 {
     if (allocator_data != nullptr)
     {

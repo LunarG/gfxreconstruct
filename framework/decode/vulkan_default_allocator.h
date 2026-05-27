@@ -328,62 +328,62 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     virtual bool SupportBindVideoSessionMemory() override { return false; }
 
-    virtual VkResult CreateDataGraphPipelineSession(const VkDataGraphPipelineSessionCreateInfoARM* create_info,
-                                                    const VkAllocationCallbacks*                   allocation_callbacks,
-                                                    format::HandleId                               capture_id,
-                                                    VkDataGraphPipelineSessionARM* data_graph_pipeline_session,
-                                                    ResourceData*                  allocator_data) override;
+    VkResult CreateDataGraphPipelineSession(const VkDataGraphPipelineSessionCreateInfoARM* create_info,
+                                            const VkAllocationCallbacks*                   allocation_callbacks,
+                                            format::HandleId                               capture_id,
+                                            VkDataGraphPipelineSessionARM*                 data_graph_pipeline_session,
+                                            ResourceData*                                  allocator_data) override;
 
-    virtual void DestroyDataGraphPipelineSession(VkDataGraphPipelineSessionARM data_graph_pipeline_session,
-                                                 const VkAllocationCallbacks*  allocation_callbacks,
-                                                 ResourceData                  allocator_data) override;
+    void DestroyDataGraphPipelineSession(VkDataGraphPipelineSessionARM data_graph_pipeline_session,
+                                         const VkAllocationCallbacks*  allocation_callbacks,
+                                         ResourceData                  allocator_data) override;
 
-    virtual VkResult CreateTensor(const VkTensorCreateInfoARM* create_info,
-                                  const VkAllocationCallbacks* allocation_callbacks,
-                                  format::HandleId             capture_id,
-                                  VkTensorARM*                 tensor,
-                                  ResourceData*                allocator_data) override;
+    VkResult CreateTensor(const VkTensorCreateInfoARM* create_info,
+                          const VkAllocationCallbacks* allocation_callbacks,
+                          format::HandleId             capture_id,
+                          VkTensorARM*                 tensor,
+                          ResourceData*                allocator_data) override;
 
-    virtual void DestroyTensor(VkTensorARM                  tensor,
-                               const VkAllocationCallbacks* allocation_callbacks,
-                               ResourceData                 allocator_data) override;
+    void DestroyTensor(VkTensorARM                  tensor,
+                       const VkAllocationCallbacks* allocation_callbacks,
+                       ResourceData                 allocator_data) override;
 
-    virtual void GetTensorMemoryRequirementsARM(VkTensorMemoryRequirementsInfoARM* tensor_memory_requirements,
-                                                VkMemoryRequirements2*             memory_requirements,
-                                                ResourceData                       allocator_data) override;
+    void GetTensorMemoryRequirementsARM(VkTensorMemoryRequirementsInfoARM* tensor_memory_requirements,
+                                        VkMemoryRequirements2*             memory_requirements,
+                                        ResourceData                       allocator_data) override;
 
-    virtual VkResult BindDataGraphPipelineSessionMemory(uint32_t bind_info_count,
-                                                        const VkBindDataGraphPipelineSessionMemoryInfoARM* bind_infos,
-                                                        const ResourceData*    allocator_session_datas,
-                                                        const MemoryData*      allocator_memory_datas,
-                                                        VkMemoryPropertyFlags* bind_memory_properties) override;
+    VkResult BindDataGraphPipelineSessionMemory(uint32_t                                           bind_info_count,
+                                                const VkBindDataGraphPipelineSessionMemoryInfoARM* bind_infos,
+                                                const ResourceData*    allocator_session_datas,
+                                                const MemoryData*      allocator_memory_datas,
+                                                VkMemoryPropertyFlags* bind_memory_properties) override;
 
-    virtual VkResult BindTensorMemory(uint32_t                         bind_info_count,
-                                      const VkBindTensorMemoryInfoARM* bind_infos,
-                                      const ResourceData*              allocator_tensor_datas,
-                                      const MemoryData*                allocator_memory_datas,
-                                      VkMemoryPropertyFlags*           bind_memory_properties) override;
+    VkResult BindTensorMemory(uint32_t                         bind_info_count,
+                              const VkBindTensorMemoryInfoARM* bind_infos,
+                              const ResourceData*              allocator_tensor_datas,
+                              const MemoryData*                allocator_memory_datas,
+                              VkMemoryPropertyFlags*           bind_memory_properties) override;
 
-    virtual VkResult CreateTensorDirect(const VkTensorCreateInfoARM* create_info,
-                                        const VkAllocationCallbacks* allocation_callbacks,
-                                        VkTensorARM*                 tensor,
-                                        ResourceData*                allocator_data) override
+    VkResult CreateTensorDirect(const VkTensorCreateInfoARM* create_info,
+                                const VkAllocationCallbacks* allocation_callbacks,
+                                VkTensorARM*                 tensor,
+                                ResourceData*                allocator_data) override
     {
         return CreateTensor(create_info, allocation_callbacks, format::kNullHandleId, tensor, allocator_data);
     }
 
-    virtual void DestroyTensorDirect(VkTensorARM                  tensor,
-                                     const VkAllocationCallbacks* allocation_callbacks,
-                                     ResourceData                 allocator_data) override
+    void DestroyTensorDirect(VkTensorARM                  tensor,
+                             const VkAllocationCallbacks* allocation_callbacks,
+                             ResourceData                 allocator_data) override
     {
         DestroyTensor(tensor, allocation_callbacks, allocator_data);
     }
 
-    virtual VkResult BindTensorMemoryDirect(uint32_t                         bind_info_count,
-                                            const VkBindTensorMemoryInfoARM* bind_infos,
-                                            const ResourceData*              allocator_tensor_datas,
-                                            const MemoryData*                allocator_memory_datas,
-                                            VkMemoryPropertyFlags*           bind_memory_properties) override
+    VkResult BindTensorMemoryDirect(uint32_t                         bind_info_count,
+                                    const VkBindTensorMemoryInfoARM* bind_infos,
+                                    const ResourceData*              allocator_tensor_datas,
+                                    const MemoryData*                allocator_memory_datas,
+                                    VkMemoryPropertyFlags*           bind_memory_properties) override
     {
         return BindTensorMemory(
             bind_info_count, bind_infos, allocator_tensor_datas, allocator_memory_datas, bind_memory_properties);

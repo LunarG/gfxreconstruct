@@ -468,7 +468,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDataGraphPipelineConstantAR
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.id);
 
-    if (value.pNext)
+    if (value.pNext != nullptr)
     {
         const VkTensorDescriptionARM* description =
             gfxrecon::graphics::vulkan_struct_get_pnext<VkTensorDescriptionARM>(&value);

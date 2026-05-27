@@ -135,8 +135,8 @@ VKAPI_ATTR VkResult VKAPI_CALL
 vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptureDescriptorDataInfoARM*, void*);
 
 VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
-    VkPhysicalDevice physicalDevice,
-    uint32_t         queueFamilyIndex,
+    VkPhysicalDevice                     physicalDevice,
+    uint32_t                             queueFamilyIndex,
     VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties,
     VkBaseOutStructure*                  pProperties);
 

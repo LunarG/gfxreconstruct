@@ -1755,19 +1755,23 @@ class VulkanCaptureManager : public ApiCaptureManager
                                              uint32_t                               transitionCount,
                                              const VkHostImageLayoutTransitionInfo* pTransitions);
 
-    void PostProcess_vkBindDataGraphPipelineSessionMemoryARM(VkResult,
-                                                             VkDevice device,
-                                                             uint32_t bindInfoCount,
-                                                             const VkBindDataGraphPipelineSessionMemoryInfoARM* pBindInfos)
+    void
+    PostProcess_vkBindDataGraphPipelineSessionMemoryARM(VkResult,
+                                                        VkDevice device,
+                                                        uint32_t bindInfoCount,
+                                                        const VkBindDataGraphPipelineSessionMemoryInfoARM* pBindInfos)
     {
         if (!IsCaptureModeTrack())
+        {
             return;
+        }
 
         for (uint32_t i = 0; i < bindInfoCount; i++)
         {
             state_tracker_->TrackDataGraphPipelineSessionMemoryBinding(
                 device, pBindInfos[i].session, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
-            auto wrapper          = vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(pBindInfos[i].session);
+            auto wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(pBindInfos[i].session);
             wrapper->object_index = pBindInfos[i].objectIndex;
             wrapper->bind_point   = pBindInfos[i].bindPoint;
         }
@@ -1779,7 +1783,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                            const VkBindTensorMemoryInfoARM* pBindInfos)
     {
         if (!IsCaptureModeTrack())
+        {
             return;
+        }
 
         for (uint32_t i = 0; i < bindInfoCount; i++)
         {
@@ -1800,10 +1806,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         view->tensor = tensor;
     }
 
-    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
-    {
-        return layer_settings_;
-    }
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override { return layer_settings_; }
 
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}

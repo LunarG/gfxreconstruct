@@ -759,7 +759,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDataGraphPipelineConstantARM* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+    GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t                          bytes_read = 0;
     VkDataGraphPipelineConstantARM* value      = wrapper->decoded_value;

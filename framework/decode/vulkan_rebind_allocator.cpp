@@ -3548,7 +3548,9 @@ VulkanRebindAllocator::BindDataGraphPipelineSessionMemory(uint32_t bind_info_cou
     };
 
     if (!bind_infos || !allocator_session_datas || !allocator_memory_datas || !bind_memory_properties)
+    {
         return VK_ERROR_INITIALIZATION_FAILED;
+    }
 
     if (bind_info_count == 0)
     {
