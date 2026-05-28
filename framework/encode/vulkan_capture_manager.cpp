@@ -2266,34 +2266,27 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
     using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
     std::vector<ImageResource> image_resources;
 
-    auto write_init_image_cmd =
-        [this, &resource_util, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
-            // Combined size of all layers in a mip level.
-            std::vector<uint64_t> level_sizes;
+    auto write_init_image_cmd = [this, &resource_util, device_wrapper](
+                                    const ImageResource& img, const void* data, size_t num_bytes) {
+        // Combined size of all layers in a mip level.
+        std::vector<uint64_t> level_sizes;
 
-            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.format,
-                                                                                img.extent,
-                                                                                img.level_count,
-                                                                                img.layer_count,
-                                                                                img.tiling,
-                                                                                img.aspect,
-                                                                                nullptr,
-                                                                                &level_sizes,
-                                                                                true);
-            GFXRECON_ASSERT(resource_size == num_bytes);
+        uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(
+            img.format, img.extent, img.level_count, img.layer_count, img.tiling, img.aspect, nullptr, &level_sizes);
+        GFXRECON_ASSERT(resource_size == num_bytes);
 
-            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size, resource_size);
-            GetCommandWriter()->WriteInitImageCmd(api_family_,
-                                                  device_wrapper->handle_id,
-                                                  img.handle_id,
-                                                  img.aspect,
-                                                  img.layout,
-                                                  img.level_count,
-                                                  level_sizes,
-                                                  resource_size,
-                                                  data);
-            WriteEndResourceInitCmd(device_wrapper->handle_id);
-        };
+        WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size, resource_size);
+        GetCommandWriter()->WriteInitImageCmd(api_family_,
+                                              device_wrapper->handle_id,
+                                              img.handle_id,
+                                              img.aspect,
+                                              img.layout,
+                                              img.level_count,
+                                              level_sizes,
+                                              resource_size,
+                                              data);
+        WriteEndResourceInitCmd(device_wrapper->handle_id);
+    };
 
     uint32_t num_staging_bytes = 0;
 
