@@ -3249,8 +3249,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                                        wrapper->tiling,
                                                                        aspect,
                                                                        nullptr,
-                                                                       &snapshot_info.level_sizes,
-                                                                       true);
+                                                                       &snapshot_info.level_sizes);
                     }
 
                     if (snapshot_info.need_staging_copy)
