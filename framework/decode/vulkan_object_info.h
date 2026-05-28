@@ -805,7 +805,7 @@ struct VulkanTensorARMInfo : public VulkanObjectInfo<VkTensorARM>
     VkFormat              format{};
     uint32_t              dimensionCount{};
     VkTensorUsageFlagsARM usage{};
-    std::vector<uint64_t> pDimensions{};
+    std::vector<int64_t>  pDimensions{};
     std::vector<int64_t>  pStrides{};
 
     VkDeviceSize size{ 0 };

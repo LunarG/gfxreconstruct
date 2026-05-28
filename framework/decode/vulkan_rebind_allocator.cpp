@@ -3764,16 +3764,26 @@ VulkanRebindAllocator::BindDataGraphPipelineSessionMemory(uint32_t bind_info_cou
             return result;
         }
 
-        mem_info.allocation      = allocation;
-        mem_info.allocation_info = alloc_info;
-        memory_alloc_info->vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
+        if (resource_alloc_info != nullptr && memory_alloc_info != nullptr)
+        {
+            mem_info.allocation      = allocation;
+            mem_info.allocation_info = alloc_info;
+            memory_alloc_info->vma_mem_infos.emplace_back(std::make_unique<VmaMemoryInfo>(mem_info));
 
-        UpdateAllocInfo(*resource_alloc_info,
-                        VK_HANDLE_TO_UINT64(session),
-                        MemoryInfoType::kDataGraphSession,
-                        *memory_alloc_info,
-                        *memory_alloc_info->vma_mem_infos.back(),
-                        bind_memory_properties[i]);
+            UpdateAllocInfo(*resource_alloc_info,
+                            VK_HANDLE_TO_UINT64(session),
+                            MemoryInfoType::kDataGraphSession,
+                            *memory_alloc_info,
+                            *memory_alloc_info->vma_mem_infos.back(),
+                            bind_memory_properties[i]);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("BindDataGraphPipelineSessionMemory[%u]: allocator data missing for session "
+                                 "or memory — VMA allocation cannot be tracked and will be freed.",
+                                 i);
+            vmaFreeMemory(allocator_, allocation);
+        }
 
         GFXRECON_LOG_DEBUG("BindDataGraphPipelineSessionMemory[%u]: SUCCESS session=0x%llx mem=0x%llx offset=%" PRIu64
                            " size=%" PRIu64,
@@ -3795,9 +3805,11 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if ((bind_infos != nullptr) && (allocator_tensor_datas != nullptr) && (allocator_memory_datas != nullptr) &&
-        (bind_memory_properties != nullptr))
+    if (bind_infos != nullptr && allocator_tensor_datas != nullptr && allocator_memory_datas != nullptr &&
+        bind_memory_properties != nullptr)
     {
+        result = VK_SUCCESS;
+
         for (uint32_t i = 0; i < bind_info_count; ++i)
         {
             VkTensorARM tensor                = bind_infos[i].tensor;
@@ -3850,7 +3862,6 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
             }
         }
     }
-
     return result;
 }
 

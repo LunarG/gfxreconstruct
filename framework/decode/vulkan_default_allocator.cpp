@@ -975,11 +975,16 @@ VulkanDefaultAllocator::CreateDataGraphPipelineSession(const VkDataGraphPipeline
 {
     if (allocator_data != nullptr)
     {
-        auto resource_alloc_info        = new ResourceAllocInfo;
-        resource_alloc_info->capture_id = capture_id;
-        (*allocator_data)               = reinterpret_cast<ResourceData>(resource_alloc_info);
-        return functions_.create_data_graph_pipeline_session(
+        VkResult result = functions_.create_data_graph_pipeline_session(
             device_, create_info, allocation_callbacks, data_graph_pipeline_session);
+
+        if (result >= 0)
+        {
+            auto resource_alloc_info        = new ResourceAllocInfo;
+            resource_alloc_info->capture_id = capture_id;
+            *allocator_data                 = reinterpret_cast<ResourceData>(resource_alloc_info);
+        }
+        return result;
     }
     return VK_ERROR_INITIALIZATION_FAILED;
 }
@@ -1004,10 +1009,15 @@ VkResult VulkanDefaultAllocator::CreateTensor(const VkTensorCreateInfoARM* creat
 {
     if (allocator_data != nullptr)
     {
-        auto resource_alloc_info        = new ResourceAllocInfo;
-        resource_alloc_info->capture_id = capture_id;
-        (*allocator_data)               = reinterpret_cast<ResourceData>(resource_alloc_info);
-        return functions_.create_tensor(device_, create_info, allocation_callbacks, tensor);
+        VkResult result = functions_.create_tensor(device_, create_info, allocation_callbacks, tensor);
+
+        if (result >= 0)
+        {
+            auto resource_alloc_info        = new ResourceAllocInfo;
+            resource_alloc_info->capture_id = capture_id;
+            *allocator_data                 = reinterpret_cast<ResourceData>(resource_alloc_info);
+        }
+        return result;
     }
     return VK_ERROR_INITIALIZATION_FAILED;
 }
