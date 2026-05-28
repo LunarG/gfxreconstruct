@@ -1794,16 +1794,24 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    void PostProcess_vkCreateTensorViewARM(VkResult,
+    void PostProcess_vkCreateTensorViewARM(VkResult                         result,
                                            VkDevice,
                                            const VkTensorViewCreateInfoARM* pCreateInfo,
                                            const VkAllocationCallbacks*,
                                            VkTensorViewARM* pView)
     {
+        if (!IsCaptureModeTrack() || (result != VK_SUCCESS))
+        {
+            return;
+        }
+
         auto view   = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(*pView);
         auto tensor = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorARMWrapper>(pCreateInfo->tensor);
-        tensor->tensor_views.insert(view);
-        view->tensor = tensor;
+        if ((view != nullptr) && (tensor != nullptr))
+        {
+            tensor->tensor_views.insert(view);
+            view->tensor = tensor;
+        }
     }
 
     CaptureSettings::TraceSettings GetDefaultTraceSettings() override { return layer_settings_; }

@@ -14418,8 +14418,12 @@ void VulkanReplayConsumerBase::OverrideGetTensorMemoryRequirementsARM(
     auto allocator = device_info->allocator.get();
     GFXRECON_ASSERT(allocator != nullptr);
     auto tensor_info = GetObjectInfoTable().GetVkTensorARMInfo(pInfo->GetMetaStructPointer()->tensor);
-    allocator->GetTensorMemoryRequirementsARM(
-        pInfo->GetPointer(), pMemoryRequirements->GetPointer(), tensor_info->allocator_data);
+    GFXRECON_ASSERT(tensor_info != nullptr);
+    if (tensor_info != nullptr)
+    {
+        allocator->GetTensorMemoryRequirementsARM(
+            pInfo->GetPointer(), pMemoryRequirements->GetPointer(), tensor_info->allocator_data);
+    }
 }
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

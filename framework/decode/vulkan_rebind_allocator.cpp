@@ -3811,7 +3811,8 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
                 VkDeviceSize   memory_offset       = bind_infos[i].memoryOffset;
                 VmaMemoryInfo* vma_mem_info        = nullptr;
 
-                result = AllocateMemoryForTensor(tensor,
+                const size_t vma_count_before = memory_alloc_info->vma_mem_infos.size();
+                result                        = AllocateMemoryForTensor(tensor,
                                                  memory_offset,
                                                  capture_memory_properties_,
                                                  *resource_alloc_info,
@@ -3837,6 +3838,13 @@ VkResult VulkanRebindAllocator::BindTensorMemory(uint32_t                       
                                         *memory_alloc_info,
                                         *vma_mem_info,
                                         bind_memory_properties[i]);
+                    }
+                    else if (memory_alloc_info->vma_mem_infos.size() > vma_count_before)
+                    {
+                        // AllocateMemoryForTensor made a new VMA allocation that was never
+                        // successfully bound; free it now to avoid a leak.
+                        vmaFreeMemory(allocator_, vma_mem_info->allocation);
+                        memory_alloc_info->vma_mem_infos.pop_back();
                     }
                 }
             }
