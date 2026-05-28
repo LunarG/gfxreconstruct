@@ -419,25 +419,6 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     }
 }
 
-void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)
-{
-    std::vector<format::HandleId> handles_to_delete;
-    handles_to_delete.reserve(dangling_create_descriptor_sets_.size());
-    for (format::HandleId handle : dangling_create_descriptor_sets_)
-    {
-        VulkanDescriptorSetInfo* info = GetObjectInfoTable().GetVkDescriptorSetInfo(handle);
-        if (info->pool_id == descriptorPool)
-        {
-            handles_to_delete.push_back(handle);
-        }
-    }
-
-    for (format::HandleId handle : handles_to_delete)
-    {
-        dangling_create_descriptor_sets_.erase(handle);
-    }
-}
-
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     const ApiCallInfo&                              call_info,
     VkResult                                        returnValue,
