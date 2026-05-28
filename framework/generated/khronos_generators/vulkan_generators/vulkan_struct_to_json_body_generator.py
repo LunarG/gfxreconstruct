@@ -91,9 +91,36 @@ class VulkanStructToJsonBodyGenerator(VulkanBaseGenerator, KhronosStructToJsonBo
         Indicates that the provided struct is a struct we want to decode"""
         return not struct in self.customImplementationRequired
 
+    def write_base_out_to_json_func(self):
+        entries = self.get_base_out_structure_type_info_list()
+
+        body = '\n'
+        body += 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBaseOutStructure* data)\n'
+        body += '{\n'
+        body += '    if (data && data->decoded_value)\n'
+        body += '    {\n'
+        body += '        const auto& decoded_value = *data->decoded_value;\n'
+        body += '        switch (decoded_value.sType)\n'
+        body += '        {\n'
+        for child, struct_type in entries:
+            body += '            case {}:\n'.format(struct_type)
+            body += '                FieldToJson(jdata, reinterpret_cast<const Decoded_{}*>(data));\n'.format(child)
+            body += '                return;\n'
+        body += '            default:\n'
+        body += '                break;\n'
+        body += '        }\n'
+        body += '\n'
+        body += '        const auto& meta_struct = *data;\n'
+        body += '        jdata["sType"] = decoded_value.sType;\n'
+        body += '        FieldToJson(jdata["pNext"], meta_struct.pNext);\n'
+        body += '    }\n'
+        body += '}\n'
+        write(body, file=self.outFile)
+
     # Method override
     def endFile(self):
         KhronosStructToJsonBodyGenerator.write_body_contents(self)
+        self.write_base_out_to_json_func()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)

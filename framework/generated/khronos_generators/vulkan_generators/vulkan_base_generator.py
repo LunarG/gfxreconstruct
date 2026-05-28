@@ -226,6 +226,30 @@ class VulkanBaseGenerator(KhronosBaseGenerator):
     Base class for Vulkan API parameter encoding and decoding generators.
     """
 
+    BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES = {
+        ('vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM', 'pProperties'): (
+            'VkQueueFamilyDataGraphOpticalFlowPropertiesARM',
+            'VkQueueFamilyDataGraphProcessingEnginePropertiesARM',
+        ),
+    }
+
+    def get_base_out_structure_type_info_overrides(self):
+        return self.BASE_OUT_STRUCTURE_TYPE_INFO_OVERRIDES
+
+    def get_base_out_structure_type_info_list(self):
+        entries = []
+        seen = set()
+
+        for structs in self.get_base_out_structure_type_info_overrides().values():
+            for struct in structs:
+                if not struct or struct in seen or struct not in self.struct_type_names:
+                    continue
+
+                seen.add(struct)
+                entries.append((struct, self.struct_type_names[struct]))
+
+        return entries
+
     def __init__(
         self,
         err_file=sys.stderr,

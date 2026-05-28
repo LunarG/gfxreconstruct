@@ -25,15 +25,14 @@
     "vkGetImageViewOpaqueCaptureDescriptorDataEXT",
     "vkGetSamplerOpaqueCaptureDescriptorDataEXT",
     "vkGetTensorOpaqueCaptureDescriptorDataARM",
-    "vkGetTensorViewOpaqueCaptureDescriptorDataARM",
-    "vkCreateDataGraphPipelinesARM",
-    "vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM"
+    "vkGetTensorViewOpaqueCaptureDescriptorDataARM"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
     "vkCreateGraphicsPipelines",
     "vkCreateRayTracingPipelinesNV",
-    "vkCreateRayTracingPipelinesKHR"
+    "vkCreateRayTracingPipelinesKHR",
+    "vkCreateDataGraphPipelinesARM"
   ],
   "functions-decoder": [
     "vkDeferredOperationJoinKHR"
