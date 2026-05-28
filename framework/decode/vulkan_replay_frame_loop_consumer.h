@@ -50,6 +50,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
                                      HandlePointerDecoder<VkCommandPool>*                   pCommandPool) override;
 
+    void Process_vkCreateDescriptorPool(const ApiCallInfo&                                        call_info,
+                                        VkResult                                                  returnValue,
+                                        format::HandleId                                          device,
+                                        StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                        HandlePointerDecoder<VkDescriptorPool>*                   pDescriptorPool) override;
+
     void Process_vkDestroyDescriptorPool(const ApiCallInfo&                                   call_info,
                                          format::HandleId                                     device,
                                          format::HandleId                                     descriptorPool,
@@ -78,6 +85,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                    VkResult                                        returnValue,
                                    format::HandleId                                queue,
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
+
+  private:
+    void DeleteDanglingPoolDescriptorSets(format::HandleId descriptorPool);
 
   private:
     graphics::FrameLoopInfo&             frame_loop_info_;
