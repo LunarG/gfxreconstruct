@@ -1070,17 +1070,5 @@ vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptur
     return VK_SUCCESS;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
-    VkPhysicalDevice                     physicalDevice,
-    uint32_t                             queueFamilyIndex,
-    VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties,
-    VkBaseOutStructure*                  pProperties)
-{
-    // Not captured; call through to the instance table directly.
-    auto instance_table = vulkan_wrappers::GetInstanceTable(physicalDevice);
-    return instance_table->GetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
-        physicalDevice, queueFamilyIndex, pQueueFamilyDataGraphProperties, pProperties);
-}
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

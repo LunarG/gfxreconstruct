@@ -134,12 +134,6 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDescriptorDataARM(VkDevic
 VKAPI_ATTR VkResult VKAPI_CALL
 vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptureDescriptorDataInfoARM*, void*);
 
-VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM(
-    VkPhysicalDevice                     physicalDevice,
-    uint32_t                             queueFamilyIndex,
-    VkQueueFamilyDataGraphPropertiesARM* pQueueFamilyDataGraphProperties,
-    VkBaseOutStructure*                  pProperties);
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

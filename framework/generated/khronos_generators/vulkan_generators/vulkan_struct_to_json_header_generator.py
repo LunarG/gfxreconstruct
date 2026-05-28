@@ -82,9 +82,14 @@ class VulkanStructToJsonHeaderGenerator(
         return not struct in self.customImplementationRequired
 
 
+    def write_base_out_to_json_func(self):
+        write('void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBaseOutStructure* data);',
+              file=self.outFile)
+
     # Method override
     def endFile(self):
         KhronosStructToJsonHeaderGenerator.write_header_contents(self)
+        self.write_base_out_to_json_func()
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
