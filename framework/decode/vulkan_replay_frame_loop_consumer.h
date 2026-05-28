@@ -55,18 +55,18 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                         format::HandleId                                          device,
                                         StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
-                                        HandlePointerDecoder<VkDescriptorPool>*                   pDescriptorPool) override;
+                                        HandlePointerDecoder<VkDescriptorPool>* pDescriptorPool) override;
 
     void Process_vkDestroyDescriptorPool(const ApiCallInfo&                                   call_info,
                                          format::HandleId                                     device,
                                          format::HandleId                                     descriptorPool,
                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
-    void Process_vkResetDescriptorPool(const ApiCallInfo&                          call_info,
-                                       VkResult                                    returnValue,
-                                       format::HandleId                            device,
-                                       format::HandleId                            descriptorPool,
-                                       VkDescriptorPoolResetFlags                  flags) override;
+    void Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
+                                       VkResult                   returnValue,
+                                       format::HandleId           device,
+                                       format::HandleId           descriptorPool,
+                                       VkDescriptorPoolResetFlags flags) override;
 
     void Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
                                           VkResult                                                   returnValue,
@@ -74,12 +74,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                           StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                           HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    void Process_vkFreeDescriptorSets(const ApiCallInfo&                          call_info,
-                                      VkResult                                    returnValue,
-                                      format::HandleId                            device,
-                                      format::HandleId                            descriptorPool,
-                                      uint32_t                                    descriptorSetCount,
-                                      HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets) override;
+    void Process_vkFreeDescriptorSets(const ApiCallInfo&                     call_info,
+                                      VkResult                               returnValue,
+                                      format::HandleId                       device,
+                                      format::HandleId                       descriptorPool,
+                                      uint32_t                               descriptorSetCount,
+                                      HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
     void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
                                    VkResult                                        returnValue,

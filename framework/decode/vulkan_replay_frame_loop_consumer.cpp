@@ -108,7 +108,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(
         {
             // Created and destroyed during the loop range
             dangling_descriptor_pools_.erase(descriptorPool);
-    
+
             // Check if this was the pool for any heretofore dangling descriptors
             DeleteDanglingPoolDescriptorSets(descriptorPool);
         }
@@ -116,12 +116,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(
     VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, device, descriptorPool, pAllocator);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            descriptorPool,
-    VkDescriptorPoolResetFlags                  flags)
+void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallInfo&                          call_info,
+                                                                  VkResult                                    returnValue,
+                                                                  format::HandleId                            device,
+                                                                  format::HandleId                            descriptorPool,
+                                                                  VkDescriptorPoolResetFlags                  flags)
 {
     if (frame_loop_info_.IsRepetition())
     {
@@ -180,13 +179,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            descriptorPool,
-    uint32_t                                    descriptorSetCount,
-    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
+void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallInfo&                          call_info,
+                                                                 VkResult                                    returnValue,
+                                                                 format::HandleId                            device,
+                                                                 format::HandleId                            descriptorPool,
+                                                                 uint32_t                                    descriptorSetCount,
+                                                                 HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
     if (frame_loop_info_.IsRepetition())
     {
