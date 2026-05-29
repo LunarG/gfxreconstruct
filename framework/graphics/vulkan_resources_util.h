@@ -41,12 +41,6 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 class VulkanResourcesUtil
 {
-    enum CopyBufferImageDirection
-    {
-        kBufferToImage = 0,
-        kImageToBuffer
-    };
-
   public:
     VulkanResourcesUtil() = delete;
 
@@ -234,18 +228,17 @@ class VulkanResourcesUtil
                                             VkImageLayout      new_layout,
                                             VkImageAspectFlags aspect);
 
-    void CopyImageBuffer(VkCommandBuffer              command_buffer,
-                         VkImage                      image,
-                         VkFormat                     format,
-                         VkBuffer                     buffer,
-                         VkDeviceSize                 buffer_offset,
-                         const VkExtent3D&            extent,
-                         uint32_t                     mip_levels,
-                         uint32_t                     array_layers,
-                         VkImageAspectFlags           aspect,
-                         const std::vector<uint64_t>& sizes,
-                         bool                         is_dump_resources,
-                         CopyBufferImageDirection     copy_direction);
+    void CopyImageToBuffer(VkCommandBuffer              command_buffer,
+                           VkImage                      image,
+                           VkFormat                     format,
+                           VkBuffer                     buffer,
+                           VkDeviceSize                 buffer_offset,
+                           const VkExtent3D&            extent,
+                           uint32_t                     mip_levels,
+                           uint32_t                     array_layers,
+                           VkImageAspectFlags           aspect,
+                           const std::vector<uint64_t>& sizes,
+                           bool                         is_dump_resources);
 
     void CopyBuffer(VkCommandBuffer command_buffer,
                     VkBuffer        source_buffer,

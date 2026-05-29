@@ -1361,18 +1361,17 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
                                      &memory_barrier);
 }
 
-void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_buffer,
-                                          VkImage                      image,
-                                          VkFormat                     format,
-                                          VkBuffer                     buffer,
-                                          VkDeviceSize                 buffer_offset,
-                                          const VkExtent3D&            extent,
-                                          uint32_t                     mip_levels,
-                                          uint32_t                     array_layers,
-                                          VkImageAspectFlags           aspect,
-                                          const std::vector<uint64_t>& sizes,
-                                          bool                         is_dump_resources,
-                                          CopyBufferImageDirection     copy_direction)
+void VulkanResourcesUtil::CopyImageToBuffer(VkCommandBuffer              command_buffer,
+                                            VkImage                      image,
+                                            VkFormat                     format,
+                                            VkBuffer                     buffer,
+                                            VkDeviceSize                 buffer_offset,
+                                            const VkExtent3D&            extent,
+                                            uint32_t                     mip_levels,
+                                            uint32_t                     array_layers,
+                                            VkImageAspectFlags           aspect,
+                                            const std::vector<uint64_t>& sizes,
+                                            bool                         is_dump_resources)
 {
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
@@ -1416,26 +1415,12 @@ void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_b
     }
     GFXRECON_ASSERT(sr == n_subresources);
 
-    if (copy_direction == kImageToBuffer)
-    {
-        device_table_.CmdCopyImageToBuffer(command_buffer,
-                                           image,
-                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                           buffer,
-                                           static_cast<uint32_t>(copy_regions.size()),
-                                           copy_regions.data());
-    }
-    else
-    {
-        GFXRECON_ASSERT(copy_direction == kBufferToImage);
-
-        device_table_.CmdCopyBufferToImage(command_buffer,
-                                           buffer,
-                                           image,
-                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                           static_cast<uint32_t>(copy_regions.size()),
-                                           copy_regions.data());
-    }
+    device_table_.CmdCopyImageToBuffer(command_buffer,
+                                       image,
+                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                       buffer,
+                                       static_cast<uint32_t>(copy_regions.size()),
+                                       copy_regions.data());
 }
 
 void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
@@ -2006,18 +1991,17 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
             if (!img.external_format)
             {
-                CopyImageBuffer(command_buffer,
-                                copy_image,
-                                tmp_data[i].use_blit ? dst_format : img.format,
-                                staging_buffer_.buffer,
-                                tmp_data[i].staging_offset,
-                                tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
-                                img.level_count,
-                                img.layer_count,
-                                img.aspect,
-                                img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
-                                img.dump_resources,
-                                kImageToBuffer);
+                CopyImageToBuffer(command_buffer,
+                                  copy_image,
+                                  tmp_data[i].use_blit ? dst_format : img.format,
+                                  staging_buffer_.buffer,
+                                  tmp_data[i].staging_offset,
+                                  tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
+                                  img.level_count,
+                                  img.layer_count,
+                                  img.aspect,
+                                  img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
+                                  img.dump_resources);
             }
 
             // Cache flushing barrier. Make results visible to host
