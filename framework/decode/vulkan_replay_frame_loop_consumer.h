@@ -91,6 +91,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
   private:
     graphics::FrameLoopInfo&             frame_loop_info_;
+
+    /// A "dangling" resource is one that was either
+    /// - created during the loop range but destroyed after it
+    /// - or created before the loop range but destroyed during it
     std::unordered_set<format::HandleId> dangling_descriptor_pools_;
     std::unordered_set<format::HandleId> dangling_descriptor_sets_;
 };
