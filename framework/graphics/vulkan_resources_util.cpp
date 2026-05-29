@@ -1397,9 +1397,7 @@ void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_b
     for (uint32_t m = 0; m < mip_levels; ++m)
     {
         copy_region.imageSubresource.mipLevel = m;
-        copy_region.imageExtent.width         = std::max(1u, (extent.width >> m));
-        copy_region.imageExtent.height        = std::max(1u, (extent.height >> m));
-        copy_region.imageExtent.depth         = std::max(1u, (extent.depth >> m));
+        copy_region.imageExtent               = graphics::ScaleToMipLevel(extent, m);
 
         for (uint32_t l = 0; l < array_layers; ++l)
         {
@@ -1838,11 +1836,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         tmp_data[i].use_blit =
             (img.format != dst_format && blit_supported) || (img.scale != 1.0f && tmp_data[i].scaling_supported);
 
-        tmp_data[i].scaled_extent = {
-            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.width) * img.scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.height) * img.scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.depth) * img.scale, 1.0f))
-        };
+        tmp_data[i].scaled_extent = graphics::ScaleExtent(img.extent, img.scale);
 
         uint64_t resource_size = img.resource_size;
 
