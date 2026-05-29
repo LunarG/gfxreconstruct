@@ -155,10 +155,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
     if (frame_loop_info_.IsRepetition())
     {
         // Skip allocation of dangling descriptor sets
-        const format::HandleId* set_handles = pDescriptorSets->GetPointer();
-        for (int i = 0; i < pDescriptorSets->GetLength(); ++i)
+        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
-            if (dangling_descriptor_sets_.contains(set_handles[i]))
+            if (dangling_descriptor_sets_.contains(set_handle))
             {
                 return;
             }
@@ -171,10 +170,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         // During first iteration of looping range, record which descriptor sets are allocated
-        const format::HandleId* set_handles = pDescriptorSets->GetPointer();
-        for (int i = 0; i < pDescriptorSets->GetLength(); ++i)
+        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
-            dangling_descriptor_sets_.insert(set_handles[i]);
+            dangling_descriptor_sets_.insert(set_handle);
         }
     }
 }
@@ -190,10 +188,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
     {
         // If any of the descriptor sets are _not_ in the dangling list,
         // then we want to omit their destruction
-        const format::HandleId* handles = pDescriptorSets->GetPointer();
-        for (int i = 0; i < descriptorSetCount; ++i)
+        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
-            if (!dangling_descriptor_sets_.contains(handles[i]))
+            if (!dangling_descriptor_sets_.contains(set_handle))
             {
                 return;
             }
@@ -205,18 +202,17 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
-        const format::HandleId* handles = pDescriptorSets->GetPointer();
-        for (int i = 0; i < descriptorSetCount; ++i)
+        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
-            if (dangling_descriptor_sets_.contains(handles[i]))
+            if (dangling_descriptor_sets_.contains(set_handle))
             {
                 // Any descriptor set that was freed during the loop range is not dangling
-                dangling_descriptor_sets_.erase(handles[i]);
+                dangling_descriptor_sets_.erase(set_handle);
             }
             else
             {
                 // Descriptor set freed during loop range but created before
-                dangling_descriptor_sets_.insert(handles[i]);
+                dangling_descriptor_sets_.insert(set_handle);
             }
         }
     }
