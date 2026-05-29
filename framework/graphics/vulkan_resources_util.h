@@ -81,15 +81,16 @@ class VulkanResourcesUtil
                                           std::vector<uint64_t>* subresource_offsets = nullptr,
                                           std::vector<uint64_t>* subresource_sizes   = nullptr);
 
-    // Behaves exactly like GetImageResourceSizesOptimal but returns the image subresources sizes for a tightly packed
-    // image with linear tiling (no hardware imposed alignments)
-    uint64_t GetImageResourceSizesLinear(VkFormat               format,
-                                         const VkExtent3D&      extent,
-                                         uint32_t               mip_levels,
-                                         uint32_t               array_layers,
-                                         VkImageAspectFlagBits  aspect,
-                                         std::vector<uint64_t>& subresource_offsets,
-                                         std::vector<uint64_t>& subresource_sizes);
+    // Behaves like GetImageResourceSizesOptimal but returns the image subresources sizes for a tightly packed
+    // image with linear tiling (no hardware imposed alignments). Additionally treats the z indices of 3D images as
+    // separate subresources and creates separate entries in subresource_offsets and subresource_sizes
+    uint64_t GetImageSubresourceSizesDumpResources(VkFormat               format,
+                                                   const VkExtent3D&      extent,
+                                                   uint32_t               mip_levels,
+                                                   uint32_t               array_layers,
+                                                   VkImageAspectFlagBits  aspect,
+                                                   std::vector<uint64_t>& subresource_offsets,
+                                                   std::vector<uint64_t>& subresource_sizes);
 
     //! aggregate type to group information about an image-resource
     struct ImageResource
@@ -114,10 +115,10 @@ class VulkanResourcesUtil
         //! optionally provide sizes of sub-resources (mipmap-levels)
         const std::vector<VkDeviceSize>* level_sizes = nullptr;
 
-        VkImageAspectFlagBits aspect               = VK_IMAGE_ASPECT_NONE;
-        bool                  all_layers_per_level = false;
-        float                 scale                = 1.0f;
-        VkFormat              dst_format           = VK_FORMAT_UNDEFINED;
+        VkImageAspectFlagBits aspect         = VK_IMAGE_ASPECT_NONE;
+        bool                  dump_resources = false;
+        float                 scale          = 1.0f;
+        VkFormat              dst_format     = VK_FORMAT_UNDEFINED;
     };
 
     //! signature for a callback-function, providing an ImageResource and a corresponding data-pointer
@@ -243,7 +244,7 @@ class VulkanResourcesUtil
                          uint32_t                     array_layers,
                          VkImageAspectFlags           aspect,
                          const std::vector<uint64_t>& sizes,
-                         bool                         all_layers_per_level,
+                         bool                         is_dump_resources,
                          CopyBufferImageDirection     copy_direction);
 
     void CopyBuffer(VkCommandBuffer command_buffer,

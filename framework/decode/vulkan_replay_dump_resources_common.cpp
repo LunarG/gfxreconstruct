@@ -392,8 +392,12 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
 
-    const uint32_t total_subresources = GFXRECON_NARROWING_CAST(
-        uint32_t, (aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount)));
+    const VkExtent3D scaled_extent =
+        (scale != 1.0f && scaling_supported) ? graphics::ScaleExtent(image_info->extent, scale) : image_info->extent;
+
+    const bool     is_3d              = image_info->type == VK_IMAGE_TYPE_3D;
+    const uint32_t total_subresources = static_cast<uint32_t>(aspects.size()) * modified_subresource_range.levelCount *
+                                        (is_3d ? scaled_extent.depth : modified_subresource_range.layerCount);
 
     data.resize(total_subresources);
 
@@ -416,27 +420,22 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
         image_resource.tiling                                       = image_info->tiling;
         image_resource.sample_count                                 = image_info->sample_count;
         image_resource.layout = (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout;
-        image_resource.queue_family_index   = image_info->queue_family_index;
-        image_resource.external_format      = image_info->external_format;
-        image_resource.size                 = image_info->size;
-        image_resource.level_sizes          = &subresource_sizes;
-        image_resource.aspect               = aspect;
-        image_resource.scale                = scale;
-        image_resource.dst_format           = dst_format;
-        image_resource.all_layers_per_level = false;
+        image_resource.queue_family_index = image_info->queue_family_index;
+        image_resource.external_format    = image_info->external_format;
+        image_resource.size               = image_info->size;
+        image_resource.level_sizes        = &subresource_sizes;
+        image_resource.aspect             = aspect;
+        image_resource.scale              = scale;
+        image_resource.dst_format         = dst_format;
+        image_resource.dump_resources     = true;
 
-        const VkExtent3D scaled_extent = (scale != 1.0f && scaling_supported)
-                                             ? graphics::ScaleExtent(image_info->extent, scale)
-                                             : image_info->extent;
-
-        image_resource.resource_size =
-            resource_util.GetImageResourceSizesLinear(dst_format,
-                                                      scaling_supported ? scaled_extent : image_info->extent,
-                                                      image_info->level_count,
-                                                      image_info->layer_count,
-                                                      aspect,
-                                                      subresource_offsets,
-                                                      subresource_sizes);
+        image_resource.resource_size = resource_util.GetImageSubresourceSizesDumpResources(dst_format,
+                                                                                           scaled_extent,
+                                                                                           image_info->level_count,
+                                                                                           image_info->layer_count,
+                                                                                           aspect,
+                                                                                           subresource_offsets,
+                                                                                           subresource_sizes);
 
         if (!image_resource.resource_size)
         {
@@ -465,17 +464,19 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
              mip < modified_subresource_range.baseMipLevel + modified_subresource_range.levelCount;
              ++mip)
         {
-            for (uint32_t layer = modified_subresource_range.baseArrayLayer;
-                 layer < modified_subresource_range.baseArrayLayer + modified_subresource_range.layerCount;
-                 ++layer)
+            const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
+            const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
+
+            const uint32_t start = is_3d ? 0 : modified_subresource_range.baseArrayLayer;
+            const uint32_t end =
+                is_3d ? scaled_extent.depth
+                      : (modified_subresource_range.baseArrayLayer + modified_subresource_range.layerCount);
+            for (uint32_t z = start; z < end; ++z)
             {
-                const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
-                const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
-
                 dumped_image.dumped_subresources.emplace_back(
-                    aspect, subresource_extent, subresource_scaled_extent, mip, layer);
+                    aspect, subresource_extent, subresource_scaled_extent, mip, is_3d ? 0 : z, is_3d ? z : 0);
 
-                const uint32_t sub_res_idx = mip * image_info->layer_count + layer;
+                const uint32_t sub_res_idx = (mip * (is_3d ? image_info->extent.depth : image_info->layer_count)) + z;
                 const void*    offsetted_data =
                     reinterpret_cast<const void*>(raw_data.data() + subresource_offsets[sub_res_idx]);
 
