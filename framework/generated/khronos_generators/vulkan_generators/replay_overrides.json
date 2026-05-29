@@ -19,6 +19,7 @@
     "vkGetDeviceQueue2": "OverrideGetDeviceQueue2",
     "vkWaitForFences": "OverrideWaitForFences",
     "vkGetFenceStatus": "OverrideGetFenceStatus",
+    "vkGetEventStatus": "OverrideGetEventStatus",
     "vkGetQueryPoolResults": "OverrideGetQueryPoolResults",
     "vkQueueSubmit": "OverrideQueueSubmit",
     "vkQueueSubmit2": "OverrideQueueSubmit2",
