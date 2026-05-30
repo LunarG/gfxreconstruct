@@ -319,6 +319,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
     const bool has_alpha = vkuFormatHasAlpha(image_info->format);
 
     GFXRECON_ASSERT(!dumped_image.dumped_subresources.empty());
+    GFXRECON_ASSERT(image_dumped_data.size() == dumped_image.dumped_subresources.size());
 
     for (size_t i = 0; i < dumped_image.dumped_subresources.size(); ++i)
     {

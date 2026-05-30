@@ -471,7 +471,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
             const uint32_t start =
                 is_3d ? modified_subresource_range.base_z : modified_subresource_range.base_array_layer;
             const uint32_t end =
-                is_3d ? modified_subresource_range.z_count
+                is_3d ? (modified_subresource_range.base_z + modified_subresource_range.z_count)
                       : (modified_subresource_range.base_array_layer + modified_subresource_range.layer_count);
             for (uint32_t z = start; z < end; ++z)
             {
