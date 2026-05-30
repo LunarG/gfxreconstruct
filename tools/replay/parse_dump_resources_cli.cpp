@@ -332,7 +332,11 @@ static uint32_t ExtractAndFilterSubresourceRange(const json_iterator json_it,
                                                  uint32_t            ai)
 {
     uint32_t count;
-    if (json_it[range_name].is_number())
+    if (!json_it.contains(range_name))
+    {
+        count = std::numeric_limits<uint32_t>::max();
+    }
+    else if (json_it[range_name].is_number())
     {
         count = json_it[range_name];
     }
@@ -409,9 +413,9 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                 {
                     const auto&              range      = sr["SubresourceRange"];
                     const VkImageAspectFlags aspect     = StrToImageAspectFlagBits(range["AspectMask"]);
-                    const uint32_t           base_level = range["BaseMipLevel"];
-                    const uint32_t           base_layer = range["BaseArrayLayer"];
-                    const uint32_t           base_z     = range["BaseZIndex"];
+                    const uint32_t           base_level = range.value("BaseMipLevel", 0u);
+                    const uint32_t           base_layer = range.value("BaseArrayLayer", 0u);
+                    const uint32_t           base_z     = range.value("BaseZIndex", 0u);
 
                     const uint32_t level_count = ExtractAndFilterSubresourceRange(
                         range, "LevelCount", "VK_REMAINING_MIP_LEVELS", cmd_index, set, binding, ai);
