@@ -392,8 +392,9 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     std::vector<VkImageAspectFlagBits> aspects;
     graphics::AspectFlagsToFlagBits(modified_subresource_range.aspect_mask, aspects);
 
-    const VkExtent3D scaled_extent =
-        (scale != 1.0f && scaling_supported) ? graphics::ScaleExtent(image_info->extent, scale) : image_info->extent;
+    const VkExtent3D scaled_extent = (scale != 1.0f && scaling_supported)
+                                         ? graphics::ScaleExtent3DNoDepth(image_info->extent, scale)
+                                         : image_info->extent;
 
     const bool     is_3d = image_info->type == VK_IMAGE_TYPE_3D;
     const uint32_t total_subresources =

@@ -1819,7 +1819,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             (img.format != dst_format && blit_supported) || (img.scale != 1.0f && tmp_data[i].scaling_supported);
 
         GFXRECON_ASSERT((!img.dump_resources && img.scale == 1.0f) || (img.dump_resources));
-        tmp_data[i].scaled_extent = graphics::ScaleExtent(img.extent, img.scale);
+        tmp_data[i].scaled_extent = graphics::ScaleExtent3DNoDepth(img.extent, img.scale);
 
         uint64_t resource_size = img.resource_size;
 
@@ -2650,7 +2650,7 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
                                                                0,
                                                                &dst_img_format_props);
 
-        const VkExtent3D scaled_extent = graphics::ScaleExtent(extent, scale);
+        const VkExtent3D scaled_extent = graphics::ScaleExtent3DNoDepth(extent, scale);
         if ((dst_img_format_props.maxExtent.width < scaled_extent.width) ||
             (dst_img_format_props.maxExtent.height < scaled_extent.height) ||
             (dst_img_format_props.maxExtent.depth < scaled_extent.depth))
