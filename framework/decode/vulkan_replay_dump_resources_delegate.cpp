@@ -1990,22 +1990,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
         gfxrecon::decode::DumpBufferToFile(
             dumped_init_buffer->dumped_buffer, filename, init_buffer_host_data->data, delegate_context.compressor);
     }
-    else if (const auto* init_image_host_data =
-                 std::get_if<VulkanDelegateImageDumpedData>(&dumped_transfer_host_data->dumped_data))
-    {
-        const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
-        GFXRECON_ASSERT(resource_info->type == DumpResourceType::kInitImageMetaCommand);
-
-        auto* dumped_init_image = std::get_if<DumpedInitImageMetaCommand>(&dumped_transfer_command->dumped_resource);
-        GFXRECON_ASSERT(dumped_init_image != nullptr);
-
-        DumpImageToFile(delegate_context.dumped_resource,
-                        dumped_init_image->dumped_image,
-                        init_image_host_data->data,
-                        &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                        delegate_context.before_command,
-                        delegate_context.compressor);
-    }
     else if (const auto* buffer_copy_host_data =
                  std::get_if<VulkanDelegateDumpedCopyBufferRegions>(&dumped_transfer_host_data->dumped_data))
     {
@@ -2054,7 +2038,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
         }
     }
     else if (const auto* image_copy_host_data =
-                 std::get_if<VulkanDelegateDumpedCopyImageRegions>(&dumped_transfer_host_data->dumped_data))
+                 std::get_if<VulkanDelegateImageDumpedData>(&dumped_transfer_host_data->dumped_data))
     {
         const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
         if (resource_info->type == DumpResourceType::kCopyBufferToImage)
@@ -2064,16 +2048,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                                 : &dumped_transfer_command->dumped_resource);
             GFXRECON_ASSERT(dumped_copy_buffer_to_image != nullptr);
 
-            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_copy_buffer_to_image->regions.size());
-            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
-            {
-                DumpImageToFile(delegate_context.dumped_resource,
-                                dumped_copy_buffer_to_image->regions[i].dumped_image,
-                                image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                                delegate_context.before_command,
-                                delegate_context.compressor);
-            }
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_copy_buffer_to_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
         }
         else if (resource_info->type == DumpResourceType::kCopyImage)
         {
@@ -2082,16 +2062,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                                 : &dumped_transfer_command->dumped_resource);
             GFXRECON_ASSERT(dumped_copy_image != nullptr);
 
-            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_copy_image->regions.size());
-            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
-            {
-                DumpImageToFile(delegate_context.dumped_resource,
-                                dumped_copy_image->regions[i].dumped_image,
-                                image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                                delegate_context.before_command,
-                                delegate_context.compressor);
-            }
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_copy_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
         }
         else if (resource_info->type == DumpResourceType::kBlitImage)
         {
@@ -2100,16 +2076,25 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                                 : &dumped_transfer_command->dumped_resource);
             GFXRECON_ASSERT(dumped_blit_image != nullptr);
 
-            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_blit_image->regions.size());
-            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
-            {
-                DumpImageToFile(delegate_context.dumped_resource,
-                                dumped_blit_image->regions[i].dumped_image,
-                                image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                                delegate_context.before_command,
-                                delegate_context.compressor);
-            }
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_blit_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
+        }
+        else if (resource_info->type == DumpResourceType::kInitImageMetaCommand)
+        {
+            auto* dumped_init_image =
+                std::get_if<DumpedInitImageMetaCommand>(&dumped_transfer_command->dumped_resource);
+            GFXRECON_ASSERT(dumped_init_image != nullptr);
+
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_init_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
         }
     }
     else if (const auto* build_as_host_data =
@@ -2283,38 +2268,33 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferToImageComm
         img_offset["y"]  = region.imageOffset.y;
         img_offset["z"]  = region.imageOffset.z;
 
-        auto& img_extent = region_entry["imageOffset"];
-        img_offset["x"]  = region.imageOffset.x;
-        img_offset["y"]  = region.imageOffset.y;
-        img_offset["z"]  = region.imageOffset.z;
+        auto& img_extent     = region_entry["imageExtent"];
+        img_extent["width"]  = region.imageExtent.width;
+        img_extent["height"] = region.imageExtent.height;
+        img_extent["depth"]  = region.imageExtent.depth;
+    }
 
-        auto& extent     = region_entry["imageExtent"];
-        extent["width"]  = region.imageExtent.width;
-        extent["height"] = region.imageExtent.height;
-        extent["depth"]  = region.imageExtent.depth;
+    auto& copied_image_json_entry = json_entry["dstImage"]["subresources"];
+    for (size_t sr = 0; sr < copy_buffer_to_image->dumped_image.dumped_subresources.size(); ++sr)
+    {
+        const auto& dumped_image_sub_resource = copy_buffer_to_image->dumped_image.dumped_subresources[sr];
+        dump_json_.InsertImageSubresourceInfo(copied_image_json_entry[sr],
+                                              dumped_image_sub_resource,
+                                              copy_buffer_to_image->dumped_image.image_info->format,
+                                              options_.dump_resources_dump_separate_alpha,
+                                              copy_buffer_to_image->dumped_image.dumped_raw);
 
-        auto& subresource_json_entry = region_entry["subresources"];
-        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+        if (cmd.has_before)
         {
-            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                  dumped_image_sub_resource,
-                                                  region.dumped_image.image_info->format,
-                                                  options_.dump_resources_dump_separate_alpha,
-                                                  region.dumped_image.dumped_raw);
+            const auto* copy_image_before = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(copy_image_before != nullptr);
 
-            if (cmd.has_before)
-            {
-                const auto* copy_image_before = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource_before);
-                GFXRECON_ASSERT(copy_image_before != nullptr);
-                const auto& region_before                    = copy_image_before->regions[i];
-                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
-                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                            dumped_image_sub_resource_before,
-                                                            region_before.dumped_image.image_info->format,
-                                                            options_.dump_resources_dump_separate_alpha,
-                                                            region_before.dumped_image.dumped_raw);
-            }
+            const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
+            dump_json_.InsertBeforeImageSubresourceInfo(copied_image_json_entry[sr],
+                                                        dumped_image_sub_resource_before,
+                                                        copy_image_before->dumped_image.image_info->format,
+                                                        options_.dump_resources_dump_separate_alpha,
+                                                        copy_image_before->dumped_image.dumped_raw);
         }
     }
 }
@@ -2336,9 +2316,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageCommand(cons
     auto& regions_entries = json_entry["regions"];
     for (size_t i = 0; i < copy_image->regions.size(); ++i)
     {
-        const auto& region          = copy_image->regions[i];
-        auto&       region_entry    = regions_entries[i];
-        auto&       src_subresource = region_entry["srcSubresource"];
+        const auto& region = copy_image->regions[i];
+
+        auto& region_entry    = regions_entries[i];
+        auto& src_subresource = region_entry["srcSubresource"];
         src_subresource["aspectMask"] =
             util::ToString(static_cast<VkImageAspectFlagBits>(region.srcSubresource.aspectMask));
         src_subresource["mipLevel"]       = region.srcSubresource.mipLevel;
@@ -2366,29 +2347,29 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageCommand(cons
         extent["width"]  = region.extent.width;
         extent["height"] = region.extent.height;
         extent["depth"]  = region.extent.depth;
+    }
 
-        auto& subresource_json_entry = region_entry["subresources"];
-        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+    auto& subresource_json_entry = json_entry["dstImage"]["subresources"];
+    for (size_t sr = 0; sr < copy_image->dumped_image.dumped_subresources.size(); ++sr)
+    {
+        const auto& dumped_image_sub_resource = copy_image->dumped_image.dumped_subresources[sr];
+        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                              dumped_image_sub_resource,
+                                              copy_image->dumped_image.image_info->format,
+                                              options_.dump_resources_dump_separate_alpha,
+                                              copy_image->dumped_image.dumped_raw);
+
+        if (cmd.has_before)
         {
-            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                  dumped_image_sub_resource,
-                                                  region.dumped_image.image_info->format,
-                                                  options_.dump_resources_dump_separate_alpha,
-                                                  region.dumped_image.dumped_raw);
+            const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(copy_image_before != nullptr);
 
-            if (cmd.has_before)
-            {
-                const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
-                GFXRECON_ASSERT(copy_image_before != nullptr);
-                const auto& region_before                    = copy_image_before->regions[i];
-                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
-                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                            dumped_image_sub_resource_before,
-                                                            region_before.dumped_image.image_info->format,
-                                                            options_.dump_resources_dump_separate_alpha,
-                                                            region_before.dumped_image.dumped_raw);
-            }
+            const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
+            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                        dumped_image_sub_resource_before,
+                                                        copy_image_before->dumped_image.image_info->format,
+                                                        options_.dump_resources_dump_separate_alpha,
+                                                        copy_image_before->dumped_image.dumped_raw);
         }
     }
 }
@@ -2493,29 +2474,29 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonBlitImageCommand(cons
         dstOffsets["[1].x"] = region.dstOffsets[1].x;
         dstOffsets["[1].y"] = region.dstOffsets[1].y;
         dstOffsets["[1].z"] = region.dstOffsets[1].z;
+    }
 
-        auto& subresource_json_entry = region_entry["subresources"];
-        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+    auto& subresource_json_entry = json_entry["dstImage"]["subresources"];
+    for (size_t sr = 0; sr < blit_image->dumped_image.dumped_subresources.size(); ++sr)
+    {
+        const auto& dumped_image_sub_resource = blit_image->dumped_image.dumped_subresources[sr];
+        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                              dumped_image_sub_resource,
+                                              blit_image->dumped_image.image_info->format,
+                                              options_.dump_resources_dump_separate_alpha,
+                                              blit_image->dumped_image.dumped_raw);
+
+        if (cmd.has_before)
         {
-            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                  dumped_image_sub_resource,
-                                                  region.dumped_image.image_info->format,
-                                                  options_.dump_resources_dump_separate_alpha,
-                                                  region.dumped_image.dumped_raw);
+            const auto* blit_image_before = std::get_if<DumpedBlitImage>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(blit_image_before != nullptr);
 
-            if (cmd.has_before)
-            {
-                const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
-                GFXRECON_ASSERT(copy_image_before != nullptr);
-                const auto& region_before                    = copy_image_before->regions[i];
-                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
-                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                            dumped_image_sub_resource_before,
-                                                            region_before.dumped_image.image_info->format,
-                                                            options_.dump_resources_dump_separate_alpha,
-                                                            region_before.dumped_image.dumped_raw);
-            }
+            const auto& dumped_image_sub_resource_before = blit_image_before->dumped_image.dumped_subresources[sr];
+            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                        dumped_image_sub_resource_before,
+                                                        blit_image_before->dumped_image.image_info->format,
+                                                        options_.dump_resources_dump_separate_alpha,
+                                                        blit_image_before->dumped_image.dumped_raw);
         }
     }
 }

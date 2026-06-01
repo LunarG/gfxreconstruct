@@ -1416,51 +1416,44 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
 
             case kCmdCopyBufferToImage:
             {
-                auto* copy_buffer_to_image = static_cast<TransferParams::CopyBufferToImage*>(base_transfer_cmd);
-                const ImageDumpResult can_dump_image =
-                    CanDumpImage(instance_table_, device_info_->parent, &copy_buffer_to_image->copied_image.image_info);
+                auto* copy_buffer_to_image        = static_cast<TransferParams::CopyBufferToImage*>(base_transfer_cmd);
+                const VulkanImageInfo* image_info = &copy_buffer_to_image->copied_image.image_info;
+                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
 
                 auto& new_dumped_transfer_cmd = copy_buffer_to_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
                                                             DumpResourceType::kCopyBufferToImage,
                                                             copy_buffer_to_image->src_buffer,
                                                             copy_buffer_to_image->dst_image,
+                                                            image_info,
+                                                            can_dump_image,
                                                             copy_buffer_to_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
-                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
+                host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
                 auto& new_dumped_copy_buffer_to_image =
                     std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd->dumped_resource);
-                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-                for (const auto& region : copy_buffer_to_image->regions)
+                new_dumped_copy_buffer_to_image.regions = copy_buffer_to_image->regions;
+
+                auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
+                if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    auto& new_dumped_image_region = new_dumped_copy_buffer_to_image.regions.emplace_back(
-                        region, &copy_buffer_to_image->copied_image.image_info, can_dump_image);
-
-                    if (can_dump_image != ImageDumpResult::kCanDump)
-                    {
-                        continue;
-                    }
-
-                    auto& new_copy_buffer_to_image_image_region_host_data =
-                        dumped_regions_host_data.regions_data.emplace_back();
-
-                    const ImageSubresourceRanges subresource_range = { region.imageSubresource.aspectMask,
-                                                                       region.imageSubresource.mipLevel,
-                                                                       1,
-                                                                       region.imageSubresource.baseArrayLayer,
-                                                                       region.imageSubresource.layerCount,
+                    const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(image_info->format),
+                                                                       0,
+                                                                       VK_REMAINING_MIP_LEVELS,
+                                                                       0,
+                                                                       VK_REMAINING_ARRAY_LAYERS,
                                                                        0,
                                                                        REMAINING_Z_INDICES };
 
                     // Dump region's subresources
-                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                    VkResult res = DumpImage(new_dumped_copy_buffer_to_image.dumped_image,
+                                             image_info->intermediate_layout,
                                              options_.dump_resources_scale,
                                              options_.dump_resources_dump_raw_images,
                                              subresource_range,
-                                             new_copy_buffer_to_image_image_region_host_data,
+                                             dumped_image_host_data.data,
                                              device_info_,
                                              device_table_,
                                              instance_table_,
@@ -1470,69 +1463,51 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
                         return res;
                     }
-                }
 
-                if (can_dump_image == ImageDumpResult::kCanDump)
-                {
                     delegate_.DumpResource(res_info);
                 }
 
                 if (copy_buffer_to_image->has_before_command)
                 {
-                    dumped_regions_host_data.regions_data.clear();
+                    dumped_image_host_data.data.clear();
 
                     const auto* copy_buffer_to_image_before =
                         static_cast<TransferParams::CopyBufferToImage*>(cmd.before_params.get());
                     GFXRECON_ASSERT(copy_buffer_to_image_before != nullptr);
+                    const VulkanImageInfo* before_image_info = &copy_buffer_to_image_before->copied_image.image_info;
 
                     auto& new_dumped_copy_buffer_to_image_before =
                         std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd->dumped_resource_before);
-                    for (const auto& region : copy_buffer_to_image_before->regions)
+                    new_dumped_copy_buffer_to_image_before.regions = copy_buffer_to_image_before->regions;
+
+                    if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        auto& new_dumped_image_region_before =
-                            new_dumped_copy_buffer_to_image_before.regions.emplace_back(
-                                region, &copy_buffer_to_image_before->copied_image.image_info, can_dump_image);
+                        const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(
+                                                                               before_image_info->format),
+                                                                           0,
+                                                                           VK_REMAINING_MIP_LEVELS,
+                                                                           0,
+                                                                           VK_REMAINING_ARRAY_LAYERS,
+                                                                           0,
+                                                                           REMAINING_Z_INDICES };
 
-                        if (can_dump_image != ImageDumpResult::kCanDump)
-                        {
-                            continue;
-                        }
-
-                        auto& new_copy_buffer_to_image_image_region_host_data =
-                            dumped_regions_host_data.regions_data.emplace_back();
-
-                        const ImageSubresourceRanges subresource_range = {
-                            region.imageSubresource.aspectMask,
-                            region.imageSubresource.mipLevel,
-                            1,
-                            region.imageSubresource.baseArrayLayer,
-                            region.imageSubresource.layerCount,
-                            0,
-                            REMAINING_Z_INDICES
-                        };
-
-                        // Dump region's subresources
-                        VkResult res =
-                            DumpImage(new_dumped_image_region_before.dumped_image,
-                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                      options_.dump_resources_scale,
-                                      options_.dump_resources_dump_raw_images,
-                                      subresource_range,
-                                      new_copy_buffer_to_image_image_region_host_data,
-                                      device_info_,
-                                      device_table_,
-                                      instance_table_,
-                                      object_info_table_);
+                        VkResult res = DumpImage(new_dumped_copy_buffer_to_image_before.dumped_image,
+                                                 before_image_info->intermediate_layout,
+                                                 options_.dump_resources_scale,
+                                                 options_.dump_resources_dump_raw_images,
+                                                 subresource_range,
+                                                 dumped_image_host_data.data,
+                                                 device_info_,
+                                                 device_table_,
+                                                 instance_table_,
+                                                 object_info_table_);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
                                                util::ToString(res).c_str());
                             return res;
                         }
-                    }
 
-                    if (can_dump_image == ImageDumpResult::kCanDump)
-                    {
                         res_info.before_command = true;
                         delegate_.DumpResource(res_info);
                     }
@@ -1542,49 +1517,42 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
 
             case kCmdCopyImage:
             {
-                auto* copy_image              = static_cast<TransferParams::CopyImage*>(base_transfer_cmd);
+                auto*                  copy_image     = static_cast<TransferParams::CopyImage*>(base_transfer_cmd);
+                const VulkanImageInfo* image_info     = &copy_image->copied_image.image_info;
+                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
+
                 auto& new_dumped_transfer_cmd = copy_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
                                                             DumpResourceType::kCopyImage,
                                                             copy_image->src_image,
                                                             copy_image->dst_image,
+                                                            image_info,
+                                                            can_dump_image,
                                                             copy_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
-                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
+                host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
-                const ImageDumpResult can_dump_image =
-                    CanDumpImage(instance_table_, device_info_->parent, &copy_image->copied_image.image_info);
+                auto& new_dumped_copy_image   = std::get<DumpedCopyImage>(new_dumped_transfer_cmd->dumped_resource);
+                new_dumped_copy_image.regions = copy_image->regions;
 
-                auto& new_dumped_copy_image    = std::get<DumpedCopyImage>(new_dumped_transfer_cmd->dumped_resource);
-                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-                for (const auto& region : copy_image->regions)
+                auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
+                if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    auto& new_dumped_image_region = new_dumped_copy_image.regions.emplace_back(
-                        region, &copy_image->copied_image.image_info, can_dump_image);
-
-                    if (can_dump_image != ImageDumpResult::kCanDump)
-                    {
-                        continue;
-                    }
-
-                    auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                    const ImageSubresourceRanges subresource_range = { region.dstSubresource.aspectMask,
-                                                                       region.dstSubresource.mipLevel,
-                                                                       1,
-                                                                       region.dstSubresource.baseArrayLayer,
-                                                                       region.dstSubresource.layerCount,
+                    const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(image_info->format),
+                                                                       0,
+                                                                       VK_REMAINING_MIP_LEVELS,
+                                                                       0,
+                                                                       VK_REMAINING_ARRAY_LAYERS,
                                                                        0,
                                                                        REMAINING_Z_INDICES };
 
-                    // Dump region's subresources
-                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                    VkResult res = DumpImage(new_dumped_copy_image.dumped_image,
+                                             image_info->intermediate_layout,
                                              options_.dump_resources_scale,
                                              options_.dump_resources_dump_raw_images,
                                              subresource_range,
-                                             new_copy_image_region_host_data,
+                                             dumped_image_host_data.data,
                                              device_info_,
                                              device_table_,
                                              instance_table_,
@@ -1594,66 +1562,52 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
                         return res;
                     }
-                }
 
-                if (can_dump_image == ImageDumpResult::kCanDump)
-                {
                     delegate_.DumpResource(res_info);
                 }
 
                 if (copy_image->has_before_command)
                 {
-                    dumped_regions_host_data.regions_data.clear();
+                    dumped_image_host_data.data.clear();
 
                     const auto* copy_image_before = static_cast<TransferParams::CopyImage*>(cmd.before_params.get());
                     GFXRECON_ASSERT(copy_image_before != nullptr);
+                    const VulkanImageInfo* before_image_info = &copy_image_before->copied_image.image_info;
 
                     auto* new_dumped_copy_image_before =
                         std::get_if<DumpedCopyImage>(&new_dumped_transfer_cmd->dumped_resource_before);
                     GFXRECON_ASSERT(new_dumped_copy_image_before != nullptr);
+                    new_dumped_copy_image_before->regions = copy_image_before->regions;
 
-                    for (const auto& region : copy_image_before->regions)
+                    if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        auto& new_dumped_image_region_before = new_dumped_copy_image_before->regions.emplace_back(
-                            region, &copy_image_before->copied_image.image_info, can_dump_image);
-
-                        if (can_dump_image != ImageDumpResult::kCanDump)
-                        {
-                            continue;
-                        }
-
-                        auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                        const ImageSubresourceRanges subresource_range = { region.dstSubresource.aspectMask,
-                                                                           region.dstSubresource.mipLevel,
-                                                                           1,
-                                                                           region.dstSubresource.baseArrayLayer,
-                                                                           region.dstSubresource.layerCount,
+                        const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(
+                                                                               before_image_info->format),
+                                                                           0,
+                                                                           VK_REMAINING_MIP_LEVELS,
+                                                                           0,
+                                                                           VK_REMAINING_ARRAY_LAYERS,
                                                                            0,
                                                                            REMAINING_Z_INDICES };
 
                         // Dump region's subresources
-                        VkResult res =
-                            DumpImage(new_dumped_image_region_before.dumped_image,
-                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                      1.0f,
-                                      options_.dump_resources_dump_raw_images,
-                                      subresource_range,
-                                      new_copy_image_region_host_data,
-                                      device_info_,
-                                      device_table_,
-                                      instance_table_,
-                                      object_info_table_);
+                        VkResult res = DumpImage(new_dumped_copy_image_before->dumped_image,
+                                                 before_image_info->intermediate_layout,
+                                                 options_.dump_resources_scale,
+                                                 options_.dump_resources_dump_raw_images,
+                                                 subresource_range,
+                                                 dumped_image_host_data.data,
+                                                 device_info_,
+                                                 device_table_,
+                                                 instance_table_,
+                                                 object_info_table_);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
                                                util::ToString(res).c_str());
                             return res;
                         }
-                    }
 
-                    if (can_dump_image == ImageDumpResult::kCanDump)
-                    {
                         res_info.before_command = true;
                         delegate_.DumpResource(res_info);
                     }
@@ -1737,50 +1691,43 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
 
             case kCmdBlitImage:
             {
-                auto*                 blit_image = static_cast<TransferParams::BlitImage*>(base_transfer_cmd);
-                const ImageDumpResult can_dump_image =
-                    CanDumpImage(instance_table_, device_info_->parent, &blit_image->copied_image.image_info);
+                auto*                  blit_image     = static_cast<TransferParams::BlitImage*>(base_transfer_cmd);
+                const VulkanImageInfo* image_info     = &blit_image->copied_image.image_info;
+                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
 
                 auto& new_dumped_transfer_cmd = blit_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
                                                             DumpResourceType::kBlitImage,
                                                             blit_image->src_image,
                                                             blit_image->dst_image,
+                                                            image_info,
+                                                            can_dump_image,
                                                             blit_image->filter,
                                                             blit_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
-                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
+                host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
-                auto& new_dumped_blit_image    = std::get<DumpedBlitImage>(new_dumped_transfer_cmd->dumped_resource);
-                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-                for (const auto& region : blit_image->regions)
+                auto& new_dumped_blit_image   = std::get<DumpedBlitImage>(new_dumped_transfer_cmd->dumped_resource);
+                new_dumped_blit_image.regions = blit_image->regions;
+
+                auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
+                if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    auto& new_dumped_image_region = new_dumped_blit_image.regions.emplace_back(
-                        region, &blit_image->copied_image.image_info, can_dump_image);
-
-                    if (can_dump_image != ImageDumpResult::kCanDump)
-                    {
-                        continue;
-                    }
-
-                    auto& new_blit_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                    const ImageSubresourceRanges subresource_range = { region.dstSubresource.aspectMask,
-                                                                       region.dstSubresource.mipLevel,
-                                                                       1,
-                                                                       region.dstSubresource.baseArrayLayer,
-                                                                       region.dstSubresource.layerCount,
+                    const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(image_info->format),
+                                                                       0,
+                                                                       VK_REMAINING_MIP_LEVELS,
+                                                                       0,
+                                                                       VK_REMAINING_ARRAY_LAYERS,
                                                                        0,
                                                                        REMAINING_Z_INDICES };
 
-                    // Dump region's subresources
-                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                    VkResult res = DumpImage(new_dumped_blit_image.dumped_image,
+                                             image_info->intermediate_layout,
                                              options_.dump_resources_scale,
                                              options_.dump_resources_dump_raw_images,
                                              subresource_range,
-                                             new_blit_image_region_host_data,
+                                             dumped_image_host_data.data,
                                              device_info_,
                                              device_table_,
                                              instance_table_,
@@ -1790,66 +1737,51 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
                         return res;
                     }
-                }
 
-                if (can_dump_image == ImageDumpResult::kCanDump)
-                {
                     delegate_.DumpResource(res_info);
                 }
 
                 if (blit_image->has_before_command)
                 {
-                    dumped_regions_host_data.regions_data.clear();
+                    dumped_image_host_data.data.clear();
 
                     const auto* blit_image_before = static_cast<TransferParams::BlitImage*>(cmd.before_params.get());
                     GFXRECON_ASSERT(blit_image_before != nullptr);
+                    const VulkanImageInfo* before_image_info = &blit_image_before->copied_image.image_info;
 
                     auto* new_dumped_blit_image_before =
                         std::get_if<DumpedBlitImage>(&new_dumped_transfer_cmd->dumped_resource_before);
                     GFXRECON_ASSERT(new_dumped_blit_image_before != nullptr);
+                    new_dumped_blit_image_before->regions = blit_image_before->regions;
 
-                    for (const auto& region : blit_image_before->regions)
+                    if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        auto& new_dumped_image_region_before = new_dumped_blit_image_before->regions.emplace_back(
-                            region, &blit_image_before->copied_image.image_info, can_dump_image);
-
-                        if (can_dump_image != ImageDumpResult::kCanDump)
-                        {
-                            continue;
-                        }
-
-                        auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                        const ImageSubresourceRanges subresource_range = { region.dstSubresource.aspectMask,
-                                                                           region.dstSubresource.mipLevel,
-                                                                           1,
-                                                                           region.dstSubresource.baseArrayLayer,
-                                                                           region.dstSubresource.layerCount,
+                        const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(
+                                                                               before_image_info->format),
+                                                                           0,
+                                                                           VK_REMAINING_MIP_LEVELS,
+                                                                           0,
+                                                                           VK_REMAINING_ARRAY_LAYERS,
                                                                            0,
                                                                            REMAINING_Z_INDICES };
 
-                        // Dump region's subresources
-                        VkResult res =
-                            DumpImage(new_dumped_image_region_before.dumped_image,
-                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                      1.0f,
-                                      options_.dump_resources_dump_raw_images,
-                                      subresource_range,
-                                      new_copy_image_region_host_data,
-                                      device_info_,
-                                      device_table_,
-                                      instance_table_,
-                                      object_info_table_);
+                        VkResult res = DumpImage(new_dumped_blit_image_before->dumped_image,
+                                                 before_image_info->intermediate_layout,
+                                                 options_.dump_resources_scale,
+                                                 options_.dump_resources_dump_raw_images,
+                                                 subresource_range,
+                                                 dumped_image_host_data.data,
+                                                 device_info_,
+                                                 device_table_,
+                                                 instance_table_,
+                                                 object_info_table_);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
                                                util::ToString(res).c_str());
                             return res;
                         }
-                    }
 
-                    if (can_dump_image == ImageDumpResult::kCanDump)
-                    {
                         res_info.before_command = true;
                         delegate_.DumpResource(res_info);
                     }
