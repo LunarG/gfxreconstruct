@@ -2268,30 +2268,30 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferToImageComm
         const auto& region = copy_buffer_to_image->regions[i];
 
         auto& region_entry                = regions_entries[i];
-        region_entry["bufferOffset"]      = region.region.bufferOffset;
-        region_entry["bufferRowLength"]   = region.region.bufferRowLength;
-        region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
+        region_entry["bufferOffset"]      = region.bufferOffset;
+        region_entry["bufferRowLength"]   = region.bufferRowLength;
+        region_entry["bufferImageHeight"] = region.bufferImageHeight;
         auto& img_subresource             = region_entry["imageSubresource"];
         img_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.imageSubresource.aspectMask));
-        img_subresource["mipLevel"]       = region.region.imageSubresource.mipLevel;
-        img_subresource["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
-        img_subresource["layerCount"]     = region.region.imageSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.imageSubresource.aspectMask));
+        img_subresource["mipLevel"]       = region.imageSubresource.mipLevel;
+        img_subresource["baseArrayLayer"] = region.imageSubresource.baseArrayLayer;
+        img_subresource["layerCount"]     = region.imageSubresource.layerCount;
 
         auto& img_offset = region_entry["imageOffset"];
-        img_offset["x"]  = region.region.imageOffset.x;
-        img_offset["y"]  = region.region.imageOffset.y;
-        img_offset["z"]  = region.region.imageOffset.z;
+        img_offset["x"]  = region.imageOffset.x;
+        img_offset["y"]  = region.imageOffset.y;
+        img_offset["z"]  = region.imageOffset.z;
 
         auto& img_extent = region_entry["imageOffset"];
-        img_offset["x"]  = region.region.imageOffset.x;
-        img_offset["y"]  = region.region.imageOffset.y;
-        img_offset["z"]  = region.region.imageOffset.z;
+        img_offset["x"]  = region.imageOffset.x;
+        img_offset["y"]  = region.imageOffset.y;
+        img_offset["z"]  = region.imageOffset.z;
 
         auto& extent     = region_entry["imageExtent"];
-        extent["width"]  = region.region.imageExtent.width;
-        extent["height"] = region.region.imageExtent.height;
-        extent["depth"]  = region.region.imageExtent.depth;
+        extent["width"]  = region.imageExtent.width;
+        extent["height"] = region.imageExtent.height;
+        extent["depth"]  = region.imageExtent.depth;
 
         auto& subresource_json_entry = region_entry["subresources"];
         for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
@@ -2340,32 +2340,32 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageCommand(cons
         auto&       region_entry    = regions_entries[i];
         auto&       src_subresource = region_entry["srcSubresource"];
         src_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
-        src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
-        src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
-        src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.srcSubresource.aspectMask));
+        src_subresource["mipLevel"]       = region.srcSubresource.mipLevel;
+        src_subresource["baseArrayLayer"] = region.srcSubresource.baseArrayLayer;
+        src_subresource["layerCount"]     = region.srcSubresource.layerCount;
 
         auto& srcOffset = region_entry["srcOffset"];
-        srcOffset["x"]  = region.region.srcOffset.x;
-        srcOffset["y"]  = region.region.srcOffset.y;
-        srcOffset["z"]  = region.region.srcOffset.z;
+        srcOffset["x"]  = region.srcOffset.x;
+        srcOffset["y"]  = region.srcOffset.y;
+        srcOffset["z"]  = region.srcOffset.z;
 
         auto& dst_subresource = region_entry["dstSubresource"];
         dst_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
-        dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
-        dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
-        dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.dstSubresource.aspectMask));
+        dst_subresource["mipLevel"]       = region.dstSubresource.mipLevel;
+        dst_subresource["baseArrayLayer"] = region.dstSubresource.baseArrayLayer;
+        dst_subresource["layerCount"]     = region.dstSubresource.layerCount;
 
         auto& dstOffset = region_entry["dstOffset"];
-        dstOffset["x"]  = region.region.dstOffset.x;
-        dstOffset["y"]  = region.region.dstOffset.y;
-        dstOffset["z"]  = region.region.dstOffset.z;
+        dstOffset["x"]  = region.dstOffset.x;
+        dstOffset["y"]  = region.dstOffset.y;
+        dstOffset["z"]  = region.dstOffset.z;
 
         auto& extent     = region_entry["extent"];
-        extent["width"]  = region.region.extent.width;
-        extent["height"] = region.region.extent.height;
-        extent["depth"]  = region.region.extent.depth;
+        extent["width"]  = region.extent.width;
+        extent["height"] = region.extent.height;
+        extent["depth"]  = region.extent.depth;
 
         auto& subresource_json_entry = region_entry["subresources"];
         for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
@@ -2466,33 +2466,33 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonBlitImageCommand(cons
         auto&       region_entry    = regions_entries[i];
         auto&       src_subresource = region_entry["srcSubresource"];
         src_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
-        src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
-        src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
-        src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.srcSubresource.aspectMask));
+        src_subresource["mipLevel"]       = region.srcSubresource.mipLevel;
+        src_subresource["baseArrayLayer"] = region.srcSubresource.baseArrayLayer;
+        src_subresource["layerCount"]     = region.srcSubresource.layerCount;
 
         auto& srcOffsets    = region_entry["srcOffset"];
-        srcOffsets["[0].x"] = region.region.srcOffsets[0].x;
-        srcOffsets["[0].y"] = region.region.srcOffsets[0].y;
-        srcOffsets["[0].z"] = region.region.srcOffsets[0].z;
-        srcOffsets["[1].x"] = region.region.srcOffsets[1].x;
-        srcOffsets["[1].y"] = region.region.srcOffsets[1].y;
-        srcOffsets["[1].z"] = region.region.srcOffsets[1].z;
+        srcOffsets["[0].x"] = region.srcOffsets[0].x;
+        srcOffsets["[0].y"] = region.srcOffsets[0].y;
+        srcOffsets["[0].z"] = region.srcOffsets[0].z;
+        srcOffsets["[1].x"] = region.srcOffsets[1].x;
+        srcOffsets["[1].y"] = region.srcOffsets[1].y;
+        srcOffsets["[1].z"] = region.srcOffsets[1].z;
 
         auto& dst_subresource = region_entry["dstSubresource"];
         dst_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
-        dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
-        dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
-        dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.dstSubresource.aspectMask));
+        dst_subresource["mipLevel"]       = region.dstSubresource.mipLevel;
+        dst_subresource["baseArrayLayer"] = region.dstSubresource.baseArrayLayer;
+        dst_subresource["layerCount"]     = region.dstSubresource.layerCount;
 
         auto& dstOffsets    = region_entry["dstOffset"];
-        dstOffsets["[0].x"] = region.region.dstOffsets[0].x;
-        dstOffsets["[0].y"] = region.region.dstOffsets[0].y;
-        dstOffsets["[0].z"] = region.region.dstOffsets[0].z;
-        dstOffsets["[1].x"] = region.region.dstOffsets[1].x;
-        dstOffsets["[1].y"] = region.region.dstOffsets[1].y;
-        dstOffsets["[1].z"] = region.region.dstOffsets[1].z;
+        dstOffsets["[0].x"] = region.dstOffsets[0].x;
+        dstOffsets["[0].y"] = region.dstOffsets[0].y;
+        dstOffsets["[0].z"] = region.dstOffsets[0].z;
+        dstOffsets["[1].x"] = region.dstOffsets[1].x;
+        dstOffsets["[1].y"] = region.dstOffsets[1].y;
+        dstOffsets["[1].z"] = region.dstOffsets[1].z;
 
         auto& subresource_json_entry = region_entry["subresources"];
         for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
