@@ -81,6 +81,7 @@ struct DescriptorInfo
     std::unique_ptr<VkBufferView[]>               uniform_texel_buffer_views;
     std::unique_ptr<VkBufferView[]>               storage_texel_buffer_views;
     std::unique_ptr<VkAccelerationStructureKHR[]> acceleration_structures;
+    std::unique_ptr<VkTensorViewARM[]>            tensor_views;
     std::unique_ptr<uint8_t[]>                    inline_uniform_block;
     std::unique_ptr<VkDescriptorType[]>           mutable_type;
 };

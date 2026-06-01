@@ -234,10 +234,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                // Nothing to do here for acceleration-structures and inline-uniform-blocks,
-                // as the rest of the data is stored in the pNext chain
-                break;
             case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                // Nothing to do here — the rest of the data is stored in the pNext chain
+                break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             case VK_DESCRIPTOR_TYPE_MUTABLE_EXT:
             case VK_DESCRIPTOR_TYPE_PARTITIONED_ACCELERATION_STRUCTURE_NV:

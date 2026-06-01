@@ -3951,7 +3951,8 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
 
     // scratch-space for a potential pNext-struct
     constexpr size_t max_num_bytes_p_next_data =
-        std::max(sizeof(VkWriteDescriptorSetAccelerationStructureKHR), sizeof(VkWriteDescriptorSetInlineUniformBlock));
+        std::max(sizeof(VkWriteDescriptorSetAccelerationStructureKHR),
+                 std::max(sizeof(VkWriteDescriptorSetInlineUniformBlock), sizeof(VkWriteDescriptorSetTensorARM)));
     std::array<uint8_t, max_num_bytes_p_next_data> p_next_data{};
 
     write->pBufferInfo      = nullptr;
@@ -4008,6 +4009,19 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
                 p_next.accelerationStructureCount = binding->count;
                 p_next.pAccelerationStructures    = binding->acceleration_structures.get();
                 write->pNext                      = &p_next;
+            }
+        }
+        break;
+        case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+        {
+            if (binding->tensor_views != nullptr)
+            {
+                auto& p_next           = *reinterpret_cast<VkWriteDescriptorSetTensorARM*>(p_next_data.data());
+                p_next.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_TENSOR_ARM;
+                p_next.pNext           = nullptr;
+                p_next.tensorViewCount = write->descriptorCount;
+                p_next.pTensorViews    = &binding->tensor_views[write->dstArrayElement];
+                write->pNext           = &p_next;
             }
         }
         break;
@@ -4770,6 +4784,12 @@ bool VulkanStateWriter::CheckDescriptorStatus(const vulkan_state_info::Descripto
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 if (state_table.GetVulkanAccelerationStructureKHRWrapper(descriptor->handle_ids[index]) != nullptr)
+                {
+                    valid = true;
+                }
+                break;
+            case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                if (state_table.GetVulkanTensorViewARMWrapper(descriptor->handle_ids[index]) != nullptr)
                 {
                     valid = true;
                 }

@@ -1200,6 +1200,34 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         }
                     }
                     break;
+                    case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+                    {
+                        auto write_tensor = graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetTensorARM>(write);
+
+                        if (write_tensor != nullptr)
+                        {
+                            format::HandleId*      dst_tensor_view_ids = &binding.handle_ids[current_dst_array_element];
+                            VkTensorViewARM*       dst_tensor_views = &binding.tensor_views[current_dst_array_element];
+                            const VkTensorViewARM* src_tensor_views =
+                                &write_tensor->pTensorViews[current_src_array_element];
+
+                            for (uint32_t i = 0; i < current_writes; ++i)
+                            {
+                                dst_tensor_view_ids[i] =
+                                    vulkan_wrappers::GetWrappedId<vulkan_wrappers::TensorViewARMWrapper>(
+                                        src_tensor_views[i]);
+                                dst_tensor_views[i] = src_tensor_views[i];
+
+                                if (auto* tensor_view_wrapper =
+                                        vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
+                                            src_tensor_views[i], false))
+                                {
+                                    tensor_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
+                        }
+                    }
+                    break;
                     default:
                         GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
                         break;
@@ -1393,6 +1421,24 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         if (buffer_view_wrapper != nullptr)
                         {
                             buffer_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
+                        }
+                    }
+                }
+
+                if (src_binding.tensor_views != nullptr)
+                {
+                    memcpy(&dst_binding.tensor_views[current_dst_array_element],
+                           &src_binding.tensor_views[current_src_array_element],
+                           (sizeof(VkTensorViewARM) * current_copies));
+
+                    for (uint32_t d = 0; d < current_copies; ++d)
+                    {
+                        vulkan_wrappers::TensorViewARMWrapper* tensor_view_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
+                                src_binding.tensor_views[current_src_array_element + d]);
+                        if (tensor_view_wrapper != nullptr)
+                        {
+                            tensor_view_wrapper->descriptor_sets_bound_to.insert(dst_wrapper);
                         }
                     }
                 }
@@ -2532,6 +2578,27 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
             }
             break;
 
+            case VK_DESCRIPTOR_TYPE_TENSOR_ARM:
+            {
+                GFXRECON_ASSERT(binding.count);
+                GFXRECON_ASSERT(binding.tensor_views);
+
+                for (uint32_t i = 0; i < binding.count; ++i)
+                {
+                    auto* tensor_view_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
+                        binding.tensor_views[i], false);
+                    if (tensor_view_wrapper != nullptr)
+                    {
+                        auto descriptor_set_it = tensor_view_wrapper->descriptor_sets_bound_to.find(wrapper);
+                        if (descriptor_set_it != tensor_view_wrapper->descriptor_sets_bound_to.end())
+                        {
+                            tensor_view_wrapper->descriptor_sets_bound_to.erase(descriptor_set_it);
+                        }
+                    }
+                }
+            }
+            break;
+
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 // nothing to do, only sanity-check
                 GFXRECON_ASSERT(binding.count);
@@ -2544,6 +2611,25 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
         }
     }
     wrapper->bindings.clear();
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::TensorViewARMWrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    if (wrapper->tensor != nullptr)
+    {
+        wrapper->tensor->tensor_views.erase(wrapper);
+    }
+
+    for (auto* ds : wrapper->descriptor_sets_bound_to)
+    {
+        if (ds != nullptr)
+        {
+            ds->dirty = true;
+        }
+    }
+    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::TrackCommandBuffersSubmision(uint32_t               command_buffer_count,
