@@ -87,9 +87,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
 
   private:
-    void DeleteDanglingPoolDescriptorSets(format::HandleId descriptorPool);
-
-  private:
     graphics::FrameLoopInfo&             frame_loop_info_;
 
     /// A "dangling" resource is one that was either
