@@ -197,11 +197,9 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
         }
     }
 
-    VulkanReplayConsumer::Process_vkFreeDescriptorSets(
-        call_info, returnValue, device, descriptorPool, descriptorSetCount, pDescriptorSets);
-
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
+        bool any_dangling = false;
         for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
             if (dangling_descriptor_sets_.contains(set_handle))
@@ -213,9 +211,13 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
             {
                 // Descriptor set freed during loop range but created before
                 dangling_descriptor_sets_.insert(set_handle);
+                return;
             }
         }
     }
+
+    VulkanReplayConsumer::Process_vkFreeDescriptorSets(
+        call_info, returnValue, device, descriptorPool, descriptorSetCount, pDescriptorSets);
 }
 
 void VulkanReplayFrameLoopConsumer::DeleteDanglingPoolDescriptorSets(format::HandleId descriptorPool)
