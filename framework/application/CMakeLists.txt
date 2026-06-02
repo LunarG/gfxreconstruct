@@ -34,6 +34,11 @@ target_sources(gfxrecon_application
                     ${CMAKE_CURRENT_LIST_DIR}/application.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/wsi_context.h
                     ${CMAKE_CURRENT_LIST_DIR}/wsi_context.cpp
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_context.h>
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_context.cpp>
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_window.h>
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_window.cpp>
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android_jni.cpp>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_window.h>
                     $<$<BOOL:${HEADLESS}>:${CMAKE_CURRENT_LIST_DIR}/headless_context.cpp>
@@ -64,9 +69,14 @@ target_sources(gfxrecon_application
                     $<$<BOOL:${APPLE}>:${CMAKE_CURRENT_LIST_DIR}/metal_window.mm>
               )
 
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_application PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_application PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
 target_include_directories(gfxrecon_application
                            PUBLIC
-                               $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>)
+                               $<BUILD_INTERFACE:${GFXRECON_SOURCE_DIR}>)
 
 target_link_libraries(gfxrecon_application
                       gfxrecon_decode
@@ -75,7 +85,8 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_util
                       gfxrecon_replay_event_plugin_loader
                       vulkan_registry
-                      OpenXR
+                      $<$<NOT:$<BOOL:${ANDROID}>>:OpenXR>
+                      $<$<BOOL:${ANDROID}>:native_app_glue>
                       platform_specific)
 
 common_build_directives(gfxrecon_application)

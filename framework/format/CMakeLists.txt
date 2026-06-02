@@ -40,9 +40,14 @@ target_sources(gfxrecon_format
                     ${CMAKE_CURRENT_LIST_DIR}/platform_types_d3d_overrides.h
               )
 
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_format PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_format PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
 target_include_directories(gfxrecon_format
                            PUBLIC
-                               ${PROJECT_SOURCE_DIR}/framework
+                               ${GFXRECON_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
 target_link_libraries(gfxrecon_format gfxrecon_util vulkan_registry platform_specific)

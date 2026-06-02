@@ -27,10 +27,10 @@ else()
     message(STATUS "OpenXR support disabled!")
 endif()
 
-add_subdirectory(../framework/util ${PROJECT_SOURCE_DIR}/../framework/util/build/layer/${ANDROID_ABI})
-add_subdirectory(../framework/graphics ${PROJECT_SOURCE_DIR}/../framework/graphics/build/layer/${ANDROID_ABI})
-add_subdirectory(../framework/format ${PROJECT_SOURCE_DIR}/../framework/format/build/layer/${ANDROID_ABI})
-add_subdirectory(../framework/encode ${PROJECT_SOURCE_DIR}/../framework/encode/build/layer/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util ${PROJECT_SOURCE_DIR}/build/framework/util/layer/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics ${PROJECT_SOURCE_DIR}/build/framework/graphics/layer/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format ${PROJECT_SOURCE_DIR}/build/framework/format/layer/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode ${PROJECT_SOURCE_DIR}/build/framework/encode/layer/${ANDROID_ABI})
 
 add_library(VkLayer_gfxreconstruct SHARED "")
 
