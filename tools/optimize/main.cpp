@@ -253,6 +253,7 @@ int main(int argc, const char** argv)
     int64_t start_time = gfxrecon::util::datetime::GetTimestamp();
 
     gfxrecon::util::Log::Init();
+    gfxrecon::util::Log::SetFatalCallback([](const char* message) { throw std::runtime_error(message); });
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
