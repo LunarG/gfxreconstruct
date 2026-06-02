@@ -283,7 +283,6 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
                 GFXRECON_LOG_FATAL("Could not open pipeline cache file '%s'. Error: '%s'",
                                    options_.save_pipeline_cache_filename.c_str(),
                                    strerror(error));
-                exit(-1);
             }
             util::platform::FileClose(file);
         }
