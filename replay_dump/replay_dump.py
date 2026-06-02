@@ -23,6 +23,7 @@
 """Replay a gfxreconstruct capture and dump Vulkan API calls as JSON."""
 
 import argparse
+from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
@@ -35,9 +36,11 @@ EXIT_REPLAY_FAILED = 1
 EXIT_INVALID_INPUT = 2
 EXIT_DUMP_FAILED = 3
 EXIT_COMPARE_FAILED = 4
+EXIT_SUITE_FAILED = 4
 
 API_DUMP_LAYER = "VK_LAYER_LUNARG_api_dump"
 REPLAY_ENV_VAR = "GFXRECON_REPLAY"
+TRACE_SUBDIR_ENV_VAR = "GFXRECON_TRACE_SUBDIR"
 MAX_DIFFS = 200
 IGNORED_COMPARE_KEYS = {
     "address",
@@ -61,15 +64,26 @@ class ReplayDumpError(Exception):
         self.exit_code = exit_code
 
 
+@dataclass
+class SingleTestResult:
+    name: str
+    passed: bool
+    output_path: Path
+    failure_path: Path = None
+    failure_kind: str = None
+    message: str = None
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(
         description="Replay a gfxreconstruct capture and write a JSON Vulkan API dump."
     )
-    parser.add_argument("capture_path", help="gfxreconstruct capture input path")
+    parser.add_argument(
+        "capture_path", nargs="?", help="gfxreconstruct capture input path"
+    )
     parser.add_argument(
         "--output",
         dest="output_path",
-        required=True,
         help="generated JSON API dump output path",
     )
     parser.add_argument(
@@ -88,6 +102,26 @@ def parse_args(argv):
         action="append",
         default=[],
         help="extra argument to pass to gfxrecon-replay; repeat for multiple arguments",
+    )
+    parser.add_argument(
+        "--suite-dir",
+        dest="suite_dir",
+        help="root directory containing replay suite files and reference dumps",
+    )
+    parser.add_argument(
+        "--trace-dir",
+        dest="trace_dir",
+        help="root directory containing trace captures",
+    )
+    parser.add_argument(
+        "--suite",
+        dest="suite_path",
+        help="suite JSON path relative to suite-dir/GFXRECON_TRACE_SUBDIR",
+    )
+    parser.add_argument(
+        "--output-dir",
+        dest="output_dir",
+        help="directory for suite output artifacts",
     )
     return parser.parse_args(argv)
 
@@ -429,13 +463,29 @@ def compare_dumps(reference, generated):
     fail("Generated dump differs from reference dump", EXIT_COMPARE_FAILED)
 
 
-def run(argv):
-    args = parse_args(argv)
-    capture_path = Path(args.capture_path)
-    output_path = Path(args.output_path)
-    compare_path = Path(args.compare_path) if args.compare_path else None
-    replay_args = list(args.replay_args)
-    if args.headless:
+def get_compare_failure_text(reference, generated):
+    diffs = diff_json(reference, generated)
+    lines = ["Generated dump differs from reference dump", "Differences:"]
+    for diff in diffs:
+        lines.append("  - {}".format(diff))
+    if len(diffs) >= MAX_DIFFS:
+        lines.append("  - Diff truncated after {} differences.".format(MAX_DIFFS))
+    return "\n".join(lines) + "\n"
+
+
+def run_single_capture_test(
+    name,
+    capture_path,
+    output_path,
+    compare_path=None,
+    replay_args=None,
+    headless=False,
+    replay_tool=None,
+):
+    if replay_args is None:
+        replay_args = []
+    replay_args = list(replay_args)
+    if headless:
         replay_args = ["--wsi", "headless", "--swapchain", "offscreen"] + replay_args
 
     validate_capture_path(capture_path)
@@ -446,7 +496,8 @@ def run(argv):
         validate_compare_path(compare_path)
         reference_dump = load_json_dump(compare_path, "Reference")
 
-    replay_tool = validate_replay_tool()
+    if replay_tool is None:
+        replay_tool = validate_replay_tool()
     run_replay(replay_tool, replay_args, capture_path, output_path)
     generated_dump = load_json_dump(output_path, "Generated")
 
@@ -455,6 +506,298 @@ def run(argv):
         normalize_dump_for_compare(generated_dump)
         compare_dumps(reference_dump, generated_dump)
 
+    return SingleTestResult(name=name, passed=True, output_path=output_path)
+
+
+def is_suite_mode(args):
+    return any(
+        value is not None
+        for value in (args.suite_dir, args.trace_dir, args.suite_path, args.output_dir)
+    )
+
+
+def validate_single_mode_args(args):
+    if args.capture_path is None:
+        fail("CAPTURE_PATH is required in single-capture mode", EXIT_INVALID_INPUT)
+    if args.output_path is None:
+        fail("--output is required in single-capture mode", EXIT_INVALID_INPUT)
+
+
+def validate_suite_mode_args(args):
+    missing = []
+    for option_name, value in (
+        ("--suite-dir", args.suite_dir),
+        ("--trace-dir", args.trace_dir),
+        ("--suite", args.suite_path),
+        ("--output-dir", args.output_dir),
+    ):
+        if value is None:
+            missing.append(option_name)
+    if missing:
+        fail(
+            "Suite mode requires {}".format(", ".join(missing)),
+            EXIT_INVALID_INPUT,
+        )
+    if args.capture_path is not None:
+        fail("CAPTURE_PATH is invalid in suite mode", EXIT_INVALID_INPUT)
+    if args.output_path is not None:
+        fail("--output is invalid in suite mode", EXIT_INVALID_INPUT)
+    if args.compare_path is not None:
+        fail("--compare is invalid in suite mode", EXIT_INVALID_INPUT)
+    if args.replay_args:
+        fail("--replay-arg is invalid in suite mode", EXIT_INVALID_INPUT)
+    if Path(args.suite_path).is_absolute():
+        fail("--suite must be relative to --suite-dir", EXIT_INVALID_INPUT)
+
+
+def validate_suite_root_paths(suite_dir, trace_dir):
+    for label, path in (("Suite directory", suite_dir), ("Trace directory", trace_dir)):
+        if not path.exists():
+            fail("{} does not exist: {}".format(label, path), EXIT_INVALID_INPUT)
+        if not path.is_dir():
+            fail("{} is not a directory: {}".format(label, path), EXIT_INVALID_INPUT)
+
+
+def validate_trace_subdir(trace_subdir):
+    if Path(trace_subdir).is_absolute():
+        fail(
+            "{} must be relative when set: {}".format(
+                TRACE_SUBDIR_ENV_VAR, trace_subdir
+            ),
+            EXIT_INVALID_INPUT,
+        )
+
+
+def validate_suite_name(name, index):
+    if not isinstance(name, str):
+        fail(
+            "Suite entry {} field 'name' must be a string".format(index),
+            EXIT_INVALID_INPUT,
+        )
+    if name.strip() == "":
+        fail(
+            "Suite entry {} field 'name' must not be empty".format(index),
+            EXIT_INVALID_INPUT,
+        )
+    if "/" in name or "\\" in name or name in (".", ".."):
+        fail(
+            "Suite entry {} field 'name' is not safe as one path segment: {}".format(
+                index, name
+            ),
+            EXIT_INVALID_INPUT,
+        )
+
+
+def validate_suite_relative_path(entry, field, index):
+    value = entry.get(field)
+    if not isinstance(value, str):
+        fail(
+            "Suite entry {} field '{}' must be a string".format(index, field),
+            EXIT_INVALID_INPUT,
+        )
+    if Path(value).is_absolute():
+        fail(
+            "Suite entry {} field '{}' must be relative: {}".format(
+                index, field, value
+            ),
+            EXIT_INVALID_INPUT,
+        )
+    return value
+
+
+def load_suite_file(suite_file_path):
+    if not suite_file_path.exists():
+        fail("Suite file does not exist: {}".format(suite_file_path), EXIT_INVALID_INPUT)
+    if not suite_file_path.is_file():
+        fail("Suite path is not a file: {}".format(suite_file_path), EXIT_INVALID_INPUT)
+    try:
+        with suite_file_path.open("r", encoding="utf-8") as suite_file:
+            suite = json.load(suite_file)
+    except OSError as err:
+        fail(
+            "Failed to read suite file {}: {}".format(suite_file_path, err),
+            EXIT_INVALID_INPUT,
+        )
+    except json.JSONDecodeError as err:
+        fail(
+            "Suite file is invalid JSON at line {}, column {}: {}".format(
+                err.lineno, err.colno, err.msg
+            ),
+            EXIT_INVALID_INPUT,
+        )
+    if not isinstance(suite, list):
+        fail("Suite JSON root must be a list", EXIT_INVALID_INPUT)
+    return suite
+
+
+def validate_suite_entries(suite):
+    names = set()
+    validated = []
+    for index, entry in enumerate(suite):
+        if not isinstance(entry, dict):
+            fail("Suite entry {} must be an object".format(index), EXIT_INVALID_INPUT)
+
+        for field in ("name", "trace", "reference"):
+            if field not in entry:
+                fail(
+                    "Suite entry {} is missing required field '{}'".format(index, field),
+                    EXIT_INVALID_INPUT,
+                )
+
+        name = entry["name"]
+        validate_suite_name(name, index)
+        if name in names:
+            fail(
+                "Suite entry {} has duplicate name: {}".format(index, name),
+                EXIT_INVALID_INPUT,
+            )
+        names.add(name)
+
+        trace = validate_suite_relative_path(entry, "trace", index)
+        reference = validate_suite_relative_path(entry, "reference", index)
+
+        replay_args = entry.get("replay_args", [])
+        if not isinstance(replay_args, list) or not all(
+            isinstance(item, str) for item in replay_args
+        ):
+            fail(
+                "Suite entry {} field 'replay_args' must be a list of strings".format(
+                    index
+                ),
+                EXIT_INVALID_INPUT,
+            )
+
+        validated.append(
+            {
+                "name": name,
+                "trace": trace,
+                "reference": reference,
+                "replay_args": list(replay_args),
+            }
+        )
+    return validated
+
+
+def make_artifact_log(path, message):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as log_file:
+        log_file.write(message)
+        if not message.endswith("\n"):
+            log_file.write("\n")
+
+
+def run_suite_entry(entry, suite_base_dir, trace_base_dir, output_dir, headless, replay_tool):
+    test_dir = output_dir / entry["name"]
+    output_path = test_dir / "output.json"
+    capture_path = trace_base_dir / entry["trace"]
+    compare_path = suite_base_dir / entry["reference"]
+    try:
+        test_dir.mkdir(parents=True, exist_ok=True)
+        return run_single_capture_test(
+            entry["name"],
+            capture_path,
+            output_path,
+            compare_path=compare_path,
+            replay_args=entry["replay_args"],
+            headless=headless,
+            replay_tool=replay_tool,
+        )
+    except ReplayDumpError as err:
+        if err.exit_code == EXIT_COMPARE_FAILED:
+            failure_path = test_dir / "diff.log"
+            try:
+                reference_dump = load_json_dump(compare_path, "Reference")
+                generated_dump = load_json_dump(output_path, "Generated")
+                normalize_dump_for_compare(reference_dump)
+                normalize_dump_for_compare(generated_dump)
+                message = get_compare_failure_text(reference_dump, generated_dump)
+            except ReplayDumpError:
+                message = "{}\n".format(err)
+            failure_kind = "diff"
+        else:
+            failure_path = test_dir / "error.log"
+            message = "{}\n".format(err)
+            failure_kind = "error"
+        make_artifact_log(failure_path, message)
+        return SingleTestResult(
+            name=entry["name"],
+            passed=False,
+            output_path=output_path,
+            failure_path=failure_path,
+            failure_kind=failure_kind,
+            message=str(err),
+        )
+
+
+def run_suite(args):
+    validate_suite_mode_args(args)
+
+    suite_dir = Path(args.suite_dir)
+    trace_dir = Path(args.trace_dir)
+    output_dir = Path(args.output_dir)
+    trace_subdir = os.environ.get(TRACE_SUBDIR_ENV_VAR, "")
+    validate_trace_subdir(trace_subdir)
+    suite_base_dir = suite_dir / trace_subdir
+    trace_base_dir = trace_dir / trace_subdir
+    suite_file_path = suite_base_dir / args.suite_path
+
+    validate_suite_root_paths(suite_dir, trace_dir)
+    suite = validate_suite_entries(load_suite_file(suite_file_path))
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as err:
+        fail(
+            "Failed to create suite output directory {}: {}".format(output_dir, err),
+            EXIT_INVALID_INPUT,
+        )
+    replay_tool = validate_replay_tool()
+
+    print("Suite: {}".format(suite_file_path))
+    print("Tests: {}".format(len(suite)))
+
+    results = []
+    total = len(suite)
+    for index, entry in enumerate(suite, start=1):
+        print("[{}/{}] running {}".format(index, total, entry["name"]))
+        result = run_suite_entry(
+            entry,
+            suite_base_dir,
+            trace_base_dir,
+            output_dir,
+            args.headless,
+            replay_tool,
+        )
+        results.append(result)
+        if result.passed:
+            print("PASS {}".format(result.output_path))
+        else:
+            print("FAIL {} {}".format(result.name, result.failure_path))
+
+    failures = [result for result in results if not result.passed]
+    passes = len(results) - len(failures)
+    print("Summary: total={} pass={} fail={}".format(len(results), passes, len(failures)))
+    for failure in failures:
+        print("FAILED {} {}".format(failure.name, failure.failure_path))
+
+    if failures:
+        return EXIT_SUITE_FAILED
+    return EXIT_SUCCESS
+
+
+def run(argv):
+    args = parse_args(argv)
+    if is_suite_mode(args):
+        return run_suite(args)
+
+    validate_single_mode_args(args)
+    run_single_capture_test(
+        "single",
+        Path(args.capture_path),
+        Path(args.output_path),
+        compare_path=Path(args.compare_path) if args.compare_path else None,
+        replay_args=args.replay_args,
+        headless=args.headless,
+    )
     return EXIT_SUCCESS
 
 
