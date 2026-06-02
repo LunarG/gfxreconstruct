@@ -77,7 +77,7 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
                 if (end_index == std::string::npos)
                 {
                     is_invalid_ = true;
-                    GFXRECON_LOG_FATAL("Error: ArgumentParser command-line string contains unmatched quotes.", args);
+                    GFXRECON_LOG_ERROR("ArgumentParser command-line string contains unmatched quotes.", args);
                     return;
                 }
 
@@ -259,7 +259,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
                 // be an invalid value.
                 invalid_values_present_.push_back(current_argument);
                 is_invalid_ = true;
-                GFXRECON_LOG_FATAL("Invalid command-line setting \'%s\'", current_argument.c_str());
+                GFXRECON_LOG_ERROR("Invalid command-line setting \'%s\'", current_argument.c_str());
             }
         }
         else
