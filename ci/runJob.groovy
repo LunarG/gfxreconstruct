@@ -21,12 +21,15 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+def SkipReplayDump = ''
+
 def gfxrTestWindows(
     String name,
     String buildMode,
     String label,
     String bits,
     String testSuite,
+    String replayDumpSuite,
     def branches
 ) {
     echo "Creating closure for ${name} with label: ${label}"
@@ -68,6 +71,7 @@ def gfxrTestWindows(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
+                                "REPLAY_DUMP_SUITE=${replayDumpSuite}",
                                 "BITS=${bits}",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
@@ -77,6 +81,9 @@ def gfxrTestWindows(
                                 bat(script: 'ci/cloneTests.bat')
                                 bat(script: 'ci/buildGfxr.bat')
                                 bat(script: 'ci/cloneSuites.bat')
+                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                    bat(script: 'ci/runReplayDump.bat')
+                                }
                                 bat(script: 'ci/runTest.bat')
                             }
                         }
@@ -107,6 +114,7 @@ def gfxrTestLinux(
     String label,
     String bits,
     String testSuite,
+    String replayDumpSuite,
     def branches
 ) {
     return {
@@ -146,6 +154,7 @@ def gfxrTestLinux(
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
+                                "REPLAY_DUMP_SUITE=${replayDumpSuite}",
                                 "BITS=${bits}",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
@@ -155,6 +164,9 @@ def gfxrTestLinux(
                                 sh(script: 'ci/cloneTests.sh')
                                 sh(script: 'sh ci/buildGfxr.sh')
                                 sh(script: 'ci/cloneSuites.sh')
+                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                    sh(script: 'bash ci/runReplayDump.sh')
+                                }
                                 sh(script: 'ci/runTest.sh')
                             }
                         }
@@ -278,6 +290,7 @@ def gfxrTestWindowsManual(
     String buildMode,
     String bits,
     String testSuite,
+    String replayDumpSuite,
     String projectRepo,
     String projectBranch,
     String testRepo,
@@ -320,6 +333,7 @@ def gfxrTestWindowsManual(
                                 "TEST_SUITE_REPO=${testSuiteRepo}",
                                 "TEST_SUITE_BRANCH=${testSuiteBranch}",
                                 "TEST_SUITE=${testSuite}",
+                                "REPLAY_DUMP_SUITE=${replayDumpSuite}",
                                 "BITS=${bits}",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
@@ -329,6 +343,9 @@ def gfxrTestWindowsManual(
                                 bat(script: 'ci/cloneTests.bat')
                                 bat(script: 'ci/buildGfxr.bat')
                                 bat(script: 'ci/cloneSuites.bat')
+                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                    bat(script: 'ci/runReplayDump.bat')
+                                }
                                 bat(script: 'ci/runTest.bat')
                             }
                         }
@@ -359,6 +376,7 @@ def gfxrTestLinuxManual(
     String buildMode,
     String bits,
     String testSuite,
+    String replayDumpSuite,
     String projectRepo,
     String projectBranch,
     String testRepo,
@@ -401,6 +419,7 @@ def gfxrTestLinuxManual(
                                 "TEST_SUITE_REPO=${testSuiteRepo}",
                                 "TEST_SUITE_BRANCH=${testSuiteBranch}",
                                 "TEST_SUITE=${testSuite}",
+                                "REPLAY_DUMP_SUITE=${replayDumpSuite}",
                                 "BITS=${bits}",
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
@@ -410,6 +429,9 @@ def gfxrTestLinuxManual(
                                 sh(script: 'ci/cloneTests.sh')
                                 sh(script: 'sh ci/buildGfxr.sh')
                                 sh(script: 'ci/cloneSuites.sh')
+                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                    sh(script: 'bash ci/runReplayDump.sh')
+                                }
                                 sh(script: 'ci/runTest.sh')
                             }
                         }
@@ -522,6 +544,7 @@ return [
 
     ReleaseMode : 'Release',
     DebugMode : 'Debug',
+    SkipReplayDump : SkipReplayDump,
 
     AndroidLabel : 'Linux-Android-GFXR',
     LinuxMesaLabel : 'Linux-Mesa-6800-stable',
