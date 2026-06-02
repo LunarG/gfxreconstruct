@@ -39,6 +39,18 @@ EXIT_COMPARE_FAILED = 4
 API_DUMP_LAYER = "VK_LAYER_LUNARG_api_dump"
 REPLAY_ENV_VAR = "GFXRECON_REPLAY"
 MAX_DIFFS = 200
+IGNORED_COMPARE_KEYS = {
+    "address",
+    "api_version",
+    "apiVersion",
+    "hinstance",
+    "hwnd",
+    "pipelineCacheUUID",
+    "pipeline_cache_uuid",
+    "ppData",
+    "fd",
+    "app_name",
+}
 
 
 class ReplayDumpError(Exception):
@@ -64,6 +76,18 @@ def parse_args(argv):
         "--compare",
         dest="compare_path",
         help="reference JSON API dump path to compare against",
+    )
+    parser.add_argument(
+        "--headless",
+        action="store_true",
+        help="run gfxrecon-replay without creating windows by passing --wsi headless --swapchain offscreen",
+    )
+    parser.add_argument(
+        "--replay-arg",
+        dest="replay_args",
+        action="append",
+        default=[],
+        help="extra argument to pass to gfxrecon-replay; repeat for multiple arguments",
     )
     return parser.parse_args(argv)
 
@@ -169,6 +193,47 @@ def load_json_dump(path, label):
     return parsed
 
 
+def should_ignore_compare_key(key):
+    return key in IGNORED_COMPARE_KEYS or key.startswith("pfn")
+
+
+def clean_compare_json_node(value, path, depth, key):
+    """Return False to remove this node from JSON comparison."""
+    if key is not None and should_ignore_compare_key(key):
+        return False
+
+    if depth == 1 and isinstance(value, dict):
+        if "header" in value or "annotation" in value:
+            return False
+
+    return True
+
+
+def normalize_dump_for_compare(value, path="$", depth=0, key=None):
+    if not clean_compare_json_node(value, path, depth, key):
+        return False
+
+    if isinstance(value, dict):
+        for child_key in list(value.keys()):
+            child_path = json_path(path, child_key)
+            if not normalize_dump_for_compare(
+                value[child_key], child_path, depth + 1, child_key
+            ):
+                del value[child_key]
+        return True
+
+    if isinstance(value, list):
+        kept_items = []
+        for index, item in enumerate(value):
+            child_path = json_path(path, index)
+            if normalize_dump_for_compare(item, child_path, depth + 1):
+                kept_items.append(item)
+        value[:] = kept_items
+        return True
+
+    return True
+
+
 def build_replay_environment(output_path):
     env = os.environ.copy()
     env["VK_INSTANCE_LAYERS"] = API_DUMP_LAYER
@@ -180,6 +245,7 @@ def build_replay_environment(output_path):
         env["{}_OUTPUT_FORMAT".format(prefix)] = "json"
         env["{}_LOG_FILENAME".format(prefix)] = output_name
         env["{}_FLUSH".format(prefix)] = "true"
+        env["{}_NO_ADDR".format(prefix)] = "true"
 
     env["VK_LUNARG_API_DUMP_FILE"] = "true"
     env["VK_API_DUMP_FILE"] = "true"
@@ -187,7 +253,7 @@ def build_replay_environment(output_path):
     return env
 
 
-def run_replay(replay_tool, capture_path, output_path):
+def run_replay(replay_tool, replay_args, capture_path, output_path):
     if output_path.exists():
         try:
             output_path.unlink()
@@ -197,7 +263,7 @@ def run_replay(replay_tool, capture_path, output_path):
                 EXIT_DUMP_FAILED,
             )
 
-    command = [replay_tool, str(capture_path)]
+    command = [replay_tool] + replay_args + [str(capture_path)]
     print("Running: {}".format(" ".join(command)))
     result = subprocess.run(
         command,
@@ -235,33 +301,81 @@ def format_json_value(value):
     return json.dumps(value, sort_keys=True)
 
 
-def diff_json(reference, generated, path="$", diffs=None):
+def format_context_label(value):
+    if not isinstance(value, dict):
+        return None
+
+    name = value.get("name")
+    type_name = value.get("type")
+    return_type = value.get("returnType")
+
+    if name is not None and return_type is not None and "args" in value:
+        return "{} -> {}".format(name, return_type)
+    if name is not None and type_name is not None:
+        return "{}: {}".format(name, type_name)
+    if name is not None:
+        return str(name)
+    if type_name is not None:
+        return str(type_name)
+    return None
+
+
+def extend_context(context, reference, generated):
+    label = format_context_label(reference)
+    if label is None:
+        label = format_context_label(generated)
+    if label is None or (context and context[-1] == label):
+        return context
+    return context + [label]
+
+
+def format_context(context):
+    if not context:
+        return ""
+    return "; context: {}".format(" / ".join(context))
+
+
+def diff_json(reference, generated, path="$", diffs=None, context=None):
     if diffs is None:
         diffs = []
+    if context is None:
+        context = []
     if len(diffs) >= MAX_DIFFS:
         return diffs
+
+    context = extend_context(context, reference, generated)
 
     if isinstance(reference, dict) and isinstance(generated, dict):
         reference_keys = set(reference.keys())
         generated_keys = set(generated.keys())
         for key in sorted(reference_keys - generated_keys):
             diffs.append(
-                "{}: missing key in generated dump; expected {}".format(
-                    json_path(path, key), format_json_value(reference[key])
+                "{}: missing key in generated dump; expected {}{}".format(
+                    json_path(path, key),
+                    format_json_value(reference[key]),
+                    format_context(context),
                 )
             )
             if len(diffs) >= MAX_DIFFS:
                 return diffs
         for key in sorted(generated_keys - reference_keys):
             diffs.append(
-                "{}: extra key in generated dump; value {}".format(
-                    json_path(path, key), format_json_value(generated[key])
+                "{}: extra key in generated dump; value {}{}".format(
+                    json_path(path, key),
+                    format_json_value(generated[key]),
+                    format_context(context),
                 )
             )
             if len(diffs) >= MAX_DIFFS:
                 return diffs
         for key in sorted(reference_keys & generated_keys):
-            diff_json(reference[key], generated[key], json_path(path, key), diffs)
+            diff_json(
+                reference[key],
+                generated[key],
+                json_path(path, key),
+                diffs,
+                context,
+            )
             if len(diffs) >= MAX_DIFFS:
                 return diffs
         return diffs
@@ -269,8 +383,8 @@ def diff_json(reference, generated, path="$", diffs=None):
     if isinstance(reference, list) and isinstance(generated, list):
         if len(reference) != len(generated):
             diffs.append(
-                "{}: array length changed from {} to {}".format(
-                    path, len(reference), len(generated)
+                "{}: array length changed from {} to {}{}".format(
+                    path, len(reference), len(generated), format_context(context)
                 )
             )
             if len(diffs) >= MAX_DIFFS:
@@ -278,15 +392,24 @@ def diff_json(reference, generated, path="$", diffs=None):
         for index, (reference_item, generated_item) in enumerate(
             zip(reference, generated)
         ):
-            diff_json(reference_item, generated_item, json_path(path, index), diffs)
+            diff_json(
+                reference_item,
+                generated_item,
+                json_path(path, index),
+                diffs,
+                context,
+            )
             if len(diffs) >= MAX_DIFFS:
                 return diffs
         return diffs
 
     if reference != generated:
         diffs.append(
-            "{}: value changed from {} to {}".format(
-                path, format_json_value(reference), format_json_value(generated)
+            "{}: value changed from {} to {}{}".format(
+                path,
+                format_json_value(reference),
+                format_json_value(generated),
+                format_context(context),
             )
         )
     return diffs
@@ -311,6 +434,9 @@ def run(argv):
     capture_path = Path(args.capture_path)
     output_path = Path(args.output_path)
     compare_path = Path(args.compare_path) if args.compare_path else None
+    replay_args = list(args.replay_args)
+    if args.headless:
+        replay_args = ["--wsi", "headless", "--swapchain", "offscreen"] + replay_args
 
     validate_capture_path(capture_path)
     validate_output_path(output_path)
@@ -321,10 +447,12 @@ def run(argv):
         reference_dump = load_json_dump(compare_path, "Reference")
 
     replay_tool = validate_replay_tool()
-    run_replay(replay_tool, capture_path, output_path)
+    run_replay(replay_tool, replay_args, capture_path, output_path)
     generated_dump = load_json_dump(output_path, "Generated")
 
     if reference_dump is not None:
+        normalize_dump_for_compare(reference_dump)
+        normalize_dump_for_compare(generated_dump)
         compare_dumps(reference_dump, generated_dump)
 
     return EXIT_SUCCESS
