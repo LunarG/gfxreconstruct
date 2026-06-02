@@ -170,6 +170,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
     }
 
     VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, returnValue, device, descriptorPool, flags);
+    RemovePoolDanglingDescriptors(descriptorPool);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
