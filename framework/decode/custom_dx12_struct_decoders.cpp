@@ -638,7 +638,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
             // These cases have no additional values to decode.
             break;
         default:
-            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value->Type);
+            GFXRECON_LOG_FATAL("Unrecognized D3D12_RENDER_PASS_BEGINNING_ACCESS union type %u", value->Type);
             break;
     }
 
@@ -675,7 +675,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_REN
             // These cases have no additional values to decode.
             break;
         default:
-            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value->Type);
+            GFXRECON_LOG_FATAL("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value->Type);
             break;
     }
 
@@ -715,7 +715,7 @@ size_t DecodeStruct(const uint8_t*                                              
                 ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBlocks));
             break;
         default:
-            GFXRECON_LOG_FATAL_ONCE(
+            GFXRECON_LOG_FATAL(
                 "Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
                 value->HeaderPostambleType);
             break;

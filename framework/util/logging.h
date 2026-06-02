@@ -321,7 +321,6 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 // clang-format off
 #define GFXRECON_WRITE_CONSOLE_ONCE(message, ...) GFXRECON_LOG_ONCE(GFXRECON_WRITE_CONSOLE(message, ##__VA_ARGS__))
-#define GFXRECON_LOG_FATAL_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_FATAL(message, ##__VA_ARGS__))
 #define GFXRECON_LOG_ERROR_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_ERROR(message, ##__VA_ARGS__))
 #define GFXRECON_LOG_WARNING_ONCE(message, ...)   GFXRECON_LOG_ONCE(GFXRECON_LOG_WARNING(message, ##__VA_ARGS__))
 #define GFXRECON_LOG_INFO_ONCE(message, ...)      GFXRECON_LOG_ONCE(GFXRECON_LOG_INFO(message, ##__VA_ARGS__))
