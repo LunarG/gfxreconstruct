@@ -110,23 +110,28 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(
             dangling_descriptor_pools_.erase(descriptorPool);
 
             // Check if this was the pool for any heretofore dangling descriptors
-            std::vector<format::HandleId> handles_to_delete;
-            handles_to_delete.reserve(dangling_descriptor_sets_.size());
-            for (format::HandleId handle : dangling_descriptor_sets_)
-            {
-                VulkanDescriptorSetInfo* info = GetObjectInfoTable().GetVkDescriptorSetInfo(handle);
-                if (info->pool_id == descriptorPool)
-                {
-                    handles_to_delete.push_back(handle);
-                }
-            }
-            for (format::HandleId handle : handles_to_delete)
-            {
-                dangling_descriptor_sets_.erase(handle);
-            }
+            RemovePoolDanglingDescriptors(descriptorPool);
         }
     }
     VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, device, descriptorPool, pAllocator);
+}
+
+void VulkanReplayFrameLoopConsumer::RemovePoolDanglingDescriptors(format::HandleId descriptorPool)
+{
+    std::vector<format::HandleId> handles_to_delete;
+    handles_to_delete.reserve(dangling_descriptor_sets_.size());
+    for (format::HandleId handle : dangling_descriptor_sets_)
+    {
+        VulkanDescriptorSetInfo* info = GetObjectInfoTable().GetVkDescriptorSetInfo(handle);
+        if (info != nullptr && info->pool_id == descriptorPool)
+        {
+            handles_to_delete.push_back(handle);
+        }
+    }
+    for (format::HandleId handle : handles_to_delete)
+    {
+        dangling_descriptor_sets_.erase(handle);
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
@@ -135,13 +140,13 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
                                                                   format::HandleId           descriptorPool,
                                                                   VkDescriptorPoolResetFlags flags)
 {
-    if (frame_loop_info_.IsLooping())
+    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsFinalIteration())
     {
         // If any of the sets in this pool are dangling, skip pool reset
         for (format::HandleId set_id : dangling_descriptor_sets_)
         {
             VulkanDescriptorSetInfo* info = GetObjectInfoTable().GetVkDescriptorSetInfo(set_id);
-            if (info->pool_id == descriptorPool)
+            if (info != nullptr && info->pool_id == descriptorPool)
             {
                 return;
             }
@@ -149,6 +154,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
     }
 
     VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, returnValue, device, descriptorPool, flags);
+    RemovePoolDanglingDescriptors(descriptorPool);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
@@ -192,11 +198,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
 {
     if (frame_loop_info_.IsRepetition() && !frame_loop_info_.IsFinalIteration())
     {
-        // If any of the descriptor sets are _not_ in the dangling list,
+        // If any of the descriptor sets are in the dangling list,
         // then we want to omit their destruction
         for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
-            if (!dangling_descriptor_sets_.contains(set_handle))
+            if (dangling_descriptor_sets_.contains(set_handle))
             {
                 return;
             }
@@ -205,7 +211,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
-        bool any_dangling = false;
         for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
             if (dangling_descriptor_sets_.contains(set_handle))
