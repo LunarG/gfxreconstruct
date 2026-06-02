@@ -200,7 +200,7 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
         success = Initialize(api_capture_singleton->GetApiFamily(), base_filename, trace_settings);
         if (!success)
         {
-            GFXRECON_LOG_FATAL("Failed to initialize CommonCaptureManager");
+            GFXRECON_LOG_ERROR("Failed to initialize CommonCaptureManager");
         }
     }
 
@@ -943,7 +943,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                 }
                 else
                 {
-                    GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+                    GFXRECON_LOG_ERROR("Failed to initialize capture for trim range; capture has been disabled");
                     trim_enabled_ = false;
                     capture_mode_ = kModeDisabled;
                 }
@@ -1000,7 +1000,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
             }
             else
             {
-                GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+                GFXRECON_LOG_ERROR("Failed to initialize capture for trim range; capture has been disabled");
                 trim_enabled_ = false;
                 capture_mode_ = kModeDisabled;
             }
@@ -1018,7 +1018,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
         }
         else
         {
-            GFXRECON_LOG_FATAL("Failed to initialize capture for hotkey trim trigger; capture has been disabled");
+            GFXRECON_LOG_ERROR("Failed to initialize capture for hotkey trim trigger; capture has been disabled");
             trim_enabled_ = false;
             capture_mode_ = kModeDisabled;
         }
@@ -1058,7 +1058,7 @@ void CommonCaptureManager::ActivateTrimmingDrawCalls(format::ApiFamilyId        
         }
         else
         {
-            GFXRECON_LOG_FATAL("Failed to initialize capture for trim draw calls; capture has been disabled");
+            GFXRECON_LOG_ERROR("Failed to initialize capture for trim draw calls; capture has been disabled");
             trim_enabled_ = false;
             capture_mode_ = kModeDisabled;
         }
