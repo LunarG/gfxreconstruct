@@ -3224,7 +3224,7 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
         if (res != VK_SUCCESS)
         {
             Release();
-            GFXRECON_LOG_FATAL("Dumping transfer commands from state setup section failed failed (%s)",
+            GFXRECON_LOG_FATAL("Dumping transfer commands from state setup section failed (%s)",
                                util::ToString<VkResult>(res).c_str());
         }
 

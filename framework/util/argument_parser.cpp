@@ -77,7 +77,7 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
                 if (end_index == std::string::npos)
                 {
                     is_invalid_ = true;
-                    GFXRECON_LOG_ERROR("ArgumentParser command-line string contains unmatched quotes.", args);
+                    GFXRECON_LOG_ERROR("ArgumentParser command-line string contains unmatched quotes: %s", args);
                     return;
                 }
 
