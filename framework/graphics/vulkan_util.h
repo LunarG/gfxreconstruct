@@ -89,6 +89,11 @@ static inline void copy_dispatch_table_from_device(VkDevice device, VkCommandBuf
 
 [[maybe_unused]] static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 
+static constexpr uint32_t ScaleToMipLevel(uint32_t dim, uint32_t level)
+{
+    return std::max(1u, dim >> level);
+}
+
 /**
  * @brief   Scales a VkExtent3D to the provided mip map level
  *
@@ -98,9 +103,9 @@ static inline void copy_dispatch_table_from_device(VkDevice device, VkCommandBuf
  */
 static constexpr VkExtent3D ScaleToMipLevel(const VkExtent3D& extent, uint32_t level)
 {
-    const VkExtent3D mip_extent = VkExtent3D{ std::max(1u, extent.width >> level),
-                                              std::max(1u, extent.height >> level),
-                                              std::max(1u, extent.depth >> level) };
+    const VkExtent3D mip_extent = VkExtent3D{ ScaleToMipLevel(extent.width, level),
+                                              ScaleToMipLevel(extent.height, level),
+                                              ScaleToMipLevel(extent.depth, level) };
 
     return mip_extent;
 }

@@ -396,14 +396,28 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                          ? graphics::ScaleExtent3DNoDepth(image_info->extent, scale)
                                          : image_info->extent;
 
-    const bool     is_3d = image_info->type == VK_IMAGE_TYPE_3D;
-    const uint32_t total_subresources =
-        static_cast<uint32_t>(aspects.size()) * modified_subresource_range.level_count *
-        (is_3d ? modified_subresource_range.z_count : modified_subresource_range.layer_count);
+    const bool is_3d = image_info->type == VK_IMAGE_TYPE_3D;
+    uint32_t   total_dumped_subresources;
+    if (is_3d)
+    {
+        total_dumped_subresources = 0;
+        for (uint32_t m = modified_subresource_range.base_mip_level;
+             m < modified_subresource_range.base_mip_level + modified_subresource_range.level_count;
+             ++m)
+        {
+            total_dumped_subresources += graphics::ScaleToMipLevel(modified_subresource_range.z_count, m);
+        }
+        total_dumped_subresources *= static_cast<uint32_t>(aspects.size());
+    }
+    else
+    {
+        total_dumped_subresources = static_cast<uint32_t>(aspects.size()) * modified_subresource_range.level_count *
+                                    modified_subresource_range.layer_count;
+    }
 
-    data.resize(total_subresources);
+    data.resize(total_dumped_subresources);
 
-    // data will hold dumped data for all aspects and sub resources, total_subresources in total.
+    // data will hold dumped data for all aspects and sub resources, total_dumped_subresources in total.
     // VulkanResourcesUtil::ReadImageResource dumps all subresources for a specific aspect.
     // For that reason keep a different counter for the data vector
     size_t data_index = 0;
@@ -432,6 +446,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
         image_resource.dump_resources     = true;
 
         image_resource.resource_size = resource_util.GetImageSubresourceSizesDumpResources(dst_format,
+                                                                                           image_info->type,
                                                                                            scaled_extent,
                                                                                            image_info->level_count,
                                                                                            image_info->layer_count,
@@ -462,6 +477,16 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
             return result;
         }
 
+        // absolute base index of base_mip_level in the full-image subresource layout
+        uint32_t mip_base = 0;
+        if (is_3d)
+        {
+            for (uint32_t m = 0; m < modified_subresource_range.base_mip_level; ++m)
+            {
+                mip_base += graphics::ScaleToMipLevel(image_info->extent.depth, m);
+            }
+        }
+
         for (uint32_t mip = modified_subresource_range.base_mip_level;
              mip < modified_subresource_range.base_mip_level + modified_subresource_range.level_count;
              ++mip)
@@ -470,16 +495,17 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
             const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
 
             const uint32_t start =
-                is_3d ? modified_subresource_range.base_z : modified_subresource_range.base_array_layer;
+                is_3d ? modified_subresource_range.base_z >> mip : modified_subresource_range.base_array_layer;
             const uint32_t end =
-                is_3d ? (modified_subresource_range.base_z + modified_subresource_range.z_count)
+                is_3d ? graphics::ScaleToMipLevel(
+                            modified_subresource_range.base_z + modified_subresource_range.z_count, mip)
                       : (modified_subresource_range.base_array_layer + modified_subresource_range.layer_count);
             for (uint32_t z = start; z < end; ++z)
             {
                 dumped_image.dumped_subresources.emplace_back(
                     aspect, subresource_extent, subresource_scaled_extent, mip, is_3d ? 0 : z, is_3d ? z : 0);
 
-                const uint32_t sub_res_idx = (mip * (is_3d ? image_info->extent.depth : image_info->layer_count)) + z;
+                const uint32_t sub_res_idx = is_3d ? (mip_base + z) : (mip * image_info->layer_count + z);
                 const void*    offsetted_data =
                     reinterpret_cast<const void*>(raw_data.data() + subresource_offsets[sub_res_idx]);
 
@@ -490,10 +516,14 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                            subresource_sizes[sub_res_idx]);
                 ++data_index;
             }
+
+            if (is_3d)
+            {
+                mip_base += graphics::ScaleToMipLevel(image_info->extent.depth, mip);
+            }
         }
     }
-
-    GFXRECON_ASSERT(data_index == total_subresources);
+    GFXRECON_ASSERT(data_index == total_dumped_subresources);
 
     return VK_SUCCESS;
 }
@@ -1221,8 +1251,7 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                                                          "binding: %u array index: %u are not valid.",
                                                          requested_descriptor_tuple.set,
                                                          requested_descriptor_tuple.binding,
-                                                         requested_descriptor_tuple.array_index,
-                                                         util::ToString(image_info->format).c_str());
+                                                         requested_descriptor_tuple.array_index);
                                 }
                             }
                         }

@@ -79,6 +79,7 @@ class VulkanResourcesUtil
     // image with linear tiling (no hardware imposed alignments). Additionally treats the z indices of 3D images as
     // separate subresources and creates separate entries in subresource_offsets and subresource_sizes
     uint64_t GetImageSubresourceSizesDumpResources(VkFormat               format,
+                                                   VkImageType            type,
                                                    const VkExtent3D&      extent,
                                                    uint32_t               mip_levels,
                                                    uint32_t               array_layers,
@@ -231,6 +232,7 @@ class VulkanResourcesUtil
     void CopyImageToBuffer(VkCommandBuffer              command_buffer,
                            VkImage                      image,
                            VkFormat                     format,
+                           VkImageType                  type,
                            VkBuffer                     buffer,
                            VkDeviceSize                 buffer_offset,
                            const VkExtent3D&            extent,
