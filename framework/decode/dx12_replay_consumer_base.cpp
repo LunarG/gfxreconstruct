@@ -922,7 +922,6 @@ void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT ca
                 call_name,
                 enumutil::GetResultValueString(replay_result).c_str(),
                 enumutil::GetResultValueString(capture_result).c_str());
-            RaiseFatalError(enumutil::GetResultDescription(replay_result));
         }
         else
         {
@@ -3945,14 +3944,6 @@ IDXGIAdapter* Dx12ReplayConsumerBase::GetAdapter()
     return adapter_found;
 }
 
-void Dx12ReplayConsumerBase::RaiseFatalError(const char* message) const
-{
-    // TODO: Should there be a default action if no error handler has been provided?
-    if (fatal_error_handler_ != nullptr)
-    {
-        fatal_error_handler_(message);
-    }
-}
 
 // Helper to initialize the resource's D3D12ResourceInfo and set its is_reserved_resource = true.
 static void SetIsReservedResource(HandlePointerDecoder<void*>* resource)

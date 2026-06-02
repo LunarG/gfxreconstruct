@@ -29,6 +29,7 @@
 #include "util/platform.h"
 
 #include <array>
+#include <functional>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -97,9 +98,14 @@ class Log
         bool output_to_os_debug_string{ false }; // Windows-specific output messages to OutputDebugString
     };
 
+    using FatalCallback = std::function<void(const char*)>;
+
     static void Init(LoggingSeverity min_severity = LoggingSeverity::kInfo);
 
     static void UpdateWithSettings(const Settings& settings);
+
+    // NOTE: not thread-safe. must be called before any concurrent logging.
+    static void SetFatalCallback(FatalCallback callback);
 
     static void Release() {}
 
@@ -206,7 +212,8 @@ class Log
     static void        UpdateLogManagerComponents(gfxrecon::util::logging::LoggingManager& log_mgr);
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);
 
-    static Settings settings_;
+    static Settings      settings_;
+    static FatalCallback fatal_callback_;
 };
 
 #ifdef GFXRECON_ENABLE_COMMAND_TRACE

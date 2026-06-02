@@ -25,8 +25,8 @@
 #include "util/date_time.h"
 
 #include <cstdarg>
+#include <cstdlib>
 #include <string>
-#include <cstring>
 #include <cstdio>
 
 #if defined(__ANDROID__)
@@ -228,7 +228,8 @@ void LoggingManager::UpdateDebugViewTarget(bool enabled)
 
 GFXRECON_END_NAMESPACE(logging)
 
-Log::Settings Log::settings_;
+Log::Settings      Log::settings_;
+Log::FatalCallback Log::fatal_callback_;
 
 std::string Log::ConvertFormatVaListToString(const std::string& format_string, va_list& var_args)
 {
@@ -277,6 +278,11 @@ void Log::UpdateLogManagerComponents(gfxrecon::util::logging::LoggingManager& lo
     {
         log_mgr.EnableIndentSupport();
     }
+}
+
+void Log::SetFatalCallback(FatalCallback callback)
+{
+    fatal_callback_ = std::move(callback);
 }
 
 void Log::Init(LoggingSeverity min_severity)
@@ -408,6 +414,18 @@ void Log::LogMessage(
         settings_.break_on_error)
     {
         platform::TriggerDebugBreak();
+    }
+
+    if (severity == LoggingSeverity::kFatal)
+    {
+        if (fatal_callback_)
+        {
+            fatal_callback_(non_indented_version.c_str());
+        }
+        else
+        {
+            std::abort();
+        }
     }
 }
 

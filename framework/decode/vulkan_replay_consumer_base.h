@@ -89,8 +89,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);
     }
 
-    void SetFatalErrorHandler(std::function<void(const char*)> handler);
-
     void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
 
     virtual void WaitDevicesIdle() override;
@@ -1697,8 +1695,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     //// End recapture members
 
   private:
-    void RaiseFatalError(const char* message) const;
-
     void InitializeLoader();
 
     void AddInstanceTable(VkInstance instance);
@@ -1947,7 +1943,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     graphics::InstanceDispatchTablesMap                                      instance_tables_;
     graphics::DeviceDispatchTablesMap                                        device_tables_;
     std::unordered_map<format::HandleId, format::HandleId>                   device_phy_id_map_;
-    std::function<void(const char*)>                                         fatal_error_handler_;
     std::shared_ptr<application::Application>                                application_;
     CommonObjectInfoTable*                                                   object_info_table_;
     bool                                                                     loading_trim_state_;

@@ -1436,24 +1436,6 @@ void VulkanReplayConsumerBase::ClearRecaptureHandleIds()
     }
 }
 
-void VulkanReplayConsumerBase::SetFatalErrorHandler(std::function<void(const char*)> handler)
-{
-    fatal_error_handler_ = handler;
-    if (resource_dumper_)
-    {
-        resource_dumper_->DumpResourcesSetFatalErrorHandler(handler);
-    }
-}
-
-void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
-{
-    // TODO: Should there be a default action if no error handler has been provided?
-    if (fatal_error_handler_ != nullptr)
-    {
-        fatal_error_handler_(message);
-    }
-}
-
 void VulkanReplayConsumerBase::InitializeLoader()
 {
     loader_handle_ = graphics::InitializeLoader();
@@ -1476,7 +1458,6 @@ void VulkanReplayConsumerBase::InitializeLoader()
         GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
                            "loader (eg. %s) has been added to the appropriate system path",
                            graphics::kLoaderLibNames[0].c_str());
-        RaiseFatalError("Failed to load Vulkan runtime library");
     }
 }
 
@@ -1630,7 +1611,6 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
                 // replay to attempt to continue for the case where an application may have queried for formats that it
                 // did not use.
                 GFXRECON_LOG_FATAL("%s. Replay cannot continue.", log_str);
-                RaiseFatalError(enumutil::GetResultDescription(replay));
             }
             else
             {
@@ -2491,8 +2471,6 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const VulkanPhysicalD
     if (result < 0)
     {
         GFXRECON_LOG_FATAL("Failed to initialize memory allocator.  Replay cannot continue.");
-        RaiseFatalError(
-            "Replay has encountered a fatal error and cannot continue (failed to initialize memory allocator)");
     }
 }
 

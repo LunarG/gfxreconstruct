@@ -73,11 +73,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetAgsMarkerInjector(AGSContext* ags_context = nullptr);
 #endif
 
-    void SetFatalErrorHandler(std::function<void(const char*)> handler)
-    {
-        fatal_error_handler_ = handler;
-    }
-
     void SetFpsInfo(graphics::FpsInfo* fps_info)
     {
         fps_info_ = fps_info;
@@ -1279,8 +1274,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     LUID GetAdapterLuid(const LUID& capture_luid);
 
-    void RaiseFatalError(const char* message) const;
-
     uint64_t GetUniqueProxyWindowId()
     {
         return ++unique_proxy_window_id_counter_;
@@ -1383,7 +1376,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<uint64_t, HANDLE>                  event_objects_;
     std::unordered_map<uint64_t, LUID>                    adapter_luid_map_;
     std::unordered_map<uint64_t, void*>                   shared_handles_;
-    std::function<void(const char*)>                      fatal_error_handler_;
     Dx12DescriptorMap                                     descriptor_map_;
     graphics::Dx12GpuVaMap                                gpu_va_map_;
     std::unique_ptr<uint8_t[]>                            debug_message_;
