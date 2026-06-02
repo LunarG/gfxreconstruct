@@ -81,7 +81,7 @@ def gfxrTestWindows(
                                 bat(script: 'ci/cloneTests.bat')
                                 bat(script: 'ci/buildGfxr.bat')
                                 bat(script: 'ci/cloneSuites.bat')
-                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                if (replayDumpSuite != '') {
                                     bat(script: 'ci/runReplayDump.bat')
                                 }
                                 bat(script: 'ci/runTest.bat')
@@ -164,7 +164,7 @@ def gfxrTestLinux(
                                 sh(script: 'ci/cloneTests.sh')
                                 sh(script: 'sh ci/buildGfxr.sh')
                                 sh(script: 'ci/cloneSuites.sh')
-                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                if (replayDumpSuite != '') {
                                     sh(script: 'bash ci/runReplayDump.sh')
                                 }
                                 sh(script: 'ci/runTest.sh')
@@ -343,7 +343,7 @@ def gfxrTestWindowsManual(
                                 bat(script: 'ci/cloneTests.bat')
                                 bat(script: 'ci/buildGfxr.bat')
                                 bat(script: 'ci/cloneSuites.bat')
-                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                if (replayDumpSuite != '') {
                                     bat(script: 'ci/runReplayDump.bat')
                                 }
                                 bat(script: 'ci/runTest.bat')
@@ -429,7 +429,7 @@ def gfxrTestLinuxManual(
                                 sh(script: 'ci/cloneTests.sh')
                                 sh(script: 'sh ci/buildGfxr.sh')
                                 sh(script: 'ci/cloneSuites.sh')
-                                if ((replayDumpSuite ?: SkipReplayDump) != SkipReplayDump) {
+                                if (replayDumpSuite != '') {
                                     sh(script: 'bash ci/runReplayDump.sh')
                                 }
                                 sh(script: 'ci/runTest.sh')
