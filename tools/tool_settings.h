@@ -1326,8 +1326,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         }
         else
         {
-            GFXRECON_LOG_FATAL("Unexpected value after '--skip-get-fence-status': '%s'",
-                               skip_get_fence_status.c_str());
+            GFXRECON_LOG_FATAL("Unexpected value after '--skip-get-fence-status': '%s'", skip_get_fence_status.c_str());
         }
     }
 

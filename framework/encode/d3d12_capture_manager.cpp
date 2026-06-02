@@ -3033,7 +3033,7 @@ HRESULT D3D12CaptureManager::OverrideD3D12CreateVersionedRootSignatureDeserializ
     REFIID  pRootSignatureDeserializerInterface,
     void**  ppRootSignatureDeserializer)
 {
-    GFXRECON_LOG_FATAL(
+    GFXRECON_LOG_ERROR(
         "Calling unsupported function D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary");
     return E_NOTIMPL;
 }
@@ -3520,10 +3520,11 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
     {
         if (num_lists <= trim_draw_calls.command_index)
         {
-            GFXRECON_LOG_FATAL("CAPTURE_DRAW_CALLS can't find the commandlist index(%d). It might be out of range(%d).",
+            GFXRECON_LOG_ERROR("CAPTURE_DRAW_CALLS can't find the commandlist index(%d). It might be out of range(%d).",
                                trim_draw_calls.command_index,
                                num_lists);
             GFXRECON_ASSERT(num_lists > trim_draw_calls.command_index);
+            return false;
         }
 
         auto target_cmdlist = lists[trim_draw_calls.command_index];
@@ -3535,10 +3536,11 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
 
         if (target_info->find_target_draw_call_count == 0)
         {
-            GFXRECON_LOG_FATAL("CAPTURE_DRAW_CALLS can't find the draw call indices(%d-%d). It might be out of range.",
+            GFXRECON_LOG_ERROR("CAPTURE_DRAW_CALLS can't find the draw call indices(%d-%d). It might be out of range.",
                                trim_draw_calls.draw_call_indices.first,
                                trim_draw_calls.draw_call_indices.last);
             GFXRECON_ASSERT(target_info->find_target_draw_call_count != 0);
+            return false;
         }
 
         if (target_info->find_target_draw_call_count !=
@@ -3556,11 +3558,12 @@ bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(
             if (target_info->target_bundle_commandlist_info->find_target_draw_call_count == 0)
             {
 
-                GFXRECON_LOG_FATAL(
+                GFXRECON_LOG_ERROR(
                     "CAPTURE_DRAW_CALLS can't find the bundle draw call indices(%d-%d). It might be out of range.",
                     trim_draw_calls.bundle_draw_call_indices.first,
                     trim_draw_calls.bundle_draw_call_indices.last);
                 GFXRECON_ASSERT(target_info->target_bundle_commandlist_info->find_target_draw_call_count != 0);
+                return false;
             }
 
             if (target_info->target_bundle_commandlist_info->find_target_draw_call_count !=
@@ -3861,12 +3864,13 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
                 case graphics::dx12::Dx12DumpResourcePos::kDrawCall:
                     if (trim_draw_calls.draw_call_indices.first != trim_draw_calls.draw_call_indices.last)
                     {
-                        GFXRECON_LOG_FATAL("The target draw call is a ExecuteBundle. The draw call indices must be not "
+                        GFXRECON_LOG_ERROR("The target draw call is a ExecuteBundle. The draw call indices must be not "
                                            "a range(%d-%d).",
                                            trim_draw_calls.draw_call_indices.first,
                                            trim_draw_calls.draw_call_indices.last);
                         GFXRECON_ASSERT(trim_draw_calls.draw_call_indices.first ==
                                         trim_draw_calls.draw_call_indices.last);
+                        return {};
                     }
                     cmd_sets.insert(cmd_sets.end(),
                                     cmd_list_info->split_command_sets.begin(),

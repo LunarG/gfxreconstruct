@@ -475,9 +475,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_A
             encoder->EncodeUInt32Value(value.NumBlocks);
             break;
         default:
-            GFXRECON_LOG_FATAL(
-                "Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
-                value.HeaderPostambleType);
+            GFXRECON_LOG_FATAL("Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
+                               value.HeaderPostambleType);
             break;
     }
 }

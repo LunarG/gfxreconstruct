@@ -715,9 +715,8 @@ size_t DecodeStruct(const uint8_t*                                              
                 ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->NumBlocks));
             break;
         default:
-            GFXRECON_LOG_FATAL(
-                "Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
-                value->HeaderPostambleType);
+            GFXRECON_LOG_FATAL("Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
+                               value->HeaderPostambleType);
             break;
     }
 
