@@ -331,34 +331,30 @@ static uint32_t ExtractAndFilterSubresourceRange(const json_iterator json_it,
                                                  uint32_t            binding,
                                                  uint32_t            ai)
 {
-    uint32_t count;
-    if (!json_it.contains(range_name))
+    uint32_t count = std::numeric_limits<uint32_t>::max();
+    if (json_it.contains(range_name))
     {
-        count = std::numeric_limits<uint32_t>::max();
-    }
-    else if (json_it[range_name].is_number())
-    {
-        count = json_it[range_name];
-    }
-    else
-    {
-        const std::string level_count_str = json_it[range_name];
-        if (!level_count_str.compare(alternative_end_range_name))
+        if (json_it[range_name].is_number())
         {
-            count = std::numeric_limits<uint32_t>::max();
+            count = json_it[range_name];
         }
         else
         {
-            GFXRECON_LOG_WARNING("The string \"%s\", that is being passed as %s for command index: %" PRIu64
-                                 ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
-                                 ", is not recognized and will be ignored (will use 1 instead).",
-                                 level_count_str.c_str(),
-                                 range_name.c_str(),
-                                 cmd_index,
-                                 set,
-                                 binding,
-                                 ai);
-            count = 1;
+            const std::string level_count_str = json_it[range_name];
+            if (level_count_str.compare(alternative_end_range_name))
+            {
+                GFXRECON_LOG_WARNING("The string \"%s\", that is being passed as %s for command index: %" PRIu64
+                                     ", descriptor set: %" PRIu64 ", binding set: %" PRIu64
+                                     " and, array index: %" PRIu64
+                                     ", is not recognized and will be ignored (will use 1 instead).",
+                                     level_count_str.c_str(),
+                                     range_name.c_str(),
+                                     cmd_index,
+                                     set,
+                                     binding,
+                                     ai);
+                count = 1;
+            }
         }
     }
 
