@@ -145,6 +145,11 @@ class VulkanResourcesUtil
     VkResult ReadFromBufferResource(
         VkBuffer buffer, uint64_t size, uint64_t offset, uint32_t queue_family_index, std::vector<uint8_t>& data);
 
+    VkResult ReadFromTensorResource(VkTensorARM                   tensor,
+                                    const VkTensorDescriptionARM* desc,
+                                    uint32_t                      queue_family_index,
+                                    std::vector<uint8_t>&         data);
+
     struct BufferResource
     {
         format::HandleId handle_id          = format::kNullHandleId;

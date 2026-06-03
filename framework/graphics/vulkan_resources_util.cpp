@@ -2655,6 +2655,20 @@ VkResult VulkanResourcesUtil::ReadFromBufferResource(
     return result;
 }
 
+VkResult VulkanResourcesUtil::ReadFromTensorResource(VkTensorARM                   tensor,
+                                                     const VkTensorDescriptionARM* desc,
+                                                     uint32_t                      queue_family_index,
+                                                     std::vector<uint8_t>&         data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(tensor);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+    GFXRECON_UNREFERENCED_PARAMETER(queue_family_index);
+    GFXRECON_UNREFERENCED_PARAMETER(data);
+    GFXRECON_LOG_WARNING_ONCE("Tensor trim snapshot via staging copy is not yet implemented; "
+                              "device-local tensors will not be captured in trimmed captures");
+    return VK_ERROR_FEATURE_NOT_PRESENT;
+}
+
 void VulkanResourcesUtil::ReadBufferResources(const std::vector<BufferResource>& buffer_resources,
                                               const VulkanResourcesUtil::ReadBufferResourcesCallbackFn& callback,
                                               size_t staging_buffer_size)
