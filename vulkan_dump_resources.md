@@ -300,7 +300,7 @@ This is an example:
 }
 ```
 
-Image descriptors can be fine grained further by specifying the desired subresources with a `VkImageSubresourceRange` like this:
+Image descriptors can be fine grained further by specifying which subresources to be dumped like this:
 
 ```Json
 "Index": 2533,
@@ -314,13 +314,18 @@ Image descriptors can be fine grained further by specifying the desired subresou
             "BaseMipLevel": 2,
             "LevelCount": 1,
             "BaseArrayLayer": 2,
-            "LayerCount": 1
+            "LayerCount": 1,
+            "BaseZIndex": 0,
+            "ZCount": 1
         }
     }
 ]
 ```
 
-`VK_REMAINING_MIP_LEVELS` and `VK_REMAINING_ARRAY_LAYERS` can be used in `LevelCount` and `LayerCount` respectively.
+`AspectMask`, `BaseMipLevel`, `LevelCount`, `BaseArrayLayer`, and `LayerCount` are much like the `VkImageSubresourceRange` struct.
+`BaseZIndex`, and `ZCount` are relevant to 3D images and control the depth indices.
+`VK_REMAINING_MIP_LEVELS`, `VK_REMAINING_ARRAY_LAYERS` and `REMAINING_Z_INDICES` can be used in `LevelCount`, `LayerCount` and `ZCount` respectively.
+Providing `AspectMask` with `VK_IMAGE_ASPECT_NONE` should dump all valid aspects for the image's format.
 
 ### Transfer commands
 

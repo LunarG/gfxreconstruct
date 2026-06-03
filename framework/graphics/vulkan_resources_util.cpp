@@ -903,8 +903,7 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
                                                            VkImageTiling          tiling,
                                                            VkImageAspectFlagBits  aspect,
                                                            std::vector<uint64_t>* subresource_offsets,
-                                                           std::vector<uint64_t>* subresource_sizes,
-                                                           bool                   all_layers_per_level)
+                                                           std::vector<uint64_t>* subresource_sizes)
 {
     // Vulkan requires each VkBufferImageCopy::bufferOffset to satisfy format/aspect alignment.
     // Keep one shared alignment value here so all per-subresource offset math follows the same rule.
@@ -931,73 +930,58 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkFormat             
         subresource_offsets->clear();
     }
 
-    uint64_t       resource_size     = 0;
-    uint32_t       subresource_idx   = 0;
-    const uint32_t subresource_count = all_layers_per_level ? mip_levels : (mip_levels * array_layers);
+    uint64_t resource_size   = 0;
+    uint32_t subresource_idx = 0;
 
     for (uint32_t m = 0; m < mip_levels; ++m)
     {
-        const VkExtent3D mip_extent = { std::max(1u, (extent.width >> m)),
-                                        std::max(1u, (extent.height >> m)),
-                                        std::max(1u, (extent.depth >> m)) };
-
         // Compute exact bytes copied for one tightly-packed region.
         VkImageToMemoryCopy copy_region{};
         copy_region.memoryRowLength                 = 0;
         copy_region.memoryImageHeight               = 0;
-        copy_region.imageExtent                     = mip_extent;
+        copy_region.imageExtent                     = graphics::ScaleToMipLevel(extent, m);
         copy_region.imageSubresource.aspectMask     = aspect;
         copy_region.imageSubresource.baseArrayLayer = 0;
-        copy_region.imageSubresource.layerCount     = all_layers_per_level ? array_layers : 1;
+        copy_region.imageSubresource.layerCount     = array_layers;
 
         const uint64_t tight_copy_size = GetBufferSizeFromCopyImage(copy_region, array_layers, format);
 
-        for (uint32_t l = 0; l < array_layers; ++l)
+        // Apply Vulkan alignment per subresource region offset.
+        resource_size = AlignBufferOffset(resource_size, copy_alignment);
+
+        if (subresource_offsets != nullptr)
         {
-            // Apply Vulkan alignment per subresource region offset.
-            resource_size = AlignBufferOffset(resource_size, copy_alignment);
-
-            if (subresource_offsets != nullptr)
-            {
-                subresource_offsets->push_back(resource_size);
-            }
-
-            const bool is_last_subresource = (subresource_idx + 1 == subresource_count);
-
-            // Preserve tight sizes for layer-by-layer callers, but emit padded per-level strides when
-            // all_layers_per_level=true so serialized level_sizes can reconstruct aligned offsets at replay.
-            uint64_t size_for_output = tight_copy_size;
-            if (all_layers_per_level && !is_last_subresource)
-            {
-                const uint64_t next_offset = AlignBufferOffset(resource_size + tight_copy_size, copy_alignment);
-                size_for_output            = next_offset - resource_size;
-            }
-
-            if (subresource_sizes != nullptr)
-            {
-                subresource_sizes->push_back(size_for_output);
-            }
-
-            resource_size += size_for_output;
-            ++subresource_idx;
-
-            if (all_layers_per_level)
-            {
-                break;
-            }
+            subresource_offsets->push_back(resource_size);
         }
+
+        uint64_t   size_for_output     = tight_copy_size;
+        const bool is_last_subresource = (subresource_idx + 1 == mip_levels);
+        if (!is_last_subresource)
+        {
+            const uint64_t next_offset = AlignBufferOffset(resource_size + tight_copy_size, copy_alignment);
+            size_for_output            = next_offset - resource_size;
+        }
+
+        if (subresource_sizes != nullptr)
+        {
+            subresource_sizes->push_back(size_for_output);
+        }
+
+        resource_size += size_for_output;
+        ++subresource_idx;
     }
 
     return resource_size;
 }
 
-uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkFormat               format,
-                                                          const VkExtent3D&      extent,
-                                                          uint32_t               mip_levels,
-                                                          uint32_t               array_layers,
-                                                          VkImageAspectFlagBits  aspect,
-                                                          std::vector<uint64_t>& subresource_offsets,
-                                                          std::vector<uint64_t>& subresource_sizes)
+uint64_t VulkanResourcesUtil::GetImageSubresourceSizesDumpResources(VkFormat               format,
+                                                                    VkImageType            type,
+                                                                    const VkExtent3D&      extent,
+                                                                    uint32_t               mip_levels,
+                                                                    uint32_t               array_layers,
+                                                                    VkImageAspectFlagBits  aspect,
+                                                                    std::vector<uint64_t>& subresource_offsets,
+                                                                    std::vector<uint64_t>& subresource_sizes)
 {
     // Calculate linear size for CmdCopyImageToBuffer output (bufferRowLength=0).
     // GetImageMemoryRequirements returns optimal size which can differ on mobile GPUs.
@@ -1012,7 +996,21 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkFormat              
         return 0;
     }
 
-    const uint32_t total_subresources = mip_levels * array_layers;
+    const bool is_3d = type == VK_IMAGE_TYPE_3D;
+    uint32_t   total_subresources;
+    if (is_3d)
+    {
+        total_subresources = 0;
+        for (uint32_t m = 0; m < mip_levels; ++m)
+        {
+            total_subresources += std::max(1u, extent.depth >> m);
+        }
+    }
+    else
+    {
+        total_subresources = mip_levels * array_layers;
+    }
+
     subresource_sizes.resize(total_subresources);
     subresource_offsets.resize(total_subresources);
 
@@ -1028,9 +1026,9 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkFormat              
             mip_extent.height = (mip_extent.height + block_height - 1) / block_height;
         }
 
-        const VkDeviceSize mip_size = texel_size * mip_extent.width * mip_extent.height * mip_extent.depth;
+        const VkDeviceSize mip_size = texel_size * mip_extent.width * mip_extent.height;
 
-        for (uint32_t l = 0; l < array_layers; ++l)
+        for (uint32_t z = 0; z < (is_3d ? mip_extent.depth : array_layers); ++z)
         {
             subresource_sizes[sub]   = mip_size;
             subresource_offsets[sub] = resource_size;
@@ -1377,24 +1375,45 @@ void VulkanResourcesUtil::TransitionImageFromTransferOptimal(VkCommandBuffer    
                                      &memory_barrier);
 }
 
-void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_buffer,
-                                          VkImage                      image,
-                                          VkFormat                     format,
-                                          VkBuffer                     buffer,
-                                          VkDeviceSize                 buffer_offset,
-                                          const VkExtent3D&            extent,
-                                          uint32_t                     mip_levels,
-                                          uint32_t                     array_layers,
-                                          VkImageAspectFlags           aspect,
-                                          const std::vector<uint64_t>& sizes,
-                                          bool                         all_layers_per_level,
-                                          CopyBufferImageDirection     copy_direction)
+void VulkanResourcesUtil::CopyImageToBuffer(VkCommandBuffer              command_buffer,
+                                            VkImage                      image,
+                                            VkFormat                     format,
+                                            VkImageType                  type,
+                                            VkBuffer                     buffer,
+                                            VkDeviceSize                 buffer_offset,
+                                            const VkExtent3D&            extent,
+                                            uint32_t                     mip_levels,
+                                            uint32_t                     array_layers,
+                                            VkImageAspectFlags           aspect,
+                                            const std::vector<uint64_t>& sizes,
+                                            bool                         is_dump_resources)
 {
     GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
 
-    const uint32_t n_subresources = all_layers_per_level ? mip_levels : mip_levels * array_layers;
-
-    GFXRECON_ASSERT(sizes.size() == n_subresources);
+    // In dump resources we dump each z index of 3D images and each array layer for non 3D images as a separate image
+    // subresource so we count subresources differently
+    const bool is_3d = (type == VK_IMAGE_TYPE_3D);
+    uint32_t   total_subresources;
+    if (is_dump_resources)
+    {
+        if (is_3d)
+        {
+            total_subresources = 0;
+            for (uint32_t m = 0; m < mip_levels; ++m)
+            {
+                total_subresources += ScaleToMipLevel(extent.depth, m);
+            }
+        }
+        else
+        {
+            total_subresources = mip_levels * array_layers;
+        }
+    }
+    else
+    {
+        total_subresources = mip_levels;
+    }
+    GFXRECON_ASSERT(sizes.size() == total_subresources);
 
     std::vector<VkBufferImageCopy> copy_regions;
 
@@ -1405,7 +1424,7 @@ void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_b
     copy_region.imageOffset.y               = 0;
     copy_region.imageOffset.z               = 0;
     copy_region.imageSubresource.aspectMask = aspect;
-    copy_region.imageSubresource.layerCount = all_layers_per_level ? array_layers : 1;
+    copy_region.imageSubresource.layerCount = is_dump_resources ? 1 : array_layers;
 
     const VkDeviceSize copy_alignment = GetBufferImageCopyOffsetAlignment(format, aspect);
     VkDeviceSize       current_offset = buffer_offset;
@@ -1414,9 +1433,8 @@ void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_b
     for (uint32_t m = 0; m < mip_levels; ++m)
     {
         copy_region.imageSubresource.mipLevel = m;
-        copy_region.imageExtent.width         = std::max(1u, (extent.width >> m));
-        copy_region.imageExtent.height        = std::max(1u, (extent.height >> m));
-        copy_region.imageExtent.depth         = std::max(1u, (extent.depth >> m));
+        const auto mip_extent                 = graphics::ScaleToMipLevel(extent, m);
+        copy_region.imageExtent               = mip_extent;
 
         for (uint32_t l = 0; l < array_layers; ++l)
         {
@@ -1427,37 +1445,27 @@ void VulkanResourcesUtil::CopyImageBuffer(VkCommandBuffer              command_b
             copy_region.imageSubresource.baseArrayLayer = l;
             copy_regions.push_back(copy_region);
 
-            current_offset += sizes[sr];
-            ++sr;
-
-            if (all_layers_per_level)
+            if (is_dump_resources)
             {
+                current_offset += mip_extent.depth * sizes[sr];
+                sr += mip_extent.depth;
+            }
+            else
+            {
+                current_offset += sizes[sr];
+                ++sr;
                 break;
             }
         }
     }
-    GFXRECON_ASSERT(sr == n_subresources);
+    GFXRECON_ASSERT(sr == total_subresources);
 
-    if (copy_direction == kImageToBuffer)
-    {
-        device_table_.CmdCopyImageToBuffer(command_buffer,
-                                           image,
-                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                           buffer,
-                                           static_cast<uint32_t>(copy_regions.size()),
-                                           copy_regions.data());
-    }
-    else
-    {
-        GFXRECON_ASSERT(copy_direction == kBufferToImage);
-
-        device_table_.CmdCopyBufferToImage(command_buffer,
-                                           buffer,
-                                           image,
-                                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                           static_cast<uint32_t>(copy_regions.size()),
-                                           copy_regions.data());
-    }
+    device_table_.CmdCopyImageToBuffer(command_buffer,
+                                       image,
+                                       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                       buffer,
+                                       static_cast<uint32_t>(copy_regions.size()),
+                                       copy_regions.data());
 }
 
 void VulkanResourcesUtil::CopyBuffer(VkCommandBuffer command_buffer,
@@ -1855,11 +1863,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         tmp_data[i].use_blit =
             (img.format != dst_format && blit_supported) || (img.scale != 1.0f && tmp_data[i].scaling_supported);
 
-        tmp_data[i].scaled_extent = {
-            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.width) * img.scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.height) * img.scale, 1.0f)),
-            static_cast<uint32_t>(std::max(static_cast<float>(img.extent.depth) * img.scale, 1.0f))
-        };
+        GFXRECON_ASSERT((!img.dump_resources && img.scale == 1.0f) || (img.dump_resources));
+        tmp_data[i].scaled_extent = graphics::ScaleExtent3DNoDepth(img.extent, img.scale);
 
         uint64_t resource_size = img.resource_size;
 
@@ -1870,6 +1875,9 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         }
         else if (resource_size == 0 || img.level_sizes == nullptr)
         {
+            // GetImageResourceSizesOptimal should not be used by dump resources. For the dump resources code path the
+            // subresources' sizes should be already acquired by a call to GetImageSubresourceSizesDumpResources
+            GFXRECON_ASSERT(!img.dump_resources);
             resource_size = GetImageResourceSizesOptimal(tmp_data[i].use_blit ? dst_format : img.format,
                                                          tmp_data[i].use_blit ? tmp_data[i].scaled_extent : img.extent,
                                                          img.level_count,
@@ -1877,8 +1885,7 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                                                          img.tiling,
                                                          img.aspect,
                                                          nullptr,
-                                                         &tmp_data[i].level_sizes,
-                                                         img.all_layers_per_level);
+                                                         &tmp_data[i].level_sizes);
         }
 
         VkDeviceSize aligned_batch_offset = current_batch_size;
@@ -2029,19 +2036,18 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
             if (!img.external_format)
             {
-                // Copy image to staging buffer
-                CopyImageBuffer(command_buffer,
-                                copy_image,
-                                tmp_data[i].use_blit ? dst_format : img.format,
-                                staging_buffer_.buffer,
-                                tmp_data[i].staging_offset,
-                                tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
-                                img.level_count,
-                                img.layer_count,
-                                img.aspect,
-                                img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
-                                img.all_layers_per_level,
-                                kImageToBuffer);
+                CopyImageToBuffer(command_buffer,
+                                  copy_image,
+                                  tmp_data[i].use_blit ? dst_format : img.format,
+                                  img.type,
+                                  staging_buffer_.buffer,
+                                  tmp_data[i].staging_offset,
+                                  tmp_data[i].scaling_supported ? tmp_data[i].scaled_extent : img.extent,
+                                  img.level_count,
+                                  img.layer_count,
+                                  img.aspect,
+                                  img.level_sizes != nullptr ? *img.level_sizes : tmp_data[i].level_sizes,
+                                  img.dump_resources);
             }
 
             // Cache flushing barrier. Make results visible to host
@@ -2690,7 +2696,7 @@ bool VulkanResourcesUtil::IsScalingSupported(VkFormat          src_format,
                                                                0,
                                                                &dst_img_format_props);
 
-        const VkExtent3D scaled_extent = graphics::ScaleExtent(extent, scale);
+        const VkExtent3D scaled_extent = graphics::ScaleExtent3DNoDepth(extent, scale);
         if ((dst_img_format_props.maxExtent.width < scaled_extent.width) ||
             (dst_img_format_props.maxExtent.height < scaled_extent.height) ||
             (dst_img_format_props.maxExtent.depth < scaled_extent.depth))
@@ -2865,7 +2871,6 @@ VkResult VulkanResourcesUtil::BlitImage(VkCommandBuffer       command_buffer,
     blit_region.dstOffsets[0] = { 0, 0, 0 };
 
     GFXRECON_ASSERT(mip_levels);
-    // assert(dst_img_mip_levels);
     std::vector<VkImageBlit> blit_regions(mip_levels);
 
     for (uint32_t i = 0; i < mip_levels; ++i)
