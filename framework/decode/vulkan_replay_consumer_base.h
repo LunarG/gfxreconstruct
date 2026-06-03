@@ -169,6 +169,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           uint64_t         data_size,
                                           const uint8_t*   data) override;
 
+    void ProcessInitTensorCommand(format::HandleId device_id,
+                                  format::HandleId tensor_id,
+                                  uint64_t         data_size,
+                                  const uint8_t*   data) override;
+
     virtual void ProcessInitImageCommand(format::HandleId             device_id,
                                          format::HandleId             image_id,
                                          uint64_t                     data_size,

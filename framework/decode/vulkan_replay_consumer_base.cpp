@@ -1200,6 +1200,51 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
     }
 }
 
+void VulkanReplayConsumerBase::ProcessInitTensorCommand(format::HandleId device_id,
+                                                        format::HandleId tensor_id,
+                                                        uint64_t         data_size,
+                                                        const uint8_t*   data)
+{
+    VulkanDeviceInfo*          device_info = object_info_table_->GetVkDeviceInfo(device_id);
+    const VulkanTensorARMInfo* tensor_info = object_info_table_->GetVkTensorARMInfo(tensor_id);
+
+    if ((device_info != nullptr) && (tensor_info != nullptr))
+    {
+        GFXRECON_ASSERT((device_info->handle != VK_NULL_HANDLE) && (tensor_info->handle != VK_NULL_HANDLE));
+
+        VulkanResourceInitializer* initializer = device_info->resource_initializer.get();
+        if (initializer != nullptr)
+        {
+            VkResult result = initializer->LoadData(data_size, data, tensor_info->allocator_data);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("State snapshot tensor upload failed for VkTensorARM object (ID = %" PRIu64 ")",
+                                     tensor_id);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Skipping state snapshot tensor upload for tensor %" PRIu64
+                                 ": resource initializer was not created",
+                                 tensor_id);
+        }
+    }
+    else
+    {
+        if (device_info == nullptr)
+        {
+            GFXRECON_LOG_WARNING(
+                "Skipping state snapshot tensor upload for unrecognized VkDevice object (ID = %" PRIu64 ")", device_id);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Skipping state snapshot tensor upload for unrecognized VkTensorARM object (ID = %" PRIu64 ")",
+                tensor_id);
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId             device_id,
                                                        format::HandleId             image_id,
                                                        uint64_t                     data_size,

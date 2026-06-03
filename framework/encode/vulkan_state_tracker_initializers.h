@@ -619,7 +619,7 @@ InitializeGroupObjectState<VkDevice,
 
     if (create_info->layout != VK_NULL_HANDLE)
     {
-        auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+        auto* layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
         GFXRECON_ASSERT(layout_wrapper != nullptr);
 
         wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -647,7 +647,7 @@ InitializeState<VkDevice, vulkan_wrappers::DataGraphPipelineSessionARMWrapper, V
     wrapper->create_parameters = std::move(create_parameters);
 
     // Track pipeline dependencies so we can recreate destroyed pipelines during trimming.
-    auto pipeline_wrapper =
+    auto* pipeline_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(create_info->dataGraphPipeline);
     if (pipeline_wrapper != nullptr)
     {

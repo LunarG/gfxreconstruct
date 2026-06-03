@@ -1201,6 +1201,35 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init buffer data meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kInitTensorCommand)
+    {
+        format::InitTensorCommandHeader header;
+
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.device_id);
+        success = success && block_buffer.Read(header.tensor_id);
+        success = success && block_buffer.Read(header.data_size);
+
+        if (success)
+        {
+            const char*         label       = "init tensor data meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.data_size);
+            if (read_result.success)
+            {
+                auto* payload = Emplace<InitTensorArgs>(meta_data_id,
+                                                        header.thread_id,
+                                                        header.device_id,
+                                                        header.tensor_id,
+                                                        header.data_size,
+                                                        reinterpret_cast<const uint8_t*>(read_result.buffer.data()));
+                return MakeCompressibleParsedBlock(block_buffer, read_result, payload);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init tensor data meta-data block header");
+        }
+    }
     else if (meta_data_type == format::MetaDataType::kInitImageCommand)
     {
         format::InitImageCommandHeader header;
