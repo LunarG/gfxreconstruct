@@ -108,7 +108,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
                    float                                scale,
                    bool                                 dump_image_raw,
-                   const VkImageSubresourceRange&       subresource_range,
+                   const ImageSubresourceRanges&        subresource_range,
                    DumpedImageHostData&                 data,
                    const VulkanDeviceInfo*              device_info,
                    const graphics::VulkanDeviceTable*   device_table,
@@ -172,54 +172,9 @@ void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
                           VkPipelineStageFlags dst_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT |
                                                                 VK_PIPELINE_STAGE_HOST_BIT);
 
-static constexpr VkImageSubresourceRange FilterImageSubresourceRange(const VkImageSubresourceRange& subresource_range,
-                                                                     const VulkanImageInfo*         image_info)
-{
-    GFXRECON_ASSERT(image_info != nullptr);
-
-    VkImageSubresourceRange modified_subresource_range;
-    modified_subresource_range.aspectMask = subresource_range.aspectMask;
-
-    // Handle base mip level and count
-    if (subresource_range.baseMipLevel > image_info->level_count)
-    {
-        modified_subresource_range.baseMipLevel = 0;
-    }
-    else
-    {
-        modified_subresource_range.baseMipLevel = subresource_range.baseMipLevel;
-    }
-
-    if (subresource_range.levelCount == VK_REMAINING_MIP_LEVELS)
-    {
-        modified_subresource_range.levelCount = image_info->level_count - modified_subresource_range.baseMipLevel;
-    }
-    else
-    {
-        modified_subresource_range.levelCount = std::min(image_info->level_count, subresource_range.levelCount);
-    }
-
-    // Handle base array layer and count
-    if (subresource_range.baseArrayLayer > image_info->layer_count)
-    {
-        modified_subresource_range.baseArrayLayer = 0;
-    }
-    else
-    {
-        modified_subresource_range.baseArrayLayer = subresource_range.baseArrayLayer;
-    }
-
-    if (subresource_range.layerCount == VK_REMAINING_ARRAY_LAYERS)
-    {
-        modified_subresource_range.layerCount = image_info->layer_count - modified_subresource_range.baseArrayLayer;
-    }
-    else
-    {
-        modified_subresource_range.layerCount = std::min(image_info->layer_count, subresource_range.layerCount);
-    }
-
-    return modified_subresource_range;
-}
+bool ValidateImageSubresourceRange(const ImageSubresourceRanges& requested_subresource_range,
+                                   ImageSubresourceRanges&       modified_subresource_range,
+                                   const VulkanImageInfo*        image_info);
 
 void CullDescriptors(const CommonObjectInfoTable&             object_info_table_,
                      const BoundDescriptorSets&               call_referenced_descriptors,

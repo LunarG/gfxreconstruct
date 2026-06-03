@@ -205,6 +205,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
         VkImageAspectFlagBits     aspect,
         uint32_t                  mip_level,
         uint32_t                  layer,
+        uint32_t                  depth,
         bool                      before_command) const;
 
     DefaultVulkanDumpResourcesDelegate(const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table) :
@@ -245,6 +246,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                   VkImageAspectFlagBits     aspect,
                                                   uint32_t                  mip_level,
                                                   uint32_t                  layer,
+                                                  uint32_t                  depth,
                                                   bool                      before_command) const;
 
     std::string GenerateGraphicsImageDescriptorFilename(const DumpedResourceBase& dumped_resource,
@@ -252,6 +254,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                         VkImageAspectFlagBits     aspect,
                                                         uint32_t                  mip_level,
                                                         uint32_t                  layer,
+                                                        uint32_t                  depth,
                                                         bool                      before_command) const;
 
     std::string GenerateDispatchTraceRaysImageFilename(const DumpedResourceBase& dumped_resource,
@@ -259,6 +262,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                        VkImageAspectFlagBits     aspect,
                                                        uint32_t                  mip_level,
                                                        uint32_t                  layer,
+                                                       uint32_t                  depth,
                                                        bool                      before_command) const;
 
     std::string GenerateDispatchTraceRaysImageDescriptorFilename(const DumpedResourceBase& dumped_resource,
@@ -266,6 +270,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                                  VkImageAspectFlagBits     aspect,
                                                                  uint32_t                  mip_level,
                                                                  uint32_t                  layer,
+                                                                 uint32_t                  depth,
                                                                  bool                      before_command) const;
 
     // Buffers
@@ -341,6 +346,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                       VkImageAspectFlagBits     aspect,
                                                       uint32_t                  mip_level,
                                                       uint32_t                  layer,
+                                                      uint32_t                  depth,
                                                       bool                      before_command) const;
 
     // Json generators

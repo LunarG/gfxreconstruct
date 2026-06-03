@@ -178,6 +178,7 @@ void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered
 
     json_entry["mipLevel"]   = subresource.level;
     json_entry["arrayLayer"] = subresource.layer;
+    json_entry["depth"]      = subresource.depth;
     json_entry["file"]       = subresource.filename;
 
     if (separate_alpha && !dumped_raw && vkuFormatHasAlpha(format))
