@@ -205,7 +205,8 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     have_imported_semaphores_(false), omitted_pipeline_cache_data_(false),
     save_pipeline_caches_to_file(!options.save_pipeline_cache_filename.empty()),
     load_pipeline_caches_from_file(!options.load_pipeline_cache_filename.empty()),
-    load_save_caches_in_same_file(options.save_pipeline_cache_filename == options.load_pipeline_cache_filename)
+    load_save_caches_in_same_file(!options.save_pipeline_cache_filename.empty() &&
+                                  options.save_pipeline_cache_filename == options.load_pipeline_cache_filename)
 {
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
     assert(object_info_table_);
@@ -7399,9 +7400,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             // previous run and feeding it to create the next cache with more data until everything is built.
             override_create_info.initialDataSize = 0;
             override_create_info.pInitialData    = nullptr;
-            tracked_pipeline_caches_.emplace(std::piecewise_construct,
-                                             std::forward_as_tuple(*pPipelineCache->GetPointer()),
-                                             std::forward_as_tuple(nullptr, VK_NULL_HANDLE, true));
+            if (save_pipeline_caches_to_file)
+            {
+                tracked_pipeline_caches_.emplace(std::piecewise_construct,
+                                                 std::forward_as_tuple(*pPipelineCache->GetPointer()),
+                                                 std::forward_as_tuple(nullptr, VK_NULL_HANDLE, true));
+            }
         }
     }
     else if ((override_create_info.pInitialData != nullptr) && (override_create_info.initialDataSize != 0))
@@ -12397,11 +12401,11 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
             {
                 auto itTracked = tracked_pipeline_caches_.find(id);
                 GFXRECON_ASSERT(itTracked != tracked_pipeline_caches_.end());
+                GFXRECON_ASSERT(itTracked->second.device_info != nullptr);
+                GFXRECON_ASSERT(itTracked->second.vk_cache != VK_NULL_HANDLE);
 
                 if (save_pipeline_caches_to_file)
                 {
-                    GFXRECON_ASSERT(itTracked->second.device_info != nullptr);
-                    GFXRECON_ASSERT(itTracked->second.vk_cache != VK_NULL_HANDLE);
                     SavePipelineCache(id, itTracked->second);
                 }
                 auto device_table = GetDeviceTable(device_info->handle);
@@ -13034,7 +13038,7 @@ bool VulkanReplayConsumerBase::LoadPipelineCacheFromFile(format::HandleId id, st
 
     if (!found)
     {
-        GFXRECON_LOG_WARNING("Pipeline cache file entry not found: %u", id);
+        GFXRECON_LOG_WARNING("Pipeline cache file entry not found: %" PRIu64, id);
     }
 
     util::platform::FileClose(file);
@@ -13093,6 +13097,7 @@ VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const VulkanDev
     VkPipelineCacheCreateInfo pipelineCacheCreateInfo;
     pipelineCacheCreateInfo.sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
     pipelineCacheCreateInfo.pNext           = nullptr;
+    pipelineCacheCreateInfo.flags           = 0;
     pipelineCacheCreateInfo.initialDataSize = 0;
     pipelineCacheCreateInfo.pInitialData    = nullptr;
 
@@ -13137,8 +13142,11 @@ VkPipelineCache VulkanReplayConsumerBase::CreateNewPipelineCache(const VulkanDev
     }
     else
     {
-        const bool write_to_file     = load_save_caches_in_same_file ? (loaded_from_file ? !uuid_matches : true) : true;
-        tracked_pipeline_caches_[id] = TrackedPipelineCache{ device_info, pipelineCache, write_to_file };
+        if (save_pipeline_caches_to_file)
+        {
+            const bool write_to_file = load_save_caches_in_same_file ? (loaded_from_file ? !uuid_matches : true) : true;
+            tracked_pipeline_caches_[id] = TrackedPipelineCache{ device_info, pipelineCache, write_to_file };
+        }
     }
 
     return pipelineCache;
