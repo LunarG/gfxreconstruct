@@ -87,7 +87,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
 
   private:
-    void RemovePoolDanglingDescriptors(format::HandleId descriptorPool);
+    void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
 
   private:
     graphics::FrameLoopInfo&             frame_loop_info_;
@@ -95,8 +95,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     /// A "dangling" resource is one that was either
     /// - created during the loop range but destroyed after it
     /// - or created before the loop range but destroyed during it
-    std::unordered_set<format::HandleId> dangling_descriptor_pools_;
-    std::unordered_set<format::HandleId> dangling_descriptor_sets_;
+    std::unordered_set<format::HandleId> dangling_create_descriptor_pools_;
+    std::unordered_set<format::HandleId> dangling_create_descriptor_sets_;
+    std::unordered_set<format::HandleId> dangling_destroy_descriptor_pools_;
+    std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
