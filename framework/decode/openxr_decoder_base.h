@@ -84,6 +84,9 @@ class OpenXrDecoderBase : public ApiDecoder
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
+    virtual void DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                        const char* env_string) override;
+
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
     virtual void DispatchViewRelativeLocation(format::ThreadId                    thread_id,
