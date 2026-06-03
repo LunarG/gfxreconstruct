@@ -33,6 +33,7 @@
 
 #include <cctype>
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -322,6 +323,45 @@ static void ExtractVulkanDumpResourcesParameters(const nlohmann::ordered_json   
 }
 
 template <typename json_iterator>
+static uint32_t ExtractAndFilterSubresourceRange(const json_iterator json_it,
+                                                 const std::string&  range_name,
+                                                 const std::string&  alternative_end_range_name,
+                                                 uint32_t            cmd_index,
+                                                 uint32_t            set,
+                                                 uint32_t            binding,
+                                                 uint32_t            ai)
+{
+    uint32_t count = std::numeric_limits<uint32_t>::max();
+    if (json_it.contains(range_name))
+    {
+        if (json_it[range_name].is_number())
+        {
+            count = json_it[range_name];
+        }
+        else
+        {
+            const std::string level_count_str = json_it[range_name];
+            if (level_count_str.compare(alternative_end_range_name))
+            {
+                GFXRECON_LOG_WARNING("The string \"%s\", that is being passed as %s for command index: %" PRIu64
+                                     ", descriptor set: %" PRIu64 ", binding set: %" PRIu64
+                                     " and, array index: %" PRIu64
+                                     ", is not recognized and will be ignored (will use 1 instead).",
+                                     level_count_str.c_str(),
+                                     range_name.c_str(),
+                                     cmd_index,
+                                     set,
+                                     binding,
+                                     ai);
+                count = 1;
+            }
+        }
+    }
+
+    return count;
+}
+
+template <typename json_iterator>
 static void ExtractIndexAndDescriptors(const json_iterator                  it,
                                        decode::Index                        bcb_index,
                                        decode::Index                        qs_index,
@@ -369,66 +409,21 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                 {
                     const auto&              range      = sr["SubresourceRange"];
                     const VkImageAspectFlags aspect     = StrToImageAspectFlagBits(range["AspectMask"]);
-                    const uint32_t           base_level = range["BaseMipLevel"];
-                    const uint32_t           base_layer = range["BaseArrayLayer"];
+                    const uint32_t           base_level = range.value("BaseMipLevel", 0u);
+                    const uint32_t           base_layer = range.value("BaseArrayLayer", 0u);
+                    const uint32_t           base_z     = range.value("BaseZIndex", 0u);
 
-                    uint32_t level_count;
-                    if (range["LevelCount"].is_number())
-                    {
-                        level_count = range["LevelCount"];
-                    }
-                    else
-                    {
-                        const std::string level_count_str = range["LevelCount"];
-                        if (!level_count_str.compare("VK_REMAINING_MIP_LEVELS"))
-                        {
-                            level_count = VK_REMAINING_MIP_LEVELS;
-                        }
-                        else
-                        {
-                            GFXRECON_LOG_WARNING(
-                                "The string \"%s\", that is being passed as \"LevelCount\" for command index: %" PRIu64
-                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
-                                ", is not recognized and will be ignored (will use 1 instead).",
-                                level_count_str.c_str(),
-                                cmd_index,
-                                set,
-                                binding,
-                                ai);
-                            level_count = 1;
-                        }
-                    }
-
-                    uint32_t layer_count;
-                    if (range["LayerCount"].is_number())
-                    {
-                        layer_count = range["LayerCount"];
-                    }
-                    else
-                    {
-                        const std::string layer_count_str = range["LayerCount"];
-                        if (!layer_count_str.compare("VK_REMAINING_ARRAY_LAYERS"))
-                        {
-                            layer_count = VK_REMAINING_ARRAY_LAYERS;
-                        }
-                        else
-                        {
-                            GFXRECON_LOG_WARNING(
-                                "The string \"%s\", that is being passed as \"LayerCount\" for command index: %" PRIu64
-                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
-                                ", is not recognized and will be ignored (will use 1 instead).",
-                                layer_count_str.c_str(),
-                                cmd_index,
-                                set,
-                                binding,
-                                ai);
-                            layer_count = 1;
-                        }
-                    }
+                    const uint32_t level_count = ExtractAndFilterSubresourceRange(
+                        range, "LevelCount", "VK_REMAINING_MIP_LEVELS", cmd_index, set, binding, ai);
+                    const uint32_t layer_count = ExtractAndFilterSubresourceRange(
+                        range, "LayerCount", "VK_REMAINING_ARRAY_LAYERS", cmd_index, set, binding, ai);
+                    const uint32_t z_count = ExtractAndFilterSubresourceRange(
+                        range, "ZCount", "REMAINING_Z_INDICES", cmd_index, set, binding, ai);
 
                     command_subresources[command_location].emplace_back(
                         desc_tuple,
-                        VkImageSubresourceRange{ aspect, base_level, level_count, base_layer, layer_count });
+                        decode::ImageSubresourceRanges{
+                            aspect, base_level, level_count, base_layer, layer_count, base_z, z_count });
                 }
                 else
                 {
@@ -438,8 +433,13 @@ static void ExtractIndexAndDescriptors(const json_iterator                  it,
                     //    dump_resources_dump_all_image_subresources option
                     command_subresources[command_location].emplace_back(
                         desc_tuple,
-                        VkImageSubresourceRange{
-                            VK_IMAGE_ASPECT_NONE, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS });
+                        decode::ImageSubresourceRanges{ VK_IMAGE_ASPECT_NONE,
+                                                        0,
+                                                        VK_REMAINING_MIP_LEVELS,
+                                                        0,
+                                                        VK_REMAINING_ARRAY_LAYERS,
+                                                        0,
+                                                        decode::REMAINING_Z_INDICES });
                 }
             }
         }

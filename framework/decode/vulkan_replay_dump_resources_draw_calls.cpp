@@ -1477,12 +1477,14 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
         res_info.dumped_data                       = VulkanDelegateImageDumpedData();
         auto& dumped_image_data                    = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
-        const VkImageSubresourceRange subresource_range = {
+        const ImageSubresourceRanges subresource_range = {
             graphics::GetFormatAspects(image_info->format),
             0,
             options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
             0,
-            options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+            options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+            0,
+            REMAINING_Z_INDICES
         };
         VkResult res = DumpImage(before_command ? dumped_rt.dumped_image_before : dumped_rt.dumped_image,
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -1543,12 +1545,14 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
             res_info.dumped_data                       = VulkanDelegateImageDumpedData();
             auto& dumped_image_data                    = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
-            const VkImageSubresourceRange subresource_range = {
+            const ImageSubresourceRanges subresource_range = {
                 graphics::GetFormatAspects(image_info->format),
                 0,
                 options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
                 0,
-                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+                options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                0,
+                REMAINING_Z_INDICES
             };
             VkResult res = DumpImage(before_command ? dumped_rt.dumped_image_before : dumped_rt.dumped_image,
                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
