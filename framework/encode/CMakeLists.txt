@@ -186,7 +186,7 @@ target_link_libraries(gfxrecon_encode
                       gfxrecon_format
                       gfxrecon_util
                       vulkan_registry
-                      $<$<NOT:$<BOOL:${ANDROID}>>:OpenXR>
+                      $<$<AND:$<BOOL:${OPENXR_SUPPORT_ENABLED}>,$<NOT:$<BOOL:${ANDROID}>>>:OpenXR>
                       platform_specific
                       project_version
                       $<$<BOOL:${ANDROID}>:android>)

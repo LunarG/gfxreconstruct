@@ -85,7 +85,7 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_util
                       gfxrecon_replay_event_plugin_loader
                       vulkan_registry
-                      $<$<NOT:$<BOOL:${ANDROID}>>:OpenXR>
+                      $<$<AND:$<BOOL:${OPENXR_SUPPORT_ENABLED}>,$<NOT:$<BOOL:${ANDROID}>>>:OpenXR>
                       $<$<BOOL:${ANDROID}>:native_app_glue>
                       platform_specific)
 
