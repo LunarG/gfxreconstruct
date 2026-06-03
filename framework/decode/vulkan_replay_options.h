@@ -143,7 +143,19 @@ struct CommandLocation
     Index cmd_index;
 };
 
-using DescriptorImageSubresourcesPair   = std::pair<DescriptorLocation, VkImageSubresourceRange>;
+static constexpr uint32_t REMAINING_Z_INDICES = std::numeric_limits<uint32_t>::max();
+struct ImageSubresourceRanges
+{
+    VkImageAspectFlags aspect_mask{ VK_IMAGE_ASPECT_NONE };
+    uint32_t           base_mip_level{ 0 };
+    uint32_t           level_count{ 0 };
+    uint32_t           base_array_layer{ 0 };
+    uint32_t           layer_count{ 0 };
+    uint32_t           base_z{ 0 };
+    uint32_t           z_count{ 0 };
+};
+
+using DescriptorImageSubresourcesPair   = std::pair<DescriptorLocation, ImageSubresourceRanges>;
 using DescriptorImageSubresourcesVector = std::vector<DescriptorImageSubresourcesPair>;
 using CommandImageSubresource           = std::map<CommandLocation, DescriptorImageSubresourcesVector>;
 using BeginCmdBufQueueSubmitPair        = std::pair<decode::Index, decode::Index>;
