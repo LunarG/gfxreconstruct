@@ -2559,24 +2559,23 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
             continue;
         }
 
-        ImageResource image_resource        = {};
-        image_resource.handle_id            = image_wrapper->handle_id;
-        image_resource.image                = image_wrapper->handle;
-        image_resource.format               = image_wrapper->format;
-        image_resource.type                 = image_wrapper->image_type;
-        image_resource.extent               = image_wrapper->extent;
-        image_resource.level_count          = image_wrapper->mip_levels;
-        image_resource.layer_count          = image_wrapper->array_layers;
-        image_resource.tiling               = image_wrapper->tiling;
-        image_resource.sample_count         = image_wrapper->samples;
-        image_resource.layout               = image_wrapper->current_layout;
-        image_resource.queue_family_index   = image_wrapper->queue_family_index;
-        image_resource.external_format      = image_wrapper->external_format;
-        image_resource.size                 = image_wrapper->size;
-        image_resource.resource_size        = snapshot_entry.resource_size;
-        image_resource.level_sizes          = &snapshot_entry.level_sizes;
-        image_resource.aspect               = snapshot_entry.aspect;
-        image_resource.all_layers_per_level = true;
+        ImageResource image_resource      = {};
+        image_resource.handle_id          = image_wrapper->handle_id;
+        image_resource.image              = image_wrapper->handle;
+        image_resource.format             = image_wrapper->format;
+        image_resource.type               = image_wrapper->image_type;
+        image_resource.extent             = image_wrapper->extent;
+        image_resource.level_count        = image_wrapper->mip_levels;
+        image_resource.layer_count        = image_wrapper->array_layers;
+        image_resource.tiling             = image_wrapper->tiling;
+        image_resource.sample_count       = image_wrapper->samples;
+        image_resource.layout             = image_wrapper->current_layout;
+        image_resource.queue_family_index = image_wrapper->queue_family_index;
+        image_resource.external_format    = image_wrapper->external_format;
+        image_resource.size               = image_wrapper->size;
+        image_resource.resource_size      = snapshot_entry.resource_size;
+        image_resource.level_sizes        = &snapshot_entry.level_sizes;
+        image_resource.aspect             = snapshot_entry.aspect;
 
         if (image_wrapper->external_memory_android)
         {
@@ -2757,7 +2756,6 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             image_resource.level_sizes                                  = &snapshot_entry.level_sizes;
             image_resource.aspect                                       = snapshot_entry.aspect;
             image_resource.external_format                              = image_wrapper->external_format;
-            image_resource.all_layers_per_level                         = true;
 
             if (snapshot_entry.need_staging_copy)
             {
@@ -3249,8 +3247,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                                        wrapper->tiling,
                                                                        aspect,
                                                                        nullptr,
-                                                                       &snapshot_info.level_sizes,
-                                                                       true);
+                                                                       &snapshot_info.level_sizes);
                     }
 
                     if (snapshot_info.need_staging_copy)

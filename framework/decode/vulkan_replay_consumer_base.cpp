@@ -7773,8 +7773,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormatsKHR(
 {
     GFXRECON_ASSERT(physical_device_info != nullptr && surface_info != nullptr);
 
-    uint32_t*           surface_format_count = pSurfaceFormatCount->GetPointer();
-    VkSurfaceFormatKHR* surface_formats      = pSurfaceFormats->GetPointer();
+    uint32_t*           surface_format_count = pSurfaceFormatCount->GetOutputPointer();
+    VkSurfaceFormatKHR* surface_formats      = pSurfaceFormats->GetOutputPointer();
 
     VkResult result = func(physical_device_info->handle, surface_info->handle, surface_format_count, surface_formats);
 
@@ -7795,8 +7795,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetPhysicalDeviceSurfaceFormats2KHR(
 {
     GFXRECON_ASSERT(physical_device_info != nullptr && surface_info != nullptr);
 
-    uint32_t*            surface_format_count = pSurfaceFormatCount->GetPointer();
-    VkSurfaceFormat2KHR* surface_formats      = pSurfaceFormats->GetPointer();
+    uint32_t*            surface_format_count = pSurfaceFormatCount->GetOutputPointer();
+    VkSurfaceFormat2KHR* surface_formats      = pSurfaceFormats->GetOutputPointer();
 
     VkResult result =
         func(physical_device_info->handle, surface_info->GetPointer(), surface_format_count, surface_formats);
@@ -12473,8 +12473,8 @@ VkResult VulkanReplayConsumerBase::OverrideGetPastPresentationTimingGOOGLE(
     {
         return func(device_info->handle,
                     swapchain_info->handle,
-                    pPresentationTimingCount->GetPointer(),
-                    pPresentationTimings->GetPointer());
+                    pPresentationTimingCount->GetOutputPointer(),
+                    pPresentationTimings->GetOutputPointer());
     }
     return VK_SUCCESS;
 }
