@@ -333,7 +333,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
                    float                                scale,
                    bool                                 dump_image_raw,
-                   const VkImageSubresourceRange&       subresource_range,
+                   const ImageSubresourceRanges&        subresource_range,
                    DumpedImageHostData&                 data,
                    const VulkanDeviceInfo*              device_info,
                    const graphics::VulkanDeviceTable*   device_table,
@@ -386,18 +386,38 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     dumped_image.scaling_failed = (scale != 1.0f && !scaling_supported);
     dumped_image.dumped_format  = dst_format;
 
-    const VkImageSubresourceRange modified_subresource_range =
-        FilterImageSubresourceRange(subresource_range, image_info);
+    ImageSubresourceRanges modified_subresource_range;
+    ValidateImageSubresourceRange(subresource_range, modified_subresource_range, image_info);
 
     std::vector<VkImageAspectFlagBits> aspects;
-    graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
+    graphics::AspectFlagsToFlagBits(modified_subresource_range.aspect_mask, aspects);
 
-    const uint32_t total_subresources = GFXRECON_NARROWING_CAST(
-        uint32_t, (aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount)));
+    const VkExtent3D scaled_extent = (scale != 1.0f && scaling_supported)
+                                         ? graphics::ScaleExtent3DNoDepth(image_info->extent, scale)
+                                         : image_info->extent;
 
-    data.resize(total_subresources);
+    const bool is_3d = image_info->type == VK_IMAGE_TYPE_3D;
+    uint32_t   total_dumped_subresources;
+    if (is_3d)
+    {
+        total_dumped_subresources = 0;
+        for (uint32_t m = modified_subresource_range.base_mip_level;
+             m < modified_subresource_range.base_mip_level + modified_subresource_range.level_count;
+             ++m)
+        {
+            total_dumped_subresources += graphics::ScaleToMipLevel(modified_subresource_range.z_count, m);
+        }
+        total_dumped_subresources *= static_cast<uint32_t>(aspects.size());
+    }
+    else
+    {
+        total_dumped_subresources = static_cast<uint32_t>(aspects.size()) * modified_subresource_range.level_count *
+                                    modified_subresource_range.layer_count;
+    }
 
-    // data will hold dumped data for all aspects and sub resources, total_subresources in total.
+    data.resize(total_dumped_subresources);
+
+    // data will hold dumped data for all aspects and sub resources, total_dumped_subresources in total.
     // VulkanResourcesUtil::ReadImageResource dumps all subresources for a specific aspect.
     // For that reason keep a different counter for the data vector
     size_t data_index = 0;
@@ -416,27 +436,23 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
         image_resource.tiling                                       = image_info->tiling;
         image_resource.sample_count                                 = image_info->sample_count;
         image_resource.layout = (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout;
-        image_resource.queue_family_index   = image_info->queue_family_index;
-        image_resource.external_format      = image_info->external_format;
-        image_resource.size                 = image_info->size;
-        image_resource.level_sizes          = &subresource_sizes;
-        image_resource.aspect               = aspect;
-        image_resource.scale                = scale;
-        image_resource.dst_format           = dst_format;
-        image_resource.all_layers_per_level = false;
+        image_resource.queue_family_index = image_info->queue_family_index;
+        image_resource.external_format    = image_info->external_format;
+        image_resource.size               = image_info->size;
+        image_resource.level_sizes        = &subresource_sizes;
+        image_resource.aspect             = aspect;
+        image_resource.scale              = scale;
+        image_resource.dst_format         = dst_format;
+        image_resource.dump_resources     = true;
 
-        const VkExtent3D scaled_extent = (scale != 1.0f && scaling_supported)
-                                             ? graphics::ScaleExtent(image_info->extent, scale)
-                                             : image_info->extent;
-
-        image_resource.resource_size =
-            resource_util.GetImageResourceSizesLinear(dst_format,
-                                                      scaling_supported ? scaled_extent : image_info->extent,
-                                                      image_info->level_count,
-                                                      image_info->layer_count,
-                                                      aspect,
-                                                      subresource_offsets,
-                                                      subresource_sizes);
+        image_resource.resource_size = resource_util.GetImageSubresourceSizesDumpResources(dst_format,
+                                                                                           image_info->type,
+                                                                                           scaled_extent,
+                                                                                           image_info->level_count,
+                                                                                           image_info->layer_count,
+                                                                                           aspect,
+                                                                                           subresource_offsets,
+                                                                                           subresource_sizes);
 
         if (!image_resource.resource_size)
         {
@@ -461,21 +477,35 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
             return result;
         }
 
-        for (uint32_t mip = modified_subresource_range.baseMipLevel;
-             mip < modified_subresource_range.baseMipLevel + modified_subresource_range.levelCount;
+        // absolute base index of base_mip_level in the full-image subresource layout
+        uint32_t mip_base = 0;
+        if (is_3d)
+        {
+            for (uint32_t m = 0; m < modified_subresource_range.base_mip_level; ++m)
+            {
+                mip_base += graphics::ScaleToMipLevel(image_info->extent.depth, m);
+            }
+        }
+
+        for (uint32_t mip = modified_subresource_range.base_mip_level;
+             mip < modified_subresource_range.base_mip_level + modified_subresource_range.level_count;
              ++mip)
         {
-            for (uint32_t layer = modified_subresource_range.baseArrayLayer;
-                 layer < modified_subresource_range.baseArrayLayer + modified_subresource_range.layerCount;
-                 ++layer)
+            const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
+            const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
+
+            const uint32_t start =
+                is_3d ? modified_subresource_range.base_z >> mip : modified_subresource_range.base_array_layer;
+            const uint32_t end =
+                is_3d ? graphics::ScaleToMipLevel(
+                            modified_subresource_range.base_z + modified_subresource_range.z_count, mip)
+                      : (modified_subresource_range.base_array_layer + modified_subresource_range.layer_count);
+            for (uint32_t z = start; z < end; ++z)
             {
-                const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
-                const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
-
                 dumped_image.dumped_subresources.emplace_back(
-                    aspect, subresource_extent, subresource_scaled_extent, mip, layer);
+                    aspect, subresource_extent, subresource_scaled_extent, mip, is_3d ? 0 : z, is_3d ? z : 0);
 
-                const uint32_t sub_res_idx = mip * image_info->layer_count + layer;
+                const uint32_t sub_res_idx = is_3d ? (mip_base + z) : (mip * image_info->layer_count + z);
                 const void*    offsetted_data =
                     reinterpret_cast<const void*>(raw_data.data() + subresource_offsets[sub_res_idx]);
 
@@ -486,10 +516,14 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                            subresource_sizes[sub_res_idx]);
                 ++data_index;
             }
+
+            if (is_3d)
+            {
+                mip_base += graphics::ScaleToMipLevel(image_info->extent.depth, mip);
+            }
         }
     }
-
-    GFXRECON_ASSERT(data_index == total_subresources);
+    GFXRECON_ASSERT(data_index == total_dumped_subresources);
 
     return VK_SUCCESS;
 }
@@ -992,6 +1026,168 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
+bool ValidateImageSubresourceRange(const ImageSubresourceRanges& requested_subresource_range,
+                                   ImageSubresourceRanges&       modified_subresource_range,
+                                   const VulkanImageInfo*        image_info)
+{
+    GFXRECON_ASSERT(image_info != nullptr);
+
+    bool valid = true;
+
+    // Validate aspect
+    if ((requested_subresource_range.aspect_mask != VK_IMAGE_ASPECT_NONE) &&
+        (!(graphics::GetFormatAspects(image_info->format) & requested_subresource_range.aspect_mask)))
+    {
+        GFXRECON_LOG_WARNING("Requested aspect 0x%x for image %" PRIu64 " is not valid for the image's format (%s)",
+                             requested_subresource_range.aspect_mask,
+                             image_info->capture_id,
+                             util::ToString(image_info->format).c_str());
+
+        valid                                  = false;
+        modified_subresource_range.aspect_mask = graphics::GetFormatAspects(image_info->format);
+    }
+    else
+    {
+        if (requested_subresource_range.aspect_mask == VK_IMAGE_ASPECT_NONE)
+        {
+            modified_subresource_range.aspect_mask = graphics::GetFormatAspects(image_info->format);
+        }
+        else
+        {
+            modified_subresource_range.aspect_mask = requested_subresource_range.aspect_mask;
+        }
+    }
+
+    // Validate baseMipLevel
+    if (requested_subresource_range.base_mip_level >= image_info->level_count)
+    {
+        GFXRECON_LOG_WARNING("Requested baseMipLevel %u for image %" PRIu64 " is not valid (mipLevels: %u)",
+                             requested_subresource_range.base_mip_level,
+                             image_info->capture_id,
+                             image_info->level_count);
+
+        valid                                     = false;
+        modified_subresource_range.base_mip_level = 0;
+    }
+    else
+    {
+        modified_subresource_range.base_mip_level = requested_subresource_range.base_mip_level;
+    }
+
+    // Validate levelCount
+    if ((requested_subresource_range.level_count != VK_REMAINING_MIP_LEVELS) &&
+        ((requested_subresource_range.level_count + modified_subresource_range.base_mip_level) >
+         image_info->level_count))
+    {
+        GFXRECON_LOG_WARNING("Requested levelCount %u for image %" PRIu64 " is not valid (mipLevels: %u)",
+                             requested_subresource_range.level_count,
+                             image_info->capture_id,
+                             image_info->level_count);
+
+        valid                                  = false;
+        modified_subresource_range.level_count = image_info->level_count - modified_subresource_range.base_mip_level;
+    }
+    else
+    {
+        if (requested_subresource_range.level_count == VK_REMAINING_MIP_LEVELS)
+        {
+            GFXRECON_ASSERT(image_info->level_count > modified_subresource_range.base_mip_level);
+            modified_subresource_range.level_count =
+                image_info->level_count - modified_subresource_range.base_mip_level;
+        }
+        else
+        {
+            modified_subresource_range.level_count = requested_subresource_range.level_count;
+        }
+    }
+
+    // Handle baseArrayLayer
+    if (requested_subresource_range.base_array_layer >= image_info->layer_count)
+    {
+        GFXRECON_LOG_WARNING("Requested baseArrayLayer %u for image %" PRIu64 " is not valid (arrayLayers: %u)",
+                             requested_subresource_range.base_array_layer,
+                             image_info->capture_id,
+                             image_info->layer_count);
+
+        valid                                       = false;
+        modified_subresource_range.base_array_layer = 0;
+    }
+    else
+    {
+        modified_subresource_range.base_array_layer = requested_subresource_range.base_array_layer;
+    }
+
+    // Validate layerCount
+    if ((requested_subresource_range.layer_count != VK_REMAINING_ARRAY_LAYERS) &&
+        ((requested_subresource_range.layer_count + modified_subresource_range.base_array_layer) >
+         image_info->layer_count))
+    {
+        GFXRECON_LOG_WARNING("Requested layerCount %u for image %" PRIu64 " is not valid (arrayLayers: %u)",
+                             requested_subresource_range.layer_count,
+                             image_info->capture_id,
+                             image_info->layer_count);
+
+        valid                                  = false;
+        modified_subresource_range.layer_count = image_info->layer_count - modified_subresource_range.base_array_layer;
+    }
+    else
+    {
+        if (requested_subresource_range.layer_count == VK_REMAINING_ARRAY_LAYERS)
+        {
+            GFXRECON_ASSERT(image_info->layer_count > modified_subresource_range.base_array_layer);
+            modified_subresource_range.layer_count =
+                image_info->layer_count - modified_subresource_range.base_array_layer;
+        }
+        else
+        {
+            modified_subresource_range.layer_count = requested_subresource_range.layer_count;
+        }
+    }
+
+    // Validate BaseZIndex
+    if (requested_subresource_range.base_z >= image_info->extent.depth)
+    {
+        GFXRECON_LOG_WARNING("Requested BaseZIndex %u for image %" PRIu64 " is not valid (extent.depth: %u)",
+                             requested_subresource_range.base_z,
+                             image_info->capture_id,
+                             image_info->extent.depth);
+
+        valid                             = false;
+        modified_subresource_range.base_z = 0;
+    }
+    else
+    {
+        modified_subresource_range.base_z = requested_subresource_range.base_z;
+    }
+
+    // Validate ZCount
+    if ((requested_subresource_range.z_count != REMAINING_Z_INDICES) &&
+        (requested_subresource_range.z_count + modified_subresource_range.base_z > image_info->extent.depth))
+    {
+        GFXRECON_LOG_WARNING("Requested z_count %u for image %" PRIu64 " is not valid (extent.depth: %u)",
+                             requested_subresource_range.z_count,
+                             image_info->capture_id,
+                             image_info->extent.depth);
+
+        valid                              = false;
+        modified_subresource_range.z_count = image_info->extent.depth - modified_subresource_range.base_z;
+    }
+    else
+    {
+        if (requested_subresource_range.z_count == REMAINING_Z_INDICES)
+        {
+            GFXRECON_ASSERT(image_info->extent.depth > modified_subresource_range.base_z);
+            modified_subresource_range.z_count = image_info->extent.depth - modified_subresource_range.base_z;
+        }
+        else
+        {
+            modified_subresource_range.z_count = requested_subresource_range.z_count;
+        }
+    }
+
+    return valid;
+}
+
 void CullDescriptors(const CommonObjectInfoTable&             object_info_table_,
                      const BoundDescriptorSets&               referenced_descriptors,
                      const DescriptorImageSubresourcesVector* requested_descriptors,
@@ -1010,7 +1206,7 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
         descriptors_to_dump.reserve(referenced_descriptors.size());
 
         // Only dump the requested descriptors. Verify if they are valid based on the call's referenced descriptors
-        for (const auto& [requested_descriptor_tuple, img_subres_range] : *requested_descriptors)
+        for (const auto& [requested_descriptor_tuple, requested_img_subres_range] : *requested_descriptors)
         {
             // Validate requested descriptors
             const auto referenced_descriptor_entry = referenced_descriptors.find(requested_descriptor_tuple.set);
@@ -1022,9 +1218,9 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                 const auto referenced_desc_set_entry = referenced_desc_set_map.find(requested_descriptor_tuple.binding);
                 if (referenced_desc_set_entry != referenced_desc_set_map.end())
                 {
-                    auto        modified_img_subres_range = img_subres_range;
-                    const auto& referenced_desc_binding   = referenced_desc_set_entry->second;
-                    bool        valid_array_index         = false;
+                    ImageSubresourceRanges modified_img_subres_range = requested_img_subres_range;
+                    const auto&            referenced_desc_binding   = referenced_desc_set_entry->second;
+                    bool                   valid_array_index         = false;
                     switch (referenced_desc_binding.desc_type)
                     {
                         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1048,85 +1244,14 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                                 }
 
                                 // Validate aspect
-                                if (img_subres_range.aspectMask != VK_IMAGE_ASPECT_NONE)
+                                if (!ValidateImageSubresourceRange(
+                                        requested_img_subres_range, modified_img_subres_range, image_info))
                                 {
-                                    if (!(graphics::GetFormatAspects(image_info->format) & img_subres_range.aspectMask))
-                                    {
-                                        GFXRECON_LOG_WARNING(
-                                            "Requested aspect 0x%x for image descriptor at set: %u binding: %u array "
-                                            "index: %u is not valid for the image format (%s)",
-                                            img_subres_range.aspectMask,
-                                            requested_descriptor_tuple.set,
-                                            requested_descriptor_tuple.binding,
-                                            requested_descriptor_tuple.array_index,
-                                            util::ToString(image_info->format).c_str());
-
-                                        modified_img_subres_range.aspectMask =
-                                            graphics::GetFormatAspects(image_info->format);
-                                    }
-                                }
-                                else
-                                {
-                                    modified_img_subres_range.aspectMask =
-                                        graphics::GetFormatAspects(image_info->format);
-                                }
-
-                                // Validate baseMipLevel
-                                if (img_subres_range.baseMipLevel > image_info->level_count)
-                                {
-                                    GFXRECON_LOG_WARNING("Requested mip baseMipLevel %u for image descriptor at set: "
-                                                         "%u binding: %u array "
-                                                         "index: %u is not valid for the image",
-                                                         img_subres_range.baseMipLevel,
+                                    GFXRECON_LOG_WARNING("Requested image subresources for image descriptor at set: %u "
+                                                         "binding: %u array index: %u are not valid.",
                                                          requested_descriptor_tuple.set,
                                                          requested_descriptor_tuple.binding,
                                                          requested_descriptor_tuple.array_index);
-
-                                    modified_img_subres_range.baseMipLevel = 0;
-                                }
-
-                                // Validate levelCount
-                                if (img_subres_range.levelCount != VK_REMAINING_MIP_LEVELS &&
-                                    img_subres_range.levelCount > image_info->level_count)
-                                {
-                                    GFXRECON_LOG_WARNING(
-                                        "Requested mip levelCount %u for image descriptor at set: %u binding: %u array "
-                                        "index: %u is not valid for the image",
-                                        img_subres_range.baseMipLevel,
-                                        requested_descriptor_tuple.set,
-                                        requested_descriptor_tuple.binding,
-                                        requested_descriptor_tuple.array_index);
-
-                                    modified_img_subres_range.levelCount = image_info->level_count;
-                                }
-
-                                // Validate baseArrayLayer
-                                if (img_subres_range.baseArrayLayer > image_info->layer_count)
-                                {
-                                    GFXRECON_LOG_WARNING("Requested mip baseArrayLayer %u for image descriptor at set: "
-                                                         "%u binding: %u array "
-                                                         "index: %u is not valid for the image",
-                                                         img_subres_range.baseArrayLayer,
-                                                         requested_descriptor_tuple.set,
-                                                         requested_descriptor_tuple.binding,
-                                                         requested_descriptor_tuple.array_index);
-
-                                    modified_img_subres_range.baseArrayLayer = 0;
-                                }
-
-                                // Validate layerCount
-                                if (img_subres_range.layerCount != VK_REMAINING_ARRAY_LAYERS &&
-                                    img_subres_range.layerCount > image_info->layer_count)
-                                {
-                                    GFXRECON_LOG_WARNING(
-                                        "Requested mip layerCount %u for image descriptor at set: %u binding: %u array "
-                                        "index: %u is not valid for the image",
-                                        img_subres_range.baseMipLevel,
-                                        requested_descriptor_tuple.set,
-                                        requested_descriptor_tuple.binding,
-                                        requested_descriptor_tuple.array_index);
-
-                                    modified_img_subres_range.layerCount = image_info->layer_count;
                                 }
                             }
                         }
@@ -1224,12 +1349,14 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                                     continue;
                                 }
 
-                                const VkImageSubresourceRange img_subres_range = {
+                                const ImageSubresourceRanges img_subres_range = {
                                     graphics::GetFormatAspects(image_info->format),
                                     0,
                                     dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
                                     0,
-                                    dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1
+                                    dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                                    0,
+                                    dump_all_image_subresources ? REMAINING_Z_INDICES : 1
                                 };
                                 const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
 
@@ -1245,7 +1372,7 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                         for (const auto& [ai, img_desc] : desc_binding.texel_buffer_view_info)
                         {
                             const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
-                            descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
+                            descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
                         }
                     }
                     break;
@@ -1258,7 +1385,7 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                         for (const auto& [ai, img_desc] : desc_binding.buffer_info)
                         {
                             const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
-                            descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
+                            descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
                         }
                     }
                     break;
@@ -1267,7 +1394,7 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                     {
                         // Inline uniform blocks do not have arrays
                         const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, 0 };
-                        descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
+                        descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
                     }
                     break;
 
@@ -1276,7 +1403,7 @@ void CullDescriptors(const CommonObjectInfoTable&             object_info_table_
                         for (const auto& [ai, img_desc] : desc_binding.acceleration_structs_khr_info)
                         {
                             const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
-                            descriptors_to_dump.emplace_back(desc_tuple, VkImageSubresourceRange());
+                            descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
                         }
                     }
                     break;

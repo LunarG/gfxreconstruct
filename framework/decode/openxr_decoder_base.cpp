@@ -74,6 +74,15 @@ void OpenXrDecoderBase::DispatchDisplayMessageCommand(format::ThreadId thread_id
     }
 }
 
+void OpenXrDecoderBase::DispatchSetEnvironmentVariablesCommand(const format::SetEnvironmentVariablesCommand& header,
+                                                               const char*                                   env_string)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetEnvironmentVariablesCommand(header, env_string);
+    }
+}
+
 void OpenXrDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)
