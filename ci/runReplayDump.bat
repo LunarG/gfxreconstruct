@@ -20,7 +20,7 @@
 @REM DEALINGS IN THE SOFTWARE.
 
 @echo off
-set "GFXRECON_REPLAY=%RESULTS_DIR%-build\install\bin\gfxrecon-replay.exe"
+set "GFXRECON_REPLAY=%CD%\build\install\bin\gfxrecon-replay.exe"
 
 "%WORKSPACE%\python-venv\Scripts\python" replay_dump\replay_dump.py ^
     --trace-dir "%GFXRECON_TRACE_DIR%" ^

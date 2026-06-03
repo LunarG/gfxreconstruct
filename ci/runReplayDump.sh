@@ -23,7 +23,7 @@
 
 set -e
 
-export GFXRECON_REPLAY="${RESULTS_DIR}-build/install/bin/gfxrecon-replay"
+export GFXRECON_REPLAY="$(pwd)/build/install/bin/gfxrecon-replay"
 
 "${WORKSPACE}/python-venv/bin/python3" replay_dump/replay_dump.py \
     --trace-dir "${GFXRECON_TRACE_DIR}" \
