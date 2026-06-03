@@ -319,6 +319,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
     const bool has_alpha = vkuFormatHasAlpha(image_info->format);
 
     GFXRECON_ASSERT(!dumped_image.dumped_subresources.empty());
+    GFXRECON_ASSERT(image_dumped_data.size() == dumped_image.dumped_subresources.size());
 
     for (size_t i = 0; i < dumped_image.dumped_subresources.size(); ++i)
     {
@@ -331,6 +332,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                                  sub_res.aspect,
                                                  sub_res.level,
                                                  sub_res.layer,
+                                                 sub_res.depth,
                                                  before_command);
 
         sub_res.filename = filename;
@@ -706,6 +708,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const Dump
                                                                       VkImageAspectFlagBits     aspect,
                                                                       uint32_t                  mip_level,
                                                                       uint32_t                  layer,
+                                                                      uint32_t                  depth,
                                                                       bool                      before_command) const
 {
     const DumpedRenderTarget& rt_resource_info = static_cast<const DumpedRenderTarget&>(dumped_resource);
@@ -749,7 +752,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const Dump
     }
 
     std::stringstream subresource_sting;
-    subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
+    subresource_sting << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
     subresource_sting << ImageFileExtension(output_image_format);
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -763,6 +766,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename(cons
                                                                             VkImageAspectFlagBits aspect,
                                                                             uint32_t              mip_level,
                                                                             uint32_t              layer,
+                                                                            uint32_t              depth,
                                                                             bool                  before_command) const
 {
     GFXRECON_UNREFERENCED_PARAMETER(before_command);
@@ -791,7 +795,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename(cons
     }
 
     std::stringstream sub_resources_str;
-    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
+    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
     sub_resources_str << ImageFileExtension(output_image_format);
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -928,6 +932,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const 
                                                                           VkImageAspectFlagBits     aspect,
                                                                           uint32_t                  mip_level,
                                                                           uint32_t                  layer,
+                                                                          uint32_t                  depth,
                                                                           bool before_command) const
 {
     std::stringstream filename;
@@ -970,7 +975,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const 
     const auto&       dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
 
     filename << "cmd_" << dumped_cmd.cmd_index << "_qs_" << dumped_cmd.qs_index << "_bcb_" << dumped_cmd.bcb_index
-             << "_aspect_" << aspect_str << "_level_" << mip_level << "_layer_" << layer;
+             << "_aspect_" << aspect_str << "_level_" << mip_level << "_layer_" << layer << "_depth_" << depth;
 
     filename << ImageFileExtension(output_image_format);
 
@@ -1276,6 +1281,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
                                                                            VkImageAspectFlagBits aspect,
                                                                            uint32_t              mip_level,
                                                                            uint32_t              layer,
+                                                                           uint32_t              depth,
                                                                            bool                  before_command) const
 {
     const DumpedDescriptor& dumped_image_desc = static_cast<const DumpedDescriptor&>(dumped_resource);
@@ -1318,7 +1324,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
         filename << "_aspect_" << aspect_str;
     }
 
-    filename << "_mip_" << mip_level << "_layer_" << layer;
+    filename << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
 
     filename << ImageFileExtension(output_image_format);
 
@@ -1369,6 +1375,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDe
     VkImageAspectFlagBits     aspect,
     uint32_t                  mip_level,
     uint32_t                  layer,
+    uint32_t                  depth,
     bool                      before_command) const
 {
     GFXRECON_UNREFERENCED_PARAMETER(before_command);
@@ -1397,7 +1404,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDe
     }
 
     std::stringstream sub_resources_str;
-    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
+    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
     sub_resources_str << ImageFileExtension(output_image_format);
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(sub_resources_str.str());
