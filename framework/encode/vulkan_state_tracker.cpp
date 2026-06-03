@@ -2613,6 +2613,10 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
     wrapper->bindings.clear();
 }
 
+void VulkanStateTracker::DestroyState(vulkan_wrappers::TensorARMWrapper* wrapper) {}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper) {}
+
 void VulkanStateTracker::DestroyState(vulkan_wrappers::TensorViewARMWrapper* wrapper)
 {
     GFXRECON_ASSERT(wrapper != nullptr);
@@ -4168,6 +4172,54 @@ static void AssignDebugToObject(VkObjectType                        object_type,
             {
                 vulkan_wrappers::GetWrapper<vulkan_wrappers::MicromapEXTWrapper>(
                     format::FromHandleId<VkMicromapEXT>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_TENSOR_ARM:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorARMWrapper>(
+                    format::FromHandleId<VkTensorARM>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorARMWrapper>(
+                    format::FromHandleId<VkTensorARM>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_TENSOR_VIEW_ARM:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
+                    format::FromHandleId<VkTensorViewARM>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::TensorViewARMWrapper>(
+                    format::FromHandleId<VkTensorViewARM>(object_handle))
+                    ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
+            }
+            break;
+
+        case VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM:
+            if (object_name_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(
+                    format::FromHandleId<VkDataGraphPipelineSessionARM>(object_handle))
+                    ->debug_name_create_parameters = std::move(object_name_parameter_buffer);
+            }
+
+            if (object_tag_parameter_buffer)
+            {
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(
+                    format::FromHandleId<VkDataGraphPipelineSessionARM>(object_handle))
                     ->debug_tag_create_parameters = std::move(object_tag_parameter_buffer);
             }
             break;

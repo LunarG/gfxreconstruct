@@ -857,7 +857,11 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper);
 
+    void DestroyState(vulkan_wrappers::TensorARMWrapper* wrapper);
+
     void DestroyState(vulkan_wrappers::TensorViewARMWrapper* wrapper);
+
+    void DestroyState(vulkan_wrappers::DataGraphPipelineSessionARMWrapper* wrapper);
 
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
 
