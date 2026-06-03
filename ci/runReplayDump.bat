@@ -27,6 +27,8 @@ for /f "delims=" %%F in ('where /r build gfxrecon-replay.exe 2^>nul') do (
 )
 
 :run_replay_dump
+echo GFXRECON_REPLAY=%GFXRECON_REPLAY%
+
 "%WORKSPACE%\python-venv\Scripts\python" replay_dump\replay_dump.py ^
     --trace-dir "%GFXRECON_TRACE_DIR%" ^
     --suite-dir ci-gfxr-suites ^

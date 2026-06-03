@@ -24,6 +24,7 @@
 set -e
 
 export GFXRECON_REPLAY="$(find "$(pwd)/build" -name gfxrecon-replay -type f -executable | head -n 1)"
+echo "GFXRECON_REPLAY=${GFXRECON_REPLAY}"
 
 "${WORKSPACE}/python-venv/bin/python3" replay_dump/replay_dump.py \
     --trace-dir "${GFXRECON_TRACE_DIR}" \
