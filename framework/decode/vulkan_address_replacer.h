@@ -150,6 +150,18 @@ class VulkanAddressReplacer
                                  const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
+     * @brief   ProcessCmdBindPipeline patches any previously recorded push-constant data that may contain
+     *          unresolved capture-time buffer-device-addresses.
+     *          this is necessary when vkCmdPushConstants was called before vkCmdBindPipeline and a no-op otherwise.
+     *          Patching is achieved by injected a corrective vkCmdPushConstants into the command buffer.
+     *
+     * @param   command_buffer_info a provided VulkanCommandBufferInfo*
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
+    void ProcessCmdBindPipeline(VulkanCommandBufferInfo*                  command_buffer_info,
+                                const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
      * @brief   ProcessCmdBindDescriptorSets will check the bound descriptor-sets for presence of buffer-references
      *          and collect all addresses that will require replacement.
      *
