@@ -21,7 +21,7 @@
 
 @echo off
 set "GFXRECON_REPLAY="
-for /f "delims=" %%F in ('where /r build gfxrecon-replay.exe 2^>nul') do (
+for /f "delims=" %%F in ('where /r . gfxrecon-replay.exe 2^>nul') do (
     set "GFXRECON_REPLAY=%%F"
     goto run_replay_dump
 )

@@ -23,7 +23,7 @@
 
 set -e
 
-export GFXRECON_REPLAY="$(find "$(pwd)/build" -name gfxrecon-replay -type f -executable | head -n 1)"
+export GFXRECON_REPLAY="$(find "$(pwd)" -path '*/tools/replay/gfxrecon-replay' -type f | head -n 1)"
 echo "GFXRECON_REPLAY=${GFXRECON_REPLAY}"
 
 "${WORKSPACE}/python-venv/bin/python3" replay_dump/replay_dump.py \
