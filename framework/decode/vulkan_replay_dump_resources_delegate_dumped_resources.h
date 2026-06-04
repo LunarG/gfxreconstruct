@@ -81,7 +81,6 @@ enum class DumpResourceType
 using DumpedHostData                  = std::vector<uint8_t>;
 using DumpedImageHostData             = std::vector<DumpedHostData>;
 using DumpedCopyBufferRegionsHostData = std::vector<DumpedHostData>;
-using DumpedCopyImageRegionsHostData  = std::vector<DumpedImageHostData>;
 
 struct AccelerationStructureDumpedHostData
 {
