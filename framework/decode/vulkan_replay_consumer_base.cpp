@@ -10279,6 +10279,17 @@ void VulkanReplayConsumerBase::OverrideCmdBindPipeline(PFN_vkCmdBindPipeline    
         command_buffer_info->bound_pipelines[pipelineBindPoint] = pipeline_info->capture_id;
     }
     func(command_buffer, pipelineBindPoint, pipeline);
+
+    if (command_buffer_info != nullptr && pipeline_info != nullptr)
+    {
+        auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        if (device_info != nullptr && UseAddressReplacement(device_info))
+        {
+            const auto& address_tracker  = GetDeviceAddressTracker(device_info);
+            auto&       address_replacer = GetDeviceAddressReplacer(device_info);
+            address_replacer.ProcessCmdBindPipeline(command_buffer_info, address_tracker);
+        }
+    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdPushConstants(PFN_vkCmdPushConstants              func,

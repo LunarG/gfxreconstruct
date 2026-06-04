@@ -641,6 +641,44 @@ void VulkanAddressReplacer::ProcessCmdPushConstants(const VulkanCommandBufferInf
     }
 }
 
+void VulkanAddressReplacer::ProcessCmdBindPipeline(VulkanCommandBufferInfo*                  command_buffer_info,
+                                                   const decode::VulkanDeviceAddressTracker& address_tracker)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    if (command_buffer_info->push_constant_data.empty())
+    {
+        return;
+    }
+
+    // push_constant_data may hold capture-time addresses if vkCmdPushConstants was called before any pipeline was
+    // bound. work on a copy so we can detect whether patching actually changed anything.
+    auto push_constant_copy = command_buffer_info->push_constant_data;
+
+    // potentially sanitizes addresses
+    ProcessCmdPushConstants(command_buffer_info,
+                            command_buffer_info->push_constant_stage_flags,
+                            0,
+                            static_cast<uint32_t>(push_constant_copy.size()),
+                            push_constant_copy.data(),
+                            address_tracker);
+
+    if (push_constant_copy != command_buffer_info->push_constant_data)
+    {
+        GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::ProcessCmdBindPipeline(): Replay is re-issuing "
+                               "push-constants to patch buffer-device-addresses recorded before pipeline bind");
+
+        util::MarkInjectedCommandsHelper injected_commands_helper;
+        device_table_->CmdPushConstants(command_buffer_info->handle,
+                                        command_buffer_info->push_constant_pipeline_layout,
+                                        command_buffer_info->push_constant_stage_flags,
+                                        0,
+                                        static_cast<uint32_t>(push_constant_copy.size()),
+                                        push_constant_copy.data());
+        command_buffer_info->push_constant_data = std::move(push_constant_copy);
+    }
+}
+
 void VulkanAddressReplacer::ProcessCmdBindDescriptorSets(VulkanCommandBufferInfo*               command_buffer_info,
                                                          VkPipelineBindPoint                    pipelineBindPoint,
                                                          uint32_t                               firstSet,
