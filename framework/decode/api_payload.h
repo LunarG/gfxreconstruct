@@ -416,10 +416,14 @@ struct InitDx12AccelerationStructureArgs
 
     format::InitDx12AccelerationStructureCommandHeader             command_header;
     std::vector<format::InitDx12AccelerationStructureGeometryDesc> geometry_descs;
+    std::vector<uint8_t>                                           inputs;
     const uint8_t*                                                 data;
 
-    auto GetTuple() const { return std::tie(command_header, geometry_descs, data); }
+    auto GetTuple() const { return std::tie(command_header, geometry_descs, inputs, data); }
 };
+template <>
+struct DispatchHasAllocGuard<InitDx12AccelerationStructureArgs> : std::true_type
+{};
 struct GetDxgiAdapterArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder

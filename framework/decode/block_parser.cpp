@@ -1276,8 +1276,13 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                                  "Failed to read init subresource data meta-data block header");
         }
     }
-    else if (meta_data_type == format::MetaDataType::kInitDx12AccelerationStructureCommand)
+    else if (meta_data_type == format::MetaDataType::kInitDx12AccelerationStructureCommand_deprecated)
     {
+        GFXRECON_LOG_WARNING_ONCE(
+            "This capture contains a deprecated metacommand to create a Dx12AccelerationStructureCommand.  While still "
+            "supported, this "
+            "metacommand may not include new structure of the captured Dx12AccelerationStructureCommand.");
+
         // Parse command header.
         format::InitDx12AccelerationStructureCommandHeader header;
         success = block_buffer.Read(header.thread_id);
@@ -1287,14 +1292,15 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         success = success && block_buffer.Read(header.inputs_type);
         success = success && block_buffer.Read(header.inputs_flags);
         success = success && block_buffer.Read(header.inputs_num_instance_descs);
-        success = success && block_buffer.Read(header.inputs_num_geometry_descs);
+        success = success && block_buffer.Read(header.inputs_geometry_descs_size);
         success = success && block_buffer.Read(header.inputs_data_size);
 
         // Parse geometry descs.
         std::vector<format::InitDx12AccelerationStructureGeometryDesc> geom_descs;
+        std::vector<uint8_t>                                           build_inputs_data;
         if (success)
         {
-            for (uint32_t i = 0; i < header.inputs_num_geometry_descs; ++i)
+            for (uint32_t i = 0; i < header.inputs_geometry_descs_size; ++i)
             {
                 format::InitDx12AccelerationStructureGeometryDesc geom_desc;
                 success = success && block_buffer.Read(geom_desc.geometry_type);
@@ -1314,6 +1320,53 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
         BlockBuffer::BlockSpan parameter_data;
         if (success)
         {
+            const char*         label       = "init DX12 acceleration structure deprecated meta-data block";
+            ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.inputs_data_size);
+            if (read_result.success)
+            {
+                auto* payload = Emplace<InitDx12AccelerationStructureArgs>(
+                    meta_data_id,
+                    read_result.uncompressed_size,
+                    header,
+                    geom_descs,
+                    build_inputs_data,
+                    reinterpret_cast<const uint8_t*>(read_result.buffer.data()));
+                return MakeCompressibleParsedBlock(block_buffer, read_result, payload);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read init DX12 acceleration structure deprecated meta-data block header");
+        }
+    }
+    else if (meta_data_type == format::MetaDataType::kInitDx12AccelerationStructureCommand2)
+    {
+        // Parse command header.
+        format::InitDx12AccelerationStructureCommandHeader header;
+        success = block_buffer.Read(header.thread_id);
+        success = success && block_buffer.Read(header.dest_acceleration_structure_data);
+        success = success && block_buffer.Read(header.copy_source_gpu_va);
+        success = success && block_buffer.Read(header.copy_mode);
+        success = success && block_buffer.Read(header.inputs_type);
+        success = success && block_buffer.Read(header.inputs_flags);
+        success = success && block_buffer.Read(header.inputs_num_instance_descs);
+        success = success && block_buffer.Read(header.inputs_geometry_descs_size);
+        success = success && block_buffer.Read(header.inputs_data_size);
+
+        // Parse build inputs.
+        std::vector<format::InitDx12AccelerationStructureGeometryDesc> geom_descs;
+        std::vector<uint8_t>                                           build_inputs_data;
+        size_t inputs_size = static_cast<size_t>(header.inputs_geometry_descs_size);
+        if (success && (inputs_size > 0))
+        {
+            build_inputs_data.resize(inputs_size);
+            success = success && block_buffer.ReadBytes(build_inputs_data.data(), inputs_size);
+        }
+
+        BlockBuffer::BlockSpan parameter_data;
+        if (success)
+        {
             const char*         label       = "init DX12 acceleration structure meta-data block";
             ParameterReadResult read_result = ReadParameterBuffer(label, block_buffer, header.inputs_data_size);
             if (read_result.success)
@@ -1323,6 +1376,7 @@ ParsedBlock& BlockParser::ParseMetaData(BlockBuffer& block_buffer)
                     read_result.uncompressed_size,
                     header,
                     geom_descs,
+                    build_inputs_data,
                     reinterpret_cast<const uint8_t*>(read_result.buffer.data()));
                 return MakeCompressibleParsedBlock(block_buffer, read_result, payload);
             }

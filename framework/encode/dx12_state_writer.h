@@ -28,6 +28,7 @@
 #include "encode/custom_ags_state_table.h"
 #endif // GFXRECON_AGS_SUPPORT
 #include "encode/parameter_encoder.h"
+#include "encode/dx12_object_wrapper_info.h"
 #include "format/format.h"
 #include "graphics/dx12_gpu_va_map.h"
 #include "graphics/dx12_resource_data_util.h"
@@ -233,6 +234,8 @@ class Dx12StateWriter
     std::vector<DxTileMappingInfo> temp_tile_mappings_;
 };
 
+void EncodeAccelerationStructureInputs(const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* inputs,
+                                       DxAccelerationStructureBuildInfo&                           build_info);
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

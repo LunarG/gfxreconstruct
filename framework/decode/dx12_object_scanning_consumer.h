@@ -113,9 +113,10 @@ class Dx12ObjectScanningConsumer : public Dx12ObjectScanningConsumerBase
                                           const uint8_t*                                      data);
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
-        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                        build_inputs_data);
+        const format::InitDx12AccelerationStructureCommandHeader&                           command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>&               geometry_descs,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* build_inputs,
+        const uint8_t*                                                                      build_inputs_data);
 
     void Process_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
                                                            format::HandleId   object_id,
