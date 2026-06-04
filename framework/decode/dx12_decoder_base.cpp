@@ -298,11 +298,22 @@ void Dx12DecoderBase::DispatchInitSubresourceCommand(const format::InitSubresour
 void Dx12DecoderBase::DispatchInitDx12AccelerationStructureCommand(
     const format::InitDx12AccelerationStructureCommandHeader&             command_header,
     const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const std::vector<uint8_t>&                                           build_inputs,
     const uint8_t*                                                        build_inputs_data)
 {
+    size_t bytes_read  = 0;
+    size_t inputs_size = static_cast<size_t>(build_inputs.size());
+
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS> inputs;
+    if (inputs_size > 0)
+    {
+        bytes_read += inputs.Decode((build_inputs.data() + bytes_read), (inputs_size - bytes_read));
+    }
+
     for (auto consumer : consumers_)
     {
-        consumer->ProcessInitDx12AccelerationStructureCommand(command_header, geometry_descs, build_inputs_data);
+        consumer->ProcessInitDx12AccelerationStructureCommand(
+            command_header, geometry_descs, &inputs, build_inputs_data);
     }
 }
 

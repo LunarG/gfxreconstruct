@@ -154,6 +154,7 @@ const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit"
 const char kIdleBeforeSubmit[]                    = "--idle-before-submit";
 const char kSerializeRenderPasses[]               = "--serialize-render-passes";
 const char kWaitBeforeFrame[]                     = "--wait-before-frame";
+const char kAsyncProcessingOption[]               = "--async-processing";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 

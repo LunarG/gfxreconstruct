@@ -360,7 +360,7 @@ void Dx12ResourceValueAnnotator::ScanForGPUVA(uint64_t memory_id, uint8_t* data,
     {
         if (ResetWriteWatch(data, size) != 0)
         {
-            GFXRECON_LOG_ERROR("PageGuardManager failed to reset write-modified pages for memory region.");
+            GFXRECON_LOG_ERROR("PageGuardManager failed to Rewind write-modified pages for memory region.");
         }
     }
 }
