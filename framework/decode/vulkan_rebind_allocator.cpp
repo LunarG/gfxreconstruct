@@ -1918,7 +1918,6 @@ void VulkanRebindAllocator::WriteBoundResourceStaging(ResourceAllocInfo* resourc
         compute_submit_info.pWaitDstStageMask    = waiting_semaphores_dst_stage_mask.data();
         compute_submit_info.signalSemaphoreCount = 1;
         compute_submit_info.pSignalSemaphores    = &staging_resources.staging_semaphore;
-        compute_submit_info.pSignalSemaphores    = &staging_resources.staging_semaphore;
 
         result = functions_.queue_submit(staging_queue_, 1, &compute_submit_info, staging_resources.staging_fence);
     }
