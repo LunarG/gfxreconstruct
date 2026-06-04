@@ -139,6 +139,8 @@ class VulkanBaseGeneratorOptions(KhronosBaseGeneratorOptions):
         separate line, align parameter names at the specified column
       replay_overrides - Path to JSON file listing Vulkan API calls to
         override on replay.
+      replay_frame_loop_overrides - Path to JSON file listing Vulkan API calls to
+        generate for frame looping
       dump_resources_overrides - Path to JSON file listing Vulkan API
         calls to override on replay.
       replay_async_overrides - Path to JSON file listing Vulkan API calls
@@ -172,6 +174,7 @@ class VulkanBaseGeneratorOptions(KhronosBaseGeneratorOptions):
         remove_extensions=_remove_extensions_pat,
         emit_extensions=_emit_extensions_pat,
         replay_overrides=None,
+        replay_frame_loop_overrides=None,
         dump_resources_overrides=None,
         replay_async_overrides=None,
         extra_headers=[]
@@ -201,6 +204,7 @@ class VulkanBaseGeneratorOptions(KhronosBaseGeneratorOptions):
             remove_extensions=remove_extensions,
             emit_extensions=emit_extensions,
             replay_overrides=replay_overrides,
+            replay_frame_loop_overrides=replay_frame_loop_overrides,
             dump_resources_overrides=dump_resources_overrides,
             replay_async_overrides=replay_async_overrides,
             extra_headers=extra_headers

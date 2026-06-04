@@ -19,7 +19,6 @@
 #define GFXRECON_DECODE_VULKAN_CPP_CONSUMER_BASE_H
 
 #include "vulkan_cpp_utilities.h"
-#include "decode/file_processor.h"
 #include "decode/vulkan_cpp_loader_generator.h"
 #include "decode/vulkan_cpp_utilities.h"
 #include "format/platform_types.h"
