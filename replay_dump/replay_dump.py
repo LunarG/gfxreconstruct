@@ -40,7 +40,6 @@ EXIT_SUITE_FAILED = 4
 
 API_DUMP_LAYER = "VK_LAYER_LUNARG_api_dump"
 REPLAY_ENV_VAR = "GFXRECON_REPLAY"
-TRACE_SUBDIR_ENV_VAR = "GFXRECON_TRACE_SUBDIR"
 MAX_DIFFS = 200
 IGNORED_COMPARE_KEYS = {
     "address",
@@ -116,7 +115,7 @@ def parse_args(argv):
     parser.add_argument(
         "--suite",
         dest="suite_path",
-        help="suite JSON path relative to suite-dir/GFXRECON_TRACE_SUBDIR",
+        help="suite JSON path relative to suite-dir",
     )
     parser.add_argument(
         "--output-dir",
@@ -558,16 +557,6 @@ def validate_suite_root_paths(suite_dir, trace_dir):
             fail("{} is not a directory: {}".format(label, path), EXIT_INVALID_INPUT)
 
 
-def validate_trace_subdir(trace_subdir):
-    if Path(trace_subdir).is_absolute():
-        fail(
-            "{} must be relative when set: {}".format(
-                TRACE_SUBDIR_ENV_VAR, trace_subdir
-            ),
-            EXIT_INVALID_INPUT,
-        )
-
-
 def validate_suite_name(name, index):
     if not isinstance(name, str):
         fail(
@@ -735,10 +724,8 @@ def run_suite(args):
     suite_dir = Path(args.suite_dir)
     trace_dir = Path(args.trace_dir)
     output_dir = Path(args.output_dir)
-    trace_subdir = os.environ.get(TRACE_SUBDIR_ENV_VAR, "")
-    validate_trace_subdir(trace_subdir)
-    suite_base_dir = suite_dir / trace_subdir
-    trace_base_dir = trace_dir / trace_subdir
+    suite_base_dir = suite_dir
+    trace_base_dir = trace_dir
     suite_file_path = suite_base_dir / args.suite_path
 
     validate_suite_root_paths(suite_dir, trace_dir)

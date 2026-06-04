@@ -30,8 +30,8 @@ for /f "delims=" %%F in ('where /r . gfxrecon-replay.exe 2^>nul') do (
 echo GFXRECON_REPLAY=%GFXRECON_REPLAY%
 
 "%WORKSPACE%\python-venv\Scripts\python" replay_dump\replay_dump.py ^
-    --trace-dir "%GFXRECON_TRACE_DIR%" ^
-    --suite-dir ci-gfxr-suites ^
+    --trace-dir "%GFXRECON_TRACE_DIR%\%GFXRECON_TRACE_SUBDIR%" ^
+    --suite-dir "ci-gfxr-suites\%GFXRECON_TRACE_SUBDIR%" ^
     --suite "%REPLAY_DUMP_SUITE%" ^
     --output-dir "%RESULTS_DIR%\replay-dump" ^
     --headless
