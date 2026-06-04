@@ -53,7 +53,7 @@ bool BlockSkippingFileProcessor::SkipBlockProcessing()
 
 bool BlockSkippingFileProcessor::ShouldSkipBlock()
 {
-    return (!(blocks_to_skip_.empty())) && (blocks_to_skip_.find(block_index_) != blocks_to_skip_.end());
+    return (!(blocks_to_skip_.empty())) && (blocks_to_skip_.find(process_block_index_) != blocks_to_skip_.end());
 }
 
 GFXRECON_END_NAMESPACE(decode)

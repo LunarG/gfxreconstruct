@@ -116,9 +116,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                const uint8_t*                              data) override;
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
-        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                        build_inputs_data) override;
+        const format::InitDx12AccelerationStructureCommandHeader&                           command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>&               geometry_descs,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* build_inputs,
+        const uint8_t*                                                                      build_inputs_data) override;
 
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data) override;

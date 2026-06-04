@@ -34,6 +34,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     def __init__(
         self,
         replay_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
+        replay_frame_loop_overrides=None,  # Path to JSON file listing Vulkan API calls to generate for frame looping
         dump_resources_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
         replay_async_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
@@ -55,6 +56,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             protect_file,
             protect_feature,
             replay_overrides=replay_overrides,
+            replay_frame_loop_overrides=replay_frame_loop_overrides,
             dump_resources_overrides=dump_resources_overrides,
             replay_async_overrides=replay_async_overrides,
             extra_headers=extra_headers
