@@ -348,6 +348,8 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         separate line, align parameter names at the specified column
       replay_overrides - Path to JSON file listing Vulkan API calls to
         override on replay.
+      replay_frame_loop_overrides - Path to JSON file listing Vulkan API calls to
+        override in frame loop code generation
       dump_resources_overrides - Path to JSON file listing Vulkan API
         calls to override on replay.
       replay_async_overrides - Path to JSON file listing Vulkan API calls
@@ -383,6 +385,7 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         remove_extensions=None,
         emit_extensions=None,
         replay_overrides=None,
+        replay_frame_loop_overrides=None,
         dump_resources_overrides=None,
         replay_async_overrides=None,
         extra_headers=[],
@@ -406,6 +409,7 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         self.blacklists = blacklists
         self.platform_types = platform_types
         self.replay_overrides = replay_overrides
+        self.replay_frame_loop_overrides = replay_frame_loop_overrides
         self.dump_resources_overrides = dump_resources_overrides
         self.replay_async_overrides = replay_async_overrides
         # Khronos CGeneratorOptions
@@ -475,6 +479,8 @@ class KhronosBaseGenerator(OutputGenerator):
         # Map of Khronos function names to override function names.  Calls to Khronos functions in the map
         # will be replaced by the override value.
         self.REPLAY_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_FREE_OVERRIDES = {}
         self.DUMP_RESOURCES_OVERRIDES = {}
         self.DUMP_RESOURCES_TRANSFER_API_CALLS = {}
         self.REPLAY_ASYNC_OVERRIDES = {}
@@ -684,12 +690,23 @@ class KhronosBaseGenerator(OutputGenerator):
                 self.PLATFORM_STRUCTS += platform_structs
 
     def __load_replay_overrides(
-        self, filename, dump_resources_overrides_filename,
+        self, filename, replay_frame_loop_overrides_filename,
+        dump_resources_overrides_filename,
         replay_async_overrides_filename
     ):
         if filename is not None:
             overrides = json.loads(open(filename, 'r').read())
             self.REPLAY_OVERRIDES = overrides['functions']
+
+        if replay_frame_loop_overrides_filename is not None:
+
+            frame_loop_overrides = json.loads(
+                open(replay_frame_loop_overrides_filename , 'r').read()
+            )
+            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_OVERRIDES = frame_loop_overrides[
+                'resourceAllocate']
+            self.REPLAY_FRAME_LOOP_RESOURCE_FREE_OVERRIDES = frame_loop_overrides[
+                'resourceFree']
 
         if dump_resources_overrides_filename is not None:
             dump_resources_overrides = json.loads(
@@ -723,11 +740,13 @@ class KhronosBaseGenerator(OutputGenerator):
             self.STRUCT_BLACKLIST += self.PLATFORM_STRUCTS
 
         if (
-            gen_opts.replay_overrides or gen_opts.dump_resources_overrides
-            or gen_opts.replay_async_overrides
+            gen_opts.replay_overrides or gen_opts.replay_frame_loop_overrides or
+            gen_opts.dump_resources_overrides or gen_opts.replay_async_overrides
         ):
             self.__load_replay_overrides(
-                gen_opts.replay_overrides, gen_opts.dump_resources_overrides,
+                gen_opts.replay_overrides,
+                gen_opts.replay_frame_loop_overrides,
+                gen_opts.dump_resources_overrides,
                 gen_opts.replay_async_overrides
             )
 

@@ -770,29 +770,11 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
 
         // Save build input arguments.
         build_info.inputs = desc->Inputs;
+        EncodeAccelerationStructureInputs(&desc->Inputs, build_info);
 
         build_info.is_tlas_with_array_of_pointers = false;
 
-        // Save a copy of the input's geometry desc pointers.
-        if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
-        {
-            for (UINT i = 0; i < desc->Inputs.NumDescs; ++i)
-            {
-                if (desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
-                {
-                    build_info.inputs_geometry_descs.push_back(desc->Inputs.pGeometryDescs[i]);
-                }
-                else if (desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
-                {
-                    build_info.inputs_geometry_descs.push_back(*desc->Inputs.ppGeometryDescs[i]);
-                }
-            }
-
-            // The geometry desc pointers may be invalid when build_info is used in the future, so clear them here.
-            build_info.inputs.pGeometryDescs  = nullptr;
-            build_info.inputs.ppGeometryDescs = nullptr;
-        }
-        else if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
+        if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
         {
             // This code path adds support for top level AS builds where `DescsLayout ==
             // D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS`. Any top level AS build--regardless of DescLayout value--could
@@ -806,31 +788,18 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 build_info.is_tlas_with_array_of_pointers = true;
             }
         }
-        else if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY)
-        {
-            for (UINT i = 0; i < desc->Inputs.NumDescs; ++i)
-            {
-                build_info.inputs_omm_array_descs.push_back(desc->Inputs.pOpacityMicromapArrayDesc[i]);
-
-                for (UINT j = 0; j < desc->Inputs.pOpacityMicromapArrayDesc[i].NumOmmHistogramEntries; ++j)
-                {
-                    build_info.inputs_omm_array_histograms[i].push_back(
-                        desc->Inputs.pOpacityMicromapArrayDesc[i].pOmmHistogram[j]);
-                }
-            }
-
-            // The opacity micromap array desc pointers may be invalid when build_info is used in the future.
-            build_info.inputs.pOpacityMicromapArrayDesc = nullptr;
-        }
 
         // Compute the required inputs buffer size and entry information.
         uint64_t                                       inputs_buffer_size = 0;
         std::vector<graphics::dx12::InputsBufferEntry> inputs_buffer_entries;
-        graphics::dx12::GetAccelerationStructureInputsBufferEntries(
-            build_info.inputs, build_info.inputs_geometry_descs.data(), inputs_buffer_size, inputs_buffer_entries);
+        graphics::dx12::GetAccelerationStructureInputsBufferEntries2(
+            const_cast<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS&>(desc->Inputs),
+            inputs_buffer_size,
+            inputs_buffer_entries);
 
         // TLAS builds shouldn't have more than one input buffer entry.
         GFXRECON_ASSERT((desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL) ||
+                        (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY) ||
                         (inputs_buffer_entries.size() <= 1));
 
         // Save input data to a secodary resource.

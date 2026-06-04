@@ -195,6 +195,7 @@ class VulkanDecoderBase : public ApiDecoder
     virtual void DispatchInitDx12AccelerationStructureCommand(
         const format::InitDx12AccelerationStructureCommandHeader&             command_header,
         const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+        const std::vector<uint8_t>&                                           build_inputs,
         const uint8_t*                                                        build_inputs_data) override
     {}
 

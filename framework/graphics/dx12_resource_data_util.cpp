@@ -651,12 +651,12 @@ Dx12ResourceDataUtil::ResetCommandList()
         result = command_list_->Reset(command_allocator_, nullptr);
         if (FAILED(result))
         {
-            GFXRECON_LOG_ERROR("Could not reset command list to copy resource data. (error = %lx)", result);
+            GFXRECON_LOG_ERROR("Could not Rewind command list to copy resource data. (error = %lx)", result);
         }
     }
     else
     {
-        GFXRECON_LOG_ERROR("Could not reset command allocator to copy resource data.. (error = %lx)", result);
+        GFXRECON_LOG_ERROR("Could not Rewind command allocator to copy resource data.. (error = %lx)", result);
     }
     return result;
 }
