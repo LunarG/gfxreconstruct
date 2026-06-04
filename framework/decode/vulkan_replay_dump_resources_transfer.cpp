@@ -1312,13 +1312,15 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                     std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd->dumped_resource);
                 auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
 
-                const ImageSubresourceRanges subresource_range = { static_cast<VkImageAspectFlags>(init_image->aspect),
-                                                                   0,
-                                                                   VK_REMAINING_MIP_LEVELS,
-                                                                   0,
-                                                                   VK_REMAINING_ARRAY_LAYERS,
-                                                                   0,
-                                                                   REMAINING_Z_INDICES };
+                const ImageSubresourceRanges subresource_range = {
+                    static_cast<VkImageAspectFlags>(init_image->aspect),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
 
                 VkResult res = DumpImage(new_dumped_init_image.dumped_image,
                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -1436,17 +1438,19 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                     std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd->dumped_resource);
                 new_dumped_copy_buffer_to_image.regions = copy_buffer_to_image->regions;
 
+                const ImageSubresourceRanges subresource_range = {
+                    graphics::GetFormatAspects(image_info->format),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
+
                 auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
                 if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(image_info->format),
-                                                                       0,
-                                                                       VK_REMAINING_MIP_LEVELS,
-                                                                       0,
-                                                                       VK_REMAINING_ARRAY_LAYERS,
-                                                                       0,
-                                                                       REMAINING_Z_INDICES };
-
                     // Dump region's subresources
                     VkResult res = DumpImage(new_dumped_copy_buffer_to_image.dumped_image,
                                              image_info->intermediate_layout,
@@ -1482,15 +1486,6 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
 
                     if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(
-                                                                               before_image_info->format),
-                                                                           0,
-                                                                           VK_REMAINING_MIP_LEVELS,
-                                                                           0,
-                                                                           VK_REMAINING_ARRAY_LAYERS,
-                                                                           0,
-                                                                           REMAINING_Z_INDICES };
-
                         VkResult res = DumpImage(new_dumped_copy_buffer_to_image_before.dumped_image,
                                                  before_image_info->intermediate_layout,
                                                  options_.dump_resources_scale,
@@ -1536,17 +1531,19 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                 auto& new_dumped_copy_image   = std::get<DumpedCopyImage>(new_dumped_transfer_cmd->dumped_resource);
                 new_dumped_copy_image.regions = copy_image->regions;
 
+                const ImageSubresourceRanges subresource_range = {
+                    graphics::GetFormatAspects(image_info->format),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
+
                 auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
                 if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(image_info->format),
-                                                                       0,
-                                                                       VK_REMAINING_MIP_LEVELS,
-                                                                       0,
-                                                                       VK_REMAINING_ARRAY_LAYERS,
-                                                                       0,
-                                                                       REMAINING_Z_INDICES };
-
                     VkResult res = DumpImage(new_dumped_copy_image.dumped_image,
                                              image_info->intermediate_layout,
                                              options_.dump_resources_scale,
@@ -1581,15 +1578,6 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
 
                     if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(
-                                                                               before_image_info->format),
-                                                                           0,
-                                                                           VK_REMAINING_MIP_LEVELS,
-                                                                           0,
-                                                                           VK_REMAINING_ARRAY_LAYERS,
-                                                                           0,
-                                                                           REMAINING_Z_INDICES };
-
                         // Dump region's subresources
                         VkResult res = DumpImage(new_dumped_copy_image_before->dumped_image,
                                                  before_image_info->intermediate_layout,
@@ -1711,17 +1699,19 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                 auto& new_dumped_blit_image   = std::get<DumpedBlitImage>(new_dumped_transfer_cmd->dumped_resource);
                 new_dumped_blit_image.regions = blit_image->regions;
 
+                const ImageSubresourceRanges subresource_range = {
+                    graphics::GetFormatAspects(image_info->format),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
+
                 auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
                 if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(image_info->format),
-                                                                       0,
-                                                                       VK_REMAINING_MIP_LEVELS,
-                                                                       0,
-                                                                       VK_REMAINING_ARRAY_LAYERS,
-                                                                       0,
-                                                                       REMAINING_Z_INDICES };
-
                     VkResult res = DumpImage(new_dumped_blit_image.dumped_image,
                                              image_info->intermediate_layout,
                                              options_.dump_resources_scale,
@@ -1756,15 +1746,6 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
 
                     if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        const ImageSubresourceRanges subresource_range = { graphics::GetFormatAspects(
-                                                                               before_image_info->format),
-                                                                           0,
-                                                                           VK_REMAINING_MIP_LEVELS,
-                                                                           0,
-                                                                           VK_REMAINING_ARRAY_LAYERS,
-                                                                           0,
-                                                                           REMAINING_Z_INDICES };
-
                         VkResult res = DumpImage(new_dumped_blit_image_before->dumped_image,
                                                  before_image_info->intermediate_layout,
                                                  options_.dump_resources_scale,
