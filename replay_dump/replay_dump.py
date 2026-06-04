@@ -39,6 +39,7 @@ EXIT_COMPARE_FAILED = 4
 EXIT_SUITE_FAILED = 4
 
 API_DUMP_LAYER = "VK_LAYER_LUNARG_api_dump"
+API_DUMP_MANIFEST = "VkLayer_api_dump.json"
 REPLAY_ENV_VAR = "GFXRECON_REPLAY"
 MAX_DIFFS = 200
 IGNORED_COMPARE_KEYS = {
@@ -267,9 +268,180 @@ def normalize_dump_for_compare(value, path="$", depth=0, key=None):
     return True
 
 
+def warn(message):
+    print("Warning: {}".format(message), file=sys.stderr)
+
+
+def parse_sdk_version(name):
+    try:
+        return [int(component) for component in name.split(".")]
+    except ValueError:
+        return None
+
+
+def get_default_sdk_root():
+    if sys.platform.startswith("linux"):
+        return Path("~/sdks").expanduser()
+    if sys.platform == "darwin":
+        return Path("~/VulkanSDK").expanduser()
+    if sys.platform == "win32":
+        return Path("C:/VulkanSDK")
+    fail(
+        "Unsupported platform for Vulkan SDK discovery: {}".format(sys.platform),
+        EXIT_INVALID_INPUT,
+    )
+
+
+def discover_latest_sdk_root():
+    sdk_root = get_default_sdk_root()
+    print("Searching Vulkan SDK root: {}".format(sdk_root))
+    if not sdk_root.exists():
+        fail("Vulkan SDK root does not exist: {}".format(sdk_root), EXIT_INVALID_INPUT)
+    if not sdk_root.is_dir():
+        fail(
+            "Vulkan SDK root is not a directory: {}".format(sdk_root),
+            EXIT_INVALID_INPUT,
+        )
+
+    try:
+        children = list(sdk_root.iterdir())
+    except OSError as err:
+        fail(
+            "Failed to scan Vulkan SDK root {}: {}".format(sdk_root, err),
+            EXIT_INVALID_INPUT,
+        )
+
+    candidates = []
+    for child in children:
+        try:
+            if not child.is_dir():
+                continue
+        except OSError as err:
+            warn("Ignoring SDK candidate {}: {}".format(child, err))
+            continue
+
+        version = parse_sdk_version(child.name)
+        if version is None:
+            warn("Ignoring SDK candidate with non-version name: {}".format(child))
+            continue
+        candidates.append((version, child))
+
+    if not candidates:
+        fail(
+            "No valid Vulkan SDK directories found under {}".format(sdk_root),
+            EXIT_INVALID_INPUT,
+        )
+
+    _version, selected = max(candidates, key=lambda candidate: candidate[0])
+    try:
+        selected = selected.resolve()
+    except OSError as err:
+        warn("Failed to resolve Vulkan SDK path {}: {}".format(selected, err))
+        selected = selected.absolute()
+    print("Selected Vulkan SDK root: {}".format(selected))
+    return selected
+
+
+def windows_sdk_search_dirs(sdk_root):
+    bits = os.environ.get("BITS", "64")
+    suffix = "32" if bits == "32" else ""
+    expected = [
+        sdk_root / "Bin{}".format(suffix),
+        sdk_root / "Lib{}".format(suffix),
+    ]
+    optional = [sdk_root / "Tools{}".format(suffix)]
+
+    search_dirs = []
+    for path in expected:
+        if path.is_dir():
+            search_dirs.append(path)
+        else:
+            warn("Expected Vulkan SDK directory is absent: {}".format(path))
+    for path in optional:
+        if path.is_dir():
+            search_dirs.append(path)
+    search_dirs.append(sdk_root)
+    return search_dirs
+
+
+def linux_sdk_search_dirs(sdk_root):
+    bits = os.environ.get("BITS", "64")
+    if bits == "32":
+        preferred = [sdk_root / "x86", sdk_root / "i386", sdk_root / "i686"]
+    else:
+        preferred = [sdk_root / "x86_64"]
+
+    search_dirs = [path for path in preferred if path.is_dir()]
+    search_dirs.append(sdk_root)
+    return search_dirs
+
+
+def get_sdk_search_dirs(sdk_root):
+    if sys.platform == "win32":
+        return windows_sdk_search_dirs(sdk_root)
+    if sys.platform.startswith("linux"):
+        return linux_sdk_search_dirs(sdk_root)
+    return [sdk_root]
+
+
+def find_file_in_dirs(search_dirs, filename):
+    def onerror(err):
+        warn("Skipping SDK directory during search: {}".format(err))
+
+    for search_dir in search_dirs:
+        if not search_dir.is_dir():
+            warn("Skipping absent SDK search directory: {}".format(search_dir))
+            continue
+        matches = []
+        for root, _dirs, files in os.walk(search_dir, onerror=onerror):
+            if filename in files:
+                matches.append(Path(root) / filename)
+        if matches:
+            selected = sorted(matches, key=lambda path: str(path))[0]
+            try:
+                return selected.resolve()
+            except OSError as err:
+                warn("Failed to resolve SDK component path {}: {}".format(selected, err))
+                return selected.absolute()
+
+    return None
+
+
+def prepend_env_path(env, name, path):
+    path_text = str(path)
+    existing = env.get(name)
+    if existing:
+        env[name] = path_text + os.pathsep + existing
+    else:
+        env[name] = path_text
+
+
+def configure_api_dump_layer_path(env):
+    sdk_root = discover_latest_sdk_root()
+    search_dirs = get_sdk_search_dirs(sdk_root)
+    print(
+        "Searching Vulkan SDK directories: {}".format(
+            ", ".join(str(path) for path in search_dirs)
+        )
+    )
+
+    manifest_path = find_file_in_dirs(search_dirs, API_DUMP_MANIFEST)
+    if manifest_path is None:
+        fail(
+            "{} was not found under selected Vulkan SDK root {}".format(
+                API_DUMP_MANIFEST, sdk_root
+            ),
+            EXIT_INVALID_INPUT,
+        )
+
+    print("Selected API dump layer manifest: {}".format(manifest_path))
+    prepend_env_path(env, "VK_LAYER_PATH", manifest_path.parent)
+
+
 def build_replay_environment(output_path):
     env = os.environ.copy()
     env["VK_INSTANCE_LAYERS"] = API_DUMP_LAYER
+    configure_api_dump_layer_path(env)
 
     output_name = str(output_path)
     # Current LunarG settings names and older aliases are both set so the
