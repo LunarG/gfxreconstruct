@@ -343,23 +343,19 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const ApiCall
 {
     size_t bytes_read = 0;
 
-    format::HandleId                device;
-    format::HandleId                descriptorSet;
-    format::HandleId                descriptorUpdateTemplate;
-    DescriptorUpdateTemplateDecoder pData;
+    args::UpdateDescriptorSetWithTemplate args;
 
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorSet);
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
     bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorUpdateTemplate);
-    bytes_read += pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorSet);
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorUpdateTemplate);
+    bytes_read += args.pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkUpdateDescriptorSetWithTemplate(
-            call_info, device, descriptorSet, descriptorUpdateTemplate, &pData);
+        consumer->Process_vkUpdateDescriptorSetWithTemplate(call_info, args);
     }
 
     return bytes_read;
@@ -371,25 +367,21 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const Api
 {
     size_t bytes_read = 0;
 
-    format::HandleId                commandBuffer;
-    format::HandleId                descriptorUpdateTemplate;
-    format::HandleId                layout;
-    uint32_t                        set;
-    DescriptorUpdateTemplateDecoder pData;
+    args::CmdPushDescriptorSetWithTemplateKHR args;
 
-    bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorUpdateTemplate);
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorUpdateTemplate);
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &layout);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &set);
-    bytes_read += pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.layout);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.set);
+    bytes_read += args.pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkCmdPushDescriptorSetWithTemplateKHR(
-            call_info, commandBuffer, descriptorUpdateTemplate, layout, set, &pData);
+        consumer->Process_vkCmdPushDescriptorSetWithTemplateKHR(call_info, args);
     }
 
     return bytes_read;
@@ -401,20 +393,18 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const Ap
 {
     size_t bytes_read = 0;
 
-    format::HandleId                                                  commandBuffer;
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo> pPushDescriptorSetWithTemplateInfo;
+    args::CmdPushDescriptorSetWithTemplate2KHR args;
 
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.commandBuffer);
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read +=
-        pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer()->pData.Decode(
+        args.pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer()->pData.Decode(
         (parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-            call_info, commandBuffer, &pPushDescriptorSetWithTemplateInfo);
+        consumer->Process_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, args);
     }
 
     return bytes_read;
@@ -426,23 +416,19 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const ApiC
 {
     size_t bytes_read = 0;
 
-    format::HandleId                device;
-    format::HandleId                descriptorSet;
-    format::HandleId                descriptorUpdateTemplate;
-    DescriptorUpdateTemplateDecoder pData;
+    args::UpdateDescriptorSetWithTemplateKHR args;
 
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorSet);
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
     bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorUpdateTemplate);
-    bytes_read += pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorSet);
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.descriptorUpdateTemplate);
+    bytes_read += args.pData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkUpdateDescriptorSetWithTemplateKHR(
-            call_info, device, descriptorSet, descriptorUpdateTemplate, &pData);
+        consumer->Process_vkUpdateDescriptorSetWithTemplateKHR(call_info, args);
     }
 
     return bytes_read;
@@ -454,50 +440,35 @@ size_t VulkanDecoderBase::Decode_vkCreateRayTracingPipelinesKHR(const ApiCallInf
 {
     size_t bytes_read = 0;
 
-    format::HandleId                                                device;
-    format::HandleId                                                deferredOperation;
-    format::HandleId                                                pipelineCache;
-    uint32_t                                                        createInfoCount;
-    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR> pCreateInfos;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>             pAllocator;
-    HandlePointerDecoder<VkPipeline>                                pPipelines;
-    VkResult                                                        return_value;
+    args::CreateRayTracingPipelinesKHR args;
 
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
     bytes_read += ValueDecoder::DecodeHandleIdValue(
-        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &deferredOperation);
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.deferredOperation);
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.pipelineCache);
+    bytes_read += ValueDecoder::DecodeUInt32Value(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.createInfoCount);
+    bytes_read += args.pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += args.pPipelines.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineCache);
-    bytes_read +=
-        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &createInfoCount);
-    bytes_read += pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPipelines.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read +=
-        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkCreateRayTracingPipelinesKHR(call_info,
-                                                         return_value,
-                                                         device,
-                                                         deferredOperation,
-                                                         pipelineCache,
-                                                         createInfoCount,
-                                                         &pCreateInfos,
-                                                         &pAllocator,
-                                                         &pPipelines);
+        consumer->Process_vkCreateRayTracingPipelinesKHR(call_info, args);
     }
 
-    if (deferredOperation)
+    if (args.deferredOperation)
     {
         DecodeAllocator::TurnOffEndCanClear();
         DeferredOperationFunctionCallData record;
-        record.pCreateInfos                                        = std::move(pCreateInfos);
-        record.pAllocator                                          = std::move(pAllocator);
-        record.pPipelines                                          = std::move(pPipelines);
-        record_deferred_operation_function_call[deferredOperation] = std::move(record);
+        record.pCreateInfos                                             = std::move(args.pCreateInfos);
+        record.pAllocator                                               = std::move(args.pAllocator);
+        record.pPipelines                                               = std::move(args.pPipelines);
+        record_deferred_operation_function_call[args.deferredOperation] = std::move(record);
     }
     return bytes_read;
 }
@@ -508,24 +479,22 @@ size_t VulkanDecoderBase::Decode_vkDeferredOperationJoinKHR(const ApiCallInfo& c
 {
     size_t bytes_read = 0;
 
-    format::HandleId device;
-    format::HandleId operation;
-    VkResult         return_value;
+    args::DeferredOperationJoinKHR args;
 
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.device);
     bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &operation);
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.operation);
     bytes_read +=
-        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &args.result);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkDeferredOperationJoinKHR(call_info, return_value, device, operation);
+        consumer->Process_vkDeferredOperationJoinKHR(call_info, args);
     }
 
     DecodeAllocator::TurnOnEndCanClear();
-    auto it = record_deferred_operation_function_call.find(operation);
+    auto it = record_deferred_operation_function_call.find(args.operation);
     if (it != record_deferred_operation_function_call.end())
     {
         record_deferred_operation_function_call.erase(it);

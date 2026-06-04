@@ -57,84 +57,30 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
                                             const std::vector<format::DeviceMemoryType>& memory_types,
                                             const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
 
-    void Process_vkCmdBuildAccelerationStructuresIndirectKHR(
-        const ApiCallInfo&                                                         call_info,
-        format::HandleId                                                           commandBuffer,
-        uint32_t                                                                   infoCount,
-        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
-        PointerDecoder<VkDeviceAddress>*                                           pIndirectDeviceAddresses,
-        PointerDecoder<uint32_t>*                                                  pIndirectStrides,
-        PointerDecoder<uint32_t*>*                                                 ppMaxPrimitiveCounts) override;
+    void
+    Process_vkCmdBuildAccelerationStructuresIndirectKHR(const ApiCallInfo&                               call_info,
+                                                        args::CmdBuildAccelerationStructuresIndirectKHR& args) override;
 
-    virtual void Process_vkCreateShaderModule(
-        const gfxrecon::decode::ApiCallInfo&                                                        call_info,
-        VkResult                                                                                    returnValue,
-        gfxrecon::format::HandleId                                                                  device,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
-        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*    pAllocator,
-        gfxrecon::decode::HandlePointerDecoder<VkShaderModule>* pShaderModule) override;
+    virtual void Process_vkCreateShaderModule(const ApiCallInfo& call_info, args::CreateShaderModule& args) override;
 
-    virtual void Process_vkGetPipelineCacheData(const ApiCallInfo&       call_info,
-                                                VkResult                 returnValue,
-                                                format::HandleId         device,
-                                                format::HandleId         pipelineCache,
-                                                PointerDecoder<size_t>*  pDataSize,
-                                                PointerDecoder<uint8_t>* pData) override;
+    void Process_vkGetPipelineCacheData(const ApiCallInfo& call_info, args::GetPipelineCacheData& args) override;
 
-    virtual void Process_vkCreatePipelineCache(const ApiCallInfo&                                       call_info,
-                                               VkResult                                                 returnValue,
-                                               format::HandleId                                         device,
-                                               StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
-                                               StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
-                                               HandlePointerDecoder<VkPipelineCache>* pPipelineCache) override;
+    void Process_vkCreatePipelineCache(const ApiCallInfo& call_info, args::CreatePipelineCache& args) override;
 
-    virtual void Process_vkCmdPushConstants(const ApiCallInfo&       call_info,
-                                            format::HandleId         commandBuffer,
-                                            format::HandleId         layout,
-                                            VkShaderStageFlags       stageFlags,
-                                            uint32_t                 offset,
-                                            uint32_t                 size,
-                                            PointerDecoder<uint8_t>* pValues) override;
+    void Process_vkCmdPushConstants(const ApiCallInfo& call_info, args::CmdPushConstants& args) override;
 
-    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                      format::HandleId                 device,
-                                                      format::HandleId                 descriptorSet,
-                                                      format::HandleId                 descriptorUpdateTemplate,
-                                                      DescriptorUpdateTemplateDecoder* pData) override
-    {
-        Process_vkUpdateDescriptorSetWithTemplate(
-            call_info, device, descriptorSet, descriptorUpdateTemplate, pData, true);
-    }
+    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
+                                                      args::UpdateDescriptorSetWithTemplateKHR& args) override;
 
-    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                   format::HandleId                 device,
-                                                   format::HandleId                 descriptorSet,
-                                                   format::HandleId                 descriptorUpdateTemplate,
-                                                   DescriptorUpdateTemplateDecoder* pData) override
-    {
-        Process_vkUpdateDescriptorSetWithTemplate(
-            call_info, device, descriptorSet, descriptorUpdateTemplate, pData, false);
-    }
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
+                                                   args::UpdateDescriptorSetWithTemplate& args) override;
 
   protected:
-    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                   format::HandleId                 device,
-                                                   format::HandleId                 descriptorSet,
-                                                   format::HandleId                 descriptorUpdateTemplate,
-                                                   DescriptorUpdateTemplateDecoder* pData,
-                                                   bool                             use_KHR_suffix);
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
+                                                       args::CmdPushDescriptorSetWithTemplateKHR& args) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                               format::HandleId   commandBuffer,
-                                                               format::HandleId   descriptorUpdateTemplate,
-                                                               format::HandleId   layout,
-                                                               uint32_t           set,
-                                                               DescriptorUpdateTemplateDecoder* pData) override;
-
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-        const ApiCallInfo&                                                 call_info,
-        format::HandleId                                                   commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
+                                                        args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
 
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
 

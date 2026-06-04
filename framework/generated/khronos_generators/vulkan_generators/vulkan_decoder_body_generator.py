@@ -22,9 +22,9 @@
 # IN THE SOFTWARE.
 
 import sys
-from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions, write
+from khronos_base_generator import ValueInfo
+from vulkan_base_generator import VulkanBaseGenerator, VulkanBaseGeneratorOptions
 from khronos_decoder_body_generator import KhronosDecoderBodyGenerator
-
 
 class VulkanDecoderBodyGeneratorOptions(VulkanBaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan API parameter decoding."""
@@ -59,9 +59,11 @@ class VulkanDecoderBodyGeneratorOptions(VulkanBaseGeneratorOptions):
             'decode/string_decoder.h',
             'decode/struct_pointer_decoder.h',
             'decode/value_decoder.h',
+            'decode/vulkan_decoder_args.h',
             'decode/vulkan_pnext_node.h',
             'generated/generated_vulkan_decoder.h',
             'generated/generated_vulkan_struct_decoders_forward.h',
+            'generated/generated_vulkan_decoder_args.h',
             'util/defines.h',
         ))
         self.begin_end_file_data.system_headers.append('cstddef')
@@ -99,3 +101,63 @@ class VulkanDecoderBodyGenerator(VulkanBaseGenerator, KhronosDecoderBodyGenerato
 
         # Finish processing in superclass
         VulkanBaseGenerator.endFile(self)
+
+
+    def make_cmd_body(self, return_type, name, values):
+        """Generate C++ code for the decoder method body."""
+        preamble = ''
+        main_body = ''
+        epilogue = ''
+        arg_names = []
+        has_base_header_to_peak = False
+
+        # Declare args.
+        args_struct_name = VulkanBaseGenerator.make_args_struct_name(name, namespace='args::')
+        main_body += f'    {args_struct_name} args;\n'
+
+        if len(values) > 0 or (return_type and return_type != 'void'):
+            arg_names.append('args')
+
+        # Blank line after declarations.
+        if values or return_type:
+            main_body += '\n'
+
+        if has_base_header_to_peak:
+            main_body += '    bool     peak_is_null    = false;\n'
+            main_body += '    bool     peak_is_struct  = false;\n'
+            main_body += '    bool     peak_has_length = false;\n'
+            main_body += '    size_t   peak_length{};\n'
+            main_body += '    uint32_t peak_structure_type = 0;\n'
+
+        # Decode() method calls for pointer decoder wrappers.
+        prefix = self.get_param_prefix()
+        for value in values:
+            preamble, main_body, epilogue = KhronosDecoderBodyGenerator.make_decode_invocation(
+                self, value, preamble, main_body, epilogue, target_prefix=prefix
+            )
+        if return_type and return_type != 'void':
+            preamble, main_body, epilogue = KhronosDecoderBodyGenerator.make_decode_invocation(
+                self, ValueInfo('args.result', return_type, return_type, prefix=prefix), preamble, main_body, epilogue
+            )
+
+        # Blank line after Decode() method invocations.
+        if values or return_type:
+            main_body += '\n'
+
+        # Make the argument list for the API call
+        arglist = ', '.join([arg_name for arg_name in arg_names])
+
+        if arglist[-2:] == ', ':
+            arglist = arglist[:-2]
+        arglist = 'call_info, ' + arglist
+
+        main_body += '    for (auto consumer : GetConsumers())\n'
+        main_body += '    {\n'
+        main_body += f'        consumer->Process_{name}({arglist});\n'
+        main_body += '    }\n'
+
+        if len(preamble) > 0:
+            preamble += '\n'
+        body = preamble + main_body + epilogue
+
+        return body

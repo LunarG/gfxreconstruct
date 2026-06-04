@@ -60,6 +60,7 @@ generate_targets = [
     'generated_vulkan_struct_decoders_forward.h',
     'generated_vulkan_decoder.h',
     'generated_vulkan_decoder.cpp',
+    'generated_vulkan_decoder_args.h',
     'generated_vulkan_consumer.h',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',

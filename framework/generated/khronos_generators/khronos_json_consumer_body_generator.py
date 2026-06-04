@@ -21,7 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from khronos_base_generator import write
+from khronos_base_generator import ValueInfo, write
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
@@ -104,59 +104,72 @@ class KhronosExportJsonConsumerBodyGenerator():
         """Method may be overridden."""
         return
 
-    def make_consumer_func_body(self, return_type, name, values):
-        """Return ExportJsonConsumer class member function definition."""
-        body = ''
+    def get_return_value_name(self):
+        """Method may be overridden."""
+        return 'returnValue'
 
-        # Handle function return value
+    def make_return_value_json(self, return_type):
+        """Method may be overridden."""
+        return_value_name = self.get_return_value_name()
+
         if return_type in self.formatAsHex:
-            body += '    FieldToJsonAsHex(jdata[format::kNameReturn], returnValue);\n'
+            return f'    FieldToJsonAsHex(jdata[format::kNameReturn], {return_value_name});\n'
         elif self.is_boolean_type(return_type):
             # Output as JSON boolean type true/false without quotes:
-            body += '    Bool32ToJson(jdata[format::kNameReturn], returnValue);\n'
+            return f'    Bool32ToJson(jdata[format::kNameReturn], {return_value_name});\n'
         elif self.is_handle_like(return_type):
-            body += '    HandleToJson(jdata[format::kNameReturn], returnValue);\n'
+            return f'    HandleToJson(jdata[format::kNameReturn], {return_value_name});\n'
         # Enums, ints, etc. handled by default and static dispatch based on C++ type:
         elif not 'void' in return_type:
-            body += '    jdata[format::kNameReturn] = returnValue;\n'
+            return f'    jdata[format::kNameReturn] = {return_value_name};\n'
+        else:
+            return ''
+
+    def make_consumer_func_body(self, return_type, name, values: list[ValueInfo]):
+        """Return ExportJsonConsumer class member function definition."""
+        body = self.make_return_value_json(return_type)
 
         if len(values) > 0:
-            body += '    auto& args = jdata[format::kNameArgs];\n'
+            json_args_name = 'args'
+            if values[0].prefix.startswith(json_args_name):
+                json_args_name = 'jargs'
+
+            body += f'    auto& {json_args_name} = jdata[format::kNameArgs];\n'
             # Handle function arguments
             for value in values:
                 flagsEnumType = value.base_type
 
                 # Default to directly asigning the value to JSON, but override
                 # for special cases such as handles, structs, and pointers
-                to_json = 'args["{0}"] = {0}'
+                to_json = '{4}["{0}"] = {3}'
 
                 # Special cases:
                 if self.has_special_case_json_export(value.base_type):
                     to_json = self.get_special_case_json_export(value.base_type)
                 elif not (value.is_pointer or value.is_array) and self.is_struct(value.base_type):
-                    to_json = 'FieldToJson(args["{0}"], &{0})'
+                    to_json = 'FieldToJson({4}["{0}"], &{3})'
                 elif value.is_array and value.base_type in self.children_structs:
-                    to_json = 'ParentChildFieldToJson(args["{0}"], {0})'
+                    to_json = 'ParentChildFieldToJson({4}["{0}"], {3})'
                 elif self.is_boolean_type(value.base_type):
-                    to_json = 'Bool32ToJson(args["{0}"], {0})'
+                    to_json = 'Bool32ToJson({4}["{0}"], {3})'
                 elif value.name == 'ppData' or self.decode_as_hex(value):
-                    to_json = 'FieldToJsonAsHex(args["{0}"], {0})'
+                    to_json = 'FieldToJsonAsHex({4}["{0}"], {3})'
                 elif self.decode_as_handle(name, value):
-                    to_json = 'HandleToJson(args["{0}"], {0})'
+                    to_json = 'HandleToJson({4}["{0}"], {3})'
                 elif self.is_struct(value.base_type):
-                    to_json = 'FieldToJson(args["{0}"], {0})'
+                    to_json = 'FieldToJson({4}["{0}"], {3})'
                 elif value.is_pointer and (value.pointer_count > 1 or value.base_type != "void"):
-                    to_json = 'FieldToJson(args["{0}"], {0})'
+                    to_json = 'FieldToJson({4}["{0}"], {3})'
                 elif value.is_array:
-                    to_json = 'FieldToJson(args["{0}"], {0})'
+                    to_json = 'FieldToJson({4}["{0}"], {3})'
                 elif value.base_type == 'float':
-                    to_json = 'FieldToJson(args["{0}"], {0})'
+                    to_json = 'FieldToJson({4}["{0}"], {3})'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flags_type_aliases:
                         flagsEnumType = self.flags_type_aliases[value.base_type
                                                                 ]
                     if not (value.is_pointer or value.is_array):
-                        to_json = 'args["{0}"] = {2}_t{{{0}}}'
+                        to_json = '{4}["{0}"] = {2}_t{{{3}}}'
                     else:
                         # Default to outputting as the raw type but warn:
                         print(
@@ -167,8 +180,31 @@ class KhronosExportJsonConsumerBodyGenerator():
                             file=sys.stderr
                         )
 
+
+                is_struct = False
+                is_string = False
+                is_funcp = False
+                is_handle_like = False
+
+                type_name = self.make_invocation_type_name(value.base_type)
+                external_type = type_name in self.EXTERNAL_OBJECT_TYPES
+
+                if self.is_struct(type_name):
+                    is_struct = True
+                elif type_name in ['String', 'WString']:
+                    is_string = True
+                elif type_name == 'FunctionPtr':
+                    is_funcp = True
+                elif self.is_handle_like(value.base_type):
+                    is_handle_like = True
+
+                if value.prefix != '' and value.is_pointer and not external_type:
+                    lvalue = f'&{value.prefixed_name}'
+                else:
+                    lvalue = f'{value.prefixed_name}'
+
                 to_json = to_json.format(
-                    value.name, value.base_type, flagsEnumType
+                    value.name, value.base_type, flagsEnumType, lvalue, json_args_name, op=value.op
                 )
                 body += '        {0};\n'.format(to_json)
         return body

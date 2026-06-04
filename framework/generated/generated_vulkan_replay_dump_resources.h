@@ -32,6 +32,8 @@
 
 #include "decode/vulkan_replay_dump_resources.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_decoder_args.h"
+#include "generated/generated_vulkan_decoder_args.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"

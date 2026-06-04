@@ -29,6 +29,7 @@
 #include "decode/pointer_decoder.h"
 #include "decode/screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
+#include "decode/vulkan_decoder_base.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_frame_warm_up.h"
@@ -176,40 +177,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const std::vector<uint64_t>& level_sizes,
                                          const uint8_t*               data) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                           format::HandleId                 device,
-                                                           format::HandleId                 descriptorSet,
-                                                           format::HandleId                 descriptorUpdateTemplate,
-                                                           DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&                     call_info,
+                                                   args::UpdateDescriptorSetWithTemplate& args) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
-                                                               format::HandleId   commandBuffer,
-                                                               format::HandleId   descriptorUpdateTemplate,
-                                                               format::HandleId   layout,
-                                                               uint32_t           set,
-                                                               DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo&                         call_info,
+                                                       args::CmdPushDescriptorSetWithTemplateKHR& args) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                              format::HandleId                 device,
-                                                              format::HandleId                 descriptorSet,
-                                                              format::HandleId                 descriptorUpdateTemplate,
-                                                              DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&                        call_info,
+                                                      args::UpdateDescriptorSetWithTemplateKHR& args) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-        const ApiCallInfo&                                                 call_info,
-        format::HandleId                                                   commandBuffer,
-        StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
+    void Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo&                          call_info,
+                                                        args::CmdPushDescriptorSetWithTemplate2KHR& args) override;
 
-    void Process_vkCreateRayTracingPipelinesKHR(
-        const ApiCallInfo&                                               call_info,
-        VkResult                                                         returnValue,
-        format::HandleId                                                 device,
-        format::HandleId                                                 deferredOperation,
-        format::HandleId                                                 pipelineCache,
-        uint32_t                                                         createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
-        HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
+    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo&                  call_info,
+                                                args::CreateRayTracingPipelinesKHR& args) override;
 
     void ProcessVulkanBuildAccelerationStructuresCommand(
         format::HandleId                                                           device,
@@ -526,13 +507,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         // This parameter is only referenced by debug builds.
         GFXRECON_UNREFERENCED_PARAMETER(handles_len);
 
-        if (handles_pointer != nullptr)
-        {
-            // The handle and ID array sizes are expected to be the same for mapping operations.
-            assert(handles_len == handles_pointer->GetLength());
-            handle_mapping::RemoveHandleArray<S, T>(
-                pool_id, handles_pointer, object_info_table_, GetPoolInfoFunc, RemoveFunc);
-        }
+        // The handle and ID array sizes are expected to be the same for mapping operations.
+        GFXRECON_ASSERT(handles_len == handles_pointer->GetLength());
+        handle_mapping::RemoveHandleArray<S, T>(
+            pool_id, handles_pointer, object_info_table_, GetPoolInfoFunc, RemoveFunc);
     }
 
     template <typename HandleInfoT>

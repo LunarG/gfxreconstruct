@@ -67,13 +67,8 @@ void VulkanReplayFrameLoopConsumer::StartLooping()
     });
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
-    const ApiCallInfo&                                     call_info,
-    VkResult                                               returnValue,
-    format::HandleId                                       device,
-    StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
-    HandlePointerDecoder<VkCommandPool>*                   pCommandPool)
+void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(const ApiCallInfo&       call_info,
+                                                                args::CreateCommandPool& args)
 {
     if (frame_loop_info_.IsRepetition())
     {
@@ -83,23 +78,17 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
 
     // Set VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT in order to prevent validation
     // error regarding implicitly resetting the command buffer
-    VkCommandPoolCreateInfo* create_info = pCreateInfo->GetPointer();
+    VkCommandPoolCreateInfo* create_info = args.pCreateInfo.GetPointer();
     create_info->flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-    VulkanReplayConsumer::Process_vkCreateCommandPool(
-        call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
+    VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, args);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCreateDescriptorPool(
-    const ApiCallInfo&                                        call_info,
-    VkResult                                                  returnValue,
-    format::HandleId                                          device,
-    StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
-    HandlePointerDecoder<VkDescriptorPool>*                   pDescriptorPool)
+void VulkanReplayFrameLoopConsumer::Process_vkCreateDescriptorPool(const ApiCallInfo&          call_info,
+                                                                   args::CreateDescriptorPool& args)
 {
-    format::HandleId pool_id = *pDescriptorPool->GetPointer();
-    GFXRECON_ASSERT(pDescriptorPool != nullptr && pDescriptorPool->GetPointer() != nullptr);
+    format::HandleId pool_id = *args.pDescriptorPool.GetPointer();
+    GFXRECON_ASSERT(args.pDescriptorPool.GetPointer() != nullptr);
 
     if (frame_loop_info_.IsRepetition())
     {
@@ -110,8 +99,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateDescriptorPool(
         }
     }
 
-    VulkanReplayConsumer::Process_vkCreateDescriptorPool(
-        call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorPool);
+    VulkanReplayConsumer::Process_vkCreateDescriptorPool(call_info, args);
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
@@ -121,16 +109,13 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateDescriptorPool(
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     device,
-    format::HandleId                                     descriptorPool,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(const ApiCallInfo&           call_info,
+                                                                    args::DestroyDescriptorPool& args)
 {
     if (frame_loop_info_.IsRepetition() && !frame_loop_info_.IsFinalIteration())
     {
         // Skip destruction of descriptor pools with a dangling destruction
-        if (dangling_destroy_descriptor_pools_.contains(descriptorPool))
+        if (dangling_destroy_descriptor_pools_.contains(args.descriptorPool))
         {
             return;
         }
@@ -138,22 +123,22 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
-        if (!dangling_create_descriptor_pools_.contains(descriptorPool))
+        if (!dangling_create_descriptor_pools_.contains(args.descriptorPool))
         {
             // If this pool was not created during the loop range, ignore destroying it.
-            dangling_destroy_descriptor_pools_.insert(descriptorPool);
+            dangling_destroy_descriptor_pools_.insert(args.descriptorPool);
             return;
         }
         else
         {
             // Created and destroyed during the loop range, not dangling
-            dangling_create_descriptor_pools_.erase(descriptorPool);
+            dangling_create_descriptor_pools_.erase(args.descriptorPool);
 
             // Check if this was the pool for any heretofore dangling descriptors
-            RemovePoolDanglingCreateDescriptors(descriptorPool);
+            RemovePoolDanglingCreateDescriptors(args.descriptorPool);
         }
     }
-    VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, device, descriptorPool, pAllocator);
+    VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)
@@ -175,10 +160,7 @@ void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
-                                                                  VkResult                   returnValue,
-                                                                  format::HandleId           device,
-                                                                  format::HandleId           descriptorPool,
-                                                                  VkDescriptorPoolResetFlags flags)
+                                                                  args::ResetDescriptorPool& args)
 {
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsFinalIteration())
     {
@@ -186,27 +168,23 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
         for (format::HandleId set_id : dangling_create_descriptor_sets_)
         {
             VulkanDescriptorSetInfo* info = GetObjectInfoTable().GetVkDescriptorSetInfo(set_id);
-            if (info != nullptr && info->pool_id == descriptorPool)
+            if (info != nullptr && info->pool_id == args.descriptorPool)
             {
                 return;
             }
         }
     }
 
-    VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, returnValue, device, descriptorPool, flags);
+    VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, args);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
-    const ApiCallInfo&                                         call_info,
-    VkResult                                                   returnValue,
-    format::HandleId                                           device,
-    StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-    HandlePointerDecoder<VkDescriptorSet>*                     pDescriptorSets)
+void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(const ApiCallInfo&            call_info,
+                                                                     args::AllocateDescriptorSets& args)
 {
     if (frame_loop_info_.IsRepetition())
     {
         // Skip allocation of dangling descriptor sets
-        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
+        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
         {
             if (dangling_create_descriptor_sets_.contains(set_handle))
             {
@@ -215,32 +193,27 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
         }
     }
 
-    VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
-        call_info, returnValue, device, pAllocateInfo, pDescriptorSets);
+    VulkanReplayConsumer::Process_vkAllocateDescriptorSets(call_info, args);
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         // During first iteration of looping range, record which descriptor sets are allocated
         // They will be removed from the set if they are freed during the loop range
-        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
+        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
         {
             dangling_create_descriptor_sets_.insert(set_handle);
         }
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallInfo& call_info,
-                                                                 VkResult           returnValue,
-                                                                 format::HandleId   device,
-                                                                 format::HandleId   descriptorPool,
-                                                                 uint32_t           descriptorSetCount,
-                                                                 HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets)
+void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallInfo&        call_info,
+                                                                 args::FreeDescriptorSets& args)
 {
     if (frame_loop_info_.IsRepetition() && !frame_loop_info_.IsFinalIteration())
     {
         // If any of the descriptor sets are in the dangling list,
         // then we want to omit their destruction
-        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
+        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
         {
             if (dangling_destroy_descriptor_sets_.contains(set_handle))
             {
@@ -252,7 +225,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         bool skip_call = false;
-        for (format::HandleId set_handle : pDescriptorSets->GetSpan())
+        for (format::HandleId set_handle : args.pDescriptorSets.GetSpan())
         {
             if (dangling_create_descriptor_sets_.contains(set_handle))
             {
@@ -274,19 +247,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
 
     // For pools that contain dangling descriptor sets, this code will only be reached once,
     // during the final iteration of the loop range.
-    RemovePoolDanglingCreateDescriptors(descriptorPool);
+    RemovePoolDanglingCreateDescriptors(args.descriptorPool);
 
-    VulkanReplayConsumer::Process_vkFreeDescriptorSets(
-        call_info, returnValue, device, descriptorPool, descriptorSetCount, pDescriptorSets);
+    VulkanReplayConsumer::Process_vkFreeDescriptorSets(call_info, args);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(
-    const ApiCallInfo&                                   call_info,
-    VkResult                                             returnValue,
-    format::HandleId                                     device,
-    StructPointerDecoder<Decoded_VkFenceCreateInfo>*     pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkFence>*                       pFence)
+void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(const ApiCallInfo& call_info, args::CreateFence& args)
 {
     if (frame_loop_info_.IsRepetition())
     {
@@ -294,34 +260,29 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(
         return;
     }
 
-    VulkanReplayFrameLoopConsumerBase::Process_vkCreateFence(
-        call_info, returnValue, device, pCreateInfo, pAllocator, pFence);
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateFence(call_info, args);
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         // Record the initial state of the new fence
-        FenceTracking& t = per_device_fence_tracking_[device];
+        FenceTracking& t = per_device_fence_tracking_[args.device];
         bool           signaled =
-            (pCreateInfo->GetPointer()->flags & VK_FENCE_CREATE_SIGNALED_BIT) == VK_FENCE_CREATE_SIGNALED_BIT;
-        t.initial_fence_states_[*pFence->GetPointer()] = signaled;
+            (args.pCreateInfo.GetPointer()->flags & VK_FENCE_CREATE_SIGNALED_BIT) == VK_FENCE_CREATE_SIGNALED_BIT;
+        t.initial_fence_states_[*args.pFence.GetPointer()] = signaled;
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     device,
-    format::HandleId                                     fence,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(const ApiCallInfo& call_info, args::DestroyFence& args)
 {
     if (frame_loop_info_.IsFinalIteration())
     {
-        if (per_device_fence_tracking_.contains(device))
+        if (per_device_fence_tracking_.contains(args.device))
         {
-            FenceTracking& t = per_device_fence_tracking_[device];
-            t.initial_fence_states_.erase(fence);
+            FenceTracking& t = per_device_fence_tracking_[args.device];
+            t.initial_fence_states_.erase(args.fence);
         }
     }
-    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, device, fence, pAllocator);
+    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, args);
 }
 
 void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, format::HandleId fence)
@@ -392,40 +353,29 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo&               call_info,
-                                                        VkResult                         returnValue,
-                                                        format::HandleId                 device,
-                                                        format::HandleId                 memory,
-                                                        VkDeviceSize                     offset,
-                                                        VkDeviceSize                     size,
-                                                        VkMemoryMapFlags                 flags,
-                                                        PointerDecoder<uint64_t, void*>* ppData)
+void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo& call_info, args::MapMemory& args)
 {
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in mapped_loop_memory
     if (frame_loop_info_.IsLooping())
     {
-        if (mapped_loop_memory.contains(memory))
+        if (mapped_loop_memory.contains(args.memory))
         {
             return; // Already mapped in loop range, skip re-mapping
         }
 
         // First time mapping in the loop
-        mapped_loop_memory.insert(memory);
+        mapped_loop_memory.insert(args.memory);
     }
-    VulkanReplayConsumer::Process_vkMapMemory(call_info, returnValue, device, memory, offset, size, flags, ppData);
+    VulkanReplayConsumer::Process_vkMapMemory(call_info, args);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
-    const ApiCallInfo&                              call_info,
-    VkResult                                        returnValue,
-    format::HandleId                                queue,
-    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
+void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(const ApiCallInfo& call_info, args::QueuePresentKHR& args)
 {
-    VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, returnValue, queue, pPresentInfo);
+    VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, args);
 
     CommonObjectInfoTable& table      = GetObjectInfoTable();
-    VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
+    VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(args.queue);
     VkDevice               device     = queue_info->parent;
     GFXRECON_ASSERT(device != 0);
     const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
@@ -437,13 +387,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
         VkResult result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
-        FixupDeviceFences(queue_info->parent_id, queue);
+        FixupDeviceFences(queue_info->parent_id, args.queue);
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& call_info,
-                                                          format::HandleId   device,
-                                                          format::HandleId   memory)
+void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& call_info, args::UnmapMemory& args)
 {
     // Skip for loop iterations 1-(n-1).
     // Skip if looping and if not final iteration
@@ -455,51 +403,48 @@ void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& cal
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!allocatedLoopResources.contains(memory));
-        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(args.memory));
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, args);
     }
-    else if (mapped_loop_memory.contains(memory))
+    else if (mapped_loop_memory.contains(args.memory))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
-        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
-        mapped_loop_memory.erase(memory);
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, args);
+        mapped_loop_memory.erase(args.memory);
     }
     else if (getFrameLoopInfo().IsFinalIteration())
     {
         // Looping special case:
         // This resource has been allocated BEFORE the loop range.
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
-        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, args);
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkAcquireProfilingLockKHR(
-    const ApiCallInfo&                                           call_info,
-    VkResult                                                     returnValue,
-    format::HandleId                                             device,
-    StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
+void VulkanReplayFrameLoopConsumer::Process_vkAcquireProfilingLockKHR(const ApiCallInfo&             call_info,
+                                                                      args::AcquireProfilingLockKHR& args)
 {
     // If we are not looping, if current lock state for this device is undefined, or
     // the current state is false (not acquired), call replay consumer
-    if (!frame_loop_info_.IsLooping() || !profilingLockState.contains(device) || !profilingLockState[device])
+    if (!frame_loop_info_.IsLooping() || !profilingLockState.contains(args.device) || !profilingLockState[args.device])
     {
-        VulkanReplayConsumer::Process_vkAcquireProfilingLockKHR(call_info, returnValue, device, pInfo);
+        VulkanReplayConsumer::Process_vkAcquireProfilingLockKHR(call_info, args);
         // We're assuming call was successful. We don't have a way to check result.
-        profilingLockState[device] = true;
+        profilingLockState[args.device] = true;
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info,
-                                                                      format::HandleId   device)
+void VulkanReplayFrameLoopConsumer::Process_vkReleaseProfilingLockKHR(const ApiCallInfo&             call_info,
+                                                                      args::ReleaseProfilingLockKHR& args)
 {
     // If we are not looping, if current lock state for this device is undefined, or
     // the current state is true (acquired), call replay consumer
-    if (!frame_loop_info_.IsLooping() || !profilingLockState.contains(device) || profilingLockState[device])
+    if (!frame_loop_info_.IsLooping() || !profilingLockState.contains(args.device) || profilingLockState[args.device])
     {
-        VulkanReplayConsumer::Process_vkReleaseProfilingLockKHR(call_info, device);
+        VulkanReplayConsumer::Process_vkReleaseProfilingLockKHR(call_info, args);
         // We're assuming call was successful. We don't have a way to check result.
-        profilingLockState[device] = false;
+        profilingLockState[args.device] = false;
     }
 }
 

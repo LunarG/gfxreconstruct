@@ -312,6 +312,7 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.cpp>
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder_args.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_json.h
