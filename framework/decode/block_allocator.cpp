@@ -65,13 +65,6 @@ uint8_t* BlockAllocator::StartBlock(const BlockAllocationInfo& info)
     }
     return raw_block_data;
 }
-#if 0
-uint8_t* BlockAllocator::Allocate(size_t size, size_t alignment)
-{
-    GFXRECON_ASSERT(current_batch_.get() != nullptr);
-    return static_cast<uint8_t*>(current_batch_->Allocate(size, alignment));
-}
-#endif
 
 BlockBatch& BlockAllocator::GetCurrentBatch()
 {
