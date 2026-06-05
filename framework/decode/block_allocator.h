@@ -77,6 +77,8 @@ class BlockAllocator
     void SetBatchSinkProc(const SinkProc& sink_proc);
     void ResetBatchSinkProc() { batch_sink_proc_.reset(); }
 
+    size_t                BytesRemaining() const { return current_batch_->BytesRemaining(); }
+    constexpr size_t      Capacity() const { return BlockBatch::kCapacity; }
     static constexpr bool IsJumboAllocation(size_t size) noexcept { return size >= BlockBatch::kJumboSize; }
 
   private:

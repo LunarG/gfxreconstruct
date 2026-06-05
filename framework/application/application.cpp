@@ -66,7 +66,7 @@ Application::Application(const std::string&     name,
                          const std::string&     cli_wsi_extension,
                          void*                  platform_specific_wsi_data) :
     name_(name),
-    file_processor_(file_processor), running_(false), paused_(false),
+    file_processor_(file_processor), async_processing_(false), running_(false), paused_(false),
     pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension),
     fps_info_(nullptr), frame_loop_info_{ nullptr }
 {
@@ -130,6 +130,34 @@ void Application::SetFpsInfo(graphics::FpsInfo* fps_info)
 void Application::Run()
 {
     running_ = true;
+
+    if (async_processing_)
+    {
+        if (fps_info_ != nullptr)
+        {
+            auto preload_range = fps_info_->GetPreloadFrameRange();
+            if (preload_range.has_value())
+            {
+                // Fileprocessor frames are 0 based, fps_info frames are 1 based,
+                file_processor_->SetPreloadFrameRange(
+                    decode::FileProcessor::FrameRange::MakeFromOneBased(preload_range->first, preload_range->second));
+            }
+            // Prevent async "run on"
+            file_processor_->SetQuitBeforeFrame(fps_info_->GetQuitBeforeFrame() - 1);
+        }
+
+        if (frame_loop_info_ != nullptr)
+        {
+            // NOTE: Loop frame support is "experimental" and should not be used with preload (though it
+            //       is currently not prevented).  This will be resolved in future work
+            //
+            // loop_frame_idx_ is 1-based; SetQuitBeforeFrame is 0-based, a loop frame of zero is not
+            // allowed
+            file_processor_->SetQuitBeforeFrame(frame_loop_info_->GetLoopFrame() - 1);
+        }
+
+        file_processor_->StartAsyncProcessing();
+    }
 
     while (running_)
     {

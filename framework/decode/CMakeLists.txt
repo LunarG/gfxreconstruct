@@ -33,6 +33,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_payload.h
+                    ${CMAKE_CURRENT_LIST_DIR}/async_processor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/async_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/block_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/block_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/block_batch.h
@@ -81,6 +83,8 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/file_processor_types.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_processor_visitors.h
                     ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h
@@ -310,6 +314,8 @@ target_sources(gfxrecon_decode
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h

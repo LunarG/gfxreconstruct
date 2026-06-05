@@ -227,10 +227,15 @@ struct InputsBufferEntry
 // inputs are stored on GPU resources and referenced by the INPUTS desc. A non-const D3D12_RAYTRACING_GEOMETRY_DESC*
 // array must be provided as geometry_descs argument and will be referenced instead of
 // inputs_desc.pGeometries/ppGeometries.
-void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& inputs_desc,
-                                                 D3D12_RAYTRACING_GEOMETRY_DESC*                       geometry_descs,
-                                                 uint64_t&                       inputs_buffer_size,
-                                                 std::vector<InputsBufferEntry>& entries);
+void GetAccelerationStructureInputsBufferEntriesDeprecated(
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& inputs_desc,
+    D3D12_RAYTRACING_GEOMETRY_DESC*                       geometry_descs,
+    uint64_t&                                             inputs_buffer_size,
+    std::vector<InputsBufferEntry>&                       entries);
+
+void GetAccelerationStructureInputsBufferEntries2(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& inputs_desc,
+                                                  uint64_t&                       inputs_buffer_size,
+                                                  std::vector<InputsBufferEntry>& entries);
 
 // Get one pixel byte size for specific DXGI_FORMAT. The function is used by GetOneRowSizeByDXGIFormat
 // function.
