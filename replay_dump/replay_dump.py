@@ -41,6 +41,10 @@ EXIT_SUITE_FAILED = 4
 API_DUMP_LAYER = "VK_LAYER_LUNARG_api_dump"
 API_DUMP_MANIFEST = "VkLayer_api_dump.json"
 REPLAY_ENV_VAR = "GFXRECON_REPLAY"
+LOADER_LAYER_FILTER_ENV_VARS = (
+    "VK_LOADER_LAYERS_DISABLE",
+    "VK_LOADER_LAYERS_ENABLE",
+)
 MAX_DIFFS = 200
 IGNORED_COMPARE_KEYS = {
     "address",
@@ -442,6 +446,8 @@ def build_replay_environment(output_path):
     env = os.environ.copy()
     env["VK_INSTANCE_LAYERS"] = API_DUMP_LAYER
     configure_api_dump_layer_path(env)
+    for name in LOADER_LAYER_FILTER_ENV_VARS:
+        print("{}={}".format(name, env.get(name, "")))
 
     output_name = str(output_path)
     # Current LunarG settings names and older aliases are both set so the
