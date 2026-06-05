@@ -45,6 +45,13 @@ LOADER_LAYER_FILTER_ENV_VARS = (
     "VK_LOADER_LAYERS_DISABLE",
     "VK_LOADER_LAYERS_ENABLE",
 )
+LOADER_DRIVER_FILTER_ENV_VARS = (
+    "VK_ICD_FILENAMES",
+    "VK_DRIVER_FILES",
+    "VK_ADD_DRIVER_FILES",
+    "VK_LOADER_DRIVERS_DISABLE",
+    "VK_LOADER_DRIVERS_SELECT",
+)
 MAX_DIFFS = 200
 IGNORED_COMPARE_KEYS = {
     "address",
@@ -548,6 +555,8 @@ def build_replay_environment(output_path):
     ):
         print("{}={}".format(name, env.get(name, "")))
     for name in LOADER_LAYER_FILTER_ENV_VARS:
+        print("{}={}".format(name, env.get(name, "")))
+    for name in LOADER_DRIVER_FILTER_ENV_VARS:
         print("{}={}".format(name, env.get(name, "")))
 
     output_name = str(output_path)
