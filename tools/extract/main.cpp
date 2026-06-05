@@ -201,12 +201,12 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
     {
         if ((returnValue >= 0) && (pCreateInfos != nullptr) && !pCreateInfos->IsNull())
         {
-            for (size_t i = 0; i < createInfoCount; i++)
+            for (size_t create_info_index = 0; create_info_index < createInfoCount; create_info_index++)
             {
-                auto& pipeline_create_info = pCreateInfos->GetPointer()[i];
-                for (size_t j = 0; j < pipeline_create_info.stageCount; j++)
+                auto& pipeline_create_info = pCreateInfos->GetPointer()[create_info_index];
+                for (size_t stage_index = 0; stage_index < pipeline_create_info.stageCount; stage_index++)
                 {
-                    auto& stage_create_info = pipeline_create_info.pStages[i];
+                    auto& stage_create_info = pipeline_create_info.pStages[stage_index];
                     if (stage_create_info.module != VK_NULL_HANDLE)
                         continue;
 
@@ -219,7 +219,7 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
                             auto*       create_info = reinterpret_cast<const VkShaderModuleCreateInfo*>(base);
                             const void* orig_code   = create_info->pCode;
                             size_t      orig_size   = create_info->codeSize;
-                            uint64_t    handle_id   = pPipelines->GetPointer()[i];
+                            uint64_t    handle_id   = pPipelines->GetPointer()[create_info_index];
                             std::string file_name =
                                 "sh" + std::to_string(handle_id) + "_" + std::to_string(stage_create_info.stage);
                             std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
