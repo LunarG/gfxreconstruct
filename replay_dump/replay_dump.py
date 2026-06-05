@@ -420,6 +420,92 @@ def prepend_env_path(env, name, path):
         env[name] = path_text
 
 
+def prepend_env_paths(env, name, paths):
+    for path in reversed(paths):
+        prepend_env_path(env, name, path)
+
+
+def get_runtime_library_env_var():
+    if sys.platform == "win32":
+        return "PATH"
+    if sys.platform == "darwin":
+        return "DYLD_LIBRARY_PATH"
+    return "LD_LIBRARY_PATH"
+
+
+def get_manifest_layer_library_path(manifest_path):
+    try:
+        with manifest_path.open("r", encoding="utf-8") as manifest_file:
+            manifest = json.load(manifest_file)
+    except OSError as err:
+        warn("Failed to read API dump layer manifest {}: {}".format(manifest_path, err))
+        return None
+    except json.JSONDecodeError as err:
+        warn(
+            "Failed to parse API dump layer manifest {} at line {}, column {}: {}".format(
+                manifest_path, err.lineno, err.colno, err.msg
+            )
+        )
+        return None
+
+    layer = manifest.get("layer")
+    if not isinstance(layer, dict):
+        warn("API dump layer manifest has no layer object: {}".format(manifest_path))
+        return None
+
+    library_path = layer.get("library_path")
+    if not isinstance(library_path, str) or library_path.strip() == "":
+        warn("API dump layer manifest has no library_path: {}".format(manifest_path))
+        return None
+
+    path = Path(library_path)
+    if not path.is_absolute():
+        path = manifest_path.parent / path
+    try:
+        return path.resolve()
+    except OSError as err:
+        warn("Failed to resolve API dump layer library path {}: {}".format(path, err))
+        return path.absolute()
+
+
+def unique_existing_dirs(paths):
+    unique = []
+    seen = set()
+    for path in paths:
+        if path is None:
+            continue
+        if path.is_file():
+            path = path.parent
+        if not path.is_dir():
+            continue
+        key = str(path)
+        if key not in seen:
+            seen.add(key)
+            unique.append(path)
+    return unique
+
+
+def sdk_runtime_library_dirs(search_dirs, manifest_path):
+    candidates = []
+    layer_library_path = get_manifest_layer_library_path(manifest_path)
+    if layer_library_path is not None:
+        print("Selected API dump layer library: {}".format(layer_library_path))
+        if layer_library_path.is_file():
+            candidates.append(layer_library_path.parent)
+        else:
+            warn("API dump layer library does not exist: {}".format(layer_library_path))
+
+    for search_dir in search_dirs:
+        if sys.platform == "win32":
+            if search_dir.name.lower().startswith("bin"):
+                candidates.append(search_dir)
+        else:
+            candidates.append(search_dir / "lib")
+            candidates.append(search_dir / "lib64")
+
+    return unique_existing_dirs(candidates)
+
+
 def configure_api_dump_layer_path(env):
     sdk_root = discover_latest_sdk_root()
     search_dirs = get_sdk_search_dirs(sdk_root)
@@ -440,12 +526,27 @@ def configure_api_dump_layer_path(env):
 
     print("Selected API dump layer manifest: {}".format(manifest_path))
     prepend_env_path(env, "VK_LAYER_PATH", manifest_path.parent)
+    runtime_dirs = sdk_runtime_library_dirs(search_dirs, manifest_path)
+    if runtime_dirs:
+        runtime_env_var = get_runtime_library_env_var()
+        print(
+            "Adding Vulkan SDK runtime directories to {}: {}".format(
+                runtime_env_var, ", ".join(str(path) for path in runtime_dirs)
+            )
+        )
+        prepend_env_paths(env, runtime_env_var, runtime_dirs)
 
 
 def build_replay_environment(output_path):
     env = os.environ.copy()
     env["VK_INSTANCE_LAYERS"] = API_DUMP_LAYER
     configure_api_dump_layer_path(env)
+    for name in (
+        "VK_INSTANCE_LAYERS",
+        "VK_LAYER_PATH",
+        get_runtime_library_env_var(),
+    ):
+        print("{}={}".format(name, env.get(name, "")))
     for name in LOADER_LAYER_FILTER_ENV_VARS:
         print("{}={}".format(name, env.get(name, "")))
 
