@@ -141,13 +141,13 @@ pipeline {
                                         params.BUILD_MODE,
                                         params.BITS,
                                         params.TEST_SUITE,
-                                        params.REPLAY_DUMP_SUITE,
                                         params.PROJECT_REPO,
                                         params.PROJECT_BRANCH,
                                         params.TEST_REPO,
                                         params.TEST_BRANCH,
                                         params.TEST_SUITE_REPO,
-                                        params.TEST_SUITE_BRANCH
+                                        params.TEST_SUITE_BRANCH,
+                                        params.REPLAY_DUMP_SUITE
                                     )
                                     break
                                 case 'windows':
@@ -157,13 +157,13 @@ pipeline {
                                         params.BUILD_MODE,
                                         params.BITS,
                                         params.TEST_SUITE,
-                                        params.REPLAY_DUMP_SUITE,
                                         params.PROJECT_REPO,
                                         params.PROJECT_BRANCH,
                                         params.TEST_REPO,
                                         params.TEST_BRANCH,
                                         params.TEST_SUITE_REPO,
-                                        params.TEST_SUITE_BRANCH
+                                        params.TEST_SUITE_BRANCH,
+                                        params.REPLAY_DUMP_SUITE
                                     )
                                     break
                             }

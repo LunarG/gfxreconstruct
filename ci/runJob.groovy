@@ -22,6 +22,7 @@
 */
 
 def SkipReplayDump = ''
+def DefaultReplayDumpSuite = 'replay-dump.json'
 
 def gfxrTestWindows(
     String name,
@@ -290,13 +291,13 @@ def gfxrTestWindowsManual(
     String buildMode,
     String bits,
     String testSuite,
-    String replayDumpSuite,
     String projectRepo,
     String projectBranch,
     String testRepo,
     String testBranch,
     String testSuiteRepo,
-    String testSuiteBranch
+    String testSuiteBranch,
+    String replayDumpSuite = DefaultReplayDumpSuite
 ) {
     return {
         stage(stageName) {
@@ -376,13 +377,13 @@ def gfxrTestLinuxManual(
     String buildMode,
     String bits,
     String testSuite,
-    String replayDumpSuite,
     String projectRepo,
     String projectBranch,
     String testRepo,
     String testBranch,
     String testSuiteRepo,
-    String testSuiteBranch
+    String testSuiteBranch,
+    String replayDumpSuite = DefaultReplayDumpSuite
 ) {
     return {
         stage(stageName) {
