@@ -1812,7 +1812,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    void PostProcess_vkCreateTensorViewARM(VkResult                         result,
+    void PostProcess_vkCreateTensorViewARM(VkResult result,
                                            VkDevice,
                                            const VkTensorViewCreateInfoARM* pCreateInfo,
                                            const VkAllocationCallbacks*,
@@ -1832,7 +1832,10 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    CaptureSettings::TraceSettings GetDefaultTraceSettings() override { return layer_settings_; }
+    CaptureSettings::TraceSettings GetDefaultTraceSettings() override
+    {
+        return layer_settings_;
+    }
 
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}

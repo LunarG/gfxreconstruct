@@ -924,8 +924,8 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
                         {
                             if (state_table.GetVulkanDescriptorSetLayoutWrapper(entry.handle_id) == nullptr)
                             {
-                                auto        dep_cp   = entry.create_parameters.get();
-                                const auto& dep_ins  = temp_ds_layouts.insert(std::make_pair(entry.handle_id, dep_cp));
+                                auto        dep_cp  = entry.create_parameters.get();
+                                const auto& dep_ins = temp_ds_layouts.insert(std::make_pair(entry.handle_id, dep_cp));
                                 if (dep_ins.second)
                                 {
                                     WriteFunctionCall(entry.create_call_id, dep_cp);
@@ -5296,8 +5296,8 @@ void VulkanStateWriter::ProcessTensorMemory(const vulkan_wrappers::DeviceWrapper
                 if ((compressed_size > 0) && (compressed_size < data_size))
                 {
                     upload_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
-                    bytes     = compressed_parameter_buffer_.data();
-                    data_size = compressed_size;
+                    bytes                                    = compressed_parameter_buffer_.data();
+                    data_size                                = compressed_size;
                 }
             }
 

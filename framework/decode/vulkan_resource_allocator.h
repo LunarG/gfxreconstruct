@@ -115,10 +115,11 @@ class VulkanResourceAllocator
         PFN_vkGetTensorMemoryRequirementsARM               get_tensor_memory_requirements{ nullptr };
         PFN_vkBindTensorMemoryARM                          bind_tensor_memory{ nullptr };
         PFN_vkCreateDataGraphPipelineSessionARM            create_data_graph_pipeline_session{ nullptr };
-        PFN_vkGetDataGraphPipelineSessionMemoryRequirementsARM
-            get_data_graph_pipeline_session_memory_requirements{ nullptr };
-        PFN_vkBindDataGraphPipelineSessionMemoryARM        bind_data_graph_pipeline_session_memory{ nullptr };
-        PFN_vkDestroyDataGraphPipelineSessionARM           destroy_data_graph_pipeline_session{ nullptr };
+        PFN_vkGetDataGraphPipelineSessionMemoryRequirementsARM get_data_graph_pipeline_session_memory_requirements{
+            nullptr
+        };
+        PFN_vkBindDataGraphPipelineSessionMemoryARM bind_data_graph_pipeline_session_memory{ nullptr };
+        PFN_vkDestroyDataGraphPipelineSessionARM    destroy_data_graph_pipeline_session{ nullptr };
         PFN_vkGetDataGraphPipelineSessionBindPointRequirementsARM
             get_data_graph_pipeline_session_bind_point_requirements{ nullptr };
     };

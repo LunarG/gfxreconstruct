@@ -194,7 +194,8 @@ class Dx12DecoderBase : public ApiDecoder
                                    format::HandleId device_id,
                                    format::HandleId tensor_id,
                                    uint64_t         data_size,
-                                   const uint8_t*   data) override {}
+                                   const uint8_t*   data) override
+    {}
 
     virtual void DispatchInitImageCommand(format::ThreadId             thread_id,
                                           format::HandleId             device_id,

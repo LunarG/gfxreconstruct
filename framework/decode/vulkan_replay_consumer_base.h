@@ -1774,7 +1774,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
   private:
     static bool SupportsDataGraphOpticalFlowPipeline(const VulkanReplayDeviceInfo::DataGraphOpticalFlowInfo& info,
-                                                     const VkDataGraphPipelineOpticalFlowCreateInfoARM&      create_info);
+                                                     const VkDataGraphPipelineOpticalFlowCreateInfoARM& create_info);
 
     void InitializeLoader();
 

@@ -485,10 +485,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     enum MemoryInfoType
     {
-        kBasic,            // single: buffer, image
-        kSparse,           // array: buffer, image
-        kVideoSession,     // array: video_session
-        kDataGraphSession  // array: data_graph_pipeline_session
+        kBasic,           // single: buffer, image
+        kSparse,          // array: buffer, image
+        kVideoSession,    // array: video_session
+        kDataGraphSession // array: data_graph_pipeline_session
     };
 
     // Create a new allocation for a binding memory case.
