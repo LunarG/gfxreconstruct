@@ -337,7 +337,7 @@ class FileProcessor
     struct ActiveFileContext
     {
         ActiveFileContext(FileInputStreamPtr&& active_file_, bool execute_til_eof_ = false) :
-            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
+            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_) {};
 
         FileInputStreamPtr active_file;
         uint32_t           remaining_commands{ 0 };

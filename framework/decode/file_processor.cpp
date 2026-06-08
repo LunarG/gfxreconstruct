@@ -30,6 +30,13 @@
 #include "util/logging.h"
 
 #include <string>
+#include <limits>
+#if defined(__ANDROID__)
+#include <android/trace.h>
+#else
+#define ATrace_beginSection(name)
+#define ATrace_endSection()
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -378,6 +385,7 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(ProcessPolicy& pol
             process_state = ProcessBlockState::kEndProcessing;
         }
     }
+    ATrace_endSection();
 
     // Update the frame number etc.
     if (process_state == ProcessBlockState::kFrameBoundary)
