@@ -170,10 +170,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
     }
 
     VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, returnValue, device, descriptorPool, flags);
-
-    // For pools that contain dangling descriptor sets, this code will only be reached once,
-    // during the final iteration of the loop range.
-    RemovePoolDanglingCreateDescriptors(descriptorPool);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
