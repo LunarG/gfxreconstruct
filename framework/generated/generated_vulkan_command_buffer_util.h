@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2018-2026 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -172,6 +172,12 @@ void TrackCmdWaitEvents2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
 void TrackCmdPipelineBarrier2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkDependencyInfo* pDependencyInfo);
 
 void TrackCmdWriteTimestamp2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkQueryPool queryPool);
+
+void TrackCmdCopyMemoryToImageKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo);
+
+void TrackCmdCopyImageToMemoryKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyDeviceMemoryImageInfoKHR* pCopyMemoryInfo);
+
+void TrackCmdCopyQueryPoolResultsToMemoryKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkQueryPool queryPool);
 
 void TrackCmdCopyBuffer2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkCopyBufferInfo2* pCopyBufferInfo);
 

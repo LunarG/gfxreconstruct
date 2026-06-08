@@ -261,16 +261,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSystem(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSystem>::PreLockReentrant(manager, instance, getInfo, systemId);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSystemGetInfo* getInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSystem>::Dispatch(manager, instance, getInfo, systemId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetSystem(instance, getInfo, systemId);
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetSystem(instance, getInfo_unwrapped, systemId);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -540,16 +545,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateReferenceSpace(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateReferenceSpace>::PreLockReentrant(manager, session, createInfo, space);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrReferenceSpaceCreateInfo* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateReferenceSpace>::Dispatch(manager, session, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateReferenceSpace(session, createInfo, space);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateReferenceSpace(session, createInfo_unwrapped, space);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -698,7 +708,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpace(
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
-    omit_output_data = !CustomCallResult<format::ApiCallId::ApiCall_xrLocateSpace>::Succeeded (manager, result);
+
+    if (CustomCallResult<format::ApiCallId::ApiCall_xrLocateSpace>::Succeeded (manager, result))
+    {
+        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SpaceWrapper, openxr_wrappers::SpaceWrapper>(space, baseSpace, location, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSpace);
     if (encoder)
@@ -942,16 +960,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchain(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchain>::PreLockReentrant(manager, session, createInfo, swapchain);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSwapchainCreateInfo* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchain>::Dispatch(manager, session, createInfo, swapchain);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSwapchain(session, createInfo, swapchain);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSwapchain(session, createInfo_unwrapped, swapchain);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -1071,16 +1094,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrAcquireSwapchainImage(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>::PreLockReentrant(manager, swapchain, acquireInfo, index);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSwapchainImageAcquireInfo* acquireInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>::Dispatch(manager, swapchain, acquireInfo, index);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        acquireInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(acquireInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->AcquireSwapchainImage(swapchain, acquireInfo, index);
+    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->AcquireSwapchainImage(swapchain, acquireInfo_unwrapped, index);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -1109,16 +1137,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrWaitSwapchainImage(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitSwapchainImage>::PreLockReentrant(manager, swapchain, waitInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSwapchainImageWaitInfo* waitInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitSwapchainImage>::Dispatch(manager, swapchain, waitInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        waitInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(waitInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->WaitSwapchainImage(swapchain, waitInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->WaitSwapchainImage(swapchain, waitInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -1145,16 +1178,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrReleaseSwapchainImage(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrReleaseSwapchainImage>::PreLockReentrant(manager, swapchain, releaseInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSwapchainImageReleaseInfo* releaseInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrReleaseSwapchainImage>::Dispatch(manager, swapchain, releaseInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        releaseInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(releaseInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->ReleaseSwapchainImage(swapchain, releaseInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->ReleaseSwapchainImage(swapchain, releaseInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -1181,16 +1219,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrBeginSession(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginSession>::PreLockReentrant(manager, session, beginInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSessionBeginInfo* beginInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginSession>::Dispatch(manager, session, beginInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        beginInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(beginInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->BeginSession(session, beginInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->BeginSession(session, beginInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -1288,16 +1331,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrWaitFrame(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitFrame>::PreLockReentrant(manager, session, frameWaitInfo, frameState);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFrameWaitInfo* frameWaitInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitFrame>::Dispatch(manager, session, frameWaitInfo, frameState);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        frameWaitInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(frameWaitInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->WaitFrame(session, frameWaitInfo, frameState);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->WaitFrame(session, frameWaitInfo_unwrapped, frameState);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -1326,16 +1374,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrBeginFrame(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginFrame>::PreLockReentrant(manager, session, frameBeginInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFrameBeginInfo* frameBeginInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginFrame>::Dispatch(manager, session, frameBeginInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        frameBeginInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(frameBeginInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->BeginFrame(session, frameBeginInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->BeginFrame(session, frameBeginInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -1511,16 +1564,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSet(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateActionSet>::PreLockReentrant(manager, instance, createInfo, actionSet);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionSetCreateInfo* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateActionSet>::Dispatch(manager, instance, createInfo, actionSet);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateActionSet(instance, createInfo, actionSet);
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateActionSet(instance, createInfo_unwrapped, actionSet);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -2350,16 +2408,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchainAndroidSurfaceKHR(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR>::PreLockReentrant(manager, session, info, swapchain, surface);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSwapchainCreateInfo* info_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR>::Dispatch(manager, session, info, swapchain, surface);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSwapchainAndroidSurfaceKHR(session, info, swapchain, surface);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSwapchainAndroidSurfaceKHR(session, info_unwrapped, swapchain, surface);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3112,16 +3175,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetDebugUtilsObjectNameEXT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDebugUtilsObjectNameEXT>::PreLockReentrant(manager, instance, nameInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrDebugUtilsObjectNameInfoEXT* nameInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDebugUtilsObjectNameEXT>::Dispatch(manager, instance, nameInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        nameInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(nameInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(instance)->SetDebugUtilsObjectNameEXT(instance, nameInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->SetDebugUtilsObjectNameEXT(instance, nameInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3151,16 +3219,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateDebugUtilsMessengerEXT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::PreLockReentrant(manager, instance, createInfo, messenger);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrDebugUtilsMessengerCreateInfoEXT* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::Dispatch(manager, instance, createInfo, messenger);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateDebugUtilsMessengerEXT(instance, createInfo, messenger);
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateDebugUtilsMessengerEXT(instance, createInfo_unwrapped, messenger);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3236,16 +3309,21 @@ XRAPI_ATTR XrResult                                    XRAPI_CALL xrSubmitDebugU
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSubmitDebugUtilsMessageEXT>::PreLockReentrant(manager, instance, messageSeverity, messageTypes, callbackData);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrDebugUtilsMessengerCallbackDataEXT* callbackData_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSubmitDebugUtilsMessageEXT>::Dispatch(manager, instance, messageSeverity, messageTypes, callbackData);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        callbackData_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(callbackData, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, callbackData);
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, callbackData_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3274,16 +3352,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSessionBeginDebugUtilsLabelRegionEXT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionBeginDebugUtilsLabelRegionEXT>::PreLockReentrant(manager, session, labelInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrDebugUtilsLabelEXT* labelInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionBeginDebugUtilsLabelRegionEXT>::Dispatch(manager, session, labelInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        labelInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(labelInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->SessionBeginDebugUtilsLabelRegionEXT(session, labelInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->SessionBeginDebugUtilsLabelRegionEXT(session, labelInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3344,16 +3427,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSessionInsertDebugUtilsLabelEXT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionInsertDebugUtilsLabelEXT>::PreLockReentrant(manager, session, labelInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrDebugUtilsLabelEXT* labelInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionInsertDebugUtilsLabelEXT>::Dispatch(manager, session, labelInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        labelInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(labelInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->SessionInsertDebugUtilsLabelEXT(session, labelInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->SessionInsertDebugUtilsLabelEXT(session, labelInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3730,16 +3818,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialGraphNodeSpaceMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialGraphNodeSpaceMSFT>::PreLockReentrant(manager, session, createInfo, space);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialGraphNodeSpaceCreateInfoMSFT* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialGraphNodeSpaceMSFT>::Dispatch(manager, session, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialGraphNodeSpaceMSFT(session, createInfo, space);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialGraphNodeSpaceMSFT(session, createInfo_unwrapped, space);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3870,16 +3963,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialGraphNodeBindingPropertiesMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpatialGraphNodeBindingPropertiesMSFT>::PreLockReentrant(manager, nodeBinding, getInfo, properties);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* getInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpatialGraphNodeBindingPropertiesMSFT>::Dispatch(manager, nodeBinding, getInfo, properties);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(nodeBinding)->GetSpatialGraphNodeBindingPropertiesMSFT(nodeBinding, getInfo, properties);
+    XrResult result = openxr_wrappers::GetInstanceTable(nodeBinding)->GetSpatialGraphNodeBindingPropertiesMSFT(nodeBinding, getInfo_unwrapped, properties);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -3911,16 +4009,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandTrackerEXT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandTrackerEXT>::PreLockReentrant(manager, session, createInfo, handTracker);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrHandTrackerCreateInfoEXT* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandTrackerEXT>::Dispatch(manager, session, createInfo, handTracker);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateHandTrackerEXT(session, createInfo, handTracker);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateHandTrackerEXT(session, createInfo_unwrapped, handTracker);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -4043,16 +4146,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandMeshSpaceMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandMeshSpaceMSFT>::PreLockReentrant(manager, handTracker, createInfo, space);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrHandMeshSpaceCreateInfoMSFT* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandMeshSpaceMSFT>::Dispatch(manager, handTracker, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->CreateHandMeshSpaceMSFT(handTracker, createInfo, space);
+    XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->CreateHandMeshSpaceMSFT(handTracker, createInfo_unwrapped, space);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -4092,16 +4200,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrUpdateHandMeshMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdateHandMeshMSFT>::PreLockReentrant(manager, handTracker, updateInfo, handMesh);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrHandMeshUpdateInfoMSFT* updateInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdateHandMeshMSFT>::Dispatch(manager, handTracker, updateInfo, handMesh);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        updateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(updateInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->UpdateHandMeshMSFT(handTracker, updateInfo, handMesh);
+    XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->UpdateHandMeshMSFT(handTracker, updateInfo_unwrapped, handMesh);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -4521,16 +4634,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateBodyTrackerFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateBodyTrackerFB>::PreLockReentrant(manager, session, createInfo, bodyTracker);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrBodyTrackerCreateInfoFB* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateBodyTrackerFB>::Dispatch(manager, session, createInfo, bodyTracker);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateBodyTrackerFB(session, createInfo, bodyTracker);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateBodyTrackerFB(session, createInfo_unwrapped, bodyTracker);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -4737,16 +4855,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneObserverMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneObserverMSFT>::PreLockReentrant(manager, session, createInfo, sceneObserver);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSceneObserverCreateInfoMSFT* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneObserverMSFT>::Dispatch(manager, session, createInfo, sceneObserver);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSceneObserverMSFT(session, createInfo, sceneObserver);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSceneObserverMSFT(session, createInfo_unwrapped, sceneObserver);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -4823,16 +4946,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneMSFT>::PreLockReentrant(manager, sceneObserver, createInfo, scene);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSceneCreateInfoMSFT* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneMSFT>::Dispatch(manager, sceneObserver, createInfo, scene);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->CreateSceneMSFT(sceneObserver, createInfo, scene);
+    XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->CreateSceneMSFT(sceneObserver, createInfo_unwrapped, scene);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -4989,16 +5117,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComponentsMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT>::PreLockReentrant(manager, scene, getInfo, components);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSceneComponentsGetInfoMSFT* getInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT>::Dispatch(manager, scene, getInfo, components);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneComponentsMSFT(scene, getInfo, components);
+    XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneComponentsMSFT(scene, getInfo_unwrapped, components);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5076,16 +5209,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMeshBuffersMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMeshBuffersMSFT>::PreLockReentrant(manager, scene, getInfo, buffers);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSceneMeshBuffersGetInfoMSFT* getInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMeshBuffersMSFT>::Dispatch(manager, scene, getInfo, buffers);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneMeshBuffersMSFT(scene, getInfo, buffers);
+    XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneMeshBuffersMSFT(scene, getInfo_unwrapped, buffers);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5114,16 +5252,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDeserializeSceneMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDeserializeSceneMSFT>::PreLockReentrant(manager, sceneObserver, deserializeInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSceneDeserializeInfoMSFT* deserializeInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDeserializeSceneMSFT>::Dispatch(manager, sceneObserver, deserializeInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        deserializeInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(deserializeInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->DeserializeSceneMSFT(sceneObserver, deserializeInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->DeserializeSceneMSFT(sceneObserver, deserializeInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5155,16 +5298,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSerializedSceneFragmentDataMSFT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>::PreLockReentrant(manager, scene, getInfo, countInput, readOutput, buffer);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSerializedSceneFragmentDataGetInfoMSFT* getInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>::Dispatch(manager, scene, getInfo, countInput, readOutput, buffer);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSerializedSceneFragmentDataMSFT(scene, getInfo, countInput, readOutput, buffer);
+    XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSerializedSceneFragmentDataMSFT(scene, getInfo_unwrapped, countInput, readOutput, buffer);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5367,16 +5515,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFacialTrackerHTC(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFacialTrackerHTC>::PreLockReentrant(manager, session, createInfo, facialTracker);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFacialTrackerCreateInfoHTC* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFacialTrackerHTC>::Dispatch(manager, session, createInfo, facialTracker);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFacialTrackerHTC(session, createInfo, facialTracker);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFacialTrackerHTC(session, createInfo_unwrapped, facialTracker);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5746,16 +5899,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetSpaceComponentStatusFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetSpaceComponentStatusFB>::PreLockReentrant(manager, space, info, requestId);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpaceComponentStatusSetInfoFB* info_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetSpaceComponentStatusFB>::Dispatch(manager, space, info, requestId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(space)->SetSpaceComponentStatusFB(space, info, requestId);
+    XrResult result = openxr_wrappers::GetInstanceTable(space)->SetSpaceComponentStatusFB(space, info_unwrapped, requestId);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5836,16 +5994,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFoveationProfileFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFoveationProfileFB>::PreLockReentrant(manager, session, createInfo, profile);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFoveationProfileCreateInfoFB* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFoveationProfileFB>::Dispatch(manager, session, createInfo, profile);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFoveationProfileFB(session, createInfo, profile);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFoveationProfileFB(session, createInfo_unwrapped, profile);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5922,16 +6085,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQuerySystemTrackedKeyboardFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQuerySystemTrackedKeyboardFB>::PreLockReentrant(manager, session, queryInfo, keyboard);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrKeyboardTrackingQueryFB* queryInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQuerySystemTrackedKeyboardFB>::Dispatch(manager, session, queryInfo, keyboard);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        queryInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(queryInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->QuerySystemTrackedKeyboardFB(session, queryInfo, keyboard);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->QuerySystemTrackedKeyboardFB(session, queryInfo_unwrapped, keyboard);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -5963,16 +6131,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateKeyboardSpaceFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateKeyboardSpaceFB>::PreLockReentrant(manager, session, createInfo, keyboardSpace);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrKeyboardSpaceCreateInfoFB* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateKeyboardSpaceFB>::Dispatch(manager, session, createInfo, keyboardSpace);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateKeyboardSpaceFB(session, createInfo, keyboardSpace);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateKeyboardSpaceFB(session, createInfo_unwrapped, keyboardSpace);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -6157,16 +6330,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughFB>::PreLockReentrant(manager, session, createInfo, outPassthrough);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPassthroughCreateInfoFB* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughFB>::Dispatch(manager, session, createInfo, outPassthrough);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePassthroughFB(session, createInfo, outPassthrough);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePassthroughFB(session, createInfo_unwrapped, outPassthrough);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -6978,16 +7156,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceVARJO(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceVARJO>::PreLockReentrant(manager, session, createInfo, space);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrMarkerSpaceCreateInfoVARJO* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceVARJO>::Dispatch(manager, session, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateMarkerSpaceVARJO(session, createInfo, space);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateMarkerSpaceVARJO(session, createInfo_unwrapped, space);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -7063,16 +7246,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceFromCoordinateFrameUIDML(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceFromCoordinateFrameUIDML>::PreLockReentrant(manager, session, createInfo, space);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrCoordinateSpaceCreateInfoML * createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceFromCoordinateFrameUIDML>::Dispatch(manager, session, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpaceFromCoordinateFrameUIDML(session, createInfo, space);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpaceFromCoordinateFrameUIDML(session, createInfo_unwrapped, space);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -7112,16 +7300,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerDetectorML(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerDetectorML>::PreLockReentrant(manager, session, createInfo, markerDetector);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrMarkerDetectorCreateInfoML* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerDetectorML>::Dispatch(manager, session, createInfo, markerDetector);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateMarkerDetectorML(session, createInfo, markerDetector);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateMarkerDetectorML(session, createInfo_unwrapped, markerDetector);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -7546,16 +7739,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnableLocalizationEventsML(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableLocalizationEventsML>::PreLockReentrant(manager, session, info);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrLocalizationEnableEventsInfoML * info_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableLocalizationEventsML>::Dispatch(manager, session, info);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->EnableLocalizationEventsML(session, info);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->EnableLocalizationEventsML(session, info_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -7627,16 +7825,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestMapLocalizationML(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestMapLocalizationML>::PreLockReentrant(manager, session, requestInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrMapLocalizationRequestInfoML* requestInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestMapLocalizationML>::Dispatch(manager, session, requestInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        requestInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(requestInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestMapLocalizationML(session, requestInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestMapLocalizationML(session, requestInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -7666,16 +7869,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrImportLocalizationMapML(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrImportLocalizationMapML>::PreLockReentrant(manager, session, importInfo, mapUuid);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrLocalizationMapImportInfoML* importInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrImportLocalizationMapML>::Dispatch(manager, session, importInfo, mapUuid);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        importInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(importInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->ImportLocalizationMapML(session, importInfo, mapUuid);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->ImportLocalizationMapML(session, importInfo_unwrapped, mapUuid);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -8758,16 +8966,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetDigitalLensControlALMALENCE(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDigitalLensControlALMALENCE>::PreLockReentrant(manager, session, digitalLensControl);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrDigitalLensControlALMALENCE* digitalLensControl_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDigitalLensControlALMALENCE>::Dispatch(manager, session, digitalLensControl);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        digitalLensControl_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(digitalLensControl, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->SetDigitalLensControlALMALENCE(session, digitalLensControl);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->SetDigitalLensControlALMALENCE(session, digitalLensControl_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -8797,16 +9010,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestSceneCaptureFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestSceneCaptureFB>::PreLockReentrant(manager, session, info, requestId);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSceneCaptureRequestInfoFB* info_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestSceneCaptureFB>::Dispatch(manager, session, info, requestId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestSceneCaptureFB(session, info, requestId);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestSceneCaptureFB(session, info_unwrapped, requestId);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -8926,16 +9144,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTrackerFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTrackerFB>::PreLockReentrant(manager, session, createInfo, faceTracker);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFaceTrackerCreateInfoFB* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTrackerFB>::Dispatch(manager, session, createInfo, faceTracker);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFaceTrackerFB(session, createInfo, faceTracker);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFaceTrackerFB(session, createInfo_unwrapped, faceTracker);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -9012,16 +9235,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeightsFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeightsFB>::PreLockReentrant(manager, faceTracker, expressionInfo, expressionWeights);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFaceExpressionInfoFB* expressionInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeightsFB>::Dispatch(manager, faceTracker, expressionInfo, expressionWeights);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        expressionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(expressionInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->GetFaceExpressionWeightsFB(faceTracker, expressionInfo, expressionWeights);
+    XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->GetFaceExpressionWeightsFB(faceTracker, expressionInfo_unwrapped, expressionWeights);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -9053,16 +9281,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateEyeTrackerFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEyeTrackerFB>::PreLockReentrant(manager, session, createInfo, eyeTracker);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrEyeTrackerCreateInfoFB* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEyeTrackerFB>::Dispatch(manager, session, createInfo, eyeTracker);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateEyeTrackerFB(session, createInfo, eyeTracker);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateEyeTrackerFB(session, createInfo_unwrapped, eyeTracker);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -9182,16 +9415,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetKeyboardHandsIntensityFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerSetKeyboardHandsIntensityFB>::PreLockReentrant(manager, layer, intensity);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPassthroughKeyboardHandsIntensityFB* intensity_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerSetKeyboardHandsIntensityFB>::Dispatch(manager, layer, intensity);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        intensity_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(intensity, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(layer)->PassthroughLayerSetKeyboardHandsIntensityFB(layer, intensity);
+    XrResult result = openxr_wrappers::GetInstanceTable(layer)->PassthroughLayerSetKeyboardHandsIntensityFB(layer, intensity_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -9306,16 +9544,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardMETA>::PreLockReentrant(manager, session, createInfo, keyboard);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVirtualKeyboardCreateInfoMETA* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardMETA>::Dispatch(manager, session, createInfo, keyboard);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateVirtualKeyboardMETA(session, createInfo, keyboard);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateVirtualKeyboardMETA(session, createInfo_unwrapped, keyboard);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -9525,16 +9768,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetVirtualKeyboardModelVisibilityMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetVirtualKeyboardModelVisibilityMETA>::PreLockReentrant(manager, keyboard, modelVisibility);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVirtualKeyboardModelVisibilitySetInfoMETA* modelVisibility_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetVirtualKeyboardModelVisibilityMETA>::Dispatch(manager, keyboard, modelVisibility);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        modelVisibility_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(modelVisibility, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->SetVirtualKeyboardModelVisibilityMETA(keyboard, modelVisibility);
+    XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->SetVirtualKeyboardModelVisibilityMETA(keyboard, modelVisibility_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -9730,16 +9978,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrChangeVirtualKeyboardTextContextMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrChangeVirtualKeyboardTextContextMETA>::PreLockReentrant(manager, keyboard, changeInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVirtualKeyboardTextContextChangeInfoMETA* changeInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrChangeVirtualKeyboardTextContextMETA>::Dispatch(manager, keyboard, changeInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        changeInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(changeInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->ChangeVirtualKeyboardTextContextMETA(keyboard, changeInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->ChangeVirtualKeyboardTextContextMETA(keyboard, changeInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -9860,16 +10113,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetPerformanceMetricsStateMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetPerformanceMetricsStateMETA>::PreLockReentrant(manager, session, state);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPerformanceMetricsStateMETA* state_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetPerformanceMetricsStateMETA>::Dispatch(manager, session, state);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        state_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(state, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->SetPerformanceMetricsStateMETA(session, state);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->SetPerformanceMetricsStateMETA(session, state_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10033,16 +10291,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceUserFB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceUserFB>::PreLockReentrant(manager, session, info, user);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpaceUserCreateInfoFB* info_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceUserFB>::Dispatch(manager, session, info, user);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpaceUserFB(session, info, user);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpaceUserFB(session, info_unwrapped, user);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10204,16 +10467,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughColorLutMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughColorLutMETA>::PreLockReentrant(manager, passthrough, createInfo, colorLut);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPassthroughColorLutCreateInfoMETA* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughColorLutMETA>::Dispatch(manager, passthrough, createInfo, colorLut);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(passthrough)->CreatePassthroughColorLutMETA(passthrough, createInfo, colorLut);
+    XrResult result = openxr_wrappers::GetInstanceTable(passthrough)->CreatePassthroughColorLutMETA(passthrough, createInfo_unwrapped, colorLut);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10287,16 +10555,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrUpdatePassthroughColorLutMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdatePassthroughColorLutMETA>::PreLockReentrant(manager, colorLut, updateInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPassthroughColorLutUpdateInfoMETA* updateInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdatePassthroughColorLutMETA>::Dispatch(manager, colorLut, updateInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        updateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(updateInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(colorLut)->UpdatePassthroughColorLutMETA(colorLut, updateInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(colorLut)->UpdatePassthroughColorLutMETA(colorLut, updateInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10326,16 +10599,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceTriangleMeshMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA>::PreLockReentrant(manager, space, getInfo, triangleMeshOutput);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpaceTriangleMeshGetInfoMETA* getInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA>::Dispatch(manager, space, getInfo, triangleMeshOutput);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(space)->GetSpaceTriangleMeshMETA(space, getInfo, triangleMeshOutput);
+    XrResult result = openxr_wrappers::GetInstanceTable(space)->GetSpaceTriangleMeshMETA(space, getInfo_unwrapped, triangleMeshOutput);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10367,16 +10645,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTracker2FB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTracker2FB>::PreLockReentrant(manager, session, createInfo, faceTracker);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFaceTrackerCreateInfo2FB* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTracker2FB>::Dispatch(manager, session, createInfo, faceTracker);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFaceTracker2FB(session, createInfo, faceTracker);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFaceTracker2FB(session, createInfo_unwrapped, faceTracker);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10453,16 +10736,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB>::PreLockReentrant(manager, faceTracker, expressionInfo, expressionWeights);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFaceExpressionInfo2FB* expressionInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB>::Dispatch(manager, faceTracker, expressionInfo, expressionWeights);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        expressionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(expressionInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->GetFaceExpressionWeights2FB(faceTracker, expressionInfo, expressionWeights);
+    XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->GetFaceExpressionWeights2FB(faceTracker, expressionInfo_unwrapped, expressionWeights);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10494,16 +10782,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthProviderMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA>::PreLockReentrant(manager, session, createInfo, environmentDepthProvider);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrEnvironmentDepthProviderCreateInfoMETA* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA>::Dispatch(manager, session, createInfo, environmentDepthProvider);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateEnvironmentDepthProviderMETA(session, createInfo, environmentDepthProvider);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateEnvironmentDepthProviderMETA(session, createInfo_unwrapped, environmentDepthProvider);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10648,16 +10941,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthSwapchainMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA>::PreLockReentrant(manager, environmentDepthProvider, createInfo, swapchain);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrEnvironmentDepthSwapchainCreateInfoMETA* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA>::Dispatch(manager, environmentDepthProvider, createInfo, swapchain);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->CreateEnvironmentDepthSwapchainMETA(environmentDepthProvider, createInfo, swapchain);
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->CreateEnvironmentDepthSwapchainMETA(environmentDepthProvider, createInfo_unwrapped, swapchain);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10859,16 +11157,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetEnvironmentDepthHandRemovalMETA(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA>::PreLockReentrant(manager, environmentDepthProvider, setInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrEnvironmentDepthHandRemovalSetInfoMETA* setInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA>::Dispatch(manager, environmentDepthProvider, setInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        setInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(setInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->SetEnvironmentDepthHandRemovalMETA(environmentDepthProvider, setInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->SetEnvironmentDepthHandRemovalMETA(environmentDepthProvider, setInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -10936,16 +11239,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughHTC(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughHTC>::PreLockReentrant(manager, session, createInfo, passthrough);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPassthroughCreateInfoHTC* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughHTC>::Dispatch(manager, session, createInfo, passthrough);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePassthroughHTC(session, createInfo, passthrough);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePassthroughHTC(session, createInfo_unwrapped, passthrough);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -11153,16 +11461,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrApplyForceFeedbackCurlMNDX(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyForceFeedbackCurlMNDX>::PreLockReentrant(manager, handTracker, locations);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrForceFeedbackCurlApplyLocationsMNDX* locations_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyForceFeedbackCurlMNDX>::Dispatch(manager, handTracker, locations);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        locations_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locations, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->ApplyForceFeedbackCurlMNDX(handTracker, locations);
+    XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->ApplyForceFeedbackCurlMNDX(handTracker, locations_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -11192,16 +11505,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePlaneDetectorEXT(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePlaneDetectorEXT>::PreLockReentrant(manager, session, createInfo, planeDetector);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPlaneDetectorCreateInfoEXT* createInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePlaneDetectorEXT>::Dispatch(manager, session, createInfo, planeDetector);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePlaneDetectorEXT(session, createInfo, planeDetector);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePlaneDetectorEXT(session, createInfo_unwrapped, planeDetector);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);
@@ -11531,16 +11849,21 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnableUserCalibrationEventsML(
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableUserCalibrationEventsML>::PreLockReentrant(manager, instance, enableInfo);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrUserCalibrationEnableEventsInfoML* enableInfo_unwrapped = nullptr;
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableUserCalibrationEventsML>::Dispatch(manager, instance, enableInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        enableInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(enableInfo, handle_unwrap_memory);
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnableUserCalibrationEventsML(instance, enableInfo);
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnableUserCalibrationEventsML(instance, enableInfo_unwrapped);
 
     auto call_lock = manager->AcquireCallLock();
     manager->SetCaptureMode(save_capture_mode);

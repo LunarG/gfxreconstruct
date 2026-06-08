@@ -24,7 +24,7 @@
 #include "decode/dx12_dump_resources.h"
 // TODO: It should change the file name of "vulkan"
 #include "generated/generated_vulkan_struct_to_json.h"
-#include "generated/generated_dx12_enum_to_string.h"
+#include "generated/generated_dx12_enum_to_json.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "util/platform.h"
 #include "util/logging.h"
@@ -2353,7 +2353,10 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
                                                           const TrackDumpResources& track_dump_resources)
 {
     // prepare for output data
-    json_options_.format = kDefaultDumpResourcesFileFormat;
+    util::JsonOptions::format        = kDefaultDumpResourcesFileFormat;
+    util::JsonOptions::dump_binaries = false;
+    util::JsonOptions::expand_flags  = false;
+    util::JsonOptions::hex_handles   = false;
 
     json_filename_ = util::filepath::GetFilename(capture_file_name);
 
@@ -2363,11 +2366,11 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
     {
         json_filename_ = json_filename_.substr(0, ext_pos);
     }
-    json_filename_ += "_dr." + util::get_json_format(json_options_.format);
-    json_options_.data_sub_dir = util::filepath::GetFilenameStem(json_filename_);
-    json_options_.root_dir     = dump_resources_output_dir;
+    json_filename_ += "_dr." + util::get_json_format(util::JsonOptions::format);
+    util::JsonOptions::data_sub_dir = util::filepath::GetFilenameStem(json_filename_);
+    util::JsonOptions::root_dir     = dump_resources_output_dir;
 
-    auto file_path = util::filepath::Join(json_options_.root_dir, json_filename_);
+    auto file_path = util::filepath::Join(util::JsonOptions::root_dir, json_filename_);
     util::platform::FileOpen(&json_file_handle_, file_path.c_str(), "w");
 
     header_["D3D12SDKVersion"] = std::to_string(D3D12SDKVersion);
@@ -2388,9 +2391,8 @@ void DefaultDx12DumpResourcesDelegate::BeginDumpResources(const std::string&    
 
     WriteBlockStart();
 
-    util::FieldToJson(draw_call_["block_index"], track_dump_resources.target.draw_call_block_index, json_options_);
-    util::FieldToJson(
-        draw_call_["execute_block_index"], track_dump_resources.target.execute_block_index, json_options_);
+    draw_call_["block_index"]         = track_dump_resources.target.draw_call_block_index;
+    draw_call_["execute_block_index"] = track_dump_resources.target.execute_block_index;
 }
 
 void DefaultDx12DumpResourcesDelegate::DumpResource(CopyResourceDataPtr     resource_data,
@@ -2429,7 +2431,7 @@ void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pa
                                                        uint64_t                                            value)
 {
     auto* jdata_node = FindDrawCallJsonNode(json_path);
-    util::FieldToJson((*jdata_node)[key], value, json_options_);
+    (*jdata_node)[key] = value;
 }
 
 void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pair<std::string, int32_t>>& json_path,
@@ -2437,7 +2439,7 @@ void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pa
                                                        uint64_t                                            value)
 {
     auto* jdata_node = FindDrawCallJsonNode(json_path);
-    util::FieldToJson((*jdata_node)[index], value, json_options_);
+    (*jdata_node)[index] = value;
 }
 
 void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pair<std::string, int32_t>>& json_path,
@@ -2445,7 +2447,7 @@ void DefaultDx12DumpResourcesDelegate::WriteSingleData(const std::vector<std::pa
                                                        const std::string&                                  value)
 {
     auto* jdata_node = FindDrawCallJsonNode(json_path);
-    util::FieldToJson((*jdata_node)[key], value, json_options_);
+    util::FieldToJson((*jdata_node)[key], value);
 }
 
 std::string GetJsonPathString(const std::vector<std::pair<std::string, int32_t>>& json_path)
@@ -2488,7 +2490,7 @@ void DefaultDx12DumpResourcesDelegate::WriteNote(const std::vector<std::pair<std
     auto* jdata_node  = FindDrawCallJsonNode(json_path);
     auto& jdata_notes = (*jdata_node)[NameNotes()];
     auto  size        = jdata_notes.size();
-    util::FieldToJson(jdata_notes[size], value, json_options_);
+    util::FieldToJson(jdata_notes[size], value);
 }
 
 void DefaultDx12DumpResourcesDelegate::WriteRootParameterInfo(
@@ -2497,10 +2499,9 @@ void DefaultDx12DumpResourcesDelegate::WriteRootParameterInfo(
     const TrackRootParameter&                           root_parameter)
 {
     auto* jdata_node = FindDrawCallJsonNode(json_path);
-    util::FieldToJson((*jdata_node)["root_parameter_index"], root_parameter_index, json_options_);
-    util::FieldToJson(
-        (*jdata_node)["root_signature_type"], util::ToString(root_parameter.root_signature_type), json_options_);
-    util::FieldToJson((*jdata_node)["cmd_bind_type"], util::ToString(root_parameter.cmd_bind_type), json_options_);
+    (*jdata_node)["root_parameter_index"] = root_parameter_index;
+    (*jdata_node)["root_signature_type"]  = root_parameter.root_signature_type;
+    (*jdata_node)["cmd_bind_type"]        = root_parameter.cmd_bind_type;
 
     if (root_parameter.root_signature_type != root_parameter.cmd_bind_type)
     {
@@ -2516,8 +2517,8 @@ void DefaultDx12DumpResourcesDelegate::WriteRootParameterInfo(
     uint32_t di = 0;
     for (const auto& table : root_parameter.root_signature_descriptor_tables)
     {
-        util::FieldToJson((*jdata_node)["tables"][di]["range_type"], util::ToString(table.RangeType), json_options_);
-        util::FieldToJson((*jdata_node)["tables"][di]["num_descriptors"], table.NumDescriptors, json_options_);
+        (*jdata_node)["tables"][di]["range_type"]      = table.RangeType;
+        (*jdata_node)["tables"][di]["num_descriptors"] = table.NumDescriptors;
         ++di;
     }
 }
@@ -2526,9 +2527,9 @@ void DefaultDx12DumpResourcesDelegate::WriteNotFoundView(const std::vector<std::
                                                          format::HandleId                                    heap_id,
                                                          uint32_t                                            heap_index)
 {
-    auto* jdata_node = FindDrawCallJsonNode(json_path);
-    util::FieldToJson((*jdata_node)["heap_id"], heap_id, json_options_);
-    util::FieldToJson((*jdata_node)["heap_index"], heap_index, json_options_);
+    auto* jdata_node            = FindDrawCallJsonNode(json_path);
+    (*jdata_node)["heap_id"]    = heap_id;
+    (*jdata_node)["heap_index"] = heap_index;
 
     WriteNote(json_path, "This heap_index can't be found a view in this heap_id");
 }
@@ -2537,10 +2538,10 @@ void DefaultDx12DumpResourcesDelegate::WriteNULLResource(const std::vector<std::
                                                          format::HandleId                                    heap_id,
                                                          uint32_t                                            heap_index)
 {
-    auto* jdata_node = FindDrawCallJsonNode(json_path);
-    util::FieldToJson((*jdata_node)["heap_id"], heap_id, json_options_);
-    util::FieldToJson((*jdata_node)["heap_index"], heap_index, json_options_);
-    util::FieldToJson((*jdata_node)["res_id"], 0, json_options_);
+    auto* jdata_node            = FindDrawCallJsonNode(json_path);
+    (*jdata_node)["heap_id"]    = heap_id;
+    (*jdata_node)["heap_index"] = heap_index;
+    (*jdata_node)["res_id"]     = 0;
 }
 
 void DefaultDx12DumpResourcesDelegate::WriteNULLBufferLocation(
@@ -2549,10 +2550,10 @@ void DefaultDx12DumpResourcesDelegate::WriteNULLBufferLocation(
     auto* jdata_node = FindDrawCallJsonNode(json_path);
     if (heap_id != format::kNullHandleId)
     {
-        util::FieldToJson((*jdata_node)["heap_id"], heap_id, json_options_);
-        util::FieldToJson((*jdata_node)["heap_index"], heap_index, json_options_);
+        (*jdata_node)["heap_id"]    = heap_id;
+        (*jdata_node)["heap_index"] = heap_index;
     }
-    util::FieldToJson((*jdata_node)["buffer_location"], 0, json_options_);
+    (*jdata_node)["buffer_location"] = 0;
 }
 
 void DefaultDx12DumpResourcesDelegate::WriteResource(const CopyResourceDataPtr resource_data,
@@ -2565,7 +2566,7 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(const CopyResourceDataPtr r
     auto* jdata_node = FindDrawCallJsonNode(resource_data->json_path);
 
     std::string prefix_file_name =
-        json_options_.data_sub_dir + "_" + Dx12ResourceTypeToString(resource_data->resource_type);
+        *util::JsonOptions::data_sub_dir + "_" + Dx12ResourceTypeToString(resource_data->resource_type);
     WriteResource(*jdata_node, prefix_file_name, resource_data, modifiableResources);
 
     if (TEST_READABLE)
@@ -2586,10 +2587,10 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(nlohmann::ordered_json&   j
 
     std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
 
-    util::FieldToJson(jdata["heap_id"], resource_data->descriptor_heap_id, json_options_);
-    util::FieldToJson(jdata["heap_index"], resource_data->descriptor_heap_index, json_options_);
-    util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
-    util::FieldToJson(jdata["dimension"], util::ToString(resource_data->desc.Dimension), json_options_);
+    jdata["heap_id"]    = resource_data->descriptor_heap_id;
+    jdata["heap_index"] = resource_data->descriptor_heap_index;
+    jdata["res_id"]     = resource_data->source_resource_id;
+    jdata["dimension"]  = resource_data->desc.Dimension;
 
     std::string suffix         = Dx12DumpResourcePosToString(resource_data->dump_position);
     std::string json_path      = (suffix == "" ? "file" : (suffix + "_file"));
@@ -2599,20 +2600,20 @@ void DefaultDx12DumpResourcesDelegate::WriteResource(nlohmann::ordered_json&   j
         auto offset = resource_data->subresource_offsets[sub_index];
         auto size   = resource_data->subresource_sizes[sub_index];
 
-        auto& jdata_sub = jdata["subs"][json_sub_index];
-        util::FieldToJson(jdata_sub["index"], sub_index, json_options_);
-        util::FieldToJson(jdata_sub["offset"], offset, json_options_);
-        util::FieldToJson(jdata_sub["size"], size, json_options_);
-        util::Bool32ToJson(jdata_sub["modifiable"], modifiableResources[sub_index], json_options_);
+        auto& jdata_sub     = jdata["subs"][json_sub_index];
+        jdata_sub["index"]  = sub_index;
+        jdata_sub["offset"] = offset;
+        jdata_sub["size"]   = size;
+        util::Bool32ToJson(jdata_sub["modifiable"], modifiableResources[sub_index]);
 
         // Write data.
         GFXRECON_ASSERT(!resource_data->datas[sub_index].empty());
 
         std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
         file_name_sub += (suffix == "" ? ".bin" : ("_" + suffix + ".bin"));
-        util::FieldToJson(jdata_sub[json_path], file_name_sub.c_str(), json_options_);
+        util::FieldToJson(jdata_sub[json_path], file_name_sub.c_str());
 
-        std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        std::string file_path = gfxrecon::util::filepath::Join(util::JsonOptions::root_dir, file_name_sub);
         WriteBinaryFile(file_path, resource_data->datas[sub_index], offset, size);
         ++json_sub_index;
     }
@@ -2661,7 +2662,7 @@ void DefaultDx12DumpResourcesDelegate::TestWriteFloatResource(const std::string&
         std::string suffix        = Dx12DumpResourcePosToString(resource_data->dump_position);
         std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index);
         file_name_sub += (suffix == "" ? ".txt" : ("_" + suffix + ".txt"));
-        std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        std::string file_path = gfxrecon::util::filepath::Join(util::JsonOptions::root_dir, file_name_sub);
         FILE*       file_handle;
         util::platform::FileOpen(&file_handle, file_path.c_str(), "w");
         util::platform::FilePuts(data.c_str(), file_handle);
@@ -2708,7 +2709,7 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
         // Write data.
         GFXRECON_ASSERT(!resource_data->datas[sub_index].empty());
 
-        std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
+        std::string file_path = gfxrecon::util::filepath::Join(util::JsonOptions::root_dir, file_name_sub);
         if (!util::imagewriter::WriteBmpImage(file_path,
                                               resource_data->footprints[sub_index].Footprint.Width,
                                               resource_data->footprints[sub_index].Footprint.Height,
@@ -2728,7 +2729,7 @@ void DefaultDx12DumpResourcesDelegate::TestWriteImageResource(const std::string&
 void DefaultDx12DumpResourcesDelegate::StartFile()
 {
     num_objects_ = 0;
-    if (json_options_.format == util::JsonFormat::JSON)
+    if (*util::JsonOptions::format == util::JsonFormat::JSON)
     {
         util::platform::FilePuts("[\n", json_file_handle_);
     }
@@ -2738,7 +2739,7 @@ void DefaultDx12DumpResourcesDelegate::EndFile()
 {
     if (json_file_handle_ != nullptr)
     {
-        if (json_options_.format == util::JsonFormat::JSON)
+        if (*util::JsonOptions::format == util::JsonFormat::JSON)
         {
             util::platform::FilePuts("\n]\n", json_file_handle_);
         }
@@ -2761,11 +2762,12 @@ void DefaultDx12DumpResourcesDelegate::WriteBlockEnd()
 {
     if (num_objects_ > 1)
     {
-        util::platform::FilePuts(json_options_.format == util::JsonFormat::JSONL ? "\n" : ",\n", json_file_handle_);
+        util::platform::FilePuts(*util::JsonOptions::format == util::JsonFormat::JSONL ? "\n" : ",\n",
+                                 json_file_handle_);
     }
     // Dominates profiling (2/2):
     const std::string block =
-        json_data_.dump(json_options_.format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
+        json_data_.dump(*util::JsonOptions::format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth);
     util::platform::FileWriteNoLock(block.data(), block.length() * sizeof(std::string::value_type), json_file_handle_);
     util::platform::FileFlush(json_file_handle_); /// @todo Implement a FileFlushNoLock() for all platforms.
 }

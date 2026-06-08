@@ -33,6 +33,12 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_payload.h
+                    ${CMAKE_CURRENT_LIST_DIR}/async_processor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/async_processor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/block_allocator.h
+                    ${CMAKE_CURRENT_LIST_DIR}/block_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/block_batch.h
+                    ${CMAKE_CURRENT_LIST_DIR}/block_batch.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/block_buffer.h
                     ${CMAKE_CURRENT_LIST_DIR}/block_buffer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/block_parser.h
@@ -77,6 +83,8 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/file_processor_types.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_processor_visitors.h
                     ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/preload_file_processor.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h
@@ -181,6 +189,8 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer_base.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_scanning_consumer.cpp>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_referenced_resource_consumer.h>
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_referenced_resource_consumer.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_descriptor_map.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_tracking_consumer.h>
@@ -200,8 +210,12 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_frame_warm_up.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_frame_warm_up.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_json_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_json_consumer_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_frame_loop_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_frame_loop_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/marker_json_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/metadata_json_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_util.h
@@ -218,6 +232,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_rebind_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_referenced_resource_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_referenced_resource_consumer_base.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_referenced_block_consumer_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_referenced_block_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_remap_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_remap_allocator.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.h
@@ -247,6 +263,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_job.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_submit_job.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
@@ -292,8 +310,12 @@ target_sources(gfxrecon_decode
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_pnext_struct_decoder.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.h
+                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_frame_loop_consumer_base.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.h
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_replay_dump_resources.cpp
                     ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h

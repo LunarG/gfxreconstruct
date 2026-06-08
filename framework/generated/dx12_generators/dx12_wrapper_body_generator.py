@@ -808,6 +808,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += '\n'
                 expr += indent + 'if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)\n'
                 expr += indent + '{\n'
+                expr += indent1 + 'ScopedCounter scoped(manager->AvoidApiCallLock());\n'
                 expr += indent1 + 'manager->DecrementCallScope();\n'
                 expr += indent1 + 'auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_{}_{});\n'.format(class_name, method_name)
                 expr += indent1 + 'for(auto& command_set : trim_draw_calls_command_sets)\n'
@@ -966,6 +967,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                         name = 'UnwrapObjects<{}>'\
                             '({}, {}, unwrap_memory)'.format(
                                 wrappers[name].base_type, name, value.array_length)
+                    # The private data interface should be set to the wrapper object,
+                    # but not unwrapped to the original object.
+                    elif (((name == "pData") or (name == "pUnknown")) and
+                        (wrappers[name].base_type == "IUnknown")):
+                        name = '{}'.format(name)
                     else:
                         name = 'encode::GetWrappedObject<{}>({})'\
                             .format(wrappers[name].base_type, name)

@@ -175,11 +175,12 @@ class ApiCaptureManager
         common_manager_->WriteAnnotation(type, label, data);
     }
 
-    bool GetIUnknownWrappingSetting() const { return common_manager_->GetIUnknownWrappingSetting(); }
-    auto GetForceCommandSerialization() const { return common_manager_->GetForceCommandSerialization(); }
-    auto GetQueueZeroOnly() const { return common_manager_->GetQueueZeroOnly(); }
-    auto GetAllowPipelineCompileRequired() const { return common_manager_->GetAllowPipelineCompileRequired(); }
-    auto GetSkipThreadsWithInvalidData() const { return common_manager_->GetSkipThreadsWithInvalidData(); }
+    bool     GetIUnknownWrappingSetting() const { return common_manager_->GetIUnknownWrappingSetting(); }
+    int64_t& AvoidApiCallLock() { return common_manager_->AvoidApiCallLock(); }
+    auto     GetForceCommandSerialization() const { return common_manager_->GetForceCommandSerialization(); }
+    auto     GetQueueZeroOnly() const { return common_manager_->GetQueueZeroOnly(); }
+    auto     GetAllowPipelineCompileRequired() const { return common_manager_->GetAllowPipelineCompileRequired(); }
+    auto     GetSkipThreadsWithInvalidData() const { return common_manager_->GetSkipThreadsWithInvalidData(); }
 
     bool     IsAnnotated() const { return common_manager_->IsAnnotated(); }
     uint16_t GetGPUVAMask() const { return common_manager_->GetGPUVAMask(); }

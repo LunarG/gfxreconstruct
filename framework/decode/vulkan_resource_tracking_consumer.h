@@ -193,6 +193,12 @@ class VulkanResourceTrackingConsumer : public VulkanConsumer
                                             StructPointerDecoder<Decoded_VkImageSubresource2KHR>*  pSubresource,
                                             StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) override;
 
+    void Process_vkGetImageSubresourceLayout2(const ApiCallInfo&                                  call_info,
+                                              format::HandleId                                    device,
+                                              format::HandleId                                    image,
+                                              StructPointerDecoder<Decoded_VkImageSubresource2>*  pSubresource,
+                                              StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout) override;
+
     void Process_vkGetPhysicalDeviceProperties(
         const ApiCallInfo&                                        call_info,
         format::HandleId                                          physicalDevice,

@@ -615,6 +615,10 @@ void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* se
     settings->log_settings_.output_detailed_log_info =
         ParseBoolString(FindOption(options, kOptionKeyLogDetailed), settings->log_settings_.output_detailed_log_info);
     settings->log_settings_.file_name = FindOption(options, kOptionKeyLogFile, settings->log_settings_.file_name);
+    if (settings->log_settings_.file_name.size() > 0)
+    {
+        settings->log_settings_.write_to_file = true;
+    }
     settings->log_settings_.create_new =
         ParseBoolString(FindOption(options, kOptionKeyLogFileCreateNew), settings->log_settings_.create_new);
     settings->log_settings_.flush_after_write = ParseBoolString(FindOption(options, kOptionKeyLogFileFlushAfterWrite),
@@ -804,10 +808,10 @@ format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::s
     return result;
 }
 
-util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  value_string,
-                                                         util::Log::Severity default_value)
+util::LoggingSeverity CaptureSettings::ParseLogLevelString(const std::string&    value_string,
+                                                           util::LoggingSeverity default_value)
 {
-    util::Log::Severity result;
+    util::LoggingSeverity result;
 
     if (!util::Log::StringToSeverity(value_string, result))
     {

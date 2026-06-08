@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2018-2026 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -48,6 +48,8 @@ void VulkanReplayConsumer::Process_vkCreateInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkInstance>*           pInstance)
 {
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pInstance->IsNull()) { pInstance->SetHandleLength(1); }
     VulkanInstanceInfo handle_info;
     pInstance->SetConsumerData(0, &handle_info);
@@ -495,6 +497,7 @@ void VulkanReplayConsumer::Process_vkCreateFence(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkFenceCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pFence->IsNull()) { pFence->SetHandleLength(1); }
     VkFence* out_pFence = pFence->GetHandlePointer();
@@ -574,6 +577,7 @@ void VulkanReplayConsumer::Process_vkCreateSemaphore(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkSemaphoreCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSemaphore->IsNull()) { pSemaphore->SetHandleLength(1); }
     VkSemaphore* out_pSemaphore = pSemaphore->GetHandlePointer();
@@ -610,6 +614,7 @@ void VulkanReplayConsumer::Process_vkCreateQueryPool(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkQueryPoolCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pQueryPool->IsNull()) { pQueryPool->SetHandleLength(1); }
     VkQueryPool* out_pQueryPool = pQueryPool->GetHandlePointer();
@@ -665,6 +670,8 @@ void VulkanReplayConsumer::Process_vkCreateBuffer(
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pBuffer->IsNull()) { pBuffer->SetHandleLength(1); }
     VulkanBufferInfo handle_info;
     pBuffer->SetConsumerData(0, &handle_info);
@@ -787,6 +794,7 @@ void VulkanReplayConsumer::Process_vkCreateCommandPool(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkCommandPoolCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pCommandPool->IsNull()) { pCommandPool->SetHandleLength(1); }
     VkCommandPool* out_pCommandPool = pCommandPool->GetHandlePointer();
@@ -1067,6 +1075,8 @@ void VulkanReplayConsumer::Process_vkCmdPipelineBarrier(
 {
     auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
+    MapStructArrayHandles(pMemoryBarriers->GetMetaStructPointer(), pMemoryBarriers->GetLength(), GetObjectInfoTable());
+
     MapStructArrayHandles(pBufferMemoryBarriers->GetMetaStructPointer(), pBufferMemoryBarriers->GetLength(), GetObjectInfoTable());
 
     MapStructArrayHandles(pImageMemoryBarriers->GetMetaStructPointer(), pImageMemoryBarriers->GetLength(), GetObjectInfoTable());
@@ -1093,7 +1103,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginQuery(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBeginQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQuery, in_commandBuffer, in_queryPool, query, flags);
+        resource_dumper_->Process_vkCmdBeginQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginQuery, in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(queryPool), query, flags);
     }
 }
 
@@ -1110,7 +1120,7 @@ void VulkanReplayConsumer::Process_vkCmdEndQuery(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQuery, in_commandBuffer, in_queryPool, query);
+        resource_dumper_->Process_vkCmdEndQuery(call_info, GetDeviceTable(in_commandBuffer)->CmdEndQuery, in_commandBuffer, GetObjectInfoTable().GetVkQueryPoolInfo(queryPool), query);
     }
 }
 
@@ -1200,6 +1210,7 @@ void VulkanReplayConsumer::Process_vkCreateEvent(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkEventCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pEvent->IsNull()) { pEvent->SetHandleLength(1); }
     VkEvent* out_pEvent = pEvent->GetHandlePointer();
@@ -1232,10 +1243,10 @@ void VulkanReplayConsumer::Process_vkGetEventStatus(
     format::HandleId                            device,
     format::HandleId                            event)
 {
-    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
-    auto in_event = GetObjectInfoTable().GetVkEventInfo(event);
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkEvent in_event = MapHandle<VulkanEventInfo>(event, &CommonObjectInfoTable::GetVkEventInfo);
 
-    VkResult replay_result = OverrideGetEventStatus(GetDeviceTable(in_device->handle)->GetEventStatus, returnValue, in_device, in_event);
+    VkResult replay_result = GetDeviceTable(in_device)->GetEventStatus(in_device, in_event);
     CheckResult("vkGetEventStatus", returnValue, replay_result, call_info);
 }
 
@@ -1347,6 +1358,8 @@ void VulkanReplayConsumer::Process_vkCreatePipelineCache(
     HandlePointerDecoder<VkPipelineCache>*      pPipelineCache)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pPipelineCache->IsNull()) { pPipelineCache->SetHandleLength(1); }
     VulkanPipelineCacheInfo handle_info;
     pPipelineCache->SetConsumerData(0, &handle_info);
@@ -1576,6 +1589,8 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorPool(
     HandlePointerDecoder<VkDescriptorPool>*     pDescriptorPool)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pDescriptorPool->IsNull()) { pDescriptorPool->SetHandleLength(1); }
     VulkanDescriptorPoolInfo handle_info;
     pDescriptorPool->SetConsumerData(0, &handle_info);
@@ -1818,6 +1833,7 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents(
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkEvent* in_pEvents = MapHandles<VulkanEventInfo>(pEvents, eventCount, &CommonObjectInfoTable::GetVkEventInfo);
     const VkMemoryBarrier* in_pMemoryBarriers = pMemoryBarriers->GetPointer();
+    MapStructArrayHandles(pMemoryBarriers->GetMetaStructPointer(), pMemoryBarriers->GetLength(), GetObjectInfoTable());
     const VkBufferMemoryBarrier* in_pBufferMemoryBarriers = pBufferMemoryBarriers->GetPointer();
     MapStructArrayHandles(pBufferMemoryBarriers->GetMetaStructPointer(), pBufferMemoryBarriers->GetLength(), GetObjectInfoTable());
     const VkImageMemoryBarrier* in_pImageMemoryBarriers = pImageMemoryBarriers->GetPointer();
@@ -1933,6 +1949,8 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pRenderPass->IsNull()) { pRenderPass->SetHandleLength(1); }
     VulkanRenderPassInfo handle_info;
     pRenderPass->SetConsumerData(0, &handle_info);
@@ -2363,13 +2381,13 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndRenderPass(in_commandBuffer);
+    OverrideCmdEndRenderPass(GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderPass, in_commandBuffer);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRenderPass(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass, in_commandBuffer);
+        resource_dumper_->Process_vkCmdEndRenderPass(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderPass, in_commandBuffer->handle);
     }
 }
 
@@ -2547,6 +2565,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2(
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceImageFormatInfo2* in_pImageFormatInfo = pImageFormatInfo->GetPointer();
+    MapStructHandles(pImageFormatInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkImageFormatProperties2* out_pImageFormatProperties = pImageFormatProperties->IsNull() ? nullptr : pImageFormatProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2, nullptr });
     InitializeOutputStructPNext(pImageFormatProperties);
 
@@ -2590,6 +2609,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPropertie
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceSparseImageFormatInfo2* in_pFormatInfo = pFormatInfo->GetPointer();
+    MapStructHandles(pFormatInfo->GetMetaStructPointer(), GetObjectInfoTable());
     uint32_t* out_pPropertyCount = pPropertyCount->IsNull() ? nullptr : pPropertyCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceSparseImageFormatProperties2", VK_SUCCESS, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2, pPropertyCount, pProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
     VkSparseImageFormatProperties2* out_pProperties = pProperties->IsNull() ? nullptr : pProperties->AllocateOutputData(*out_pPropertyCount, VkSparseImageFormatProperties2{ VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2, nullptr });
 
@@ -2617,6 +2637,8 @@ void VulkanReplayConsumer::Process_vkGetDeviceQueue2(
     HandlePointerDecoder<VkQueue>*              pQueue)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pQueueInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pQueue->IsNull()) { pQueue->SetHandleLength(1); }
     VulkanQueueInfo handle_info;
     pQueue->SetConsumerData(0, &handle_info);
@@ -2636,6 +2658,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceExternalBufferInfo* in_pExternalBufferInfo = pExternalBufferInfo->GetPointer();
+    MapStructHandles(pExternalBufferInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExternalBufferProperties* out_pExternalBufferProperties = pExternalBufferProperties->IsNull() ? nullptr : pExternalBufferProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES, nullptr });
     InitializeOutputStructPNext(pExternalBufferProperties);
 
@@ -2650,6 +2673,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalFenceProperties(
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceExternalFenceInfo* in_pExternalFenceInfo = pExternalFenceInfo->GetPointer();
+    MapStructHandles(pExternalFenceInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExternalFenceProperties* out_pExternalFenceProperties = pExternalFenceProperties->IsNull() ? nullptr : pExternalFenceProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES, nullptr });
     InitializeOutputStructPNext(pExternalFenceProperties);
 
@@ -2664,6 +2688,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertie
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceExternalSemaphoreInfo* in_pExternalSemaphoreInfo = pExternalSemaphoreInfo->GetPointer();
+    MapStructHandles(pExternalSemaphoreInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExternalSemaphoreProperties* out_pExternalSemaphoreProperties = pExternalSemaphoreProperties->IsNull() ? nullptr : pExternalSemaphoreProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES, nullptr });
     InitializeOutputStructPNext(pExternalSemaphoreProperties);
 
@@ -2750,6 +2775,8 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pYcbcrConversion->IsNull()) { pYcbcrConversion->SetHandleLength(1); }
     VulkanSamplerYcbcrConversionInfo handle_info;
     pYcbcrConversion->SetConsumerData(0, &handle_info);
@@ -2925,6 +2952,8 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass2(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pRenderPass->IsNull()) { pRenderPass->SetHandleLength(1); }
     VulkanRenderPassInfo handle_info;
     pRenderPass->SetConsumerData(0, &handle_info);
@@ -2947,6 +2976,8 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2(
 
     MapStructHandles(pRenderPassBegin->GetMetaStructPointer(), GetObjectInfoTable());
 
+    MapStructHandles(pSubpassBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
     OverrideCmdBeginRenderPass2(GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass2, in_commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
     if (options_.dumping_resources)
@@ -2963,7 +2994,9 @@ void VulkanReplayConsumer::Process_vkCmdNextSubpass2(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkSubpassBeginInfo* in_pSubpassBeginInfo = pSubpassBeginInfo->GetPointer();
+    MapStructHandles(pSubpassBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkSubpassEndInfo* in_pSubpassEndInfo = pSubpassEndInfo->GetPointer();
+    MapStructHandles(pSubpassEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdNextSubpass2(in_commandBuffer, in_pSubpassBeginInfo, in_pSubpassEndInfo);
 
@@ -2978,14 +3011,15 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass2(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkSubpassEndInfo* in_pSubpassEndInfo = pSubpassEndInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2(in_commandBuffer, in_pSubpassEndInfo);
+    MapStructHandles(pSubpassEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    OverrideCmdEndRenderPass2(GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderPass2, in_commandBuffer, pSubpassEndInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRenderPass2(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2, in_commandBuffer, pSubpassEndInfo);
+        resource_dumper_->Process_vkCmdEndRenderPass2(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderPass2, in_commandBuffer->handle, pSubpassEndInfo);
     }
 }
 
@@ -3016,6 +3050,7 @@ void VulkanReplayConsumer::Process_vkCreatePrivateDataSlot(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkPrivateDataSlotCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pPrivateDataSlot->IsNull()) { pPrivateDataSlot->SetHandleLength(1); }
     VkPrivateDataSlot* out_pPrivateDataSlot = pPrivateDataSlot->GetHandlePointer();
@@ -3223,6 +3258,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceBufferMemoryRequirements(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkDeviceBufferMemoryRequirements* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkMemoryRequirements2* out_pMemoryRequirements = pMemoryRequirements->IsNull() ? nullptr : pMemoryRequirements->AllocateOutputData(1, { VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2, nullptr });
     InitializeOutputStructPNext(pMemoryRequirements);
 
@@ -3362,15 +3398,15 @@ void VulkanReplayConsumer::Process_vkCmdBeginRendering(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkRenderingInfo* in_pRenderingInfo = pRenderingInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pRenderingInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdBeginRendering(in_commandBuffer, in_pRenderingInfo);
+    OverrideCmdBeginRendering(GetDeviceTable(in_commandBuffer->handle)->CmdBeginRendering, in_commandBuffer, pRenderingInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBeginRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRendering, in_commandBuffer, pRenderingInfo);
+        resource_dumper_->Process_vkCmdBeginRendering(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRendering, in_commandBuffer->handle, pRenderingInfo);
     }
 }
 
@@ -3378,13 +3414,13 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndRendering(in_commandBuffer);
+    OverrideCmdEndRendering(GetDeviceTable(in_commandBuffer->handle)->CmdEndRendering, in_commandBuffer);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRendering(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRendering, in_commandBuffer);
+        resource_dumper_->Process_vkCmdEndRendering(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdEndRendering, in_commandBuffer->handle);
     }
 }
 
@@ -3687,6 +3723,7 @@ void VulkanReplayConsumer::Process_vkGetImageSubresourceLayout2(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     VkImage in_image = MapHandle<VulkanImageInfo>(image, &CommonObjectInfoTable::GetVkImageInfo);
     const VkImageSubresource2* in_pSubresource = pSubresource->GetPointer();
+    MapStructHandles(pSubresource->GetMetaStructPointer(), GetObjectInfoTable());
     VkSubresourceLayout2* out_pLayout = pLayout->IsNull() ? nullptr : pLayout->AllocateOutputData(1, { VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2, nullptr });
     InitializeOutputStructPNext(pLayout);
 
@@ -3866,6 +3903,7 @@ void VulkanReplayConsumer::Process_vkGetRenderingAreaGranularity(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkRenderingAreaInfo* in_pRenderingAreaInfo = pRenderingAreaInfo->GetPointer();
+    MapStructHandles(pRenderingAreaInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExtent2D* out_pGranularity = pGranularity->IsNull() ? nullptr : pGranularity->AllocateOutputData(1);
 
     GetDeviceTable(in_device)->GetRenderingAreaGranularity(in_device, in_pRenderingAreaInfo, out_pGranularity);
@@ -3878,6 +3916,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingAttachmentLocations(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkRenderingAttachmentLocationInfo* in_pLocationInfo = pLocationInfo->GetPointer();
+    MapStructHandles(pLocationInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetRenderingAttachmentLocations(in_commandBuffer, in_pLocationInfo);
 
@@ -3894,6 +3933,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingInputAttachmentIndices(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkRenderingInputAttachmentIndexInfo* in_pInputAttachmentIndexInfo = pInputAttachmentIndexInfo->GetPointer();
+    MapStructHandles(pInputAttachmentIndexInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetRenderingInputAttachmentIndices(in_commandBuffer, in_pInputAttachmentIndexInfo);
 
@@ -4281,6 +4321,7 @@ void VulkanReplayConsumer::Process_vkCreateDisplayModeKHR(
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     VkDisplayKHR in_display = MapHandle<VulkanDisplayKHRInfo>(display, &CommonObjectInfoTable::GetVkDisplayKHRInfo);
     const VkDisplayModeCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pMode->IsNull()) { pMode->SetHandleLength(1); }
     VkDisplayModeKHR* out_pMode = pMode->GetHandlePointer();
@@ -4365,6 +4406,8 @@ void VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VulkanSurfaceKHRInfo handle_info;
     pSurface->SetConsumerData(0, &handle_info);
@@ -4400,6 +4443,8 @@ void VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VulkanSurfaceKHRInfo handle_info;
     pSurface->SetConsumerData(0, &handle_info);
@@ -4435,6 +4480,8 @@ void VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VulkanSurfaceKHRInfo handle_info;
     pSurface->SetConsumerData(0, &handle_info);
@@ -4469,6 +4516,8 @@ void VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VulkanSurfaceKHRInfo handle_info;
     pSurface->SetConsumerData(0, &handle_info);
@@ -4490,6 +4539,8 @@ void VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VulkanSurfaceKHRInfo handle_info;
     pSurface->SetConsumerData(0, &handle_info);
@@ -4522,6 +4573,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkVideoProfileInfoKHR* in_pVideoProfile = pVideoProfile->GetPointer();
+    MapStructHandles(pVideoProfile->GetMetaStructPointer(), GetObjectInfoTable());
     VkVideoCapabilitiesKHR* out_pCapabilities = pCapabilities->IsNull() ? nullptr : pCapabilities->AllocateOutputData(1, { VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR, nullptr });
     InitializeOutputStructPNext(pCapabilities);
 
@@ -4539,6 +4591,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceVideoFormatInfoKHR* in_pVideoFormatInfo = pVideoFormatInfo->GetPointer();
+    MapStructHandles(pVideoFormatInfo->GetMetaStructPointer(), GetObjectInfoTable());
     uint32_t* out_pVideoFormatPropertyCount = pVideoFormatPropertyCount->IsNull() ? nullptr : pVideoFormatPropertyCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceVideoFormatPropertiesKHR", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceVideoFormatPropertiesKHR, pVideoFormatPropertyCount, pVideoFormatProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
     VkVideoFormatPropertiesKHR* out_pVideoFormatProperties = pVideoFormatProperties->IsNull() ? nullptr : pVideoFormatProperties->AllocateOutputData(*out_pVideoFormatPropertyCount, VkVideoFormatPropertiesKHR{ VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR, nullptr });
 
@@ -4557,6 +4610,8 @@ void VulkanReplayConsumer::Process_vkCreateVideoSessionKHR(
     HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pVideoSession->IsNull()) { pVideoSession->SetHandleLength(1); }
     VulkanVideoSessionKHRInfo handle_info;
     pVideoSession->SetConsumerData(0, &handle_info);
@@ -4651,6 +4706,7 @@ void VulkanReplayConsumer::Process_vkUpdateVideoSessionParametersKHR(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     VkVideoSessionParametersKHR in_videoSessionParameters = MapHandle<VulkanVideoSessionParametersKHRInfo>(videoSessionParameters, &CommonObjectInfoTable::GetVkVideoSessionParametersKHRInfo);
     const VkVideoSessionParametersUpdateInfoKHR* in_pUpdateInfo = pUpdateInfo->GetPointer();
+    MapStructHandles(pUpdateInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->UpdateVideoSessionParametersKHR(in_device, in_videoSessionParameters, in_pUpdateInfo);
     CheckResult("vkUpdateVideoSessionParametersKHR", returnValue, replay_result, call_info);
@@ -4694,6 +4750,7 @@ void VulkanReplayConsumer::Process_vkCmdEndVideoCodingKHR(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkVideoEndCodingInfoKHR* in_pEndCodingInfo = pEndCodingInfo->GetPointer();
+    MapStructHandles(pEndCodingInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdEndVideoCodingKHR(in_commandBuffer, in_pEndCodingInfo);
 
@@ -4710,6 +4767,7 @@ void VulkanReplayConsumer::Process_vkCmdControlVideoCodingKHR(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkVideoCodingControlInfoKHR* in_pCodingControlInfo = pCodingControlInfo->GetPointer();
+    MapStructHandles(pCodingControlInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdControlVideoCodingKHR(in_commandBuffer, in_pCodingControlInfo);
 
@@ -4741,15 +4799,15 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkRenderingInfo* in_pRenderingInfo = pRenderingInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pRenderingInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdBeginRenderingKHR(in_commandBuffer, in_pRenderingInfo);
+    OverrideCmdBeginRendering(GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderingKHR, in_commandBuffer, pRenderingInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdBeginRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginRenderingKHR, in_commandBuffer, pRenderingInfo);
+        resource_dumper_->Process_vkCmdBeginRenderingKHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderingKHR, in_commandBuffer->handle, pRenderingInfo);
     }
 }
 
@@ -4757,13 +4815,13 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderingKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndRenderingKHR(in_commandBuffer);
+    OverrideCmdEndRendering(GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderingKHR, in_commandBuffer);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRenderingKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderingKHR, in_commandBuffer);
+        resource_dumper_->Process_vkCmdEndRenderingKHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderingKHR, in_commandBuffer->handle);
     }
 }
 
@@ -4813,6 +4871,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceImageFormatInfo2* in_pImageFormatInfo = pImageFormatInfo->GetPointer();
+    MapStructHandles(pImageFormatInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkImageFormatProperties2* out_pImageFormatProperties = pImageFormatProperties->IsNull() ? nullptr : pImageFormatProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2, nullptr });
     InitializeOutputStructPNext(pImageFormatProperties);
 
@@ -4856,6 +4915,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPropertie
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceSparseImageFormatInfo2* in_pFormatInfo = pFormatInfo->GetPointer();
+    MapStructHandles(pFormatInfo->GetMetaStructPointer(), GetObjectInfoTable());
     uint32_t* out_pPropertyCount = pPropertyCount->IsNull() ? nullptr : pPropertyCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceSparseImageFormatProperties2KHR", VK_SUCCESS, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceSparseImageFormatProperties2KHR, pPropertyCount, pProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
     VkSparseImageFormatProperties2* out_pProperties = pProperties->IsNull() ? nullptr : pProperties->AllocateOutputData(*out_pPropertyCount, VkSparseImageFormatProperties2{ VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2, nullptr });
 
@@ -4954,6 +5014,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKH
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceExternalBufferInfo* in_pExternalBufferInfo = pExternalBufferInfo->GetPointer();
+    MapStructHandles(pExternalBufferInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExternalBufferProperties* out_pExternalBufferProperties = pExternalBufferProperties->IsNull() ? nullptr : pExternalBufferProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES, nullptr });
     InitializeOutputStructPNext(pExternalBufferProperties);
 
@@ -5035,6 +5096,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertie
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceExternalSemaphoreInfo* in_pExternalSemaphoreInfo = pExternalSemaphoreInfo->GetPointer();
+    MapStructHandles(pExternalSemaphoreInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExternalSemaphoreProperties* out_pExternalSemaphoreProperties = pExternalSemaphoreProperties->IsNull() ? nullptr : pExternalSemaphoreProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES, nullptr });
     InitializeOutputStructPNext(pExternalSemaphoreProperties);
 
@@ -5170,6 +5232,8 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pRenderPass->IsNull()) { pRenderPass->SetHandleLength(1); }
     VulkanRenderPassInfo handle_info;
     pRenderPass->SetConsumerData(0, &handle_info);
@@ -5192,6 +5256,8 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2KHR(
 
     MapStructHandles(pRenderPassBegin->GetMetaStructPointer(), GetObjectInfoTable());
 
+    MapStructHandles(pSubpassBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
     OverrideCmdBeginRenderPass2(GetDeviceTable(in_commandBuffer->handle)->CmdBeginRenderPass2KHR, in_commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
     if (options_.dumping_resources)
@@ -5208,7 +5274,9 @@ void VulkanReplayConsumer::Process_vkCmdNextSubpass2KHR(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkSubpassBeginInfo* in_pSubpassBeginInfo = pSubpassBeginInfo->GetPointer();
+    MapStructHandles(pSubpassBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkSubpassEndInfo* in_pSubpassEndInfo = pSubpassEndInfo->GetPointer();
+    MapStructHandles(pSubpassEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdNextSubpass2KHR(in_commandBuffer, in_pSubpassBeginInfo, in_pSubpassEndInfo);
 
@@ -5223,14 +5291,15 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkSubpassEndInfo* in_pSubpassEndInfo = pSubpassEndInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2KHR(in_commandBuffer, in_pSubpassEndInfo);
+    MapStructHandles(pSubpassEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    OverrideCmdEndRenderPass2(GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderPass2KHR, in_commandBuffer, pSubpassEndInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdEndRenderPass2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdEndRenderPass2KHR, in_commandBuffer, pSubpassEndInfo);
+        resource_dumper_->Process_vkCmdEndRenderPass2KHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdEndRenderPass2KHR, in_commandBuffer->handle, pSubpassEndInfo);
     }
 }
 
@@ -5261,6 +5330,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceExternalFenceInfo* in_pExternalFenceInfo = pExternalFenceInfo->GetPointer();
+    MapStructHandles(pExternalFenceInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExternalFenceProperties* out_pExternalFenceProperties = pExternalFenceProperties->IsNull() ? nullptr : pExternalFenceProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES, nullptr });
     InitializeOutputStructPNext(pExternalFenceProperties);
 
@@ -5358,6 +5428,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformanceQuer
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkQueryPoolPerformanceCreateInfoKHR* in_pPerformanceQueryCreateInfo = pPerformanceQueryCreateInfo->GetPointer();
+    MapStructHandles(pPerformanceQueryCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     uint32_t* out_pNumPasses = pNumPasses->IsNull() ? nullptr : pNumPasses->AllocateOutputData(1, static_cast<uint32_t>(0));
 
     GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(in_physicalDevice, in_pPerformanceQueryCreateInfo, out_pNumPasses);
@@ -5370,6 +5441,8 @@ void VulkanReplayConsumer::Process_vkAcquireProfilingLockKHR(
     StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = OverrideAcquireProfilingLockKHR(GetDeviceTable(in_device->handle)->AcquireProfilingLockKHR, returnValue, in_device, pInfo);
     CheckResult("vkAcquireProfilingLockKHR", returnValue, replay_result, call_info);
@@ -5573,6 +5646,8 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pYcbcrConversion->IsNull()) { pYcbcrConversion->SetHandleLength(1); }
     VulkanSamplerYcbcrConversionInfo handle_info;
     pYcbcrConversion->SetConsumerData(0, &handle_info);
@@ -5774,6 +5849,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkRenderingAttachmentLocationInfo* in_pLocationInfo = pLocationInfo->GetPointer();
+    MapStructHandles(pLocationInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetRenderingAttachmentLocationsKHR(in_commandBuffer, in_pLocationInfo);
 
@@ -5790,6 +5866,7 @@ void VulkanReplayConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkRenderingInputAttachmentIndexInfo* in_pInputAttachmentIndexInfo = pInputAttachmentIndexInfo->GetPointer();
+    MapStructHandles(pInputAttachmentIndexInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetRenderingInputAttachmentIndicesKHR(in_commandBuffer, in_pInputAttachmentIndexInfo);
 
@@ -6031,6 +6108,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLevelPro
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR* in_pQualityLevelInfo = pQualityLevelInfo->GetPointer();
+    MapStructHandles(pQualityLevelInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkVideoEncodeQualityLevelPropertiesKHR* out_pQualityLevelProperties = pQualityLevelProperties->IsNull() ? nullptr : pQualityLevelProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_VIDEO_ENCODE_QUALITY_LEVEL_PROPERTIES_KHR, nullptr });
     InitializeOutputStructPNext(pQualityLevelProperties);
 
@@ -6186,6 +6264,407 @@ void VulkanReplayConsumer::Process_vkQueueSubmit2KHR(
     CheckResult("vkQueueSubmit2KHR", returnValue, replay_result, call_info);
 }
 
+void VulkanReplayConsumer::Process_vkCmdBindIndexBuffer3KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBindIndexBuffer3InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindIndexBuffer3InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBindIndexBuffer3KHR(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBindIndexBuffer3KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBindIndexBuffer3KHR, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdBindVertexBuffers3KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    StructPointerDecoder<Decoded_VkBindVertexBuffer3InfoKHR>* pBindingInfos)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindVertexBuffer3InfoKHR* in_pBindingInfos = pBindingInfos->GetPointer();
+    MapStructArrayHandles(pBindingInfos->GetMetaStructPointer(), pBindingInfos->GetLength(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers3KHR(in_commandBuffer, firstBinding, bindingCount, in_pBindingInfos);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBindVertexBuffers3KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdBindVertexBuffers3KHR, in_commandBuffer, firstBinding, bindingCount, in_pBindingInfos);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawIndirect2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDrawIndirect2InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawIndirect2KHR(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDrawIndirect2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirect2KHR, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirect2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDrawIndirect2InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirect2KHR(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDrawIndexedIndirect2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirect2KHR, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDispatchIndirect2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDispatchIndirect2InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDispatchIndirect2InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDispatchIndirect2KHR(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDispatchIndirect2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchIndirect2KHR, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryInfoKHR>* pCopyMemoryInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkCopyDeviceMemoryInfoKHR* in_pCopyMemoryInfo = pCopyMemoryInfo->GetPointer();
+    MapStructHandles(pCopyMemoryInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyMemoryKHR(in_commandBuffer, in_pCopyMemoryInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdCopyMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMemoryKHR, in_commandBuffer, in_pCopyMemoryInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyMemoryToImageKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkCopyDeviceMemoryImageInfoKHR* in_pCopyMemoryInfo = pCopyMemoryInfo->GetPointer();
+    MapStructHandles(pCopyMemoryInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyMemoryToImageKHR(in_commandBuffer, in_pCopyMemoryInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdCopyMemoryToImageKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyMemoryToImageKHR, in_commandBuffer, in_pCopyMemoryInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyImageToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyDeviceMemoryImageInfoKHR>* pCopyMemoryInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkCopyDeviceMemoryImageInfoKHR* in_pCopyMemoryInfo = pCopyMemoryInfo->GetPointer();
+    MapStructHandles(pCopyMemoryInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyImageToMemoryKHR(in_commandBuffer, in_pCopyMemoryInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdCopyImageToMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyImageToMemoryKHR, in_commandBuffer, in_pCopyMemoryInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdUpdateMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    VkDeviceSize                                dataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDeviceAddressRangeKHR* in_pDstRange = pDstRange->GetPointer();
+    const void* in_pData = pData->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdUpdateMemoryKHR(in_commandBuffer, in_pDstRange, dstFlags, dataSize, in_pData);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdUpdateMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdUpdateMemoryKHR, in_commandBuffer, in_pDstRange, dstFlags, dataSize, in_pData);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdFillMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDeviceAddressRangeKHR>* pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    uint32_t                                    data)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDeviceAddressRangeKHR* in_pDstRange = pDstRange->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdFillMemoryKHR(in_commandBuffer, in_pDstRange, dstFlags, data);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdFillMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdFillMemoryKHR, in_commandBuffer, in_pDstRange, dstFlags, data);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    VkQueryResultFlags                          queryResultFlags)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkQueryPool in_queryPool = MapHandle<VulkanQueryPoolInfo>(queryPool, &CommonObjectInfoTable::GetVkQueryPoolInfo);
+    const VkStridedDeviceAddressRangeKHR* in_pDstRange = pDstRange->GetPointer();
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyQueryPoolResultsToMemoryKHR(in_commandBuffer, in_queryPool, firstQuery, queryCount, in_pDstRange, dstFlags, queryResultFlags);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdCopyQueryPoolResultsToMemoryKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyQueryPoolResultsToMemoryKHR, in_commandBuffer, in_queryPool, firstQuery, queryCount, in_pDstRange, dstFlags, queryResultFlags);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawIndirectCount2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDrawIndirectCount2InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCount2KHR(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDrawIndirectCount2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectCount2KHR, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCount2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDrawIndirectCount2InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCount2KHR(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDrawIndexedIndirectCount2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCount2KHR, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdBeginConditionalRendering2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfo2EXT>* pConditionalRenderingBegin)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkConditionalRenderingBeginInfo2EXT* in_pConditionalRenderingBegin = pConditionalRenderingBegin->GetPointer();
+    MapStructHandles(pConditionalRenderingBegin->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBeginConditionalRendering2EXT(in_commandBuffer, in_pConditionalRenderingBegin);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBeginConditionalRendering2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginConditionalRendering2EXT, in_commandBuffer, in_pConditionalRenderingBegin);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdBindTransformFeedbackBuffers2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pBindingInfos)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindTransformFeedbackBuffer2InfoEXT* in_pBindingInfos = pBindingInfos->GetPointer();
+    MapStructArrayHandles(pBindingInfos->GetMetaStructPointer(), pBindingInfos->GetLength(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBindTransformFeedbackBuffers2EXT(in_commandBuffer, firstBinding, bindingCount, in_pBindingInfos);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBindTransformFeedbackBuffers2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBindTransformFeedbackBuffers2EXT, in_commandBuffer, firstBinding, bindingCount, in_pBindingInfos);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdBeginTransformFeedback2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstCounterRange,
+    uint32_t                                    counterRangeCount,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindTransformFeedbackBuffer2InfoEXT* in_pCounterInfos = pCounterInfos->GetPointer();
+    MapStructArrayHandles(pCounterInfos->GetMetaStructPointer(), pCounterInfos->GetLength(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBeginTransformFeedback2EXT(in_commandBuffer, firstCounterRange, counterRangeCount, in_pCounterInfos);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBeginTransformFeedback2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginTransformFeedback2EXT, in_commandBuffer, firstCounterRange, counterRangeCount, in_pCounterInfos);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdEndTransformFeedback2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstCounterRange,
+    uint32_t                                    counterRangeCount,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfos)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindTransformFeedbackBuffer2InfoEXT* in_pCounterInfos = pCounterInfos->GetPointer();
+    MapStructArrayHandles(pCounterInfos->GetMetaStructPointer(), pCounterInfos->GetLength(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdEndTransformFeedback2EXT(in_commandBuffer, firstCounterRange, counterRangeCount, in_pCounterInfos);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdEndTransformFeedback2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdEndTransformFeedback2EXT, in_commandBuffer, firstCounterRange, counterRangeCount, in_pCounterInfos);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawIndirectByteCount2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstInstance,
+    StructPointerDecoder<Decoded_VkBindTransformFeedbackBuffer2InfoEXT>* pCounterInfo,
+    uint32_t                                    counterOffset,
+    uint32_t                                    vertexStride)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkBindTransformFeedbackBuffer2InfoEXT* in_pCounterInfo = pCounterInfo->GetPointer();
+    MapStructHandles(pCounterInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawIndirectByteCount2EXT(in_commandBuffer, instanceCount, firstInstance, in_pCounterInfo, counterOffset, vertexStride);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDrawIndirectByteCount2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawIndirectByteCount2EXT, in_commandBuffer, instanceCount, firstInstance, in_pCounterInfo, counterOffset, vertexStride);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirect2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirect2InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDrawIndirect2InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirect2EXT(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDrawMeshTasksIndirect2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirect2EXT, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdDrawMeshTasksIndirectCount2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDrawIndirectCount2InfoKHR>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDrawIndirectCount2InfoKHR* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectCount2EXT(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdDrawMeshTasksIndirectCount2EXT(call_info, GetDeviceTable(in_commandBuffer)->CmdDrawMeshTasksIndirectCount2EXT, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdWriteMarkerToMemoryAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkMemoryMarkerInfoAMD>* pInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkMemoryMarkerInfoAMD* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdWriteMarkerToMemoryAMD(in_commandBuffer, in_pInfo);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdWriteMarkerToMemoryAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdWriteMarkerToMemoryAMD, in_commandBuffer, in_pInfo);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCreateAccelerationStructure2KHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfo2KHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    const VkAccelerationStructureCreateInfo2KHR* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    if (!pAccelerationStructure->IsNull()) { pAccelerationStructure->SetHandleLength(1); }
+    VkAccelerationStructureKHR* out_pAccelerationStructure = pAccelerationStructure->GetHandlePointer();
+
+    PushRecaptureHandleId(pAccelerationStructure->GetPointer());
+    VkResult replay_result = GetDeviceTable(in_device)->CreateAccelerationStructure2KHR(in_device, in_pCreateInfo, in_pAllocator, out_pAccelerationStructure);
+    CheckResult("vkCreateAccelerationStructure2KHR", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
+
+    AddHandle<VulkanAccelerationStructureKHRInfo>(device, pAccelerationStructure->GetPointer(), out_pAccelerationStructure, &CommonObjectInfoTable::AddVkAccelerationStructureKHRInfo);
+}
+
 void VulkanReplayConsumer::Process_vkCmdCopyBuffer2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -6336,6 +6815,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkDeviceBufferMemoryRequirements* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkMemoryRequirements2* out_pMemoryRequirements = pMemoryRequirements->IsNull() ? nullptr : pMemoryRequirements->AllocateOutputData(1, { VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2, nullptr });
     InitializeOutputStructPNext(pMemoryRequirements);
 
@@ -6402,6 +6882,7 @@ void VulkanReplayConsumer::Process_vkGetRenderingAreaGranularityKHR(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkRenderingAreaInfo* in_pRenderingAreaInfo = pRenderingAreaInfo->GetPointer();
+    MapStructHandles(pRenderingAreaInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkExtent2D* out_pGranularity = pGranularity->IsNull() ? nullptr : pGranularity->AllocateOutputData(1);
 
     GetDeviceTable(in_device)->GetRenderingAreaGranularityKHR(in_device, in_pRenderingAreaInfo, out_pGranularity);
@@ -6432,6 +6913,7 @@ void VulkanReplayConsumer::Process_vkGetImageSubresourceLayout2KHR(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     VkImage in_image = MapHandle<VulkanImageInfo>(image, &CommonObjectInfoTable::GetVkImageInfo);
     const VkImageSubresource2* in_pSubresource = pSubresource->GetPointer();
+    MapStructHandles(pSubresource->GetMetaStructPointer(), GetObjectInfoTable());
     VkSubresourceLayout2* out_pLayout = pLayout->IsNull() ? nullptr : pLayout->AllocateOutputData(1, { VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2, nullptr });
     InitializeOutputStructPNext(pLayout);
 
@@ -6454,6 +6936,7 @@ void VulkanReplayConsumer::Process_vkWaitForPresent2KHR(
     VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
     const VkPresentWait2InfoKHR* in_pPresentWait2Info = pPresentWait2Info->GetPointer();
+    MapStructHandles(pPresentWait2Info->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->WaitForPresent2KHR(in_device, in_swapchain, in_pPresentWait2Info);
     CheckResult("vkWaitForPresent2KHR", returnValue, replay_result, call_info);
@@ -6467,20 +6950,19 @@ void VulkanReplayConsumer::Process_vkCreatePipelineBinariesKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkPipelineBinaryCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
     MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     SetStructArrayHandleLengths<Decoded_VkPipelineBinaryHandlesInfoKHR>(pBinaries->GetMetaStructPointer(), pBinaries->GetLength());
-    VkPipelineBinaryHandlesInfoKHR* out_pBinaries = pBinaries->IsNull() ? nullptr : pBinaries->AllocateOutputData(1, { VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR, nullptr });
+    pBinaries->IsNull() ? nullptr : pBinaries->AllocateOutputData(1, { VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR, nullptr });
     InitializeOutputStructPNext(pBinaries);
 
     PushRecaptureStructHandleIds(pBinaries->GetMetaStructPointer(), this);
-    VkResult replay_result = GetDeviceTable(in_device)->CreatePipelineBinariesKHR(in_device, in_pCreateInfo, in_pAllocator, out_pBinaries);
+    VkResult replay_result = OverrideCreatePipelineBinariesKHR(GetDeviceTable(in_device->handle)->CreatePipelineBinariesKHR, returnValue, in_device, pCreateInfo, pAllocator, pBinaries);
     CheckResult("vkCreatePipelineBinariesKHR", returnValue, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddStructHandles(device, pBinaries->GetMetaStructPointer(), out_pBinaries, &GetObjectInfoTable());
+    AddStructHandles(device, pBinaries->GetMetaStructPointer(), pBinaries->GetOutputPointer(), &GetObjectInfoTable());
 }
 
 void VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(
@@ -6506,6 +6988,7 @@ void VulkanReplayConsumer::Process_vkGetPipelineKeyKHR(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkPipelineCreateInfoKHR* in_pPipelineCreateInfo = pPipelineCreateInfo->GetPointer();
+    MapStructHandles(pPipelineCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkPipelineBinaryKeyKHR* out_pPipelineKey = pPipelineKey->IsNull() ? nullptr : pPipelineKey->AllocateOutputData(1, { VK_STRUCTURE_TYPE_PIPELINE_BINARY_KEY_KHR, nullptr });
     InitializeOutputStructPNext(pPipelineKey);
 
@@ -6732,6 +7215,7 @@ void VulkanReplayConsumer::Process_vkCmdCopyMemoryIndirectKHR(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkCopyMemoryIndirectInfoKHR* in_pCopyMemoryIndirectInfo = pCopyMemoryIndirectInfo->GetPointer();
+    MapStructHandles(pCopyMemoryIndirectInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdCopyMemoryIndirectKHR(in_commandBuffer, in_pCopyMemoryIndirectInfo);
 
@@ -6758,6 +7242,38 @@ void VulkanReplayConsumer::Process_vkCmdCopyMemoryToImageIndirectKHR(
     }
 }
 
+void VulkanReplayConsumer::Process_vkGetDeviceFaultReportsKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint64_t                                    timeout,
+    PointerDecoder<uint32_t>*                   pFaultCounts,
+    StructPointerDecoder<Decoded_VkDeviceFaultInfoKHR>* pFaultInfo)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    uint32_t* out_pFaultCounts = pFaultCounts->IsNull() ? nullptr : pFaultCounts->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanDeviceInfo>("vkGetDeviceFaultReportsKHR", returnValue, device, kDeviceArrayGetDeviceFaultReportsKHR, pFaultCounts, pFaultInfo, &CommonObjectInfoTable::GetVkDeviceInfo));
+    VkDeviceFaultInfoKHR* out_pFaultInfo = pFaultInfo->IsNull() ? nullptr : pFaultInfo->AllocateOutputData(*out_pFaultCounts, VkDeviceFaultInfoKHR{ VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_KHR, nullptr });
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetDeviceFaultReportsKHR(in_device, timeout, out_pFaultCounts, out_pFaultInfo);
+    CheckResult("vkGetDeviceFaultReportsKHR", returnValue, replay_result, call_info);
+
+    if (pFaultInfo->IsNull()) { SetOutputArrayCount<VulkanDeviceInfo>(device, kDeviceArrayGetDeviceFaultReportsKHR, *out_pFaultCounts, &CommonObjectInfoTable::GetVkDeviceInfo); }
+}
+
+void VulkanReplayConsumer::Process_vkGetDeviceFaultDebugInfoKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDeviceFaultDebugInfoKHR>* pDebugInfo)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkDeviceFaultDebugInfoKHR* out_pDebugInfo = pDebugInfo->IsNull() ? nullptr : pDebugInfo->AllocateOutputData(1, { VK_STRUCTURE_TYPE_DEVICE_FAULT_DEBUG_INFO_KHR, nullptr });
+    InitializeOutputStructPNext(pDebugInfo);
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetDeviceFaultDebugInfoKHR(in_device, out_pDebugInfo);
+    CheckResult("vkGetDeviceFaultDebugInfoKHR", returnValue, replay_result, call_info);
+}
+
 void VulkanReplayConsumer::Process_vkCmdEndRendering2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -6765,6 +7281,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering2KHR(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkRenderingEndInfoKHR* in_pRenderingEndInfo = pRenderingEndInfo->GetPointer();
+    MapStructHandles(pRenderingEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdEndRendering2KHR(in_commandBuffer, in_pRenderingEndInfo);
 
@@ -6796,6 +7313,8 @@ void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pCallback->IsNull()) { pCallback->SetHandleLength(1); }
     VulkanDebugReportCallbackEXTInfo handle_info;
     pCallback->SetConsumerData(0, &handle_info);
@@ -6876,6 +7395,7 @@ void VulkanReplayConsumer::Process_vkCmdDebugMarkerBeginEXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkDebugMarkerMarkerInfoEXT* in_pMarkerInfo = pMarkerInfo->GetPointer();
+    MapStructHandles(pMarkerInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdDebugMarkerBeginEXT(in_commandBuffer, in_pMarkerInfo);
 
@@ -6905,6 +7425,8 @@ void VulkanReplayConsumer::Process_vkCmdDebugMarkerInsertEXT(
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* pMarkerInfo)
 {
     auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
+    MapStructHandles(pMarkerInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     OverrideCmdDebugMarkerInsertEXT(GetDeviceTable(in_commandBuffer->handle)->CmdDebugMarkerInsertEXT, in_commandBuffer, pMarkerInfo);
 
@@ -7163,6 +7685,7 @@ void VulkanReplayConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkStreamDescriptorSurfaceCreateInfoGGP* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
@@ -7222,6 +7745,7 @@ void VulkanReplayConsumer::Process_vkCreateViSurfaceNN(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkViSurfaceCreateInfoNN* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
@@ -7365,6 +7889,7 @@ void VulkanReplayConsumer::Process_vkDisplayPowerControlEXT(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     VkDisplayKHR in_display = MapHandle<VulkanDisplayKHRInfo>(display, &CommonObjectInfoTable::GetVkDisplayKHRInfo);
     const VkDisplayPowerInfoEXT* in_pDisplayPowerInfo = pDisplayPowerInfo->GetPointer();
+    MapStructHandles(pDisplayPowerInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->DisplayPowerControlEXT(in_device, in_display, in_pDisplayPowerInfo);
     CheckResult("vkDisplayPowerControlEXT", returnValue, replay_result, call_info);
@@ -7380,6 +7905,7 @@ void VulkanReplayConsumer::Process_vkRegisterDeviceEventEXT(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkDeviceEventInfoEXT* in_pDeviceEventInfo = pDeviceEventInfo->GetPointer();
+    MapStructHandles(pDeviceEventInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pFence->IsNull()) { pFence->SetHandleLength(1); }
     VkFence* out_pFence = pFence->GetHandlePointer();
@@ -7404,6 +7930,7 @@ void VulkanReplayConsumer::Process_vkRegisterDisplayEventEXT(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     VkDisplayKHR in_display = MapHandle<VulkanDisplayKHRInfo>(display, &CommonObjectInfoTable::GetVkDisplayKHRInfo);
     const VkDisplayEventInfoEXT* in_pDisplayEventInfo = pDisplayEventInfo->GetPointer();
+    MapStructHandles(pDisplayEventInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pFence->IsNull()) { pFence->SetHandleLength(1); }
     VkFence* out_pFence = pFence->GetHandlePointer();
@@ -7545,6 +8072,7 @@ void VulkanReplayConsumer::Process_vkSetHdrMetadataEXT(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkSwapchainKHR* in_pSwapchains = MapHandles<VulkanSwapchainKHRInfo>(pSwapchains, swapchainCount, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
     const VkHdrMetadataEXT* in_pMetadata = pMetadata->GetPointer();
+    MapStructArrayHandles(pMetadata->GetMetaStructPointer(), pMetadata->GetLength(), GetObjectInfoTable());
 
     GetDeviceTable(in_device)->SetHdrMetadataEXT(in_device, swapchainCount, in_pSwapchains, in_pMetadata);
 }
@@ -7559,6 +8087,7 @@ void VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkIOSSurfaceCreateInfoMVK* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
@@ -7581,6 +8110,7 @@ void VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkMacOSSurfaceCreateInfoMVK* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
@@ -7631,6 +8161,7 @@ void VulkanReplayConsumer::Process_vkQueueBeginDebugUtilsLabelEXT(
 {
     VkQueue in_queue = MapHandle<VulkanQueueInfo>(queue, &CommonObjectInfoTable::GetVkQueueInfo);
     const VkDebugUtilsLabelEXT* in_pLabelInfo = pLabelInfo->GetPointer();
+    MapStructHandles(pLabelInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_queue)->QueueBeginDebugUtilsLabelEXT(in_queue, in_pLabelInfo);
 }
@@ -7651,6 +8182,7 @@ void VulkanReplayConsumer::Process_vkQueueInsertDebugUtilsLabelEXT(
 {
     VkQueue in_queue = MapHandle<VulkanQueueInfo>(queue, &CommonObjectInfoTable::GetVkQueueInfo);
     const VkDebugUtilsLabelEXT* in_pLabelInfo = pLabelInfo->GetPointer();
+    MapStructHandles(pLabelInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_queue)->QueueInsertDebugUtilsLabelEXT(in_queue, in_pLabelInfo);
 }
@@ -7662,6 +8194,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginDebugUtilsLabelEXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkDebugUtilsLabelEXT* in_pLabelInfo = pLabelInfo->GetPointer();
+    MapStructHandles(pLabelInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdBeginDebugUtilsLabelEXT(in_commandBuffer, in_pLabelInfo);
 
@@ -7692,6 +8225,8 @@ void VulkanReplayConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
 {
     auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
+    MapStructHandles(pLabelInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
     OverrideCmdInsertDebugUtilsLabelEXT(GetDeviceTable(in_commandBuffer->handle)->CmdInsertDebugUtilsLabelEXT, in_commandBuffer, pLabelInfo);
 
     if (options_.dumping_resources)
@@ -7709,6 +8244,8 @@ void VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pMessenger->IsNull()) { pMessenger->SetHandleLength(1); }
     VulkanDebugUtilsMessengerEXTInfo handle_info;
     pMessenger->SetConsumerData(0, &handle_info);
@@ -7744,6 +8281,7 @@ void VulkanReplayConsumer::Process_vkSubmitDebugUtilsMessageEXT(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkDebugUtilsMessengerCallbackDataEXT* in_pCallbackData = pCallbackData->GetPointer();
+    MapStructHandles(pCallbackData->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetInstanceTable(in_instance)->SubmitDebugUtilsMessageEXT(in_instance, messageSeverity, messageTypes, in_pCallbackData);
 }
@@ -7789,6 +8327,7 @@ void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkSampleLocationsInfoEXT* in_pSampleLocationsInfo = pSampleLocationsInfo->GetPointer();
+    MapStructHandles(pSampleLocationsInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetSampleLocationsEXT(in_commandBuffer, in_pSampleLocationsInfo);
 
@@ -7837,6 +8376,7 @@ void VulkanReplayConsumer::Process_vkCreateValidationCacheEXT(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkValidationCacheCreateInfoEXT* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pValidationCache->IsNull()) { pValidationCache->SetHandleLength(1); }
     VkValidationCacheEXT* out_pValidationCache = pValidationCache->GetHandlePointer();
@@ -7996,7 +8536,8 @@ void VulkanReplayConsumer::Process_vkGetAccelerationStructureMemoryRequirementsN
     auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
 
     MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    pMemoryRequirements->IsNull() ? nullptr : pMemoryRequirements->AllocateOutputData(1);
+    pMemoryRequirements->IsNull() ? nullptr : pMemoryRequirements->AllocateOutputData(1, { VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2, nullptr });
+    InitializeOutputStructPNext(pMemoryRequirements);
 
     OverrideGetAccelerationStructureMemoryRequirementsNV(GetDeviceTable(in_device->handle)->GetAccelerationStructureMemoryRequirementsNV, in_device, pInfo, pMemoryRequirements);
 }
@@ -8537,6 +9078,7 @@ void VulkanReplayConsumer::Process_vkInitializePerformanceApiINTEL(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkInitializePerformanceApiInfoINTEL* in_pInitializeInfo = pInitializeInfo->GetPointer();
+    MapStructHandles(pInitializeInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->InitializePerformanceApiINTEL(in_device, in_pInitializeInfo);
     CheckResult("vkInitializePerformanceApiINTEL", returnValue, replay_result, call_info);
@@ -8559,6 +9101,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkPerformanceMarkerInfoINTEL* in_pMarkerInfo = pMarkerInfo->GetPointer();
+    MapStructHandles(pMarkerInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdSetPerformanceMarkerINTEL(in_commandBuffer, in_pMarkerInfo);
     CheckResult("vkCmdSetPerformanceMarkerINTEL", returnValue, replay_result, call_info);
@@ -8577,6 +9120,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkPerformanceStreamMarkerInfoINTEL* in_pMarkerInfo = pMarkerInfo->GetPointer();
+    MapStructHandles(pMarkerInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdSetPerformanceStreamMarkerINTEL(in_commandBuffer, in_pMarkerInfo);
     CheckResult("vkCmdSetPerformanceStreamMarkerINTEL", returnValue, replay_result, call_info);
@@ -8595,6 +9139,7 @@ void VulkanReplayConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkPerformanceOverrideInfoINTEL* in_pOverrideInfo = pOverrideInfo->GetPointer();
+    MapStructHandles(pOverrideInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdSetPerformanceOverrideINTEL(in_commandBuffer, in_pOverrideInfo);
     CheckResult("vkCmdSetPerformanceOverrideINTEL", returnValue, replay_result, call_info);
@@ -8614,6 +9159,7 @@ void VulkanReplayConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkPerformanceConfigurationAcquireInfoINTEL* in_pAcquireInfo = pAcquireInfo->GetPointer();
+    MapStructHandles(pAcquireInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pConfiguration->IsNull()) { pConfiguration->SetHandleLength(1); }
     VkPerformanceConfigurationINTEL* out_pConfiguration = pConfiguration->GetHandlePointer();
 
@@ -8693,6 +9239,7 @@ void VulkanReplayConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkImagePipeSurfaceCreateInfoFUCHSIA* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
@@ -8714,6 +9261,8 @@ void VulkanReplayConsumer::Process_vkCreateMetalSurfaceEXT(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VulkanSurfaceKHRInfo handle_info;
     pSurface->SetConsumerData(0, &handle_info);
@@ -8889,6 +9438,8 @@ void VulkanReplayConsumer::Process_vkCreateHeadlessSurfaceEXT(
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
     auto in_instance = GetObjectInfoTable().GetVkInstanceInfo(instance);
+
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VulkanSurfaceKHRInfo handle_info;
     pSurface->SetConsumerData(0, &handle_info);
@@ -9194,6 +9745,7 @@ void VulkanReplayConsumer::Process_vkGetImageSubresourceLayout2EXT(
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     VkImage in_image = MapHandle<VulkanImageInfo>(image, &CommonObjectInfoTable::GetVkImageInfo);
     const VkImageSubresource2* in_pSubresource = pSubresource->GetPointer();
+    MapStructHandles(pSubresource->GetMetaStructPointer(), GetObjectInfoTable());
     VkSubresourceLayout2* out_pLayout = pLayout->IsNull() ? nullptr : pLayout->AllocateOutputData(1, { VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2, nullptr });
     InitializeOutputStructPNext(pLayout);
 
@@ -9331,6 +9883,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDepthBias2EXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkDepthBiasInfoEXT* in_pDepthBiasInfo = pDepthBiasInfo->GetPointer();
+    MapStructHandles(pDepthBiasInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetDepthBias2EXT(in_commandBuffer, in_pDepthBiasInfo);
 
@@ -9384,6 +9937,7 @@ void VulkanReplayConsumer::Process_vkCreatePrivateDataSlotEXT(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkPrivateDataSlotCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pPrivateDataSlot->IsNull()) { pPrivateDataSlot->SetHandleLength(1); }
     VkPrivateDataSlot* out_pPrivateDataSlot = pPrivateDataSlot->GetHandlePointer();
@@ -9443,6 +9997,20 @@ void VulkanReplayConsumer::Process_vkGetPrivateDataEXT(
     GetDeviceTable(in_device)->GetPrivateDataEXT(in_device, objectType, in_objectHandle, in_privateDataSlot, out_pData);
 }
 
+void VulkanReplayConsumer::Process_vkQueueSetPerfHintQCOM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            queue,
+    StructPointerDecoder<Decoded_VkPerfHintInfoQCOM>* pPerfHintInfo)
+{
+    VkQueue in_queue = MapHandle<VulkanQueueInfo>(queue, &CommonObjectInfoTable::GetVkQueueInfo);
+    const VkPerfHintInfoQCOM* in_pPerfHintInfo = pPerfHintInfo->GetPointer();
+    MapStructHandles(pPerfHintInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    VkResult replay_result = GetDeviceTable(in_queue)->QueueSetPerfHintQCOM(in_queue, in_pPerfHintInfo);
+    CheckResult("vkQueueSetPerfHintQCOM", returnValue, replay_result, call_info);
+}
+
 void VulkanReplayConsumer::Process_vkCmdDispatchTileQCOM(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -9450,6 +10018,7 @@ void VulkanReplayConsumer::Process_vkCmdDispatchTileQCOM(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkDispatchTileInfoQCOM* in_pDispatchTileInfo = pDispatchTileInfo->GetPointer();
+    MapStructHandles(pDispatchTileInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdDispatchTileQCOM(in_commandBuffer, in_pDispatchTileInfo);
 
@@ -9466,6 +10035,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginPerTileExecutionQCOM(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkPerTileBeginInfoQCOM* in_pPerTileBeginInfo = pPerTileBeginInfo->GetPointer();
+    MapStructHandles(pPerTileBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdBeginPerTileExecutionQCOM(in_commandBuffer, in_pPerTileBeginInfo);
 
@@ -9482,6 +10052,7 @@ void VulkanReplayConsumer::Process_vkCmdEndPerTileExecutionQCOM(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkPerTileEndInfoQCOM* in_pPerTileEndInfo = pPerTileEndInfo->GetPointer();
+    MapStructHandles(pPerTileEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdEndPerTileExecutionQCOM(in_commandBuffer, in_pPerTileEndInfo);
 
@@ -9668,6 +10239,7 @@ void VulkanReplayConsumer::Process_vkCreateDirectFBSurfaceEXT(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkDirectFBSurfaceCreateInfoEXT* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
@@ -9703,7 +10275,9 @@ void VulkanReplayConsumer::Process_vkCmdSetVertexInputEXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkVertexInputBindingDescription2EXT* in_pVertexBindingDescriptions = pVertexBindingDescriptions->GetPointer();
+    MapStructArrayHandles(pVertexBindingDescriptions->GetMetaStructPointer(), pVertexBindingDescriptions->GetLength(), GetObjectInfoTable());
     const VkVertexInputAttributeDescription2EXT* in_pVertexAttributeDescriptions = pVertexAttributeDescriptions->GetPointer();
+    MapStructArrayHandles(pVertexAttributeDescriptions->GetMetaStructPointer(), pVertexAttributeDescriptions->GetLength(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetVertexInputEXT(in_commandBuffer, vertexBindingDescriptionCount, in_pVertexBindingDescriptions, vertexAttributeDescriptionCount, in_pVertexAttributeDescriptions);
 
@@ -9895,6 +10469,7 @@ void VulkanReplayConsumer::Process_vkCreateScreenSurfaceQNX(
 {
     VkInstance in_instance = MapHandle<VulkanInstanceInfo>(instance, &CommonObjectInfoTable::GetVkInstanceInfo);
     const VkScreenSurfaceCreateInfoQNX* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSurface->IsNull()) { pSurface->SetHandleLength(1); }
     VkSurfaceKHR* out_pSurface = pSurface->GetHandlePointer();
@@ -10198,6 +10773,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceMicromapCompatibilityEXT(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkMicromapVersionInfoEXT* in_pVersionInfo = pVersionInfo->GetPointer();
+    MapStructHandles(pVersionInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkAccelerationStructureCompatibilityKHR* out_pCompatibility = pCompatibility->IsNull() ? nullptr : pCompatibility->AllocateOutputData(1, static_cast<VkAccelerationStructureCompatibilityKHR>(0));
 
     GetDeviceTable(in_device)->GetDeviceMicromapCompatibilityEXT(in_device, in_pVersionInfo, out_pCompatibility);
@@ -10263,6 +10839,23 @@ void VulkanReplayConsumer::Process_vkSetDeviceMemoryPriorityEXT(
     auto in_memory = GetObjectInfoTable().GetVkDeviceMemoryInfo(memory);
 
     OverrideSetDeviceMemoryPriorityEXT(GetDeviceTable(in_device->handle)->SetDeviceMemoryPriorityEXT, in_device, in_memory, priority);
+}
+
+void VulkanReplayConsumer::Process_vkCmdSetDispatchParametersARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDispatchParametersARM>* pDispatchParameters)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    const VkDispatchParametersARM* in_pDispatchParameters = pDispatchParameters->GetPointer();
+    MapStructHandles(pDispatchParameters->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdSetDispatchParametersARM(in_commandBuffer, in_pDispatchParameters);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdSetDispatchParametersARM(call_info, GetDeviceTable(in_commandBuffer)->CmdSetDispatchParametersARM, in_commandBuffer, in_pDispatchParameters);
+    }
 }
 
 void VulkanReplayConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
@@ -10863,6 +11456,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkOpticalFlowImageFormatInfoNV* in_pOpticalFlowImageFormatInfo = pOpticalFlowImageFormatInfo->GetPointer();
+    MapStructHandles(pOpticalFlowImageFormatInfo->GetMetaStructPointer(), GetObjectInfoTable());
     uint32_t* out_pFormatCount = pFormatCount->IsNull() ? nullptr : pFormatCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, VulkanPhysicalDeviceInfo>("vkGetPhysicalDeviceOpticalFlowImageFormatsNV", returnValue, physicalDevice, kPhysicalDeviceArrayGetPhysicalDeviceOpticalFlowImageFormatsNV, pFormatCount, pImageFormatProperties, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo));
     VkOpticalFlowImageFormatPropertiesNV* out_pImageFormatProperties = pImageFormatProperties->IsNull() ? nullptr : pImageFormatProperties->AllocateOutputData(*out_pFormatCount, VkOpticalFlowImageFormatPropertiesNV{ VK_STRUCTURE_TYPE_OPTICAL_FLOW_IMAGE_FORMAT_PROPERTIES_NV, nullptr });
 
@@ -10882,6 +11476,7 @@ void VulkanReplayConsumer::Process_vkCreateOpticalFlowSessionNV(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkOpticalFlowSessionCreateInfoNV* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pSession->IsNull()) { pSession->SetHandleLength(1); }
     VkOpticalFlowSessionNV* out_pSession = pSession->GetHandlePointer();
@@ -10934,6 +11529,7 @@ void VulkanReplayConsumer::Process_vkCmdOpticalFlowExecuteNV(
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     VkOpticalFlowSessionNV in_session = MapHandle<VulkanOpticalFlowSessionNVInfo>(session, &CommonObjectInfoTable::GetVkOpticalFlowSessionNVInfo);
     const VkOpticalFlowExecuteInfoNV* in_pExecuteInfo = pExecuteInfo->GetPointer();
+    MapStructHandles(pExecuteInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdOpticalFlowExecuteNV(in_commandBuffer, in_session, in_pExecuteInfo);
 
@@ -10950,6 +11546,7 @@ void VulkanReplayConsumer::Process_vkAntiLagUpdateAMD(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkAntiLagDataAMD* in_pData = pData->GetPointer();
+    MapStructHandles(pData->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_device)->AntiLagUpdateAMD(in_device, in_pData);
 }
@@ -11117,6 +11714,7 @@ void VulkanReplayConsumer::Process_vkConvertCooperativeVectorMatrixNV(
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkConvertCooperativeVectorMatrixInfoNV* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->ConvertCooperativeVectorMatrixNV(in_device, in_pInfo);
     CheckResult("vkConvertCooperativeVectorMatrixNV", returnValue, replay_result, call_info);
@@ -11130,6 +11728,7 @@ void VulkanReplayConsumer::Process_vkCmdConvertCooperativeVectorMatrixNV(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkConvertCooperativeVectorMatrixInfoNV* in_pInfos = pInfos->GetPointer();
+    MapStructArrayHandles(pInfos->GetMetaStructPointer(), pInfos->GetLength(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdConvertCooperativeVectorMatrixNV(in_commandBuffer, infoCount, in_pInfos);
 
@@ -11155,6 +11754,7 @@ void VulkanReplayConsumer::Process_vkSetLatencySleepModeNV(
     VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
     const VkLatencySleepModeInfoNV* in_pSleepModeInfo = pSleepModeInfo->GetPointer();
+    MapStructHandles(pSleepModeInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     VkResult replay_result = GetDeviceTable(in_device)->SetLatencySleepModeNV(in_device, in_swapchain, in_pSleepModeInfo);
     CheckResult("vkSetLatencySleepModeNV", returnValue, replay_result, call_info);
@@ -11197,6 +11797,7 @@ void VulkanReplayConsumer::Process_vkSetLatencyMarkerNV(
     VkSwapchainKHR in_swapchain = MapHandle<VulkanSwapchainKHRInfo>(swapchain, &CommonObjectInfoTable::GetVkSwapchainKHRInfo);
     if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().GetVkSwapchainKHRInfo(swapchain)->surface_id)->surface_creation_skipped) { return; }
     const VkSetLatencyMarkerInfoNV* in_pLatencyMarkerInfo = pLatencyMarkerInfo->GetPointer();
+    MapStructHandles(pLatencyMarkerInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_device)->SetLatencyMarkerNV(in_device, in_swapchain, in_pLatencyMarkerInfo);
 }
@@ -11228,6 +11829,7 @@ void VulkanReplayConsumer::Process_vkQueueNotifyOutOfBandNV(
 {
     VkQueue in_queue = MapHandle<VulkanQueueInfo>(queue, &CommonObjectInfoTable::GetVkQueueInfo);
     const VkOutOfBandQueueTypeInfoNV* in_pQueueTypeInfo = pQueueTypeInfo->GetPointer();
+    MapStructHandles(pQueueTypeInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_queue)->QueueNotifyOutOfBandNV(in_queue, in_pQueueTypeInfo);
 }
@@ -11356,6 +11958,7 @@ void VulkanReplayConsumer::Process_vkCmdDispatchDataGraphARM(
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     VkDataGraphPipelineSessionARM in_session = MapHandle<VulkanDataGraphPipelineSessionARMInfo>(session, &CommonObjectInfoTable::GetVkDataGraphPipelineSessionARMInfo);
     const VkDataGraphPipelineDispatchInfoARM* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdDispatchDataGraphARM(in_commandBuffer, in_session, in_pInfo);
 
@@ -11428,6 +12031,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyDataGraphProces
 {
     VkPhysicalDevice in_physicalDevice = MapHandle<VulkanPhysicalDeviceInfo>(physicalDevice, &CommonObjectInfoTable::GetVkPhysicalDeviceInfo);
     const VkPhysicalDeviceQueueFamilyDataGraphProcessingEngineInfoARM* in_pQueueFamilyDataGraphProcessingEngineInfo = pQueueFamilyDataGraphProcessingEngineInfo->GetPointer();
+    MapStructHandles(pQueueFamilyDataGraphProcessingEngineInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkQueueFamilyDataGraphProcessingEnginePropertiesARM* out_pQueueFamilyDataGraphProcessingEngineProperties = pQueueFamilyDataGraphProcessingEngineProperties->IsNull() ? nullptr : pQueueFamilyDataGraphProcessingEngineProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_QUEUE_FAMILY_DATA_GRAPH_PROCESSING_ENGINE_PROPERTIES_ARM, nullptr });
     InitializeOutputStructPNext(pQueueFamilyDataGraphProcessingEngineProperties);
 
@@ -11473,6 +12077,7 @@ void VulkanReplayConsumer::Process_vkCmdDecompressMemoryEXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkDecompressMemoryInfoEXT* in_pDecompressMemoryInfoEXT = pDecompressMemoryInfoEXT->GetPointer();
+    MapStructHandles(pDecompressMemoryInfoEXT->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdDecompressMemoryEXT(in_commandBuffer, in_pDecompressMemoryInfoEXT);
 
@@ -11509,6 +12114,7 @@ void VulkanReplayConsumer::Process_vkGetPartitionedAccelerationStructuresBuildSi
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkPartitionedAccelerationStructureInstancesInputNV* in_pInfo = pInfo->GetPointer();
+    MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkAccelerationStructureBuildSizesInfoKHR* out_pSizeInfo = pSizeInfo->IsNull() ? nullptr : pSizeInfo->AllocateOutputData(1, { VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR, nullptr });
     InitializeOutputStructPNext(pSizeInfo);
 
@@ -11522,6 +12128,7 @@ void VulkanReplayConsumer::Process_vkCmdBuildPartitionedAccelerationStructuresNV
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkBuildPartitionedAccelerationStructureInfoNV* in_pBuildInfo = pBuildInfo->GetPointer();
+    MapStructHandles(pBuildInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdBuildPartitionedAccelerationStructuresNV(in_commandBuffer, in_pBuildInfo);
 
@@ -11552,16 +12159,16 @@ void VulkanReplayConsumer::Process_vkCmdPreprocessGeneratedCommandsEXT(
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
     format::HandleId                            stateCommandBuffer)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
-    MapStructHandles(pGeneratedCommandsInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    VkCommandBuffer in_stateCommandBuffer = MapHandle<VulkanCommandBufferInfo>(stateCommandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdPreprocessGeneratedCommandsEXT(in_commandBuffer, in_pGeneratedCommandsInfo, in_stateCommandBuffer);
+    MapStructHandles(pGeneratedCommandsInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    auto in_stateCommandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(stateCommandBuffer);
+
+    OverrideCmdPreprocessGeneratedCommandsEXT(GetDeviceTable(in_commandBuffer->handle)->CmdPreprocessGeneratedCommandsEXT, in_commandBuffer, pGeneratedCommandsInfo, in_stateCommandBuffer);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPreprocessGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdPreprocessGeneratedCommandsEXT, in_commandBuffer, in_pGeneratedCommandsInfo, in_stateCommandBuffer);
+        resource_dumper_->Process_vkCmdPreprocessGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdPreprocessGeneratedCommandsEXT, in_commandBuffer->handle, pGeneratedCommandsInfo->GetPointer(), in_stateCommandBuffer->handle);
     }
 }
 
@@ -11571,15 +12178,15 @@ void VulkanReplayConsumer::Process_vkCmdExecuteGeneratedCommandsEXT(
     VkBool32                                    isPreprocessed,
     StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    const VkGeneratedCommandsInfoEXT* in_pGeneratedCommandsInfo = pGeneratedCommandsInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+
     MapStructHandles(pGeneratedCommandsInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdExecuteGeneratedCommandsEXT(in_commandBuffer, isPreprocessed, in_pGeneratedCommandsInfo);
+    OverrideCmdExecuteGeneratedCommandsEXT(GetDeviceTable(in_commandBuffer->handle)->CmdExecuteGeneratedCommandsEXT, in_commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdExecuteGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdExecuteGeneratedCommandsEXT, in_commandBuffer, isPreprocessed, in_pGeneratedCommandsInfo);
+        resource_dumper_->Process_vkCmdExecuteGeneratedCommandsEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdExecuteGeneratedCommandsEXT, in_commandBuffer->handle, isPreprocessed, pGeneratedCommandsInfo->GetPointer());
     }
 }
 
@@ -11628,18 +12235,17 @@ void VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectExecutionSetEXT>* pIndirectExecutionSet)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkIndirectExecutionSetCreateInfoEXT* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
     if (!pIndirectExecutionSet->IsNull()) { pIndirectExecutionSet->SetHandleLength(1); }
-    VkIndirectExecutionSetEXT* out_pIndirectExecutionSet = pIndirectExecutionSet->GetHandlePointer();
+    VulkanIndirectExecutionSetEXTInfo handle_info;
+    pIndirectExecutionSet->SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(pIndirectExecutionSet->GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateIndirectExecutionSetEXT(in_device, in_pCreateInfo, in_pAllocator, out_pIndirectExecutionSet);
+    VkResult replay_result = OverrideCreateIndirectExecutionSetEXT(GetDeviceTable(in_device->handle)->CreateIndirectExecutionSetEXT, returnValue, in_device, pCreateInfo, pAllocator, pIndirectExecutionSet);
     CheckResult("vkCreateIndirectExecutionSetEXT", returnValue, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanIndirectExecutionSetEXTInfo>(device, pIndirectExecutionSet->GetPointer(), out_pIndirectExecutionSet, &CommonObjectInfoTable::AddVkIndirectExecutionSetEXTInfo);
+    AddHandle<VulkanIndirectExecutionSetEXTInfo>(device, pIndirectExecutionSet->GetPointer(), pIndirectExecutionSet->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkIndirectExecutionSetEXTInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(
@@ -11766,6 +12372,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRendering2EXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkRenderingEndInfoKHR* in_pRenderingEndInfo = pRenderingEndInfo->GetPointer();
+    MapStructHandles(pRenderingEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdEndRendering2EXT(in_commandBuffer, in_pRenderingEndInfo);
 
@@ -11782,6 +12389,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginCustomResolveEXT(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkBeginCustomResolveInfoEXT* in_pBeginCustomResolveInfo = pBeginCustomResolveInfo->GetPointer();
+    MapStructHandles(pBeginCustomResolveInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdBeginCustomResolveEXT(in_commandBuffer, in_pBeginCustomResolveInfo);
 
@@ -11798,12 +12406,28 @@ void VulkanReplayConsumer::Process_vkCmdSetComputeOccupancyPriorityNV(
 {
     VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
     const VkComputeOccupancyPriorityParametersNV* in_pParameters = pParameters->GetPointer();
+    MapStructHandles(pParameters->GetMetaStructPointer(), GetObjectInfoTable());
 
     GetDeviceTable(in_commandBuffer)->CmdSetComputeOccupancyPriorityNV(in_commandBuffer, in_pParameters);
 
     if (options_.dumping_resources)
     {
         resource_dumper_->Process_vkCmdSetComputeOccupancyPriorityNV(call_info, GetDeviceTable(in_commandBuffer)->CmdSetComputeOccupancyPriorityNV, in_commandBuffer, in_pParameters);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdSetPrimitiveRestartIndexEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    primitiveRestartIndex)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+
+    GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveRestartIndexEXT(in_commandBuffer, primitiveRestartIndex);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdSetPrimitiveRestartIndexEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdSetPrimitiveRestartIndexEXT, in_commandBuffer, primitiveRestartIndex);
     }
 }
 
@@ -12040,6 +12664,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceAccelerationStructureCompatibility
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkAccelerationStructureVersionInfoKHR* in_pVersionInfo = pVersionInfo->GetPointer();
+    MapStructHandles(pVersionInfo->GetMetaStructPointer(), GetObjectInfoTable());
     VkAccelerationStructureCompatibilityKHR* out_pCompatibility = pCompatibility->IsNull() ? nullptr : pCompatibility->AllocateOutputData(1, static_cast<VkAccelerationStructureCompatibilityKHR>(0));
 
     GetDeviceTable(in_device)->GetDeviceAccelerationStructureCompatibilityKHR(in_device, in_pVersionInfo, out_pCompatibility);
@@ -12214,21 +12839,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
     {
         switch(in_pnext->sType)
         {
-            case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBufferMemoryBarrier>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageMemoryBarrier>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_MEMORY_BARRIER:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkMemoryBarrier>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_APPLICATION_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkApplicationInfo>());
@@ -12319,6 +12929,21 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCommandBufferBeginInfo>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBufferMemoryBarrier>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageMemoryBarrier>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_MEMORY_BARRIER:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkMemoryBarrier>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_EVENT_CREATE_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkEventCreateInfo>());
@@ -12384,34 +13009,9 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkWriteDescriptorSet>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO:
+            case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO:
             {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineVertexInputStateCreateInfo>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineInputAssemblyStateCreateInfo>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineTessellationStateCreateInfo>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineViewportStateCreateInfo>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineRasterizationStateCreateInfo>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineMultisampleStateCreateInfo>());
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineColorBlendStateCreateInfo>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO:
@@ -12419,14 +13019,39 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineDepthStencilStateCreateInfo>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineColorBlendStateCreateInfo>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineDynamicStateCreateInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineInputAssemblyStateCreateInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineMultisampleStateCreateInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineRasterizationStateCreateInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineTessellationStateCreateInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineVertexInputStateCreateInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPipelineViewportStateCreateInfo>());
                 break;
             }
             case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
@@ -12774,6 +13399,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderDrawParametersFeatures>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDriverProperties>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceVulkan11Features>());
@@ -12797,11 +13427,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageFormatListCreateInfo>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDriverProperties>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES:
@@ -12959,11 +13584,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSubpassDependency2>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkRenderPassCreateInfo2>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSubpassBeginInfo>());
@@ -12972,6 +13592,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_SUBPASS_END_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSubpassEndInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkRenderPassCreateInfo2>());
                 break;
             }
             case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE:
@@ -12999,14 +13624,14 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkFramebufferAttachmentImageInfo>());
                 break;
             }
-            case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkFramebufferAttachmentsCreateInfo>());
-                break;
-            }
             case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkRenderPassAttachmentBeginInfo>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkFramebufferAttachmentsCreateInfo>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES:
@@ -13334,6 +13959,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceMaintenance5Properties>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSubresourceLayout2>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkImageSubresource2>());
@@ -13342,11 +13972,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_DEVICE_IMAGE_SUBRESOURCE_INFO:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceImageSubresourceInfo>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkSubresourceLayout2>());
                 break;
             }
             case VK_STRUCTURE_TYPE_BUFFER_USAGE_FLAGS_2_CREATE_INFO:
@@ -14044,6 +14669,26 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkRenderingFragmentShadingRateAttachmentInfoKHR>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CONSTANT_DATA_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderConstantDataFeaturesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ABORT_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderAbortFeaturesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DEVICE_FAULT_SHADER_ABORT_MESSAGE_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceFaultShaderAbortMessageInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ABORT_PROPERTIES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderAbortPropertiesKHR>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_QUAD_CONTROL_FEATURES_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderQuadControlFeaturesKHR>());
@@ -14157,6 +14802,86 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_VIDEO_ENCODE_SESSION_PARAMETERS_FEEDBACK_INFO_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkVideoEncodeSessionParametersFeedbackInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DEVICE_MEMORY_COPY_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceMemoryCopyKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_COPY_DEVICE_MEMORY_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCopyDeviceMemoryInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DEVICE_MEMORY_IMAGE_COPY_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceMemoryImageCopyKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_COPY_DEVICE_MEMORY_IMAGE_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkCopyDeviceMemoryImageInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_MEMORY_RANGE_BARRIER_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkMemoryRangeBarrierKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_MEMORY_RANGE_BARRIERS_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkMemoryRangeBarriersInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_ADDRESS_COMMANDS_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BIND_INDEX_BUFFER_3_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBindIndexBuffer3InfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BIND_VERTEX_BUFFER_3_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBindVertexBuffer3InfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DRAW_INDIRECT_2_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDrawIndirect2InfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DRAW_INDIRECT_COUNT_2_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDrawIndirectCount2InfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DISPATCH_INDIRECT_2_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDispatchIndirect2InfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_2_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkConditionalRenderingBeginInfo2EXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_BIND_TRANSFORM_FEEDBACK_BUFFER_2_INFO_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkBindTransformFeedbackBuffer2InfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_MEMORY_MARKER_INFO_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkMemoryMarkerInfoAMD>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_2_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAccelerationStructureCreateInfo2KHR>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR:
@@ -14614,6 +15339,26 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceFaultFeaturesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_PROPERTIES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceFaultPropertiesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceFaultInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DEVICE_FAULT_DEBUG_INFO_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceFaultDebugInfoKHR>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_MEMORY_BARRIER_ACCESS_FLAGS_3_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkMemoryBarrierAccessFlags3KHR>());
@@ -14687,6 +15432,16 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_RESOLVE_IMAGE_MODE_INFO_KHR:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkResolveImageModeInfoKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_11_FEATURES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceMaintenance11FeaturesKHR>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_QUEUE_FAMILY_OPTIMAL_IMAGE_TRANSFER_GRANULARITY_PROPERTIES_KHR:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkQueueFamilyOptimalImageTransferGranularityPropertiesKHR>());
                 break;
             }
             case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
@@ -15187,6 +15942,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkFilterCubicImageViewImageFormatPropertiesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_CONVERSION_FEATURES_QCOM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceCooperativeMatrixConversionFeaturesQCOM>());
                 break;
             }
             case VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT:
@@ -15699,6 +16459,21 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDeviceDiagnosticsConfigCreateInfoNV>());
                 break;
             }
+            case VK_STRUCTURE_TYPE_PERF_HINT_INFO_QCOM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPerfHintInfoQCOM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_FEATURES_QCOM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceQueuePerfHintFeaturesQCOM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_QUEUE_PERF_HINT_PROPERTIES_QCOM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceQueuePerfHintPropertiesQCOM>());
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_SHADING_FEATURES_QCOM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceTileShadingFeaturesQCOM>());
@@ -15737,11 +16512,6 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_PROPERTIES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferPropertiesEXT>());
-                break;
-            }
-            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
-            {
-                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT:
@@ -15797,6 +16567,11 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CAPTURE_DESCRIPTOR_DATA_INFO_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAccelerationStructureCaptureDescriptorDataInfoEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_DENSITY_MAP_PROPERTIES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
@@ -16237,6 +17012,16 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_PROPERTIES_ARM:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceSchedulingControlsPropertiesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DISPATCH_PARAMETERS_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDispatchParametersARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCHEDULING_CONTROLS_DISPATCH_PARAMETERS_PROPERTIES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceSchedulingControlsDispatchParametersPropertiesARM>());
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT:
@@ -17252,6 +18037,41 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_PARTITIONED_FEATURES_EXT:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderSubgroupPartitionedFeaturesEXT>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_MIXED_FLOAT_DOT_PRODUCT_FEATURES_VALVE:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_THROTTLE_HINT_SUBMIT_INFO_SEC:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkThrottleHintSubmitInfoSEC>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_THROTTLE_HINT_FEATURES_SEC:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceThrottleHintFeaturesSEC>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DATA_GRAPH_NEURAL_ACCELERATOR_STATISTICS_FEATURES_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_NEURAL_STATISTICS_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphPipelineNeuralStatisticsCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_DATA_GRAPH_PIPELINE_SESSION_NEURAL_STATISTICS_CREATE_INFO_ARM:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkDataGraphPipelineSessionNeuralStatisticsCreateInfoARM>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_RESTART_INDEX_FEATURES_EXT:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDevicePrimitiveRestartIndexFeaturesEXT>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR:

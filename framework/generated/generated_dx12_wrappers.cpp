@@ -112,6 +112,8 @@ ID3D12ShaderCacheSession_Wrapper::ObjectMap ID3D12ShaderCacheSession_Wrapper::ob
 std::mutex ID3D12ShaderCacheSession_Wrapper::object_map_lock_;
 ID3D12Device_Wrapper::ObjectMap ID3D12Device_Wrapper::object_map_;
 std::mutex ID3D12Device_Wrapper::object_map_lock_;
+ID3D12StateObjectDatabase_Wrapper::ObjectMap ID3D12StateObjectDatabase_Wrapper::object_map_;
+std::mutex ID3D12StateObjectDatabase_Wrapper::object_map_lock_;
 ID3D12VirtualizationGuestDevice_Wrapper::ObjectMap ID3D12VirtualizationGuestDevice_Wrapper::object_map_;
 std::mutex ID3D12VirtualizationGuestDevice_Wrapper::object_map_lock_;
 ID3D12Tools_Wrapper::ObjectMap ID3D12Tools_Wrapper::object_map_;
@@ -126,6 +128,8 @@ ID3D12DeviceFactory_Wrapper::ObjectMap ID3D12DeviceFactory_Wrapper::object_map_;
 std::mutex ID3D12DeviceFactory_Wrapper::object_map_lock_;
 ID3D12DeviceConfiguration_Wrapper::ObjectMap ID3D12DeviceConfiguration_Wrapper::object_map_;
 std::mutex ID3D12DeviceConfiguration_Wrapper::object_map_lock_;
+ID3D12StateObjectDatabaseFactory_Wrapper::ObjectMap ID3D12StateObjectDatabaseFactory_Wrapper::object_map_;
+std::mutex ID3D12StateObjectDatabaseFactory_Wrapper::object_map_lock_;
 ID3D12CommandList_Wrapper::ObjectMap ID3D12CommandList_Wrapper::object_map_;
 std::mutex ID3D12CommandList_Wrapper::object_map_lock_;
 ID3D12DSRDeviceFactory_Wrapper::ObjectMap ID3D12DSRDeviceFactory_Wrapper::object_map_;
@@ -986,7 +990,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Object_Wrapper::SetPrivateDataInterface(
 
         result = GetWrappedObjectAs<ID3D12Object>()->SetPrivateDataInterface(
             guid,
-            encode::GetWrappedObject<IUnknown>(pData));
+            pData);
 
         Encode_ID3D12Object_SetPrivateDataInterface(
             this,
@@ -2224,6 +2228,73 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineState_Wrapper::GetCachedBlob(
     return result;
 }
 
+ID3D12PipelineState1_Wrapper::ID3D12PipelineState1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12PipelineState_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12PipelineState1_Wrapper::GetRootSignature(
+    REFIID riid,
+    void** ppvRootSignature)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12PipelineState1_GetRootSignature>::Dispatch(
+            manager,
+            this,
+            riid,
+            ppvRootSignature);
+
+        result = GetWrappedObjectAs<ID3D12PipelineState1>()->GetRootSignature(
+            riid,
+            ppvRootSignature);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvRootSignature, nullptr);
+        }
+
+        Encode_ID3D12PipelineState1_GetRootSignature(
+            this,
+            result,
+            riid,
+            ppvRootSignature);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12PipelineState1_GetRootSignature>::Dispatch(
+            manager,
+            this,
+            result,
+            riid,
+            ppvRootSignature);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12PipelineState1>()->GetRootSignature(
+            riid,
+            ppvRootSignature);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12DescriptorHeap_Wrapper::ID3D12DescriptorHeap_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12Pageable_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12DescriptorHeapInfo>();
@@ -2527,6 +2598,7 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_Close);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -2651,6 +2723,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearState);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -2719,6 +2792,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_DrawInstanced);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -2802,6 +2876,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -2883,6 +2958,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_Dispatch);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -2962,6 +3038,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3054,6 +3131,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3136,6 +3214,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyResource);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3214,6 +3293,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyTiles);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3305,6 +3385,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3380,6 +3461,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetPrimitiveTopology
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3442,6 +3524,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetViewports(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_RSSetViewports);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3508,6 +3591,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3571,6 +3655,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3630,6 +3715,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3689,6 +3775,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetPipelineState);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3753,6 +3840,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3868,6 +3956,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3931,6 +4020,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -3990,6 +4080,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignatu
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4054,6 +4145,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4122,6 +4214,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4191,6 +4284,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4264,6 +4358,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4340,6 +4435,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4420,6 +4516,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4496,6 +4593,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4564,6 +4662,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4632,6 +4731,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4700,6 +4800,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4768,6 +4869,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4836,6 +4938,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4906,6 +5009,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -4978,6 +5082,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5058,6 +5163,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SOSetTargets);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5136,6 +5242,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5224,6 +5331,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5314,6 +5422,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5404,6 +5513,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5502,6 +5612,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5584,6 +5695,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_DiscardResource);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5653,6 +5765,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_BeginQuery);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5726,6 +5839,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_EndQuery);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5808,6 +5922,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5893,6 +6008,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetPredication);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -5966,6 +6082,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetMarker);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6039,6 +6156,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_BeginEvent);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6103,6 +6221,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndEvent()
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_EndEvent);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6173,6 +6292,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6276,6 +6396,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6381,6 +6502,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6469,6 +6591,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::OMSetDepthBounds(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6540,6 +6663,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6633,6 +6757,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6726,6 +6851,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetViewInstanceMask(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -6804,6 +6930,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -7518,6 +7645,218 @@ D3D12_COMMAND_QUEUE_DESC STDMETHODCALLTYPE ID3D12CommandQueue_Wrapper::GetDesc()
     else
     {
         result = GetWrappedObjectAs<ID3D12CommandQueue>()->GetDesc();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D12CommandQueue1_Wrapper::ID3D12CommandQueue1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12CommandQueue_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12CommandQueue1_Wrapper::SetProcessPriority(
+    D3D12_COMMAND_QUEUE_PROCESS_PRIORITY Priority)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetProcessPriority>::Dispatch(
+            manager,
+            this,
+            Priority);
+
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->SetProcessPriority(
+            Priority);
+
+        Encode_ID3D12CommandQueue1_SetProcessPriority(
+            this,
+            result,
+            Priority);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetProcessPriority>::Dispatch(
+            manager,
+            this,
+            result,
+            Priority);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->SetProcessPriority(
+            Priority);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12CommandQueue1_Wrapper::GetProcessPriority(
+    D3D12_COMMAND_QUEUE_PROCESS_PRIORITY* pOutValue)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetProcessPriority>::Dispatch(
+            manager,
+            this,
+            pOutValue);
+
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->GetProcessPriority(
+            pOutValue);
+
+        Encode_ID3D12CommandQueue1_GetProcessPriority(
+            this,
+            result,
+            pOutValue);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetProcessPriority>::Dispatch(
+            manager,
+            this,
+            result,
+            pOutValue);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->GetProcessPriority(
+            pOutValue);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12CommandQueue1_Wrapper::SetGlobalPriority(
+    D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY Priority)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetGlobalPriority>::Dispatch(
+            manager,
+            this,
+            Priority);
+
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->SetGlobalPriority(
+            Priority);
+
+        Encode_ID3D12CommandQueue1_SetGlobalPriority(
+            this,
+            result,
+            Priority);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetGlobalPriority>::Dispatch(
+            manager,
+            this,
+            result,
+            Priority);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->SetGlobalPriority(
+            Priority);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12CommandQueue1_Wrapper::GetGlobalPriority(
+    D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY* pOutValue)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetGlobalPriority>::Dispatch(
+            manager,
+            this,
+            pOutValue);
+
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->GetGlobalPriority(
+            pOutValue);
+
+        Encode_ID3D12CommandQueue1_GetGlobalPriority(
+            this,
+            result,
+            pOutValue);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetGlobalPriority>::Dispatch(
+            manager,
+            this,
+            result,
+            pOutValue);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12CommandQueue1>()->GetGlobalPriority(
+            pOutValue);
     }
 
     manager->DecrementCallScope();
@@ -12353,6 +12692,148 @@ D3D12_PROGRAM_IDENTIFIER STDMETHODCALLTYPE ID3D12StateObjectProperties1_Wrapper:
     return result;
 }
 
+ID3D12StateObjectProperties2_Wrapper::ID3D12StateObjectProperties2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12StateObjectProperties1_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectProperties2_Wrapper::GetGlobalRootSignatureForProgram(
+    LPCWSTR pProgramName,
+    REFIID riid,
+    void** ppvRootSignature)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram>::Dispatch(
+            manager,
+            this,
+            pProgramName,
+            riid,
+            ppvRootSignature);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectProperties2>()->GetGlobalRootSignatureForProgram(
+            pProgramName,
+            riid,
+            ppvRootSignature);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvRootSignature, nullptr);
+        }
+
+        Encode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram(
+            this,
+            result,
+            pProgramName,
+            riid,
+            ppvRootSignature);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram>::Dispatch(
+            manager,
+            this,
+            result,
+            pProgramName,
+            riid,
+            ppvRootSignature);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectProperties2>()->GetGlobalRootSignatureForProgram(
+            pProgramName,
+            riid,
+            ppvRootSignature);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectProperties2_Wrapper::GetGlobalRootSignatureForShader(
+    LPCWSTR pExportName,
+    REFIID riid,
+    void** ppvRootSignature)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader>::Dispatch(
+            manager,
+            this,
+            pExportName,
+            riid,
+            ppvRootSignature);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectProperties2>()->GetGlobalRootSignatureForShader(
+            pExportName,
+            riid,
+            ppvRootSignature);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvRootSignature, nullptr);
+        }
+
+        Encode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader(
+            this,
+            result,
+            pExportName,
+            riid,
+            ppvRootSignature);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader>::Dispatch(
+            manager,
+            this,
+            result,
+            pExportName,
+            riid,
+            ppvRootSignature);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectProperties2>()->GetGlobalRootSignatureForShader(
+            pExportName,
+            riid,
+            ppvRootSignature);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12WorkGraphProperties_Wrapper::ID3D12WorkGraphProperties_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
 {
     info_ = std::make_shared<ID3D12WorkGraphPropertiesInfo>();
@@ -15128,6 +15609,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15335,6 +15817,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EndRenderPass()
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15398,6 +15881,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15473,6 +15957,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15563,6 +16048,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15652,6 +16138,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15731,6 +16218,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15800,6 +16288,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -15868,6 +16357,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_DispatchRays);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -16978,6 +17468,496 @@ HRESULT STDMETHODCALLTYPE ID3D12Device14_Wrapper::CreateRootSignatureFromSubobje
             subobjectName,
             riid,
             ppvRootSignature);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D12StateObjectDatabase_Wrapper::ID3D12StateObjectDatabase_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12StateObjectDatabaseInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12StateObjectDatabase_Wrapper::~ID3D12StateObjectDatabase_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12StateObjectDatabase>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12StateObjectDatabase_Wrapper* ID3D12StateObjectDatabase_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12StateObjectDatabase_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabase_Wrapper::SetApplicationDesc(
+    const D3D12_APPLICATION_DESC* pApplicationDesc)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc>::Dispatch(
+            manager,
+            this,
+            pApplicationDesc);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->SetApplicationDesc(
+            pApplicationDesc);
+
+        Encode_ID3D12StateObjectDatabase_SetApplicationDesc(
+            this,
+            result,
+            pApplicationDesc);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc>::Dispatch(
+            manager,
+            this,
+            result,
+            pApplicationDesc);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->SetApplicationDesc(
+            pApplicationDesc);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabase_Wrapper::GetApplicationDesc(
+    D3D12ApplicationDescFunc CallbackFunc,
+    void* pContext)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc>::Dispatch(
+            manager,
+            this,
+            CallbackFunc,
+            pContext);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->GetApplicationDesc(
+            CallbackFunc,
+            pContext);
+
+        Encode_ID3D12StateObjectDatabase_GetApplicationDesc(
+            this,
+            result,
+            CallbackFunc,
+            pContext);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc>::Dispatch(
+            manager,
+            this,
+            result,
+            CallbackFunc,
+            pContext);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->GetApplicationDesc(
+            CallbackFunc,
+            pContext);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabase_Wrapper::StorePipelineStateDesc(
+    const void* pKey,
+    UINT KeySize,
+    UINT Version,
+    const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StorePipelineStateDesc>::Dispatch(
+            manager,
+            this,
+            pKey,
+            KeySize,
+            Version,
+            pDesc);
+
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->StorePipelineStateDesc(
+            pKey,
+            KeySize,
+            Version,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory));
+
+        Encode_ID3D12StateObjectDatabase_StorePipelineStateDesc(
+            this,
+            result,
+            pKey,
+            KeySize,
+            Version,
+            pDesc);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StorePipelineStateDesc>::Dispatch(
+            manager,
+            this,
+            result,
+            pKey,
+            KeySize,
+            Version,
+            pDesc);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->StorePipelineStateDesc(
+            pKey,
+            KeySize,
+            Version,
+            pDesc);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabase_Wrapper::FindPipelineStateDesc(
+    const void* pKey,
+    UINT KeySize,
+    D3D12PipelineStateFunc CallbackFunc,
+    void* pContext)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc>::Dispatch(
+            manager,
+            this,
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->FindPipelineStateDesc(
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+
+        Encode_ID3D12StateObjectDatabase_FindPipelineStateDesc(
+            this,
+            result,
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc>::Dispatch(
+            manager,
+            this,
+            result,
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->FindPipelineStateDesc(
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabase_Wrapper::StoreStateObjectDesc(
+    const void* pKey,
+    UINT KeySize,
+    UINT Version,
+    const D3D12_STATE_OBJECT_DESC* pDesc,
+    const void* pStateObjectToGrowFromKey,
+    UINT StateObjectToGrowFromKeySize)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StoreStateObjectDesc>::Dispatch(
+            manager,
+            this,
+            pKey,
+            KeySize,
+            Version,
+            pDesc,
+            pStateObjectToGrowFromKey,
+            StateObjectToGrowFromKeySize);
+
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->StoreStateObjectDesc(
+            pKey,
+            KeySize,
+            Version,
+            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pStateObjectToGrowFromKey,
+            StateObjectToGrowFromKeySize);
+
+        Encode_ID3D12StateObjectDatabase_StoreStateObjectDesc(
+            this,
+            result,
+            pKey,
+            KeySize,
+            Version,
+            pDesc,
+            pStateObjectToGrowFromKey,
+            StateObjectToGrowFromKeySize);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StoreStateObjectDesc>::Dispatch(
+            manager,
+            this,
+            result,
+            pKey,
+            KeySize,
+            Version,
+            pDesc,
+            pStateObjectToGrowFromKey,
+            StateObjectToGrowFromKeySize);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->StoreStateObjectDesc(
+            pKey,
+            KeySize,
+            Version,
+            pDesc,
+            pStateObjectToGrowFromKey,
+            StateObjectToGrowFromKeySize);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabase_Wrapper::FindStateObjectDesc(
+    const void* pKey,
+    UINT KeySize,
+    D3D12StateObjectFunc CallbackFunc,
+    void* pContext)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc>::Dispatch(
+            manager,
+            this,
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->FindStateObjectDesc(
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+
+        Encode_ID3D12StateObjectDatabase_FindStateObjectDesc(
+            this,
+            result,
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc>::Dispatch(
+            manager,
+            this,
+            result,
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->FindStateObjectDesc(
+            pKey,
+            KeySize,
+            CallbackFunc,
+            pContext);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabase_Wrapper::FindObjectVersion(
+    const void* pKey,
+    UINT KeySize,
+    UINT* pVersion)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindObjectVersion>::Dispatch(
+            manager,
+            this,
+            pKey,
+            KeySize,
+            pVersion);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->FindObjectVersion(
+            pKey,
+            KeySize,
+            pVersion);
+
+        Encode_ID3D12StateObjectDatabase_FindObjectVersion(
+            this,
+            result,
+            pKey,
+            KeySize,
+            pVersion);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindObjectVersion>::Dispatch(
+            manager,
+            this,
+            result,
+            pKey,
+            KeySize,
+            pVersion);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabase>()->FindObjectVersion(
+            pKey,
+            KeySize,
+            pVersion);
     }
 
     manager->DecrementCallScope();
@@ -18625,6 +19605,101 @@ HRESULT STDMETHODCALLTYPE ID3D12DeviceConfiguration1_Wrapper::CreateVersionedRoo
     return result;
 }
 
+ID3D12StateObjectDatabaseFactory_Wrapper::ID3D12StateObjectDatabaseFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D12StateObjectDatabaseFactoryInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D12StateObjectDatabaseFactory_Wrapper::~ID3D12StateObjectDatabaseFactory_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D12StateObjectDatabaseFactory>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D12StateObjectDatabaseFactory_Wrapper* ID3D12StateObjectDatabaseFactory_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D12StateObjectDatabaseFactory_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+HRESULT STDMETHODCALLTYPE ID3D12StateObjectDatabaseFactory_Wrapper::CreateStateObjectDatabaseFromFile(
+    LPCWSTR pDatabaseFile,
+    D3D12_STATE_OBJECT_DATABASE_FLAGS flags,
+    REFIID riid,
+    void** ppvStateObjectDatabase)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile>::Dispatch(
+            manager,
+            this,
+            pDatabaseFile,
+            flags,
+            riid,
+            ppvStateObjectDatabase);
+
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabaseFactory>()->CreateStateObjectDatabaseFromFile(
+            pDatabaseFile,
+            flags,
+            riid,
+            ppvStateObjectDatabase);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(riid, ppvStateObjectDatabase, nullptr);
+        }
+
+        Encode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(
+            this,
+            result,
+            pDatabaseFile,
+            flags,
+            riid,
+            ppvStateObjectDatabase);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile>::Dispatch(
+            manager,
+            this,
+            result,
+            pDatabaseFile,
+            flags,
+            riid,
+            ppvStateObjectDatabase);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D12StateObjectDatabaseFactory>()->CreateStateObjectDatabaseFromFile(
+            pDatabaseFile,
+            flags,
+            riid,
+            ppvStateObjectDatabase);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
 ID3D12GraphicsCommandList5_Wrapper::ID3D12GraphicsCommandList5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D12GraphicsCommandList4_Wrapper(riid, object, resources, destructor)
 {
 }
@@ -18662,6 +19737,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -18727,6 +19803,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -18798,6 +19875,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -18876,6 +19954,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList7_Wrapper::Barrier(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList7_Barrier);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -18948,6 +20027,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList8_Wrapper::OMSetFrontAndBackSten
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -19023,6 +20103,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::RSSetDepthBias(
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -19092,6 +20173,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::IASetIndexBufferStrip
 
         if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
         {
+            ScopedCounter scoped(manager->AvoidApiCallLock());
             manager->DecrementCallScope();
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue);
             for(auto& command_set : trim_draw_calls_command_sets)
@@ -24255,7 +25337,7 @@ HRESULT STDMETHODCALLTYPE IDXGIObject_Wrapper::SetPrivateDataInterface(
 
         result = GetWrappedObjectAs<IDXGIObject>()->SetPrivateDataInterface(
             Name,
-            encode::GetWrappedObject<IUnknown>(pUnknown));
+            pUnknown);
 
         Encode_IDXGIObject_SetPrivateDataInterface(
             this,

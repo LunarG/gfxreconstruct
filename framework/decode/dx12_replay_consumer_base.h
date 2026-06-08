@@ -73,9 +73,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void SetAgsMarkerInjector(AGSContext* ags_context = nullptr);
 #endif
 
-    void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
+    void SetFatalErrorHandler(std::function<void(const char*)> handler)
+    {
+        fatal_error_handler_ = handler;
+    }
 
-    void SetFpsInfo(graphics::FpsInfo* fps_info) { fps_info_ = fps_info; }
+    void SetFpsInfo(graphics::FpsInfo* fps_info)
+    {
+        fps_info_ = fps_info;
+    }
 
     void PostReplay();
 
@@ -110,9 +116,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                const uint8_t*                              data) override;
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
-        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                        build_inputs_data) override;
+        const format::InitDx12AccelerationStructureCommandHeader&                           command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>&               geometry_descs,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* build_inputs,
+        const uint8_t*                                                                      build_inputs_data) override;
 
     virtual void ProcessInitializeMetaCommand(const format::InitializeMetaCommand& command_header,
                                               const uint8_t*                       parameters_data) override;
@@ -253,6 +260,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                          UINT                                      NumCommandLists,
                                                          HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists);
 
+    void PostCall_ID3D12CommandQueue_UpdateTileMappings(
+        const ApiCallInfo&                                             call_info,
+        DxObjectInfo*                                                  object_info,
+        format::HandleId                                               pResource,
+        UINT                                                           NumResourceRegions,
+        StructPointerDecoder<Decoded_D3D12_TILED_RESOURCE_COORDINATE>* pResourceRegionStartCoordinates,
+        StructPointerDecoder<Decoded_D3D12_TILE_REGION_SIZE>*          pResourceRegionSizes,
+        format::HandleId                                               pHeap,
+        UINT                                                           NumRanges,
+        PointerDecoder<D3D12_TILE_RANGE_FLAGS>*                        pRangeFlags,
+        PointerDecoder<UINT>*                                          pHeapRangeStartOffsets,
+        PointerDecoder<UINT>*                                          pRangeTileCounts,
+        D3D12_TILE_MAPPING_FLAGS                                       Flags);
+
     void PostCall_ID3D12Device_CopyDescriptors(
         const ApiCallInfo&                                         call_info,
         DxObjectInfo*                                              device_object_info,
@@ -270,6 +291,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                      Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
                                                      Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
                                                      D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType);
+
+    void PostCall_ID3D12Object_SetPrivateDataInterface(const ApiCallInfo& call_info,
+                                                       DxObjectInfo*      object_info,
+                                                       HRESULT            original_result,
+                                                       HRESULT            replay_result,
+                                                       Decoded_GUID       guid,
+                                                       format::HandleId   data_object_id);
+
+    void PostCall_IDXGIObject_SetPrivateDataInterface(const ApiCallInfo& call_info,
+                                                      DxObjectInfo*      object_info,
+                                                      HRESULT            original_result,
+                                                      HRESULT            replay_result,
+                                                      Decoded_GUID       guid,
+                                                      format::HandleId   unknown_object_id);
 
     template <typename T>
     T* MapObject(const format::HandleId id)
@@ -294,7 +329,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     IDXGIAdapter* GetAdapter();
 
-    graphics::dx12::ActiveAdapterMap& GetAdaptersMap() { return adapters_; }
+    graphics::dx12::ActiveAdapterMap& GetAdaptersMap()
+    {
+        return adapters_;
+    }
 
   protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
@@ -544,7 +582,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                  D3D12_RENDER_PASS_FLAGS                                             Flags);
 
     template <typename T>
-    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, T* desc_src) {};
+    void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, T* desc_src){};
 
     template <>
     void SetResourceSamplerFeedbackMipRegion(D3D12_RESOURCE_DESC1& desc_dest, D3D12_RESOURCE_DESC1* desc_src)
@@ -723,6 +761,21 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                         Decoded_GUID                 riid,
                                         HandlePointerDecoder<void*>* heap);
 
+    HRESULT
+    OverrideOpenExistingHeapFromFileMapping(DxObjectInfo*                replay_object_info,
+                                            HRESULT                      original_result,
+                                            uint64_t                     allocation_id,
+                                            Decoded_GUID                 riid,
+                                            HandlePointerDecoder<void*>* heap);
+
+    HRESULT
+    OverrideOpenExistingHeapFromAddress1(DxObjectInfo*                replay_object_info,
+                                         HRESULT                      original_result,
+                                         uint64_t                     allocation_id,
+                                         SIZE_T                       size,
+                                         Decoded_GUID                 riid,
+                                         HandlePointerDecoder<void*>* heap);
+
     HRESULT OverrideResourceMap(DxObjectInfo*                              replay_object_info,
                                 HRESULT                                    original_result,
                                 UINT                                       subresource,
@@ -750,6 +803,25 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                 UINT                                     dst_depth_pitch,
                                 UINT                                     src_subresource,
                                 StructPointerDecoder<Decoded_D3D12_BOX>* src_box);
+
+    HRESULT OverrideGetApplicationDesc(DxObjectInfo* state_object_database_object_info,
+                                       HRESULT       original_result,
+                                       uint64_t      callback_func,
+                                       uint64_t      context);
+
+    HRESULT OverrideFindPipelineStateDesc(DxObjectInfo*            state_object_database_object_info,
+                                          HRESULT                  original_result,
+                                          PointerDecoder<uint8_t>* key,
+                                          UINT                     key_size,
+                                          uint64_t                 callback_func,
+                                          uint64_t                 context);
+
+    HRESULT OverrideFindStateObjectDesc(DxObjectInfo*            state_object_database_object_info,
+                                        HRESULT                  original_result,
+                                        PointerDecoder<uint8_t>* key,
+                                        UINT                     key_size,
+                                        uint64_t                 callback_func,
+                                        uint64_t                 context);
 
     void OverrideExecuteCommandLists(DxObjectInfo*                             replay_object_info,
                                      UINT                                      num_command_lists,
@@ -1042,9 +1114,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                     PointerDecoder<uint8_t>* parameters_data,
                                     SIZE_T                   parameters_data_sizeinbytes);
 
-    const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
+    const Dx12ObjectInfoTable& GetObjectInfoTable() const
+    {
+        return object_info_table_;
+    }
 
-    Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
+    Dx12ObjectInfoTable& GetObjectInfoTable()
+    {
+        return object_info_table_;
+    }
 
     DxObjectInfo* GetObjectInfo(format::HandleId id)
     {
@@ -1057,13 +1135,25 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         return nullptr;
     }
 
-    const Dx12DescriptorMap& GetDescriptorMap() const { return descriptor_map_; }
+    const Dx12DescriptorMap& GetDescriptorMap() const
+    {
+        return descriptor_map_;
+    }
 
-    Dx12DescriptorMap& GetDescriptorMap() { return descriptor_map_; }
+    Dx12DescriptorMap& GetDescriptorMap()
+    {
+        return descriptor_map_;
+    }
 
-    const graphics::Dx12GpuVaMap& GetGpuVaTable() const { return gpu_va_map_; }
+    const graphics::Dx12GpuVaMap& GetGpuVaTable() const
+    {
+        return gpu_va_map_;
+    }
 
-    graphics::Dx12GpuVaMap& GetGpuVaTable() { return gpu_va_map_; }
+    graphics::Dx12GpuVaMap& GetGpuVaTable()
+    {
+        return gpu_va_map_;
+    }
 
     void ReplaceWindowedResolution(uint32_t& width, uint32_t& height)
     {
@@ -1083,7 +1173,10 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
-    Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
+    Dx12ResourceValueMapper* GetResourceValueMapper()
+    {
+        return resource_value_mapper_.get();
+    }
 
     template <typename CountT>
     void SetOutputArrayCount(format::HandleId object_id, VariableLengthArrayIndices index, CountT count)
@@ -1316,6 +1409,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
     std::unordered_map<ID3D12MetaCommand*, GUID>          meta_command_guids_;
+    std::unordered_set<ID3D12CommandQueue*>               trim_state_tile_update_queues_;
 
 #ifdef GFXRECON_AGS_SUPPORT
     graphics::Dx12AgsMarkerInjector* ags_marker_injector_{ nullptr };

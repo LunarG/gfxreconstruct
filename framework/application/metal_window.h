@@ -25,8 +25,11 @@
 #define GFXRECON_APPLICATION_METAL_WINDOW_H
 
 #include "decode/window.h"
+#include "util/compiler_diagnostics.h"
 
+GFXRECON_BEGIN_SUPPRESS_APPLE_SDK_WARNINGS
 #include <AppKit/AppKit.h>
+GFXRECON_END_SUPPRESS_APPLE_SDK_WARNINGS
 
 @class GFXReconWindowDelegate;
 

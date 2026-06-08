@@ -117,11 +117,6 @@ struct VulkanDelegateDumpedCopyBufferRegions
     DumpedCopyBufferRegionsHostData regions_data;
 };
 
-struct VulkanDelegateDumpedCopyImageRegions
-{
-    DumpedCopyImageRegionsHostData regions_data;
-};
-
 struct VulkanDelegateDumpedBuildAccelerationStructures
 {
     std::vector<AccelerationStructureDumpedHostData> data;
@@ -138,7 +133,6 @@ struct VulkanDelegateTransferCommandDumpedData
                  VulkanDelegateBufferDumpedData,
                  VulkanDelegateImageDumpedData,
                  VulkanDelegateDumpedCopyBufferRegions,
-                 VulkanDelegateDumpedCopyImageRegions,
                  VulkanDelegateDumpedBuildAccelerationStructures,
                  VulkanDelegateDumpedCopyAccelerationStructure>
         dumped_data;
@@ -182,7 +176,7 @@ struct VulkanDelegateDumpResourceContext
 class VulkanDumpResourcesDelegate
 {
   public:
-    VulkanDumpResourcesDelegate(const VulkanReplayOptions& options, const std::string capture_filename) {}
+    VulkanDumpResourcesDelegate(const VulkanReplayOptions& options) {}
     virtual ~VulkanDumpResourcesDelegate() {}
 
     virtual bool Open()                                                                    = 0;
@@ -205,14 +199,12 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
         VkImageAspectFlagBits     aspect,
         uint32_t                  mip_level,
         uint32_t                  layer,
+        uint32_t                  depth,
         bool                      before_command) const;
 
-    DefaultVulkanDumpResourcesDelegate(const VulkanReplayOptions& options,
-                                       CommonObjectInfoTable&     object_info_table,
-                                       const std::string          capture_filename) :
-        VulkanDumpResourcesDelegate(options, capture_filename),
-        dump_json_(options), options_(options), object_info_table_(object_info_table),
-        capture_filename_(capture_filename)
+    DefaultVulkanDumpResourcesDelegate(const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table) :
+        VulkanDumpResourcesDelegate(options), dump_json_(options), options_(options),
+        object_info_table_(object_info_table)
     {}
     virtual ~DefaultVulkanDumpResourcesDelegate() {}
 
@@ -248,6 +240,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                   VkImageAspectFlagBits     aspect,
                                                   uint32_t                  mip_level,
                                                   uint32_t                  layer,
+                                                  uint32_t                  depth,
                                                   bool                      before_command) const;
 
     std::string GenerateGraphicsImageDescriptorFilename(const DumpedResourceBase& dumped_resource,
@@ -255,6 +248,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                         VkImageAspectFlagBits     aspect,
                                                         uint32_t                  mip_level,
                                                         uint32_t                  layer,
+                                                        uint32_t                  depth,
                                                         bool                      before_command) const;
 
     std::string GenerateDispatchTraceRaysImageFilename(const DumpedResourceBase& dumped_resource,
@@ -262,6 +256,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                        VkImageAspectFlagBits     aspect,
                                                        uint32_t                  mip_level,
                                                        uint32_t                  layer,
+                                                       uint32_t                  depth,
                                                        bool                      before_command) const;
 
     std::string GenerateDispatchTraceRaysImageDescriptorFilename(const DumpedResourceBase& dumped_resource,
@@ -269,6 +264,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                                  VkImageAspectFlagBits     aspect,
                                                                  uint32_t                  mip_level,
                                                                  uint32_t                  layer,
+                                                                 uint32_t                  depth,
                                                                  bool                      before_command) const;
 
     // Buffers
@@ -331,6 +327,9 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     // Transfer
     bool DumpTransferCommandToFile(const VulkanDelegateDumpResourceContext& delegate_context);
 
+    void GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
+                                         const TransferedImageInfo& transf_img_info);
+
     static constexpr uint32_t NO_INDEX = std::numeric_limits<uint32_t>::max();
     std::string               GenerateTransferToBufferRegionFilename(const DumpedResourceBase& dumped_resource,
                                                                      bool                      before_command,
@@ -341,6 +340,7 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
                                                       VkImageAspectFlagBits     aspect,
                                                       uint32_t                  mip_level,
                                                       uint32_t                  layer,
+                                                      uint32_t                  depth,
                                                       bool                      before_command) const;
 
     // Json generators
@@ -386,7 +386,6 @@ class DefaultVulkanDumpResourcesDelegate : public VulkanDumpResourcesDelegate
     VulkanReplayDumpResourcesJson dump_json_;
     const VulkanReplayOptions&    options_;
     CommonObjectInfoTable&        object_info_table_;
-    const std::string             capture_filename_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

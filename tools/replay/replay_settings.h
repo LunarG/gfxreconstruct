@@ -34,7 +34,8 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--render-pass-barrier";
+    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--async-processing,--"
+    "idle-before-submit,--serialize-render-passes,--serialize-queue-submissions";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -42,8 +43,9 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit,--wait-before-first-frame-ms,--sleep-around-gpu-frame-ms,--frame-warm-up-"
-    "gpu-load,--frame-repeats";
+    "present-mode,--wait-before-first-submit,--present-override,--frame-"
+    "warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,--loop-count,--"
+    "replay-event-plugin-path,--replay-event-plugin-params";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -82,7 +84,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--wait-before-first-submit <milliseconds>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--frame-warm-up-spirv <spirv-file>] [--frame-warm-up-load <load>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--idle-before-submit] [--pbi-all] [--pbis <index1,index2>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--serialize-render-passes] [--wait-before-frame <milliseconds>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--serialize-queue-submissions]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]");
 #if !defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <filename>.json]");
 #endif
@@ -122,6 +129,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
+    GFXRECON_WRITE_CONSOLE("  --loop-frame <N>\tEnable frame repeat (experimental).");
+    GFXRECON_WRITE_CONSOLE("          \t\tN specifies the frame number to repeat; default is 0.");
+    GFXRECON_WRITE_CONSOLE("  --loop-count <N>\tSpecify the number of times to repeat the frame when");
+    GFXRECON_WRITE_CONSOLE("          \t\tloop frame is enabled. Default is 0: replay forever.");
     GFXRECON_WRITE_CONSOLE("  --screenshot-all");
     GFXRECON_WRITE_CONSOLE("          \t\tGenerate screenshots for all frames.  When this");
     GFXRECON_WRITE_CONSOLE("          \t\toption is specified, --screenshots is ignored.");
@@ -155,10 +166,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tPrefix to apply to the screenshot file name.  Default is ");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot\", producing file names similar to");
     GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot_frame_8049.bmp\".");
-    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>");
-    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a decimal factor which will determine screenshot sizes.");
-    GFXRECON_WRITE_CONSOLE("          \t\tThe factor will be multiplied with the swapchain images");
-    GFXRECON_WRITE_CONSOLE("          \t\tdimension to determine the screenshot dimensions. Default is 1.0.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-scale <factor>[,<factor_y>]");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify one or two float scale factors to resize screenshot output.");
+    GFXRECON_WRITE_CONSOLE("          \t\tUse --screenshot-scale <factor_x>,<factor_y> for non-uniform scaling.");
+    GFXRECON_WRITE_CONSOLE("          \t\tA negative scale factor flips the output on that axis.");
+    GFXRECON_WRITE_CONSOLE("          \t\te.g. --screenshot-scale 0.5, --screenshot-scale 1.0,-1.0 (flip Y).");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault: 1.0 (original size).");
     GFXRECON_WRITE_CONSOLE("  --screenshot-size <width>x<height>");
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
     GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
@@ -218,8 +231,13 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache and skip calls to");
     GFXRECON_WRITE_CONSOLE("        \t\tvkGetPipelineCacheData (same as");
     GFXRECON_WRITE_CONSOLE("        \t\t--omit-pipeline-cache-data).");
-    GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform.");
+    GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform. If no surface");
+    GFXRECON_WRITE_CONSOLE("                  \twas available at capture time the option is ignored and no");
+    GFXRECON_WRITE_CONSOLE("                  \tsurface is chosen.");
     GFXRECON_WRITE_CONSOLE("                  \tAvailable platforms are: %s", GetWsiArgString().c_str());
+    GFXRECON_WRITE_CONSOLE("                  \tauto (default): Picks the same surface as at capture time if");
+    GFXRECON_WRITE_CONSOLE("                  \t                possible, otherwise picks a surface available");
+    GFXRECON_WRITE_CONSOLE("                  \t                on the replay device");
     GFXRECON_WRITE_CONSOLE("  --surface-index <N>\tRestrict rendering to the Nth surface object created.");
     GFXRECON_WRITE_CONSOLE("                  \tUsed with captures that include multiple surfaces.  Default");
     GFXRECON_WRITE_CONSOLE("                  \tis -1 (render to all surfaces).");
@@ -262,6 +280,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_MAILBOX_KHR", kPresentModeMailbox);
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_KHR", kPresentModeFifo);
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_RELAXED_KHR", kPresentModeFifoRelaxed);
+    GFXRECON_WRITE_CONSOLE("  --present-override <debug-name>");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tPresent an image identified by its debug-utils name.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tUseful for capturing specific render targets.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tThe specified image will be presented and used for screenshot operations");
     GFXRECON_WRITE_CONSOLE("  --vssb");
     GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
@@ -352,6 +374,35 @@ static void PrintUsage(const char* exe_name)
                            "RenderDoc and DXVK case.");
     GFXRECON_WRITE_CONSOLE("  --wait-before-first-submit <milliseconds>");
     GFXRECON_WRITE_CONSOLE("          \t\tWait specified milliseconds before submitting the first command buffer.");
+    GFXRECON_WRITE_CONSOLE("  --idle-before-submit");
+    GFXRECON_WRITE_CONSOLE("          \t\tWait for the GPU to become idle before each submit.");
+    GFXRECON_WRITE_CONSOLE("  --serialize-render-passes");
+    GFXRECON_WRITE_CONSOLE("          \t\tSerialize render passes by injecting execution barriers before render pass");
+    GFXRECON_WRITE_CONSOLE("          \t\tbegin during replay.");
+    GFXRECON_WRITE_CONSOLE("  --frame-warm-up-spirv <spirv-file>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify a user-provided SPIR-V compute shader for the warm-up pass.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe shader must use entry point `main` and set 0, binding 0 as a");
+    GFXRECON_WRITE_CONSOLE("          \t\tstorage buffer. Warm-up runs before the first submit of each replayed");
+    GFXRECON_WRITE_CONSOLE("          \t\tframe only when this option and a non-zero `--frame-warm-up-load`");
+    GFXRECON_WRITE_CONSOLE("          \t\tare both provided.");
+    GFXRECON_WRITE_CONSOLE("  --frame-warm-up-load <load>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify workload scale factor for a compute dispatch warm-up pass");
+    GFXRECON_WRITE_CONSOLE("          \t\trun before each frame replay. Default is 0 (disabled).");
+    GFXRECON_WRITE_CONSOLE("  --wait-before-frame <milliseconds>");
+    GFXRECON_WRITE_CONSOLE("          \t\tWait for the specified amount of milliseconds before starting to replay");
+    GFXRECON_WRITE_CONSOLE("          \t\teach frame. Default is 0 (no wait).");
+    GFXRECON_WRITE_CONSOLE("  --serialize-queue-submissions");
+    GFXRECON_WRITE_CONSOLE("          \t\tSerialize submit entries within one vkQueueSubmit/vkQueueSubmit2");
+    GFXRECON_WRITE_CONSOLE("          \t\tcall by adding semaphores between consecutive submits.");
+    GFXRECON_WRITE_CONSOLE("  --replay-event-plugin-path <path>");
+    GFXRECON_WRITE_CONSOLE("          \t\tPath to a replay event plugin library. If specified, the");
+    GFXRECON_WRITE_CONSOLE("          \t\tplugin will be loaded and used to process replay events.");
+    GFXRECON_WRITE_CONSOLE("          \t\t(forwarded to replay tool)");
+    GFXRECON_WRITE_CONSOLE("  --replay-event-plugin-params <params>");
+    GFXRECON_WRITE_CONSOLE("          \t\tParameters to forward to the replay event plugin. The format");
+    GFXRECON_WRITE_CONSOLE("          \t\tof the parameters is determined by the plugin and is not");
+    GFXRECON_WRITE_CONSOLE("          \t\tinterpreted by the replay tool. (forwarded to replay tool)");
+
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")
@@ -386,55 +437,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are: bmp, png");
 
 #endif
-}
-
-static uint32_t GetRepeatFrameNTimes(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    uint32_t    repeat_frame_n_times = 0;
-    const auto& value                = arg_parser.GetArgumentValue(kRepeatFrameNTimesArgument);
-    if (!value.empty())
-    {
-        repeat_frame_n_times = static_cast<uint32_t>(std::stoi(value));
-    }
-    return repeat_frame_n_times;
-}
-
-static uint32_t GetWaitBeforeFirstFrameMs(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    uint32_t    wait_before_first_frame_ms = 0;
-    const auto& value                      = arg_parser.GetArgumentValue(kWaitBeforeFirstFrameMsArgument);
-    if (!value.empty())
-    {
-        wait_before_first_frame_ms = static_cast<uint32_t>(std::stoi(value));
-    }
-    return wait_before_first_frame_ms;
-}
-
-static double GetSleepAroundGpuFrameMs(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    double      sleep_around_gpu_frame_ms = 0.0;
-    const auto& value                     = arg_parser.GetArgumentValue(kSleepAroundGpuFrameMsArgument);
-    if (!value.empty())
-    {
-        sleep_around_gpu_frame_ms = std::stod(value);
-    }
-    return sleep_around_gpu_frame_ms;
-}
-
-static uint32_t GetFrameWarmUpGpuLoad(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    uint32_t    frame_warm_up_gpu_load = 0;
-    const auto& value                  = arg_parser.GetArgumentValue(kFrameWarmUpGpuLoadArgument);
-    if (!value.empty())
-    {
-        frame_warm_up_gpu_load = static_cast<uint32_t>(std::stoi(value));
-    }
-    return frame_warm_up_gpu_load;
-}
-
-static bool GetRenderPassBarrier(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    return arg_parser.IsOptionSet(kRenderPassBarrierArgument);
 }
 
 #endif // GFXRECON_REPLAY_SETTINGS_H

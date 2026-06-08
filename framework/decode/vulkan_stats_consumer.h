@@ -192,16 +192,13 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         GFXRECON_UNREFERENCED_PARAMETER(allocCb);
         if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
         {
-            auto create_info = pCreateInfo->GetPointer();
-            auto app_info    = create_info->pApplicationInfo;
-            if (app_info != nullptr)
-            {
-                const VkInstance      inst = reinterpret_cast<const VkInstance>(*pInstance->GetPointer());
-                VulkanInstanceTracker instance_tracker(
-                    app_info, create_info->enabledExtensionCount, create_info->ppEnabledExtensionNames, inst);
-                instance_info_[inst]   = std::move(instance_tracker);
-                last_created_instance_ = inst;
-            }
+            auto                  create_info = pCreateInfo->GetPointer();
+            auto                  app_info    = create_info->pApplicationInfo;
+            const VkInstance      inst        = reinterpret_cast<const VkInstance>(*pInstance->GetPointer());
+            VulkanInstanceTracker instance_tracker(
+                app_info, create_info->enabledExtensionCount, create_info->ppEnabledExtensionNames, inst);
+            instance_info_[inst]   = std::move(instance_tracker);
+            last_created_instance_ = inst;
         }
     }
 
@@ -477,6 +474,19 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         ++total_draw_count_;
     }
 
+    virtual void Process_vkCmdDrawIndirectCount(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                gfxrecon::format::HandleId,
+                                                gfxrecon::format::HandleId,
+                                                VkDeviceSize,
+                                                gfxrecon::format::HandleId,
+                                                VkDeviceSize,
+                                                uint32_t,
+                                                uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
     virtual void Process_vkCmdDrawIndexedIndirectCountKHR(const gfxrecon::decode::ApiCallInfo& call_info,
                                                           gfxrecon::format::HandleId,
                                                           gfxrecon::format::HandleId,
@@ -485,6 +495,19 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                           VkDeviceSize,
                                                           uint32_t,
                                                           uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
+    virtual void Process_vkCmdDrawIndexedIndirectCount(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                       gfxrecon::format::HandleId,
+                                                       gfxrecon::format::HandleId,
+                                                       VkDeviceSize,
+                                                       gfxrecon::format::HandleId,
+                                                       VkDeviceSize,
+                                                       uint32_t,
+                                                       uint32_t) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;
@@ -524,6 +547,40 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
                                                           VkDeviceSize,
                                                           uint32_t,
                                                           uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
+    virtual void Process_vkCmdDrawMeshTasksEXT(const gfxrecon::decode::ApiCallInfo& call_info,
+                                               gfxrecon::format::HandleId,
+                                               uint32_t,
+                                               uint32_t,
+                                               uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectEXT(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                       gfxrecon::format::HandleId,
+                                                       gfxrecon::format::HandleId,
+                                                       VkDeviceSize,
+                                                       uint32_t,
+                                                       uint32_t) override
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(call_info);
+        ++total_draw_count_;
+    }
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountEXT(const gfxrecon::decode::ApiCallInfo& call_info,
+                                                            gfxrecon::format::HandleId,
+                                                            gfxrecon::format::HandleId,
+                                                            VkDeviceSize,
+                                                            gfxrecon::format::HandleId,
+                                                            VkDeviceSize,
+                                                            uint32_t,
+                                                            uint32_t) override
     {
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
         ++total_draw_count_;

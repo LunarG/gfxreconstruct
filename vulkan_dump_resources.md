@@ -60,7 +60,7 @@ Each command (either a Vulkan command issued by the application or a meta comman
 
 The simplest way to find the command block index for each Vulkan command is to use the `gfxrecon-convert` tool on a capture file which will convert the capture into a human readable json file. Use the `--format jsonl` option to produce a json file with one command per line. The resulting jsonl file looks something like this:
 
-```
+```Json
 {"index":301,"function":{"name":"vkBeginCommandBuffer","thread":2,"return":"VK_SUCCESS","args":{"commandBuffer":80, ... }}},
 {"index":302,"function":{"name":"vkCmdBeginRenderPass","thread":2,"cmd_index":1,"args":{"commandBuffer":80, ... }}},
 {"index":303,"function":{"name":"vkCmdBindPipeline","thread":2,"cmd_index":2,"args":{"commandBuffer":80, ... }}},
@@ -118,7 +118,7 @@ specified like with the primary command buffers. The index of the `vkCmdExecuteC
 
 Assuming the following imaginary excerpt from a capture file that contains the following commands:
 
-```
+```Json
 {"index":301,"function":{"name":"vkBeginCommandBuffer", ... } },
 {"index":302,"function":{"name":"vkCmdBeginRenderPass", ... } },
 {"index":303,"function":{"name":"vkCmdBindPipeline", ... } },
@@ -138,7 +138,7 @@ Assuming the following imaginary excerpt from a capture file that contains the f
 
 It is possible to dump the depth and color attachments of all `vkCmdDraw` commands by providing the following json input file:
 
-```
+```Json
 {
     "BeginCommandBuffer": [ 301 ],
     "Draw": [ [ 307, 308, 309, 310, 311, 312 ] ],
@@ -149,18 +149,19 @@ It is possible to dump the depth and color attachments of all `vkCmdDraw` comman
 
 An example involving secondary command buffers
 
+```json
 {"index":754,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":230 ... }}},
 {"index":761,"function":{"name":"vkCmdDrawIndexed","args":{"commandBuffer":230, ...}}}
-
 {"index":736,"function":{"name":"vkBeginCommandBuffer","args":{"commandBuffer":226, ...}}},
 {"index":3948,"function":{"name":"vkCmdBeginRenderPass","args":{"commandBuffer":226, ...}}},
 {"index":3949,"function":{"name":"vkCmdExecuteCommands","args":{"commandBuffer":226,"commandBufferCount":357,"pCommandBuffers":[227,230,232,233,...]}}}
 {"index":3950,"function":{"name":"vkCmdEndRenderPass","args":{"commandBuffer":226}}}
 {"index":3952,"function":{"name":"vkQueueSubmit","args":{"queue":6,"submitCount":1,"pSubmits":[{"commandBufferCount":1,"pCommandBuffers":[226]}...]...}}}
+```
 
 In order to dump the draw call from the secondary command buffer `230` the following json input file should be provided:
 
-```
+```Json
 {
     "BeginCommandBuffer": [ 754, 736 ],
     "Draw": [ [ 761 ], [ ] ],
@@ -183,7 +184,7 @@ Commands recorded in multiple command buffers can be dumped in a single run. For
 These vectors are two dimensional. The first dimension corresponds to `BeginCommandBuffer` each vector belongs to.
 I.e.:
 
-```
+```Json
 {
     "BeginCommandBuffer" :  [ 10, 20 ],
     "TraceRays":            [ [ 220, 230, 240 ], [] ],
@@ -204,7 +205,7 @@ Inside a command buffer, Vulkan allows multiple render passes with multiple sub-
 
 A hypothetical json output of the `gfxrecon-convert` tool could look something like the following:
 
-```
+```Json
 {"index":10,"function":{"name":"vkBeginCommandBuffer","thread":2,"return":"VK_SUCCESS","args":{"commandBuffer":59, ... }}},
 {"index":11,"function":{"name":"vkBeginCommandBuffer","thread":2,"return":"VK_SUCCESS","args":{"commandBuffer":60, ... }}},
 {"index":12,"function":{"name":"vkCmdBeginRenderPass","thread":2,"cmd_index":1,"args":{"commandBuffer":59, ... }}},
@@ -234,7 +235,7 @@ A hypothetical json output of the `gfxrecon-convert` tool could look something l
 
 The indices submitted to `gfxrecon-replay` for dumping are the following:
 
-```
+```Json
 {
     "BeginCommandBuffer" : [ 10, 11 ],
     "Draw" :               [ [ 13, 14, 16, 17, 20, 21, 22, 23 ],
@@ -299,7 +300,7 @@ This is an example:
 }
 ```
 
-Image descriptors can be fine grained further by specifying the desired subresources with a `VkImageSubresourceRange` like this:
+Image descriptors can be fine grained further by specifying which subresources to be dumped like this:
 
 ```Json
 "Index": 2533,
@@ -313,13 +314,18 @@ Image descriptors can be fine grained further by specifying the desired subresou
             "BaseMipLevel": 2,
             "LevelCount": 1,
             "BaseArrayLayer": 2,
-            "LayerCount": 1
+            "LayerCount": 1,
+            "BaseZIndex": 0,
+            "ZCount": 1
         }
     }
 ]
 ```
 
-`VK_REMAINING_MIP_LEVELS` and `VK_REMAINING_ARRAY_LAYERS` can be used in `LevelCount` and `LayerCount` respectively.
+`AspectMask`, `BaseMipLevel`, `LevelCount`, `BaseArrayLayer`, and `LayerCount` are much like the `VkImageSubresourceRange` struct.
+`BaseZIndex`, and `ZCount` are relevant to 3D images and control the depth indices.
+`VK_REMAINING_MIP_LEVELS`, `VK_REMAINING_ARRAY_LAYERS` and `REMAINING_Z_INDICES` can be used in `LevelCount`, `LayerCount` and `ZCount` respectively.
+Providing `AspectMask` with `VK_IMAGE_ASPECT_NONE` should dump all valid aspects for the image's format.
 
 ### Transfer commands
 
@@ -437,7 +443,6 @@ A json example specifying the above options:
 {
   "DumpResourcesOptions": {
       "Scale": 0.2,
-      "OutputDir": "",
       "ColorAttachmentIndex": -1,
       "OutputDir": "",
       "ImageFormat": "png",
@@ -486,7 +491,7 @@ The draw calls are listed in an array. Each draw call entry contains information
 
 Here is an example of a json output file:
 
-```
+```Json
 [
 {
   "header": {

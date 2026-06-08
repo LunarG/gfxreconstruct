@@ -47,6 +47,8 @@ class TransferDumpingContext
 {
   public:
     TransferDumpingContext(const CommandIndices*                             transfer_indices,
+                           decode::Index                                     bcb_index,
+                           decode::Index                                     qs_index,
                            CommonObjectInfoTable&                            object_info_table,
                            const graphics::InstanceDispatchTablesMap&        instance_tables,
                            const graphics::DeviceDispatchTablesMap&          device_tables,
@@ -162,7 +164,7 @@ class TransferDumpingContext
 
     bool MustDumpTransfer(uint64_t index) const;
 
-    VkResult DumpTransferCommands(uint64_t bcb_index, uint64_t qs_index);
+    VkResult DumpTransferCommands(Index submit_info_index, Index submit_info_cmd_buf_index);
 
     const CommandIndices& GetCommandIndices() const { return transfer_indices_; }
 
@@ -222,8 +224,8 @@ class TransferDumpingContext
 
         struct CopiedImage
         {
-            CopiedImage(const VulkanImageInfo* img_info) :
-                image_info(*img_info), image(VK_NULL_HANDLE), memory(VK_NULL_HANDLE)
+            CopiedImage(const VulkanImageInfo& img_info) :
+                image_info(img_info), image(VK_NULL_HANDLE), memory(VK_NULL_HANDLE)
             {}
 
             VkImage         image;
@@ -240,6 +242,8 @@ class TransferDumpingContext
                 type(t),
                 device_table_(dt), parent_device_info_(pdi), has_before_command(hb)
             {}
+
+            virtual ~TransferParamsBase() {}
 
             const graphics::VulkanDeviceTable& device_table_;
             const VulkanDeviceInfo*            parent_device_info_;
@@ -277,11 +281,11 @@ class TransferDumpingContext
                                  bool                               hb,
                                  const graphics::VulkanDeviceTable& dt,
                                  const VulkanDeviceInfo*            pdi,
-                                 const VulkanImageInfo*             ii,
+                                 const VulkanImageInfo&             ii,
                                  VkImageAspectFlagBits              a,
                                  VkImageLayout                      l) :
                 TransferParamsBase(t, hb, dt, pdi),
-                dst_image(ii->capture_id, ii->format, ii->extent, l), aspect(a), copied_image(ii)
+                dst_image(ii, l), aspect(a), copied_image(ii)
             {}
 
             ~InitImageMetaCommand()
@@ -358,9 +362,9 @@ class TransferDumpingContext
                               const VulkanDeviceInfo*            pdi,
                               format::HandleId                   sb,
                               VkImageLayout                      dil,
-                              const VulkanImageInfo*             ii) :
+                              const VulkanImageInfo&             ii) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_buffer(sb), dst_image(ii->capture_id, ii->format, ii->extent, dil), copied_image(ii)
+                src_buffer(sb), dst_image(ii, dil), copied_image(ii)
             {}
 
             ~CopyBufferToImage()
@@ -383,15 +387,7 @@ class TransferDumpingContext
             // Then we do the same copy regions to the new image
             CopiedImage copied_image;
 
-            struct CopyRegion
-            {
-                CopyRegion() = delete;
-
-                CopyRegion(const VkBufferImageCopy& r) : region(r) {}
-                VkBufferImageCopy region;
-            };
-
-            std::vector<CopyRegion> regions;
+            std::vector<VkBufferImageCopy> regions;
         };
 
         // CmdCopyImage
@@ -403,13 +399,12 @@ class TransferDumpingContext
                       bool                               hb,
                       const graphics::VulkanDeviceTable& dt,
                       const VulkanDeviceInfo*            pdi,
-                      const VulkanImageInfo*             si,
+                      const VulkanImageInfo&             si,
                       VkImageLayout                      sl,
-                      const VulkanImageInfo*             di,
+                      const VulkanImageInfo&             di,
                       VkImageLayout                      dl) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_image(si->capture_id, si->format, si->extent, sl),
-                dst_image(di->capture_id, di->format, di->extent, dl), copied_image(di)
+                src_image(si, sl), dst_image(di, dl), copied_image(di)
             {}
 
             ~CopyImage()
@@ -432,15 +427,7 @@ class TransferDumpingContext
             // Then we do the same copy regions to the new image
             CopiedImage copied_image;
 
-            struct CopyRegion
-            {
-                CopyRegion() = delete;
-
-                CopyRegion(const VkImageCopy& r) : region(r) {}
-                VkImageCopy region;
-            };
-
-            std::vector<CopyRegion> regions;
+            std::vector<VkImageCopy> regions;
         };
 
         // CmdCopyImageToBuffer
@@ -452,11 +439,11 @@ class TransferDumpingContext
                               bool                               hb,
                               const graphics::VulkanDeviceTable& dt,
                               const VulkanDeviceInfo*            pdi,
-                              const VulkanImageInfo*             si,
+                              const VulkanImageInfo&             si,
                               VkImageLayout                      sl,
                               format::HandleId                   d) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_image(si->capture_id, si->format, si->extent, sl), dst_buffer(d)
+                src_image(si, sl), dst_buffer(d)
             {}
 
             ~CopyImageToBuffer()
@@ -499,14 +486,13 @@ class TransferDumpingContext
                       bool                               hb,
                       const graphics::VulkanDeviceTable& dt,
                       const VulkanDeviceInfo*            pdi,
-                      const VulkanImageInfo*             si,
+                      const VulkanImageInfo&             si,
                       VkImageLayout                      sl,
-                      const VulkanImageInfo*             di,
+                      const VulkanImageInfo&             di,
                       VkImageLayout                      dl,
                       VkFilter                           f) :
                 TransferParamsBase(t, hb, dt, pdi),
-                src_image(si->capture_id, si->format, si->extent, sl),
-                dst_image(di->capture_id, di->format, di->extent, dl), copied_image(di), filter(f)
+                src_image(si, sl), dst_image(di, dl), copied_image(di), filter(f)
             {}
 
             ~BlitImage()
@@ -531,15 +517,7 @@ class TransferDumpingContext
             // Then we do the same copy regions to the new image
             CopiedImage copied_image;
 
-            struct CopyRegion
-            {
-                CopyRegion() = delete;
-
-                CopyRegion(const VkImageBlit& r) : region(r) {}
-                VkImageBlit region;
-            };
-
-            std::vector<CopyRegion> regions;
+            std::vector<VkImageBlit> regions;
         };
 
         struct CopiedAccelerationStructure
@@ -550,23 +528,45 @@ class TransferDumpingContext
                                         const CommonObjectInfoTable&              oit,
                                         const VulkanPerDeviceAddressTrackers&     at,
                                         const VulkanAccelerationStructureKHRInfo* asi) :
-                as_context(&as_info, dt, oit, at),
-                as(VK_NULL_HANDLE), buffer(VK_NULL_HANDLE), memory(VK_NULL_HANDLE)
+                as_info(std::make_shared<VulkanAccelerationStructureKHRInfo>()),
+                as_context(as_info.get(), dt, oit, at), as_memory(VK_NULL_HANDLE), device_table(dt)
             {
-                // Clone information stored in the destination as info. Later this will need to be updated with
-                // the new objects
+                // Clone information stored in the destination as info. Later this will be updated with the new objects
                 GFXRECON_ASSERT(asi != nullptr);
-                as_info = *asi;
+                *as_info = *asi;
+
+                const auto* parent_device_info = oit.GetVkDeviceInfo(asi->parent_id);
+                GFXRECON_ASSERT(parent_device_info != nullptr);
+                parent_device = parent_device_info->handle;
+            }
+
+            ~CopiedAccelerationStructure()
+            {
+                if (as_info->handle != VK_NULL_HANDLE)
+                {
+                    device_table.DestroyAccelerationStructureKHR(parent_device, as_info->handle, nullptr);
+                }
+
+                if (as_info->buffer != VK_NULL_HANDLE)
+                {
+                    device_table.DestroyBuffer(parent_device, as_info->buffer, nullptr);
+                }
+
+                if (as_memory != VK_NULL_HANDLE)
+                {
+                    device_table.FreeMemory(parent_device, as_memory, nullptr);
+                }
             }
 
             // Cloned AS and backing memory
-            VkAccelerationStructureKHR         as;
-            VkBuffer                           buffer;
-            VkDeviceMemory                     memory;
-            VulkanAccelerationStructureKHRInfo as_info;
+            VkDeviceMemory                                      as_memory;
+            std::shared_ptr<VulkanAccelerationStructureKHRInfo> as_info;
 
             // Cloned build input buffers
             AccelerationStructureDumpResourcesContext as_context;
+
+            VkDevice                           parent_device;
+            const graphics::VulkanDeviceTable& device_table;
         };
 
         // CmdBuildAccelerationStructuresKHR
@@ -578,28 +578,6 @@ class TransferDumpingContext
                                        const VulkanDeviceInfo*            pdi) :
                 TransferParamsBase(t, hb, dt, pdi)
             {}
-
-            ~BuildAccelerationStructure()
-            {
-                for (const auto& build_info : build_infos)
-                {
-                    if (build_info.vk_objects.as != VK_NULL_HANDLE)
-                    {
-                        device_table_.DestroyAccelerationStructureKHR(
-                            parent_device_info_->handle, build_info.vk_objects.as, nullptr);
-                    }
-
-                    if (build_info.vk_objects.buffer != VK_NULL_HANDLE)
-                    {
-                        device_table_.DestroyBuffer(parent_device_info_->handle, build_info.vk_objects.buffer, nullptr);
-                    }
-
-                    if (build_info.vk_objects.memory != VK_NULL_HANDLE)
-                    {
-                        device_table_.FreeMemory(parent_device_info_->handle, build_info.vk_objects.memory, nullptr);
-                    }
-                }
-            }
 
             struct BuildInfo
             {
@@ -643,24 +621,6 @@ class TransferDumpingContext
                 src_as(s), dst_as(d->capture_id), mode(m), vk_objects(dt, oit, at, d)
             {}
 
-            ~CopyAccelerationStructure()
-            {
-                if (vk_objects.as != VK_NULL_HANDLE)
-                {
-                    device_table_.DestroyAccelerationStructureKHR(parent_device_info_->handle, vk_objects.as, nullptr);
-                }
-
-                if (vk_objects.buffer != VK_NULL_HANDLE)
-                {
-                    device_table_.DestroyBuffer(parent_device_info_->handle, vk_objects.buffer, nullptr);
-                }
-
-                if (vk_objects.memory != VK_NULL_HANDLE)
-                {
-                    device_table_.FreeMemory(parent_device_info_->handle, vk_objects.memory, nullptr);
-                }
-            }
-
             format::HandleId                   src_as;
             format::HandleId                   dst_as;
             VkCopyAccelerationStructureModeKHR mode;
@@ -683,7 +643,7 @@ class TransferDumpingContext
         }
 
         // kInitImageCommand
-        TransferParams(const VulkanImageInfo*             img_info,
+        TransferParams(const VulkanImageInfo&             img_info,
                        VkImageAspectFlagBits              a,
                        VkImageLayout                      il,
                        const graphics::VulkanDeviceTable& dt,
@@ -713,7 +673,7 @@ class TransferDumpingContext
 
         // CmdCopyBufferToImage
         TransferParams(format::HandleId                   sb,
-                       const VulkanImageInfo*             ii,
+                       const VulkanImageInfo&             ii,
                        VkImageLayout                      dil,
                        const graphics::VulkanDeviceTable& dt,
                        const VulkanDeviceInfo*            pdi,
@@ -730,9 +690,9 @@ class TransferDumpingContext
         }
 
         // CmdCopyImage
-        TransferParams(const VulkanImageInfo*             si,
+        TransferParams(const VulkanImageInfo&             si,
                        VkImageLayout                      sl,
-                       const VulkanImageInfo*             di,
+                       const VulkanImageInfo&             di,
                        VkImageLayout                      dl,
                        const graphics::VulkanDeviceTable& dt,
                        const VulkanDeviceInfo*            pdi,
@@ -749,7 +709,7 @@ class TransferDumpingContext
         }
 
         // CmdCopyImageToBuffer
-        TransferParams(const VulkanImageInfo*             si,
+        TransferParams(const VulkanImageInfo&             si,
                        VkImageLayout                      sl,
                        format::HandleId                   d,
                        const graphics::VulkanDeviceTable& dt,
@@ -767,9 +727,9 @@ class TransferDumpingContext
         }
 
         // CmdBlitImage
-        TransferParams(const VulkanImageInfo*             si,
+        TransferParams(const VulkanImageInfo&             si,
                        VkImageLayout                      sl,
-                       const VulkanImageInfo*             di,
+                       const VulkanImageInfo&             di,
                        VkImageLayout                      dl,
                        VkFilter                           f,
                        const graphics::VulkanDeviceTable& dt,
@@ -828,9 +788,18 @@ class TransferDumpingContext
   private:
     void GetDispatchTables(format::HandleId device_id);
 
+    VkResult HandleImageTransfer(VkCommandBuffer              command_buffer,
+                                 const VulkanImageInfo*       src_image,
+                                 VkImageLayout                src_image_layout,
+                                 VkImageAspectFlags           aspects,
+                                 TransferParams::CopiedImage& dst_image);
+
     std::map<uint64_t, TransferParams> transfer_params_;
 
     CommandIndices                                    transfer_indices_;
+    decode::Index                                     bcb_index_;
+    decode::Index                                     qs_index_;
+    DumpResourcesCommandBufferLevel                   command_buffer_level_;
     CommonObjectInfoTable&                            object_info_table_;
     const graphics::InstanceDispatchTablesMap&        instance_tables_;
     const graphics::DeviceDispatchTablesMap&          device_tables_;

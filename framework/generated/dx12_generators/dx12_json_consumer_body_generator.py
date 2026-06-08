@@ -62,6 +62,11 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             overrides = json.loads(open(genOpts.json_overrides, 'r').read())
             self.JSON_OVERRIDES = overrides
 
+        write(format_cpp_code('''
+            using util::Bool32ToJson;
+        '''), file=self.outFile)
+        self.newline()
+
     def write_include(self):
         write(format_cpp_code('''
             #include "generated_dx12_json_consumer.h"
@@ -106,14 +111,12 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     def make_return(self, func_type, return_value):
         if(None == return_value):
             return ""
-        function_name = self.choose_field_to_json_name(return_value)
-        ret_line = "{0}({1}[format::kNameReturn], return_value, options);\n"
-        ## if return_type.startswith("HANDLE "):
-        ## This is a Windows handle, probably to a waitable object so we output it as a JSON number:
-        ## <https://learn.microsoft.com/en-us/windows/win32/sysinfo/handles-and-objects>
-        ## <https://learn.microsoft.com/en-us/windows/win32/sync/wait-functions>
-        ret_line = ret_line.format(function_name, func_type)
-        return ret_line
+        if function_name := self.choose_field_to_json_name(return_value):
+            return f'{function_name}({func_type}[format::kNameReturn], return_value);\n'
+        if self.is_bitflags(return_value):
+            function_arg = f'{return_value.base_type}_t{{{{ return_value }}}}'
+            return f'{func_type}[format::kNameReturn] = {function_arg};\n'
+        return f'{func_type}[format::kNameReturn] = return_value;\n'
 
     def make_consumer_func_body(self, method_info, return_type, return_value):
         # Deal with the function's returned value:
@@ -123,7 +126,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
 
         code = '''
             nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "{}");
-            const JsonOptions& options = writer_->GetOptions();
         '''
         code += ret_line
         code += '''nlohmann::ordered_json& args = function[format::kNameArgs];
@@ -132,7 +134,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         # Generate a correct FieldToJson for each argument:
         for parameter in method_info['parameters']:
             value = self.get_value_info(parameter)
-            code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+            code += "    " + self.make_field_to_json("args", value) + "\n"
 
         code += remove_leading_empty_lines('''
                 }}
@@ -144,7 +146,6 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     def make_consumer_method_body(self, class_name, method_info, return_type, return_value):
         code = '''
             nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
-            const JsonOptions& options = writer_->GetOptions();
         '''
 
         # Deal with the function's returned value:
@@ -160,18 +161,19 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             for parameter in method_info['parameters']:
                 value = self.get_value_info(parameter)
 
-                function_call = self.make_field_to_json("args", value, "options") + "\n"
+                function_call = self.make_field_to_json("args", value) + "\n"
 
                 ## Special case for pointers to flag sets defined by enums:
                 ## (easier than having pointer decoder versions of each flagset type's FieldToString)
-                if value.is_pointer and function_call.startswith("FieldToJson_"):
+                if value.is_pointer and self.is_bitflags(value):
                     code += '    if (!{}->IsNull())\n'.format(value.name)
                     code += '    {{\n'
                     code += '        ' + function_call
                     code += '    }}\n'
                     code += '    else\n'
                     code += '    {{\n'
-                    code += '        FieldToJson(args["{}"], nullptr, options);\n'.format(value.name)
+                    code += '        FieldToJson(args["{}"], nullptr);\n'.format(
+                        value.name)
                     code += '    }}\n'
                 else:
                     code += "    " + function_call
@@ -182,14 +184,22 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         return code
 
     ## @param value_info A ValueInfo object from base_generator.py.
-    def make_field_to_json(self, parent_name, value_info, options_name):
-        function_name = self.choose_field_to_json_name(value_info)
-        src = value_info.name
-        ## Special case for pointers to flag sets defined by enums:
-        ## (easier than having pointer decoder versions of each flagset type's FieldToString)
-        if value_info.is_pointer and function_name.startswith("FieldToJson_"):
-            src = "*" + src + "->GetPointer()"
-        field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(function_name, parent_name, value_info.name, src, options_name)
+    def make_field_to_json(self, parent_name, value_info):
+        if self.is_bitflags(value_info):
+            src = value_info.name
+            # Special case for pointers to flag sets defined by enums:
+            # (easier than having pointer decoder versions of each flagset type's FieldToString)
+            if value_info.is_pointer:
+                src = f'*{src}->GetPointer()'
+            # Flag types get passed as a type-safe enum to help with overlaod resolution
+            src = f'{value_info.base_type}_t{{{{ {src} }}}}'
+            field_to_json = f'{parent_name}["{value_info.name}"] = {src};'
+        elif function_name := self.choose_field_to_json_name(value_info):
+            # Complex types get converted to JSON using a special function
+            field_to_json = f'{function_name}({parent_name}["{value_info.name}"], {value_info.name});'
+        else:
+            # Basic types can be directly assigned to JSON fields
+            field_to_json = f'{parent_name}["{value_info.name}"] = {value_info.name};'
         if "anon-union" in value_info.base_type:
             field_to_json += "// [anon-union] "
             print("ALERT: anon union " + value_info.name + " in " + parent_name)

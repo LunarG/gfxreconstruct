@@ -52,6 +52,6 @@ GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 typedef bool (*PFN_InitializeD3D12Capture)(gfxrecon::encode::D3D12DispatchTable*);
-typedef void (*PFN_ReleaseD3D12Capture)(gfxrecon::encode::D3D12DispatchTable*);
+typedef void(WINAPI* PFN_ReleaseD3D12Capture)(gfxrecon::encode::D3D12DispatchTable*);
 
 #endif // GFXRECON_ENCODE_D3D12_DISPATCH_TABLE_H

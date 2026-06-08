@@ -26,6 +26,7 @@ else()
 endif()
 
 add_subdirectory(../../framework/util ${PROJECT_SOURCE_DIR}/../../framework/util/build/tools/quest_replay/${ANDROID_ABI})
+add_subdirectory(../../../framework/plugin ${PROJECT_SOURCE_DIR}/../../framework/plugin/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/graphics ${PROJECT_SOURCE_DIR}/../../framework/graphics/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/format ${PROJECT_SOURCE_DIR}/../../framework/format/build/tools/quest_replay/${ANDROID_ABI})
 add_subdirectory(../../framework/decode ${PROJECT_SOURCE_DIR}/../../framework/decode/build/tools/quest_replay/${ANDROID_ABI})

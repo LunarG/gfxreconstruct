@@ -31,19 +31,20 @@
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_address_replacer.h"
+#include "decode/vulkan_frame_warm_up.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
-#include "decode/vulkan_resource_tracking_consumer.h"
-#include "decode/vulkan_resource_initializer.h"
+#include "decode/vulkan_submit_job.h"
 #include "decode/vulkan_swapchain.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_replay_dump_resources.h"
+#include "graphics/vulkan_resources_util.h"
 #include "graphics/fps_info.h"
 #include "util/defines.h"
 #include "util/logging.h"
@@ -688,11 +689,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     VkResult                original_result,
                                     const VulkanDeviceInfo* device_info,
                                     const VulkanFenceInfo*  fence_info);
-
-    VkResult OverrideGetEventStatus(PFN_vkGetEventStatus    func,
-                                    VkResult                original_result,
-                                    const VulkanDeviceInfo* device_info,
-                                    const VulkanEventInfo*  event_info);
 
     VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
                                          VkResult                   original_result,
@@ -1396,6 +1392,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
                                     VkSubpassContents                                    contents);
 
+    void OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass func, VulkanCommandBufferInfo* command_buffer_info);
+
+    void OverrideCmdEndRenderPass2(PFN_vkCmdEndRenderPass2                         func,
+                                   VulkanCommandBufferInfo*                        command_buffer_info,
+                                   StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo);
+
+    void OverrideCmdBeginRendering(PFN_vkCmdBeginRendering                        func,
+                                   VulkanCommandBufferInfo*                       command_buffer_info,
+                                   StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder);
+
+    void OverrideCmdEndRendering(PFN_vkCmdEndRendering func, VulkanCommandBufferInfo* command_buffer_info);
+
     void
     OverrideCmdTraceRaysKHR(PFN_vkCmdTraceRaysKHR                                          func,
                             VulkanCommandBufferInfo*                                       command_buffer_info,
@@ -1606,6 +1614,33 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         uint32_t                          bufferCount,
                                         StructPointerDecoder<Decoded_VkDescriptorBufferBindingInfoEXT>* pBindingInfos);
 
+    VkResult OverrideCreatePipelineBinariesKHR(PFN_vkCreatePipelineBinariesKHR func,
+                                               VkResult                        original_result,
+                                               VulkanDeviceInfo*               device_info,
+                                               StructPointerDecoder<Decoded_VkPipelineBinaryCreateInfoKHR>* pCreateInfo,
+                                               StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                               StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries);
+
+    VkResult OverrideCreateIndirectExecutionSetEXT(
+        PFN_vkCreateIndirectExecutionSetEXT                                func,
+        VkResult                                                           original_result,
+        const VulkanDeviceInfo*                                            device_info,
+        StructPointerDecoder<Decoded_VkIndirectExecutionSetCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*               pAllocator,
+        HandlePointerDecoder<VkIndirectExecutionSetEXT>*                   pIndirectExecutionSet);
+
+    void OverrideCmdPreprocessGeneratedCommandsEXT(
+        PFN_vkCmdPreprocessGeneratedCommandsEXT                   func,
+        const VulkanCommandBufferInfo*                            command_buffer_info,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo,
+        const VulkanCommandBufferInfo*                            state_command_buffer_info);
+
+    void OverrideCmdExecuteGeneratedCommandsEXT(
+        PFN_vkCmdExecuteGeneratedCommandsEXT                      func,
+        const VulkanCommandBufferInfo*                            command_buffer_info,
+        VkBool32                                                  isPreprocessed,
+        StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
@@ -1658,11 +1693,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void PushRecaptureHandleIds(const format::HandleId* id_array, uint64_t id_count) override;
     virtual void ClearRecaptureHandleIds() override;
     virtual bool IsRecapture() override { return options_.capture; }
-
-    void SetWaitBeforeFirstFrameMinMs(uint32_t ms) { wait_before_first_frame_min_ms_ = ms; }
-    void SetSleepAroundGpuFrameMs(double ms) { sleep_around_gpu_frame_ms_ = ms; }
-    void SetFrameWarmUpGpuLoad(uint32_t load) { frame_warm_up_gpu_load_ = load; }
-    void WarmUpDevice(const VulkanQueueInfo* queue_info, uint32_t warm_up_load);
 
     //// End recapture members
 
@@ -1734,6 +1764,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void InitializeResourceAllocator(const VulkanPhysicalDeviceInfo* physical_device_info,
                                      VkDevice                        device,
+                                     const VkDeviceCreateInfo&       device_create_info,
                                      const std::vector<std::string>& enabled_device_extensions,
                                      VulkanResourceAllocator*        allocator);
 
@@ -1794,6 +1825,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     decode::VulkanDeviceAddressTracker& GetDeviceAddressTracker(const decode::VulkanDeviceInfo* device_info);
     decode::VulkanAddressReplacer&      GetDeviceAddressReplacer(const decode::VulkanDeviceInfo* device_info);
+    VulkanFrameWarmUp&                  GetDeviceFrameWarmUp(const VulkanDeviceInfo* device_info);
+    VulkanSubmitJobExecutor&            GetDeviceSubmitJobExecutor(const VulkanDeviceInfo* device_info);
 
     /**
      * @brief   UseExtraDescriptorInfo returns true if additional information about layouts/descriptors/bindings etc.
@@ -1837,15 +1870,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      */
     bool CheckPipelineCacheUUID(const VulkanDeviceInfo* device_info, const VkPipelineCacheCreateInfo* create_info);
 
-    void LoadPipelineCache(format::HandleId id, std::vector<uint8_t>& pipelineCacheData);
-    void SavePipelineCache(format::HandleId id, const VulkanDeviceInfo* device_info, VkPipelineCache pipelineCache);
-    VkPipelineCache CreateNewPipelineCache(const VulkanDeviceInfo* device_info, format::HandleId id);
-    void            TrackNewPipelineCache(const VulkanDeviceInfo* device_info,
-                                          format::HandleId        id,
-                                          VkPipelineCache         pipelineCache,
-                                          VkPipeline*             pipelines,
-                                          uint32_t                pipelineCount);
-
     bool IsExtensionBeingFaked(const char* extension);
 
     void DestroyInternalInstanceResources(const VulkanInstanceInfo* instance_info);
@@ -1856,6 +1880,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult SetDuplicateDeviceInfo(VkDevice*         replay_device,
                                     VulkanDeviceInfo* device_info,
                                     VulkanDeviceInfo* extant_device_info);
+
+    /**
+     * @brief If the option to serialize render passes is enabled, inject an execution barrier before each
+     * render pass begin to ensure render passes execute in the same order as they were captured.
+     */
+    void MaybeInjectExecutionBarrier(const VulkanCommandBufferInfo* command_buffer_info) const;
 
   private:
     struct HardwareBufferInfo
@@ -1884,6 +1914,30 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<uint64_t, HardwareBufferInfo>               HardwareBufferMap;
     typedef std::unordered_map<format::HandleId, HardwareBufferMemoryInfo> HardwareBufferMemoryMap;
 
+    /**
+     * @brief   SkipPipelineCreationForCompileRequired will check 'original_result' and return true,
+     *          if it matches VK_PIPELINE_COMPILE_REQUIRED. otherwise returns false and does nothing.
+     *
+     *          in case original_result == VK_PIPELINE_COMPILE_REQUIRED, all VkPipeline-handles contained in
+     *          'pipelines' will be set to VK_NULL_HANDLE and a warning will be logged.
+     *
+     * @param   original_result     original return-value of a VkCreateXXXPipelines call
+     * @param   pipelines           provided decoder containing pipeline-handles
+     * @return  true if original_result == VK_PIPELINE_COMPILE_REQUIRED
+     */
+    static bool SkipPipelineCreationForCompileRequired(VkResult                          original_result,
+                                                       HandlePointerDecoder<VkPipeline>* pipelines);
+
+    /**
+     *
+     * @brief   RemoveFailOnCompileRequiredFlags will check and remove potential
+     *          'VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT' flags from an array of
+     *          VkPipeline create-infos. Will log individual warnings for each removed flag.
+     *
+     */
+    template <typename CreateInfo>
+    static void RemoveFailOnCompileRequiredFlags(CreateInfo* create_infos, uint32_t create_info_count);
+
   private:
     util::platform::LibraryHandle                                            loader_handle_;
     PFN_vkGetInstanceProcAddr                                                get_instance_proc_addr_;
@@ -1906,8 +1960,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                              screenshot_file_prefix_;
     graphics::FpsInfo*                                                       fps_info_;
 
-    VulkanPerDeviceAddressTrackers  _device_address_trackers;
-    VulkanPerDeviceAddressReplacers _device_address_replacers;
+    VulkanPerDeviceAddressTrackers    device_address_trackers_;
+    VulkanPerDeviceAddressReplacers   device_address_replacers_;
+    VulkanPerDeviceFrameWarmUp        device_frame_warmups_;
+    VulkanPerDeviceSubmitJobExecutors device_submit_job_executors_;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;
@@ -1956,6 +2012,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // goal is to allow replay when 'benign' extensions are missing during replay.
     std::vector<const char*> faked_extensions_;
 
+    // option to override swapchain-image via debug-name
+    format::HandleId present_override_image_id_ = format::kNullHandleId;
+
+    // required for reverse lookup of handle-ids
+    std::unordered_map<VkImage, format::HandleId> image_handle_id_map_;
+
   protected:
     // Used by pipeline cache handling, there are the following two cases for the flag to be set:
     //
@@ -1967,31 +2029,31 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     //       the initial cache data has no corresponding replay time cache data.
     bool omitted_pipeline_cache_data_;
 
-    std::unordered_map<format::HandleId, std::pair<const VulkanDeviceInfo*, VkPipelineCache>> tracked_pipeline_caches_;
-    std::unordered_map<VkPipeline, format::HandleId> pipeline_cache_correspondances_;
+    application::Application& GetApplication() { return *application_; }
 
-    uint32_t wait_before_first_frame_min_ms_{ 0 };
-    double   sleep_around_gpu_frame_ms_{ 0.0 };
-    uint32_t frame_warm_up_gpu_load_{ 0 };
-    struct WarmUpResources
+    struct TrackedPipelineCache
     {
-        VkDescriptorPool         descriptor_pool{ VK_NULL_HANDLE };
-        VkDescriptorSetLayout    descriptor_set_layout{ VK_NULL_HANDLE };
-        VkDescriptorSet          descriptor_set{ VK_NULL_HANDLE };
-        VkPipelineLayout         pipeline_layout{ VK_NULL_HANDLE };
-        VkPipeline               pipeline{ VK_NULL_HANDLE };
-        VkBuffer                 buffer{ VK_NULL_HANDLE };
-        VkDeviceMemory           buffer_memory{ VK_NULL_HANDLE };
-        VkShaderModule           shader_module{ VK_NULL_HANDLE };
-        VkCommandPool            command_pool{ VK_NULL_HANDLE };
-        VkCommandBuffer          command_buffer{ VK_NULL_HANDLE };
-        VkFence                  fence{ VK_NULL_HANDLE };
-        std::vector<VkSemaphore> semaphores;
-        uint32_t                 next_semaphore_index{ 0 };
+        const VulkanDeviceInfo* device_info{ nullptr };
+        VkPipelineCache         vk_cache{ VK_NULL_HANDLE };
+        bool                    write_to_file{ false };
     };
-    std::unordered_map<VkDevice, WarmUpResources> warmup_resources_;
 
-    void InsertRenderPassBarrier(VkCommandBuffer command_buffer, const VulkanCommandBufferInfo* command_buffer_info);
+    std::unordered_map<format::HandleId, TrackedPipelineCache> tracked_pipeline_caches_;
+    std::unordered_map<VkPipeline, format::HandleId>           pipeline_cache_correspondances_;
+
+    bool            LoadPipelineCacheFromFile(format::HandleId id, std::vector<uint8_t>& cache_data);
+    void            SavePipelineCachesToFile();
+    void            SavePipelineCache(format::HandleId id, const TrackedPipelineCache& tracked_cache);
+    VkPipelineCache CreateNewPipelineCache(const VulkanDeviceInfo* device_info, format::HandleId id);
+    void            TrackNewPipelineCache(const VulkanDeviceInfo* device_info,
+                                          format::HandleId        id,
+                                          VkPipelineCache         pipelineCache,
+                                          VkPipeline*             pipelines,
+                                          size_t                  pipelineCount);
+
+    const bool save_pipeline_caches_to_file;
+    const bool load_pipeline_caches_from_file;
+    const bool load_save_caches_in_same_file;
 };
 
 GFXRECON_END_NAMESPACE(decode)

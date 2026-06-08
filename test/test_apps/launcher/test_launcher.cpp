@@ -30,8 +30,10 @@
 #endif
 #include <shader_objects_app.h>
 #include <sparse_resources_app.h>
+#include <debug_utils_app.h>
 #include <triangle_app.h>
 #include <triangle_extra_device_app.h>
+#include <deep_pnext_chain_app.h>
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #include <ahb_app.h>
 #endif
@@ -61,6 +63,7 @@ const char kArguments[] = "--wsi";
 
 static const char* kAppNames[] = {
     "acquired-image",
+    "debug-utils",
     "host-image-copy",
     "multisample-depth",
     "pipeline-binaries",
@@ -71,6 +74,7 @@ static const char* kAppNames[] = {
     "sparse-resources",
     "triangle",
     "triangle-extra-device",
+    "deep-pnext-chain",
 #ifdef __linux__
     "external-memory-fd-export",
     "external-memory-fd-import",
@@ -137,6 +141,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     {
         app = std::make_unique<gfxrecon::test_app::acquired_image::App>();
     }
+    else if (app_name == "debug-utils")
+    {
+        app = std::make_unique<gfxrecon::test_app::debug_utils::App>();
+    }
     else if (app_name == "triangle")
     {
         app = std::make_unique<gfxrecon::test_app::triangle::App>();
@@ -170,6 +178,10 @@ CreateTestApp(std::unique_ptr<gfxrecon::application::Application> application,
     else if (app_name == "sparse-resources")
     {
         app = std::make_unique<gfxrecon::test_app::sparse_resources::App>();
+    }
+    else if (app_name == "deep-pnext-chain")
+    {
+        app = std::make_unique<gfxrecon::test_app::deep_pnext_chain::App>();
     }
 #ifdef __linux__
     else if (app_name == "external-memory-fd-export")

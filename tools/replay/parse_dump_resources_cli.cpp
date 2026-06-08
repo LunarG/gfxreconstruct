@@ -33,7 +33,9 @@
 
 #include <cctype>
 #include <cstdint>
+#include <limits>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 #include <set>
@@ -321,101 +323,124 @@ static void ExtractVulkanDumpResourcesParameters(const nlohmann::ordered_json   
 }
 
 template <typename json_iterator>
+static uint32_t ExtractAndFilterSubresourceRange(const json_iterator json_it,
+                                                 const std::string&  range_name,
+                                                 const std::string&  alternative_end_range_name,
+                                                 uint32_t            cmd_index,
+                                                 uint32_t            set,
+                                                 uint32_t            binding,
+                                                 uint32_t            ai)
+{
+    uint32_t count = std::numeric_limits<uint32_t>::max();
+    if (json_it.contains(range_name))
+    {
+        if (json_it[range_name].is_number())
+        {
+            count = json_it[range_name];
+        }
+        else
+        {
+            const std::string level_count_str = json_it[range_name];
+            if (level_count_str.compare(alternative_end_range_name))
+            {
+                GFXRECON_LOG_WARNING("The string \"%s\", that is being passed as %s for command index: %" PRIu64
+                                     ", descriptor set: %" PRIu64 ", binding set: %" PRIu64
+                                     " and, array index: %" PRIu64
+                                     ", is not recognized and will be ignored (will use 1 instead).",
+                                     level_count_str.c_str(),
+                                     range_name.c_str(),
+                                     cmd_index,
+                                     set,
+                                     binding,
+                                     ai);
+                count = 1;
+            }
+        }
+    }
+
+    return count;
+}
+
+template <typename json_iterator>
 static void ExtractIndexAndDescriptors(const json_iterator                  it,
                                        decode::Index                        bcb_index,
+                                       decode::Index                        qs_index,
+                                       size_t                               index,
                                        std::vector<decode::CommandIndices>& cmd_indices,
                                        decode::CommandImageSubresource&     command_subresources)
 {
     if (it->is_number())
     {
-        cmd_indices[bcb_index].push_back(*it);
+        cmd_indices[index].push_back(*it);
     }
     else
     {
         const decode::Index cmd_index = it->at("Index");
-        cmd_indices[bcb_index].push_back(cmd_index);
+        cmd_indices[index].push_back(cmd_index);
+
+        const decode::CommandLocation command_location(bcb_index, qs_index, cmd_index);
 
         if (it->contains("Descriptors"))
         {
-            const auto& subresources = it->at("Descriptors");
+            auto [requested_descriptors_entry, success] = command_subresources.emplace(
+                std::piecewise_construct, std::forward_as_tuple(command_location), std::forward_as_tuple());
+
+            auto&       requested_descriptors = requested_descriptors_entry->second;
+            const auto& subresources          = it->at("Descriptors");
             for (const auto& sr : subresources)
             {
                 const uint32_t set     = sr["Set"];
                 const uint32_t binding = sr["Binding"];
                 const uint32_t ai      = sr["ArrayIndex"];
 
-                VkImageSubresourceRange subresource_range;
+                const decode::DescriptorLocation desc_tuple(set, binding, ai);
+
+                // DescriptorImageSubresourcesVector is a vector so we need to filter duplicate entries manually
+                if (std::find_if(requested_descriptors.begin(),
+                                 requested_descriptors.end(),
+                                 [&desc_tuple](const decode::DescriptorImageSubresourcesPair& element) {
+                                     return element.first == desc_tuple;
+                                 }) != requested_descriptors.end())
+                {
+                    continue;
+                }
+
                 if (sr.contains("SubresourceRange"))
                 {
                     const auto&              range      = sr["SubresourceRange"];
                     const VkImageAspectFlags aspect     = StrToImageAspectFlagBits(range["AspectMask"]);
-                    const uint32_t           base_level = range["BaseMipLevel"];
-                    const uint32_t           base_layer = range["BaseArrayLayer"];
+                    const uint32_t           base_level = range.value("BaseMipLevel", 0u);
+                    const uint32_t           base_layer = range.value("BaseArrayLayer", 0u);
+                    const uint32_t           base_z     = range.value("BaseZIndex", 0u);
 
-                    uint32_t level_count;
-                    if (range["LevelCount"].is_number())
-                    {
-                        level_count = range["LevelCount"];
-                    }
-                    else
-                    {
-                        const std::string level_count_str = range["LevelCount"];
-                        if (!level_count_str.compare("VK_REMAINING_MIP_LEVELS"))
-                        {
-                            level_count = VK_REMAINING_MIP_LEVELS;
-                        }
-                        else
-                        {
-                            GFXRECON_LOG_WARNING(
-                                "The string \"%s\", that is being passed as \"LevelCount\" for command index: %" PRIu64
-                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
-                                ", is not recognized and will be ignored (will use 1 instead).",
-                                level_count_str.c_str(),
-                                cmd_index,
-                                set,
-                                binding,
-                                ai);
-                            level_count = 1;
-                        }
-                    }
+                    const uint32_t level_count = ExtractAndFilterSubresourceRange(
+                        range, "LevelCount", "VK_REMAINING_MIP_LEVELS", cmd_index, set, binding, ai);
+                    const uint32_t layer_count = ExtractAndFilterSubresourceRange(
+                        range, "LayerCount", "VK_REMAINING_ARRAY_LAYERS", cmd_index, set, binding, ai);
+                    const uint32_t z_count = ExtractAndFilterSubresourceRange(
+                        range, "ZCount", "REMAINING_Z_INDICES", cmd_index, set, binding, ai);
 
-                    uint32_t layer_count;
-                    if (range["LayerCount"].is_number())
-                    {
-                        layer_count = range["LayerCount"];
-                    }
-                    else
-                    {
-                        const std::string layer_count_str = range["LayerCount"];
-                        if (!layer_count_str.compare("VK_REMAINING_ARRAY_LAYERS"))
-                        {
-                            layer_count = VK_REMAINING_ARRAY_LAYERS;
-                        }
-                        else
-                        {
-                            GFXRECON_LOG_WARNING(
-                                "The string \"%s\", that is being passed as \"LayerCount\" for command index: %" PRIu64
-                                ", descriptor set: %" PRIu64 ", binding set: %" PRIu64 " and, array index: %" PRIu64
-                                ", is not recognized and will be ignored (will use 1 instead).",
-                                layer_count_str.c_str(),
-                                cmd_index,
-                                set,
-                                binding,
-                                ai);
-                            layer_count = 1;
-                        }
-                    }
-
-                    subresource_range = { aspect, base_level, level_count, base_layer, layer_count };
+                    command_subresources[command_location].emplace_back(
+                        desc_tuple,
+                        decode::ImageSubresourceRanges{
+                            aspect, base_level, level_count, base_layer, layer_count, base_z, z_count });
                 }
                 else
                 {
-                    subresource_range = {
-                        VK_IMAGE_ASPECT_NONE, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
-                    };
+                    // If no sub resources have been specified then there are two cases:
+                    // 1) If it is not an image based descriptor then the subresource range will ne be used
+                    // 2) If it is an image based descriptor we will dump subresources depending on the value of the
+                    //    dump_resources_dump_all_image_subresources option
+                    command_subresources[command_location].emplace_back(
+                        desc_tuple,
+                        decode::ImageSubresourceRanges{ VK_IMAGE_ASPECT_NONE,
+                                                        0,
+                                                        VK_REMAINING_MIP_LEVELS,
+                                                        0,
+                                                        VK_REMAINING_ARRAY_LAYERS,
+                                                        0,
+                                                        decode::REMAINING_Z_INDICES });
                 }
-                command_subresources[cmd_index].emplace(decode::DescriptorLocation{ set, binding, ai },
-                                                        subresource_range);
             }
         }
     }
@@ -484,7 +509,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         }
 
         // Transfer command indices from json to vectors in vulkan_replay_options
-        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER].size(); idx0++)
+        for (size_t idx0 = 0; idx0 < jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER].size(); idx0++)
         {
             const decode::Index qs  = jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0];
             const decode::Index bcb = jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0];
@@ -504,24 +529,27 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.emplace_back(new_pair);
         }
 
-        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DRAW].size(); idx0++)
+        for (size_t idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DRAW].size(); idx0++)
         {
+            const decode::Index qs  = jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0];
+            const decode::Index bcb = jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0];
+
             vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
             for (auto it = jargs[decode::DUMP_ARG_DRAW][idx0].begin(); it != jargs[decode::DUMP_ARG_DRAW][idx0].end();
                  ++it)
             {
                 ExtractIndexAndDescriptors(
-                    it, idx0, vulkan_replay_options.Draw_Indices, vulkan_replay_options.DrawSubresources);
+                    it, bcb, qs, idx0, vulkan_replay_options.Draw_Indices, vulkan_replay_options.DrawSubresources);
             }
         }
 
-        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_RENDER_PASS].size(); idx0++)
+        for (size_t idx0 = 0; idx0 < jargs[decode::DUMP_ARG_RENDER_PASS].size(); idx0++)
         {
             vulkan_replay_options.RenderPass_Indices.push_back(std::vector<std::vector<uint64_t>>());
-            for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_RENDER_PASS][idx0].size(); idx1++)
+            for (size_t idx1 = 0; idx1 < jargs[decode::DUMP_ARG_RENDER_PASS][idx0].size(); idx1++)
             {
                 vulkan_replay_options.RenderPass_Indices[idx0].push_back(std::vector<uint64_t>());
-                for (int idx2 = 0; idx2 < jargs[decode::DUMP_ARG_RENDER_PASS][idx0][idx1].size(); idx2++)
+                for (size_t idx2 = 0; idx2 < jargs[decode::DUMP_ARG_RENDER_PASS][idx0][idx1].size(); idx2++)
                 {
                     vulkan_replay_options.RenderPass_Indices[idx0][idx1].push_back(
                         jargs[decode::DUMP_ARG_RENDER_PASS][idx0][idx1][idx2]);
@@ -529,39 +557,53 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             }
         }
 
-        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRACE_RAYS].size(); idx0++)
+        for (size_t idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRACE_RAYS].size(); idx0++)
         {
+            const decode::Index qs  = jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0];
+            const decode::Index bcb = jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0];
+
             vulkan_replay_options.TraceRays_Indices.push_back(std::vector<uint64_t>());
             for (auto it = jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].begin();
                  it != jargs[decode::DUMP_ARG_TRACE_RAYS][idx0].end();
                  ++it)
             {
-                ExtractIndexAndDescriptors(
-                    it, idx0, vulkan_replay_options.TraceRays_Indices, vulkan_replay_options.TraceRaysSubresources);
+                ExtractIndexAndDescriptors(it,
+                                           bcb,
+                                           qs,
+                                           idx0,
+                                           vulkan_replay_options.TraceRays_Indices,
+                                           vulkan_replay_options.TraceRaysSubresources);
             }
         }
 
-        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DISPATCH].size(); idx0++)
+        for (size_t idx0 = 0; idx0 < jargs[decode::DUMP_ARG_DISPATCH].size(); idx0++)
         {
+            const decode::Index qs  = jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0];
+            const decode::Index bcb = jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0];
+
             vulkan_replay_options.Dispatch_Indices.push_back(std::vector<uint64_t>());
             for (auto it = jargs[decode::DUMP_ARG_DISPATCH][idx0].begin();
                  it != jargs[decode::DUMP_ARG_DISPATCH][idx0].end();
                  ++it)
             {
-                ExtractIndexAndDescriptors(
-                    it, idx0, vulkan_replay_options.Dispatch_Indices, vulkan_replay_options.DispatchSubresources);
+                ExtractIndexAndDescriptors(it,
+                                           bcb,
+                                           qs,
+                                           idx0,
+                                           vulkan_replay_options.Dispatch_Indices,
+                                           vulkan_replay_options.DispatchSubresources);
             }
         }
 
-        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS].size(); ++idx0)
+        for (size_t idx0 = 0; idx0 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS].size(); ++idx0)
         {
             vulkan_replay_options.ExecuteCommands_Indices.push_back(decode::ExecuteCommands());
-            for (int idx1 = 0; idx1 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0].size(); idx1++)
+            for (size_t idx1 = 0; idx1 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0].size(); idx1++)
             {
                 if (!jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1].empty())
                 {
                     const uint64_t execute_commands_index = jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1][0];
-                    for (int idx2 = 1; idx2 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1].size(); idx2++)
+                    for (size_t idx2 = 1; idx2 < jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1].size(); idx2++)
                     {
                         const uint64_t secondardy_bcb = jargs[decode::DUMP_ARG_EXECUTE_COMMANDS][idx0][idx1][idx2];
                         vulkan_replay_options.ExecuteCommands_Indices[idx0][execute_commands_index].push_back(
@@ -571,15 +613,22 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
             }
         }
 
-        for (int idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRANSFER].size(); idx0++)
+        for (size_t idx0 = 0; idx0 < jargs[decode::DUMP_ARG_TRANSFER].size(); idx0++)
         {
+            const decode::Index qs  = jargs[decode::DUMP_ARG_QUEUE_SUBMIT][idx0];
+            const decode::Index bcb = jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER][idx0];
+
             vulkan_replay_options.Transfer_Indices.push_back(std::vector<uint64_t>());
             for (auto it = jargs[decode::DUMP_ARG_TRANSFER][idx0].begin();
                  it != jargs[decode::DUMP_ARG_TRANSFER][idx0].end();
                  ++it)
             {
-                ExtractIndexAndDescriptors(
-                    it, idx0, vulkan_replay_options.Transfer_Indices, vulkan_replay_options.TraceRaysSubresources);
+                ExtractIndexAndDescriptors(it,
+                                           bcb,
+                                           qs,
+                                           idx0,
+                                           vulkan_replay_options.Transfer_Indices,
+                                           vulkan_replay_options.TraceRaysSubresources);
             }
         }
     }

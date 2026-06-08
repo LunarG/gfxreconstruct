@@ -27,9 +27,12 @@
 #define GFXRECON_UTIL_STRINGS_H
 
 #include "util/defines.h"
+#include "util/compiler_diagnostics.h"
 
 #include <string>
+GFXRECON_BEGIN_SUPPRESS_APPLE_SDK_WARNINGS
 #include <vector>
+GFXRECON_END_SUPPRESS_APPLE_SDK_WARNINGS
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)

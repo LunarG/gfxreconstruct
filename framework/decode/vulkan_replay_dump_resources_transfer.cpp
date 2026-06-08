@@ -23,6 +23,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_delegate.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_dump_resources_delegate_dumped_resources.h"
 #include "format/format.h"
 #include "graphics/vulkan_resources_util.h"
 #include "graphics/vulkan_util.h"
@@ -33,6 +34,7 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/platform.h"
 #include "util/to_string.h"
+#include "graphics/vulkan_util.h"
 
 #include <cstdint>
 #include <tuple>
@@ -45,6 +47,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 TransferDumpingContext::TransferDumpingContext(
     const CommandIndices*                             transfer_indices,
+    decode::Index                                     bcb_index,
+    decode::Index                                     qs_index,
     CommonObjectInfoTable&                            object_info_table,
     const graphics::InstanceDispatchTablesMap&        instance_tables,
     const graphics::DeviceDispatchTablesMap&          device_tables,
@@ -54,9 +58,10 @@ TransferDumpingContext::TransferDumpingContext(
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context,
     const util::Compressor*                           compressor) :
     object_info_table_(object_info_table),
-    instance_tables_(instance_tables), device_tables_(device_tables), options_(options), delegate_(delegate),
-    address_trackers_(address_trackers), acceleration_structures_context_(acceleration_structures_context),
-    compressor_(compressor), device_table_(nullptr), device_info_(nullptr)
+    bcb_index_(bcb_index), qs_index_(qs_index), instance_tables_(instance_tables), device_tables_(device_tables),
+    options_(options), delegate_(delegate), address_trackers_(address_trackers),
+    acceleration_structures_context_(acceleration_structures_context), compressor_(compressor), device_table_(nullptr),
+    device_info_(nullptr)
 {
     if (transfer_indices != nullptr)
     {
@@ -108,6 +113,148 @@ VkResult TransferDumpingContext::HandleInitBufferCommand(
     return VK_SUCCESS;
 }
 
+VkResult TransferDumpingContext::HandleImageTransfer(VkCommandBuffer              command_buffer,
+                                                     const VulkanImageInfo*       src_image,
+                                                     VkImageLayout                src_image_layout,
+                                                     VkImageAspectFlags           aspects,
+                                                     TransferParams::CopiedImage& dst_image)
+{
+    GFXRECON_ASSERT(src_image != nullptr);
+
+    if (dst_image.image == VK_NULL_HANDLE)
+    {
+        const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
+        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
+            &phys_dev_info->replay_device_info->memory_properties.value();
+        VkResult res = CreateVkImage(object_info_table_,
+                                     device_table_,
+                                     replay_device_phys_mem_props,
+                                     src_image,
+                                     &dst_image.image,
+                                     &dst_image.memory);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
+            return res;
+        }
+
+        // Update copy of VulkanImageInfo
+        dst_image.image_info.handle              = dst_image.image;
+        dst_image.image_info.capture_id          = format::kNullHandleId;
+        dst_image.image_info.intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        dst_image.image_info.current_layout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+        // Transition new image/aspect into VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+        const VkImageMemoryBarrier new_img_barrier = {
+            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            nullptr,
+            VK_ACCESS_NONE,
+            VK_ACCESS_TRANSFER_WRITE_BIT,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_QUEUE_FAMILY_IGNORED,
+            VK_QUEUE_FAMILY_IGNORED,
+            dst_image.image,
+            { aspects, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS }
+        };
+        device_table_->CmdPipelineBarrier(command_buffer,
+                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                          VkDependencyFlags(0),
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr,
+                                          1,
+                                          &new_img_barrier);
+    }
+
+    // Flush any pending writes to image and transition into VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
+    VkImageMemoryBarrier img_barrier = {
+        VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+        nullptr,
+        VK_ACCESS_MEMORY_WRITE_BIT,
+        VK_ACCESS_TRANSFER_READ_BIT,
+        src_image_layout,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        VK_QUEUE_FAMILY_IGNORED,
+        VK_QUEUE_FAMILY_IGNORED,
+        src_image->handle,
+        { static_cast<VkImageAspectFlags>(aspects), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS }
+    };
+
+    device_table_->CmdPipelineBarrier(command_buffer,
+                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VkDependencyFlags(0),
+                                      0,
+                                      nullptr,
+                                      0,
+                                      nullptr,
+                                      1,
+                                      &img_barrier);
+
+    // Copy whole image
+    std::vector<VkImageCopy> copy_regions(src_image->level_count);
+    for (uint32_t m = 0; m < src_image->level_count; ++m)
+    {
+        copy_regions[m].srcSubresource = { aspects, m, 0, src_image->layer_count };
+        copy_regions[m].srcOffset      = { 0, 0, 0 };
+        copy_regions[m].dstSubresource = { aspects, m, 0, src_image->layer_count };
+        copy_regions[m].dstOffset      = { 0, 0, 0 };
+        copy_regions[m].extent         = graphics::ScaleToMipLevel(src_image->extent, m);
+    }
+
+    device_table_->CmdCopyImage(command_buffer,
+                                src_image->handle,
+                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                dst_image.image,
+                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                src_image->level_count,
+                                copy_regions.data());
+
+    // Flush copy and transition image into TRANSFER_SRC_OPTIMAL
+    img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    img_barrier.image         = dst_image.image;
+
+    device_table_->CmdPipelineBarrier(command_buffer,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VkDependencyFlags(0),
+                                      0,
+                                      nullptr,
+                                      0,
+                                      nullptr,
+                                      1,
+                                      &img_barrier);
+
+    // Transition source image back into previous layout
+    if (src_image_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+    {
+        img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        img_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        img_barrier.newLayout     = src_image_layout;
+        img_barrier.image         = src_image->handle;
+
+        device_table_->CmdPipelineBarrier(command_buffer,
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                          VkDependencyFlags(0),
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr,
+                                          1,
+                                          &img_barrier);
+    }
+
+    return VK_SUCCESS;
+}
+
 VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer              command_buffer,
                                                         uint64_t                     cmd_index,
                                                         format::HandleId             device_id,
@@ -133,7 +280,7 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         if (entry != transfer_params_.end())
         {
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(entry->second.params.get());
-            if (init_image_params != nullptr && init_image_params->dst_image.id == image_id)
+            if (init_image_params != nullptr && init_image_params->dst_image.image_info.capture_id == image_id)
             {
                 insert_new_entry = false;
             }
@@ -142,12 +289,11 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
         const auto* img_info = object_info_table_.GetVkImageInfo(image_id);
         const auto* dev_info = object_info_table_.GetVkDeviceInfo(device_id);
 
-        TemporaryCommandBuffer temp_command_buffer;
+        TemporaryCommandBuffer temp_command_buffer(*dev_info, *device_table_);
         VkCommandBuffer        cmd_buf;
         if (command_buffer == VK_NULL_HANDLE)
         {
-            VkResult res = CreateAndBeginCommandBuffer(
-                &FindComputeQueueFamilyIndex, dev_info, *device_table_, temp_command_buffer);
+            VkResult res = temp_command_buffer.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
             if (res != VK_SUCCESS)
             {
                 return res;
@@ -161,140 +307,31 @@ VkResult TransferDumpingContext::HandleInitImageCommand(VkCommandBuffer         
 
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(img_info != nullptr);
             auto [new_entry, success] = transfer_params_.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(cmd_index),
                 std::forward_as_tuple(
-                    img_info, aspect, layout, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
+                    *img_info, aspect, layout, *device_table_, device_info_, TransferCommandTypes::kCmdInitImage));
             GFXRECON_ASSERT(success);
 
             init_image_params = static_cast<TransferParams::InitImageMetaCommand*>(new_entry->second.params.get());
-
-            // Create an image with the same properties
-            const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
-            const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
-                &phys_dev_info->replay_device_info->memory_properties.value();
-            VkResult res = CreateVkImage(object_info_table_,
-                                         device_table_,
-                                         replay_device_phys_mem_props,
-                                         img_info,
-                                         &init_image_params->copied_image.image,
-                                         &init_image_params->copied_image.memory);
-            if (res != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
-                return res;
-            }
-
-            init_image_params->copied_image.image_info.handle              = init_image_params->copied_image.image;
-            init_image_params->copied_image.image_info.intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            init_image_params->copied_image.image_info.current_layout      = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         }
         GFXRECON_ASSERT(init_image_params != nullptr);
 
-        // Transition new image/aspect into VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-        VkImageMemoryBarrier img_barrier = {
-            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            nullptr,
-            VK_ACCESS_NONE,
-            VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_IMAGE_LAYOUT_UNDEFINED,
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            init_image_params->copied_image.image,
-            { static_cast<VkImageAspectFlags>(aspect), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS }
-        };
-        device_table_->CmdPipelineBarrier(cmd_buf,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        // Flush source image and transition into VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
-        img_barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        img_barrier.oldLayout     = layout;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        img_barrier.image         = img_info->handle;
-
-        device_table_->CmdPipelineBarrier(cmd_buf,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_HOST_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        // Copy source image
-        std::vector<VkImageCopy> copy_regions(img_info->level_count);
-        for (uint32_t m = 0; m < img_info->level_count; ++m)
+        VkResult res = HandleImageTransfer(cmd_buf, img_info, layout, aspect, init_image_params->copied_image);
+        if (res != VK_SUCCESS)
         {
-            copy_regions[m].srcSubresource = { static_cast<VkImageAspectFlags>(aspect), m, 0, img_info->layer_count };
-            copy_regions[m].srcOffset      = { 0, 0, 0 };
-            copy_regions[m].dstSubresource = { static_cast<VkImageAspectFlags>(aspect), m, 0, img_info->layer_count };
-            copy_regions[m].dstOffset      = { 0, 0, 0 };
-            copy_regions[m].extent         = graphics::ScaleToMipLevel(img_info->extent, m);
-        }
-
-        device_table_->CmdCopyImage(cmd_buf,
-                                    img_info->handle,
-                                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                    init_image_params->copied_image.image,
-                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                    img_info->level_count,
-                                    copy_regions.data());
-
-        // Flush copy
-        img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        img_barrier.image         = init_image_params->copied_image.image;
-
-        device_table_->CmdPipelineBarrier(cmd_buf,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        // Transition source image into original layout
-        if (layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-        {
-            img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            img_barrier.dstAccessMask = VK_ACCESS_NONE;
-            img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            img_barrier.newLayout     = layout;
-            img_barrier.image         = img_info->handle;
-
-            device_table_->CmdPipelineBarrier(cmd_buf,
-                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                              VkDependencyFlags(0),
-                                              0,
-                                              nullptr,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &img_barrier);
+            return res;
         }
 
         if (command_buffer == VK_NULL_HANDLE)
         {
-            SubmitAndDestroyCommandBuffer(temp_command_buffer);
+            VkResult res = temp_command_buffer.SubmitAndDestroy();
+            if (res != VK_SUCCESS)
+            {
+                return res;
+            }
         }
     }
 
@@ -311,6 +348,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(srcBuffer != nullptr);
         GetDispatchTables(srcBuffer->parent_id);
 
         // If we also are dumping resources before the command, we insert only one entry in transfer_params_ and store
@@ -320,6 +358,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBuffer(const ApiCallInfo&      cal
         TransferParams::CopyBuffer* copy_buffer_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(dstBuffer != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
@@ -436,6 +475,7 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(dstImage != nullptr);
         GetDispatchTables(dstImage->parent_id);
         const VkDevice device = device_info_->handle;
 
@@ -446,11 +486,12 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
         TransferParams::CopyBufferToImage* copy_buffer_to_image_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(srcBuffer != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
                                          std::forward_as_tuple(srcBuffer->capture_id,
-                                                               dstImage,
+                                                               *dstImage,
                                                                dstImageLayout,
                                                                *device_table_,
                                                                device_info_,
@@ -471,105 +512,18 @@ VkResult TransferDumpingContext::HandleCmdCopyBufferToImage(const ApiCallInfo&  
         }
         GFXRECON_ASSERT(copy_buffer_to_image_params != nullptr);
 
-        // Create an image with the same parameters as the dstImage
-        const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
-        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
-            &phys_dev_info->replay_device_info->memory_properties.value();
-        VkResult res = CreateVkImage(object_info_table_,
-                                     device_table_,
-                                     replay_device_phys_mem_props,
-                                     dstImage,
-                                     &copy_buffer_to_image_params->copied_image.image,
-                                     &copy_buffer_to_image_params->copied_image.memory);
+        VkResult res = HandleImageTransfer(commandBuffer,
+                                           dstImage,
+                                           dstImageLayout,
+                                           graphics::GetFormatAspects(dstImage->format),
+                                           copy_buffer_to_image_params->copied_image);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
             return res;
         }
 
-        // Update copy of VulkanImageInfo
-        copy_buffer_to_image_params->copied_image.image_info.handle = copy_buffer_to_image_params->copied_image.image;
-        copy_buffer_to_image_params->copied_image.image_info.capture_id          = format::kNullHandleId;
-        copy_buffer_to_image_params->copied_image.image_info.intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        copy_buffer_to_image_params->copied_image.image_info.current_layout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-        // Flush any pending writes to destination image
-        VkImageMemoryBarrier img_barrier = {
-            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            nullptr,
-            VK_ACCESS_MEMORY_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_ACCESS_TRANSFER_READ_BIT,
-            dstImageLayout,
-            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            dstImage->handle,
-            { graphics::GetFormatAspects(dstImage->format), 0, dstImage->level_count, 0, dstImage->layer_count }
-        };
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        // Transition new image's layout
-        img_barrier.srcAccessMask = VK_ACCESS_NONE;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.image         = copy_buffer_to_image_params->copied_image.image;
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        for (uint32_t i = 0; i < regionCount; ++i)
-        {
-            auto& new_region = copy_buffer_to_image_params->regions.emplace_back(pRegions[i]);
-
-            // Copy each of the destination image's regions into the new image with CmdCopyImage
-            const VkImageCopy region = { pRegions[i].imageSubresource,
-                                         { 0, 0, 0 },
-                                         pRegions[i].imageSubresource,
-                                         { 0, 0, 0 },
-                                         graphics::ScaleToMipLevel(dstImage->extent,
-                                                                   pRegions[i].imageSubresource.mipLevel) };
-            device_table_->CmdCopyImage(commandBuffer,
-                                        dstImage->handle,
-                                        dstImageLayout,
-                                        copy_buffer_to_image_params->copied_image.image,
-                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                        1,
-                                        &region);
-        }
-
-        // Flush copies
-        img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        img_barrier.image         = copy_buffer_to_image_params->copied_image.image;
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
+        copy_buffer_to_image_params->regions.insert(
+            copy_buffer_to_image_params->regions.end(), pRegions, pRegions + regionCount);
     }
 
     return VK_SUCCESS;
@@ -619,6 +573,8 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(srcImage != nullptr);
+        GFXRECON_ASSERT(dstImage != nullptr);
         GetDispatchTables(srcImage->parent_id);
         const VkDevice device = device_info_->handle;
 
@@ -632,9 +588,9 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage,
+                                         std::forward_as_tuple(*srcImage,
                                                                srcImageLayout,
-                                                               dstImage,
+                                                               *dstImage,
                                                                dstImageLayout,
                                                                *device_table_,
                                                                device_info_,
@@ -654,111 +610,17 @@ VkResult TransferDumpingContext::HandleCmdCopyImage(const ApiCallInfo&     call_
         }
         GFXRECON_ASSERT(copy_image_params != nullptr);
 
-        // Create an image with the same parameters as the dstImage
-        const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
-        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
-            &phys_dev_info->replay_device_info->memory_properties.value();
-        VkResult res = CreateVkImage(object_info_table_,
-                                     device_table_,
-                                     replay_device_phys_mem_props,
-                                     dstImage,
-                                     &copy_image_params->copied_image.image,
-                                     &copy_image_params->copied_image.memory);
+        VkResult res = HandleImageTransfer(commandBuffer,
+                                           dstImage,
+                                           dstImageLayout,
+                                           graphics::GetFormatAspects(dstImage->format),
+                                           copy_image_params->copied_image);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
             return res;
         }
 
-        // Update copy of VulkanImageInfo
-        copy_image_params->copied_image.image_info.handle              = copy_image_params->copied_image.image;
-        copy_image_params->copied_image.image_info.capture_id          = format::kNullHandleId;
-        copy_image_params->copied_image.image_info.intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        copy_image_params->copied_image.image_info.current_layout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-        // Flush any pending writes to destination image
-        VkImageMemoryBarrier img_barrier = {
-            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            nullptr,
-            VK_ACCESS_MEMORY_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_ACCESS_TRANSFER_READ_BIT,
-            dstImageLayout,
-            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            dstImage->handle,
-            { graphics::GetFormatAspects(dstImage->format), 0, dstImage->level_count, 0, dstImage->layer_count }
-        };
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        // Transition new image's layout
-        img_barrier.srcAccessMask = VK_ACCESS_NONE;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.image         = copy_image_params->copied_image.image;
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        for (uint32_t i = 0; i < regionCount; ++i)
-        {
-            auto& new_region = copy_image_params->regions.emplace_back(pRegions[i]);
-
-            // Copy regions into new image
-            const VkImageCopy copy_region = { pRegions[i].dstSubresource,
-                                              { 0, 0, 0 },
-                                              pRegions[i].dstSubresource,
-                                              { 0, 0, 0 },
-                                              graphics::ScaleToMipLevel(dstImage->extent,
-                                                                        pRegions[i].dstSubresource.mipLevel) };
-            device_table_->CmdCopyImage(commandBuffer,
-                                        dstImage->handle,
-                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                        copy_image_params->copied_image.image,
-                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                        1,
-                                        &copy_region);
-        }
-
-        // Barrier for injected copies
-        img_barrier.srcAccessMask    = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.dstAccessMask    = VK_ACCESS_TRANSFER_READ_BIT;
-        img_barrier.oldLayout        = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.newLayout        = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        img_barrier.image            = copy_image_params->copied_image.image;
-        img_barrier.subresourceRange = { graphics::GetFormatAspects(copy_image_params->copied_image.image_info.format),
-                                         0,
-                                         VK_REMAINING_MIP_LEVELS,
-                                         0,
-                                         VK_REMAINING_ARRAY_LAYERS };
-
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
+        copy_image_params->regions.insert(copy_image_params->regions.end(), pRegions, pRegions + regionCount);
     }
 
     return VK_SUCCESS;
@@ -806,6 +668,7 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(dstBuffer != nullptr);
         GetDispatchTables(dstBuffer->parent_id);
 
         // If we also are dumping resources before the command, we insert only one entry in transfer_params_ and store
@@ -815,10 +678,11 @@ VkResult TransferDumpingContext::HandleCmdCopyImageToBuffer(const ApiCallInfo&  
         TransferParams::CopyImageToBuffer* copy_image_to_buffer_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(srcImage != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage,
+                                         std::forward_as_tuple(*srcImage,
                                                                srcImageLayout,
                                                                dstBuffer->capture_id,
                                                                *device_table_,
@@ -959,6 +823,7 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
 {
     if (MustDumpTransfer(call_info.index))
     {
+        GFXRECON_ASSERT(dstImage != nullptr);
         GetDispatchTables(dstImage->parent_id);
 
         // If we also are dumping resources before the command, we insert only one entry in transfer_params_ and store
@@ -968,12 +833,13 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
         TransferParams::BlitImage* blit_image_params;
         if (insert_new_entry)
         {
+            GFXRECON_ASSERT(srcImage != nullptr);
             auto [new_entry, success] =
                 transfer_params_.emplace(std::piecewise_construct,
                                          std::forward_as_tuple(call_info.index),
-                                         std::forward_as_tuple(srcImage,
+                                         std::forward_as_tuple(*srcImage,
                                                                srcImageLayout,
-                                                               dstImage,
+                                                               *dstImage,
                                                                dstImageLayout,
                                                                filter,
                                                                *device_table_,
@@ -994,104 +860,17 @@ VkResult TransferDumpingContext::HandleCmdBlitImage(const ApiCallInfo&     call_
         }
         GFXRECON_ASSERT(blit_image_params != nullptr);
 
-        // Create an image with the same parameters as the dstImage
-        const auto* phys_dev_info = object_info_table_.GetVkPhysicalDeviceInfo(device_info_->parent_id);
-        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props =
-            &phys_dev_info->replay_device_info->memory_properties.value();
-        VkResult res = CreateVkImage(object_info_table_,
-                                     device_table_,
-                                     replay_device_phys_mem_props,
-                                     dstImage,
-                                     &blit_image_params->copied_image.image,
-                                     &blit_image_params->copied_image.memory);
+        VkResult res = HandleImageTransfer(commandBuffer,
+                                           dstImage,
+                                           dstImageLayout,
+                                           graphics::GetFormatAspects(dstImage->format),
+                                           blit_image_params->copied_image);
         if (res != VK_SUCCESS)
         {
-            GFXRECON_LOG_ERROR("%s() CreateVkImage failed (%s)", __func__, util::ToString(res).c_str());
             return res;
         }
 
-        // Update copy of VulkanImageInfo
-        blit_image_params->copied_image.image_info.handle              = blit_image_params->copied_image.image;
-        blit_image_params->copied_image.image_info.capture_id          = format::kNullHandleId;
-        blit_image_params->copied_image.image_info.intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        blit_image_params->copied_image.image_info.current_layout      = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-        // Flush any pending writes to destination image
-        VkImageMemoryBarrier img_barrier = {
-            VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            nullptr,
-            VK_ACCESS_MEMORY_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_ACCESS_TRANSFER_READ_BIT,
-            dstImageLayout,
-            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            dstImage->handle,
-            { graphics::GetFormatAspects(dstImage->format), 0, dstImage->level_count, 0, dstImage->layer_count }
-        };
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        // Transition new image's layout
-        img_barrier.srcAccessMask = VK_ACCESS_NONE;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.image         = blit_image_params->copied_image.image;
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
-
-        for (uint32_t i = 0; i < regionCount; ++i)
-        {
-            auto& new_region = blit_image_params->regions.emplace_back(pRegions[i]);
-
-            const VkImageCopy copy_region = { pRegions[i].dstSubresource,
-                                              { 0, 0, 0 },
-                                              pRegions[i].dstSubresource,
-                                              { 0, 0, 0 },
-                                              graphics::ScaleToMipLevel(dstImage->extent,
-                                                                        pRegions[i].dstSubresource.mipLevel) };
-
-            device_table_->CmdCopyImage(commandBuffer,
-                                        dstImage->handle,
-                                        dstImageLayout,
-                                        blit_image_params->copied_image.image,
-                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                        1,
-                                        &copy_region);
-        }
-
-        // Flush injected copies
-        img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        device_table_->CmdPipelineBarrier(commandBuffer,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                          VkDependencyFlags(0),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr,
-                                          1,
-                                          &img_barrier);
+        blit_image_params->regions.insert(blit_image_params->regions.end(), pRegions, pRegions + regionCount);
     }
 
     return VK_SUCCESS;
@@ -1176,6 +955,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
         }
         GFXRECON_ASSERT(build_params != nullptr);
 
+        build_params->build_infos.reserve(infoCount);
+
         for (uint32_t i = 0; i < infoCount; ++i)
         {
             const auto* dst_as =
@@ -1184,15 +965,12 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 object_info_table_.GetVkAccelerationStructureKHRInfo(p_infos_meta[i].srcAccelerationStructure);
 
             VkResult               res;
-            TemporaryCommandBuffer temp_command_buffer;
+            TemporaryCommandBuffer temp_command_buffer(*device_info_, *device_table_);
 
             // NULL command buffer means that this is coming from the state setup section
             if (commandBuffer == VK_NULL_HANDLE)
             {
-                res = CreateAndBeginCommandBuffer(&FindComputeQueueFamilyIndex,
-                                                  object_info_table_.GetVkDeviceInfo(dst_as->parent_id),
-                                                  *device_table_,
-                                                  temp_command_buffer);
+                res = temp_command_buffer.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
                 if (res != VK_SUCCESS)
                 {
                     return res;
@@ -1211,9 +989,10 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 // Clone build input buffers
                 res = new_build_info.vk_objects.as_context.CloneBuildAccelerationStructuresInputBuffers(
                     command_buffer,
-                    &p_infos_meta[i],
+                    p_infos[i],
                     p_range_infos[i],
-                    options_.dump_resources_dump_build_AS_input_buffers);
+                    options_.dump_resources_dump_build_AS_input_buffers,
+                    !before_command);
                 if (res != VK_SUCCESS)
                 {
                     return res;
@@ -1245,8 +1024,8 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                  VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
                                      VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
                                      VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                                 &new_build_info.vk_objects.buffer,
-                                 &new_build_info.vk_objects.memory);
+                                 &new_build_info.vk_objects.as_info->buffer,
+                                 &new_build_info.vk_objects.as_memory);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR(
@@ -1259,14 +1038,14 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                 VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
                 nullptr,
                 VkAccelerationStructureCreateFlagBitsKHR(0),
-                new_build_info.vk_objects.buffer,
+                new_build_info.vk_objects.as_info->buffer,
                 0,
                 dst_as->size,
                 dst_as->type,
                 0
             };
             res = device_table_->CreateAccelerationStructureKHR(
-                device_info_->handle, &as_ci, nullptr, &new_build_info.vk_objects.as);
+                device_info_->handle, &as_ci, nullptr, &new_build_info.vk_objects.as_info->handle);
             if (res != VK_SUCCESS)
             {
                 GFXRECON_LOG_ERROR("%s(): CreateAccelerationStructureKHR failed with %s",
@@ -1274,10 +1053,6 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                    util::ToString<VkResult>(res).c_str());
                 return res;
             }
-
-            // Update local VulkanAccelerationStructureKHRInfo
-            new_build_info.vk_objects.as_info.handle = new_build_info.vk_objects.as;
-            new_build_info.vk_objects.as_info.buffer = new_build_info.vk_objects.buffer;
 
             // Wait for original build to complete / flush any pending writes to destination
             VkBufferMemoryBarrier dst_buf_mem_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1303,28 +1078,13 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
                                               0,
                                               nullptr);
 
-            // Flush temporary build
-            dst_buf_mem_barrier.dstAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
-            dst_buf_mem_barrier.buffer        = new_build_info.vk_objects.buffer;
-            device_table_->CmdPipelineBarrier(command_buffer,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR |
-                                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &dst_buf_mem_barrier,
-                                              0,
-                                              nullptr);
-
             // Inject vkCmdCopyBuffer to Copy destination's backing buffer
             const std::vector<VkBufferCopy> region{ VkBufferCopy{ 0, 0, dst_as->size } };
             CopyBufferAndBarrier(
                 command_buffer,
                 *device_table_,
                 dst_as->buffer,
-                new_build_info.vk_objects.buffer,
+                new_build_info.vk_objects.as_info->buffer,
                 region,
                 VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
                 VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
@@ -1333,7 +1093,11 @@ VkResult TransferDumpingContext::HandleCmdBuildAccelerationStructuresKHR(
 
             if (commandBuffer == VK_NULL_HANDLE)
             {
-                SubmitAndDestroyCommandBuffer(temp_command_buffer);
+                VkResult res = temp_command_buffer.SubmitAndDestroy();
+                if (res != VK_SUCCESS)
+                {
+                    return res;
+                }
             }
         }
     }
@@ -1409,36 +1173,33 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
                                       nullptr,
                                       replay_device_phys_mem_props_,
                                       VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR |
-                                          VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-                                      &copy_as_params->vk_objects.buffer,
-                                      &copy_as_params->vk_objects.memory);
+                                          VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                                          VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                      &copy_as_params->vk_objects.as_info->buffer,
+                                      &copy_as_params->vk_objects.as_memory);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("%s(): CreateVkBuffer failed with %s", __func__, util::ToString<VkResult>(res).c_str());
             return res;
         }
 
-        // Create acceleration structure
         const VkAccelerationStructureCreateInfoKHR as_ci = { VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
                                                              nullptr,
                                                              VkAccelerationStructureCreateFlagBitsKHR(0),
-                                                             copy_as_params->vk_objects.buffer,
+                                                             copy_as_params->vk_objects.as_info->buffer,
                                                              0,
                                                              dst_as->size,
                                                              dst_as->type,
                                                              0 };
-        res                                              = device_table_->CreateAccelerationStructureKHR(
-            device_info_->handle, &as_ci, nullptr, &copy_as_params->vk_objects.as);
+        // Create the cloned AS
+        res = device_table_->CreateAccelerationStructureKHR(
+            device_info_->handle, &as_ci, nullptr, &copy_as_params->vk_objects.as_info->handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
                 "%s(): CreateAccelerationStructureKHR failed with %s", __func__, util::ToString<VkResult>(res).c_str());
             return res;
         }
-
-        // Update local VulkanAccelerationStructureKHRInfo
-        copy_as_params->vk_objects.as_info.handle = copy_as_params->vk_objects.as;
-        copy_as_params->vk_objects.as_info.buffer = copy_as_params->vk_objects.buffer;
 
         // Wait for original build to complete / flush any pending writes to destination
         const VkBufferMemoryBarrier dst_buf_mem_barrier = {
@@ -1469,7 +1230,7 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
         CopyBufferAndBarrier(commandBuffer,
                              *device_table_,
                              dst_as->buffer,
-                             copy_as_params->vk_objects.buffer,
+                             copy_as_params->vk_objects.as_info->buffer,
                              region,
                              VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
                              VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
@@ -1480,23 +1241,32 @@ VkResult TransferDumpingContext::HandleCmdCopyAccelerationStructureKHR(
     return VK_SUCCESS;
 }
 
-VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64_t qs_index)
+VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, Index submit_info_cmd_buf_index)
 {
-    if (!qs_index)
+    if (!qs_index_ && !options_.dump_resources_json_per_command)
     {
         delegate_.DumpStart();
     }
 
     for (auto& [cmd_index, cmd] : transfer_params_)
     {
+        const DumpedResourceBase dumped_resource_base(DumpResourcesPipelineStage::kTransfer,
+                                                      bcb_index_,
+                                                      cmd_index,
+                                                      qs_index_,
+                                                      submit_info_index,
+                                                      submit_info_cmd_buf_index,
+                                                      UNDEFINED_INDEX,
+                                                      UNDEFINED_INDEX);
+
         VulkanDelegateDumpResourceContext res_info(instance_table_, device_table_, compressor_);
         res_info.dumped_data = VulkanDelegateTransferCommandDumpedData();
         auto& host_data      = std::get<VulkanDelegateTransferCommandDumpedData>(res_info.dumped_data);
 
         TransferParams::TransferParamsBase* base_transfer_cmd = cmd.params.get();
-        base_transfer_cmd->dumped_resources.bcb_index         = bcb_index;
+        base_transfer_cmd->dumped_resources.bcb_index         = bcb_index_;
         base_transfer_cmd->dumped_resources.cmd_index         = cmd_index;
-        base_transfer_cmd->dumped_resources.qs_index          = qs_index;
+        base_transfer_cmd->dumped_resources.qs_index          = qs_index_;
 
         switch (base_transfer_cmd->type)
         {
@@ -1504,9 +1274,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
             {
                 auto* init_buffer             = static_cast<TransferParams::InitBufferMetaCommand*>(base_transfer_cmd);
                 auto& new_dumped_transfer_cmd = init_buffer->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kInitBufferMetaCommand,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kInitBufferMetaCommand,
                                                             init_buffer->dst_buffer,
                                                             init_buffer->data.size());
                 auto& new_dumped_init_buffer =
@@ -1525,9 +1294,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
             {
                 auto* init_image              = static_cast<TransferParams::InitImageMetaCommand*>(base_transfer_cmd);
                 auto& new_dumped_transfer_cmd = init_image->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kInitImageMetaCommand,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kInitImageMetaCommand,
                                                             init_image->dst_image,
                                                             &init_image->copied_image.image_info);
 
@@ -1544,11 +1312,15 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                     std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd->dumped_resource);
                 auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
 
-                const VkImageSubresourceRange subresource_range = { static_cast<VkImageAspectFlags>(init_image->aspect),
-                                                                    0,
-                                                                    VK_REMAINING_MIP_LEVELS,
-                                                                    0,
-                                                                    VK_REMAINING_ARRAY_LAYERS };
+                const ImageSubresourceRanges subresource_range = {
+                    static_cast<VkImageAspectFlags>(init_image->aspect),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
 
                 VkResult res = DumpImage(new_dumped_init_image.dumped_image,
                                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -1574,9 +1346,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
             {
                 auto* copy_buffer             = static_cast<TransferParams::CopyBuffer*>(base_transfer_cmd);
                 auto& new_dumped_transfer_cmd = copy_buffer->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyBuffer,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kCopyBuffer,
                                                             copy_buffer->src_buffer,
                                                             copy_buffer->dst_buffer,
                                                             copy_buffer->has_before_command);
@@ -1647,50 +1418,46 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
 
             case kCmdCopyBufferToImage:
             {
-                auto* copy_buffer_to_image = static_cast<TransferParams::CopyBufferToImage*>(base_transfer_cmd);
-                const ImageDumpResult can_dump_image =
-                    CanDumpImage(instance_table_, device_info_->parent, &copy_buffer_to_image->copied_image.image_info);
+                auto* copy_buffer_to_image        = static_cast<TransferParams::CopyBufferToImage*>(base_transfer_cmd);
+                const VulkanImageInfo* image_info = &copy_buffer_to_image->copied_image.image_info;
+                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
 
                 auto& new_dumped_transfer_cmd = copy_buffer_to_image->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyBufferToImage,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kCopyBufferToImage,
                                                             copy_buffer_to_image->src_buffer,
                                                             copy_buffer_to_image->dst_image,
+                                                            image_info,
+                                                            can_dump_image,
                                                             copy_buffer_to_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
-                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
+                host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
                 auto& new_dumped_copy_buffer_to_image =
                     std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd->dumped_resource);
-                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-                for (const auto& region : copy_buffer_to_image->regions)
+                new_dumped_copy_buffer_to_image.regions = copy_buffer_to_image->regions;
+
+                const ImageSubresourceRanges subresource_range = {
+                    graphics::GetFormatAspects(image_info->format),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
+
+                auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
+                if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    auto& new_dumped_image_region = new_dumped_copy_buffer_to_image.regions.emplace_back(
-                        region.region, &copy_buffer_to_image->copied_image.image_info, can_dump_image);
-
-                    if (can_dump_image != ImageDumpResult::kCanDump)
-                    {
-                        continue;
-                    }
-
-                    auto& new_copy_buffer_to_image_image_region_host_data =
-                        dumped_regions_host_data.regions_data.emplace_back();
-
-                    const VkImageSubresourceRange subresource_range = { region.region.imageSubresource.aspectMask,
-                                                                        region.region.imageSubresource.mipLevel,
-                                                                        1,
-                                                                        region.region.imageSubresource.baseArrayLayer,
-                                                                        region.region.imageSubresource.layerCount };
-
                     // Dump region's subresources
-                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                    VkResult res = DumpImage(new_dumped_copy_buffer_to_image.dumped_image,
+                                             image_info->intermediate_layout,
                                              options_.dump_resources_scale,
                                              options_.dump_resources_dump_raw_images,
                                              subresource_range,
-                                             new_copy_buffer_to_image_image_region_host_data,
+                                             dumped_image_host_data.data,
                                              device_info_,
                                              device_table_,
                                              instance_table_,
@@ -1700,67 +1467,42 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
                         return res;
                     }
-                }
 
-                if (can_dump_image == ImageDumpResult::kCanDump)
-                {
                     delegate_.DumpResource(res_info);
                 }
 
                 if (copy_buffer_to_image->has_before_command)
                 {
-                    dumped_regions_host_data.regions_data.clear();
+                    dumped_image_host_data.data.clear();
 
                     const auto* copy_buffer_to_image_before =
                         static_cast<TransferParams::CopyBufferToImage*>(cmd.before_params.get());
                     GFXRECON_ASSERT(copy_buffer_to_image_before != nullptr);
+                    const VulkanImageInfo* before_image_info = &copy_buffer_to_image_before->copied_image.image_info;
 
                     auto& new_dumped_copy_buffer_to_image_before =
                         std::get<DumpedCopyBufferToImage>(new_dumped_transfer_cmd->dumped_resource_before);
-                    for (const auto& region : copy_buffer_to_image_before->regions)
+                    new_dumped_copy_buffer_to_image_before.regions = copy_buffer_to_image_before->regions;
+
+                    if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        auto& new_dumped_image_region_before =
-                            new_dumped_copy_buffer_to_image_before.regions.emplace_back(
-                                region.region, &copy_buffer_to_image_before->copied_image.image_info, can_dump_image);
-
-                        if (can_dump_image != ImageDumpResult::kCanDump)
-                        {
-                            continue;
-                        }
-
-                        auto& new_copy_buffer_to_image_image_region_host_data =
-                            dumped_regions_host_data.regions_data.emplace_back();
-
-                        const VkImageSubresourceRange subresource_range = {
-                            region.region.imageSubresource.aspectMask,
-                            region.region.imageSubresource.mipLevel,
-                            1,
-                            region.region.imageSubresource.baseArrayLayer,
-                            region.region.imageSubresource.layerCount
-                        };
-
-                        // Dump region's subresources
-                        VkResult res =
-                            DumpImage(new_dumped_image_region_before.dumped_image,
-                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                      options_.dump_resources_scale,
-                                      options_.dump_resources_dump_raw_images,
-                                      subresource_range,
-                                      new_copy_buffer_to_image_image_region_host_data,
-                                      device_info_,
-                                      device_table_,
-                                      instance_table_,
-                                      object_info_table_);
+                        VkResult res = DumpImage(new_dumped_copy_buffer_to_image_before.dumped_image,
+                                                 before_image_info->intermediate_layout,
+                                                 options_.dump_resources_scale,
+                                                 options_.dump_resources_dump_raw_images,
+                                                 subresource_range,
+                                                 dumped_image_host_data.data,
+                                                 device_info_,
+                                                 device_table_,
+                                                 instance_table_,
+                                                 object_info_table_);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
                                                util::ToString(res).c_str());
                             return res;
                         }
-                    }
 
-                    if (can_dump_image == ImageDumpResult::kCanDump)
-                    {
                         res_info.before_command = true;
                         delegate_.DumpResource(res_info);
                     }
@@ -1770,48 +1512,44 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
 
             case kCmdCopyImage:
             {
-                auto* copy_image              = static_cast<TransferParams::CopyImage*>(base_transfer_cmd);
+                auto*                  copy_image     = static_cast<TransferParams::CopyImage*>(base_transfer_cmd);
+                const VulkanImageInfo* image_info     = &copy_image->copied_image.image_info;
+                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
+
                 auto& new_dumped_transfer_cmd = copy_image->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyImage,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kCopyImage,
                                                             copy_image->src_image,
                                                             copy_image->dst_image,
+                                                            image_info,
+                                                            can_dump_image,
                                                             copy_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
-                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
+                host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
-                const ImageDumpResult can_dump_image =
-                    CanDumpImage(instance_table_, device_info_->parent, &copy_image->copied_image.image_info);
+                auto& new_dumped_copy_image   = std::get<DumpedCopyImage>(new_dumped_transfer_cmd->dumped_resource);
+                new_dumped_copy_image.regions = copy_image->regions;
 
-                auto& new_dumped_copy_image    = std::get<DumpedCopyImage>(new_dumped_transfer_cmd->dumped_resource);
-                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-                for (const auto& region : copy_image->regions)
+                const ImageSubresourceRanges subresource_range = {
+                    graphics::GetFormatAspects(image_info->format),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
+
+                auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
+                if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    auto& new_dumped_image_region = new_dumped_copy_image.regions.emplace_back(
-                        region.region, &copy_image->copied_image.image_info, can_dump_image);
-
-                    if (can_dump_image != ImageDumpResult::kCanDump)
-                    {
-                        continue;
-                    }
-
-                    auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                    const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
-                                                                        region.region.dstSubresource.mipLevel,
-                                                                        1,
-                                                                        region.region.dstSubresource.baseArrayLayer,
-                                                                        region.region.dstSubresource.layerCount };
-
-                    // Dump region's subresources
-                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                    VkResult res = DumpImage(new_dumped_copy_image.dumped_image,
+                                             image_info->intermediate_layout,
                                              options_.dump_resources_scale,
                                              options_.dump_resources_dump_raw_images,
                                              subresource_range,
-                                             new_copy_image_region_host_data,
+                                             dumped_image_host_data.data,
                                              device_info_,
                                              device_table_,
                                              instance_table_,
@@ -1821,64 +1559,43 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
                         return res;
                     }
-                }
 
-                if (can_dump_image == ImageDumpResult::kCanDump)
-                {
                     delegate_.DumpResource(res_info);
                 }
 
                 if (copy_image->has_before_command)
                 {
-                    dumped_regions_host_data.regions_data.clear();
+                    dumped_image_host_data.data.clear();
 
                     const auto* copy_image_before = static_cast<TransferParams::CopyImage*>(cmd.before_params.get());
                     GFXRECON_ASSERT(copy_image_before != nullptr);
+                    const VulkanImageInfo* before_image_info = &copy_image_before->copied_image.image_info;
 
                     auto* new_dumped_copy_image_before =
                         std::get_if<DumpedCopyImage>(&new_dumped_transfer_cmd->dumped_resource_before);
                     GFXRECON_ASSERT(new_dumped_copy_image_before != nullptr);
+                    new_dumped_copy_image_before->regions = copy_image_before->regions;
 
-                    for (const auto& region : copy_image_before->regions)
+                    if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        auto& new_dumped_image_region_before = new_dumped_copy_image_before->regions.emplace_back(
-                            region.region, &copy_image_before->copied_image.image_info, can_dump_image);
-
-                        if (can_dump_image != ImageDumpResult::kCanDump)
-                        {
-                            continue;
-                        }
-
-                        auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                        const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
-                                                                            region.region.dstSubresource.mipLevel,
-                                                                            1,
-                                                                            region.region.dstSubresource.baseArrayLayer,
-                                                                            region.region.dstSubresource.layerCount };
-
                         // Dump region's subresources
-                        VkResult res =
-                            DumpImage(new_dumped_image_region_before.dumped_image,
-                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                      1.0f,
-                                      options_.dump_resources_dump_raw_images,
-                                      subresource_range,
-                                      new_copy_image_region_host_data,
-                                      device_info_,
-                                      device_table_,
-                                      instance_table_,
-                                      object_info_table_);
+                        VkResult res = DumpImage(new_dumped_copy_image_before->dumped_image,
+                                                 before_image_info->intermediate_layout,
+                                                 options_.dump_resources_scale,
+                                                 options_.dump_resources_dump_raw_images,
+                                                 subresource_range,
+                                                 dumped_image_host_data.data,
+                                                 device_info_,
+                                                 device_table_,
+                                                 instance_table_,
+                                                 object_info_table_);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
                                                util::ToString(res).c_str());
                             return res;
                         }
-                    }
 
-                    if (can_dump_image == ImageDumpResult::kCanDump)
-                    {
                         res_info.before_command = true;
                         delegate_.DumpResource(res_info);
                     }
@@ -1890,9 +1607,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
             {
                 auto* copy_image_to_buffer    = static_cast<TransferParams::CopyImageToBuffer*>(base_transfer_cmd);
                 auto& new_dumped_transfer_cmd = copy_image_to_buffer->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyImageToBuffer,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kCopyImageToBuffer,
                                                             copy_image_to_buffer->src_image,
                                                             copy_image_to_buffer->dst_buffer,
                                                             copy_image_to_buffer->has_before_command);
@@ -1963,49 +1679,45 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
 
             case kCmdBlitImage:
             {
-                auto*                 blit_image = static_cast<TransferParams::BlitImage*>(base_transfer_cmd);
-                const ImageDumpResult can_dump_image =
-                    CanDumpImage(instance_table_, device_info_->parent, &blit_image->copied_image.image_info);
+                auto*                  blit_image     = static_cast<TransferParams::BlitImage*>(base_transfer_cmd);
+                const VulkanImageInfo* image_info     = &blit_image->copied_image.image_info;
+                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
 
                 auto& new_dumped_transfer_cmd = blit_image->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kBlitImage,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kBlitImage,
                                                             blit_image->src_image,
                                                             blit_image->dst_image,
+                                                            image_info,
+                                                            can_dump_image,
                                                             blit_image->filter,
                                                             blit_image->has_before_command);
 
                 res_info.dumped_resource = new_dumped_transfer_cmd.get();
-                host_data.dumped_data    = VulkanDelegateDumpedCopyImageRegions();
+                host_data.dumped_data    = VulkanDelegateImageDumpedData();
 
-                auto& new_dumped_blit_image    = std::get<DumpedBlitImage>(new_dumped_transfer_cmd->dumped_resource);
-                auto& dumped_regions_host_data = std::get<VulkanDelegateDumpedCopyImageRegions>(host_data.dumped_data);
-                for (const auto& region : blit_image->regions)
+                auto& new_dumped_blit_image   = std::get<DumpedBlitImage>(new_dumped_transfer_cmd->dumped_resource);
+                new_dumped_blit_image.regions = blit_image->regions;
+
+                const ImageSubresourceRanges subresource_range = {
+                    graphics::GetFormatAspects(image_info->format),
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                    0,
+                    options_.dump_resources_dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                };
+
+                auto& dumped_image_host_data = std::get<VulkanDelegateImageDumpedData>(host_data.dumped_data);
+                if (can_dump_image == ImageDumpResult::kCanDump)
                 {
-                    auto& new_dumped_image_region = new_dumped_blit_image.regions.emplace_back(
-                        region.region, &blit_image->copied_image.image_info, can_dump_image);
-
-                    if (can_dump_image != ImageDumpResult::kCanDump)
-                    {
-                        continue;
-                    }
-
-                    auto& new_blit_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                    const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
-                                                                        region.region.dstSubresource.mipLevel,
-                                                                        1,
-                                                                        region.region.dstSubresource.baseArrayLayer,
-                                                                        region.region.dstSubresource.layerCount };
-
-                    // Dump region's subresources
-                    VkResult res = DumpImage(new_dumped_image_region.dumped_image,
-                                             new_dumped_image_region.dumped_image.image_info->intermediate_layout,
+                    VkResult res = DumpImage(new_dumped_blit_image.dumped_image,
+                                             image_info->intermediate_layout,
                                              options_.dump_resources_scale,
                                              options_.dump_resources_dump_raw_images,
                                              subresource_range,
-                                             new_blit_image_region_host_data,
+                                             dumped_image_host_data.data,
                                              device_info_,
                                              device_table_,
                                              instance_table_,
@@ -2015,64 +1727,42 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                         GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)", util::ToString(res).c_str());
                         return res;
                     }
-                }
 
-                if (can_dump_image == ImageDumpResult::kCanDump)
-                {
                     delegate_.DumpResource(res_info);
                 }
 
                 if (blit_image->has_before_command)
                 {
-                    dumped_regions_host_data.regions_data.clear();
+                    dumped_image_host_data.data.clear();
 
                     const auto* blit_image_before = static_cast<TransferParams::BlitImage*>(cmd.before_params.get());
                     GFXRECON_ASSERT(blit_image_before != nullptr);
+                    const VulkanImageInfo* before_image_info = &blit_image_before->copied_image.image_info;
 
                     auto* new_dumped_blit_image_before =
                         std::get_if<DumpedBlitImage>(&new_dumped_transfer_cmd->dumped_resource_before);
                     GFXRECON_ASSERT(new_dumped_blit_image_before != nullptr);
+                    new_dumped_blit_image_before->regions = blit_image_before->regions;
 
-                    for (const auto& region : blit_image_before->regions)
+                    if (can_dump_image == ImageDumpResult::kCanDump)
                     {
-                        auto& new_dumped_image_region_before = new_dumped_blit_image_before->regions.emplace_back(
-                            region.region, &blit_image_before->copied_image.image_info, can_dump_image);
-
-                        if (can_dump_image != ImageDumpResult::kCanDump)
-                        {
-                            continue;
-                        }
-
-                        auto& new_copy_image_region_host_data = dumped_regions_host_data.regions_data.emplace_back();
-
-                        const VkImageSubresourceRange subresource_range = { region.region.dstSubresource.aspectMask,
-                                                                            region.region.dstSubresource.mipLevel,
-                                                                            1,
-                                                                            region.region.dstSubresource.baseArrayLayer,
-                                                                            region.region.dstSubresource.layerCount };
-
-                        // Dump region's subresources
-                        VkResult res =
-                            DumpImage(new_dumped_image_region_before.dumped_image,
-                                      new_dumped_image_region_before.dumped_image.image_info->intermediate_layout,
-                                      1.0f,
-                                      options_.dump_resources_dump_raw_images,
-                                      subresource_range,
-                                      new_copy_image_region_host_data,
-                                      device_info_,
-                                      device_table_,
-                                      instance_table_,
-                                      object_info_table_);
+                        VkResult res = DumpImage(new_dumped_blit_image_before->dumped_image,
+                                                 before_image_info->intermediate_layout,
+                                                 options_.dump_resources_scale,
+                                                 options_.dump_resources_dump_raw_images,
+                                                 subresource_range,
+                                                 dumped_image_host_data.data,
+                                                 device_info_,
+                                                 device_table_,
+                                                 instance_table_,
+                                                 object_info_table_);
                         if (res != VK_SUCCESS)
                         {
                             GFXRECON_LOG_ERROR("Error dumping image of transfer command (%s)",
                                                util::ToString(res).c_str());
                             return res;
                         }
-                    }
 
-                    if (can_dump_image == ImageDumpResult::kCanDump)
-                    {
                         res_info.before_command = true;
                         delegate_.DumpResource(res_info);
                     }
@@ -2084,9 +1774,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
             {
                 auto* build_as = static_cast<TransferParams::BuildAccelerationStructure*>(base_transfer_cmd);
                 auto& new_dumped_transfer_cmd = build_as->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kBuildAccelerationStructure,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kBuildAccelerationStructure,
                                                             build_as->has_before_command);
                 auto& new_dumped_build_as =
                     std::get<DumpedBuildAccelerationStructure>(new_dumped_transfer_cmd->dumped_resource);
@@ -2103,7 +1792,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                         build_info.src_as,
                         build_info.dst_as,
                         build_info.mode,
-                        &build_info.vk_objects.as_info,
+                        build_info.vk_objects.as_info.get(),
                         options_.dump_resources_dump_build_AS_input_buffers);
                     auto& new_host_data_build_info = host_dumped_build_infos.data.emplace_back();
 
@@ -2143,7 +1832,7 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                             build_info.src_as,
                             build_info.dst_as,
                             build_info.mode,
-                            &build_info.vk_objects.as_info,
+                            build_info.vk_objects.as_info.get(),
                             options_.dump_resources_dump_build_AS_input_buffers);
                         auto& new_host_data_build_info = host_dumped_build_infos.data.emplace_back();
 
@@ -2174,13 +1863,12 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
             {
                 auto* copy_as = static_cast<TransferParams::CopyAccelerationStructure*>(base_transfer_cmd);
                 auto& new_dumped_transfer_cmd = copy_as->dumped_resources.dumped_transfer_command =
-                    std::make_unique<DumpedTransferCommand>(DumpResourceType::kCopyAccelerationStructure,
-                                                            cmd_index,
-                                                            qs_index,
+                    std::make_unique<DumpedTransferCommand>(dumped_resource_base,
+                                                            DumpResourceType::kCopyAccelerationStructure,
                                                             copy_as->src_as,
                                                             copy_as->dst_as,
                                                             copy_as->mode,
-                                                            &copy_as->vk_objects.as_info,
+                                                            copy_as->vk_objects.as_info.get(),
                                                             options_.dump_resources_dump_build_AS_input_buffers,
                                                             copy_as->has_before_command);
                 auto& new_dumped_copy_as =
@@ -2200,7 +1888,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                          *device_table_,
                                                          object_info_table_,
                                                          *instance_table_,
-                                                         address_trackers_);
+                                                         address_trackers_,
+                                                         true);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
@@ -2226,7 +1915,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
                                                              *device_table_,
                                                              object_info_table_,
                                                              *instance_table_,
-                                                             address_trackers_);
+                                                             address_trackers_,
+                                                             true);
                     if (res != VK_SUCCESS)
                     {
                         GFXRECON_LOG_ERROR("Error dumping build acceleration structure command (%s)",
@@ -2252,12 +1942,10 @@ VkResult TransferDumpingContext::DumpTransferCommands(uint64_t bcb_index, uint64
         delegate_.DumpDrawCallInfo(transfer_info);
     }
 
-    if (!qs_index)
+    if (!qs_index_ && !options_.dump_resources_json_per_command)
     {
         delegate_.DumpEnd();
     }
-
-    Release();
 
     return VK_SUCCESS;
 }

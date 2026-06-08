@@ -24,6 +24,7 @@
 #ifndef GFXRECON_GRAPHICS_VULKAN_RESOURCES_UTIL_H
 #define GFXRECON_GRAPHICS_VULKAN_RESOURCES_UTIL_H
 
+#include "format/format.h"
 #include "util/defines.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 
@@ -33,26 +34,21 @@
 #include <vector>
 #include <functional>
 #include <map>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
 class VulkanResourcesUtil
 {
-    enum CopyBufferImageDirection
-    {
-        kBufferToImage = 0,
-        kImageToBuffer
-    };
-
   public:
     VulkanResourcesUtil() = delete;
 
-    VulkanResourcesUtil(VkDevice                                device,
-                        VkPhysicalDevice                        physical_device,
-                        const VulkanDeviceTable&                device_table,
-                        const VulkanInstanceTable&              instance_table,
-                        const VkPhysicalDeviceMemoryProperties& memory_properties);
+    VulkanResourcesUtil(VkDevice                                               device,
+                        VkPhysicalDevice                                       physical_device,
+                        const VulkanDeviceTable&                               device_table,
+                        const VulkanInstanceTable&                             instance_table,
+                        const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     ~VulkanResourcesUtil();
 
@@ -62,25 +58,34 @@ class VulkanResourcesUtil
     VkResult CreateStagingBuffer(VkDeviceSize size);
 
     // Will return the size requirements and offsets for each subresource contained for an image with the specified
-    // attributes. Sizes and offsets are calculated in such a way that the each subresource will be tightly packed.
+    // attributes. Offsets are Vulkan-valid copy offsets for VkBufferImageCopy regions.
     //
     // The sizes are returned in the subresource_sizes vector and will be in the order:
     //    M0 L0 L1 ... La M1 L0 L1 ... La ... Mm L0 L1 ... La
     // Where M denotes the mip map levels and L the array layers.
     // The offsets will be returned in the subresource_offsets vector in the same manner.
-    // all_layers_per_level boolean determines if all array layer per mip map level will be accounted as one.
     //
     // Return value is the total size of the image.
     uint64_t GetImageResourceSizesOptimal(VkFormat               format,
-                                          VkImageType            type,
                                           const VkExtent3D&      extent,
                                           uint32_t               mip_levels,
                                           uint32_t               array_layers,
                                           VkImageTiling          tiling,
                                           VkImageAspectFlagBits  aspect,
-                                          std::vector<uint64_t>* subresource_offsets  = nullptr,
-                                          std::vector<uint64_t>* subresource_sizes    = nullptr,
-                                          bool                   all_layers_per_level = false);
+                                          std::vector<uint64_t>* subresource_offsets = nullptr,
+                                          std::vector<uint64_t>* subresource_sizes   = nullptr);
+
+    // Behaves like GetImageResourceSizesOptimal but returns the image subresources sizes for a tightly packed
+    // image with linear tiling (no hardware imposed alignments). Additionally treats the z indices of 3D images as
+    // separate subresources and creates separate entries in subresource_offsets and subresource_sizes
+    uint64_t GetImageSubresourceSizesDumpResources(VkFormat               format,
+                                                   VkImageType            type,
+                                                   const VkExtent3D&      extent,
+                                                   uint32_t               mip_levels,
+                                                   uint32_t               array_layers,
+                                                   VkImageAspectFlagBits  aspect,
+                                                   std::vector<uint64_t>& subresource_offsets,
+                                                   std::vector<uint64_t>& subresource_sizes);
 
     //! aggregate type to group information about an image-resource
     struct ImageResource
@@ -105,10 +110,10 @@ class VulkanResourcesUtil
         //! optionally provide sizes of sub-resources (mipmap-levels)
         const std::vector<VkDeviceSize>* level_sizes = nullptr;
 
-        VkImageAspectFlagBits aspect               = VK_IMAGE_ASPECT_NONE;
-        bool                  all_layers_per_level = false;
-        float                 scale                = 1.0f;
-        VkFormat              dst_format           = VK_FORMAT_UNDEFINED;
+        VkImageAspectFlagBits aspect         = VK_IMAGE_ASPECT_NONE;
+        bool                  dump_resources = false;
+        float                 scale          = 1.0f;
+        VkFormat              dst_format     = VK_FORMAT_UNDEFINED;
     };
 
     //! signature for a callback-function, providing an ImageResource and a corresponding data-pointer
@@ -177,6 +182,26 @@ class VulkanResourcesUtil
                             const VkExtent3D& extent,
                             float             scale) const;
 
+    struct blit_image_params_t
+    {
+        VkImage             src_img     = VK_NULL_HANDLE;
+        VkImage             dst_img     = VK_NULL_HANDLE;
+        VkExtent3D          src_extent  = {};
+        VkExtent3D          dst_extent  = {};
+        VkImageLayout       src_layout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageLayout       dst_layout  = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkImageAspectFlags  aspect      = VK_IMAGE_ASPECT_COLOR_BIT;
+        VkOffset3D          src_offset  = { 0, 0, 0 };
+        VkOffset3D          dst_offset  = { 0, 0, 0 };
+        uint32_t            src_layer   = 0;
+        uint32_t            dst_layer   = 0;
+        uint32_t            layer_count = 1;
+        uint32_t            mip_levels  = 1;
+        std::array<bool, 3> flip_axis   = { false, false, false };
+    };
+
+    void BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params);
+
   private:
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
@@ -196,27 +221,26 @@ class VulkanResourcesUtil
                                           VkImage            image,
                                           VkImageLayout      current_layout,
                                           VkImageLayout      destination_layout,
-                                          VkImageAspectFlags aspect,
-                                          uint32_t           queue_family_index);
+                                          VkImageAspectFlags aspect);
 
     void TransitionImageFromTransferOptimal(VkCommandBuffer    command_buffer,
                                             VkImage            image,
                                             VkImageLayout      old_layout,
                                             VkImageLayout      new_layout,
-                                            VkImageAspectFlags aspect,
-                                            uint32_t           queue_family_index);
+                                            VkImageAspectFlags aspect);
 
-    void CopyImageBuffer(VkCommandBuffer              command_buffer,
-                         VkImage                      image,
-                         VkBuffer                     buffer,
-                         uint32_t                     buffer_offset,
-                         const VkExtent3D&            extent,
-                         uint32_t                     mip_levels,
-                         uint32_t                     array_layers,
-                         VkImageAspectFlags           aspect,
-                         const std::vector<uint64_t>& sizes,
-                         bool                         all_layers_per_level,
-                         CopyBufferImageDirection     copy_direction);
+    void CopyImageToBuffer(VkCommandBuffer              command_buffer,
+                           VkImage                      image,
+                           VkFormat                     format,
+                           VkImageType                  type,
+                           VkBuffer                     buffer,
+                           VkDeviceSize                 buffer_offset,
+                           const VkExtent3D&            extent,
+                           uint32_t                     mip_levels,
+                           uint32_t                     array_layers,
+                           VkImageAspectFlags           aspect,
+                           const std::vector<uint64_t>& sizes,
+                           bool                         is_dump_resources);
 
     void CopyBuffer(VkCommandBuffer command_buffer,
                     VkBuffer        source_buffer,
@@ -256,6 +280,8 @@ class VulkanResourcesUtil
                        VkImage&              scaled_image,
                        VkDeviceMemory&       scaled_image_mem);
 
+    void BlitHelper(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params) const;
+
     struct StagingBufferContext
     {
         StagingBufferContext() = default;
@@ -267,11 +293,13 @@ class VulkanResourcesUtil
         void*                 mapped_ptr            = nullptr;
     };
 
-    VkDevice                                device_;
-    const VulkanDeviceTable&                device_table_;
-    VkPhysicalDevice                        physical_device_;
-    const VulkanInstanceTable&              instance_table_;
-    const VkPhysicalDeviceMemoryProperties& memory_properties_;
+    VkDevice                   device_;
+    const VulkanDeviceTable&   device_table_;
+    VkPhysicalDevice           physical_device_;
+    const VulkanInstanceTable& instance_table_;
+
+    // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
+    std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
 
     struct command_assets_t
     {

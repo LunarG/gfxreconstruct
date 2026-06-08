@@ -128,7 +128,6 @@ class FileTransformer
     std::unique_ptr<util::Compressor>    compressor_;
     std::unique_ptr<decode::BlockParser> block_parser_;
     uint64_t                             block_index_{ 0 };
-    BufferPool                           pool_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

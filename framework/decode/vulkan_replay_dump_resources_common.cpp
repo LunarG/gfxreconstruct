@@ -24,6 +24,7 @@
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
+#include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
@@ -35,6 +36,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <sstream>
+#include <tuple>
+#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -330,7 +333,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                    VkImageLayout                        layout,
                    float                                scale,
                    bool                                 dump_image_raw,
-                   const VkImageSubresourceRange&       subresource_range,
+                   const ImageSubresourceRanges&        subresource_range,
                    DumpedImageHostData&                 data,
                    const VulkanDeviceInfo*              device_info,
                    const graphics::VulkanDeviceTable*   device_table,
@@ -383,18 +386,38 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
     dumped_image.scaling_failed = (scale != 1.0f && !scaling_supported);
     dumped_image.dumped_format  = dst_format;
 
-    const VkImageSubresourceRange modified_subresource_range =
-        FilterImageSubresourceRange(subresource_range, image_info);
+    ImageSubresourceRanges modified_subresource_range;
+    ValidateImageSubresourceRange(subresource_range, modified_subresource_range, image_info);
 
     std::vector<VkImageAspectFlagBits> aspects;
-    graphics::AspectFlagsToFlagBits(modified_subresource_range.aspectMask, aspects);
+    graphics::AspectFlagsToFlagBits(modified_subresource_range.aspect_mask, aspects);
 
-    const uint32_t total_subresources =
-        aspects.size() * (modified_subresource_range.layerCount * modified_subresource_range.levelCount);
+    const VkExtent3D scaled_extent = (scale != 1.0f && scaling_supported)
+                                         ? graphics::ScaleExtent3DNoDepth(image_info->extent, scale)
+                                         : image_info->extent;
 
-    data.resize(total_subresources);
+    const bool is_3d = image_info->type == VK_IMAGE_TYPE_3D;
+    uint32_t   total_dumped_subresources;
+    if (is_3d)
+    {
+        total_dumped_subresources = 0;
+        for (uint32_t m = modified_subresource_range.base_mip_level;
+             m < modified_subresource_range.base_mip_level + modified_subresource_range.level_count;
+             ++m)
+        {
+            total_dumped_subresources += graphics::ScaleToMipLevel(modified_subresource_range.z_count, m);
+        }
+        total_dumped_subresources *= static_cast<uint32_t>(aspects.size());
+    }
+    else
+    {
+        total_dumped_subresources = static_cast<uint32_t>(aspects.size()) * modified_subresource_range.level_count *
+                                    modified_subresource_range.layer_count;
+    }
 
-    // data will hold dumped data for all aspects and sub resources, total_subresources in total.
+    data.resize(total_dumped_subresources);
+
+    // data will hold dumped data for all aspects and sub resources, total_dumped_subresources in total.
     // VulkanResourcesUtil::ReadImageResource dumps all subresources for a specific aspect.
     // For that reason keep a different counter for the data vector
     size_t data_index = 0;
@@ -413,30 +436,23 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
         image_resource.tiling                                       = image_info->tiling;
         image_resource.sample_count                                 = image_info->sample_count;
         image_resource.layout = (layout == VK_IMAGE_LAYOUT_MAX_ENUM) ? image_info->intermediate_layout : layout;
-        image_resource.queue_family_index   = image_info->queue_family_index;
-        image_resource.external_format      = image_info->external_format;
-        image_resource.size                 = image_info->size;
-        image_resource.level_sizes          = &subresource_sizes;
-        image_resource.aspect               = aspect;
-        image_resource.scale                = scale;
-        image_resource.dst_format           = dst_format;
-        image_resource.all_layers_per_level = false;
+        image_resource.queue_family_index = image_info->queue_family_index;
+        image_resource.external_format    = image_info->external_format;
+        image_resource.size               = image_info->size;
+        image_resource.level_sizes        = &subresource_sizes;
+        image_resource.aspect             = aspect;
+        image_resource.scale              = scale;
+        image_resource.dst_format         = dst_format;
+        image_resource.dump_resources     = true;
 
-        const VkExtent3D scaled_extent = (scale != 1.0f && scaling_supported)
-                                             ? graphics::ScaleExtent(image_info->extent, scale)
-                                             : image_info->extent;
-
-        image_resource.resource_size =
-            resource_util.GetImageResourceSizesOptimal(dst_format,
-                                                       image_info->type,
-                                                       scaling_supported ? scaled_extent : image_info->extent,
-                                                       image_info->level_count,
-                                                       image_info->layer_count,
-                                                       image_info->tiling,
-                                                       aspect,
-                                                       &subresource_offsets,
-                                                       &subresource_sizes,
-                                                       false);
+        image_resource.resource_size = resource_util.GetImageSubresourceSizesDumpResources(dst_format,
+                                                                                           image_info->type,
+                                                                                           scaled_extent,
+                                                                                           image_info->level_count,
+                                                                                           image_info->layer_count,
+                                                                                           aspect,
+                                                                                           subresource_offsets,
+                                                                                           subresource_sizes);
 
         if (!image_resource.resource_size)
         {
@@ -461,21 +477,35 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
             return result;
         }
 
-        for (uint32_t mip = modified_subresource_range.baseMipLevel;
-             mip < modified_subresource_range.baseMipLevel + modified_subresource_range.levelCount;
+        // absolute base index of base_mip_level in the full-image subresource layout
+        uint32_t mip_base = 0;
+        if (is_3d)
+        {
+            for (uint32_t m = 0; m < modified_subresource_range.base_mip_level; ++m)
+            {
+                mip_base += graphics::ScaleToMipLevel(image_info->extent.depth, m);
+            }
+        }
+
+        for (uint32_t mip = modified_subresource_range.base_mip_level;
+             mip < modified_subresource_range.base_mip_level + modified_subresource_range.level_count;
              ++mip)
         {
-            for (uint32_t layer = modified_subresource_range.baseArrayLayer;
-                 layer < modified_subresource_range.baseArrayLayer + modified_subresource_range.layerCount;
-                 ++layer)
+            const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
+            const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
+
+            const uint32_t start =
+                is_3d ? modified_subresource_range.base_z >> mip : modified_subresource_range.base_array_layer;
+            const uint32_t end =
+                is_3d ? graphics::ScaleToMipLevel(
+                            modified_subresource_range.base_z + modified_subresource_range.z_count, mip)
+                      : (modified_subresource_range.base_array_layer + modified_subresource_range.layer_count);
+            for (uint32_t z = start; z < end; ++z)
             {
-                const VkExtent3D subresource_extent        = graphics::ScaleToMipLevel(image_info->extent, mip);
-                const VkExtent3D subresource_scaled_extent = graphics::ScaleToMipLevel(scaled_extent, mip);
-
                 dumped_image.dumped_subresources.emplace_back(
-                    aspect, subresource_extent, subresource_scaled_extent, mip, layer);
+                    aspect, subresource_extent, subresource_scaled_extent, mip, is_3d ? 0 : z, is_3d ? z : 0);
 
-                const uint32_t sub_res_idx = mip * image_info->layer_count + layer;
+                const uint32_t sub_res_idx = is_3d ? (mip_base + z) : (mip * image_info->layer_count + z);
                 const void*    offsetted_data =
                     reinterpret_cast<const void*>(raw_data.data() + subresource_offsets[sub_res_idx]);
 
@@ -486,10 +516,14 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                            subresource_sizes[sub_res_idx]);
                 ++data_index;
             }
+
+            if (is_3d)
+            {
+                mip_base += graphics::ScaleToMipLevel(image_info->extent.depth, mip);
+            }
         }
     }
-
-    GFXRECON_ASSERT(data_index == total_subresources);
+    GFXRECON_ASSERT(data_index == total_dumped_subresources);
 
     return VK_SUCCESS;
 }
@@ -992,170 +1026,470 @@ std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderSt
     return bind_points;
 }
 
-uint32_t FindTransferQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
+bool ValidateImageSubresourceRange(const ImageSubresourceRanges& requested_subresource_range,
+                                   ImageSubresourceRanges&       modified_subresource_range,
+                                   const VulkanImageInfo*        image_info)
 {
-    uint32_t index = VK_QUEUE_FAMILY_IGNORED;
+    GFXRECON_ASSERT(image_info != nullptr);
 
-    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
+    bool valid = true;
+
+    // Validate aspect
+    if ((requested_subresource_range.aspect_mask != VK_IMAGE_ASPECT_NONE) &&
+        (!(graphics::GetFormatAspects(image_info->format) & requested_subresource_range.aspect_mask)))
     {
-        if (families.queue_family_index_enabled[i])
+        GFXRECON_LOG_WARNING("Requested aspect 0x%x for image %" PRIu64 " is not valid for the image's format (%s)",
+                             requested_subresource_range.aspect_mask,
+                             image_info->capture_id,
+                             util::ToString(image_info->format).c_str());
+
+        valid                                  = false;
+        modified_subresource_range.aspect_mask = graphics::GetFormatAspects(image_info->format);
+    }
+    else
+    {
+        if (requested_subresource_range.aspect_mask == VK_IMAGE_ASPECT_NONE)
         {
-            const auto& flags_entry = families.queue_family_properties_flags.find(i);
-            if ((flags_entry != families.queue_family_properties_flags.end()))
+            modified_subresource_range.aspect_mask = graphics::GetFormatAspects(image_info->format);
+        }
+        else
+        {
+            modified_subresource_range.aspect_mask = requested_subresource_range.aspect_mask;
+        }
+    }
+
+    // Validate baseMipLevel
+    if (requested_subresource_range.base_mip_level >= image_info->level_count)
+    {
+        GFXRECON_LOG_WARNING("Requested baseMipLevel %u for image %" PRIu64 " is not valid (mipLevels: %u)",
+                             requested_subresource_range.base_mip_level,
+                             image_info->capture_id,
+                             image_info->level_count);
+
+        valid                                     = false;
+        modified_subresource_range.base_mip_level = 0;
+    }
+    else
+    {
+        modified_subresource_range.base_mip_level = requested_subresource_range.base_mip_level;
+    }
+
+    // Validate levelCount
+    if ((requested_subresource_range.level_count != VK_REMAINING_MIP_LEVELS) &&
+        ((requested_subresource_range.level_count + modified_subresource_range.base_mip_level) >
+         image_info->level_count))
+    {
+        GFXRECON_LOG_WARNING("Requested levelCount %u for image %" PRIu64 " is not valid (mipLevels: %u)",
+                             requested_subresource_range.level_count,
+                             image_info->capture_id,
+                             image_info->level_count);
+
+        valid                                  = false;
+        modified_subresource_range.level_count = image_info->level_count - modified_subresource_range.base_mip_level;
+    }
+    else
+    {
+        if (requested_subresource_range.level_count == VK_REMAINING_MIP_LEVELS)
+        {
+            GFXRECON_ASSERT(image_info->level_count > modified_subresource_range.base_mip_level);
+            modified_subresource_range.level_count =
+                image_info->level_count - modified_subresource_range.base_mip_level;
+        }
+        else
+        {
+            modified_subresource_range.level_count = requested_subresource_range.level_count;
+        }
+    }
+
+    // Handle baseArrayLayer
+    if (requested_subresource_range.base_array_layer >= image_info->layer_count)
+    {
+        GFXRECON_LOG_WARNING("Requested baseArrayLayer %u for image %" PRIu64 " is not valid (arrayLayers: %u)",
+                             requested_subresource_range.base_array_layer,
+                             image_info->capture_id,
+                             image_info->layer_count);
+
+        valid                                       = false;
+        modified_subresource_range.base_array_layer = 0;
+    }
+    else
+    {
+        modified_subresource_range.base_array_layer = requested_subresource_range.base_array_layer;
+    }
+
+    // Validate layerCount
+    if ((requested_subresource_range.layer_count != VK_REMAINING_ARRAY_LAYERS) &&
+        ((requested_subresource_range.layer_count + modified_subresource_range.base_array_layer) >
+         image_info->layer_count))
+    {
+        GFXRECON_LOG_WARNING("Requested layerCount %u for image %" PRIu64 " is not valid (arrayLayers: %u)",
+                             requested_subresource_range.layer_count,
+                             image_info->capture_id,
+                             image_info->layer_count);
+
+        valid                                  = false;
+        modified_subresource_range.layer_count = image_info->layer_count - modified_subresource_range.base_array_layer;
+    }
+    else
+    {
+        if (requested_subresource_range.layer_count == VK_REMAINING_ARRAY_LAYERS)
+        {
+            GFXRECON_ASSERT(image_info->layer_count > modified_subresource_range.base_array_layer);
+            modified_subresource_range.layer_count =
+                image_info->layer_count - modified_subresource_range.base_array_layer;
+        }
+        else
+        {
+            modified_subresource_range.layer_count = requested_subresource_range.layer_count;
+        }
+    }
+
+    // Validate BaseZIndex
+    if (requested_subresource_range.base_z >= image_info->extent.depth)
+    {
+        GFXRECON_LOG_WARNING("Requested BaseZIndex %u for image %" PRIu64 " is not valid (extent.depth: %u)",
+                             requested_subresource_range.base_z,
+                             image_info->capture_id,
+                             image_info->extent.depth);
+
+        valid                             = false;
+        modified_subresource_range.base_z = 0;
+    }
+    else
+    {
+        modified_subresource_range.base_z = requested_subresource_range.base_z;
+    }
+
+    // Validate ZCount
+    if ((requested_subresource_range.z_count != REMAINING_Z_INDICES) &&
+        (requested_subresource_range.z_count + modified_subresource_range.base_z > image_info->extent.depth))
+    {
+        GFXRECON_LOG_WARNING("Requested z_count %u for image %" PRIu64 " is not valid (extent.depth: %u)",
+                             requested_subresource_range.z_count,
+                             image_info->capture_id,
+                             image_info->extent.depth);
+
+        valid                              = false;
+        modified_subresource_range.z_count = image_info->extent.depth - modified_subresource_range.base_z;
+    }
+    else
+    {
+        if (requested_subresource_range.z_count == REMAINING_Z_INDICES)
+        {
+            GFXRECON_ASSERT(image_info->extent.depth > modified_subresource_range.base_z);
+            modified_subresource_range.z_count = image_info->extent.depth - modified_subresource_range.base_z;
+        }
+        else
+        {
+            modified_subresource_range.z_count = requested_subresource_range.z_count;
+        }
+    }
+
+    return valid;
+}
+
+void CullDescriptors(const CommonObjectInfoTable&             object_info_table_,
+                     const BoundDescriptorSets&               referenced_descriptors,
+                     const DescriptorImageSubresourcesVector* requested_descriptors,
+                     decode::Index                            call_index,
+                     bool                                     dump_all_image_subresources,
+                     DescriptorImageSubresourcesVector&       descriptors_to_dump)
+{
+    descriptors_to_dump.clear();
+    if (referenced_descriptors.empty() || (requested_descriptors != nullptr && requested_descriptors->empty()))
+    {
+        return;
+    }
+
+    if (requested_descriptors != nullptr)
+    {
+        descriptors_to_dump.reserve(referenced_descriptors.size());
+
+        // Only dump the requested descriptors. Verify if they are valid based on the call's referenced descriptors
+        for (const auto& [requested_descriptor_tuple, requested_img_subres_range] : *requested_descriptors)
+        {
+            // Validate requested descriptors
+            const auto referenced_descriptor_entry = referenced_descriptors.find(requested_descriptor_tuple.set);
+            if (referenced_descriptor_entry != referenced_descriptors.end())
             {
-                if ((flags_entry->second & VK_QUEUE_TRANSFER_BIT) == VK_QUEUE_TRANSFER_BIT)
+                const VulkanDescriptorSetInfo::VulkanDescriptorBindingsInfo& referenced_desc_set_map =
+                    referenced_descriptor_entry->second;
+
+                const auto referenced_desc_set_entry = referenced_desc_set_map.find(requested_descriptor_tuple.binding);
+                if (referenced_desc_set_entry != referenced_desc_set_map.end())
                 {
-                    return i;
+                    ImageSubresourceRanges modified_img_subres_range = requested_img_subres_range;
+                    const auto&            referenced_desc_binding   = referenced_desc_set_entry->second;
+                    bool                   valid_array_index         = false;
+                    switch (referenced_desc_binding.desc_type)
+                    {
+                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                        {
+                            const auto desc_array_entry =
+                                referenced_desc_binding.image_info.find(requested_descriptor_tuple.array_index);
+                            valid_array_index = desc_array_entry != referenced_desc_binding.image_info.end();
+
+                            // If descriptor tuple is valid, validate the requested image sub resources
+                            if (valid_array_index)
+                            {
+                                const auto&            img_desc_info = desc_array_entry->second;
+                                const VulkanImageInfo* image_info =
+                                    object_info_table_.GetVkImageInfo(img_desc_info.image_view_info->image_id);
+                                if (image_info == nullptr)
+                                {
+                                    continue;
+                                }
+
+                                // Validate aspect
+                                if (!ValidateImageSubresourceRange(
+                                        requested_img_subres_range, modified_img_subres_range, image_info))
+                                {
+                                    GFXRECON_LOG_WARNING("Requested image subresources for image descriptor at set: %u "
+                                                         "binding: %u array index: %u are not valid.",
+                                                         requested_descriptor_tuple.set,
+                                                         requested_descriptor_tuple.binding,
+                                                         requested_descriptor_tuple.array_index);
+                                }
+                            }
+                        }
+                        break;
+
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                            valid_array_index = referenced_desc_binding.texel_buffer_view_info.contains(
+                                requested_descriptor_tuple.array_index);
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                            valid_array_index =
+                                referenced_desc_binding.buffer_info.contains(requested_descriptor_tuple.array_index);
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                            // Inline uniform blocks do not have arrays
+                            valid_array_index = true;
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                            valid_array_index = referenced_desc_binding.acceleration_structs_khr_info.contains(
+                                requested_descriptor_tuple.array_index);
+                            break;
+
+                        case VK_DESCRIPTOR_TYPE_SAMPLER:
+                            // Nothing to dump for this descriptor type but don't generate a warning
+                            valid_array_index = true;
+                            break;
+
+                        default:
+                            GFXRECON_LOG_WARNING("%s:%u Descriptor type %u was not handled",
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 static_cast<uint32_t>(referenced_desc_binding.desc_type));
+                    }
+
+                    if (valid_array_index)
+                    {
+                        descriptors_to_dump.emplace_back(requested_descriptor_tuple, modified_img_subres_range);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Requested array index %u in descriptor set %u at binding %u is not valid for "
+                            "draw call %" PRIu64,
+                            requested_descriptor_tuple.array_index,
+                            requested_descriptor_tuple.set,
+                            requested_descriptor_tuple.binding,
+                            call_index);
+                    }
                 }
-                else if ((flags_entry->second & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)))
+                else
                 {
-                    // Apparently some implementations (i.e. Adreno) don't have a transfer queue. According to spec,
-                    // graphics and compute queues also support transfer operations.
-                    index = i;
+                    GFXRECON_LOG_WARNING(
+                        "Requested binding %u in descriptor set %u is not valid for draw call %" PRIu64,
+                        requested_descriptor_tuple.binding,
+                        requested_descriptor_tuple.set,
+                        call_index);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Requested descriptor set %u is not valid for draw call %" PRIu64,
+                                     requested_descriptor_tuple.set,
+                                     call_index);
+            }
+        }
+    }
+    else
+    {
+        for (const auto& [desc_set_index, desc_set] : referenced_descriptors)
+        {
+            for (const auto& [desc_binding_index, desc_binding] : desc_set)
+            {
+                switch (desc_binding.desc_type)
+                {
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    {
+                        for (const auto& [ai, img_desc_info] : desc_binding.image_info)
+                        {
+                            if (img_desc_info.image_view_info != nullptr)
+                            {
+                                const VulkanImageInfo* image_info =
+                                    object_info_table_.GetVkImageInfo(img_desc_info.image_view_info->image_id);
+                                if (image_info == nullptr)
+                                {
+                                    continue;
+                                }
+
+                                const ImageSubresourceRanges img_subres_range = {
+                                    graphics::GetFormatAspects(image_info->format),
+                                    0,
+                                    dump_all_image_subresources ? VK_REMAINING_MIP_LEVELS : 1,
+                                    0,
+                                    dump_all_image_subresources ? VK_REMAINING_ARRAY_LAYERS : 1,
+                                    0,
+                                    dump_all_image_subresources ? REMAINING_Z_INDICES : 1
+                                };
+                                const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+
+                                descriptors_to_dump.emplace_back(desc_tuple, img_subres_range);
+                            }
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        for (const auto& [ai, img_desc] : desc_binding.texel_buffer_view_info)
+                        {
+                            const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+                            descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        for (const auto& [ai, img_desc] : desc_binding.buffer_info)
+                        {
+                            const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+                            descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        // Inline uniform blocks do not have arrays
+                        const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, 0 };
+                        descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                    {
+                        for (const auto& [ai, img_desc] : desc_binding.acceleration_structs_khr_info)
+                        {
+                            const DescriptorLocation desc_tuple = { desc_set_index, desc_binding_index, ai };
+                            descriptors_to_dump.emplace_back(desc_tuple, ImageSubresourceRanges());
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                        // Nothing to dump for this descriptor type
+                        break;
+
+                    default:
+                        GFXRECON_LOG_WARNING("%s:%u Descriptor type %u was not handled",
+                                             __FILE__,
+                                             __LINE__,
+                                             static_cast<uint32_t>(desc_binding.desc_type));
                 }
             }
         }
     }
-
-    return index;
 }
 
-bool CullDescriptor(CommandImageSubresourceIterator cmd_subresources_entry,
-                    uint32_t                        desc_set,
-                    uint32_t                        binding,
-                    uint32_t                        array_index,
-                    VkImageSubresourceRange*        subresource_range)
+VkResult TemporaryCommandBuffer::CreateAndBegin(graphics::FindQueueFamilyIndex_fp queue_finder_fp)
 {
-    const DescriptorLocation desc_loc                = DescriptorLocation{ desc_set, binding, array_index };
-    const auto               image_subresource_entry = cmd_subresources_entry->second.find(desc_loc);
-    if (image_subresource_entry == cmd_subresources_entry->second.end())
-    {
-        return true;
-    }
-
-    if (subresource_range != nullptr)
-    {
-        *subresource_range = image_subresource_entry->second;
-    }
-
-    return false;
-}
-
-uint32_t FindComputeQueueFamilyIndex(const VulkanDeviceInfo::EnabledQueueFamilyFlags& families)
-{
-    for (uint32_t i = 0; i < static_cast<uint32_t>(families.queue_family_index_enabled.size()); ++i)
-    {
-        if (families.queue_family_index_enabled[i])
-        {
-            const auto& flags_entry = families.queue_family_properties_flags.find(i);
-            if ((flags_entry != families.queue_family_properties_flags.end()))
-            {
-                if ((flags_entry->second & VK_QUEUE_COMPUTE_BIT) == VK_QUEUE_COMPUTE_BIT)
-                {
-                    return i;
-                }
-            }
-        }
-    }
-
-    return VK_QUEUE_FAMILY_IGNORED;
-}
-
-VkResult CreateAndBeginCommandBuffer(FindQueueFamilyIndex_fp*           queue_finder_fp,
-                                     const VulkanDeviceInfo*            device_info,
-                                     const graphics::VulkanDeviceTable& device_table,
-                                     TemporaryCommandBuffer&            cmd_buf_objects)
-{
-    GFXRECON_ASSERT(device_info != nullptr);
-
-    const uint32_t compute_queue_index = queue_finder_fp(device_info->enabled_queue_family_flags);
-    GFXRECON_ASSERT(compute_queue_index != VK_QUEUE_FAMILY_IGNORED);
+    const uint32_t queue_index = queue_finder_fp(device_info.enabled_queue_family_flags);
+    GFXRECON_ASSERT(queue_index != VK_QUEUE_FAMILY_IGNORED);
 
     const VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
                                                        nullptr,
                                                        VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-                                                       compute_queue_index };
-    VkResult                      res =
-        device_table.CreateCommandPool(device_info->handle, &pool_create_info, nullptr, &cmd_buf_objects.command_pool);
+                                                       queue_index };
+    VkResult res = device_table.CreateCommandPool(device_info.handle, &pool_create_info, nullptr, &command_pool);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s() CreateCommandPool failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    const VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                                                     nullptr,
-                                                     cmd_buf_objects.command_pool,
-                                                     VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                                                     1 };
-    res = device_table.AllocateCommandBuffers(device_info->handle, &alloc_info, &cmd_buf_objects.command_buffer);
+    const VkCommandBufferAllocateInfo alloc_info = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, nullptr, command_pool, VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1
+    };
+    res = device_table.AllocateCommandBuffers(device_info.handle, &alloc_info, &command_buffer);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s() AllocateCommandBuffers failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    device_table.GetDeviceQueue(device_info->handle, compute_queue_index, 0, &cmd_buf_objects.queue);
+    device_table.GetDeviceQueue(device_info.handle, queue_index, 0, &queue);
 
-    device_table.ResetCommandBuffer(cmd_buf_objects.command_buffer, VkCommandBufferResetFlagBits(0));
+    device_table.ResetCommandBuffer(command_buffer, VkCommandBufferResetFlagBits(0));
 
     const VkCommandBufferBeginInfo begin_info = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr
     };
 
-    res = device_table.BeginCommandBuffer(cmd_buf_objects.command_buffer, &begin_info);
+    res = device_table.BeginCommandBuffer(command_buffer, &begin_info);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s() BeginCommandBuffer failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    cmd_buf_objects.device_info  = device_info;
-    cmd_buf_objects.device_table = &device_table;
-
     return VK_SUCCESS;
 }
 
-VkResult SubmitAndDestroyCommandBuffer(const TemporaryCommandBuffer& cmd_buf_objects)
+VkResult TemporaryCommandBuffer::SubmitAndDestroy()
 {
-    GFXRECON_ASSERT(cmd_buf_objects.device_table != nullptr);
-    GFXRECON_ASSERT(cmd_buf_objects.device_info != nullptr);
-    GFXRECON_ASSERT(cmd_buf_objects.command_buffer != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(cmd_buf_objects.queue != VK_NULL_HANDLE);
-    GFXRECON_ASSERT(cmd_buf_objects.command_pool != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_buffer != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(queue != VK_NULL_HANDLE);
+    GFXRECON_ASSERT(command_pool != VK_NULL_HANDLE);
 
-    const VkFenceCreateInfo fence_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, VkFenceCreateFlags(0) };
-    VkFence                 fence;
-    VkResult                res =
-        cmd_buf_objects.device_table->CreateFence(cmd_buf_objects.device_info->handle, &fence_info, nullptr, &fence);
+    TemporaryFence fence(device_info.handle, device_table);
+
+    device_table.EndCommandBuffer(command_buffer);
+
+    const VkSubmitInfo submit_info = {
+        VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &command_buffer, 0, nullptr
+    };
+    device_table.QueueSubmit(queue, 1, &submit_info, fence.handle);
+
+    VkResult res = fence.Wait();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s() CreateFence failed (%s)", __func__, util::ToString(res).c_str());
         return res;
     }
 
-    cmd_buf_objects.device_table->EndCommandBuffer(cmd_buf_objects.command_buffer);
-
-    cmd_buf_objects.device_table->ResetFences(cmd_buf_objects.device_info->handle, 1, &fence);
-
-    const VkSubmitInfo submit_info = { VK_STRUCTURE_TYPE_SUBMIT_INFO,   nullptr, 0,      nullptr, nullptr, 1,
-                                       &cmd_buf_objects.command_buffer, 0,       nullptr };
-    cmd_buf_objects.device_table->QueueSubmit(cmd_buf_objects.queue, 1, &submit_info, fence);
-
-    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or
-    // crash.
-    res = cmd_buf_objects.device_table->WaitForFences(
-        cmd_buf_objects.device_info->handle, 1, &fence, VK_TRUE, 10000000000);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: WaitForFences failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    cmd_buf_objects.device_table->DestroyCommandPool(
-        cmd_buf_objects.device_info->handle, cmd_buf_objects.command_pool, nullptr);
-
-    cmd_buf_objects.device_table->DestroyFence(cmd_buf_objects.device_info->handle, fence, nullptr);
+    device_table.DestroyCommandPool(device_info.handle, command_pool, nullptr);
+    command_pool = VK_NULL_HANDLE;
 
     return VK_SUCCESS;
 }
@@ -1262,30 +1596,6 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
     // VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR
     for (uint32_t i = 0; i < query_count; ++i)
     {
-        GFXRECON_ASSERT(acceleration_structure->as_info != nullptr);
-        const VkBufferMemoryBarrier as_buf_mem_barrier = {
-            VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-            nullptr,
-            VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR | VK_ACCESS_TRANSFER_WRITE_BIT,
-            VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_TRANSFER_READ_BIT,
-            VK_QUEUE_FAMILY_IGNORED,
-            VK_QUEUE_FAMILY_IGNORED,
-            acceleration_structure->as_info->buffer,
-            0,
-            VK_WHOLE_SIZE
-        };
-        device_table.CmdPipelineBarrier(
-            cmd_buffer,
-            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VkDependencyFlagBits(0),
-            0,
-            nullptr,
-            1,
-            &as_buf_mem_barrier,
-            0,
-            nullptr);
-
         device_table.CmdWriteAccelerationStructuresPropertiesKHR(
             cmd_buffer,
             1,
@@ -1305,35 +1615,19 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
         return VK_ERROR_UNKNOWN;
     }
 
-    const VkFenceCreateInfo fci = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, nullptr, 0 };
-    VkFence                 fence;
-    res = device_table.CreateFence(device, &fci, nullptr, &fence);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: CreateFence failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
-
-    res = device_table.ResetFences(device, 1, &fence);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("%s: ResetFences failed (%s)", __func__, util::ToString(res).c_str())
-        return res;
-    }
+    TemporaryFence fence(device, device_table);
 
     const VkSubmitInfo si = { VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &cmd_buffer, 0, nullptr };
-    res                   = device_table.QueueSubmit(compute_queue, 1, &si, fence);
+    res                   = device_table.QueueSubmit(compute_queue, 1, &si, fence.handle);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: QueueSubmit failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
-    res = device_table.WaitForFences(device, 1, &fence, VK_TRUE, 10000000000);
+    res = fence.Wait();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: WaitForFences failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
@@ -1378,9 +1672,7 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
             continue;
         }
 
-        // These should be NULL otherwise we are leaking objects
-        GFXRECON_ASSERT(acceleration_structure->serialized_data.buffer == VK_NULL_HANDLE &&
-                        acceleration_structure->serialized_data.memory == VK_NULL_HANDLE);
+        acceleration_structure->ReleaseSerializedResources();
         res = CreateVkBuffer(serialized_size,
                              device_table,
                              device,
@@ -1439,163 +1731,30 @@ static VkResult SerializeAccelerationStructure(AccelerationStructureDumpResource
 
     device_table.EndCommandBuffer(cmd_buffer);
 
-    res = device_table.ResetFences(device, 1, &fence);
+    res = fence.Reset();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: ResetFences failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    res = device_table.QueueSubmit(compute_queue, 1, &si, fence);
+    res = device_table.QueueSubmit(compute_queue, 1, &si, fence.handle);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("%s: QueueSubmit (2) failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
-    // Wait a sensible amount of time (10 seconds) in case we did something that can cause the GPU to hang or crash.
-    res = device_table.WaitForFences(device, 1, &fence, VK_TRUE, 10000000000);
+    res = fence.Wait();
     if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("%s: WaitForFences (2) failed (%s)", __func__, util::ToString(res).c_str())
         return res;
     }
 
     // Release temporary vulkan objects
     device_table.DestroyCommandPool(device, cmd_pool, nullptr);
     device_table.DestroyQueryPool(device, query_pool, nullptr);
-    device_table.DestroyFence(device, fence, nullptr);
 
     return VK_SUCCESS;
-}
-
-void AccelerationStructureDumpResourcesContext::ReleaseResources()
-{
-    if (as_info == nullptr)
-    {
-        return;
-    }
-
-    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
-    GFXRECON_ASSERT(device_info != nullptr);
-
-    const VkDevice device = device_info->handle;
-
-    as_info = nullptr;
-
-    if (serialized_data.buffer != VK_NULL_HANDLE)
-    {
-        device_table.DestroyBuffer(device, serialized_data.buffer, nullptr);
-        serialized_data.buffer = VK_NULL_HANDLE;
-    }
-
-    if (serialized_data.memory != VK_NULL_HANDLE)
-    {
-        device_table.FreeMemory(device, serialized_data.memory, nullptr);
-        serialized_data.memory = VK_NULL_HANDLE;
-    }
-
-    serialized_data.size = 0;
-
-    for (auto& as_data : as_build_objects)
-    {
-        if (auto* triangles = std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&as_data))
-        {
-            triangles->vertex_format      = VK_FORMAT_UNDEFINED;
-            triangles->vertex_buffer_size = 0;
-
-            if (triangles->vertex_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, triangles->vertex_buffer, nullptr);
-                triangles->vertex_buffer = VK_NULL_HANDLE;
-            }
-
-            if (triangles->vertex_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, triangles->vertex_buffer_memory, nullptr);
-                triangles->vertex_buffer_memory = VK_NULL_HANDLE;
-            }
-
-            triangles->index_type        = VK_INDEX_TYPE_NONE_KHR;
-            triangles->index_buffer_size = 0;
-
-            if (triangles->index_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, triangles->index_buffer, nullptr);
-                triangles->index_buffer = VK_NULL_HANDLE;
-            }
-
-            if (triangles->index_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, triangles->index_buffer_memory, nullptr);
-                triangles->index_buffer_memory = VK_NULL_HANDLE;
-            }
-
-            if (triangles->transform_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, triangles->transform_buffer, nullptr);
-                triangles->transform_buffer = VK_NULL_HANDLE;
-            }
-
-            if (triangles->transform_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, triangles->transform_buffer_memory, nullptr);
-                triangles->transform_buffer_memory = VK_NULL_HANDLE;
-            }
-        }
-        else if (auto* instance = std::get_if<AccelerationStructureDumpResourcesContext::Instances>(&as_data))
-        {
-            instance->instance_count       = 0;
-            instance->instance_buffer_size = 0;
-
-            if (instance->instance_buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, instance->instance_buffer, nullptr);
-                instance->instance_buffer = VK_NULL_HANDLE;
-            }
-
-            if (instance->instance_buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, instance->instance_buffer_memory, nullptr);
-                instance->instance_buffer_memory = VK_NULL_HANDLE;
-            }
-
-            if (instance->compute_ppl != VK_NULL_HANDLE)
-            {
-                device_table.DestroyPipeline(device, instance->compute_ppl, nullptr);
-                instance->compute_ppl = VK_NULL_HANDLE;
-            }
-
-            if (instance->compute_ppl_layout != VK_NULL_HANDLE)
-            {
-                device_table.DestroyPipelineLayout(device, instance->compute_ppl_layout, nullptr);
-                instance->compute_ppl_layout = VK_NULL_HANDLE;
-            }
-        }
-        else if (auto* aabb = std::get_if<AccelerationStructureDumpResourcesContext::AABBS>(&as_data))
-        {
-            aabb->buffer_size = 0;
-
-            if (aabb->buffer != VK_NULL_HANDLE)
-            {
-                device_table.DestroyBuffer(device, aabb->buffer, nullptr);
-                aabb->buffer = VK_NULL_HANDLE;
-            }
-
-            if (aabb->buffer_memory != VK_NULL_HANDLE)
-            {
-                device_table.FreeMemory(device, aabb->buffer_memory, nullptr);
-                aabb->buffer_memory = VK_NULL_HANDLE;
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Unexpected as data entry");
-            GFXRECON_ASSERT(0);
-        }
-    }
-
-    as_build_objects.clear();
 }
 
 static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumped_as,
@@ -1711,7 +1870,7 @@ static VkResult DumpBLAS(DumpedAccelerationStructure&                      dumpe
         return res;
     }
 
-    // Fetch serialized data for TLAS
+    // Fetch serialized data for BLAS
     if (as_context->serialized_data.buffer != VK_NULL_HANDLE)
     {
         dumped_as.serialized_buffer.size               = as_context->serialized_data.size;
@@ -1743,7 +1902,8 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
                          const graphics::VulkanDeviceTable&                device_table,
                          const CommonObjectInfoTable&                      object_info_table,
                          const graphics::VulkanInstanceTable&              instance_table,
-                         const VulkanPerDeviceAddressTrackers&             address_trackers)
+                         const VulkanPerDeviceAddressTrackers&             address_trackers,
+                         bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
     GFXRECON_ASSERT(as_info != nullptr);
@@ -1797,8 +1957,11 @@ static VkResult DumpTLAS(DumpedAccelerationStructure&                      dumpe
         for (uint32_t i = 0; i < instance_build_data->instance_count; ++i)
         {
             // Get all BLASes associated with the referenced device address
-            const auto blases_infos = device_address_tracker.GetAccelerationStructuresByCaptureDeviceAddress(
-                static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
+            const auto blases_infos =
+                use_capture_addresses ? device_address_tracker.GetAccelerationStructuresByCaptureDeviceAddress(
+                                            static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference))
+                                      : device_address_tracker.GetAccelerationStructuresByReplayDeviceAddress(
+                                            static_cast<VkDeviceAddress>(instances[i].accelerationStructureReference));
             if (blases_infos.empty())
             {
                 continue;
@@ -1888,7 +2051,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                                    const graphics::VulkanDeviceTable&                device_table,
                                    const CommonObjectInfoTable&                      object_info_table,
                                    const graphics::VulkanInstanceTable&              instance_table,
-                                   const VulkanPerDeviceAddressTrackers&             address_trackers)
+                                   const VulkanPerDeviceAddressTrackers&             address_trackers,
+                                   bool                                              use_capture_addresses)
 {
     const VulkanAccelerationStructureKHRInfo* as_info = dumped_as.as_info;
     GFXRECON_ASSERT(as_info != nullptr);
@@ -1904,7 +2068,8 @@ VkResult DumpAccelerationStructure(DumpedAccelerationStructure&                 
                        device_table,
                        object_info_table,
                        instance_table,
-                       address_trackers);
+                       address_trackers,
+                       use_capture_addresses);
     }
     else
     {
@@ -1932,7 +2097,8 @@ void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
                           VkPipelineStageFlags               src_stage_mask,
                           VkPipelineStageFlags               dst_stage_mask)
 {
-    device_table.CmdCopyBuffer(command_buffer, src, dst, regions.size(), regions.data());
+    device_table.CmdCopyBuffer(
+        command_buffer, src, dst, GFXRECON_NARROWING_CAST(uint32_t, regions.size()), regions.data());
 
     const VkBufferMemoryBarrier buffer_barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
                                                    nullptr,

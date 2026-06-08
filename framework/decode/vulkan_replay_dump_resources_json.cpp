@@ -113,16 +113,6 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
     return true;
 }
 
-bool VulkanReplayDumpResourcesJson::Open(const std::string& filename)
-{
-    if (!InitializeFile(filename))
-    {
-        return false;
-    }
-
-    return true;
-}
-
 void VulkanReplayDumpResourcesJson::Close()
 {
     if (file_ != nullptr)
@@ -188,6 +178,7 @@ void VulkanReplayDumpResourcesJson::InsertImageSubresourceInfo(nlohmann::ordered
 
     json_entry["mipLevel"]   = subresource.level;
     json_entry["arrayLayer"] = subresource.layer;
+    json_entry["depth"]      = subresource.depth;
     json_entry["file"]       = subresource.filename;
 
     if (separate_alpha && !dumped_raw && vkuFormatHasAlpha(format))
@@ -248,6 +239,20 @@ void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& jso
     {
         json_entry["compressedSize"] = dumped_buffer.compressed_size;
     }
+}
+
+void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
+                                                    const VulkanImageInfo&  image_info)
+{
+    json_entry["imageId"]     = image_info.capture_id;
+    json_entry["format"]      = util::ToString<VkFormat>(image_info.format);
+    json_entry["extent"][0]   = image_info.extent.width;
+    json_entry["extent"][1]   = image_info.extent.height;
+    json_entry["extent"][2]   = image_info.extent.depth;
+    json_entry["imageType"]   = util::ToString<VkImageType>(image_info.type);
+    json_entry["levels"]      = image_info.level_count;
+    json_entry["layers"]      = image_info.layer_count;
+    json_entry["sampleCount"] = static_cast<uint32_t>(image_info.sample_count);
 }
 
 void VulkanReplayDumpResourcesJson::InsertBeforeBufferInfo(nlohmann::ordered_json& json_entry,

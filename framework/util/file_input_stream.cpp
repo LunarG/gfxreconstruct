@@ -107,6 +107,7 @@ bool FStreamFileInputStream::Open(const std::string& filename)
     }
     else
     {
+        GFXRECON_LOG_ERROR("Failed to open file '%s': %s", filename.c_str(), strerror(errno));
         last_read_status_ = util::platform::FileReadStatus::kError;
     }
 #endif
@@ -195,19 +196,6 @@ bool FStreamFileInputStream::FileSeek(int64_t offset, util::platform::FileSeekOr
 bool FStreamFileInputStream::HasReadAhead() const noexcept
 {
     return read_ahead_bytes_ > 0;
-}
-
-int64_t FStreamFileInputStream::Tell() const
-{
-    if (IsOpen())
-    {
-        int64_t pos = util::platform::FileTell(fd_);
-        if (pos >= 0)
-        {
-            return pos - static_cast<int64_t>(read_ahead_bytes_);
-        }
-    }
-    return -1;
 }
 
 size_t FStreamFileInputStream::ReadFromReadAheadBuffer(void* buffer, size_t bytes)
@@ -313,25 +301,6 @@ size_t FStreamFileInputStream::PeekBytes(void* buffer, size_t bytes)
     std::memcpy(buffer, &read_ahead_buffer_[read_ahead_offset_], bytes_to_copy);
 
     return bytes_to_copy;
-}
-
-bool FStreamFileInputStream::ReadOverwriteSpan(const size_t bytes, DataSpan& span)
-{
-    span.Reset(buffer_pool_, bytes);
-    bool success = ReadBytes(const_cast<char*>(span.GetDataAs<const char>()), bytes);
-    return success;
-}
-
-DataSpan FStreamFileInputStream::ReadSpan(const size_t bytes)
-{
-    auto  pool_entry = buffer_pool_->Acquire(bytes);
-    char* buffer     = pool_entry.GetAs<char>();
-    bool  success    = ReadBytes(buffer, bytes);
-    if (success)
-    {
-        return DataSpan(std::move(pool_entry), bytes);
-    }
-    return DataSpan();
 }
 
 GFXRECON_END_NAMESPACE(util)

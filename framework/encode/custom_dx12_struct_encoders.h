@@ -57,6 +57,8 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1& value);
 void EncodeStruct(ParameterEncoder*                                                                encoder,
                   const D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value);
 
 // Platform types.
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);

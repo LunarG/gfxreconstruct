@@ -82,6 +82,8 @@ const char kOverrideGpuArgument[]                = "--gpu";
 const char kOverrideGpuGroupArgument[]           = "--gpu-group";
 const char kPausedOption[]                       = "--paused";
 const char kPauseFrameArgument[]                 = "--pause-frame";
+const char kLoopFrameArgument[]                  = "--loop-frame";
+const char kLoopCountArgument[]                  = "--loop-count";
 const char kCaptureOption[]                      = "--capture";
 const char kSkipFailedAllocationShortOption[]    = "--sfa";
 const char kSkipFailedAllocationLongOption[]     = "--skip-failed-allocations";
@@ -125,6 +127,7 @@ const char kFlushMeasurementRangeOption[]        = "--flush-measurement-range";
 const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-range";
 const char kSwapchainOption[]                    = "--swapchain";
 const char kPresentModeOption[]                  = "--present-mode";
+const char kPresentOverrideImageArgument[]       = "--present-override";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
 const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
@@ -148,11 +151,10 @@ const char kLoadPipelineCacheArgument[]           = "--load-pipeline-cache";
 const char kCreateNewPipelineCacheOption[]        = "--add-new-pipeline-caches";
 const char kDeduplicateDevice[]                   = "--deduplicate-device";
 const char kWaitBeforeFirstSubmit[]               = "--wait-before-first-submit";
-const char kRepeatFrameNTimesArgument[]           = "--frame-repeats";
-const char kWaitBeforeFirstFrameMsArgument[]      = "--wait-before-first-frame-ms";
-const char kSleepAroundGpuFrameMsArgument[]       = "--sleep-around-gpu-frame-ms";
-const char kFrameWarmUpGpuLoadArgument[]          = "--frame-warm-up-gpu-load";
-const char kRenderPassBarrierArgument[]           = "--render-pass-barrier";
+const char kIdleBeforeSubmit[]                    = "--idle-before-submit";
+const char kSerializeRenderPasses[]               = "--serialize-render-passes";
+const char kWaitBeforeFrame[]                     = "--wait-before-frame";
+const char kAsyncProcessingOption[]               = "--async-processing";
 
 const char kScreenshotIgnoreFrameBoundaryArgument[] = "--screenshot-ignore-FrameBoundaryANDROID";
 
@@ -165,8 +167,13 @@ const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-st
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 #endif
 
-const char kDumpResourcesArgument[]    = "--dump-resources";
-const char kDumpResourcesDirArgument[] = "--dump-resources-dir";
+const char kDumpResourcesArgument[]     = "--dump-resources";
+const char kDumpResourcesDirArgument[]  = "--dump-resources-dir";
+const char kFrameWarmUpSpirv[]          = "--frame-warm-up-spirv";
+const char kFrameWarmUpLoad[]           = "--frame-warm-up-load";
+const char kSerializeQueueSubmissions[] = "--serialize-queue-submissions";
+const char kReplayEventPluginPath[]     = "--replay-event-plugin-path";
+const char kReplayEventPluginParams[]   = "--replay-event-plugin-params";
 
 enum class WsiPlatform
 {
@@ -315,7 +322,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
 
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    uint32_t    pause_frame = 0;
+    uint32_t    pause_frame = std::numeric_limits<uint32_t>::max();
     const auto& value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
 
     if (arg_parser.IsOptionSet(kPausedOption))
@@ -524,8 +531,8 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
                            gfxrecon::util::Log::Settings&        log_settings)
 {
     // Parse log level
-    gfxrecon::util::Log::Severity log_level;
-    const std::string&            value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
+    gfxrecon::util::LoggingSeverity log_level;
+    const std::string&              value_string = arg_parser.GetArgumentValue(kLogLevelArgument);
     if (value_string.empty() || !gfxrecon::util::Log::StringToSeverity(value_string, log_level))
     {
         log_level = gfxrecon::decode::kDefaultLogLevel;
@@ -540,6 +547,10 @@ static void GetLogSettings(const gfxrecon::util::ArgumentParser& arg_parser,
     log_settings.output_timestamps         = arg_parser.IsOptionSet(kLogTimestampsOption);
     log_settings.file_name                 = arg_parser.GetArgumentValue(kLogFileArgument);
     log_settings.output_to_os_debug_string = arg_parser.IsOptionSet(kLogDebugView);
+    if (log_settings.file_name.size() > 0)
+    {
+        log_settings.write_to_file = true;
+    }
 }
 
 static void GetMeasurementFilename(const gfxrecon::util::ArgumentParser& arg_parser, std::string& file_name)
@@ -635,26 +646,37 @@ static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, 
     }
 }
 
-static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
+static std::optional<std::array<float, 2>> GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotScaleArgument);
-
-    float scale = 0.0f;
 
     if (!value.empty())
     {
         try
         {
-            scale = std::stof(value);
+            std::array<float, 2> scale = { 1.0f, 1.0f };
+            std::size_t          pos   = 0;
+            scale[0]                   = std::stof(value, &pos);
+
+            // skip comma separator
+            if (pos < value.size() && value[pos] == ',')
+            {
+                scale[1] = std::stof(value.substr(pos + 1));
+            }
+            else
+            {
+                // single value provided — apply uniformly
+                scale[1] = scale[0];
+            }
+            return scale;
         }
         catch (std::exception&)
         {
             GFXRECON_LOG_WARNING(
-                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+                "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [x,y]");
         }
     }
-
-    return scale;
+    return {};
 }
 
 static std::vector<gfxrecon::decode::ScreenshotRange>
@@ -710,6 +732,62 @@ static bool GetQuitAfterFrame(const gfxrecon::util::ArgumentParser& arg_parser, 
     return false;
 }
 
+static bool GetLoopFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_number)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kLoopFrameArgument);
+
+    bool valid = !value.empty();
+
+    if (valid)
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            valid = false;
+        }
+    }
+
+    if (valid)
+    {
+        frame_number = std::stoi(value);
+        if (frame_number == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop frame argument \"%s\", which must be greater than zero",
+                                 value.c_str());
+            valid = false;
+        }
+    }
+
+    return valid;
+}
+
+static bool GetLoopCount(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& loop_count)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kLoopCountArgument);
+    if (!value.empty())
+    {
+        if (std::count_if(value.begin(), value.end(), ::isdigit) != value.length())
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which contains non-numeric values",
+                                 value.c_str());
+            return false;
+        }
+
+        uint32_t parsed_loop_count = static_cast<uint32_t>(std::stoul(value));
+        if (parsed_loop_count == 0)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid loop count \"%s\", which must be greater than zero", value.c_str());
+            return false;
+        }
+
+        loop_count = parsed_loop_count;
+        return true;
+    }
+
+    return false;
+}
+
 static bool
 GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& start_frame, uint32_t& end_frame)
 {
@@ -717,56 +795,57 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
     end_frame   = std::numeric_limits<uint32_t>::max();
 
     const auto& value = arg_parser.GetArgumentValue(kMeasurementRangeArgument);
-    if (!value.empty())
+    if (value.empty())
     {
-        std::vector<std::string> values  = gfxrecon::util::strings::SplitString(value, '-');
-        bool                     invalid = false;
+        return false;
+    }
 
-        if (values.size() != 2)
+    std::vector<std::string> values = gfxrecon::util::strings::SplitString(value, '-');
+
+    if (values.size() != 2)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
+                           value.c_str());
+        std::abort();
+    }
+
+    for (std::string& num : values)
+    {
+        gfxrecon::util::strings::RemoveWhitespace(num);
+
+        // Check that the range string only contains numbers.
+        const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
+        if (count != num.length())
         {
-            GFXRECON_LOG_WARNING(
-                "Ignoring invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
-                value.c_str());
-            invalid = true;
-        }
-
-        for (std::string& num : values)
-        {
-            gfxrecon::util::strings::RemoveWhitespace(num);
-
-            // Check that the range string only contains numbers.
-            const size_t count = std::count_if(num.begin(), num.end(), ::isdigit);
-            if (count != num.length())
-            {
-                GFXRECON_LOG_WARNING(
-                    "Ignoring invalid measurement frame range \"%s\", which contains non-numeric values",
-                    value.c_str());
-                invalid = true;
-                break;
-            }
-        }
-
-        if (!invalid)
-        {
-            uint32_t start_frame_arg = std::stoi(values[0]);
-            uint32_t end_frame_arg   = std::stoi(values[1]);
-
-            if (start_frame_arg >= end_frame_arg)
-            {
-                GFXRECON_LOG_WARNING("Ignoring invalid measurement frame range \"%s\", where first frame is "
-                                     "greater than or equal to the last frame",
-                                     value.c_str());
-
-                return false;
-            }
-
-            start_frame = start_frame_arg;
-            end_frame   = end_frame_arg;
-            return true;
+            GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", which contains non-numeric values",
+                               value.c_str());
+            std::abort();
         }
     }
 
-    return false;
+    uint32_t start_frame_arg = std::stoi(values[0]);
+    uint32_t end_frame_arg   = std::stoi(values[1]);
+
+    if (start_frame_arg >= end_frame_arg)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is greater than or equal "
+                           "to the last frame",
+                           value.c_str());
+        std::abort();
+    }
+
+    if (start_frame_arg == 0)
+    {
+        GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is 0 which is invalid in "
+                           "GFXReconstruct (frame count starts at 1)",
+                           value.c_str());
+        std::abort();
+    }
+
+    start_frame = start_frame_arg;
+    end_frame   = end_frame_arg;
+
+    return true;
 }
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
@@ -890,6 +969,66 @@ static void GetWaitBeforeFirstSubmit(const gfxrecon::util::ArgumentParser& arg_p
         {
             GFXRECON_LOG_WARNING(
                 "Ignoring invalid wait before first submit option. Expected format is unsigned integer");
+        }
+    }
+}
+
+static void GetFrameWarmUpLoad(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& frame_warm_up_load)
+{
+    const auto& value = arg_parser.GetArgumentValue(kFrameWarmUpLoad);
+
+    if (!value.empty())
+    {
+        try
+        {
+            frame_warm_up_load = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid frame warm up load option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
+        }
+    }
+}
+
+static void GetFrameWarmUpOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+                                  std::string&                          frame_warm_up_spirv,
+                                  uint32_t&                             frame_warm_up_load)
+{
+    frame_warm_up_spirv = arg_parser.GetArgumentValue(kFrameWarmUpSpirv);
+    GetFrameWarmUpLoad(arg_parser, frame_warm_up_load);
+
+    if (frame_warm_up_load > 0 && frame_warm_up_spirv.empty())
+    {
+        GFXRECON_LOG_FATAL(
+            "Frame warm up load option is set to %u, but no SPIR-V file is specified. Expected format is "
+            "--frame-warm-up-spirv [spirv-file]",
+            frame_warm_up_load);
+    }
+    else if (!frame_warm_up_spirv.empty() && frame_warm_up_load == 0)
+    {
+        GFXRECON_LOG_WARNING("Frame warm up SPIR-V file is specified as \"%s\", but frame warm up is disabled because "
+                             "`--frame-warm-up-load` is 0. Specify a non-zero load to enable frame warm up.",
+                             frame_warm_up_spirv.c_str());
+    }
+}
+
+static void GetWaitBeforeFrame(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& wait_before_frame)
+{
+    const auto& value = arg_parser.GetArgumentValue(kWaitBeforeFrame);
+
+    if (!value.empty())
+    {
+        try
+        {
+            wait_before_frame = std::stoul(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING(
+                "Ignoring invalid wait before frame option: \"%s\". Expected format is unsigned integer",
+                value.c_str());
         }
     }
 }
@@ -1153,6 +1292,12 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
     replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
+
+    if (auto override_name = arg_parser.GetArgumentValue(kPresentOverrideImageArgument); !override_name.empty())
+    {
+        replay_options.present_override_image_name = override_name;
+    }
+
     if (arg_parser.IsOptionSet(kScreenshotIgnoreFrameBoundaryArgument))
     {
         replay_options.screenshot_ignore_frameBoundaryAndroid = true;
@@ -1242,6 +1387,15 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.do_device_deduplication      = arg_parser.IsOptionSet(kDeduplicateDevice);
 
     GetWaitBeforeFirstSubmit(arg_parser, replay_options.wait_before_first_submit);
+    replay_options.idle_before_submit          = arg_parser.IsOptionSet(kIdleBeforeSubmit);
+    replay_options.serialize_render_passes     = arg_parser.IsOptionSet(kSerializeRenderPasses);
+    replay_options.serialize_queue_submissions = arg_parser.IsOptionSet(kSerializeQueueSubmissions);
+
+    GetFrameWarmUpOptions(arg_parser, replay_options.frame_warm_up_spirv_path, replay_options.frame_warm_up_load);
+    GetWaitBeforeFrame(arg_parser, replay_options.wait_before_frame);
+
+    replay_options.replay_event_plugin_path   = arg_parser.GetArgumentValue(kReplayEventPluginPath);
+    replay_options.replay_event_plugin_params = arg_parser.GetArgumentValue(kReplayEventPluginParams);
 
     return replay_options;
 }

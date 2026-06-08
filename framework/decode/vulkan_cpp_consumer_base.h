@@ -19,7 +19,6 @@
 #define GFXRECON_DECODE_VULKAN_CPP_CONSUMER_BASE_H
 
 #include "vulkan_cpp_utilities.h"
-#include "decode/file_processor.h"
 #include "decode/vulkan_cpp_loader_generator.h"
 #include "decode/vulkan_cpp_utilities.h"
 #include "format/platform_types.h"
@@ -611,11 +610,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
     static std::string BuildValue(const StdVideoAV1FrameRestorationType* values, uint32_t count);
 
     template <typename T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-    static std::string BuildValue(const T* values, uint32_t count)
+    static std::string BuildValue(const T* values, size_t count)
     {
         std::stringstream output;
         output << "{";
-        for (uint32_t idx = 0; idx < count; idx++)
+        for (size_t idx = 0; idx < count; idx++)
         {
             output << std::to_string(values[idx]) << ", ";
         }

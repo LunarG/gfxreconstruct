@@ -86,30 +86,10 @@ class VulkanStructToJsonBodyGenerator(VulkanBaseGenerator, KhronosStructToJsonBo
             'VkDeviceAddress',
         }
 
-        # Fields using this name should be output as handles even though they are uint64_t
-        self.formatAsHandle = {
-            'objectHandle',
-        }
-
-        # Struct types here do not have decoded fields.
-        self.notDecoded = {
-            'VkDeviceMemoryReportCallbackDataEXT',
-        }
-
     def should_decode_struct(self, struct):
         """Method indended to be overridden.
         Indicates that the provided struct is a struct we want to decode"""
         return not struct in self.customImplementationRequired
-
-    def decode_as_handle(self, parent_type, member):
-        """Method indended to be overridden.
-        Indicates that the given type should be decoded as a handle."""
-        return (
-            (
-                self.is_handle(member.base_type)
-                or member.name in self.formatAsHandle
-            ) and not (parent_type in self.notDecoded)
-        )
 
     # Method override
     def endFile(self):

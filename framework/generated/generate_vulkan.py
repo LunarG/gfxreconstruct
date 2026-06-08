@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2018-2026 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -20,25 +20,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
-'''Generate GFXR Vulkan framework source code
-'''
+'''Generate GFXR Vulkan framework source code'''
 
 import argparse
 import os
 import sys
 import subprocess
+import functools
+from concurrent.futures import ThreadPoolExecutor
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 KHRONOS_REGISTRY_DIR = os.path.normpath(
-    os.path.join(
-        SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers', 'registry'
-    )
+    os.path.join(SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers', 'registry')
 )
 KHRONOS_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators')
 GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'khronos_generators', 'vulkan_generators')
-VK_HEADERS_DIR = os.path.join(
-    SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers'
-)
+VK_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'Vulkan-Headers')
 
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
@@ -66,10 +63,14 @@ generate_targets = [
     'generated_vulkan_consumer.h',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
+    'generated_vulkan_replay_frame_loop_consumer_base.h',
+    'generated_vulkan_replay_frame_loop_consumer_base.cpp',
     'generated_vulkan_replay_dump_resources.h',
     'generated_vulkan_replay_dump_resources.cpp',
     'generated_vulkan_referenced_resource_consumer.h',
     'generated_vulkan_referenced_resource_consumer.cpp',
+    'generated_vulkan_referenced_block_consumer.h',
+    'generated_vulkan_referenced_block_consumer.cpp',
     'generated_vulkan_struct_handle_mappers.h',
     'generated_vulkan_struct_handle_mappers.cpp',
     'generated_vulkan_feature_util.cpp',
@@ -93,7 +94,38 @@ generate_targets = [
     'generated_vulkan_stype_util.h',
 ]
 
-if __name__ == '__main__':
+
+def generate_target(registry_path, video_path, headers_dir, env, target):
+    '''Generate a single target file using the Vulkan XML registry generator script.'''
+    print('Generating', target)
+    gencode_args = [
+        sys.executable,
+        os.path.join(GENERATOR_DIR, 'gencode.py'),
+        '-o',
+        SCRIPT_DIR,
+        '-configs',
+        GENERATOR_DIR,
+        '-registry',
+        registry_path,
+        '-video',
+        video_path,
+    ]
+    if headers_dir is not None:
+        if not os.path.isdir(headers_dir):
+            raise Exception(
+                'Error: extra headers dir', headers_dir, 'is not a directory'
+            )
+        gencode_args.extend(['-headers-dir', os.path.abspath(headers_dir)])
+    gencode_args.append(target)
+    subprocess.check_call(
+        gencode_args,
+        shell=False,
+        env=env,
+        cwd=SCRIPT_DIR,
+    )
+
+
+def main():
     arg_parser = argparse.ArgumentParser(description=__doc__)
     arg_parser.add_argument(
         '--registry-dir',
@@ -102,9 +134,9 @@ if __name__ == '__main__':
         help='\n'.join(
             [
                 'Path to a directory that holds the Vulkan registry file (vk.xml) used to generate Vulkan source.',
-                'If this option is not provided the registry from the external Khronos Vulkan headers sub module will be used.'
+                'If this option is not provided the registry from the external Khronos Vulkan headers sub module will be used.',
             ]
-        )
+        ),
     )
     arg_parser.add_argument(
         '--headers-dir',
@@ -114,10 +146,19 @@ if __name__ == '__main__':
             [
                 'Path to a directory that holds additional Vulkan header files required to build.',
                 'These header files are included directly after the Vulkan header in all generated files.',
-                'All .h file under the given directory are assumed to be Vulkan headers.'
+                'All .h file under the given directory are assumed to be Vulkan headers.',
             ]
-        )
+        ),
     )
+    arg_parser.add_argument(
+        '-j',
+        '--parallel',
+        dest='jobs',
+        type=int,
+        default=0,
+        help='Parallel jobs. 0 = all CPUs.',
+    )
+
     args = arg_parser.parse_args()
     registry_dir = KHRONOS_REGISTRY_DIR
     if args.registry_dir is not None:
@@ -130,13 +171,8 @@ if __name__ == '__main__':
     if not os.path.isfile(video_path):
         raise Exception(f'Error: {video_path} does not exist')
 
-
-
-    KHRONOS_GENERATOR_DIR = os.path.normpath(
-        os.path.join(SCRIPT_DIR, KHRONOS_GENERATOR_DIR)
-    )
     env = os.environ.copy()
-    if not 'PYTHONPATH' in env:
+    if 'PYTHONPATH' not in env:
         env['PYTHONPATH'] = ''
     env['PYTHONPATH'] = os.pathsep.join(
         [
@@ -146,34 +182,16 @@ if __name__ == '__main__':
             VK_HEADERS_DIR,
         ]
     )
-    for target in generate_targets:
-        print('Generating', target)
-        gencode_args = [
-            sys.executable,
-            os.path.join(GENERATOR_DIR, 'gencode.py'),
-            '-o',
-            SCRIPT_DIR,
-            '-configs',
-            GENERATOR_DIR,
-            '-registry',
-            registry_path,
-            '-video',
-            video_path,
-        ]
-        if args.headers_dir is not None:
-            if not os.path.isdir(args.headers_dir):
-                raise Exception(
-                    'Error: extra headers dir', args.headers_dir,
-                    'is not a directory'
-                )
-            gencode_args.extend(
-                ['-headers-dir',
-                 os.path.abspath(args.headers_dir)]
-            )
-        gencode_args.append(target)
-        subprocess.call(
-            gencode_args,
-            shell=False,
-            env=env,
-            cwd=SCRIPT_DIR,
-        )
+
+    max_workers = args.jobs if args.jobs > 0 else os.cpu_count()
+
+    gen = functools.partial(
+        generate_target, registry_path, video_path, args.headers_dir, env
+    )
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Wrapping with list(...) forces to pull the iterator's result and makes exceptions surface.
+        list(executor.map(gen, generate_targets))
+
+
+if __name__ == '__main__':
+    main()

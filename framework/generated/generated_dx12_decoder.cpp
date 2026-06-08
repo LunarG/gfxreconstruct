@@ -163,6 +163,9 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12PipelineState_GetCachedBlob:
         Decode_ID3D12PipelineState_GetCachedBlob(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12PipelineState1_GetRootSignature:
+        Decode_ID3D12PipelineState1_GetRootSignature(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetDesc:
         Decode_ID3D12DescriptorHeap_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -382,6 +385,18 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12CommandQueue_GetDesc:
         Decode_ID3D12CommandQueue_GetDesc(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetProcessPriority:
+        Decode_ID3D12CommandQueue1_SetProcessPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetProcessPriority:
+        Decode_ID3D12CommandQueue1_GetProcessPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_SetGlobalPriority:
+        Decode_ID3D12CommandQueue1_SetGlobalPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12CommandQueue1_GetGlobalPriority:
+        Decode_ID3D12CommandQueue1_GetGlobalPriority(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12Device_GetNodeCount:
         Decode_ID3D12Device_GetNodeCount(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -588,6 +603,12 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_ID3D12StateObjectProperties1_GetProgramIdentifier:
         Decode_ID3D12StateObjectProperties1_GetProgramIdentifier(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram:
+        Decode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader:
+        Decode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12WorkGraphProperties_GetNumWorkGraphs:
         Decode_ID3D12WorkGraphProperties_GetNumWorkGraphs(object_id, call_info, parameter_buffer, buffer_size);
@@ -796,6 +817,27 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary:
         Decode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibrary(object_id, call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_SetApplicationDesc:
+        Decode_ID3D12StateObjectDatabase_SetApplicationDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_GetApplicationDesc:
+        Decode_ID3D12StateObjectDatabase_GetApplicationDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StorePipelineStateDesc:
+        Decode_ID3D12StateObjectDatabase_StorePipelineStateDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindPipelineStateDesc:
+        Decode_ID3D12StateObjectDatabase_FindPipelineStateDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_StoreStateObjectDesc:
+        Decode_ID3D12StateObjectDatabase_StoreStateObjectDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindStateObjectDesc:
+        Decode_ID3D12StateObjectDatabase_FindStateObjectDesc(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabase_FindObjectVersion:
+        Decode_ID3D12StateObjectDatabase_FindObjectVersion(object_id, call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_ShareWithHost:
         Decode_ID3D12VirtualizationGuestDevice_ShareWithHost(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -873,6 +915,9 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
         break;
     case format::ApiCallId::ApiCall_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary:
         Decode_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(object_id, call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile:
+        Decode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(object_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate:
         Decode_ID3D12GraphicsCommandList5_RSSetShadingRate(object_id, call_info, parameter_buffer, buffer_size);
@@ -2344,6 +2389,28 @@ size_t Dx12Decoder::Decode_ID3D12PipelineState_GetCachedBlob(format::HandleId ob
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12PipelineState_GetCachedBlob(call_info, object_id, return_value, &ppBlob);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12PipelineState1_GetRootSignature(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvRootSignature;
+    HRESULT return_value;
+
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12PipelineState1_GetRootSignature(call_info, object_id, return_value, riid, &ppvRootSignature);
     }
 
     return bytes_read;
@@ -3830,6 +3897,78 @@ size_t Dx12Decoder::Decode_ID3D12CommandQueue_GetDesc(format::HandleId object_id
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12CommandQueue_GetDesc(call_info, object_id, return_value);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12CommandQueue1_SetProcessPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    D3D12_COMMAND_QUEUE_PROCESS_PRIORITY Priority;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12CommandQueue1_SetProcessPriority(call_info, object_id, return_value, Priority);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12CommandQueue1_GetProcessPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<D3D12_COMMAND_QUEUE_PROCESS_PRIORITY> pOutValue;
+    HRESULT return_value;
+
+    bytes_read += pOutValue.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12CommandQueue1_GetProcessPriority(call_info, object_id, return_value, &pOutValue);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12CommandQueue1_SetGlobalPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY Priority;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Priority);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12CommandQueue1_SetGlobalPriority(call_info, object_id, return_value, Priority);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12CommandQueue1_GetGlobalPriority(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY> pOutValue;
+    HRESULT return_value;
+
+    bytes_read += pOutValue.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12CommandQueue1_GetGlobalPriority(call_info, object_id, return_value, &pOutValue);
     }
 
     return bytes_read;
@@ -5427,6 +5566,54 @@ size_t Dx12Decoder::Decode_ID3D12StateObjectProperties1_GetProgramIdentifier(for
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    WStringDecoder pProgramName;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvRootSignature;
+    HRESULT return_value;
+
+    bytes_read += pProgramName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectProperties2_GetGlobalRootSignatureForProgram(call_info, object_id, return_value, &pProgramName, riid, &ppvRootSignature);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    WStringDecoder pExportName;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvRootSignature;
+    HRESULT return_value;
+
+    bytes_read += pExportName.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvRootSignature.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectProperties2_GetGlobalRootSignatureForShader(call_info, object_id, return_value, &pExportName, riid, &ppvRootSignature);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12WorkGraphProperties_GetNumWorkGraphs(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -6915,6 +7102,166 @@ size_t Dx12Decoder::Decode_ID3D12Device14_CreateRootSignatureFromSubobjectInLibr
     return bytes_read;
 }
 
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_SetApplicationDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D12_APPLICATION_DESC> pApplicationDesc;
+    HRESULT return_value;
+
+    bytes_read += pApplicationDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabase_SetApplicationDesc(call_info, object_id, return_value, &pApplicationDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_GetApplicationDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    uint64_t CallbackFunc;
+    uint64_t pContext;
+    HRESULT return_value;
+
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CallbackFunc);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pContext);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabase_GetApplicationDesc(call_info, object_id, return_value, CallbackFunc, pContext);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_StorePipelineStateDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pKey;
+    UINT KeySize;
+    UINT Version;
+    StructPointerDecoder<Decoded_D3D12_PIPELINE_STATE_STREAM_DESC> pDesc;
+    HRESULT return_value;
+
+    bytes_read += pKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &KeySize);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Version);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabase_StorePipelineStateDesc(call_info, object_id, return_value, &pKey, KeySize, Version, &pDesc);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_FindPipelineStateDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pKey;
+    UINT KeySize;
+    uint64_t CallbackFunc;
+    uint64_t pContext;
+    HRESULT return_value;
+
+    bytes_read += pKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &KeySize);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CallbackFunc);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pContext);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabase_FindPipelineStateDesc(call_info, object_id, return_value, &pKey, KeySize, CallbackFunc, pContext);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_StoreStateObjectDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pKey;
+    UINT KeySize;
+    UINT Version;
+    StructPointerDecoder<Decoded_D3D12_STATE_OBJECT_DESC> pDesc;
+    PointerDecoder<uint8_t> pStateObjectToGrowFromKey;
+    UINT StateObjectToGrowFromKeySize;
+    HRESULT return_value;
+
+    bytes_read += pKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &KeySize);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Version);
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pStateObjectToGrowFromKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &StateObjectToGrowFromKeySize);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabase_StoreStateObjectDesc(call_info, object_id, return_value, &pKey, KeySize, Version, &pDesc, &pStateObjectToGrowFromKey, StateObjectToGrowFromKeySize);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_FindStateObjectDesc(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pKey;
+    UINT KeySize;
+    uint64_t CallbackFunc;
+    uint64_t pContext;
+    HRESULT return_value;
+
+    bytes_read += pKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &KeySize);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CallbackFunc);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pContext);
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabase_FindStateObjectDesc(call_info, object_id, return_value, &pKey, KeySize, CallbackFunc, pContext);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabase_FindObjectVersion(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    PointerDecoder<uint8_t> pKey;
+    UINT KeySize;
+    PointerDecoder<UINT> pVersion;
+    HRESULT return_value;
+
+    bytes_read += pKey.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &KeySize);
+    bytes_read += pVersion.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabase_FindObjectVersion(call_info, object_id, return_value, &pKey, KeySize, &pVersion);
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12Decoder::Decode_ID3D12VirtualizationGuestDevice_ShareWithHost(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7422,6 +7769,32 @@ size_t Dx12Decoder::Decode_ID3D12DeviceConfiguration1_CreateVersionedRootSignatu
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D12DeviceConfiguration1_CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(call_info, object_id, return_value, &pLibraryBlob, Size, &RootSignatureSubobjectName, riid, &ppvDeserializer);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12Decoder::Decode_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    WStringDecoder pDatabaseFile;
+    D3D12_STATE_OBJECT_DATABASE_FLAGS flags;
+    Decoded_GUID riid;
+    GUID value_riid;
+    riid.decoded_value = &value_riid;
+    HandlePointerDecoder<void*> ppvStateObjectDatabase;
+    HRESULT return_value;
+
+    bytes_read += pDatabaseFile.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &flags);
+    bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &riid);
+    bytes_read += ppvStateObjectDatabase.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D12StateObjectDatabaseFactory_CreateStateObjectDatabaseFromFile(call_info, object_id, return_value, &pDatabaseFile, flags, riid, &ppvStateObjectDatabase);
     }
 
     return bytes_read;

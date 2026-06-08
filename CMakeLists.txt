@@ -183,13 +183,15 @@ if (MSVC)
     # can't assume ${CMAKE_GENERATOR_PLATFORM} is always defined and/or non-empty!
     if(NOT "${CMAKE_GENERATOR_PLATFORM}" STREQUAL "")
         string(TOUPPER "${CMAKE_GENERATOR_PLATFORM}" NORMALIZED_CMAKE_GENERATOR_PLATFORM)
-        if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+        if (NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64" OR 
+            NORMALIZED_CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64EC")
             set(GFXR_ARM_WINDOWS_BUILD TRUE)
         endif()
     else()
         # No target platform is specified. Try to compute using native tools architecture.
         string(TOUPPER "${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}" NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE)
-        if(NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE STREQUAL "ARM64")
+        if(NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE STREQUAL "ARM64" OR
+            NORMALIZED_CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE STREQUAL "ARM64EC")
             set(GFXR_ARM_WINDOWS_BUILD TRUE)
         endif()
     endif()
@@ -213,6 +215,10 @@ if (MSVC)
 
     # Enable LARGEADDRESSAWARE to increase memory address space for 32-bit executables
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
+
+    # Increase the default stack size from 1 MB to 8 MB for Debug builds to prevent
+    # stack overflow during encode/decode of deep pNext chains
+    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /STACK:8388608")
 
     # Add option to enable/disable D3D12 support.
     option(D3D12_SUPPORT "Build with Direct3D 12 support enabled" ON)
@@ -304,10 +310,6 @@ if (APPLE)
             "${PROJECT_SOURCE_DIR}/external/precompiled/macos"
             ${CMAKE_PREFIX_PATH})
 endif ()
-
-if(ANDROID)
-    add_link_options(-Wl,-z,max-page-size=16384)
-endif()
 
 # GFXReconstruct provided find modules
 if (WIN32)
@@ -408,7 +410,15 @@ if(MSVC)
 endif()
 
 add_library(vulkan_registry INTERFACE)
-target_include_directories(vulkan_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
+if (CMAKE_CXX_COMPILER_ID STREQUAL AppleClang)
+    # AppleClang implicitly adds /usr/local/include as a -I path, which takes precedence
+    # over -isystem paths. Add external/Vulkan-Headers as a normal -I path for the correct
+    # search order, then use --system-header-prefix to treat it as a system header for warnings
+    target_include_directories(vulkan_registry INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
+    target_compile_options(vulkan_registry INTERFACE --system-header-prefix vulkan/)
+else ()
+    target_include_directories(vulkan_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}/external/Vulkan-Headers/include)
+endif()
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(spirv_registry INTERFACE)
@@ -417,6 +427,11 @@ target_include_directories(spirv_registry SYSTEM INTERFACE ${PROJECT_SOURCE_DIR}
 add_library(OpenXR INTERFACE)
 if (OPENXR_SUPPORT_ENABLED)
     option(DYNAMIC_LOADER "" OFF)
+    # Tell openxr_loader to use the vendored copy of jsoncpp rather than finding system jsoncpp.
+    # When using system jsoncpp, OpenXR's fallback finder creates a local INTERFACE target
+    # that cannot be exported, causing CMake errors during install(EXPORT ...) operations.
+    option(BUILD_WITH_SYSTEM_JSONCPP "" OFF)
+
     add_subdirectory(${PROJECT_SOURCE_DIR}/external/OpenXR-SDK)
     target_include_directories(OpenXR INTERFACE ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
     target_compile_definitions(OpenXR INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)

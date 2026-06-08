@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_VULKAN_VIRTUAL_SWAPCHAIN_H
 
 #include "decode/vulkan_swapchain.h"
+#include "graphics/vulkan_resources_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -111,14 +112,14 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                      VulkanCommandBufferInfo*  command_buffer_info,
                                      const VkDependencyInfo*   pDependencyInfo) override;
 
-    virtual void FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
-                                      const VulkanDeviceInfo*              device_info,
-                                      const VulkanSemaphoreInfo*           semaphore_info,
-                                      const VulkanImageInfo*               image_info,
-                                      VulkanInstanceInfo*                  instance_info,
-                                      const graphics::VulkanInstanceTable* instance_table,
-                                      const graphics::VulkanDeviceTable*   device_table,
-                                      application::Application*            application) override;
+    void PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+                           const VulkanSemaphoreInfo*                 semaphore_info,
+                           const VulkanImageInfo*                     image_info,
+                           VulkanInstanceInfo*                        instance_info,
+                           const graphics::VulkanInstanceTable*       instance_table,
+                           const graphics::VulkanDeviceTable*         device_table,
+                           application::Application*                  application,
+                           const std::optional<std::array<float, 2>>& scale) override;
 
     virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
                                                       VulkanSwapchainKHRInfo* swapchain_info,
@@ -152,6 +153,10 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     // Offscreen only need virtual_swapchain_images.
     struct SwapchainResourceData
     {
+        bool              forced_offscreen{ false };
+        bool              deferred_alloc{ false };
+        std::vector<bool> image_index_transitioned;
+
         // Create a map that correlates copy command data with a queue family index.
         std::unordered_map<uint32_t, CopyCmdData> copy_cmd_data;
 
@@ -170,8 +175,7 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                          const VulkanSwapchainKHRInfo* swapchain_info,
                                          uint32_t                      capture_image_count,
                                          uint32_t*                     replay_image_count,
-                                         VkImage*                      images,
-                                         bool                          offscreen);
+                                         VkImage*                      images);
 
     void CleanSwapchainResourceData(const VulkanDeviceInfo* device_info, const VulkanSwapchainKHRInfo* swapchain_info);
 
@@ -179,34 +183,106 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                          const VkImageCreateInfo& image_create_info,
                                          VirtualImage&            image);
 
+    VkResult TransitionSwapchainImage(VkDevice                                device,
+                                      const VulkanSwapchainKHRInfo*           swapchain_info,
+                                      std::unique_ptr<SwapchainResourceData>& swapchain_resources,
+                                      uint32_t                                image_index,
+                                      uint32_t                                image_count);
+
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
 
     // This structure contains the data tied to a swapchain image created for presenting offscreen frame boundaries
-    struct OFBSwapchainImageData
+    struct AdhocSwapChainImageData
     {
-        VkImage         image{ VK_NULL_HANDLE };
-        VkCommandBuffer copy_command_buffer{ VK_NULL_HANDLE };
-        VkSemaphore     copy_semaphore{ VK_NULL_HANDLE };
+        VkImage       image{ VK_NULL_HANDLE };
+        VkImageLayout image_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+        VkSemaphore   semaphore{ VK_NULL_HANDLE };
     };
 
-    // This structure contains the custom surface, swapchain, and swapchain images data created and used by the virtual
-    // swapchain when encountering an offscreen frame boundary (like vkFrameBoundaryANDROID)
-    struct OFBData
+    struct AdhocSwapChainFrameData
     {
+        VkCommandBuffer command_buffer    = VK_NULL_HANDLE;
+        VkFence         fence             = VK_NULL_HANDLE;
+        VkSemaphore     acquire_semaphore = VK_NULL_HANDLE;
+    };
+
+    struct AdhocSwapChain
+    {
+        AdhocSwapChain() = default;
+        ~AdhocSwapChain();
+
+        AdhocSwapChain(const AdhocSwapChain&)            = delete;
+        AdhocSwapChain& operator=(const AdhocSwapChain&) = delete;
+
+        // idiomatic copy & swap
+        AdhocSwapChain(AdhocSwapChain&& other) noexcept : AdhocSwapChain() { swap(*this, other); }
+        AdhocSwapChain& operator=(AdhocSwapChain other) noexcept
+        {
+            swap(*this, other);
+            return *this;
+        }
+
+        friend void swap(AdhocSwapChain& lhs, AdhocSwapChain& rhs) noexcept
+        {
+            using std::swap;
+            swap(lhs.device, rhs.device);
+            swap(lhs.device_table, rhs.device_table);
+            swap(lhs.instance_info, rhs.instance_info);
+            swap(lhs.owner, rhs.owner);
+            swap(lhs.command_pool, rhs.command_pool);
+            swap(lhs.surface_info, rhs.surface_info);
+            swap(lhs.surface_ptr, rhs.surface_ptr);
+            swap(lhs.queue, rhs.queue);
+            swap(lhs.surface_formats, rhs.surface_formats);
+            swap(lhs.acquire_index, rhs.acquire_index);
+            swap(lhs.handle, rhs.handle);
+            swap(lhs.frame_data, rhs.frame_data);
+            swap(lhs.image_data, rhs.image_data);
+        }
+
+        // required for lifetime-management
+        VkDevice                           device{ VK_NULL_HANDLE };
+        const graphics::VulkanDeviceTable* device_table{ nullptr };
+        const VulkanInstanceInfo*          instance_info{ nullptr };
+        VulkanSwapchain*                   owner{ nullptr };
+
+        // non-owning handle
+        VkCommandPool command_pool{ VK_NULL_HANDLE };
+
+        // contains window
         VulkanSurfaceKHRInfo               surface_info{};
         HandlePointerDecoder<VkSurfaceKHR> surface_ptr{};
-        VkQueue                            queue{ VK_NULL_HANDLE };
-        VkCommandPool                      command_pool{ VK_NULL_HANDLE };
-        VkSwapchainKHR                     swapchain{ VK_NULL_HANDLE };
 
-        std::vector<VkSemaphore> acquire_semaphores{};
-        uint32_t                 acquire_index{ 0 };
+        VkQueue                      queue{ VK_NULL_HANDLE };
+        std::unordered_set<VkFormat> surface_formats{};
+        uint32_t                     acquire_index{ 0 };
 
-        std::vector<OFBSwapchainImageData> image_datas{};
+        VkSwapchainKHR handle{ VK_NULL_HANDLE };
+
+        std::vector<AdhocSwapChainFrameData> frame_data{};
+        std::vector<AdhocSwapChainImageData> image_data{};
+
+        // destroy swapchain and per-frame resources, keep surface
+        void DestroySwapchain();
     };
 
-    std::unordered_map<VkDevice, OFBData> ofb_data_;
+    // This structure groups device-specific, custom/adhoc surfaces/swapchains and shared resources for those.
+    struct AdhocDeviceData
+    {
+        // command-pool for all AdhocSwapChains
+        VkCommandPool command_pool{ VK_NULL_HANDLE };
+
+        VkQueue queue{ VK_NULL_HANDLE };
+
+        std::vector<AdhocSwapChain> swapchains;
+
+        std::unique_ptr<graphics::VulkanResourcesUtil> copy_util;
+    };
+
+    std::unordered_map<VkDevice, AdhocDeviceData> adhoc_device_data_;
+    std::unordered_map<VkDevice, uint32_t>        copy_queue_family_index_;
+    std::unordered_map<VkDevice, VkQueue>         initial_copy_queue_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

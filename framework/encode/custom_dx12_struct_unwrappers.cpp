@@ -185,6 +185,18 @@ void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMe
                 case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING:
                     offset += sizeof(format::Dx12ViewInstancingSubobject);
                     break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER1:
+                    offset += sizeof(format::Dx12Rasterizer1Subobject);
+                    break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2:
+                    offset += sizeof(format::Dx12Rasterizer2Subobject);
+                    break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                    offset += sizeof(format::Dx12DepthStencil2Subobject);
+                    break;
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SERIALIZED_ROOT_SIGNATURE:
+                    offset += sizeof(format::Dx12SerializedRootSignatureSubobject);
+                    break;
                 default:
                     // Type is unrecognized.  Write an invalid enum value so the decoder know the data is incomplete,
                     // and log a warning.
@@ -203,7 +215,7 @@ void UnwrapStructObjects(D3D12_PIPELINE_STATE_STREAM_DESC* value, HandleUnwrapMe
 
 void UnwrapStructObjects(D3D12_STATE_OBJECT_DESC* value, HandleUnwrapMemory* unwrap_memory)
 {
-    if (value != nullptr)
+    if ((value != nullptr) && (value->NumSubobjects != 0) && (value->pSubobjects != nullptr))
     {
         auto unwrapped_structs = MakeUnwrapStructs(value->pSubobjects, value->NumSubobjects, unwrap_memory);
 
@@ -307,6 +319,9 @@ void UnwrapStructObjects(D3D12_STATE_SUBOBJECT*       value,
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
+                GFXRECON_LOG_WARNING("Pipeline state subobject unwrapping encountered unrecognized subobject type "
+                                     "D3D12_STATE_SUBOBJECT_TYPE = %d, which may cause capture to fail.",
+                                     value->Type);
                 break;
         }
     }
@@ -318,7 +333,7 @@ void UnwrapStructObjects(D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION* value,
                          const D3D12_STATE_SUBOBJECT*            unwrapped_subobjects,
                          UINT                                    num_subobjects)
 {
-    if (value != nullptr)
+    if ((value != nullptr) && (value->pSubobjectToAssociate != nullptr))
     {
         // This may be a pointer to an existing subobject structure.
         for (UINT i = 0; i < num_subobjects; ++i)
@@ -342,7 +357,7 @@ void UnwrapStructObjects(D3D12_GENERIC_PROGRAM_DESC*  value,
                          const D3D12_STATE_SUBOBJECT* unwrapped_subobjects,
                          UINT                         num_subobjects)
 {
-    if (value != nullptr)
+    if ((value != nullptr) && (value->NumSubobjects != 0) && (value->ppSubobjects != nullptr))
     {
         auto unwrapped_structs =
             const_cast<D3D12_STATE_SUBOBJECT**>(MakeUnwrapStructs(value->ppSubobjects, num_subobjects, unwrap_memory));
@@ -359,7 +374,7 @@ void UnwrapStructObjects(D3D12_BARRIER_GROUP* value, HandleUnwrapMemory* unwrap_
 {
     GFXRECON_UNREFERENCED_PARAMETER(unwrap_memory);
 
-    if (value != nullptr)
+    if ((value != nullptr) && (value->NumBarriers != 0))
     {
         switch (value->Type)
         {

@@ -46,7 +46,7 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
 
     virtual ~VulkanExportJsonConsumerBase() override;
 
-    void Initialize(JsonWriter* writer, const std::string_view vulkanVersion);
+    void Initialize(JsonWriter* writer);
 
     void Destroy();
 
@@ -135,8 +135,6 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
         const ApiCallInfo&                                                 call_info,
         format::HandleId                                                   commandBuffer,
         StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfo>* pPushDescriptorSetWithTemplateInfo) override;
-
-    const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
 
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
 

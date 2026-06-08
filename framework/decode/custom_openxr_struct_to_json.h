@@ -45,19 +45,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void FieldToJson(nlohmann::ordered_json&     jdata,
-                 const MLCoordinateFrameUID& data,
-                 const util::JsonOptions& = util::JsonOptions());
-
-void FieldToJson(nlohmann::ordered_json&                      jdata,
-                 const Decoded_XrVulkanInstanceCreateInfoKHR* data,
-                 const util::JsonOptions& = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json&                    jdata,
-                 const Decoded_XrVulkanDeviceCreateInfoKHR* data,
-                 const util::JsonOptions& = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata,
-                 const Decoded_timespec* data,
-                 const util::JsonOptions& = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const MLCoordinateFrameUID& data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanInstanceCreateInfoKHR* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanDeviceCreateInfoKHR* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_timespec* data);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

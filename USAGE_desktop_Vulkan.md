@@ -41,7 +41,7 @@ to one of these other documents:
     4. [Trimmed File Optimization](#trimmed-file-optimization)
     5. [JSON Lines Conversion](#json-lines-conversion)
     6. [Command Launcher](#command-launcher)
-    7. [Options Common To All Tools](#common-options)
+    7. [Options Common To All Tools](#options-common-to-all-tools)
 
 ## Capturing API calls
 
@@ -634,6 +634,11 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--pbi-all] [--pbis <index1,index2>]
                         [--pipeline-creation-jobs | --pcj <num_jobs>]
                         [--deduplicate-device]
+                        [--wait-before-first-submit MILLISECONDS]
+                        [--idle-before-submit] [--serialize-render-passes]
+                        [--wait-before-frame MILLISECONDS]
+                        [--serialize-queue-submissions]
+                        [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
 
 
 Required arguments:
@@ -731,9 +736,14 @@ Optional arguments:
                         vkCreatePipelineCache and skip calls to
                         vkGetPipelineCacheData (same as
                         --omit-pipeline-cache-data).
-  --wsi <platform>      Force replay to use the specified wsi platform.
-                        Available platforms are:
+  --wsi <platform>      Force replay to use the specified wsi platform. If no surface
+                        was available at capture time the option is ignored and no
+                        surface is chosen.
+                        Available surfaces are:
                         auto,display,headless,metal,wayland,win32,xcb,xlib
+                        auto (default): Picks the same surface as at capture time if
+                                        possible, otherwise picks a surface available
+                                        on the replay device");
   --surface-index <N>   Restrict rendering to the Nth surface object created.
                         Used with captures that include multiple surfaces.  Default
                         is -1 (render to all surfaces).
@@ -863,10 +873,119 @@ Optional arguments:
                         `--load-pipeline-cache`.
   --quit-after-frame
               Specify a frame after which replay will terminate.
-
   --deduplicate-device
               If set, at most one VkDevice will be created for each VkPhysicalDevice for RenderDoc and DXVK case.
+  --wait-before-first-submit <milliseconds>
+              Wait for the specified amount of milliseconds before processing the first submit.
+  --idle-before-submit
+              Wait for the GPU to become idle before each submit.
+  --serialize-render-passes
+              Serialize render passes by injecting execution barriers before render pass begin during replay
+  --frame-warm-up-spirv <spirv-file>
+              Specify a user-provided SPIR-V compute shader for the warm-up pass.
+              The shader must use entry point `main` and set 0, binding 0 as a
+              storage buffer. Warm-up runs before the first submit of each replayed
+              frame only when this option and a non-zero --frame-warm-up-load are
+              both provided.
+  --frame-warm-up-load <load>
+              Specify workload scale factor for a compute dispatch warm-up pass
+              run before each frame replay. Default is 0 (disabled).
+  --wait-before-frame <milliseconds>
+              Specify a wait time in milliseconds before starting replay of each frame. Default is 0 (disabled).
+  --serialize-queue-submissions
+              Serialize submit entries within one `vkQueueSubmit` or
+              `vkQueueSubmit2` call by adding semaphores between consecutive
+              submits during replay.
+  --replay-event-plugin-path <path>
+              Path to a replay event plugin library. If specified, the
+              plugin will be loaded and used to process replay events.
+              (forwarded to replay tool)
+  --replay-event-plugin-params <params>
+              Parameters to forward to the replay event plugin. The format
+              of the parameters is determined by the plugin and is not
+              interpreted by the replay tool. (forwarded to replay tool)
 ```
+
+### Frame Warm-Up
+
+The `--frame-warm-up-spirv` option lets replay submit a user-provided compute
+workload before replaying a frame. The intent is to ramp or stabilize GPU state,
+such as clocks, before the frame work that you want to measure.
+
+The warm-up shader is intentionally loaded from an external file instead of being
+embedded in `gfxreconstruct`. There is no single compute workload that is known to
+be a good warm-up on every GPU, driver, and profiling setup, so replay leaves the
+choice of shader to the user.
+
+Current shader requirements:
+
+- The file must contain valid SPIR-V for a compute shader.
+- The entry point must be named `main`.
+- The shader must be compatible with a pipeline layout containing one descriptor
+  set layout entry: set `0`, binding `0`, descriptor type
+  `VK_DESCRIPTOR_TYPE_STORAGE_BUFFER`.
+- The shader must not require additional descriptors or push constants.
+- Warm-up runs before the first submit of each replayed frame, not before every
+  submit in the frame.
+
+Current implementation notes:
+
+- Replay creates the warm-up command pool and retrieves the queue from queue
+  family `0`, queue `0`.
+- Replay currently records a fixed dispatch of
+  `vkCmdDispatch(frame_warm_up_load * 64, 1, 1)`.
+- The example below uses `local_size_x = 64` because it matches the current
+  documented dispatch shape.
+
+Example compute shader:
+
+```glsl
+#version 450
+
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, set = 0, binding = 0) buffer DataBuffer {
+    float data[];
+};
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    float value = data[index];
+
+    // Example-only warm-up workload. This is not intended to be a universally
+    // optimal shader for every GPU or tool configuration.
+    for (int i = 0; i < 1000; ++i) {
+        value = sin(value) * 0.999 + cos(float(i)) * 0.001;
+    }
+
+    data[index] = value;
+}
+```
+
+Compile the shader to SPIR-V with `glslangValidator`:
+
+```bash
+glslangValidator -V -S comp frame_warm_up.comp -o frame_warm_up.spv
+```
+
+If `spirv-val` is available, validate the result before replaying:
+
+```bash
+spirv-val --target-env vulkan1.1 frame_warm_up.spv
+```
+
+Example replay command:
+
+```bash
+gfxrecon-replay \
+  --frame-warm-up-spirv frame_warm_up.spv \
+  --frame-warm-up-load 4 \
+  capture.gfxr
+```
+
+`--frame-warm-up-load` scales the number of workgroups dispatched. Larger values
+produce more synthetic work, which may be useful when a small dispatch is not
+sufficient to reach a stable GPU frequency on the replay system.
 
 ### Key Controls
 

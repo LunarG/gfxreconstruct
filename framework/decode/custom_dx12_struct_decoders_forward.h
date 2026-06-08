@@ -77,6 +77,9 @@ size_t DecodeStruct(const uint8_t*                                              
 size_t DecodeStruct(const uint8_t*                                                                     buffer,
                     size_t                                                                             buffer_size,
                     Decoded_D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_SERIALIZATION_DESC* wrapper);
+size_t
+DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_APPLICATION_DESC* wrapper);
 
 // Platform types.
 struct Decoded_LARGE_INTEGER;

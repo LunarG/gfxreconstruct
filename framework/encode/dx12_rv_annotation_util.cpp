@@ -175,6 +175,16 @@ void RvAnnotationUtil::RemoveStructRvAnnotation(D3D12_RAYTRACING_GEOMETRY_DESC& 
     {
         RemoveRvAnnotation(param.AABBs.AABBs.StartAddress);
     }
+    else if (param.Type == D3D12_RAYTRACING_GEOMETRY_TYPE::D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES)
+    {
+        auto omm_triangles = const_cast<D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC*>(param.OmmTriangles.pTriangles);
+        auto omm_linkage   = const_cast<D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC*>(param.OmmTriangles.pOmmLinkage);
+        RemoveRvAnnotation(omm_triangles->Transform3x4);
+        RemoveRvAnnotation(omm_triangles->IndexBuffer);
+        RemoveRvAnnotation(omm_triangles->VertexBuffer.StartAddress);
+        RemoveRvAnnotation(omm_linkage->OpacityMicromapIndexBuffer.StartAddress);
+        RemoveRvAnnotation(omm_linkage->OpacityMicromapArray);
+    }
 }
 
 void RvAnnotationUtil::RemoveStructRvAnnotation(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& param,

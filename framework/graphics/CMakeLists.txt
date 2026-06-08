@@ -54,6 +54,8 @@ target_sources(gfxrecon_graphics
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_semaphore_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_semaphore_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_deep_copy.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_get_pnext.h
                     ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_struct_deep_copy.cpp
@@ -79,7 +81,7 @@ target_include_directories(gfxrecon_graphics
                                ${PROJECT_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
-target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific gfxrecon_replay_event_plugin_abi)
 
 common_build_directives(gfxrecon_graphics)
 

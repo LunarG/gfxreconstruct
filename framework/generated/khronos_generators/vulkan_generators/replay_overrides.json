@@ -19,7 +19,6 @@
     "vkGetDeviceQueue2": "OverrideGetDeviceQueue2",
     "vkWaitForFences": "OverrideWaitForFences",
     "vkGetFenceStatus": "OverrideGetFenceStatus",
-    "vkGetEventStatus": "OverrideGetEventStatus",
     "vkGetQueryPoolResults": "OverrideGetQueryPoolResults",
     "vkQueueSubmit": "OverrideQueueSubmit",
     "vkQueueSubmit2": "OverrideQueueSubmit2",
@@ -115,6 +114,9 @@
     "vkCmdBeginRenderPass": "OverrideCmdBeginRenderPass",
     "vkCmdBeginRenderPass2": "OverrideCmdBeginRenderPass2",
     "vkCmdBeginRenderPass2KHR": "OverrideCmdBeginRenderPass2",
+    "vkCmdEndRenderPass": "OverrideCmdEndRenderPass",
+    "vkCmdEndRenderPass2": "OverrideCmdEndRenderPass2",
+    "vkCmdEndRenderPass2KHR": "OverrideCmdEndRenderPass2",
     "vkCreateImageView": "OverrideCreateImageView",
     "vkCreateFramebuffer": "OverrideCreateFramebuffer",
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
@@ -173,6 +175,14 @@
     "vkGetPhysicalDeviceSurfaceFormats2KHR" : "OverrideGetPhysicalDeviceSurfaceFormats2KHR",
     "vkGetDescriptorEXT": "OverrideGetDescriptorEXT",
     "vkCmdBindDescriptorBuffersEXT": "OverrideCmdBindDescriptorBuffersEXT",
-    "vkCreateSampler": "OverrideCreateSampler"
+    "vkCreateSampler": "OverrideCreateSampler",
+    "vkCreatePipelineBinariesKHR": "OverrideCreatePipelineBinariesKHR",
+    "vkCmdBeginRendering": "OverrideCmdBeginRendering",
+    "vkCmdBeginRenderingKHR": "OverrideCmdBeginRendering",
+    "vkCmdEndRendering": "OverrideCmdEndRendering",
+    "vkCmdEndRenderingKHR": "OverrideCmdEndRendering",
+    "vkCreateIndirectExecutionSetEXT": "OverrideCreateIndirectExecutionSetEXT",
+    "vkCmdPreprocessGeneratedCommandsEXT": "OverrideCmdPreprocessGeneratedCommandsEXT",
+    "vkCmdExecuteGeneratedCommandsEXT": "OverrideCmdExecuteGeneratedCommandsEXT"
   }
 }

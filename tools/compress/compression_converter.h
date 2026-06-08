@@ -72,7 +72,7 @@ class CompressionConverter : public decode::FileTransformer
     VisitResult WriteMetaData(const decode::FillMemoryResourceValueArgs& args);
 
     template <typename Args>
-    VisitResult WriteMetaData(Args&)
+    VisitResult WriteMetaData(const Args&)
     {
         return kNeedsPassthrough;
     }
@@ -86,6 +86,9 @@ class CompressionConverter : public decode::FileTransformer
     bool                              decompressing_;
     format::CompressionType           target_compression_type_;
     std::unique_ptr<util::Compressor> target_compressor_;
+
+    constexpr static size_t kWorkingStoreInitialSize = 4096;
+    util::HeapBuffer        working_uncompressed_store_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

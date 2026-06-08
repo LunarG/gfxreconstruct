@@ -24,6 +24,7 @@
 #include "decode/vulkan_replay_dump_resources_as.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "graphics/vulkan_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -93,36 +94,33 @@ static VkResult CreateComputeResources(const graphics::VulkanDeviceTable& device
 }
 
 VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStructuresInputBuffers(
-    VkCommandBuffer                                            original_command_buffer,
-    const Decoded_VkAccelerationStructureBuildGeometryInfoKHR* p_infos_meta,
-    const VkAccelerationStructureBuildRangeInfoKHR*            range_infos,
-    bool                                                       dump_as_build_input_buffers)
+    VkCommandBuffer                                    original_command_buffer,
+    const VkAccelerationStructureBuildGeometryInfoKHR& build_info,
+    const VkAccelerationStructureBuildRangeInfoKHR*    range_infos,
+    bool                                               dump_as_build_input_buffers,
+    bool                                               after_address_replacer)
 {
-    const auto* p_infos = p_infos_meta->decoded_value;
-
-    if (p_infos->pGeometries == nullptr)
+    if (build_info.pGeometries == nullptr)
     {
         return VK_SUCCESS;
     }
+
+    ReleaseInputBuffersResources();
 
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
 
     // kVulkanBuildAccelerationStructuresCommand will not have a command buffer like
     // vkCmdBuildAccelerationStructuresKHR. We create one so we can submit our commands.
-    TemporaryCommandBuffer temp_cmd_buff;
+    TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table);
     if (original_command_buffer == VK_NULL_HANDLE)
     {
-        CreateAndBeginCommandBuffer(&FindComputeQueueFamilyIndex, device_info, device_table, temp_cmd_buff);
-        GFXRECON_ASSERT(temp_cmd_buff.command_buffer != VK_NULL_HANDLE);
+        temp_cmd_buff.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
     }
 
     const VkDevice        device = device_info->handle;
     const VkCommandBuffer command_buffer =
         original_command_buffer == VK_NULL_HANDLE ? temp_cmd_buff.command_buffer : original_command_buffer;
-
-    GFXRECON_ASSERT(p_infos_meta->pGeometries != nullptr);
-    const auto* p_geometries_meta = p_infos_meta->pGeometries->GetMetaStructPointer();
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     GFXRECON_ASSERT(phys_dev_info != nullptr);
@@ -138,11 +136,17 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
     const VulkanDeviceAddressTracker& device_address_tracker = address_tracker_entry->second;
 
-    for (uint32_t g = 0; g < p_infos->geometryCount; ++g)
+    for (uint32_t g = 0; g < build_info.geometryCount; ++g)
     {
         // Either pGeometries or ppGeometries is used. The other one must be NULL
         const VkAccelerationStructureGeometryKHR* const geometry =
-            p_infos->pGeometries != nullptr ? &p_infos->pGeometries[g] : p_infos->ppGeometries[g];
+            build_info.pGeometries != nullptr ? &build_info.pGeometries[g] : build_info.ppGeometries[g];
+
+        const VkAccelerationStructureBuildRangeInfoKHR& range = range_infos[g];
+        if (!range.primitiveCount)
+        {
+            continue;
+        }
 
         switch (geometry->geometryType)
         {
@@ -159,12 +163,15 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                     std::in_place_type<AccelerationStructureDumpResourcesContext::Triangles>);
                 auto& new_triangles = std::get<AccelerationStructureDumpResourcesContext::Triangles>(new_variant);
 
-                const VkAccelerationStructureBuildRangeInfoKHR&        range     = range_infos[g];
                 const VkAccelerationStructureGeometryTrianglesDataKHR& triangles = geometry->geometry.triangles;
 
                 size_t                  buffer_device_address_offset;
-                const VulkanBufferInfo* vertex_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                    triangles.vertexData.deviceAddress, &buffer_device_address_offset);
+                const VulkanBufferInfo* vertex_buffer_info =
+                    after_address_replacer
+                        ? device_address_tracker.GetBufferByReplayDeviceAddress(triangles.vertexData.deviceAddress,
+                                                                                &buffer_device_address_offset)
+                        : device_address_tracker.GetBufferByCaptureDeviceAddress(triangles.vertexData.deviceAddress,
+                                                                                 &buffer_device_address_offset);
                 if (vertex_buffer_info == nullptr)
                 {
                     continue;
@@ -213,8 +220,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.index_type = triangles.indexType;
                 if (triangles.indexType != VK_INDEX_TYPE_NONE_KHR)
                 {
-                    const VulkanBufferInfo* index_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                        triangles.indexData.deviceAddress, &buffer_device_address_offset);
+                    const VulkanBufferInfo* index_buffer_info =
+                        after_address_replacer
+                            ? device_address_tracker.GetBufferByReplayDeviceAddress(triangles.indexData.deviceAddress,
+                                                                                    &buffer_device_address_offset)
+                            : device_address_tracker.GetBufferByCaptureDeviceAddress(triangles.indexData.deviceAddress,
+                                                                                     &buffer_device_address_offset);
 
                     if (index_buffer_info != nullptr)
                     {
@@ -257,8 +268,11 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 if (triangles.transformData.deviceAddress)
                 {
                     const VulkanBufferInfo* transform_buffer_info =
-                        device_address_tracker.GetBufferByCaptureDeviceAddress(triangles.transformData.deviceAddress,
-                                                                               &buffer_device_address_offset);
+                        after_address_replacer
+                            ? device_address_tracker.GetBufferByReplayDeviceAddress(
+                                  triangles.transformData.deviceAddress, &buffer_device_address_offset)
+                            : device_address_tracker.GetBufferByCaptureDeviceAddress(
+                                  triangles.transformData.deviceAddress, &buffer_device_address_offset);
                     if (transform_buffer_info == nullptr)
                     {
                         continue;
@@ -310,8 +324,12 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 const VkAccelerationStructureGeometryAabbsDataKHR& aabbs = geometry->geometry.aabbs;
 
                 size_t                  buffer_device_address_offset;
-                const VulkanBufferInfo* aabb_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                    aabbs.data.deviceAddress, &buffer_device_address_offset);
+                const VulkanBufferInfo* aabb_buffer_info =
+                    after_address_replacer
+                        ? device_address_tracker.GetBufferByReplayDeviceAddress(aabbs.data.deviceAddress,
+                                                                                &buffer_device_address_offset)
+                        : device_address_tracker.GetBufferByCaptureDeviceAddress(aabbs.data.deviceAddress,
+                                                                                 &buffer_device_address_offset);
                 GFXRECON_ASSERT(aabb_buffer_info != nullptr);
                 if (aabb_buffer_info == nullptr)
                 {
@@ -322,7 +340,6 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                     as_build_objects.emplace_back(std::in_place_type<AccelerationStructureDumpResourcesContext::AABBS>);
                 auto& new_aabbs = std::get<AccelerationStructureDumpResourcesContext::AABBS>(new_variant);
 
-                const VkAccelerationStructureBuildRangeInfoKHR& range = range_infos[g];
                 new_aabbs.buffer_size = range.primitiveCount * sizeof(VkAabbPositionsKHR);
                 new_aabbs.range       = range;
 
@@ -386,7 +403,6 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
             case VK_GEOMETRY_TYPE_INSTANCES_KHR:
             {
-                const VkAccelerationStructureBuildRangeInfoKHR&        range     = range_infos[g];
                 const VkAccelerationStructureGeometryInstancesDataKHR& instances = geometry->geometry.instances;
 
                 auto& new_variant = as_build_objects.emplace_back(
@@ -398,11 +414,15 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 const size_t instance_buffer_stride = sizeof(VkAccelerationStructureInstanceKHR);
                 const size_t instance_buffer_size   = range.primitiveCount * instance_buffer_stride;
                 new_instances.instance_count        = range.primitiveCount;
-                new_instances.instance_buffer_size  = instance_buffer_size;
+                GFXRECON_NARROWING_ASSIGN(new_instances.instance_buffer_size, instance_buffer_size);
 
                 size_t                  buffer_device_address_offset;
-                const VulkanBufferInfo* instances_buffer_info = device_address_tracker.GetBufferByCaptureDeviceAddress(
-                    instances.data.deviceAddress, &buffer_device_address_offset);
+                const VulkanBufferInfo* instances_buffer_info =
+                    after_address_replacer
+                        ? device_address_tracker.GetBufferByReplayDeviceAddress(instances.data.deviceAddress,
+                                                                                &buffer_device_address_offset)
+                        : device_address_tracker.GetBufferByCaptureDeviceAddress(instances.data.deviceAddress,
+                                                                                 &buffer_device_address_offset);
                 if (instances_buffer_info == nullptr)
                 {
                     continue;
@@ -512,12 +532,13 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
         }
     }
 
+    VkResult res = VK_SUCCESS;
     if (original_command_buffer == nullptr)
     {
-        SubmitAndDestroyCommandBuffer(temp_cmd_buff);
+        res = temp_cmd_buff.SubmitAndDestroy();
     }
 
-    return VK_SUCCESS;
+    return res;
 }
 
 VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStructuresInputBuffers(
@@ -525,15 +546,27 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
     const AccelerationStructureDumpResourcesContext& src_context,
     bool                                             dump_as_build_input_buffers)
 {
-    GFXRECON_ASSERT(original_command_buffer != VK_NULL_HANDLE);
-
     const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
     GFXRECON_ASSERT(device_info != nullptr);
 
     const VulkanPhysicalDeviceInfo* phys_dev_info = object_info_table.GetVkPhysicalDeviceInfo(device_info->parent_id);
     GFXRECON_ASSERT(phys_dev_info != nullptr);
 
+    // kVulkanCopyAccelerationStructuresCommand will not have a command buffer like
+    // vkCmdCopyAccelerationStructure. We create one so we can submit our commands.
+    TemporaryCommandBuffer temp_cmd_buff(*device_info, device_table);
+    if (original_command_buffer == VK_NULL_HANDLE)
+    {
+        temp_cmd_buff.CreateAndBegin(graphics::FindComputeQueueFamilyIndex);
+        GFXRECON_ASSERT(temp_cmd_buff.command_buffer != VK_NULL_HANDLE);
+    }
+
+    const VkCommandBuffer command_buffer =
+        original_command_buffer == VK_NULL_HANDLE ? temp_cmd_buff.command_buffer : original_command_buffer;
+
     const VkPhysicalDeviceMemoryProperties& mem_props = phys_dev_info->replay_device_info->memory_properties.value();
+
+    ReleaseInputBuffersResources();
 
     // Clone serialized data
     if (src_context.serialized_data.buffer != VK_NULL_HANDLE)
@@ -557,11 +590,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
 
         // Clone buffer's content
         const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, serialized_data.size } };
-        CopyBufferAndBarrier(original_command_buffer,
-                             device_table,
-                             src_context.serialized_data.buffer,
-                             serialized_data.buffer,
-                             copy_region);
+        CopyBufferAndBarrier(
+            command_buffer, device_table, src_context.serialized_data.buffer, serialized_data.buffer, copy_region);
     }
 
     for (const auto& build_object : src_context.as_build_objects)
@@ -599,7 +629,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             {
                 GFXRECON_ASSERT(triangles->index_buffer_size);
 
-                res = CreateVkBuffer(triangles->index_type,
+                res = CreateVkBuffer(triangles->index_buffer_size,
                                      device_table,
                                      device_info->handle,
                                      nullptr,
@@ -617,11 +647,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.index_buffer_size = triangles->index_buffer_size;
 
                 const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, triangles->index_buffer_size } };
-                CopyBufferAndBarrier(original_command_buffer,
-                                     device_table,
-                                     triangles->index_buffer,
-                                     new_triangles.index_buffer,
-                                     copy_region);
+                CopyBufferAndBarrier(
+                    command_buffer, device_table, triangles->index_buffer, new_triangles.index_buffer, copy_region);
             }
 
             if (triangles->transform_buffer != VK_NULL_HANDLE)
@@ -645,7 +672,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
                 new_triangles.transform_buffer_size = triangles->transform_buffer_size;
 
                 const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, triangles->transform_buffer_size } };
-                CopyBufferAndBarrier(original_command_buffer,
+                CopyBufferAndBarrier(command_buffer,
                                      device_table,
                                      triangles->transform_buffer,
                                      new_triangles.transform_buffer,
@@ -677,7 +704,7 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             new_aabbs.buffer_size = aabbs->buffer_size;
 
             const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, aabbs->buffer_size } };
-            CopyBufferAndBarrier(original_command_buffer, device_table, aabbs->buffer, new_aabbs.buffer, copy_region);
+            CopyBufferAndBarrier(command_buffer, device_table, aabbs->buffer, new_aabbs.buffer, copy_region);
         }
         else if (const auto* instance = std::get_if<Instances>(&build_object))
         {
@@ -705,11 +732,8 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
             new_instance.instance_count       = instance->instance_count;
 
             const std::vector<VkBufferCopy> copy_region{ VkBufferCopy{ 0, 0, instance->instance_buffer_size } };
-            CopyBufferAndBarrier(original_command_buffer,
-                                 device_table,
-                                 instance->instance_buffer,
-                                 new_instance.instance_buffer,
-                                 copy_region);
+            CopyBufferAndBarrier(
+                command_buffer, device_table, instance->instance_buffer, new_instance.instance_buffer, copy_region);
         }
         else
         {
@@ -719,7 +743,146 @@ VkResult AccelerationStructureDumpResourcesContext::CloneBuildAccelerationStruct
         }
     }
 
-    return VK_SUCCESS;
+    VkResult res = VK_SUCCESS;
+    if (original_command_buffer == nullptr)
+    {
+        res = temp_cmd_buff.SubmitAndDestroy();
+    }
+
+    return res;
+}
+
+void AccelerationStructureDumpResourcesContext::ReleaseSerializedResources()
+{
+    if (as_info == nullptr)
+    {
+        return;
+    }
+
+    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    const VkDevice device = device_info->handle;
+
+    if (serialized_data.buffer != VK_NULL_HANDLE)
+    {
+        device_table.DestroyBuffer(device, serialized_data.buffer, nullptr);
+        serialized_data.buffer = VK_NULL_HANDLE;
+    }
+
+    if (serialized_data.memory != VK_NULL_HANDLE)
+    {
+        device_table.FreeMemory(device, serialized_data.memory, nullptr);
+        serialized_data.memory = VK_NULL_HANDLE;
+    }
+}
+
+void AccelerationStructureDumpResourcesContext::ReleaseResources()
+{
+    ReleaseInputBuffersResources();
+    ReleaseSerializedResources();
+}
+
+void AccelerationStructureDumpResourcesContext::ReleaseInputBuffersResources()
+{
+    if (as_info == nullptr)
+    {
+        return;
+    }
+
+    const VulkanDeviceInfo* device_info = object_info_table.GetVkDeviceInfo(as_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    const VkDevice device = device_info->handle;
+
+    for (auto& as_data : as_build_objects)
+    {
+        if (auto* triangles = std::get_if<AccelerationStructureDumpResourcesContext::Triangles>(&as_data))
+        {
+            if (triangles->vertex_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, triangles->vertex_buffer, nullptr);
+                triangles->vertex_buffer = VK_NULL_HANDLE;
+            }
+
+            if (triangles->vertex_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, triangles->vertex_buffer_memory, nullptr);
+                triangles->vertex_buffer_memory = VK_NULL_HANDLE;
+            }
+
+            if (triangles->index_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, triangles->index_buffer, nullptr);
+                triangles->index_buffer = VK_NULL_HANDLE;
+            }
+
+            if (triangles->index_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, triangles->index_buffer_memory, nullptr);
+                triangles->index_buffer_memory = VK_NULL_HANDLE;
+            }
+
+            if (triangles->transform_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, triangles->transform_buffer, nullptr);
+                triangles->transform_buffer = VK_NULL_HANDLE;
+            }
+
+            if (triangles->transform_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, triangles->transform_buffer_memory, nullptr);
+                triangles->transform_buffer_memory = VK_NULL_HANDLE;
+            }
+        }
+        else if (auto* instance = std::get_if<AccelerationStructureDumpResourcesContext::Instances>(&as_data))
+        {
+            if (instance->instance_buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, instance->instance_buffer, nullptr);
+                instance->instance_buffer = VK_NULL_HANDLE;
+            }
+
+            if (instance->instance_buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, instance->instance_buffer_memory, nullptr);
+                instance->instance_buffer_memory = VK_NULL_HANDLE;
+            }
+
+            if (instance->compute_ppl != VK_NULL_HANDLE)
+            {
+                device_table.DestroyPipeline(device, instance->compute_ppl, nullptr);
+                instance->compute_ppl = VK_NULL_HANDLE;
+            }
+
+            if (instance->compute_ppl_layout != VK_NULL_HANDLE)
+            {
+                device_table.DestroyPipelineLayout(device, instance->compute_ppl_layout, nullptr);
+                instance->compute_ppl_layout = VK_NULL_HANDLE;
+            }
+        }
+        else if (auto* aabb = std::get_if<AccelerationStructureDumpResourcesContext::AABBS>(&as_data))
+        {
+            if (aabb->buffer != VK_NULL_HANDLE)
+            {
+                device_table.DestroyBuffer(device, aabb->buffer, nullptr);
+                aabb->buffer = VK_NULL_HANDLE;
+            }
+
+            if (aabb->buffer_memory != VK_NULL_HANDLE)
+            {
+                device_table.FreeMemory(device, aabb->buffer_memory, nullptr);
+                aabb->buffer_memory = VK_NULL_HANDLE;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Unexpected as data entry");
+            GFXRECON_ASSERT(0);
+        }
+    }
+
+    as_build_objects.clear();
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

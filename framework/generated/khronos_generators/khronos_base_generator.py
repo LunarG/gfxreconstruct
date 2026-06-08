@@ -249,12 +249,13 @@ class ApiData():
 class BeginEndFileData():
     def __init__(self):
         # Begin and Endfile information to dry-up derived classes
-        self.guards = []             # if/ifdef/ifndef, condition expression pairs to guard files
-        self.specific_headers = []   # Header files for this specific generator
-        self.common_api_headers = [] # Header files for all generators this API
-        self.system_headers = []     # System headers (i.e <foo> includes)
-        self.pre_namespace_code = [] # Additional custom code that needs to be before the namespace begins
-        self.namespaces = []         # List of namespaces to begin and end the file
+        self.guards = []              # if/ifdef/ifndef, condition expression pairs to guard files
+        self.specific_headers = []    # Header files for this specific generator
+        self.common_api_headers = []  # Header files for all generators this API
+        self.system_headers = []      # System headers (i.e <foo> includes)
+        self.pre_namespace_code = []  # Additional custom code that needs to be before the namespace begins
+        self.post_namespace_code = [] # Additional custom code that needs to be after the namespace ends
+        self.namespaces = []          # List of namespaces to begin and end the file
 
 class ValueInfo():
     """ValueInfo - Class to store parameter/struct member information.
@@ -347,6 +348,8 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         separate line, align parameter names at the specified column
       replay_overrides - Path to JSON file listing Vulkan API calls to
         override on replay.
+      replay_frame_loop_overrides - Path to JSON file listing Vulkan API calls to
+        override in frame loop code generation
       dump_resources_overrides - Path to JSON file listing Vulkan API
         calls to override on replay.
       replay_async_overrides - Path to JSON file listing Vulkan API calls
@@ -382,6 +385,7 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         remove_extensions=None,
         emit_extensions=None,
         replay_overrides=None,
+        replay_frame_loop_overrides=None,
         dump_resources_overrides=None,
         replay_async_overrides=None,
         extra_headers=[],
@@ -405,6 +409,7 @@ class KhronosBaseGeneratorOptions(GeneratorOptions):
         self.blacklists = blacklists
         self.platform_types = platform_types
         self.replay_overrides = replay_overrides
+        self.replay_frame_loop_overrides = replay_frame_loop_overrides
         self.dump_resources_overrides = dump_resources_overrides
         self.replay_async_overrides = replay_async_overrides
         # Khronos CGeneratorOptions
@@ -474,6 +479,8 @@ class KhronosBaseGenerator(OutputGenerator):
         # Map of Khronos function names to override function names.  Calls to Khronos functions in the map
         # will be replaced by the override value.
         self.REPLAY_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_FREE_OVERRIDES = {}
         self.DUMP_RESOURCES_OVERRIDES = {}
         self.DUMP_RESOURCES_TRANSFER_API_CALLS = {}
         self.REPLAY_ASYNC_OVERRIDES = {}
@@ -517,8 +524,8 @@ class KhronosBaseGenerator(OutputGenerator):
         # Command parameter and struct member data for the current feature
         self.struct_names = set()                                # Set of current API's struct typenames
         self.struct_type_names = OrderedDict()                   # Map of current API's struct type enums
+        self.all_possible_extendable_structs = set()             # Set of all possible extendable structures
         self.all_extended_structs = dict()                       # Map of all extended struct names
-        self.feature_extended_structs = dict()                   # Map of per-feature extended struct names
         self.children_structs = dict()                           # Map of children struct names to lists of child struct names
         self.all_struct_members = OrderedDict()                  # Map of struct names to lists of per-member ValueInfo
         self.feature_struct_members = OrderedDict()              # Map of per-feature struct names to lists of per-member ValueInfo
@@ -683,12 +690,23 @@ class KhronosBaseGenerator(OutputGenerator):
                 self.PLATFORM_STRUCTS += platform_structs
 
     def __load_replay_overrides(
-        self, filename, dump_resources_overrides_filename,
+        self, filename, replay_frame_loop_overrides_filename,
+        dump_resources_overrides_filename,
         replay_async_overrides_filename
     ):
         if filename is not None:
             overrides = json.loads(open(filename, 'r').read())
             self.REPLAY_OVERRIDES = overrides['functions']
+
+        if replay_frame_loop_overrides_filename is not None:
+
+            frame_loop_overrides = json.loads(
+                open(replay_frame_loop_overrides_filename , 'r').read()
+            )
+            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_OVERRIDES = frame_loop_overrides[
+                'resourceAllocate']
+            self.REPLAY_FRAME_LOOP_RESOURCE_FREE_OVERRIDES = frame_loop_overrides[
+                'resourceFree']
 
         if dump_resources_overrides_filename is not None:
             dump_resources_overrides = json.loads(
@@ -722,11 +740,13 @@ class KhronosBaseGenerator(OutputGenerator):
             self.STRUCT_BLACKLIST += self.PLATFORM_STRUCTS
 
         if (
-            gen_opts.replay_overrides or gen_opts.dump_resources_overrides
-            or gen_opts.replay_async_overrides
+            gen_opts.replay_overrides or gen_opts.replay_frame_loop_overrides or
+            gen_opts.dump_resources_overrides or gen_opts.replay_async_overrides
         ):
             self.__load_replay_overrides(
-                gen_opts.replay_overrides, gen_opts.dump_resources_overrides,
+                gen_opts.replay_overrides,
+                gen_opts.replay_frame_loop_overrides,
+                gen_opts.dump_resources_overrides,
                 gen_opts.replay_async_overrides
             )
 
@@ -772,6 +792,9 @@ class KhronosBaseGenerator(OutputGenerator):
 
         # End namespaces beginFile started (empty list is safe)
         body = make_namespace_list(self.genOpts.begin_end_file_data.namespaces, op='END')
+        # Post-namespace custom code (if any)
+        body.extend(self.genOpts.begin_end_file_data.post_namespace_code)
+        # End file guards (if any)
         body.extend(make_guard_list(self.genOpts.begin_end_file_data.guards, op='END'))
 
         # Finish C++ wrapper and multiple inclusion protection
@@ -805,7 +828,6 @@ class KhronosBaseGenerator(OutputGenerator):
         self.feature_struct_members = OrderedDict()
         self.feature_struct_aliases = OrderedDict()
         self.feature_cmd_params = OrderedDict()
-        self.feature_extended_structs = dict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -1458,7 +1480,6 @@ class KhronosBaseGenerator(OutputGenerator):
                     == self.get_struct_type_enum_name() and
                     current_struct_member.name == self.get_struct_type_var_name()
                 ):
-
                     # Check for value in the XML element.
                     values = current_xml_member.attrib.get('values')
                     if values:
@@ -1467,21 +1488,22 @@ class KhronosBaseGenerator(OutputGenerator):
                 # If this is the extended struct member, and we already have this structure
                 # in the list of handled structs, it means one of the structs that extends
                 # this one has a handle.  So add it to the handle list
-                if (
-                    current_struct_member.name
-                    == self.get_extended_struct_var_name()
-                    and typename in self.all_extended_structs
-                ):
+                if current_struct_member.name == self.get_extended_struct_var_name():
+                    if typename in self.struct_type_names and not self.is_struct_black_listed(typename):
+                        self.all_possible_extendable_structs.add(typename)
+                        self.extension_structs_with_handles[typename] = True
+                        self.extension_structs_with_handle_ptrs[typename] = True
 
-                    append_member = None
-                    for extended_struct in self.all_extended_structs[typename]:
-                        if extended_struct in self.structs_with_handles:
-                            append_member = current_struct_member
-                            if extended_struct in self.structs_with_handle_ptrs:
-                                # Have to loop through all to ensure we pick up ...pointers
-                                has_handle_pointers = True
-                    if append_member:
-                        handles.append(copy.deepcopy(append_member))
+                    if typename in self.all_extended_structs:
+                        append_member = None
+                        for extended_struct in self.all_extended_structs[typename]:
+                            if extended_struct in self.structs_with_handles:
+                                append_member = current_struct_member
+                                if extended_struct in self.structs_with_handle_ptrs:
+                                    # Have to loop through all to ensure we pick up ...pointers
+                                    has_handle_pointers = True
+                        if append_member:
+                            handles.append(copy.deepcopy(append_member))
 
                 # If this member is a handle, of course we have handles in this struct
                 elif self.is_handle(current_struct_member.base_type):
@@ -1560,15 +1582,20 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def add_extended_structs(self, name, extended):
         self.all_extended_structs.setdefault(name,[]).append(extended)
-        self.feature_extended_structs.setdefault(name,[]).append(extended)
 
     def add_struct_alias(self, name, alias):
-        self.all_struct_aliases[name] = alias
-        self.feature_struct_aliases[name] = alias
+        if name not in self.all_struct_aliases:
+            self.all_struct_aliases[name] = alias
+
+        if name not in self.feature_struct_aliases:
+            self.feature_struct_aliases[name] = alias
 
     def add_struct_members(self, name, value_info):
-        self.all_struct_members[name] = value_info
-        self.feature_struct_members[name] = value_info
+        if name not in self.all_struct_members:
+            self.all_struct_members[name] = value_info
+
+        if name not in self.feature_struct_members:
+            self.feature_struct_members[name] = value_info
 
     def get_or_create_structs_with_null_pnexts(self):
         """Returns the list of structs that must have null pNext pointers."""
@@ -2470,6 +2497,15 @@ class KhronosBaseGenerator(OutputGenerator):
 
     def struct_has_handles(self, typename):
         return self.is_struct(typename) and (typename in self.structs_with_handles)
+
+    # Structs that might have handles include any struct KNOWN to have handles,
+    # any struct that has GENERIC handles, and any struct that could be extended since
+    # we do not know if any of the extendable structs have handles
+    def struct_might_have_handles(self, typename):
+        return (self.is_struct(typename)
+                and ((typename in self.structs_with_handles)
+                    or (typename in self.GENERIC_HANDLE_STRUCTS)
+                    or (typename in self.all_possible_extendable_structs)))
 
     def child_struct_has_handles(self, typename):
         for child in self.children_structs.get(typename, []):

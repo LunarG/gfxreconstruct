@@ -27,11 +27,14 @@
 #include "application/application.h"
 #include "decode/file_processor.h"
 #include "decode/preload_file_processor.h"
+#include "decode/vulkan_replay_frame_loop_consumer.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_pre_process_consumer.h"
+#include "graphics/frame_loop_info.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "plugin/replay_event_plugin_loader.h"
 
 #if ENABLE_OPENXR_SUPPORT
 #include "decode/openxr_tracked_object_info_table.h"
@@ -70,7 +73,7 @@
 
 extern "C"
 {
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = 616;
+    __declspec(dllexport) extern const UINT D3D12SDKVersion = 618;
 }
 extern "C"
 {
@@ -126,11 +129,10 @@ int main(int argc, const char** argv)
         ProcessDisableDebugPopup(arg_parser);
     }
 
-    // Reinitialize logging with values retrieved from command line arguments
+    // Update logging with values retrieved from command line arguments
     gfxrecon::util::Log::Settings log_settings;
     GetLogSettings(arg_parser, log_settings);
-    gfxrecon::util::Log::Release();
-    gfxrecon::util::Log::Init(log_settings);
+    gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
     try
     {
@@ -139,7 +141,12 @@ int main(int argc, const char** argv)
 
         std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
 
-        if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption))
+        uint32_t loop_frame        = 0;
+        uint32_t loop_count        = gfxrecon::graphics::FrameLoopInfo::INFINITE_ITERATIONS;
+        bool     enable_frame_loop = GetLoopFrame(arg_parser, loop_frame);
+        GetLoopCount(arg_parser, loop_count);
+
+        if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption) || enable_frame_loop)
         {
             file_processor = std::make_unique<gfxrecon::decode::PreloadFileProcessor>();
         }
@@ -158,7 +165,6 @@ int main(int argc, const char** argv)
             std::string wsi_extension = GetWsiExtensionName(GetWsiPlatform(arg_parser));
             auto        application   = std::make_shared<gfxrecon::application::Application>(
                 kApplicationName, file_processor.get(), wsi_extension, nullptr);
-
             gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
             gfxrecon::decode::VulkanReplayOptions          vulkan_replay_options =
                 GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
@@ -203,8 +209,32 @@ int main(int argc, const char** argv)
                                                  quit_after_frame,
                                                  quit_frame);
 
-            gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
-            gfxrecon::decode::VulkanDecoder        vulkan_decoder;
+            std::unique_ptr<gfxrecon::decode::VulkanReplayConsumer> vulkan_replay_consumer;
+
+            gfxrecon::graphics::FrameLoopInfo fl_info;
+            if (enable_frame_loop)
+            {
+                fl_info = gfxrecon::graphics::FrameLoopInfo(loop_frame, loop_count);
+                application->SetFrameLoopInfo(&fl_info);
+
+                vulkan_replay_consumer = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
+                    application, vulkan_replay_options, fl_info);
+            }
+            else
+            {
+                vulkan_replay_consumer =
+                    std::make_unique<gfxrecon::decode::VulkanReplayConsumer>(application, vulkan_replay_options);
+            }
+
+            if (!vulkan_replay_options.replay_event_plugin_path.empty())
+            {
+                auto replay_event_sink =
+                    gfxrecon::plugin::LoadPlugin({ vulkan_replay_options.replay_event_plugin_path,
+                                                   vulkan_replay_options.replay_event_plugin_params });
+                application->SetReplayEventSink(std::move(replay_event_sink));
+            }
+
+            gfxrecon::decode::VulkanDecoder vulkan_decoder;
 
             if (vulkan_replay_options.capture)
             {
@@ -213,15 +243,15 @@ int main(int argc, const char** argv)
                 // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
                 // calls into the capture layer instead of directly into the loader and Vulkan runtime.
                 // Set the capture manager's instance and device creation callbacks.
-                vulkan_replay_consumer.SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
-                                                         gfxrecon::vulkan_recapture::dispatch_CreateInstance,
-                                                         gfxrecon::vulkan_recapture::dispatch_CreateDevice);
+                vulkan_replay_consumer->SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
+                                                          gfxrecon::vulkan_recapture::dispatch_CreateInstance,
+                                                          gfxrecon::vulkan_recapture::dispatch_CreateDevice);
             }
 
             ApiReplayOptions  api_replay_options;
             ApiReplayConsumer api_replay_consumer;
             api_replay_options.vk_replay_options   = &vulkan_replay_options;
-            api_replay_consumer.vk_replay_consumer = &vulkan_replay_consumer;
+            api_replay_consumer.vk_replay_consumer = vulkan_replay_consumer.get();
 
 #if defined(D3D12_SUPPORT)
             gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);
@@ -244,11 +274,11 @@ int main(int argc, const char** argv)
 
             if (vulkan_replay_options.enable_vulkan)
             {
-                vulkan_replay_consumer.SetFatalErrorHandler(
+                vulkan_replay_consumer->SetFatalErrorHandler(
                     [](const char* message) { throw std::runtime_error(message); });
-                vulkan_replay_consumer.SetFpsInfo(&fps_info);
+                vulkan_replay_consumer->SetFpsInfo(&fps_info);
 
-                vulkan_decoder.AddConsumer(&vulkan_replay_consumer);
+                vulkan_decoder.AddConsumer(vulkan_replay_consumer.get());
                 file_processor->AddDecoder(&vulkan_decoder);
 
                 file_processor->SetPrintBlockInfoFlag(vulkan_replay_options.enable_print_block_info,
@@ -287,6 +317,7 @@ int main(int argc, const char** argv)
                         dx12_decoder.RemoveConsumer(tracking_consumer);
                     }
                 }
+
                 dx12_decoder.AddConsumer(&dx12_replay_consumer);
                 file_processor->AddDecoder(&dx12_decoder);
 
@@ -303,7 +334,7 @@ int main(int argc, const char** argv)
             gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
             gfxrecon::decode::OpenXrDecoder        openxr_decoder;
             gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
-            openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
+            openxr_replay_consumer.SetVulkanReplayConsumer(vulkan_replay_consumer.get());
             openxr_replay_consumer.SetFpsInfo(&fps_info);
             openxr_decoder.AddConsumer(&openxr_replay_consumer);
             file_processor->AddDecoder(&openxr_decoder);
@@ -316,6 +347,8 @@ int main(int argc, const char** argv)
 
             application->SetPauseFrame(GetPauseFrame(arg_parser));
             application->SetFpsInfo(&fps_info);
+            application->SetAsyncProcessing(arg_parser.IsOptionSet(kAsyncProcessingOption));
+
             application->Run();
 
             // XXX if the final frame ended with a Present, this would be the *next* frame

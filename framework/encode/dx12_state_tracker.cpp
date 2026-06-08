@@ -68,6 +68,16 @@ void Dx12StateTracker::TrackOpenExistingHeapFromAddress(void** heap, const void*
     info->open_existing_address = address;
 }
 
+void Dx12StateTracker::TrackOpenExistingHeapFromFileMapping(void** heap, const void* handle)
+{
+    assert((heap != nullptr) && ((*heap) != nullptr) && (handle != nullptr));
+
+    auto heap_wrapper = reinterpret_cast<ID3D12Heap_Wrapper*>(*heap);
+    auto info         = heap_wrapper->GetObjectInfo();
+    assert(info != nullptr);
+    info->open_existing_handle = handle;
+}
+
 void Dx12StateTracker::TrackFenceSetEventOnCompletion(ID3D12Fence_Wrapper* fence_wrapper, UINT64 value, HANDLE event)
 {
     assert(fence_wrapper != nullptr);
@@ -680,6 +690,18 @@ void Dx12StateTracker::TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name,
     }
 }
 
+void Dx12StateTracker::TrackPrivateDataInterface(IUnknown_Wrapper* wrapper, REFGUID name, const IUnknown* data)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    auto* info = GetWrapperInfo(wrapper);
+    if (info)
+    {
+        graphics::dx12::IUnknownComPtr private_data = const_cast<IUnknown*>(data);
+        info->private_data_interface[name]          = std::move(private_data);
+    }
+}
+
 void Dx12StateTracker::TrackResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
                                               UINT                            num_objects,
                                               ID3D12Pageable* const*          objects,
@@ -748,29 +770,11 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
 
         // Save build input arguments.
         build_info.inputs = desc->Inputs;
+        EncodeAccelerationStructureInputs(&desc->Inputs, build_info);
 
         build_info.is_tlas_with_array_of_pointers = false;
 
-        // Save a copy of the input's geometry desc pointers.
-        if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
-        {
-            for (UINT i = 0; i < desc->Inputs.NumDescs; ++i)
-            {
-                if (desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
-                {
-                    build_info.inputs_geometry_descs.push_back(desc->Inputs.pGeometryDescs[i]);
-                }
-                else if (desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
-                {
-                    build_info.inputs_geometry_descs.push_back(*desc->Inputs.ppGeometryDescs[i]);
-                }
-            }
-
-            // The geometry desc pointers may be invalid when build_info is used in the future, so clear them here.
-            build_info.inputs.pGeometryDescs  = nullptr;
-            build_info.inputs.ppGeometryDescs = nullptr;
-        }
-        else if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
+        if (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
         {
             // This code path adds support for top level AS builds where `DescsLayout ==
             // D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS`. Any top level AS build--regardless of DescLayout value--could
@@ -788,11 +792,14 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
         // Compute the required inputs buffer size and entry information.
         uint64_t                                       inputs_buffer_size = 0;
         std::vector<graphics::dx12::InputsBufferEntry> inputs_buffer_entries;
-        graphics::dx12::GetAccelerationStructureInputsBufferEntries(
-            build_info.inputs, build_info.inputs_geometry_descs.data(), inputs_buffer_size, inputs_buffer_entries);
+        graphics::dx12::GetAccelerationStructureInputsBufferEntries2(
+            const_cast<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS&>(desc->Inputs),
+            inputs_buffer_size,
+            inputs_buffer_entries);
 
         // TLAS builds shouldn't have more than one input buffer entry.
         GFXRECON_ASSERT((desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL) ||
+                        (desc->Inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY) ||
                         (inputs_buffer_entries.size() <= 1));
 
         // Save input data to a secodary resource.
@@ -921,8 +928,8 @@ void Dx12StateTracker::TrackBuildRaytracingAccelerationStructure(
                 // Copy the inputs data to the inputs_data_resource.
                 while (curr_entry_iter != end_entry_iter)
                 {
-                    gfxrecon::util::GpuVaRange range       = { *curr_entry_iter->desc_gpu_va,
-                                                               *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
+                    gfxrecon::util::GpuVaRange range = { *curr_entry_iter->desc_gpu_va,
+                                                         *curr_entry_iter->desc_gpu_va + curr_entry_iter->size - 1 };
                     if (DoesResourceCoverGpuVaRange(src_resource_info.get(), range))
                     {
                         auto curr_gpu_va = *curr_entry_iter->desc_gpu_va;

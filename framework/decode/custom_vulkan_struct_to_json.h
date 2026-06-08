@@ -40,137 +40,75 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 class DescriptorUpdateTemplateDecoder;
 
-void FieldToJson(nlohmann::ordered_json&     jdata,
-                 const Decoded_VkClearValue* data,
-                 const util::JsonOptions&    options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearValue* data);
 
-void FieldToJson(nlohmann::ordered_json&          jdata,
-                 const Decoded_VkClearColorValue* data,
-                 const util::JsonOptions&         options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearColorValue* data);
 
-void FieldToJson(nlohmann::ordered_json&                      jdata,
-                 int                                          discriminant,
-                 const Decoded_VkDeviceOrHostAddressConstKHR* data,
-                 const util::JsonOptions&                     options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, int discriminant, const Decoded_VkDeviceOrHostAddressConstKHR* data);
 
-void FieldToJson(nlohmann::ordered_json&                      jdata,
-                 const Decoded_VkDeviceOrHostAddressConstKHR* data,
-                 const util::JsonOptions&                     options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceOrHostAddressConstKHR* data);
 
-void FieldToJson(nlohmann::ordered_json&                 jdata,
-                 int                                     discriminant,
-                 const Decoded_VkDeviceOrHostAddressKHR* data,
-                 const util::JsonOptions&                options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, int discriminant, const Decoded_VkDeviceOrHostAddressKHR* data);
 
-void FieldToJson(nlohmann::ordered_json&                 jdata,
-                 const Decoded_VkDeviceOrHostAddressKHR* data,
-                 const util::JsonOptions&                options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceOrHostAddressKHR* data);
 
 void FieldToJson(nlohmann::ordered_json&                              jdata,
                  VkPipelineExecutableStatisticFormatKHR               discriminant,
-                 const Decoded_VkPipelineExecutableStatisticValueKHR* data,
-                 const util::JsonOptions&                             options = util::JsonOptions());
+                 const Decoded_VkPipelineExecutableStatisticValueKHR* data);
 
-void FieldToJson(nlohmann::ordered_json&                         jdata,
-                 const Decoded_VkPipelineExecutableStatisticKHR* data,
-                 const util::JsonOptions&                        options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutableStatisticKHR* data);
 
-void FieldToJson(nlohmann::ordered_json&            jdata,
-                 const Decoded_SECURITY_ATTRIBUTES* data,
-                 const util::JsonOptions&           options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_SECURITY_ATTRIBUTES* data);
 
-void FieldToJson(nlohmann::ordered_json&                               jdata,
-                 const Decoded_VkAccelerationStructureGeometryDataKHR* data,
-                 const util::JsonOptions&                              options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryDataKHR* data);
 
-void FieldToJson(nlohmann::ordered_json&                           jdata,
-                 const Decoded_VkAccelerationStructureGeometryKHR* data,
-                 const util::JsonOptions&                          options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryKHR* data);
 
-void FieldToJson(nlohmann::ordered_json&              jdata,
-                 const Decoded_VkDescriptorImageInfo* data,
-                 const util::JsonOptions&             options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorImageInfo* data);
 
-void FieldToJson(nlohmann::ordered_json&             jdata,
-                 const Decoded_VkWriteDescriptorSet* data,
-                 const util::JsonOptions&            options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorSet* data);
 
-void FieldToJson(nlohmann::ordered_json&                jdata,
-                 const Decoded_VkPerformanceValueINTEL* data,
-                 const util::JsonOptions&               options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceValueINTEL* data);
 
-void FieldToJson(nlohmann::ordered_json&                 jdata,
-                 const Decoded_VkShaderModuleCreateInfo* data,
-                 const util::JsonOptions&                options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderModuleCreateInfo* data);
 
-void FieldToJson(nlohmann::ordered_json&                  jdata,
-                 const Decoded_VkPipelineCacheCreateInfo* data,
-                 const util::JsonOptions&                 options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCacheCreateInfo* data);
 
-void FieldToJson(nlohmann::ordered_json&                      jdata,
-                 const DescriptorUpdateTemplateDecoder* const pData,
-                 const util::JsonOptions&                     options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const DescriptorUpdateTemplateDecoder* const pData);
 
-void FieldToJson(nlohmann::ordered_json&                                  jdata,
-                 const Decoded_VkPushDescriptorSetWithTemplateInfo* const pData,
-                 const util::JsonOptions&                                 options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSetWithTemplateInfo* const pData);
 
-void FieldToJson(nlohmann::ordered_json&                                  jdata,
-                 const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData,
-                 const util::JsonOptions&                                 options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData);
 
-void FieldToJson(nlohmann::ordered_json&                               jdata,
-                 const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData,
-                 const util::JsonOptions&                              options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData);
 
-void FieldToJson(nlohmann::ordered_json&                jdata,
-                 const Decoded_VkCopyMemoryToImageInfo* data,
-                 const util::JsonOptions&               options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImageInfo* data);
 
-void FieldToJson(nlohmann::ordered_json&            jdata,
-                 const Decoded_VkMemoryToImageCopy* data,
-                 const util::JsonOptions&           options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryToImageCopy* data);
 
-void FieldToJson(nlohmann::ordered_json&                jdata,
-                 const Decoded_VkCopyImageToMemoryInfo* data,
-                 const util::JsonOptions&               options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToMemoryInfo* data);
 
-void FieldToJson(nlohmann::ordered_json&            jdata,
-                 const Decoded_VkImageToMemoryCopy* data,
-                 const util::JsonOptions&           options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageToMemoryCopy* data);
 
-void FieldToJson(nlohmann::ordered_json&         jdata,
-                 const format::DeviceMemoryType& data,
-                 const util::JsonOptions&        options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryType& data);
 
-void FieldToJson(nlohmann::ordered_json&         jdata,
-                 const format::DeviceMemoryHeap& data,
-                 const util::JsonOptions&        options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const format::DeviceMemoryHeap& data);
 
-void FieldToJson(nlohmann::ordered_json&            jdata,
-                 VkDescriptorType                   discriminant,
-                 const Decoded_VkDescriptorDataEXT* data,
-                 const util::JsonOptions&           options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, VkDescriptorType discriminant, const Decoded_VkDescriptorDataEXT* data);
 
-void FieldToJson(nlohmann::ordered_json&               jdata,
-                 const Decoded_VkDescriptorGetInfoEXT* data,
-                 const util::JsonOptions&              options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorGetInfoEXT* data);
 
 template <typename T>
-void FieldToJson(nlohmann::ordered_json&  jdata,
-                 const std::vector<T>&    data,
-                 const util::JsonOptions& options = util::JsonOptions())
+void FieldToJson(nlohmann::ordered_json& jdata, const std::vector<T>& data)
 {
     int i = 0;
     for (const auto& item : data)
     {
-        FieldToJson(jdata[i++], item, options);
+        FieldToJson(jdata[i++], item);
     }
 }
 
-void FieldToJson(nlohmann::ordered_json&          jdata,
-                 const Decoded_VkLayerSettingEXT* data,
-                 const util::JsonOptions&         options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT* data);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

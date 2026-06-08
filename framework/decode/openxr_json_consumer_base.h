@@ -48,15 +48,13 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
 
     virtual ~OpenXrExportJsonConsumerBase() override;
 
-    void Initialize(JsonWriter* writer, const std::string_view openxrVersion);
+    void Initialize(JsonWriter* writer);
 
     void Destroy();
 
     bool IsValid() const { return writer_ && writer_->IsValid(); }
 
   protected:
-    const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
-
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
 
     /// Output the current in-memory json tree to the destination file.

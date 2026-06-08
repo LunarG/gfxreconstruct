@@ -81,16 +81,17 @@ void Dx12ResourceValueTrackingConsumer::Process_ID3D12GraphicsCommandList4_CopyR
 }
 
 void Dx12ResourceValueTrackingConsumer::ProcessInitDx12AccelerationStructureCommand(
-    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
-    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-    const uint8_t*                                                        build_inputs_data)
+    const format::InitDx12AccelerationStructureCommandHeader&                           command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>&               geometry_descs,
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* build_inputs,
+    const uint8_t*                                                                      build_inputs_data)
 {
     dxr_workload_ = true;
 
     if (replay_resource_value_calls_)
     {
         Dx12ReplayConsumer::ProcessInitDx12AccelerationStructureCommand(
-            command_header, geometry_descs, build_inputs_data);
+            command_header, geometry_descs, build_inputs, build_inputs_data);
     }
 }
 

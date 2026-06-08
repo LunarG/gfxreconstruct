@@ -214,6 +214,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             }
             break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT: // _not_ an alias of the above
             {
                 auto buffer_address_features =
                     reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(current_struct);

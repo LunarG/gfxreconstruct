@@ -32,6 +32,7 @@
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_instance_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
+#include "graphics/vulkan_util.h"
 #include "util/defines.h"
 #include "util/spirv_parsing_util.h"
 
@@ -162,6 +163,16 @@ enum SwapchainKHRArrayIndices : uint32_t
 enum ValidationCacheEXTArrayIndices : uint32_t
 {
     kValidationCacheEXTArrayGetValidationCacheDataEXT = 0
+};
+
+enum DeviceArrayGetDeviceFaultReportsIndices : uint32_t
+{
+    kDeviceArrayGetDeviceFaultReportsKHR = 0
+};
+
+enum PhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsIndices : uint32_t
+{
+    kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM = 0
 };
 
 //
@@ -342,13 +353,7 @@ struct VulkanDeviceInfo : public VulkanObjectInfo<VkDevice>
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
 
-    struct EnabledQueueFamilyFlags
-    {
-        std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_creation_flags;
-        std::unordered_map<uint32_t, VkDeviceQueueCreateFlags> queue_family_properties_flags;
-
-        std::vector<bool> queue_family_index_enabled;
-    } enabled_queue_family_flags;
+    graphics::VulkanQueueFamilyFlags enabled_queue_family_flags;
 
     std::vector<VkPhysicalDevice> replay_device_group;
 
@@ -424,9 +429,9 @@ struct VulkanBufferInfo : public VulkanObjectInfo<VkBuffer>
     VkDeviceSize       size{ 0 };
     uint32_t           queue_family_index{ 0 };
 
-    // map acceleration-structure replay-addresses to existing (alias) AS-handles
+    // map acceleration-structure capture-addresses to existing (alias) AS-handles
     std::unordered_map<VkDeviceAddress, std::unordered_set<const VulkanAccelerationStructureKHRInfo*>>
-        acceleration_structures;
+        acceleration_structures_capture_addresses;
 };
 
 struct VulkanBufferViewInfo : public VulkanObjectInfo<VkBufferView>
@@ -470,6 +475,9 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 
     VkDeviceSize size{ 0 };
+
+    // contains a debug-utils name, if any
+    std::string debug_utils_name;
 };
 
 struct VulkanPipelineCacheData
@@ -697,7 +705,8 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     // (read back pointers, resolve additional buffers)
     std::unordered_map<const VulkanBufferInfo*, std::vector<std::pair<size_t, uint32_t>>> addresses_to_resolve;
 
-    bool inside_renderpass = false;
+    // flag indicating if the command-buffer is currently recording a VkRenderpass or VK_KHR_dynamic_rendering scope
+    bool in_rendering_scope = false;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
@@ -776,7 +785,7 @@ struct VulkanDescriptorSetBindingInfo
 struct VulkanDescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
 {
     // One entry per binding
-    using VulkanDescriptorBindingsInfo = std::unordered_map<uint32_t, VulkanDescriptorSetBindingInfo>;
+    using VulkanDescriptorBindingsInfo = std::map<uint32_t, VulkanDescriptorSetBindingInfo>;
     VulkanDescriptorBindingsInfo descriptors;
 };
 

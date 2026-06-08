@@ -442,21 +442,25 @@ gfxrecon-optimize.exe - Produce new captures with enhanced performance character
                         For D3D12, the optimizer will improve DXR replay performance and remove unused PSOs (for all captures)
 
 Usage:
-  gfxrecon-optimize.exe [-h | --help] [--version] [--d3d12-pso-removal] [--dxr] [--gpu <index>] <input-file> <output-file>
+  gfxrecon-optimize.exe [-h | --help] [--version] [--d3d12-pso-removal] [--d3d12-resource-removal] [--dxr] [--gpu <index>] <input-file> <output-file>
 
 Required arguments:
   <input-file>          The path to input GFXReconstruct capture file to be processed.
   <output-file>         The path to output GFXReconstruct capture file to be created.
 
 Optional arguments:
-  -h                    Print usage information and exit (same as --help).
-  --version             Print version information and exit.
-  --d3d12-pso-removal   D3D12-only: Remove creation of unreferenced PSOs.
-  --dxr                 D3D12-only: Optimize for DXR replay.
-  --gpu <index>         D3D12-only: Use the specified device for the optimizer replay, where index is the zero-based index to the array 
-                        of physical devices returned by vkEnumeratePhysicalDevices or the optimizer replay may fail if the specified 
-                        device is not compatible with the IDXGIFactory1::EnumAdapters1. The optimizer replay may fail if the specified 
-                        device is not compatible with the original capture devices.
+  -h                            Print usage information and exit (same as --help).
+  --version                     Print version information and exit.
+  --no-debug-popup              Disable the 'Abort, Retry, Ignore' message box
+                                displayed when abort() is called (Windows debug only).
+  --d3d12-pso-removal           D3D12-only: Remove creation of unreferenced PSOs.
+  --d3d12-resource-removal      D3D12-only: Remove initialization of unreferenced resources (experimental, off by default).
+  --dxr                         D3D12-only: Optimize for DXR and ExecuteIndirect replay.
+  --gpu <index>                 Use the specified device for the optimizer replay, where index
+                                is the zero-based index to the array of physical devices
+                                returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
+                                The optimizer replay may fail if the specified device is not compatible with the
+                                original capture devices.
 
 Note: running without optional arguments will instruct the optimizer to detect API and run all available optimizations.
 ```

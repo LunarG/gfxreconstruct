@@ -423,6 +423,18 @@ void Dx12StateWriter::WriteHeapState(const Dx12StateTable& state_table)
                                    GetLastError());
             }
         }
+        if (wrapper_info->open_existing_handle != nullptr)
+        {
+            HANDLE hFileHandle = reinterpret_cast<HANDLE>(const_cast<void*>(wrapper_info->open_existing_handle));
+            void*  pAddress    = MapViewOfFile(hFileHandle, FILE_MAP_READ, 0, 0, 0);
+
+            if ((pAddress == nullptr) || !WriteCreateHeapAllocationCmd(pAddress))
+            {
+                GFXRECON_LOG_ERROR("Failed to retrieve memory information for handle specified to "
+                                   "ID3D12Device3::OpenExistingHeapFromFileMapping (error = %d)",
+                                   GetLastError());
+            }
+        }
 
         StandardCreateWrite(wrapper);
         if (wrapper_info->heap_flags & D3D12_HEAP_FLAG_CREATE_NOT_RESIDENT)
@@ -591,6 +603,27 @@ void Dx12StateWriter::WritePrivateData(format::HandleId handle_id, const DxWrapp
         else
         {
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData, handle_id, &parameter_stream_);
+        }
+        parameter_stream_.Clear();
+    }
+}
+
+void Dx12StateWriter::WritePrivateDataInterface(format::HandleId handle_id, const DxWrapperInfo& wrapper_info)
+{
+    for (auto& data : wrapper_info.private_data_interface)
+    {
+        EncodeStruct(&encoder_, data.first);
+        encoder_.EncodeObjectValue(data.second.GetInterfacePtr());
+        encoder_.EncodeInt32Value(S_OK);
+        if (wrapper_info.IsDxgi())
+        {
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_IDXGIObject_SetPrivateDataInterface, handle_id, &parameter_stream_);
+        }
+        else
+        {
+            WriteMethodCall(
+                format::ApiCallId::ApiCall_ID3D12Object_SetPrivateDataInterface, handle_id, &parameter_stream_);
         }
         parameter_stream_.Clear();
     }
@@ -790,7 +823,7 @@ void Dx12StateWriter::WriteMetaCommandCreationState(const Dx12StateTable& state_
         for (auto wrapper : metacommand_wrappers)
         {
             // Write the meta command init call.
-            auto                          wrapper_info = wrapper->GetObjectInfo();
+            auto wrapper_info = wrapper->GetObjectInfo();
             if (wrapper_info->was_initialized == true)
             {
                 format::InitializeMetaCommand init_meta_command;
@@ -846,13 +879,13 @@ void Dx12StateWriter::WriteResourceSnapshots(
             begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             begin_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
                 format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kBeginResourceInitCommand);
-            begin_cmd.thread_id       = thread_id_;
-            begin_cmd.device_id       = device_id;
+            begin_cmd.thread_id = thread_id_;
+            begin_cmd.device_id = device_id;
 
             // TODO: adjust to hold sum of resource-sizes
             begin_cmd.total_copy_size = max_resource_size;
 
-            begin_cmd.max_copy_size   = max_resource_size;
+            begin_cmd.max_copy_size = max_resource_size;
 
             output_stream_->Write(&begin_cmd, sizeof(begin_cmd));
 
@@ -1728,7 +1761,7 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
         // Write header.
         format::InitDx12AccelerationStructureCommandHeader cmd;
         cmd.meta_header.meta_data_id = format::MakeMetaDataId(
-            format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitDx12AccelerationStructureCommand);
+            format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kInitDx12AccelerationStructureCommand2);
         cmd.meta_header.block_header.type    = format::BlockType::kMetaDataBlock;
         cmd.thread_id                        = thread_id_;
         cmd.dest_acceleration_structure_data = as_build.dest_gpu_va;
@@ -1747,26 +1780,19 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
         cmd.inputs_flags = build_flags;
 
         // Get NumDescs and data sizes.
+        size_t inputs_parameters_size    = 0;
         size_t inputs_data_ptr_file_size = 0;
         cmd.inputs_data_size             = 0;
         cmd.inputs_num_instance_descs    = 0;
-        cmd.inputs_num_geometry_descs    = 0;
+        cmd.inputs_geometry_descs_size   = 0;
         if (write_build_data)
         {
-            cmd.inputs_data_size = as_build.input_data_size - as_build.input_data_header_size;
-            if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
-            {
-                cmd.inputs_num_geometry_descs = as_build.inputs.NumDescs;
-            }
-            else if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
-            {
-                cmd.inputs_num_instance_descs = as_build.inputs.NumDescs;
-            }
-            else
-            {
-                GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE.");
-            }
+            // Store the serialized build-inputs struct size in inputs_geometry_descs_size.
+            cmd.inputs_geometry_descs_size = static_cast<uint32_t>(as_build.inputs_parameters->GetDataSize());
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, as_build.inputs_parameters->GetDataSize());
+            inputs_parameters_size = as_build.inputs_parameters->GetDataSize();
 
+            cmd.inputs_data_size = as_build.input_data_size - as_build.input_data_header_size;
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, cmd.inputs_data_size);
             inputs_data_ptr_file_size = static_cast<size_t>(cmd.inputs_data_size);
             if (compressor_ != nullptr)
@@ -1787,48 +1813,16 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
 
         // Compute file block size and write header to file.
         cmd.meta_header.block_header.size =
-            format::GetMetaDataBlockBaseSize(cmd) +
-            (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * cmd.inputs_num_geometry_descs) +
-            inputs_data_ptr_file_size;
+            format::GetMetaDataBlockBaseSize(cmd) + inputs_parameters_size + inputs_data_ptr_file_size;
         output_stream_->Write(&cmd, sizeof(cmd));
         accel_struct_file_bytes += sizeof(cmd);
 
-        // Write geometry and inputs data to file.
+        // Write inputs and inputs data to file.
         if (write_build_data)
         {
-            // Write geometry descs for BLAS.
-            if (as_build.inputs.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
-            {
-                GFXRECON_ASSERT(as_build.inputs.NumDescs == as_build.inputs_geometry_descs.size());
-
-                for (const auto& geom : as_build.inputs_geometry_descs)
-                {
-                    format::InitDx12AccelerationStructureGeometryDesc geom_info;
-                    geom_info.geometry_type  = geom.Type;
-                    geom_info.geometry_flags = geom.Flags;
-                    if (geom.Type == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
-                    {
-                        geom_info.aabbs_count  = geom.AABBs.AABBCount;
-                        geom_info.aabbs_stride = geom.AABBs.AABBs.StrideInBytes;
-                    }
-                    else if (geom.Type == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
-                    {
-                        geom_info.triangles_has_transform = (geom.Triangles.Transform3x4 == 0) ? 0 : 1;
-                        geom_info.triangles_index_format  = geom.Triangles.IndexFormat;
-                        geom_info.triangles_vertex_format = geom.Triangles.VertexFormat;
-                        geom_info.triangles_index_count =
-                            (geom.Triangles.IndexBuffer == 0) ? 0 : geom.Triangles.IndexCount;
-                        geom_info.triangles_vertex_count  = geom.Triangles.VertexCount;
-                        geom_info.triangles_vertex_stride = geom.Triangles.VertexBuffer.StrideInBytes;
-                    }
-                    else
-                    {
-                        GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_GEOMETRY_TYPE.");
-                    }
-                    output_stream_->Write(&geom_info, sizeof(geom_info));
-                    accel_struct_file_bytes += sizeof(geom_info);
-                }
-            }
+            // Write inputs encode data.
+            output_stream_->Write(as_build.inputs_parameters->GetData(), inputs_parameters_size);
+            accel_struct_file_bytes += inputs_parameters_size;
 
             // Write inputs data.
             output_stream_->Write(inputs_data_ptr, inputs_data_ptr_file_size);
@@ -1919,6 +1913,7 @@ void Dx12StateWriter::WriteStateObjectPropertiesState(const Dx12StateTable& stat
         }
 
         WritePrivateData(wrapper->GetCaptureId(), *wrapper_info.get());
+        WritePrivateDataInterface(wrapper->GetCaptureId(), *wrapper_info.get());
         WriteAddRefAndReleaseCommands(wrapper);
     });
 }
@@ -1952,6 +1947,28 @@ void Dx12StateWriter::WriteAgsDriverExtensionsDX12CreateDevice(const AgsStateTab
     }
 }
 #endif // GFXRECON_AGS_SUPPORT
+
+void EncodeAccelerationStructureInputs(const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* inputs,
+                                       DxAccelerationStructureBuildInfo&                           build_info)
+{
+    GFXRECON_ASSERT(inputs != nullptr);
+
+    util::MemoryOutputStream parameter_buffer{};
+    parameter_buffer.Clear();
+    ParameterEncoder encoder(&parameter_buffer);
+    EncodeStructPtr(&encoder, inputs);
+
+    if (parameter_buffer.GetDataSize() == 0)
+    {
+        GFXRECON_LOG_ERROR("Failed to encode acceleration structure build inputs for acceleration structure build "
+                           "destination VA = %" PRIu64 ". The VA will not be written to the trim state.",
+                           build_info.dest_gpu_va);
+        return;
+    }
+
+    build_info.inputs_parameters =
+        std::make_shared<util::MemoryOutputStream>(parameter_buffer.GetData(), parameter_buffer.GetDataSize());
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

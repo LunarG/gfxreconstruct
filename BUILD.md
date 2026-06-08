@@ -321,9 +321,6 @@ the build.  For example:
 make -j4
 ```
 
-For build systems that support ccache, it can be enabled with the CMake
-`-DUSE_CCACHE=On` option.
-
 #### Install the project
 
 Files can be installed to "/usr/local/" with `sudo make install`

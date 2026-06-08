@@ -366,6 +366,7 @@ of legacy storage access:
 
 ```bash
 adb shell appops set com.lunarg.gfxreconstruct.replay android:legacy_storage allow
+adb shell appops write-settings
 ```
 
 ##### Android 11 and Newer
@@ -377,6 +378,7 @@ opens up:
 
 ```bash
 adb shell appops set com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STORAGE allow
+adb shell appops write-settings
 ```
 
 ### 9. Run the replay

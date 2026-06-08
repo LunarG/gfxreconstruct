@@ -33,7 +33,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 CompressionConverter::CompressionConverter() :
-    decompressing_(true), target_compression_type_(format::CompressionType::kNone)
+    decompressing_(true), target_compression_type_(format::CompressionType::kNone),
+    working_uncompressed_store_(kWorkingStoreInitialSize)
 {}
 
 CompressionConverter::~CompressionConverter() {}
@@ -75,7 +76,7 @@ bool CompressionConverter::WriteFileHeader(const format::FileHeader&            
 bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block)
 {
     // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser());
+    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
 
     if (success)
     {
@@ -89,7 +90,7 @@ bool CompressionConverter::ProcessFunctionCall(decode::ParsedBlock& parsed_block
 bool CompressionConverter::ProcessMethodCall(decode::ParsedBlock& parsed_block)
 {
     // Decompress reports its own errors.
-    bool success = parsed_block.Decompress(GetBlockParser());
+    bool success = parsed_block.Decompress(GetBlockParser(), working_uncompressed_store_);
 
     if (success)
     {
@@ -105,15 +106,24 @@ bool CompressionConverter::ProcessMetaData(decode::ParsedBlock& parsed_block)
     // We can infer format::IsBlockCompressed from NeedsDecompression as long
     // as the DecompressionPolicy is "never".
     auto& block_parser = GetBlockParser();
-    GFXRECON_ASSERT(block_parser.GetDecompressionPolicy() == decode::BlockParser::kNever);
+    GFXRECON_ASSERT(block_parser.GetDecompressionPolicy() == decode::BlockParser::DecompressionPolicy::kNever);
     const bool compressed_block = parsed_block.NeedsDecompression();
 
     // Unconditional decompress the metadata block wastes no time as all compressible meta_data_id have non-trivial
     // overrides, and decompress fast returns on uncompressed blocks.
-    bool success = parsed_block.Decompress(block_parser);
+    bool success = parsed_block.Decompress(block_parser, working_uncompressed_store_);
     if (success)
     {
-        auto        visit_meta = [this](auto&& store) { return WriteMetaData(*store); };
+        auto visit_meta = [this](auto&& store) {
+            if constexpr (std::is_same_v<std::decay_t<decltype(store)>, std::monostate>)
+            {
+                return VisitResult::kNeedsPassthrough; // Passthrough unknown blocks.
+            }
+            else
+            {
+                return WriteMetaData(*store);
+            }
+        };
         VisitResult result     = std::visit(visit_meta, parsed_block.GetArgs());
 
         if (result == kNeedsPassthrough)
@@ -493,13 +503,27 @@ decode::FileTransformer::VisitResult CompressionConverter::WriteMetaData(const d
 decode::FileTransformer::VisitResult
 CompressionConverter::WriteMetaData(const decode::InitDx12AccelerationStructureArgs& args)
 {
-    GFXRECON_ASSERT(format::GetMetaDataType(args.meta_data_id) ==
-                    format::MetaDataType::kInitDx12AccelerationStructureCommand);
+    GFXRECON_ASSERT(
+        (format::GetMetaDataType(args.meta_data_id) ==
+         format::MetaDataType::kInitDx12AccelerationStructureCommand_deprecated) ||
+        (format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitDx12AccelerationStructureCommand2));
 
     // The header needs to be a copy as we are rewriting it below
     format::InitDx12AccelerationStructureCommandHeader                    init_cmd   = args.command_header;
     const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geom_descs = args.geometry_descs;
-    GFXRECON_ASSERT(args.geometry_descs.size() == init_cmd.inputs_num_geometry_descs);
+    if (format::GetMetaDataType(args.meta_data_id) ==
+        format::MetaDataType::kInitDx12AccelerationStructureCommand_deprecated)
+    {
+        GFXRECON_ASSERT(args.geometry_descs.size() == init_cmd.inputs_geometry_descs_size);
+    }
+
+    // D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS buffer
+    const uint8_t* build_inputs = args.inputs.data();
+    size_t         inputs_size  = args.inputs.size();
+    if (format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitDx12AccelerationStructureCommand2)
+    {
+        GFXRECON_ASSERT(inputs_size == init_cmd.inputs_geometry_descs_size);
+    }
 
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, init_cmd.inputs_data_size);
     size_t         data_size    = static_cast<size_t>(init_cmd.inputs_data_size);
@@ -508,9 +532,17 @@ CompressionConverter::WriteMetaData(const decode::InitDx12AccelerationStructureA
     PrepMetadataBlock(init_cmd.meta_header, args.meta_data_id, data_address, data_size);
 
     // Calculate size of packet with compressed or uncompressed data size.
-    init_cmd.meta_header.block_header.size =
-        format::GetMetaDataBlockBaseSize(init_cmd) + data_size +
-        (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * init_cmd.inputs_num_geometry_descs);
+    if (format::GetMetaDataType(args.meta_data_id) ==
+        format::MetaDataType::kInitDx12AccelerationStructureCommand_deprecated)
+    {
+        init_cmd.meta_header.block_header.size =
+            format::GetMetaDataBlockBaseSize(init_cmd) + data_size +
+            (sizeof(format::InitDx12AccelerationStructureGeometryDesc) * init_cmd.inputs_geometry_descs_size);
+    }
+    if (format::GetMetaDataType(args.meta_data_id) == format::MetaDataType::kInitDx12AccelerationStructureCommand2)
+    {
+        init_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(init_cmd) + data_size + inputs_size;
+    }
 
     if (!WriteBytes(&init_cmd, sizeof(init_cmd)))
     {
@@ -518,7 +550,14 @@ CompressionConverter::WriteMetaData(const decode::InitDx12AccelerationStructureA
                               "Failed to write init DX12 acceleration structure meta-data block header");
         return kError;
     }
-    if (!WriteBytes(geom_descs.data(), sizeof(format::InitDx12AccelerationStructureGeometryDesc) * geom_descs.size()))
+    if ((geom_descs.size() > 0) &&
+        !WriteBytes(geom_descs.data(), sizeof(format::InitDx12AccelerationStructureGeometryDesc) * geom_descs.size()))
+    {
+        HandleBlockWriteError(decode::kErrorWritingBlockHeader,
+                              "Failed to write init DX12 acceleration structure geometry block");
+        return kError;
+    }
+    if ((inputs_size > 0) && !WriteBytes(build_inputs, inputs_size))
     {
         HandleBlockWriteError(decode::kErrorWritingBlockHeader,
                               "Failed to write init DX12 acceleration structure geometry block");

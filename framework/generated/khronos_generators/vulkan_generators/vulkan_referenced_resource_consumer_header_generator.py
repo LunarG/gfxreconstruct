@@ -1,6 +1,6 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2020 LunarG, Inc.
+# Copyright (c) 2020-2026 LunarG, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -67,7 +67,7 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
     # All resource and resource associated handle types to be processed.
     RESOURCE_HANDLE_TYPES = [
         'VkBuffer', 'VkImage', 'VkBufferView', 'VkImageView', 'VkFramebuffer',
-        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR'
+        'VkDescriptorSet', 'VkCommandBuffer', 'VkAccelerationStructureKHR', 'VkPipeline'
     ]
 
     def __init__(
@@ -97,7 +97,7 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
         write('  public:', file=self.outFile)
         write('    {}() {{ }}\n'.format(class_name), file=self.outFile)
         write(
-            '    virtual ~{}() override {{ }}'.format(class_name),
+            '    ~{}() override {{ }}'.format(class_name),
             file=self.outFile
         )
 
@@ -123,7 +123,7 @@ class VulkanReferencedResourceHeaderGenerator(VulkanBaseGenerator):
                         return_type, 'Process_' + cmd, params
                     )
                     cmddef += self.indent(
-                        'virtual ' + decl + ' override;', self.INDENT_SIZE
+                        decl + ' override;', self.INDENT_SIZE
                     )
                     self.restrict_handles = True
 

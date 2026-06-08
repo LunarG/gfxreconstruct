@@ -46,6 +46,7 @@ VkResult VulkanDefaultAllocator::Initialize(uint32_t                            
                                             VkInstance                              instance,
                                             VkPhysicalDevice                        physical_device,
                                             VkDevice                                device,
+                                            const VkDeviceCreateInfo&               device_create_info,
                                             const std::vector<std::string>&         enabled_device_extensions,
                                             VkPhysicalDeviceType                    capture_device_type,
                                             const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
@@ -56,6 +57,7 @@ VkResult VulkanDefaultAllocator::Initialize(uint32_t                            
     GFXRECON_UNREFERENCED_PARAMETER(instance);
     GFXRECON_UNREFERENCED_PARAMETER(physical_device);
     GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(device_create_info);
     GFXRECON_UNREFERENCED_PARAMETER(enabled_device_extensions);
     GFXRECON_UNREFERENCED_PARAMETER(capture_device_type);
     GFXRECON_UNREFERENCED_PARAMETER(capture_memory_properties);
@@ -428,7 +430,7 @@ VkResult VulkanDefaultAllocator::BindImageMemory2(uint32_t                     b
             {
                 auto allocator_image_data  = allocator_image_datas[i];
                 auto allocator_memory_data = allocator_memory_datas[i];
-                
+
                 if (!UpdateAllocInfo(allocator_image_data,
                                      MemoryInfoType::kBasic,
                                      bind_infos[i].memory,
@@ -464,8 +466,8 @@ VkResult VulkanDefaultAllocator::BindVideoSessionMemory(VkVideoSessionKHR       
         {
             for (uint32_t i = 0; i < bind_info_count; ++i)
             {
-                auto allocator_memory_data  = allocator_memory_datas[i];
-                
+                auto allocator_memory_data = allocator_memory_datas[i];
+
                 if (!UpdateAllocInfo(allocator_session_data,
                                      MemoryInfoType::kVideoSession,
                                      bind_infos[i].memory,
@@ -793,7 +795,7 @@ void VulkanDefaultAllocator::ReportQueueBindSparseIncompatibility(VkQueue       
     for (uint32_t i = 0; i < bind_info_count; ++i)
     {
         const auto* bind_info = &bind_infos[i];
-        
+
         for (uint32_t buf_i = 0; buf_i < bind_info->bufferBindCount; ++buf_i)
         {
             for (uint32_t mem_i = 0; mem_i < bind_info->pBufferBinds[buf_i].bindCount; ++mem_i)
@@ -912,7 +914,7 @@ void VulkanDefaultAllocator::UnmapResourceMemoryDirect(ResourceData allocator_da
     if (allocator_data != 0)
     {
         auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
-        
+
         if (!resource_alloc_info->bound_memory_infos.empty() &&
             resource_alloc_info->bound_memory_infos[0].memory != VK_NULL_HANDLE)
         {
@@ -1041,7 +1043,7 @@ VulkanDefaultAllocator::BindAccelerationStructureMemoryNV(uint32_t bind_info_cou
             {
                 auto allocator_acc_data    = allocator_acc_datas[i];
                 auto allocator_memory_data = allocator_memory_datas[i];
-                
+
                 if (!UpdateAllocInfo(allocator_acc_data,
                                      MemoryInfoType::kBasic,
                                      bind_infos[i].memory,
@@ -1059,9 +1061,8 @@ VulkanDefaultAllocator::BindAccelerationStructureMemoryNV(uint32_t bind_info_cou
     return result;
 }
 
-VkResult VulkanDefaultAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info,
-                                             int*                        pFd,
-                                             MemoryData                  allocator_data)
+VkResult
+VulkanDefaultAllocator::GetMemoryFd(const VkMemoryGetFdInfoKHR* get_fd_info, int* pFd, MemoryData allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
     return functions_.get_memory_fd(device_, get_fd_info, pFd);
@@ -1082,11 +1083,11 @@ VkResult VulkanDefaultAllocator::QueueBindSparse(VkQueue                 queue,
                                                  VkMemoryPropertyFlags*  bind_img_mem_properties)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
-    
+
     if (bind_infos != nullptr)
     {
         result = functions_.queue_bind_sparse(queue, bind_info_count, bind_infos, fence);
-        
+
         if (result == VK_SUCCESS)
         {
             uint32_t alc_buf_i    = 0;

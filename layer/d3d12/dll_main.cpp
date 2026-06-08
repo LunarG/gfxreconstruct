@@ -206,8 +206,8 @@ EXTERN_C HRESULT WINAPI
 gfxrecon_D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary(LPCVOID pSrcData,
                                                                              SIZE_T  SrcDataSizeInBytes,
                                                                              LPCWSTR RootSignatureSubobjectName,
-                                                                             REFIID  pRootSignatureDeserializerInterface,
-                                                                             void**  ppRootSignatureDeserializer)
+                                                                             REFIID pRootSignatureDeserializerInterface,
+                                                                             void** ppRootSignatureDeserializer)
 {
     if (gfxrecon::Initialize())
     {

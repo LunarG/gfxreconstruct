@@ -25,10 +25,12 @@
 #define GFXRECON_GRAPHICS_FPS_INFO_H
 
 #include "util/defines.h"
-#include "decode/file_processor.h"
 
 #include <limits>
+#include <optional>
+#include <string>
 #include <string_view>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -53,11 +55,17 @@ class FpsInfo
     bool                   ShouldWaitIdleBeforeFrame(uint64_t file_processor_frame);
     bool                   ShouldWaitIdleAfterFrame(uint64_t file_processor_frame);
     bool                   ShouldQuit(uint64_t file_processor_frame);
+    uint64_t               GetQuitBeforeFrame();
     void                   BeginFrame(uint64_t file_processor_frame);
     void                   EndFrame(uint64_t file_processor_frame);
     void                   EndFile(uint64_t end_file_processor_frame);
     void                   ProcessStateEndMarker(uint64_t file_processor_frame);
     [[nodiscard]] uint64_t ShouldPreloadFrames(uint64_t current_frame) const;
+
+    [[nodiscard]] bool IsFirstSubmitDone() const { return first_submit_done_; }
+    void               SetFirstSubmitDone(bool first_submit_done) { first_submit_done_ = first_submit_done; }
+
+    std::optional<std::pair<uint64_t, uint64_t>> GetPreloadFrameRange() const;
 
   private:
     uint64_t start_time_;
@@ -97,6 +105,10 @@ class FpsInfo
 
     bool     quit_after_frame_;
     uint64_t quit_frame_;
+
+    /// Tracks whether the first submit of the frame has been done. It is reset at the
+    /// end of each frame, and set to true when the first submit of the frame is done.
+    bool first_submit_done_{ false };
 };
 
 GFXRECON_END_NAMESPACE(graphics)

@@ -91,7 +91,8 @@ struct DxWrapperInfo
     format::HandleId                     create_object_id{ format::kNullHandleId };
     std::shared_ptr<const DxWrapperInfo> create_object_info;
 
-    std::unordered_map<const GUID, std::vector<uint8_t>, GUID_Hash, GUID_Equal> private_datas;
+    std::unordered_map<const GUID, std::vector<uint8_t>, GUID_Hash, GUID_Equal>           private_datas;
+    std::unordered_map<const GUID, graphics::dx12::IUnknownComPtr, GUID_Hash, GUID_Equal> private_data_interface;
 
     std::wstring object_name{ L"" };
 
@@ -189,10 +190,9 @@ struct DxAccelerationStructureBuildInfo
 
     // Build inputs.
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{};
+    std::shared_ptr<util::MemoryOutputStream>            inputs_parameters{};
 
-    // Save a copy of the inputs' geometry descs for bottom level accel structs.
-    std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> inputs_geometry_descs;
-
+    // Inputs resource buffer and size.
     uint64_t                             input_data_size{ 0 };
     uint64_t                             input_data_header_size{ 0 };
     graphics::dx12::ID3D12ResourceComPtr input_data_resource{ nullptr };
@@ -269,7 +269,9 @@ struct IDXGIFactoryInfo : public DxgiWrapperInfo
 {};
 
 struct ID3D12RootSignatureInfo : public DxWrapperInfo
-{};
+{
+    std::vector<uint8_t> blob_value;
+};
 
 struct ID3D12RootSignatureDeserializerInfo : public DxWrapperInfo
 {};
@@ -384,6 +386,14 @@ struct ID3D12ProtectedResourceSessionInfo : public DxWrapperInfo
 
 struct ID3D12DeviceInfo : public DxWrapperInfo
 {
+    virtual ~ID3D12DeviceInfo()
+    {
+        if (adapter3 != nullptr)
+        {
+            adapter3->Release();
+        }
+    }
+
     // Track the device's parent adapter as IDXGIAdapter3
     // This enables checking GPU memory availability via QueryVideoMemoryInfo()
     IDXGIAdapter3* adapter3{ nullptr };
@@ -405,6 +415,7 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
     D3D12_HEAP_TYPE                      heap_type{};
     D3D12_CPU_PAGE_PROPERTY              page_property{};
     D3D12_MEMORY_POOL                    memory_pool{};
+    D3D12_HEAP_FLAGS                     heap_flags{ D3D12_HEAP_FLAG_NONE };
     D3D12_RESOURCE_DIMENSION             dimension{ D3D12_RESOURCE_DIMENSION_UNKNOWN };
     D3D12_TEXTURE_LAYOUT                 layout{ D3D12_TEXTURE_LAYOUT_UNKNOWN };
     //// State tracking data:
@@ -441,6 +452,7 @@ struct ID3D12HeapInfo : public DxWrapperInfo
     D3D12_HEAP_FLAGS          heap_flags{ D3D12_HEAP_FLAG_NONE };
 
     const void* open_existing_address{ nullptr }; ///< Address used to create heap with OpenExistingHeapFromAddress.
+    const void* open_existing_handle{ nullptr };  ///< Handle used to create heap with OpenExistingHeapFromFileMapping.
 };
 
 struct ID3D12MetaCommandInfo : public DxWrapperInfo
@@ -568,6 +580,12 @@ struct ID3D12DeviceToolsInfo : public DxWrapperInfo
 {};
 
 struct ID3D12GBVDiagnosticsInfo : public DxWrapperInfo
+{};
+
+struct ID3D12StateObjectDatabaseInfo : public DxWrapperInfo
+{};
+
+struct ID3D12StateObjectDatabaseFactoryInfo : public DxWrapperInfo
 {};
 
 struct AgsContextInfo : public DxWrapperInfo

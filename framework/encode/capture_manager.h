@@ -61,6 +61,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+class ScopedCounter
+{
+  public:
+    ScopedCounter(int64_t& counter) : counter_(counter) { ++counter_; }
+    ~ScopedCounter() { --counter_; }
+
+    ScopedCounter(const ScopedCounter&)            = delete;
+    ScopedCounter& operator=(const ScopedCounter&) = delete;
+
+  private:
+    int64_t& counter_;
+};
+
 class ApiCaptureManager;
 
 // The CommonCaptureManager provides common functionality referenced API specific capture managers
@@ -88,15 +101,30 @@ class CommonCaptureManager
 
     using ApiSharedLockT    = std::shared_lock<ApiCallMutexT>;
     using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
-    static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
-    static auto AcquireExclusiveApiCallLock() { return std::move(ApiExclusiveLockT(api_call_mutex_)); }
+    static auto AcquireSharedApiCallLock()
+    {
+        if (avoid_api_call_lock_ != 0)
+        {
+            return std::move(ApiSharedLockT());
+        }
+        return std::move(ApiSharedLockT(api_call_mutex_));
+    }
+    static auto AcquireExclusiveApiCallLock()
+    {
+        if (avoid_api_call_lock_ != 0)
+        {
+            return std::move(ApiExclusiveLockT());
+        }
+        return std::move(ApiExclusiveLockT(api_call_mutex_));
+    }
     class ApiCallLock
     {
       public:
         enum class Type
         {
             kExclusive,
-            kShared
+            kShared,
+            kNone
         };
 
         ApiCallLock(Type type, ApiCallMutexT& mutex);
@@ -262,6 +290,10 @@ class CommonCaptureManager
     bool GetIUnknownWrappingSetting() const
     {
         return iunknown_wrapping_;
+    }
+    int64_t& AvoidApiCallLock()
+    {
+        return avoid_api_call_lock_;
     }
     auto GetForceCommandSerialization() const
     {
@@ -614,6 +646,9 @@ class CommonCaptureManager
     bool                                    write_state_files_;
     bool                                    ignore_frame_boundary_android_;
     bool                                    skip_threads_with_invalid_data_;
+    static int64_t avoid_api_call_lock_; // A original function could call sub wrapped functions. If the
+                                         // force_command_serialization is enabled, the sub wrapped functions could
+                                         // cause deadlock. The sub wrapped functions shouldn't be locked.
 
     struct
     {

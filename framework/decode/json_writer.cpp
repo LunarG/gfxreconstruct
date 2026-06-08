@@ -32,10 +32,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-JsonWriter::JsonWriter(const util::JsonOptions& options,
-                       const std::string_view   gfxrVersion,
-                       const std::string_view   inputFilepath) :
-    json_options_(options)
+using util::FieldToJson;
+
+JsonWriter::JsonWriter(const std::string_view gfxrVersion, const std::string_view inputFilepath)
 {
     header_["source-path"]      = inputFilepath;
     header_["gfxrecon-version"] = std::string(gfxrVersion);
@@ -55,7 +54,7 @@ void JsonWriter::StartStream(util::OutputStream* os)
     first_ = true;
     os_    = os;
 
-    if (json_options_.format == util::JsonFormat::JSON)
+    if (*util::JsonOptions::format == util::JsonFormat::JSON)
     {
         Write(*os_, "[\n");
     }
@@ -72,7 +71,7 @@ void JsonWriter::EndStream()
 {
     if (os_ != nullptr)
     {
-        if (json_options_.format == util::JsonFormat::JSON)
+        if (*util::JsonOptions::format == util::JsonFormat::JSON)
         {
             Write(*os_, "\n]\n");
         }
@@ -106,14 +105,14 @@ void JsonWriter::WriteBlockEnd()
 {
     if (!first_)
     {
-        Write(*os_, json_options_.format == util::JsonFormat::JSONL ? "\n" : ",\n");
+        Write(*os_, *util::JsonOptions::format == util::JsonFormat::JSONL ? "\n" : ",\n");
     }
     first_ = false;
     /// @todo Hand the tree over to a backend thread which dumps it to a string and streams it
     /// while the main thread gets on with building the tree for the next block.
     // Dominates profiling (2/2):
     const std::string block =
-        json_data_.dump(json_options_.format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth,
+        json_data_.dump(*util::JsonOptions::format == util::JsonFormat::JSONL ? -1 : util::kJsonIndentWidth,
                         ' ',
                         false,
                         nlohmann::json::error_handler_t::replace);
@@ -147,9 +146,9 @@ nlohmann::ordered_json& JsonWriter::WriteApiCallStart(const ApiCallInfo&     cal
     method[format::kNameName]      = command_name;
     method[format::kNameThread]    = call_info.thread_id;
 
-    nlohmann::ordered_json& object  = method[format::kNameObject];
-    object[format::kNameObjectType] = object_type;
-    FieldToJson(object[format::kNameObjectHandle], object_id, GetOptions());
+    nlohmann::ordered_json& object    = method[format::kNameObject];
+    object[format::kNameObjectType]   = object_type;
+    object[format::kNameObjectHandle] = object_id;
 
     return method;
 }
@@ -179,8 +178,8 @@ nlohmann::ordered_json& JsonWriter::WriteMetaCommandStart(const std::string_view
     auto& json_data = WriteBlockStart();
 
     json_data[format::kNameIndex] = block_index_;
-    nlohmann::ordered_json& meta = json_data[format::kNameMeta];
-    meta[format::kNameName]      = command_name;
+    nlohmann::ordered_json& meta  = json_data[format::kNameMeta];
+    meta[format::kNameName]       = command_name;
     return meta[format::kNameArgs];
 }
 
@@ -222,24 +221,23 @@ void RepresentBinaryFile(JsonWriter&             writer,
                          const uint64_t          data_size,
                          const uint8_t* const    data)
 {
-    const util::JsonOptions& json_options = writer.GetOptions();
-    if (json_options.dump_binaries)
+    if (util::JsonOptions::dump_binaries)
     {
         std::string filename = writer.GenerateFilename(filename_base);
-        std::string basename = gfxrecon::util::filepath::Join(json_options.data_sub_dir, filename);
-        std::string filepath = gfxrecon::util::filepath::Join(json_options.root_dir, filename);
+        std::string basename = gfxrecon::util::filepath::Join(util::JsonOptions::data_sub_dir, filename);
+        std::string filepath = gfxrecon::util::filepath::Join(util::JsonOptions::root_dir, filename);
         if (writer.WriteBinaryFile(filepath, data_size, data))
         {
-            FieldToJson(jdata, basename, json_options);
+            jdata = basename;
         }
         else
         {
-            FieldToJson(jdata, format::kValWriteFailed, json_options);
+            jdata = format::kValWriteFailed;
         }
     }
     else
     {
-        FieldToJson(jdata, format::kValBinary, json_options);
+        jdata = format::kValBinary;
     }
 }
 

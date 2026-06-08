@@ -23,9 +23,12 @@
 #ifndef GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 #define GFXRECON_DECODE_VULKAN_ADDRESS_REPLACER_H
 
+#include <span>
+
 #include "util/linear_hashmap.h"
 #include "decode/common_object_info_table.h"
 #include "decode/vulkan_device_address_tracker.h"
+#include "graphics/vulkan_semaphore_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "format/platform_types.h"
 
@@ -80,20 +83,18 @@ class VulkanAddressReplacer
      * 3) lastly, if command_buffer_info' is a nullptr:
      * - submit the dispatch locally, sync via internal fence
      *
-     * @param   command_buffer_info optional VulkanCommandBufferInfo* or nullptr
-     * @param   addresses           array of device-addresses
-     * @param   num_addresses       number of addresses
-     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
-     * @param   wait_semaphores     optional array of (timeline) wait-semaphores, along with their wait-values
+     * @param   command_buffer_info  optional VulkanCommandBufferInfo* or nullptr
+     * @param   addresses_to_replace span of device-addresses
+     * @param   address_tracker      const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     * @param   wait_semaphores      optional span of (timeline) wait-semaphores, along with their wait-values
      * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
-    VkSemaphore
-    UpdateBufferAddresses(const VulkanCommandBufferInfo*                                      command_buffer_info,
-                          const VkDeviceAddress*                                              addresses,
-                          uint32_t                                                            num_addresses,
-                          const decode::VulkanDeviceAddressTracker&                           address_tracker,
-                          const std::optional<std::vector<std::pair<VkSemaphore, uint64_t>>>& wait_semaphores = {});
+    VkSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
+                                      const std::span<VkDeviceAddress>           addresses_to_replace,
+                                      const decode::VulkanDeviceAddressTracker&  address_tracker,
+                                      const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
+  private:
     /**
      * @brief   'ResolveBufferAddresses' can be used to identify buffers which are referenced
      *          by buffer-device-addresses.
@@ -106,6 +107,30 @@ class VulkanAddressReplacer
      */
     void ResolveBufferAddresses(VulkanCommandBufferInfo*                  command_buffer_info,
                                 const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   `ResolveBufferAddresses` can be used to identify buffers which are referenced
+     *          by buffer-device-addresses.
+     *
+     * @param   command_buffers     a provided vector of VulkanCommandBufferInfo* containing locations to resolve
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker
+     * @return  a pair with a vector, containing all device-addresses that require replacement, and a pointer to the
+     * first command-buffer-info that was used to discover those addresses.
+     */
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(std::vector<VulkanCommandBufferInfo*> command_buffers,
+                           const VulkanDeviceAddressTracker&     address_tracker);
+
+    std::vector<VulkanCommandBufferInfo*> GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo& submit_info);
+    std::vector<VulkanCommandBufferInfo*> GetCommandBufferInfosFromSubmitInfo(Decoded_VkSubmitInfo2& submit_info2);
+
+  public:
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(Decoded_VkSubmitInfo& submit_info, const VulkanDeviceAddressTracker& address_tracker);
+
+    std::pair<std::vector<VkDeviceAddress>, const VulkanCommandBufferInfo*>
+    ResolveBufferAddresses(Decoded_VkSubmitInfo2& submit_info2, const VulkanDeviceAddressTracker& address_tracker);
+
     /**
      * @brief   ProcessCmdPushConstants will check and potentially correct input-parameters to 'vkCmdPushConstants',
      *          replacing any used buffer-device-addresses in-place.
@@ -123,6 +148,18 @@ class VulkanAddressReplacer
                                  uint32_t                                  size,
                                  void*                                     data,
                                  const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   ProcessCmdBindPipeline patches any previously recorded push-constant data that may contain
+     *          unresolved capture-time buffer-device-addresses.
+     *          this is necessary when vkCmdPushConstants was called before vkCmdBindPipeline and a no-op otherwise.
+     *          Patching is achieved by injected a corrective vkCmdPushConstants into the command buffer.
+     *
+     * @param   command_buffer_info a provided VulkanCommandBufferInfo*
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
+    void ProcessCmdBindPipeline(VulkanCommandBufferInfo*                  command_buffer_info,
+                                const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   ProcessCmdBindDescriptorSets will check the bound descriptor-sets for presence of buffer-references
@@ -258,6 +295,17 @@ class VulkanAddressReplacer
                                      const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
+     * @brief   ProcessGeneratedCommandsInfoEXT will check
+     *          and potentially correct device addresses in VkGeneratedCommandsInfoEXT
+     *
+     * @param   pGeneratedCommandsInfo  structure to replace device addresses in
+     * @param   address_tracker         const reference to a VulkanDeviceAddressTracker,
+     *                                  used for mapping device-addresses
+     */
+    void ProcessGeneratedCommandsInfoEXT(VkGeneratedCommandsInfoEXT*               pGeneratedCommandsInfo,
+                                         const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
      * @brief   ProcessGetQueryPoolResults will check for running queries and attempt to extract information
      *          about acceleration-structure compactions-sizes.
      *
@@ -334,7 +382,7 @@ class VulkanAddressReplacer
      *
      * @param   buffer_info  a provided VulkanBufferInfo struct
      */
-    void DestroyShadowResources(const VulkanBufferInfo* buffer_info);
+    void DestroyShadowResources(const VulkanBufferInfo* buffer_info, const VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   DestroyShadowResources should be called upon destruction of provided VkCommandBuffer handle,
@@ -423,11 +471,10 @@ class VulkanAddressReplacer
 
     void update_global_hashmap(VkCommandBuffer command_buffer);
 
-    void run_compute_replace(const VulkanCommandBufferInfo*            command_buffer_info,
-                             const VkDeviceAddress*                    addresses,
-                             uint32_t                                  num_addresses,
-                             const decode::VulkanDeviceAddressTracker& address_tracker,
-                             VkPipelineStageFlags                      sync_stage);
+    void run_compute_replace(const VulkanCommandBufferInfo*    command_buffer_info,
+                             const std::span<VkDeviceAddress>  addresses,
+                             const VulkanDeviceAddressTracker& address_tracker,
+                             VkPipelineStageFlags              sync_stage);
 
     [[nodiscard]] bool create_buffer(buffer_context_t&  buffer_context,
                                      size_t             num_bytes,

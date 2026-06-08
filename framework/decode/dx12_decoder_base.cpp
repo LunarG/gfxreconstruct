@@ -298,11 +298,22 @@ void Dx12DecoderBase::DispatchInitSubresourceCommand(const format::InitSubresour
 void Dx12DecoderBase::DispatchInitDx12AccelerationStructureCommand(
     const format::InitDx12AccelerationStructureCommandHeader&             command_header,
     const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
+    const std::vector<uint8_t>&                                           build_inputs,
     const uint8_t*                                                        build_inputs_data)
 {
+    size_t bytes_read  = 0;
+    size_t inputs_size = static_cast<size_t>(build_inputs.size());
+
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS> inputs;
+    if (inputs_size > 0)
+    {
+        bytes_read += inputs.Decode((build_inputs.data() + bytes_read), (inputs_size - bytes_read));
+    }
+
     for (auto consumer : consumers_)
     {
-        consumer->ProcessInitDx12AccelerationStructureCommand(command_header, geometry_descs, build_inputs_data);
+        consumer->ProcessInitDx12AccelerationStructureCommand(
+            command_header, geometry_descs, &inputs, build_inputs_data);
     }
 }
 
@@ -544,9 +555,20 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
             break;
+        case D3D12_FEATURE_D3D12_TIGHT_ALIGNMENT:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE:
+            bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE>(
+                object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
         case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
             bytes_read += DecodeCheckD3D12FeatureSupport<Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED>(
                 object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT:
+            // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
             break;
         default:
             GFXRECON_LOG_FATAL("Failed to decode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "

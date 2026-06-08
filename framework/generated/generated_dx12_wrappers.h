@@ -399,6 +399,17 @@ class ID3D12PipelineState_Wrapper : public ID3D12Pageable_Wrapper
     std::shared_ptr<ID3D12PipelineStateInfo> info_;
 };
 
+class ID3D12PipelineState1_Wrapper : public ID3D12PipelineState_Wrapper
+{
+  public:
+    ID3D12PipelineState1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12PipelineState1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetRootSignature(
+        REFIID riid,
+        void** ppvRootSignature);
+
+};
+
 class ID3D12DescriptorHeap_Wrapper : public ID3D12Pageable_Wrapper
 {
   public:
@@ -883,6 +894,25 @@ class ID3D12CommandQueue_Wrapper : public ID3D12Pageable_Wrapper
     static std::mutex object_map_lock_;
 
     std::shared_ptr<ID3D12CommandQueueInfo> info_;
+};
+
+class ID3D12CommandQueue1_Wrapper : public ID3D12CommandQueue_Wrapper
+{
+  public:
+    ID3D12CommandQueue1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12CommandQueue1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE SetProcessPriority(
+        D3D12_COMMAND_QUEUE_PROCESS_PRIORITY Priority);
+
+    virtual HRESULT STDMETHODCALLTYPE GetProcessPriority(
+        D3D12_COMMAND_QUEUE_PROCESS_PRIORITY* pOutValue);
+
+    virtual HRESULT STDMETHODCALLTYPE SetGlobalPriority(
+        D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY Priority);
+
+    virtual HRESULT STDMETHODCALLTYPE GetGlobalPriority(
+        D3D12_COMMAND_QUEUE_GLOBAL_PRIORITY* pOutValue);
+
 };
 
 class ID3D12Device_Wrapper : public ID3D12Object_Wrapper
@@ -1463,6 +1493,23 @@ class ID3D12StateObjectProperties1_Wrapper : public ID3D12StateObjectProperties_
 
 };
 
+class ID3D12StateObjectProperties2_Wrapper : public ID3D12StateObjectProperties1_Wrapper
+{
+  public:
+    ID3D12StateObjectProperties2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObjectProperties2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetGlobalRootSignatureForProgram(
+        LPCWSTR pProgramName,
+        REFIID riid,
+        void** ppvRootSignature);
+
+    virtual HRESULT STDMETHODCALLTYPE GetGlobalRootSignatureForShader(
+        LPCWSTR pExportName,
+        REFIID riid,
+        void** ppvRootSignature);
+
+};
+
 class ID3D12WorkGraphProperties_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -2035,6 +2082,66 @@ class ID3D12Device14_Wrapper : public ID3D12Device13_Wrapper
 
 };
 
+class ID3D12StateObjectDatabase_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12StateObjectDatabase_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObjectDatabase_Wrapper*>(u); });
+
+    ~ID3D12StateObjectDatabase_Wrapper();
+
+    static ID3D12StateObjectDatabase_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12StateObjectDatabaseInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12StateObjectDatabaseInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE SetApplicationDesc(
+        const D3D12_APPLICATION_DESC* pApplicationDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE GetApplicationDesc(
+        D3D12ApplicationDescFunc CallbackFunc,
+        void* pContext);
+
+    virtual HRESULT STDMETHODCALLTYPE StorePipelineStateDesc(
+        const void* pKey,
+        UINT KeySize,
+        UINT Version,
+        const D3D12_PIPELINE_STATE_STREAM_DESC* pDesc);
+
+    virtual HRESULT STDMETHODCALLTYPE FindPipelineStateDesc(
+        const void* pKey,
+        UINT KeySize,
+        D3D12PipelineStateFunc CallbackFunc,
+        void* pContext);
+
+    virtual HRESULT STDMETHODCALLTYPE StoreStateObjectDesc(
+        const void* pKey,
+        UINT KeySize,
+        UINT Version,
+        const D3D12_STATE_OBJECT_DESC* pDesc,
+        const void* pStateObjectToGrowFromKey,
+        UINT StateObjectToGrowFromKeySize);
+
+    virtual HRESULT STDMETHODCALLTYPE FindStateObjectDesc(
+        const void* pKey,
+        UINT KeySize,
+        D3D12StateObjectFunc CallbackFunc,
+        void* pContext);
+
+    virtual HRESULT STDMETHODCALLTYPE FindObjectVersion(
+        const void* pKey,
+        UINT KeySize,
+        UINT* pVersion);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12StateObjectDatabase_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12StateObjectDatabaseInfo> info_;
+};
+
 class ID3D12VirtualizationGuestDevice_Wrapper : public IUnknown_Wrapper
 {
   public:
@@ -2319,6 +2426,34 @@ class ID3D12DeviceConfiguration1_Wrapper : public ID3D12DeviceConfiguration_Wrap
         REFIID riid,
         void** ppvDeserializer);
 
+};
+
+class ID3D12StateObjectDatabaseFactory_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D12StateObjectDatabaseFactory_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D12StateObjectDatabaseFactory_Wrapper*>(u); });
+
+    ~ID3D12StateObjectDatabaseFactory_Wrapper();
+
+    static ID3D12StateObjectDatabaseFactory_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D12StateObjectDatabaseFactoryInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D12StateObjectDatabaseFactoryInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE CreateStateObjectDatabaseFromFile(
+        LPCWSTR pDatabaseFile,
+        D3D12_STATE_OBJECT_DATABASE_FLAGS flags,
+        REFIID riid,
+        void** ppvStateObjectDatabase);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D12StateObjectDatabaseFactory_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D12StateObjectDatabaseFactoryInfo> info_;
 };
 
 class ID3D12GraphicsCommandList5_Wrapper : public ID3D12GraphicsCommandList4_Wrapper

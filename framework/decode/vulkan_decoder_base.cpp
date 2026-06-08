@@ -606,7 +606,7 @@ void VulkanDecoderBase::DispatchVulkanAccelerationStructuresBuildMetaCommand(con
     for (auto consumer : consumers_)
     {
         consumer->ProcessVulkanBuildAccelerationStructuresCommand(
-            device_id, pInfos.GetLength(), &pInfos, &ppRangeInfos);
+            device_id, GFXRECON_NARROWING_CAST(uint32_t, pInfos.GetLength()), &pInfos, &ppRangeInfos);
     }
 }
 

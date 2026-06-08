@@ -928,6 +928,29 @@ void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout(
         pSubresource->GetPointer(), layout_capture_time, &subresource_layout_playback_time);
 }
 
+void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout2(
+    const ApiCallInfo&                                  call_info,
+    format::HandleId                                    device,
+    format::HandleId                                    image,
+    StructPointerDecoder<Decoded_VkImageSubresource2>*  pSubresource,
+    StructPointerDecoder<Decoded_VkSubresourceLayout2>* pLayout)
+{
+    auto                 device_info = GetTrackedObjectInfoTable()->GetTrackedVkDeviceInfo(device);
+    auto                 image_info  = GetTrackedObjectInfoTable()->GetTrackedVkResourceInfo(image);
+    VkDevice             in_device   = device_info->GetHandleId();
+    VkImage              in_image    = image_info->GetImageReplayHandleId();
+    VkSubresourceLayout2 subresource_layout_playback_time;
+    auto                 layout_capture_time = pLayout->GetPointer();
+
+    GFXRECON_ASSERT(layout_capture_time);
+
+    GetDeviceTable(in_device)->GetImageSubresourceLayout2(
+        in_device, in_image, pSubresource->GetPointer(), &subresource_layout_playback_time);
+    image_info->SetImageSubresourceLayout(&pSubresource->GetPointer()->imageSubresource,
+                                          &layout_capture_time->subresourceLayout,
+                                          &subresource_layout_playback_time.subresourceLayout);
+}
+
 void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout2KHR(
     const ApiCallInfo&                                     call_info,
     format::HandleId                                       device,

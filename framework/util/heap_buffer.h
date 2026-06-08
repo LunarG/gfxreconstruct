@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class HeapBuffer
 {
   public:
-    using DataType = std::byte;
+    using DataType = std::uint8_t;
     using Store    = std::unique_ptr<DataType[]>;
 
     using value_type = DataType;
@@ -91,86 +91,6 @@ class HeapBuffer
 
   private:
     size_t capacity_{ 0 };
-    Store  store_;
-};
-
-// Now a pool of heap buffers to avoid repeated allocations/deallocations
-// NOTE: This class is *NOT* copyable, only movable
-class HeapBufferPool : public std::enable_shared_from_this<HeapBufferPool>
-{
-  public:
-    using DataBuffer = HeapBuffer;
-    using DataType   = DataBuffer::DataType;
-    using SizeType   = size_t;
-    using PoolPtr    = std::shared_ptr<HeapBufferPool>;
-
-    // Wrapper around DataBuffer that returns to the pool on destruction
-    // NOTE: This class is *NOT* copyable, only movable
-    // NOTE: The pool_ weak_ptr is used to avoid circular references
-    class Entry : public DataBuffer
-    {
-      public:
-        using Base = DataBuffer;
-        using Pool = HeapBufferPool;
-        friend Pool;
-
-        ~Entry() noexcept;
-
-        Entry(const Entry&)            = delete;
-        Entry& operator=(const Entry&) = delete;
-
-        Entry(Entry&& other) noexcept;
-
-        Entry& operator=(Entry&& other) noexcept;
-        Entry() = default;
-
-        void  Reset() noexcept;
-        Pool* GetPool() const { return pool_; }
-
-        // The public "pool" constructor aquires an entry from the pool
-        // suitable for use in emplaced containers or wrappers
-        Entry(Pool* pool, size_t size) : Entry(pool->Acquire(size)) {}
-
-      private:
-        // The private constructor is used by the pool to create new entries
-        struct PoolAcquireTag
-        {};
-        Entry(PoolAcquireTag, Pool* pool, size_t size) : DataBuffer(size), pool_(pool) {}
-        void DisavowPool() { pool_ = nullptr; }
-
-        // Pool is guarded by a refcount of Acquire'd Entry objects
-        Pool* pool_ = nullptr;
-    };
-
-    Entry Acquire(size_t size);
-
-    void Reset() noexcept;
-    void clear() { Reset(); }
-
-    // Since the entry destructor needs to return to the pool, we need to use a shared_ptr.
-    static PoolPtr Create(size_t max_entries = kDefaultMaxCount)
-    {
-        // Can't use make_shared as the constructor is private
-        return PoolPtr(new HeapBufferPool(max_entries));
-    }
-    HeapBufferPool(const HeapBufferPool&) = delete;
-    HeapBufferPool(HeapBufferPool&&)      = delete;
-
-    ~HeapBufferPool();
-
-  private:
-    friend Entry::~Entry() noexcept;
-    void Release(Entry&& entry) noexcept;
-
-    // NOTE: This is a WAG.  Current designed usage is 1 except during preloading, which doesn't recur
-    static constexpr size_t kDefaultMaxCount = 16;
-    HeapBufferPool(size_t max_entries = kDefaultMaxCount) : max_entries_(max_entries), store_() {}
-    using Store         = std::deque<Entry>;
-    size_t max_entries_ = kDefaultMaxCount;
-
-    // NOTE: As Store isn't thread safe, acquired_ doesn't have to be atomic, if Store acquires a mutex
-    //       acquired_ should be guarded by it as well
-    size_t acquired_ = 0;
     Store  store_;
 };
 

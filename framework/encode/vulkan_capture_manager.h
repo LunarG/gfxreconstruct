@@ -1332,6 +1332,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                  VkMemoryMapFlags flags,
                                  void**           ppData);
 
+    void
+    PostProcess_vkMapMemory2(VkResult result, VkDevice device, const VkMemoryMapInfo* pMemoryMapInfo, void** ppData);
+
     void PostProcess_vkAcquireFullScreenExclusiveModeEXT(VkResult result, VkDevice device, VkSwapchainKHR swapchain);
 
     void PostProcess_vkGetPhysicalDeviceSurfacePresentModes2EXT(VkResult                               result,
@@ -1357,6 +1360,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkMappedMemoryRange* pMemoryRanges);
 
     void PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory);
+
+    void PreProcess_vkUnmapMemory2(VkDevice device, const VkMemoryUnmapInfo* pMemoryUnmapInfo);
 
     void PreProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
@@ -1473,6 +1478,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
                                                  const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+
+    void PostProcess_vkCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                              const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
 
     void PostProcess_vkCmdCopyBuffer(VkCommandBuffer     commandBuffer,
                                      VkBuffer            srcBuffer,
@@ -1741,6 +1749,11 @@ class VulkanCaptureManager : public ApiCaptureManager
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
+
+    void PostProcess_vkTransitionImageLayout(VkResult                               result,
+                                             VkDevice                               device,
+                                             uint32_t                               transitionCount,
+                                             const VkHostImageLayoutTransitionInfo* pTransitions);
 
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}

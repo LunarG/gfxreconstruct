@@ -174,6 +174,12 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_UNORDERED_ACCESS_VIEW_D
         case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
             EncodeStruct(encoder, value.Texture2DArray);
             break;
+        case D3D12_UAV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
         case D3D12_UAV_DIMENSION_TEXTURE3D:
             EncodeStruct(encoder, value.Texture3D);
             break;
@@ -338,6 +344,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RAYTRACING_GEOMETRY_DES
         case D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS:
             EncodeStruct(encoder, value.AABBs);
             break;
+        case D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES:
+            EncodeStruct(encoder, value.OmmTriangles);
+            break;
         default:
             break;
     }
@@ -367,6 +376,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
                 default:
                     break;
             }
+            break;
+        case D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY:
+            EncodeStructArray(encoder, value.pOpacityMicromapArrayDesc, value.NumDescs);
             break;
         default:
             break;
@@ -477,6 +489,31 @@ void EncodeStruct(ParameterEncoder*                                             
 
     // union
     encoder->EncodeUInt64Value(value.NumBottomLevelAccelerationStructureHeaderAndPointerListPairs);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_FEATURE_DATA_SHADERCACHE_ABI_SUPPORT& value)
+{
+    encoder->EncodeWString(value.szAdapterFamily);
+    encoder->EncodeUInt64Value(value.MinimumABISupportVersion);
+    encoder->EncodeUInt64Value(value.MaximumABISupportVersion);
+
+    // union
+    encoder->EncodeUInt64Value(value.CompilerVersion.Version);
+    encoder->EncodeUInt64Value(value.ApplicationProfileVersion.Version);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D12_APPLICATION_DESC& value)
+{
+    encoder->EncodeWString(value.pExeFilename);
+    encoder->EncodeWString(value.pName);
+
+    // union
+    encoder->EncodeUInt64Value(value.Version.Version);
+
+    encoder->EncodeWString(value.pEngineName);
+
+    // union
+    encoder->EncodeUInt64Value(value.EngineVersion.Version);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value)
@@ -659,6 +696,38 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_D
                     offset += sizeof(*subobject);
                     break;
                 }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER1:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12Rasterizer1Subobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_RASTERIZER2:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12Rasterizer2Subobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_DEPTH_STENCIL2:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12DepthStencil2Subobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
+                case D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_SERIALIZED_ROOT_SIGNATURE:
+                {
+                    auto subobject = reinterpret_cast<format::Dx12SerializedRootSignatureSubobject*>(current);
+                    encoder->EncodeEnumValue(type);
+                    EncodeStruct(encoder, subobject->value);
+                    offset += sizeof(*subobject);
+                    break;
+                }
                 default:
                     // Type is unrecognized.  Write an invalid enum value so the decoder know the data is incomplete,
                     // and log a warning.
@@ -815,9 +884,19 @@ void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D
         case D3D12_FEATURE_D3D12_OPTIONS21:
             EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_D3D12_OPTIONS21*>(feature_data));
             break;
+        case D3D12_FEATURE_D3D12_TIGHT_ALIGNMENT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D12_FEATURE_DATA_TIGHT_ALIGNMENT*>(feature_data));
+            break;
+        case D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE*>(feature_data));
+            break;
         case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
             EncodeStructPtr(encoder,
                             reinterpret_cast<D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED*>(feature_data));
+            break;
+        case D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT:
+            // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
             break;
         default:
             GFXRECON_LOG_WARNING("Failed to encode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
@@ -952,6 +1031,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value)
             case D3D12_STATE_SUBOBJECT_TYPE_MAX_VALID:
                 break;
             default:
+                GFXRECON_LOG_WARNING("Pipeline state subobject encoding encountered unrecognized subobject type "
+                                     "D3D12_STATE_SUBOBJECT_TYPE = %d, which may cause capture to fail.",
+                                     value.Type);
                 break;
         }
     }

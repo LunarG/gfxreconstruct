@@ -511,8 +511,8 @@ class VulkanStateTracker
                                     uint32_t               dynamicOffsetCount,
                                     const uint32_t*        pDynamicOffsets);
 
-    void TrackCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
-                                        const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+    void TrackCmdBindDescriptorSets2(VkCommandBuffer                 commandBuffer,
+                                     const VkBindDescriptorSetsInfo* pBindDescriptorSetsInfo);
 
     void
     TrackCmdBindPipeline(VkCommandBuffer commandBuffer, VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline);
@@ -763,6 +763,8 @@ class VulkanStateTracker
                                         const util::MemoryOutputStream*     object_tag_parameter_buffer);
 
     void TrackBeginCommandBuffer(VkCommandBuffer command_buffer, VkCommandBufferUsageFlags flags);
+
+    void TrackTransitionImageLayout(uint32_t transitionCount, const VkHostImageLayoutTransitionInfo* pTransitions);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>

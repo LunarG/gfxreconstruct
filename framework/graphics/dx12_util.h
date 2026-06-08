@@ -56,7 +56,15 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
 #ifdef WIN32
+typedef _com_ptr_t<_com_IIID<IUnknown, &__uuidof(IUnknown)>> IUnknownComPtr;
+
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter, &__uuidof(IDXGIAdapter)>>       IDXGIAdapterComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter1, &__uuidof(IDXGIAdapter1)>>     IDXGIAdapter1ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter2, &__uuidof(IDXGIAdapter2)>>     IDXGIAdapter2ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter3, &__uuidof(IDXGIAdapter3)>>     IDXGIAdapter3ComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory, &__uuidof(IDXGIFactory)>>       IDXGIFactoryComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory1, &__uuidof(IDXGIFactory1)>>     IDXGIFactory1ComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Device, &__uuidof(ID3D12Device)>>                     ID3D12DeviceComPtr;
@@ -135,7 +143,7 @@ uint32_t Dx12DumpResourcePosToArrayIndex(Dx12DumpResourcePos pos);
 struct ActiveAdapterInfo
 {
     format::DxgiAdapterDesc internal_desc;
-    IDXGIAdapter*           adapter;
+    IDXGIAdapterComPtr      adapter;
     UINT32                  adapter_idx;
     bool                    active;
 };
@@ -219,10 +227,15 @@ struct InputsBufferEntry
 // inputs are stored on GPU resources and referenced by the INPUTS desc. A non-const D3D12_RAYTRACING_GEOMETRY_DESC*
 // array must be provided as geometry_descs argument and will be referenced instead of
 // inputs_desc.pGeometries/ppGeometries.
-void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& inputs_desc,
-                                                 D3D12_RAYTRACING_GEOMETRY_DESC*                       geometry_descs,
-                                                 uint64_t&                       inputs_buffer_size,
-                                                 std::vector<InputsBufferEntry>& entries);
+void GetAccelerationStructureInputsBufferEntriesDeprecated(
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& inputs_desc,
+    D3D12_RAYTRACING_GEOMETRY_DESC*                       geometry_descs,
+    uint64_t&                                             inputs_buffer_size,
+    std::vector<InputsBufferEntry>&                       entries);
+
+void GetAccelerationStructureInputsBufferEntries2(D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS& inputs_desc,
+                                                  uint64_t&                       inputs_buffer_size,
+                                                  std::vector<InputsBufferEntry>& entries);
 
 // Get one pixel byte size for specific DXGI_FORMAT. The function is used by GetOneRowSizeByDXGIFormat
 // function.

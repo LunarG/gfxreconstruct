@@ -65,6 +65,8 @@ class DrawCallsDumpingContext
 
     DrawCallsDumpingContext(const CommandIndices*                             dc_indices,
                             const RenderPassIndices*                          rp_indices,
+                            decode::Index                                     bcb_index,
+                            decode::Index                                     qs_index,
                             const CommandImageSubresource&                    dc_subresources,
                             CommonObjectInfoTable&                            object_info_table,
                             const VulkanReplayOptions&                        options,
@@ -194,20 +196,30 @@ class DrawCallsDumpingContext
                          VkIndexType             index_type,
                          VkDeviceSize            size = 0);
 
+    void CmdBeginQuery(VkQueryPool queryPool, uint32_t query);
+
+    void CmdEndQuery(VkQueryPool queryPool, uint32_t query);
+
     // When this is called for a command buffer that corresponds to a before command, dc_params should be null
     void FinalizeCommandBuffer(DrawCallParams* dc_params = nullptr);
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
+    VkResult DumpDrawCalls(VkQueue             queue,
+                           const VkSubmitInfo& submit_info,
+                           Index               submit_info_index,
+                           Index               submit_info_cmd_buf_index);
+
+    VkResult DumpRenderTargetAttachments(uint64_t                  cmd_buf_index,
+                                         DrawCallParams&           dc_params,
+                                         const DumpedResourceBase& dumped_resource_base);
+
     VkResult
-    DumpDrawCalls(VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
+    DumpDescriptors(uint64_t cmd_buf_index, DrawCallParams& dc_params, const DumpedResourceBase& dumped_resource_base);
 
-    VkResult DumpRenderTargetAttachments(
-        uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index);
-
-    VkResult DumpDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
-
-    VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index);
+    VkResult DumpVertexIndexBuffers(uint64_t                  cmd_buf_index,
+                                    DrawCallParams&           dc_params,
+                                    const DumpedResourceBase& dumped_resource_base);
 
     void Release();
 
@@ -217,7 +229,9 @@ class DrawCallsDumpingContext
 
     uint32_t RecaclulateCommandBuffers();
 
-    void UpdateSecondaries(DrawCallsDumpingContext& secondary_context);
+    void UpdateSecondaries(DrawCallsDumpingContext& secondary_context,
+                           Index                    execute_cmd_index,
+                           Index                    command_buffer_execute_index);
 
     void MergeRenderPasses(const DrawCallsDumpingContext& secondary_context);
 
@@ -264,7 +278,12 @@ class DrawCallsDumpingContext
 
     using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
     RenderPassSubpassPair GetRenderPassIndex(uint64_t dc_index) const;
-    size_t                CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
+
+    // If options_.dump_resources_before is true, it means that we have two command buffer clones for each draw
+    // This function converts the provided command buffer index into an absolute one (divided by 2 in the case of
+    // dump_resources_before is true) so it can be used to index arrays that don't double their sizes in case of
+    // dump_resources_before is true.
+    size_t CmdBufToDCVectorIndex(size_t cmd_buf_index) const;
 
     void DestroyMutableResourceBackups();
 
@@ -276,11 +295,13 @@ class DrawCallsDumpingContext
 
     VkResult RevertMutableResources(VkQueue queue);
 
-    VkResult FetchDrawIndirectParams(uint64_t dc_index);
+    VkResult FetchDrawIndirectParams(DrawCallParams& dc_params);
 
-    VkResult RevertRenderTargetImageLayouts(VkQueue queue, uint64_t dc_index);
+    VkResult RevertRenderTargetImageLayouts(VkQueue queue, const DrawCallParams& dc_params);
 
     VulkanCommandBufferInfo*     original_command_buffer_info_;
+    decode::Index                bcb_index_;
+    decode::Index                qs_index_;
     std::vector<VkCommandBuffer> command_buffers_;
     size_t                       current_cb_index_;
     CommandIndices               dc_indices_;
@@ -641,56 +662,64 @@ class DrawCallsDumpingContext
         } dc_params_union;
 
         // Constructor for vkCmdDraw
-        DrawCallParams(DrawCallType type,
-                       uint32_t     vertex_count,
-                       uint32_t     instance_count,
-                       uint32_t     first_vertex,
-                       uint32_t     first_instance) :
+        DrawCallParams(DrawCallType                    type,
+                       DumpResourcesCommandBufferLevel lvl,
+                       Index                           dc_index,
+                       uint32_t                        vertex_count,
+                       uint32_t                        instance_count,
+                       uint32_t                        first_vertex,
+                       uint32_t                        first_instance) :
             dc_params_union(vertex_count, instance_count, first_vertex, first_instance),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            type(type), draw_call_index(dc_index), command_buffer_level(lvl), updated_referenced_descriptors(false),
+            updated_bound_vertex_buffers(false), updated_bound_index_buffer(false)
         {
             assert(type == DrawCallType::kDraw);
         }
 
         // Constructor for vkCmdDrawIndexed*
-        DrawCallParams(DrawCallType type,
-                       uint32_t     index_count,
-                       uint32_t     instance_count,
-                       uint32_t     first_index,
-                       int32_t      vertex_offset,
-                       uint32_t     first_instance) :
+        DrawCallParams(DrawCallType                    type,
+                       DumpResourcesCommandBufferLevel lvl,
+                       Index                           dc_index,
+                       uint32_t                        index_count,
+                       uint32_t                        instance_count,
+                       uint32_t                        first_index,
+                       int32_t                         vertex_offset,
+                       uint32_t                        first_instance) :
             dc_params_union(index_count, instance_count, first_index, vertex_offset, first_instance),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            type(type), draw_call_index(dc_index), command_buffer_level(lvl), updated_referenced_descriptors(false),
+            updated_bound_vertex_buffers(false), updated_bound_index_buffer(false)
         {
             assert(type == DrawCallType::kDrawIndexed);
         }
 
         // Constructor for vkCmdDraw*Indirect
-        DrawCallParams(DrawCallType            type,
-                       const VulkanBufferInfo* params_buffer_info,
-                       VkDeviceSize            offset,
-                       uint32_t                draw_count,
-                       uint32_t                stride) :
+        DrawCallParams(DrawCallType                    type,
+                       DumpResourcesCommandBufferLevel lvl,
+                       Index                           dc_index,
+                       const VulkanBufferInfo*         params_buffer_info,
+                       VkDeviceSize                    offset,
+                       uint32_t                        draw_count,
+                       uint32_t                        stride) :
             dc_params_union(params_buffer_info, offset, draw_count, stride),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            type(type), draw_call_index(dc_index), command_buffer_level(lvl), updated_referenced_descriptors(false),
+            updated_bound_vertex_buffers(false), updated_bound_index_buffer(false)
         {
             assert(type == DrawCallType::kDrawIndirect || type == DrawCallType::kDrawIndexedIndirect);
         }
 
         // Constructor for vkCmdDraw*IndirectCount*
-        DrawCallParams(DrawCallType            type,
-                       const VulkanBufferInfo* buffer_info,
-                       VkDeviceSize            offset,
-                       const VulkanBufferInfo* count_buffer_info,
-                       VkDeviceSize            count_buffer_offset,
-                       uint32_t                max_draw_count,
-                       uint32_t                stride) :
+        DrawCallParams(DrawCallType                    type,
+                       DumpResourcesCommandBufferLevel lvl,
+                       Index                           dc_index,
+                       const VulkanBufferInfo*         buffer_info,
+                       VkDeviceSize                    offset,
+                       const VulkanBufferInfo*         count_buffer_info,
+                       VkDeviceSize                    count_buffer_offset,
+                       uint32_t                        max_draw_count,
+                       uint32_t                        stride) :
             dc_params_union(buffer_info, offset, count_buffer_info, count_buffer_offset, max_draw_count, stride),
-            type(type), updated_referenced_descriptors(false), updated_bound_vertex_buffers(false),
-            updated_bound_index_buffer(false)
+            type(type), draw_call_index(dc_index), command_buffer_level(lvl), updated_referenced_descriptors(false),
+            updated_bound_vertex_buffers(false), updated_bound_index_buffer(false)
         {
             GFXRECON_ASSERT(
                 type == DrawCallType::kDrawIndirectCount || type == DrawCallType::kDrawIndexedIndirectCount ||
@@ -717,12 +746,23 @@ class DrawCallsDumpingContext
         bool updated_bound_index_buffer;
         bool updated_referenced_descriptors;
 
+        Index draw_call_index{ UNDEFINED_INDEX };
+
+        // Relevant only for secondary command buffers
+        DumpResourcesCommandBufferLevel command_buffer_level;
+
+        // Store the vkCmdExecuteCommands block index and the secondary's command buffer index inside pCommandBuffers.
+        // This is a map in order to support the case where the same secondary is executed multiple times either from
+        // the same vkCmdExecuteCommands or when vkCmdExecuteCommands is recorded multiple times in the primary command
+        // buffer. The primary's DrawCallsDumpingContext::current_cb_index_ is used as the map's key.
+        std::map<Index, SecondaryIdentifiers> secondary_identifiers;
+
         DumpedResourcesInfo dumped_resources;
     };
 
   private:
     // One entry for each draw call. It is important that this is an ordered map
-    using DrawCallParameters = std::map<uint64_t, std::unique_ptr<DrawCallParams>>;
+    using DrawCallParameters = std::map<uint64_t, std::shared_ptr<DrawCallParams>>;
     DrawCallParameters draw_call_params_;
 
     DrawCallParameters&   GetDrawCallParameters() { return draw_call_params_; }
@@ -764,6 +804,8 @@ class DrawCallsDumpingContext
     const DumpResourcesAccelerationStructuresContext& acceleration_structures_context_;
 
     const VulkanPerDeviceAddressTrackers& address_trackers_;
+
+    std::map<std::pair<VkQueryPool, uint32_t>, bool> active_queries_;
 
     void SecondaryUpdateContextFromPrimary(const VulkanPipelineInfo*     gr_pipeline,
                                            const BoundVertexBuffersInfo& vertex_buffers,

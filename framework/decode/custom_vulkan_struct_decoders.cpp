@@ -119,25 +119,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
 
+    wrapper->data                = DecodeAllocator::Allocate<Decoded_VkAccelerationStructureMotionInstanceDataNV>();
+    wrapper->data->decoded_value = &(value->data);
+
     switch (value->type)
     {
         case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_STATIC_NV:
-            wrapper->staticInstance = DecodeAllocator::Allocate<Decoded_VkAccelerationStructureInstanceKHR>();
-            wrapper->staticInstance->decoded_value = &value->data.staticInstance;
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->staticInstance);
+            wrapper->data->staticInstance = DecodeAllocator::Allocate<Decoded_VkAccelerationStructureInstanceKHR>();
+            wrapper->data->staticInstance->decoded_value = &(value->data.staticInstance);
+            bytes_read +=
+                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->staticInstance);
             break;
         case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_MATRIX_MOTION_NV:
-            wrapper->matrixMotionInstance =
+            wrapper->data->matrixMotionInstance =
                 DecodeAllocator::Allocate<Decoded_VkAccelerationStructureMatrixMotionInstanceNV>();
-            wrapper->matrixMotionInstance->decoded_value = &value->data.matrixMotionInstance;
+            wrapper->data->matrixMotionInstance->decoded_value = &(value->data.matrixMotionInstance);
             bytes_read +=
-                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->matrixMotionInstance);
+                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->matrixMotionInstance);
             break;
         case VK_ACCELERATION_STRUCTURE_MOTION_INSTANCE_TYPE_SRT_MOTION_NV:
-            wrapper->srtMotionInstance =
+            wrapper->data->srtMotionInstance =
                 DecodeAllocator::Allocate<Decoded_VkAccelerationStructureSRTMotionInstanceNV>();
-            wrapper->srtMotionInstance->decoded_value = &value->data.srtMotionInstance;
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->srtMotionInstance);
+            wrapper->data->srtMotionInstance->decoded_value = &(value->data.srtMotionInstance);
+            bytes_read +=
+                DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->srtMotionInstance);
             break;
         default:
             break;
@@ -241,7 +246,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     bytes_read +=
         ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->geometryType));
 
-    wrapper->geometry = DecodeAllocator::Allocate<Decoded_VkAccelerationStructureGeometryDataKHR>();
+    wrapper->geometry                = DecodeAllocator::Allocate<Decoded_VkAccelerationStructureGeometryDataKHR>();
+    wrapper->geometry->decoded_value = &(value->geometry);
 
     switch (value->geometryType)
     {
@@ -393,19 +399,25 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirec
     VkIndirectExecutionSetCreateInfoEXT* value      = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->pNext);
-    bytes_read +=
-        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->decoded_type);
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
 
-    switch (wrapper->decoded_type)
+    wrapper->info                = DecodeAllocator::Allocate<Decoded_VkIndirectExecutionSetInfoEXT>();
+    wrapper->info->decoded_value = &(value->info);
+
+    switch (value->type)
     {
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            wrapper->info->pPipelineInfo = DecodeAllocator::Allocate<Decoded_VkIndirectExecutionSetPipelineInfoEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->info->pPipelineInfo);
+            wrapper->info->pPipelineInfo =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectExecutionSetPipelineInfoEXT>>();
+            bytes_read += wrapper->info->pPipelineInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->info.pPipelineInfo = wrapper->info->pPipelineInfo->GetPointer();
             break;
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            wrapper->info->pShaderInfo = DecodeAllocator::Allocate<Decoded_VkIndirectExecutionSetShaderInfoEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->info->pShaderInfo);
+            wrapper->info->pShaderInfo =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectExecutionSetShaderInfoEXT>>();
+            bytes_read += wrapper->info->pShaderInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->info.pShaderInfo = wrapper->info->pShaderInfo->GetPointer();
             break;
         default:
             break;
@@ -422,28 +434,38 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirec
     VkIndirectCommandsLayoutTokenEXT* value      = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->pNext);
-    bytes_read +=
-        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->decoded_type);
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
 
-    switch (wrapper->decoded_type)
+    wrapper->data                = DecodeAllocator::Allocate<Decoded_VkIndirectCommandsTokenDataEXT>();
+    wrapper->data->decoded_value = &(value->data);
+
+    switch (value->type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
-            wrapper->data->pPushConstant = DecodeAllocator::Allocate<Decoded_VkIndirectCommandsPushConstantTokenEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->pPushConstant);
+            wrapper->data->pPushConstant =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsPushConstantTokenEXT>>();
+            bytes_read += wrapper->data->pPushConstant->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pPushConstant = wrapper->data->pPushConstant->GetPointer();
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
-            wrapper->data->pVertexBuffer = DecodeAllocator::Allocate<Decoded_VkIndirectCommandsVertexBufferTokenEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->pVertexBuffer);
+            wrapper->data->pVertexBuffer =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsVertexBufferTokenEXT>>();
+            bytes_read += wrapper->data->pVertexBuffer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pVertexBuffer = wrapper->data->pVertexBuffer->GetPointer();
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
-            wrapper->data->pIndexBuffer = DecodeAllocator::Allocate<Decoded_VkIndirectCommandsIndexBufferTokenEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->pIndexBuffer);
+            wrapper->data->pIndexBuffer =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsIndexBufferTokenEXT>>();
+            bytes_read += wrapper->data->pIndexBuffer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pIndexBuffer = wrapper->data->pIndexBuffer->GetPointer();
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
-            wrapper->data->pExecutionSet = DecodeAllocator::Allocate<Decoded_VkIndirectCommandsExecutionSetTokenEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->pExecutionSet);
+            wrapper->data->pExecutionSet =
+                DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkIndirectCommandsExecutionSetTokenEXT>>();
+            bytes_read += wrapper->data->pExecutionSet->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            value->data.pExecutionSet = wrapper->data->pExecutionSet->GetPointer();
             break;
         default:
             break;
@@ -659,16 +681,14 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
     VkDescriptorGetInfoEXT* value      = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->pNext);
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    bytes_read +=
-        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->decoded_type);
-    value->type = wrapper->decoded_type;
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
 
     wrapper->data                = DecodeAllocator::Allocate<Decoded_VkDescriptorDataEXT>();
     wrapper->data->decoded_value = &(value->data);
 
-    switch (wrapper->decoded_type)
+    switch (value->type)
     {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
             bytes_read += wrapper->data->pSampler.Decode((buffer + bytes_read), (buffer_size - bytes_read));

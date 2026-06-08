@@ -2730,7 +2730,7 @@ Sync create_sync_objects(Swapchain const& swapchain, vkb::DispatchTable const& d
     Sync sync;
 
     sync.available_semaphores.resize(max_frames_in_flight);
-    sync.finished_semaphore.resize(max_frames_in_flight);
+    sync.finished_semaphore.resize(swapchain.image_count);
     sync.in_flight_fences.resize(max_frames_in_flight);
     sync.image_in_flight.resize(swapchain.image_count, VK_NULL_HANDLE);
 
@@ -2746,10 +2746,14 @@ Sync create_sync_objects(Swapchain const& swapchain, vkb::DispatchTable const& d
         VkResult result;
         result = disp.createSemaphore(&semaphore_info, nullptr, &sync.available_semaphores[i]);
         VERIFY_VK_RESULT("failed to create available semaphore", result);
-        result = disp.createSemaphore(&semaphore_info, nullptr, &sync.finished_semaphore[i]);
-        VERIFY_VK_RESULT("failed to create finished semaphore", result);
         result = disp.createFence(&fence_info, nullptr, &sync.in_flight_fences[i]);
         VERIFY_VK_RESULT("failed to create in flight fence", result);
+    }
+    for (size_t i = 0; i < swapchain.image_count; i++)
+    {
+        VkResult result;
+        result = disp.createSemaphore(&semaphore_info, nullptr, &sync.finished_semaphore[i]);
+        VERIFY_VK_RESULT("failed to create finished semaphore", result);
     }
     return sync;
 }

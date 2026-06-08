@@ -42,6 +42,7 @@ void UpdateBufferSize(ID3D12Device*                         device,
     // Create an upload resource of the required size.
     if (!buffer || (buffer_size < required_size))
     {
+        buffer = nullptr;
         buffer = graphics::dx12::CreateBufferResource(device, required_size, heap_type, initial_state, flags);
         if (!buffer)
         {
@@ -81,27 +82,31 @@ Dx12AccelerationStructureBuilder::Dx12AccelerationStructureBuilder(graphics::dx1
     queue_desc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queue_desc.Type                     = list_type;
     result                              = device5_->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_));
+
     if (SUCCEEDED(result))
     {
         result = device5_->CreateCommandAllocator(list_type, IID_PPV_ARGS(&command_allocator_));
-        if (SUCCEEDED(result))
-        {
-            graphics::dx12::ID3D12GraphicsCommandListComPtr command_list;
-            result =
-                device5_->CreateCommandList(0, list_type, command_allocator_, nullptr, IID_PPV_ARGS(&command_list));
-            if (SUCCEEDED(result))
-            {
-                result = command_list->Close();
-                if (SUCCEEDED(result))
-                {
-                    result = command_list->QueryInterface(IID_PPV_ARGS(&command_list4_));
-                    if (SUCCEEDED(result))
-                    {
-                        result = device5_->CreateFence(fence_value_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
-                    }
-                }
-            }
-        }
+    }
+
+    graphics::dx12::ID3D12GraphicsCommandListComPtr command_list;
+    if (SUCCEEDED(result))
+    {
+        result = device5_->CreateCommandList(0, list_type, command_allocator_, nullptr, IID_PPV_ARGS(&command_list));
+    }
+
+    if (SUCCEEDED(result))
+    {
+        result = command_list->Close();
+    }
+
+    if (SUCCEEDED(result))
+    {
+        result = command_list->QueryInterface(IID_PPV_ARGS(&command_list4_));
+    }
+
+    if (SUCCEEDED(result))
+    {
+        result = device5_->CreateFence(fence_value_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
     }
 
     if (FAILED(result))
@@ -113,10 +118,11 @@ Dx12AccelerationStructureBuilder::Dx12AccelerationStructureBuilder(graphics::dx1
 
 // TODO: Consider batching multiple accel struct builds where possible.
 void Dx12AccelerationStructureBuilder::Build(
-    const graphics::Dx12GpuVaMap&                                         gpu_va_map,
-    const format::InitDx12AccelerationStructureCommandHeader&             command_header,
-    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& init_geometry_descs,
-    const uint8_t*                                                        build_inputs_data)
+    const graphics::Dx12GpuVaMap&                                                       gpu_va_map,
+    const format::InitDx12AccelerationStructureCommandHeader&                           command_header,
+    const std::vector<format::InitDx12AccelerationStructureGeometryDesc>&               init_geometry_descs,
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* build_inputs,
+    const uint8_t*                                                                      build_inputs_data)
 {
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build_desc;
 
@@ -137,8 +143,16 @@ void Dx12AccelerationStructureBuilder::Build(
 
     if (build)
     {
-        SetupBuild(
-            gpu_va_map, command_header, init_geometry_descs, build_inputs_data, build_desc, use_temp_dest_buffer);
+        if ((build_inputs != nullptr) && (build_inputs->GetPointer() != nullptr))
+        {
+            SetupBuild2(gpu_va_map, command_header, build_inputs, build_inputs_data, build_desc, use_temp_dest_buffer);
+        }
+        else
+        {
+            SetupBuildDeprecated(
+                gpu_va_map, command_header, init_geometry_descs, build_inputs_data, build_desc, use_temp_dest_buffer);
+        }
+
         ExecuteBuild(gpu_va_map, build_desc);
     }
 
@@ -162,7 +176,7 @@ void Dx12AccelerationStructureBuilder::Build(
     }
 }
 
-void Dx12AccelerationStructureBuilder::SetupBuild(
+void Dx12AccelerationStructureBuilder::SetupBuildDeprecated(
     const graphics::Dx12GpuVaMap&                                         gpu_va_map,
     const format::InitDx12AccelerationStructureCommandHeader&             command_header,
     const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& init_geometry_descs,
@@ -185,7 +199,7 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
 
     const uint8_t* final_data = build_inputs_data;
 
-    // In order for GetAccelerationStructureInputsBufferEntries to correctly process inputs buffer entries, a
+    // In order for GetAccelerationStructureInputsBufferEntriesDeprecated to correctly process inputs buffer entries, a
     // non-zero GPU VA must be set for values that will be used.
     const D3D12_GPU_VIRTUAL_ADDRESS kDefaultGpuVa = 1;
 
@@ -193,10 +207,10 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
     temp_geometry_descs_.clear();
     if (inputs_desc.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
     {
-        temp_geometry_descs_.resize(command_header.inputs_num_geometry_descs);
+        temp_geometry_descs_.resize(command_header.inputs_geometry_descs_size);
 
-        inputs_desc.NumDescs = command_header.inputs_num_geometry_descs;
-        GFXRECON_ASSERT(command_header.inputs_num_geometry_descs == init_geometry_descs.size());
+        inputs_desc.NumDescs = command_header.inputs_geometry_descs_size;
+        GFXRECON_ASSERT(command_header.inputs_geometry_descs_size == init_geometry_descs.size());
         for (UINT i = 0; i < init_geometry_descs.size(); ++i)
         {
             const auto&                     init_geom_desc = init_geometry_descs[i];
@@ -257,8 +271,191 @@ void Dx12AccelerationStructureBuilder::SetupBuild(
     // Compute the required inputs buffer size and entry information.
     uint64_t                                       inputs_buffer_size = 0;
     std::vector<graphics::dx12::InputsBufferEntry> inputs_buffer_entries;
-    graphics::dx12::GetAccelerationStructureInputsBufferEntries(
+    graphics::dx12::GetAccelerationStructureInputsBufferEntriesDeprecated(
         inputs_desc, temp_geometry_descs_.data(), inputs_buffer_size, inputs_buffer_entries);
+
+    GFXRECON_ASSERT(inputs_buffer_size == command_header.inputs_data_size);
+
+    // Get required sizes and update buffers.
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info;
+    device5_->GetRaytracingAccelerationStructurePrebuildInfo(&inputs_desc, &prebuild_info);
+    UpdateBufferSize(device5_,
+                     scratch_buffer_,
+                     scratch_buffer_size_,
+                     prebuild_info.ScratchDataSizeInBytes,
+                     D3D12_HEAP_TYPE_DEFAULT,
+                     D3D12_RESOURCE_STATE_COMMON,
+                     D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    UpdateBufferSize(device5_,
+                     inputs_buffer_,
+                     inputs_buffer_size_,
+                     command_header.inputs_data_size,
+                     D3D12_HEAP_TYPE_UPLOAD,
+                     D3D12_RESOURCE_STATE_GENERIC_READ,
+                     D3D12_RESOURCE_FLAG_NONE);
+
+    if (use_temp_dest_buffer)
+    {
+        UpdateBufferSize(device5_,
+                         temp_dest_buffer_,
+                         temp_dest_buffer_size_,
+                         prebuild_info.ResultDataMaxSizeInBytes,
+                         D3D12_HEAP_TYPE_DEFAULT,
+                         D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+                         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    }
+
+    // Write inputs data to resources.
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, command_header.inputs_data_size);
+    HRESULT hr =
+        MapSubresourceAndWriteData(inputs_buffer_, 0, static_cast<size_t>(command_header.inputs_data_size), final_data);
+    GFXRECON_ASSERT(SUCCEEDED(hr));
+
+    // Fix GPU VAs that point into buffers.
+    if (use_temp_dest_buffer)
+    {
+        build_desc.DestAccelerationStructureData = temp_dest_buffer_->GetGPUVirtualAddress();
+    }
+    build_desc.ScratchAccelerationStructureData  = scratch_buffer_->GetGPUVirtualAddress();
+    D3D12_GPU_VIRTUAL_ADDRESS inputs_buffer_base = inputs_buffer_->GetGPUVirtualAddress();
+    for (auto& inputs_buffer_entry : inputs_buffer_entries)
+    {
+        *inputs_buffer_entry.desc_gpu_va = inputs_buffer_base + inputs_buffer_entry.offset;
+    }
+}
+
+void Dx12AccelerationStructureBuilder::SetupBuild2(
+    const graphics::Dx12GpuVaMap&                                                       gpu_va_map,
+    const format::InitDx12AccelerationStructureCommandHeader&                           command_header,
+    StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* build_inputs,
+    const uint8_t*                                                                      build_inputs_data,
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC&                                 build_desc,
+    bool                                                                                use_temp_dest_buffer)
+{
+    if ((build_inputs == nullptr) || (build_inputs->GetPointer() == nullptr) || (build_inputs_data == nullptr))
+    {
+        GFXRECON_LOG_ERROR("Invalid build inputs for acceleration structure build. Build may fail.");
+        return;
+    }
+
+    // Build D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC from decoded data.
+    build_desc.DestAccelerationStructureData    = gpu_va_map.Map(command_header.dest_acceleration_structure_data);
+    auto& inputs_desc                           = build_desc.Inputs;
+    build_desc.SourceAccelerationStructureData  = 0;
+    build_desc.ScratchAccelerationStructureData = 0;
+
+    inputs_desc       = *(build_inputs->GetPointer());
+    inputs_desc.Type  = static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE>(command_header.inputs_type);
+    inputs_desc.Flags = static_cast<D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS>(command_header.inputs_flags);
+
+    const uint8_t* final_data = build_inputs_data;
+
+    // In order for GetAccelerationStructureInputsBufferEntries2 to correctly process inputs buffer entries, a
+    // non-zero GPU VA must be set for values that will be used.
+    const D3D12_GPU_VIRTUAL_ADDRESS kDefaultGpuVa = 1;
+
+    // Reconstruct acceleration structure build descs.
+    if (inputs_desc.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL)
+    {
+        for (UINT i = 0; i < inputs_desc.NumDescs; ++i)
+        {
+            D3D12_RAYTRACING_GEOMETRY_DESC* geom_desc = nullptr;
+            if (inputs_desc.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
+            {
+                GFXRECON_ASSERT(inputs_desc.pGeometryDescs != nullptr);
+                geom_desc = const_cast<D3D12_RAYTRACING_GEOMETRY_DESC*>(&inputs_desc.pGeometryDescs[i]);
+            }
+            else if (inputs_desc.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
+            {
+                GFXRECON_ASSERT(inputs_desc.ppGeometryDescs != nullptr);
+                geom_desc = const_cast<D3D12_RAYTRACING_GEOMETRY_DESC*>(inputs_desc.ppGeometryDescs[i]);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR(
+                    "Unrecognized raytracing acceleration structure geometry desc layout (DescsLayout=%d).",
+                    inputs_desc.DescsLayout);
+                continue;
+            }
+
+            GFXRECON_ASSERT(geom_desc);
+            if (geom_desc->Type == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+            {
+                auto& tris_desc                     = geom_desc->Triangles;
+                tris_desc.Transform3x4              = (tris_desc.Transform3x4 > 0) ? kDefaultGpuVa : 0;
+                tris_desc.IndexBuffer               = (tris_desc.IndexBuffer > 0) ? kDefaultGpuVa : 0;
+                tris_desc.VertexBuffer.StartAddress = kDefaultGpuVa;
+            }
+            else if (geom_desc->Type == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
+            {
+                geom_desc->AABBs.AABBs.StartAddress = kDefaultGpuVa;
+            }
+            else if (geom_desc->Type == D3D12_RAYTRACING_GEOMETRY_TYPE_OMM_TRIANGLES)
+            {
+                if (geom_desc->OmmTriangles.pTriangles != nullptr)
+                {
+                    auto triangles_desc =
+                        const_cast<D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC*>(geom_desc->OmmTriangles.pTriangles);
+
+                    triangles_desc->Transform3x4              = (triangles_desc->Transform3x4 > 0) ? kDefaultGpuVa : 0;
+                    triangles_desc->IndexBuffer               = (triangles_desc->IndexBuffer > 0) ? kDefaultGpuVa : 0;
+                    triangles_desc->VertexBuffer.StartAddress = kDefaultGpuVa;
+                }
+
+                if (geom_desc->OmmTriangles.pOmmLinkage != nullptr)
+                {
+                    auto linkage_desc =
+                        const_cast<D3D12_RAYTRACING_GEOMETRY_OMM_LINKAGE_DESC*>(geom_desc->OmmTriangles.pOmmLinkage);
+                    linkage_desc->OpacityMicromapIndexBuffer.StartAddress =
+                        (linkage_desc->OpacityMicromapIndexBuffer.StartAddress > 0) ? kDefaultGpuVa : 0;
+                    linkage_desc->OpacityMicromapArray = gpu_va_map.Map(linkage_desc->OpacityMicromapArray);
+                }
+            }
+            else
+            {
+                GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_GEOMETRY_TYPE.");
+            }
+        }
+    }
+    else if (inputs_desc.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_OPACITY_MICROMAP_ARRAY)
+    {
+        for (UINT i = 0; i < inputs_desc.NumDescs; ++i)
+        {
+            auto& omm_desc =
+                const_cast<D3D12_RAYTRACING_OPACITY_MICROMAP_ARRAY_DESC&>(inputs_desc.pOpacityMicromapArrayDesc[i]);
+            omm_desc.InputBuffer              = (omm_desc.InputBuffer > 0) ? kDefaultGpuVa : 0;
+            omm_desc.PerOmmDescs.StartAddress = (omm_desc.PerOmmDescs.StartAddress > 0) ? kDefaultGpuVa : 0;
+        }
+    }
+    else if (inputs_desc.Type == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL)
+    {
+        inputs_desc.InstanceDescs = (inputs_desc.NumDescs > 0) ? kDefaultGpuVa : 0;
+
+        // Map GPU VAs in instance desc input data.
+        temp_instance_desc_input_data_.clear();
+        temp_instance_desc_input_data_.insert(temp_instance_desc_input_data_.end(),
+                                              build_inputs_data,
+                                              build_inputs_data + command_header.inputs_data_size);
+        constexpr auto address_stride = sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
+        constexpr auto address_offset = offsetof(D3D12_RAYTRACING_INSTANCE_DESC, AccelerationStructure);
+        for (UINT i = 0; i < inputs_desc.NumDescs; ++i)
+        {
+            D3D12_GPU_VIRTUAL_ADDRESS* address = reinterpret_cast<D3D12_GPU_VIRTUAL_ADDRESS*>(
+                temp_instance_desc_input_data_.data() + i * address_stride + address_offset);
+            *address = gpu_va_map.Map(*address);
+        }
+        final_data = temp_instance_desc_input_data_.data();
+    }
+    else
+    {
+        GFXRECON_ASSERT(false && "Invalid D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE.");
+    }
+
+    // Compute the required inputs buffer size and entry information.
+    uint64_t                                       inputs_buffer_size = 0;
+    std::vector<graphics::dx12::InputsBufferEntry> inputs_buffer_entries;
+    graphics::dx12::GetAccelerationStructureInputsBufferEntries2(
+        inputs_desc, inputs_buffer_size, inputs_buffer_entries);
 
     GFXRECON_ASSERT(inputs_buffer_size == command_header.inputs_data_size);
 

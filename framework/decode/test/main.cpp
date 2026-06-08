@@ -45,7 +45,7 @@ const gfxrecon::format::HandleId kDeviceId        = 6;
 
 TEST_CASE("handle IDs need to be mapped to valid handles", "[wrapper]")
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kErrorSeverity);
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kError);
 
     gfxrecon::decode::CommonObjectInfoTable info_table;
 
@@ -156,8 +156,7 @@ TEST_CASE("BlockParser basic usage", "[wrapper]")
     bool err_triggered = false;
     auto err_handler   = [&err_triggered](gfxrecon::decode::BlockIOError, const char*) { err_triggered = true; };
 
-    auto                          buffer_pool = gfxrecon::util::HeapBufferPool::Create();
-    gfxrecon::decode::BlockParser block_parser(err_handler, buffer_pool, nullptr);
+    gfxrecon::decode::BlockParser block_parser(err_handler, nullptr);
 
     // this should trigger some error
     block_parser.HandleBlockReadError(gfxrecon::decode::BlockIOError::kErrorReadingBlockData, "fatal fake error");

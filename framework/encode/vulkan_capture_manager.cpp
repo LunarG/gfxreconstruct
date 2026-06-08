@@ -817,9 +817,6 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         for (uint32_t q = 0; q < pCreateInfo_unwrapped->queueCreateInfoCount; ++q)
         {
             const VkDeviceQueueCreateInfo* queue_create_info = &pCreateInfo_unwrapped->pQueueCreateInfos[q];
-            GFXRECON_ASSERT(wrapper->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
-                            wrapper->queue_family_creation_flags.end());
-            wrapper->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
             wrapper->queue_family_indices[q] = pCreateInfo_unwrapped->pQueueCreateInfos[q].queueFamilyIndex;
         }
     }
@@ -2269,35 +2266,27 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
     using ImageResource = graphics::VulkanResourcesUtil::ImageResource;
     std::vector<ImageResource> image_resources;
 
-    auto write_init_image_cmd =
-        [this, &resource_util, device_wrapper](const ImageResource& img, const void* data, size_t num_bytes) {
-            // Combined size of all layers in a mip level.
-            std::vector<uint64_t> level_sizes;
+    auto write_init_image_cmd = [this, &resource_util, device_wrapper](
+                                    const ImageResource& img, const void* data, size_t num_bytes) {
+        // Combined size of all layers in a mip level.
+        std::vector<uint64_t> level_sizes;
 
-            uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(img.format,
-                                                                                img.type,
-                                                                                img.extent,
-                                                                                img.level_count,
-                                                                                img.layer_count,
-                                                                                img.tiling,
-                                                                                img.aspect,
-                                                                                nullptr,
-                                                                                &level_sizes,
-                                                                                true);
-            GFXRECON_ASSERT(resource_size == num_bytes);
+        uint64_t resource_size = resource_util.GetImageResourceSizesOptimal(
+            img.format, img.extent, img.level_count, img.layer_count, img.tiling, img.aspect, nullptr, &level_sizes);
+        GFXRECON_ASSERT(resource_size == num_bytes);
 
-            WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size, resource_size);
-            GetCommandWriter()->WriteInitImageCmd(api_family_,
-                                                  device_wrapper->handle_id,
-                                                  img.handle_id,
-                                                  img.aspect,
-                                                  img.layout,
-                                                  img.level_count,
-                                                  level_sizes,
-                                                  resource_size,
-                                                  data);
-            WriteEndResourceInitCmd(device_wrapper->handle_id);
-        };
+        WriteBeginResourceInitCmd(device_wrapper->handle_id, resource_size, resource_size);
+        GetCommandWriter()->WriteInitImageCmd(api_family_,
+                                              device_wrapper->handle_id,
+                                              img.handle_id,
+                                              img.aspect,
+                                              img.layout,
+                                              img.level_count,
+                                              level_sizes,
+                                              resource_size,
+                                              data);
+        WriteEndResourceInitCmd(device_wrapper->handle_id);
+    };
 
     uint32_t num_staging_bytes = 0;
 
@@ -2318,8 +2307,6 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         image_resource.external_format      = image_wrapper->external_format;
         image_resource.size                 = image_wrapper->size;
         image_resource.aspect               = aspect;
-        image_resource.external_format      = image_wrapper->external_format;
-        image_resource.all_layers_per_level = true;
 
         num_staging_bytes += image_wrapper->size;
     }
@@ -2844,6 +2831,23 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkMapMemory2(VkResult               result,
+                                                    VkDevice               device,
+                                                    const VkMemoryMapInfo* pMemoryMapInfo,
+                                                    void**                 ppData)
+{
+    if ((result == VK_SUCCESS) && (pMemoryMapInfo != nullptr))
+    {
+        PostProcess_vkMapMemory(result,
+                                device,
+                                pMemoryMapInfo->memory,
+                                pMemoryMapInfo->offset,
+                                pMemoryMapInfo->size,
+                                pMemoryMapInfo->flags,
+                                ppData);
+    }
+}
+
 void VulkanCaptureManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
                                                                 uint32_t                   memoryRangeCount,
                                                                 const VkMappedMemoryRange* pMemoryRanges)
@@ -2982,6 +2986,15 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
     {
         GFXRECON_LOG_WARNING(
             "Attempting to unmap VkDeviceMemory object with handle = %" PRIx64 " that has not been mapped", memory);
+    }
+}
+
+void VulkanCaptureManager::PreProcess_vkUnmapMemory2(VkDevice device, const VkMemoryUnmapInfo* pMemoryUnmapInfo)
+{
+
+    if (pMemoryUnmapInfo != nullptr)
+    {
+        PreProcess_vkUnmapMemory(device, pMemoryUnmapInfo->memory);
     }
 }
 
@@ -4004,7 +4017,16 @@ void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2KHR(
 {
     if (IsCaptureModeTrack())
     {
-        state_tracker_->TrackCmdBindDescriptorSets2KHR(commandBuffer, pBindDescriptorSetsInfo);
+        state_tracker_->TrackCmdBindDescriptorSets2(commandBuffer, pBindDescriptorSetsInfo);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdBindDescriptorSets2(
+    VkCommandBuffer commandBuffer, const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdBindDescriptorSets2(commandBuffer, pBindDescriptorSetsInfo);
     }
 }
 
@@ -4432,6 +4454,20 @@ bool VulkanCaptureManager::IsValidFence(VkFence fence)
 }
 
 #endif
+
+void VulkanCaptureManager::PostProcess_vkTransitionImageLayout(VkResult                               result,
+                                                               VkDevice                               device,
+                                                               uint32_t                               transitionCount,
+                                                               const VkHostImageLayoutTransitionInfo* pTransitions)
+{
+    if (result == VK_SUCCESS)
+    {
+        if (IsCaptureModeTrack())
+        {
+            state_tracker_->TrackTransitionImageLayout(transitionCount, pTransitions);
+        }
+    }
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

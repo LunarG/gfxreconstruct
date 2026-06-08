@@ -316,7 +316,10 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
 
     dumped_image.dumped_raw = (output_image_format == DumpedImageFormat::KFormatRaw);
 
+    const bool has_alpha = vkuFormatHasAlpha(image_info->format);
+
     GFXRECON_ASSERT(!dumped_image.dumped_subresources.empty());
+    GFXRECON_ASSERT(image_dumped_data.size() == dumped_image.dumped_subresources.size());
 
     for (size_t i = 0; i < dumped_image.dumped_subresources.size(); ++i)
     {
@@ -329,6 +332,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                                  sub_res.aspect,
                                                  sub_res.level,
                                                  sub_res.layer,
+                                                 sub_res.depth,
                                                  before_command);
 
         sub_res.filename = filename;
@@ -344,7 +348,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
 
             if (output_image_format == kFormatBMP)
             {
-                if (options_.dump_resources_dump_separate_alpha)
+                if (options_.dump_resources_dump_separate_alpha && has_alpha)
                 {
                     util::imagewriter::WriteBmpImageSeparateAlpha(filename,
                                                                   sub_res.scaled_extent.width,
@@ -361,12 +365,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                                      static_cast<const void*>(image_dumped_data[i].data()),
                                                      stride,
                                                      image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
+                                                     has_alpha);
                 }
             }
             else if (output_image_format == KFormatPNG)
             {
-                if (options_.dump_resources_dump_separate_alpha)
+                if (options_.dump_resources_dump_separate_alpha && has_alpha)
                 {
                     util::imagewriter::WritePngImageSeparateAlpha(filename,
                                                                   sub_res.scaled_extent.width,
@@ -383,7 +387,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpImageToFile(DumpedResourceBase*    
                                                      static_cast<const void*>(image_dumped_data[i].data()),
                                                      stride,
                                                      image_writer_format,
-                                                     vkuFormatHasAlpha(image_info->format));
+                                                     has_alpha);
                 }
             }
         }
@@ -704,6 +708,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const Dump
                                                                       VkImageAspectFlagBits     aspect,
                                                                       uint32_t                  mip_level,
                                                                       uint32_t                  layer,
+                                                                      uint32_t                  depth,
                                                                       bool                      before_command) const
 {
     const DumpedRenderTarget& rt_resource_info = static_cast<const DumpedRenderTarget&>(dumped_resource);
@@ -715,8 +720,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const Dump
                                      : "_depth_att";
 
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-
     if (output_image_format != KFormatRaw)
     {
         if (options_.dump_resources_before)
@@ -749,7 +752,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateRenderTargetImageFilename(const Dump
     }
 
     std::stringstream subresource_sting;
-    subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
+    subresource_sting << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
     subresource_sting << ImageFileExtension(output_image_format);
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -763,6 +766,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename(cons
                                                                             VkImageAspectFlagBits aspect,
                                                                             uint32_t              mip_level,
                                                                             uint32_t              layer,
+                                                                            uint32_t              depth,
                                                                             bool                  before_command) const
 {
     GFXRECON_UNREFERENCED_PARAMETER(before_command);
@@ -774,7 +778,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename(cons
     const VulkanImageInfo* image_info = dumped_image->image_info;
     std::string            aspect_str = ImageAspectToStr(aspect);
     std::stringstream      base_filename;
-    base_filename << capture_filename_ << "_";
 
     if (output_image_format != KFormatRaw)
     {
@@ -792,7 +795,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsImageDescriptorFilename(cons
     }
 
     std::stringstream sub_resources_str;
-    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
+    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
     sub_resources_str << ImageFileExtension(output_image_format);
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -812,11 +815,10 @@ DefaultVulkanDumpResourcesDelegate::GenerateGraphicsBufferDescriptorFilename(con
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
     std::stringstream filename;
-
-    filename << capture_filename_ << "_"
-             << "buffer_" << dumped_buffer->buffer_info.capture_id << "_qs_" << dumped_desc.qs_index << "_bcb_"
-             << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_" << dumped_desc.set << "_binding_"
-             << dumped_desc.binding << "_ai_" << dumped_desc.array_index << ".bin";
+    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_dc_" << dumped_desc.cmd_index << "_qs_"
+             << dumped_desc.qs_index << "_bcb_" << dumped_desc.bcb_index << "_rp_" << dumped_desc.render_pass << "_set_"
+             << dumped_desc.desc_tuple.set << "_binding_" << dumped_desc.desc_tuple.binding << "_ai_"
+             << dumped_desc.desc_tuple.array_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -831,9 +833,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateGraphicsInlineUniformBuf
     const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_"
-             << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+    filename << "inlineUniformBlock_set_" << buffer_desc_info.desc_tuple.set << "_binding_"
+             << buffer_desc_info.desc_tuple.binding << "_ai_" << buffer_desc_info.desc_tuple.array_index << "_dc_"
+             << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
              << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -849,8 +851,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateVertexBufferFilename(con
     const DumpedVertexIndexBuffer& vertex_buffer = static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_"
-             << "vertexBuffers_"
+    filename << "vertexBuffers_"
              << "qs_" << vertex_buffer.qs_index << "_bcb_" << vertex_buffer.bcb_index << "_dc_"
              << vertex_buffer.cmd_index << "_binding_" << vertex_buffer.binding << ".bin";
 
@@ -867,8 +868,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateIndexBufferFilename(cons
     const DumpedVertexIndexBuffer& index_buffer = static_cast<const DumpedVertexIndexBuffer&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-    std::string index_type_name = IndexTypeToStr(index_buffer.index_type);
+    std::string       index_type_name = IndexTypeToStr(index_buffer.index_type);
     filename << "indexBuffer_"
              << "qs_" << dumped_resource.qs_index << "_bcb_" << dumped_resource.bcb_index << "_dc_"
              << dumped_resource.cmd_index << index_type_name << ".bin";
@@ -884,8 +884,6 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateTransferToBufferRegionFi
     const auto& dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-
     switch (dumped_resource.type)
     {
         case DumpResourceType::kInitBufferMetaCommand:
@@ -921,7 +919,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateTransferToBufferRegionFi
         filename << "_region_index_" << region_index;
     }
 
-    filename << "_qs_" << dumped_cmd.qs_index << ".bin";
+    filename << "_qs_" << dumped_cmd.qs_index << "_bcb_" << dumped_cmd.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -934,11 +932,10 @@ DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const 
                                                                           VkImageAspectFlagBits     aspect,
                                                                           uint32_t                  mip_level,
                                                                           uint32_t                  layer,
+                                                                          uint32_t                  depth,
                                                                           bool before_command) const
 {
     std::stringstream filename;
-    filename << capture_filename_ << "_";
-
     switch (dumped_resource.type)
     {
         case DumpResourceType::kInitImageMetaCommand:
@@ -977,8 +974,8 @@ DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename(const 
     const std::string aspect_str = ImageAspectToStr(aspect);
     const auto&       dumped_cmd = static_cast<const DumpedTransferCommand&>(dumped_resource);
 
-    filename << "cmd_" << dumped_cmd.cmd_index << "_qs_" << dumped_cmd.qs_index << "_aspect_" << aspect_str << "_level_"
-             << mip_level << "_layer_" << layer;
+    filename << "cmd_" << dumped_cmd.cmd_index << "_qs_" << dumped_cmd.qs_index << "_bcb_" << dumped_cmd.bcb_index
+             << "_aspect_" << aspect_str << "_level_" << mip_level << "_layer_" << layer << "_depth_" << depth;
 
     filename << ImageFileExtension(output_image_format);
 
@@ -999,15 +996,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
-        filename << capture_filename_ << "_";
         filename << "DrawCall_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
-                 << dumped_resources.bcb_index << "_dr.json";
-
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 
@@ -1158,11 +1149,7 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDrawCallInfo(
         const VulkanImageInfo* image_info = image.image_info;
         GFXRECON_ASSERT(image_info != nullptr);
 
-        rt_entry["imageId"]   = image_info->capture_id;
-        rt_entry["format"]    = util::ToString<VkFormat>(image_info->format);
-        rt_entry["imageType"] = util::ToString<VkImageType>(image_info->type);
-        rt_entry["levels"]    = image_info->level_count;
-        rt_entry["layers"]    = image_info->layer_count;
+        dump_json_.InsertImageInfo(rt_entry, *image_info);
         if (!is_depth_attachment)
         {
             rt_entry["location"] = rt.location;
@@ -1294,6 +1281,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
                                                                            VkImageAspectFlagBits aspect,
                                                                            uint32_t              mip_level,
                                                                            uint32_t              layer,
+                                                                           uint32_t              depth,
                                                                            bool                  before_command) const
 {
     const DumpedDescriptor& dumped_image_desc = static_cast<const DumpedDescriptor&>(dumped_resource);
@@ -1310,14 +1298,12 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
     const std::string aspect_str = ImageAspectToStr(aspect);
 
     std::stringstream filename;
-    filename << capture_filename_ << '_';
-
     if (before_command)
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_image_desc.cmd_index << "_qs_"
                  << dumped_image_desc.qs_index << "_bcb_" << dumped_image_desc.bcb_index << "_before_"
-                 << "set_" << dumped_image_desc.set << "_binding_" << dumped_image_desc.binding << "_index_"
-                 << dumped_image_desc.array_index;
+                 << "set_" << dumped_image_desc.desc_tuple.set << "_binding_" << dumped_image_desc.desc_tuple.binding
+                 << "_index_" << dumped_image_desc.desc_tuple.array_index;
         if (output_image_format != KFormatRaw)
         {
             filename << "_" << util::ToString<VkFormat>(image_info->format).c_str();
@@ -1328,8 +1314,9 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_image_desc.cmd_index << "_qs_"
                  << dumped_image_desc.qs_index << "_bcb_" << dumped_image_desc.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_image_desc.set << "_binding_"
-                 << dumped_image_desc.binding << "_index_" << dumped_image_desc.array_index;
+                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_image_desc.desc_tuple.set
+                 << "_binding_" << dumped_image_desc.desc_tuple.binding << "_index_"
+                 << dumped_image_desc.desc_tuple.array_index;
         if (output_image_format != KFormatRaw)
         {
             filename << "_" << util::ToString<VkFormat>(image_info->format).c_str();
@@ -1337,7 +1324,7 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageFilename(const
         filename << "_aspect_" << aspect_str;
     }
 
-    filename << "_mip_" << mip_level << "_layer_" << layer;
+    filename << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
 
     filename << ImageFileExtension(output_image_format);
 
@@ -1361,22 +1348,20 @@ DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferFilename(cons
     const bool is_dispatch = dumped_buffer_desc.ppl_stage == DumpResourcesPipelineStage::kCompute;
 
     std::stringstream filename;
-
-    filename << capture_filename_ << '_';
-
     if (before_command)
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_buffer_desc.cmd_index << "_qs_"
                  << dumped_buffer_desc.qs_index << "_bcb_" << dumped_buffer_desc.bcb_index << "_before_"
-                 << "set_" << dumped_buffer_desc.set << "_binding_" << dumped_buffer_desc.binding << "_index_"
-                 << dumped_buffer_desc.array_index << "_buffer.bin";
+                 << "set_" << dumped_buffer_desc.desc_tuple.set << "_binding_" << dumped_buffer_desc.desc_tuple.binding
+                 << "_index_" << dumped_buffer_desc.desc_tuple.array_index << "_buffer.bin";
     }
     else
     {
         filename << (is_dispatch ? "dispatch_" : "traceRays_") << dumped_buffer_desc.cmd_index << "_qs_"
                  << dumped_buffer_desc.qs_index << "_bcb_" << dumped_buffer_desc.bcb_index << "_"
-                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_buffer_desc.set << "_binding_"
-                 << dumped_buffer_desc.binding << "_index_" << dumped_buffer_desc.array_index << "_buffer.bin";
+                 << (options_.dump_resources_before ? "after_" : "") << "set_" << dumped_buffer_desc.desc_tuple.set
+                 << "_binding_" << dumped_buffer_desc.desc_tuple.binding << "_index_"
+                 << dumped_buffer_desc.desc_tuple.array_index << "_buffer.bin";
     }
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -1390,6 +1375,7 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDe
     VkImageAspectFlagBits     aspect,
     uint32_t                  mip_level,
     uint32_t                  layer,
+    uint32_t                  depth,
     bool                      before_command) const
 {
     GFXRECON_UNREFERENCED_PARAMETER(before_command);
@@ -1404,22 +1390,21 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysImageDe
     std::string       aspect_str = ImageAspectToStr(aspect);
     std::stringstream base_filename;
 
-    base_filename << capture_filename_ << '_';
-
     if (output_image_format != KFormatRaw)
     {
-        base_filename << "image_" << image_info->capture_id << "_qs_" << image_desc_info.qs_index << "_bcb_"
-                      << image_desc_info.bcb_index << "_aspect_" << aspect_str;
+        base_filename << "image_" << image_info->capture_id << "_cmd_" << image_desc_info.cmd_index << "_qs_"
+                      << image_desc_info.qs_index << "_bcb_" << image_desc_info.bcb_index << "_aspect_" << aspect_str;
     }
     else
     {
         std::string format_name = FormatToStr(image_info->format);
-        base_filename << "image_" << image_info->capture_id << "_qs_" << image_desc_info.qs_index << "_bcb_"
-                      << image_desc_info.bcb_index << "_" << format_name << "_aspect_" << aspect_str;
+        base_filename << "image_" << image_info->capture_id << "_cmd_" << image_desc_info.cmd_index << "_qs_"
+                      << image_desc_info.qs_index << "_bcb_" << image_desc_info.bcb_index << "_" << format_name
+                      << "_aspect_" << aspect_str;
     }
 
     std::stringstream sub_resources_str;
-    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer;
+    sub_resources_str << base_filename.str() << "_mip_" << mip_level << "_layer_" << layer << "_depth_" << depth;
     sub_resources_str << ImageFileExtension(output_image_format);
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(sub_resources_str.str());
@@ -1436,9 +1421,9 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysBufferD
     GFXRECON_ASSERT(dumped_buffer != nullptr);
 
     std::stringstream filename;
-    filename << capture_filename_ << "_buffer_" << dumped_buffer->buffer_info.capture_id << "_set_"
-             << buffer_desc_info.set << "_binding_" << buffer_desc_info.binding << "_ai_"
-             << buffer_desc_info.array_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+    filename << "buffer_" << dumped_buffer->buffer_info.capture_id << "_set_" << buffer_desc_info.desc_tuple.set
+             << "_binding_" << buffer_desc_info.desc_tuple.binding << "_ai_" << buffer_desc_info.desc_tuple.array_index
+             << "_cmd_" << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
              << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
@@ -1454,9 +1439,10 @@ std::string DefaultVulkanDumpResourcesDelegate::GenerateDispatchTraceRaysInlineU
     const DumpedDescriptor& buffer_desc_info = static_cast<const DumpedDescriptor&>(dumped_resource);
 
     std::stringstream filename;
-    filename << capture_filename_ << '_' << "inlineUniformBlock_set_" << buffer_desc_info.set << "_binding_"
-             << buffer_desc_info.binding << "_ai_" << buffer_desc_info.array_index << "_qs_"
-             << buffer_desc_info.qs_index << "_bcb_" << buffer_desc_info.bcb_index << ".bin";
+    filename << "inlineUniformBlock_set_" << buffer_desc_info.desc_tuple.set << "_binding_"
+             << buffer_desc_info.desc_tuple.binding << "_ai_" << buffer_desc_info.desc_tuple.array_index << "_cmd_"
+             << buffer_desc_info.cmd_index << "_qs_" << buffer_desc_info.qs_index << "_bcb_"
+             << buffer_desc_info.bcb_index << ".bin";
 
     std::filesystem::path filedirname(options_.dump_resources_output_dir);
     std::filesystem::path filebasename(filename.str());
@@ -1481,11 +1467,12 @@ void DefaultVulkanDumpResourcesDelegate::GenerateBLASJsonInfo(nlohmann::ordered_
         dump_json_.InsertBufferInfo(serialized_entry, dumped_as.serialized_buffer);
     }
 
-    auto& blas_inputs_entry = blas_json_entry["BuildInputs"];
     if (dumped_as.input_buffers.empty())
     {
         return;
     }
+
+    auto& blas_inputs_entry = blas_json_entry["BuildInputs"];
 
     std::string input_type_string;
     if (std::get_if<DumpedAccelerationStructure::DumpedBuildInputTriangleBuffer>(&dumped_as.input_buffers[0]))
@@ -1597,12 +1584,10 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
                 auto&     entry             = dispatch_json_entry["descriptors"][stage_name][stage_entry_index++];
                 entry["type"]               = util::ToString<VkDescriptorType>(desc.desc_type);
-                entry["set"]                = desc.set;
-                entry["binding"]            = desc.binding;
-                entry["arrayIndex"]         = desc.array_index;
-                entry["imageId"]            = img_info->capture_id;
-                entry["format"]             = util::ToString<VkFormat>(img_info->format);
-                entry["imageType"]          = util::ToString<VkImageType>(img_info->type);
+                entry["set"]                = desc.desc_tuple.set;
+                entry["binding"]            = desc.desc_tuple.binding;
+                entry["arrayIndex"]         = desc.desc_tuple.array_index;
+                dump_json_.InsertImageInfo(entry, *img_info);
 
                 if (dumped_image->scaling_failed)
                 {
@@ -1656,9 +1641,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
                 auto&     entry             = dispatch_json_entry["descriptors"][stage_name][stage_entry_index++];
                 entry["type"]               = util::ToString<VkDescriptorType>(desc.desc_type);
-                entry["set"]                = desc.set;
-                entry["binding"]            = desc.binding;
-                entry["arrayIndex"]         = desc.array_index;
+                entry["set"]                = desc.desc_tuple.set;
+                entry["binding"]            = desc.desc_tuple.binding;
+                entry["arrayIndex"]         = desc.desc_tuple.array_index;
 
                 dump_json_.InsertBufferInfo(entry, *dumped_buffer);
 
@@ -1681,9 +1666,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateDescriptorsJsonInfo(nlohmann::o
                 uint32_t& stage_entry_index = per_stage_json_entry_indices[stage_name];
                 auto&     entry             = dispatch_json_entry["descriptors"][stage_name][stage_entry_index++];
                 entry["type"]               = util::ToString<VkDescriptorType>(desc.desc_type);
-                entry["set"]                = desc.set;
-                entry["binding"]            = desc.binding;
-                entry["arrayIndex"]         = desc.array_index;
+                entry["set"]                = desc.desc_tuple.set;
+                entry["binding"]            = desc.desc_tuple.binding;
+                entry["arrayIndex"]         = desc.desc_tuple.array_index;
                 entry["TlasId"]             = tlas->as_info->capture_id;
 
                 if (tlas->input_buffers.empty() && tlas->BLASes.empty())
@@ -1715,12 +1700,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonDispatchInfo(
     {
         std::stringstream filename;
         filename << "Dispatch_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
-                 << dumped_resources.bcb_index << "_dr.json";
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 
@@ -1816,12 +1797,8 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTraceRaysIndex(
     {
         std::stringstream filename;
         filename << "TraceRays_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
-                 << dumped_resources.bcb_index << "_dr.json";
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 
@@ -1897,9 +1874,6 @@ DefaultVulkanDumpResourcesDelegate::GenerateASDumpedBufferFilename(const DumpedR
                                                                    uint32_t                   buffer_index)
 {
     std::stringstream filename;
-
-    filename << capture_filename_ << "_";
-
     switch (dumped_command_type)
     {
         case DumpResourcesPipelineStage::kGraphics:
@@ -2016,22 +1990,6 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
         gfxrecon::decode::DumpBufferToFile(
             dumped_init_buffer->dumped_buffer, filename, init_buffer_host_data->data, delegate_context.compressor);
     }
-    else if (const auto* init_image_host_data =
-                 std::get_if<VulkanDelegateImageDumpedData>(&dumped_transfer_host_data->dumped_data))
-    {
-        const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
-        GFXRECON_ASSERT(resource_info->type == DumpResourceType::kInitImageMetaCommand);
-
-        auto* dumped_init_image = std::get_if<DumpedInitImageMetaCommand>(&dumped_transfer_command->dumped_resource);
-        GFXRECON_ASSERT(dumped_init_image != nullptr);
-
-        DumpImageToFile(delegate_context.dumped_resource,
-                        dumped_init_image->dumped_image,
-                        init_image_host_data->data,
-                        &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                        delegate_context.before_command,
-                        delegate_context.compressor);
-    }
     else if (const auto* buffer_copy_host_data =
                  std::get_if<VulkanDelegateDumpedCopyBufferRegions>(&dumped_transfer_host_data->dumped_data))
     {
@@ -2044,7 +2002,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             GFXRECON_ASSERT(dumped_copy_buffer != nullptr);
 
             GFXRECON_ASSERT(buffer_copy_host_data->regions_data.size() == dumped_copy_buffer->regions.size());
-            for (size_t i = 0; i < buffer_copy_host_data->regions_data.size(); ++i)
+            const auto region_count = GFXRECON_NARROWING_CAST(uint32_t, buffer_copy_host_data->regions_data.size());
+            for (uint32_t i = 0; i < region_count; ++i)
             {
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
                 const std::string filename         = GenerateTransferToBufferRegionFilename(
@@ -2065,7 +2024,8 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             GFXRECON_ASSERT(dumped_copy_image_to_buffer != nullptr);
 
             GFXRECON_ASSERT(buffer_copy_host_data->regions_data.size() == dumped_copy_image_to_buffer->regions.size());
-            for (size_t i = 0; i < buffer_copy_host_data->regions_data.size(); ++i)
+            const auto region_count = GFXRECON_NARROWING_CAST(uint32_t, buffer_copy_host_data->regions_data.size());
+            for (uint32_t i = 0; i < region_count; ++i)
             {
                 const auto&       region_host_data = buffer_copy_host_data->regions_data[i];
                 const std::string filename         = GenerateTransferToBufferRegionFilename(
@@ -2078,7 +2038,7 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
         }
     }
     else if (const auto* image_copy_host_data =
-                 std::get_if<VulkanDelegateDumpedCopyImageRegions>(&dumped_transfer_host_data->dumped_data))
+                 std::get_if<VulkanDelegateImageDumpedData>(&dumped_transfer_host_data->dumped_data))
     {
         const DumpedResourceBase* resource_info = delegate_context.dumped_resource;
         if (resource_info->type == DumpResourceType::kCopyBufferToImage)
@@ -2088,16 +2048,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                                 : &dumped_transfer_command->dumped_resource);
             GFXRECON_ASSERT(dumped_copy_buffer_to_image != nullptr);
 
-            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_copy_buffer_to_image->regions.size());
-            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
-            {
-                DumpImageToFile(delegate_context.dumped_resource,
-                                dumped_copy_buffer_to_image->regions[i].dumped_image,
-                                image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                                delegate_context.before_command,
-                                delegate_context.compressor);
-            }
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_copy_buffer_to_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
         }
         else if (resource_info->type == DumpResourceType::kCopyImage)
         {
@@ -2106,16 +2062,12 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                                 : &dumped_transfer_command->dumped_resource);
             GFXRECON_ASSERT(dumped_copy_image != nullptr);
 
-            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_copy_image->regions.size());
-            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
-            {
-                DumpImageToFile(delegate_context.dumped_resource,
-                                dumped_copy_image->regions[i].dumped_image,
-                                image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                                delegate_context.before_command,
-                                delegate_context.compressor);
-            }
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_copy_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
         }
         else if (resource_info->type == DumpResourceType::kBlitImage)
         {
@@ -2124,16 +2076,25 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
                                                 : &dumped_transfer_command->dumped_resource);
             GFXRECON_ASSERT(dumped_blit_image != nullptr);
 
-            GFXRECON_ASSERT(image_copy_host_data->regions_data.size() == dumped_blit_image->regions.size());
-            for (size_t i = 0; i < image_copy_host_data->regions_data.size(); ++i)
-            {
-                DumpImageToFile(delegate_context.dumped_resource,
-                                dumped_blit_image->regions[i].dumped_image,
-                                image_copy_host_data->regions_data[i],
-                                &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
-                                delegate_context.before_command,
-                                delegate_context.compressor);
-            }
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_blit_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
+        }
+        else if (resource_info->type == DumpResourceType::kInitImageMetaCommand)
+        {
+            auto* dumped_init_image =
+                std::get_if<DumpedInitImageMetaCommand>(&dumped_transfer_command->dumped_resource);
+            GFXRECON_ASSERT(dumped_init_image != nullptr);
+
+            DumpImageToFile(delegate_context.dumped_resource,
+                            dumped_init_image->dumped_image,
+                            image_copy_host_data->data,
+                            &DefaultVulkanDumpResourcesDelegate::GenerateTransferToImageRegionFilename,
+                            delegate_context.before_command,
+                            delegate_context.compressor);
         }
     }
     else if (const auto* build_as_host_data =
@@ -2150,19 +2111,19 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
             if (dump_build_as->dumped_build_infos[i].dumped_as.as_info->type ==
                 VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR)
             {
-                return DumpTLASToFile(*dumped_transfer_command,
-                                      dump_build_as->dumped_build_infos[i].dumped_as,
-                                      build_as_host_data->data[i],
-                                      delegate_context.before_command,
-                                      delegate_context.compressor);
+                DumpTLASToFile(*dumped_transfer_command,
+                               dump_build_as->dumped_build_infos[i].dumped_as,
+                               build_as_host_data->data[i],
+                               delegate_context.before_command,
+                               delegate_context.compressor);
             }
             else
             {
-                return DumpBLASToFile(*dumped_transfer_command,
-                                      dump_build_as->dumped_build_infos[i].dumped_as,
-                                      build_as_host_data->data[i],
-                                      delegate_context.before_command,
-                                      delegate_context.compressor);
+                DumpBLASToFile(*dumped_transfer_command,
+                               dump_build_as->dumped_build_infos[i].dumped_as,
+                               build_as_host_data->data[i],
+                               delegate_context.before_command,
+                               delegate_context.compressor);
             }
         }
     }
@@ -2200,15 +2161,11 @@ bool DefaultVulkanDumpResourcesDelegate::DumpTransferCommandToFile(
     return true;
 }
 
-static void GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
-                                            const TransferedImageInfo& transf_img_info)
+void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferImage(nlohmann::ordered_json&    json_entry,
+                                                                         const TransferedImageInfo& transf_img_info)
 {
-    json_entry["image"]     = transf_img_info.id;
-    json_entry["format"]    = util::ToString<VkFormat>(transf_img_info.format);
-    json_entry["extent"][0] = transf_img_info.extent.width;
-    json_entry["extent"][1] = transf_img_info.extent.height;
-    json_entry["extent"][2] = transf_img_info.extent.depth;
-    json_entry["layout"]    = util::ToString<VkImageLayout>(transf_img_info.layout);
+    dump_json_.InsertImageInfo(json_entry, transf_img_info.image_info);
+    json_entry["layout"] = util::ToString<VkImageLayout>(transf_img_info.layout);
 }
 
 void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonInitBufferCommand(const DumpedTransferCommand& cmd,
@@ -2296,53 +2253,48 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyBufferToImageComm
         const auto& region = copy_buffer_to_image->regions[i];
 
         auto& region_entry                = regions_entries[i];
-        region_entry["bufferOffset"]      = region.region.bufferOffset;
-        region_entry["bufferRowLength"]   = region.region.bufferRowLength;
-        region_entry["bufferImageHeight"] = region.region.bufferImageHeight;
+        region_entry["bufferOffset"]      = region.bufferOffset;
+        region_entry["bufferRowLength"]   = region.bufferRowLength;
+        region_entry["bufferImageHeight"] = region.bufferImageHeight;
         auto& img_subresource             = region_entry["imageSubresource"];
         img_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.imageSubresource.aspectMask));
-        img_subresource["mipLevel"]       = region.region.imageSubresource.mipLevel;
-        img_subresource["baseArrayLayer"] = region.region.imageSubresource.baseArrayLayer;
-        img_subresource["layerCount"]     = region.region.imageSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.imageSubresource.aspectMask));
+        img_subresource["mipLevel"]       = region.imageSubresource.mipLevel;
+        img_subresource["baseArrayLayer"] = region.imageSubresource.baseArrayLayer;
+        img_subresource["layerCount"]     = region.imageSubresource.layerCount;
 
         auto& img_offset = region_entry["imageOffset"];
-        img_offset["x"]  = region.region.imageOffset.x;
-        img_offset["y"]  = region.region.imageOffset.y;
-        img_offset["z"]  = region.region.imageOffset.z;
+        img_offset["x"]  = region.imageOffset.x;
+        img_offset["y"]  = region.imageOffset.y;
+        img_offset["z"]  = region.imageOffset.z;
 
-        auto& img_extent = region_entry["imageOffset"];
-        img_offset["x"]  = region.region.imageOffset.x;
-        img_offset["y"]  = region.region.imageOffset.y;
-        img_offset["z"]  = region.region.imageOffset.z;
+        auto& img_extent     = region_entry["imageExtent"];
+        img_extent["width"]  = region.imageExtent.width;
+        img_extent["height"] = region.imageExtent.height;
+        img_extent["depth"]  = region.imageExtent.depth;
+    }
 
-        auto& extent     = region_entry["imageExtent"];
-        extent["width"]  = region.region.imageExtent.width;
-        extent["height"] = region.region.imageExtent.height;
-        extent["depth"]  = region.region.imageExtent.depth;
+    auto& copied_image_json_entry = json_entry["dstImage"]["subresources"];
+    for (size_t sr = 0; sr < copy_buffer_to_image->dumped_image.dumped_subresources.size(); ++sr)
+    {
+        const auto& dumped_image_sub_resource = copy_buffer_to_image->dumped_image.dumped_subresources[sr];
+        dump_json_.InsertImageSubresourceInfo(copied_image_json_entry[sr],
+                                              dumped_image_sub_resource,
+                                              copy_buffer_to_image->dumped_image.image_info->format,
+                                              options_.dump_resources_dump_separate_alpha,
+                                              copy_buffer_to_image->dumped_image.dumped_raw);
 
-        auto& subresource_json_entry = region_entry["subresources"];
-        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+        if (cmd.has_before)
         {
-            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                  dumped_image_sub_resource,
-                                                  region.dumped_image.image_info->format,
-                                                  options_.dump_resources_dump_separate_alpha,
-                                                  region.dumped_image.dumped_raw);
+            const auto* copy_image_before = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(copy_image_before != nullptr);
 
-            if (cmd.has_before)
-            {
-                const auto* copy_image_before = std::get_if<DumpedCopyBufferToImage>(&cmd.dumped_resource_before);
-                GFXRECON_ASSERT(copy_image_before != nullptr);
-                const auto& region_before                    = copy_image_before->regions[i];
-                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
-                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                            dumped_image_sub_resource_before,
-                                                            region_before.dumped_image.image_info->format,
-                                                            options_.dump_resources_dump_separate_alpha,
-                                                            region_before.dumped_image.dumped_raw);
-            }
+            const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
+            dump_json_.InsertBeforeImageSubresourceInfo(copied_image_json_entry[sr],
+                                                        dumped_image_sub_resource_before,
+                                                        copy_image_before->dumped_image.image_info->format,
+                                                        options_.dump_resources_dump_separate_alpha,
+                                                        copy_image_before->dumped_image.dumped_raw);
         }
     }
 }
@@ -2364,59 +2316,60 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonCopyImageCommand(cons
     auto& regions_entries = json_entry["regions"];
     for (size_t i = 0; i < copy_image->regions.size(); ++i)
     {
-        const auto& region          = copy_image->regions[i];
-        auto&       region_entry    = regions_entries[i];
-        auto&       src_subresource = region_entry["srcSubresource"];
+        const auto& region = copy_image->regions[i];
+
+        auto& region_entry    = regions_entries[i];
+        auto& src_subresource = region_entry["srcSubresource"];
         src_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
-        src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
-        src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
-        src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.srcSubresource.aspectMask));
+        src_subresource["mipLevel"]       = region.srcSubresource.mipLevel;
+        src_subresource["baseArrayLayer"] = region.srcSubresource.baseArrayLayer;
+        src_subresource["layerCount"]     = region.srcSubresource.layerCount;
 
         auto& srcOffset = region_entry["srcOffset"];
-        srcOffset["x"]  = region.region.srcOffset.x;
-        srcOffset["y"]  = region.region.srcOffset.y;
-        srcOffset["z"]  = region.region.srcOffset.z;
+        srcOffset["x"]  = region.srcOffset.x;
+        srcOffset["y"]  = region.srcOffset.y;
+        srcOffset["z"]  = region.srcOffset.z;
 
         auto& dst_subresource = region_entry["dstSubresource"];
         dst_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
-        dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
-        dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
-        dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.dstSubresource.aspectMask));
+        dst_subresource["mipLevel"]       = region.dstSubresource.mipLevel;
+        dst_subresource["baseArrayLayer"] = region.dstSubresource.baseArrayLayer;
+        dst_subresource["layerCount"]     = region.dstSubresource.layerCount;
 
         auto& dstOffset = region_entry["dstOffset"];
-        dstOffset["x"]  = region.region.dstOffset.x;
-        dstOffset["y"]  = region.region.dstOffset.y;
-        dstOffset["z"]  = region.region.dstOffset.z;
+        dstOffset["x"]  = region.dstOffset.x;
+        dstOffset["y"]  = region.dstOffset.y;
+        dstOffset["z"]  = region.dstOffset.z;
 
         auto& extent     = region_entry["extent"];
-        extent["width"]  = region.region.extent.width;
-        extent["height"] = region.region.extent.height;
-        extent["depth"]  = region.region.extent.depth;
+        extent["width"]  = region.extent.width;
+        extent["height"] = region.extent.height;
+        extent["depth"]  = region.extent.depth;
+    }
 
-        auto& subresource_json_entry = region_entry["subresources"];
-        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+    auto& subresource_json_entry = json_entry["dstImage"]["subresources"];
+    for (size_t sr = 0; sr < copy_image->dumped_image.dumped_subresources.size(); ++sr)
+    {
+        const auto& dumped_image_sub_resource = copy_image->dumped_image.dumped_subresources[sr];
+        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                              dumped_image_sub_resource,
+                                              copy_image->dumped_image.image_info->format,
+                                              options_.dump_resources_dump_separate_alpha,
+                                              copy_image->dumped_image.dumped_raw);
+
+        if (cmd.has_before)
         {
-            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                  dumped_image_sub_resource,
-                                                  region.dumped_image.image_info->format,
-                                                  options_.dump_resources_dump_separate_alpha,
-                                                  region.dumped_image.dumped_raw);
+            const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(copy_image_before != nullptr);
 
-            if (cmd.has_before)
-            {
-                const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
-                GFXRECON_ASSERT(copy_image_before != nullptr);
-                const auto& region_before                    = copy_image_before->regions[i];
-                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
-                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                            dumped_image_sub_resource_before,
-                                                            region_before.dumped_image.image_info->format,
-                                                            options_.dump_resources_dump_separate_alpha,
-                                                            region_before.dumped_image.dumped_raw);
-            }
+            const auto& dumped_image_sub_resource_before = copy_image_before->dumped_image.dumped_subresources[sr];
+            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                        dumped_image_sub_resource_before,
+                                                        copy_image_before->dumped_image.image_info->format,
+                                                        options_.dump_resources_dump_separate_alpha,
+                                                        copy_image_before->dumped_image.dumped_raw);
         }
     }
 }
@@ -2494,56 +2447,56 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonBlitImageCommand(cons
         auto&       region_entry    = regions_entries[i];
         auto&       src_subresource = region_entry["srcSubresource"];
         src_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.srcSubresource.aspectMask));
-        src_subresource["mipLevel"]       = region.region.srcSubresource.mipLevel;
-        src_subresource["baseArrayLayer"] = region.region.srcSubresource.baseArrayLayer;
-        src_subresource["layerCount"]     = region.region.srcSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.srcSubresource.aspectMask));
+        src_subresource["mipLevel"]       = region.srcSubresource.mipLevel;
+        src_subresource["baseArrayLayer"] = region.srcSubresource.baseArrayLayer;
+        src_subresource["layerCount"]     = region.srcSubresource.layerCount;
 
         auto& srcOffsets    = region_entry["srcOffset"];
-        srcOffsets["[0].x"] = region.region.srcOffsets[0].x;
-        srcOffsets["[0].y"] = region.region.srcOffsets[0].y;
-        srcOffsets["[0].z"] = region.region.srcOffsets[0].z;
-        srcOffsets["[1].x"] = region.region.srcOffsets[1].x;
-        srcOffsets["[1].y"] = region.region.srcOffsets[1].y;
-        srcOffsets["[1].z"] = region.region.srcOffsets[1].z;
+        srcOffsets["[0].x"] = region.srcOffsets[0].x;
+        srcOffsets["[0].y"] = region.srcOffsets[0].y;
+        srcOffsets["[0].z"] = region.srcOffsets[0].z;
+        srcOffsets["[1].x"] = region.srcOffsets[1].x;
+        srcOffsets["[1].y"] = region.srcOffsets[1].y;
+        srcOffsets["[1].z"] = region.srcOffsets[1].z;
 
         auto& dst_subresource = region_entry["dstSubresource"];
         dst_subresource["aspectMask"] =
-            util::ToString(static_cast<VkImageAspectFlagBits>(region.region.dstSubresource.aspectMask));
-        dst_subresource["mipLevel"]       = region.region.dstSubresource.mipLevel;
-        dst_subresource["baseArrayLayer"] = region.region.dstSubresource.baseArrayLayer;
-        dst_subresource["layerCount"]     = region.region.dstSubresource.layerCount;
+            util::ToString(static_cast<VkImageAspectFlagBits>(region.dstSubresource.aspectMask));
+        dst_subresource["mipLevel"]       = region.dstSubresource.mipLevel;
+        dst_subresource["baseArrayLayer"] = region.dstSubresource.baseArrayLayer;
+        dst_subresource["layerCount"]     = region.dstSubresource.layerCount;
 
         auto& dstOffsets    = region_entry["dstOffset"];
-        dstOffsets["[0].x"] = region.region.dstOffsets[0].x;
-        dstOffsets["[0].y"] = region.region.dstOffsets[0].y;
-        dstOffsets["[0].z"] = region.region.dstOffsets[0].z;
-        dstOffsets["[1].x"] = region.region.dstOffsets[1].x;
-        dstOffsets["[1].y"] = region.region.dstOffsets[1].y;
-        dstOffsets["[1].z"] = region.region.dstOffsets[1].z;
+        dstOffsets["[0].x"] = region.dstOffsets[0].x;
+        dstOffsets["[0].y"] = region.dstOffsets[0].y;
+        dstOffsets["[0].z"] = region.dstOffsets[0].z;
+        dstOffsets["[1].x"] = region.dstOffsets[1].x;
+        dstOffsets["[1].y"] = region.dstOffsets[1].y;
+        dstOffsets["[1].z"] = region.dstOffsets[1].z;
+    }
 
-        auto& subresource_json_entry = region_entry["subresources"];
-        for (size_t sr = 0; sr < region.dumped_image.dumped_subresources.size(); ++sr)
+    auto& subresource_json_entry = json_entry["dstImage"]["subresources"];
+    for (size_t sr = 0; sr < blit_image->dumped_image.dumped_subresources.size(); ++sr)
+    {
+        const auto& dumped_image_sub_resource = blit_image->dumped_image.dumped_subresources[sr];
+        dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
+                                              dumped_image_sub_resource,
+                                              blit_image->dumped_image.image_info->format,
+                                              options_.dump_resources_dump_separate_alpha,
+                                              blit_image->dumped_image.dumped_raw);
+
+        if (cmd.has_before)
         {
-            const auto& dumped_image_sub_resource = region.dumped_image.dumped_subresources[sr];
-            dump_json_.InsertImageSubresourceInfo(subresource_json_entry[sr],
-                                                  dumped_image_sub_resource,
-                                                  region.dumped_image.image_info->format,
-                                                  options_.dump_resources_dump_separate_alpha,
-                                                  region.dumped_image.dumped_raw);
+            const auto* blit_image_before = std::get_if<DumpedBlitImage>(&cmd.dumped_resource_before);
+            GFXRECON_ASSERT(blit_image_before != nullptr);
 
-            if (cmd.has_before)
-            {
-                const auto* copy_image_before = std::get_if<DumpedCopyImage>(&cmd.dumped_resource_before);
-                GFXRECON_ASSERT(copy_image_before != nullptr);
-                const auto& region_before                    = copy_image_before->regions[i];
-                const auto& dumped_image_sub_resource_before = region_before.dumped_image.dumped_subresources[sr];
-                dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
-                                                            dumped_image_sub_resource_before,
-                                                            region_before.dumped_image.image_info->format,
-                                                            options_.dump_resources_dump_separate_alpha,
-                                                            region_before.dumped_image.dumped_raw);
-            }
+            const auto& dumped_image_sub_resource_before = blit_image_before->dumped_image.dumped_subresources[sr];
+            dump_json_.InsertBeforeImageSubresourceInfo(subresource_json_entry[sr],
+                                                        dumped_image_sub_resource_before,
+                                                        blit_image_before->dumped_image.image_info->format,
+                                                        options_.dump_resources_dump_separate_alpha,
+                                                        blit_image_before->dumped_image.dumped_raw);
         }
     }
 }
@@ -2628,15 +2581,9 @@ void DefaultVulkanDumpResourcesDelegate::GenerateOutputJsonTransferInfo(
     if (options_.dump_resources_json_per_command)
     {
         std::stringstream filename;
-        filename << capture_filename_ << "_";
-        filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_cmd_"
-                 << dumped_resources.cmd_index << "_dr.json";
-
-        std::filesystem::path filedirname(options_.dump_resources_output_dir);
-        std::filesystem::path filebasename(filename.str());
-        std::string           full_filename = (filedirname / filebasename).string();
-
-        dump_json_.Open(full_filename);
+        filename << "transfer_" << dumped_resources.cmd_index << "_qs_" << dumped_resources.qs_index << "_bcb_"
+                 << dumped_resources.bcb_index;
+        dump_json_.Open(filename.str(), options_.dump_resources_output_dir);
         dump_json_.BlockStart();
     }
 

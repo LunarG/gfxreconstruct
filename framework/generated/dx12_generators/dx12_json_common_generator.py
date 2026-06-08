@@ -46,6 +46,9 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
             return True
         return False
 
+    def is_bitflags(self, value_info):
+        return ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES)
+
     ## @param value_info A ValueInfo object from base_generator.py.
     def choose_field_to_json_name(self, value_info):
         if value_info != None:
@@ -53,14 +56,20 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
                 return "FieldToJsonAsHex"
             if "BOOL" in value_info.base_type:
                 return "Bool32ToJson"
-            if self.is_handle(value_info.base_type):
+            if self.is_handle(value_info.base_type) or self.is_class(value_info):
                 return "HandleToJson"
             if("HRESULT" in value_info.base_type):
                 return "HresultToJson"
-            if ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES):
-                return "FieldToJson_" + value_info.base_type
-            if  self.is_raw_bitflags(value_info):
+            if self.is_raw_bitflags(value_info):
                 return "FieldToJsonAsFixedWidthBinary"
-        return "FieldToJson"
-    pass
+            if value_info.base_type.lower() == 'float':
+                return "FieldToJson"
+            if self.is_struct(value_info.base_type):
+                return "FieldToJson"
+            if value_info.is_array:
+                return "FieldToJson"
+            if value_info.is_pointer and (value_info.pointer_count > 1 or value_info.base_type != "void"):
+                return "FieldToJson"
+        # This type does not require a special function to convert to JSON
+        return None
 

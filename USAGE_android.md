@@ -793,6 +793,13 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--add-new-pipeline-caches]
                           [--quit-after-frame FRAME]
                           [--screenshot-ignore-FrameBoundaryANDROID]
+                          [--wait-before-first-submit MILLISECONDS]
+                          [--idle-before-submit]
+                          [--serialize-render-passes]
+                          [--wait-before-frame MILLISECONDS]
+                          [--serialize-queue-submissions]
+                          [--replay-event-plugin-path PATH]
+                          [--replay-event-plugin-params PARAMS]
                           [file]
 
 Launch the replay tool.
@@ -1001,6 +1008,41 @@ options:
   --screenshot-ignore-FrameBoundaryANDROID
                         If set, frames switced with vkFrameBoundANDROID will
                         be ignored from the screenshot handler.
+  --wait-before-first-submit MILLISECONDS
+                        Wait for the specified amount of milliseconds before
+                        processing the first submit. (forwarded to replay tool)
+  --idle-before-submit  Wait for the GPU to become idle before each submit.
+  --frame-warm-up-spirv DEVICE_FILE
+                        Specify a user-provided SPIR-V compute shader for the
+                        warm-up pass. The shader must use entry point `main`
+                        and set 0, binding 0 as a storage buffer. Warm-up runs
+                        before the first submit of each replayed frame only
+                        when this option and a non-zero --frame-warm-up-load
+                        are both provided.
+                        (forwarded to replay tool)
+  --frame-warm-up-load LOAD
+                        Specify workload scale factor for a compute dispatch warm-up pass
+                        run before each frame replay. Default is 0 (disabled).
+                        (forwarded to replay tool)
+  --serialize-render-passes
+                        Serialize render passes by injecting execution barriers before render pass begin during replay. (forwarded to replay tool)
+  --wait-before-frame MILLISECONDS
+                        Wait for the specified amount of milliseconds before starting
+                        to replay each frame. Default is 0 (no wait). (forwarded to
+                        replay tool)
+  --serialize-queue-submissions
+                        Serialize submit entries within one `vkQueueSubmit` or
+                        `vkQueueSubmit2` call by adding semaphores between
+                        consecutive submits during replay.
+                        (forwarded to replay tool)
+  --replay-event-plugin-path PATH
+                        Path to a replay event plugin library. If specified, the
+                        plugin will be loaded and used to process replay events.
+                        (forwarded to replay tool)
+  --replay-event-plugin-params PARAMS
+                        Parameters to forward to the replay event plugin. The format
+                        of the parameters is determined by the plugin and is not
+                        interpreted by the replay tool. (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay
@@ -1059,6 +1101,61 @@ command would be:
 
 This would result in the `gfxrecon.py` Python script first pushing up the file
 to the requested location and then starting the replay.
+
+#### Frame Warm-Up
+
+Android replay forwards `--frame-warm-up-spirv` and `--frame-warm-up-load` to
+the replay tool. The shader contract is the same as on desktop:
+
+- The file must contain valid SPIR-V for a compute shader.
+- The entry point must be named `main`.
+- The shader must be compatible with set `0`, binding `0` as a storage buffer.
+- The shader must not require additional descriptors or push constants.
+- Warm-up runs before the first submit of each replayed frame.
+
+The shader is provided as an external file on purpose. Warm-up workloads are
+highly GPU- and driver-dependent, so replay does not embed a default shader and
+instead lets the user supply one that is appropriate for the target device.
+
+Example shader source:
+
+```glsl
+#version 450
+
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, set = 0, binding = 0) buffer DataBuffer {
+  float data[];
+};
+
+void main() {
+  uint index = gl_GlobalInvocationID.x;
+  float value = data[index];
+
+  for (int i = 0; i < 1000; ++i) {
+    value = sin(value) * 0.999 + cos(float(i)) * 0.001;
+  }
+
+  data[index] = value;
+}
+```
+
+Compile it to SPIR-V on the host:
+
+```bash
+glslangValidator -V -S comp frame_warm_up.comp -o frame_warm_up.spv
+```
+
+Push the resulting SPIR-V file to the device and use it for replay:
+
+```bash
+adb push frame_warm_up.spv /sdcard/Download/frame_warm_up.spv
+
+./android/scripts/gfxrecon.py replay \
+  --frame-warm-up-spirv /sdcard/Download/frame_warm_up.spv \
+  --frame-warm-up-load 4 \
+  /sdcard/Download/android_capture.gfxr
+```
 
 
 ### Touch Controls

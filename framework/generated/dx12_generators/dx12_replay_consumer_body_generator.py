@@ -422,9 +422,11 @@ class Dx12ReplayConsumerBodyGenerator(
                             length = value.array_length + '->GetPointer()'
                         else:
                             length = value.array_length
-                    code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
-                        value.name, value.name, length
-                    )
+
+                    if value.pointer_count > 1:
+                        code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
+                            value.name, value.name, length
+                        )
 
                     if is_override:
                         arg_list.append(value.name)
@@ -523,6 +525,12 @@ class Dx12ReplayConsumerBodyGenerator(
                                 )
                             else:
                                 length = value.array_length
+                        else:
+                            for dict_name, not_array_list in self.NOT_ARRAY_DICT.items():
+                                if value.name in not_array_list:
+                                    length = '!{}ByteLength->IsNull() ? *{}ByteLength->GetPointer() : 1'.format(
+                                        value.name, value.name)
+                                    break
                         code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
                             value.name, value.name, length
                         )
@@ -745,7 +753,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
         length_name = value.array_length
         base_length_name = length_name.replace('* ', '')
-        return 'if ({}->IsNull() && !{}->IsNull()) {{ SetOutputArrayCount(object_id, {}, {}->GetOutputPointer()); }}\n'.format(
+        return 'if (SUCCEEDED(replay_result) && {}->IsNull() && !{}->IsNull()) {{ SetOutputArrayCount(object_id, {}, {}->GetOutputPointer()); }}\n'.format(
             value.name, base_length_name, index_id,
             length_name.replace(' ', '')
         )

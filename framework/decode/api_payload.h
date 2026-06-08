@@ -36,17 +36,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// Define threshold for "by value" vs "heap" storage in the variant
-struct CommandStoragePolicy
-{
-    // This size is picked to match FunctionCallArgs and MethodCallArgs which constitute more than 95% of total blocks
-    static constexpr size_t kInlineThreshold = 48;
-    template <typename T>
-    static constexpr bool IsLarge()
-    {
-        return sizeof(T) > kInlineThreshold;
-    }
-};
+GFXRECON_BEGIN_NAMESPACE(file_processor)
+// Forward declarations for types use in DispatchArgs
+struct ProcessBlocksResult;
+GFXRECON_END_NAMESPACE(file_processor)
 
 template <typename Command, typename Dummy = void>
 struct DispatchHasCallId : std::false_type
@@ -100,7 +93,6 @@ struct DispatchHasAllocGuard : std::false_type
 template <typename Command>
 struct DispatchFlagTraits
 {
-    static constexpr bool kIsLarge          = CommandStoragePolicy::IsLarge<Command>();
     static constexpr bool kHasCallId        = DispatchHasCallId<Command>::value;
     static constexpr bool kHasMetaDataId    = DispatchHasMetaDataId<Command>::value;
     static constexpr bool kHasAllocGuard    = DispatchHasAllocGuard<Command>::value;
@@ -303,23 +295,17 @@ struct SetDevicePropertiesArgs
     // a C array (pipeline_cache_uuid). When passed, the array decays to a uint8_t *, causing aggregate
     // initialization to fail.  The constructor accepts the C array by const reference and
     // performs a memory copy of the contents.
-    SetDevicePropertiesArgs(format::MetaDataId meta_data_id_,
-                            format::ThreadId   thread_id_,
-                            format::HandleId   physical_device_id_,
-                            uint32_t           api_version_,
-                            uint32_t           driver_version_,
-                            uint32_t           vendor_id_,
-                            uint32_t           device_id_,
-                            uint32_t           device_type_,
-                            const uint8_t (&pipeline_cache_uuid_)[format::kUuidSize],
-                            const std::string& device_name_) :
+    SetDevicePropertiesArgs(format::MetaDataId                        meta_data_id_,
+                            const format::SetDevicePropertiesCommand& header,
+                            const std::string&                        device_name_) :
         meta_data_id(meta_data_id_),
-        thread_id(thread_id_), physical_device_id(physical_device_id_), api_version(api_version_),
-        driver_version(driver_version_), vendor_id(vendor_id_), device_id(device_id_), device_type(device_type_),
-        device_name(device_name_)
+        thread_id(header.thread_id), physical_device_id(header.physical_device_id), api_version(header.api_version),
+        driver_version(header.driver_version), vendor_id(header.vendor_id), device_id(header.device_id),
+        device_type(header.device_type), device_name(device_name_)
     {
-        //
-        util::platform::MemoryCopy(pipeline_cache_uuid, format::kUuidSize, pipeline_cache_uuid_, format::kUuidSize);
+        // Need to copy the c-style array contents
+        util::platform::MemoryCopy(
+            pipeline_cache_uuid, format::kUuidSize, header.pipeline_cache_uuid, format::kUuidSize);
     }
 };
 struct SetDeviceMemoryPropertiesArgs
@@ -435,10 +421,14 @@ struct InitDx12AccelerationStructureArgs
 
     format::InitDx12AccelerationStructureCommandHeader             command_header;
     std::vector<format::InitDx12AccelerationStructureGeometryDesc> geometry_descs;
+    std::vector<uint8_t>                                           inputs;
     const uint8_t*                                                 data;
 
-    auto GetTuple() const { return std::tie(command_header, geometry_descs, data); }
+    auto GetTuple() const { return std::tie(command_header, geometry_descs, inputs, data); }
 };
+template <>
+struct DispatchHasAllocGuard<InitDx12AccelerationStructureArgs> : std::true_type
+{};
 struct GetDxgiAdapterArgs
 {
     format::MetaDataId meta_data_id; // Needed by DispatchVisitor, but not ApiDecoder
@@ -566,11 +556,11 @@ struct SetOpaqueDescriptorDataArgs
     auto GetTuple() const { return std::tie(thread_id, device_id, object_id, size, data); }
 };
 
-// --- DispatchTraits specializations (kIsLarge via sizeof at compile time) ---
+// --- DispatchTraits specializations  ---
 template <typename T>
 struct DispatchTraits;
 
-// ---- DispatchTraits specializations (inherit flags; no redundant kIsLarge) ----
+// ---- DispatchTraits specializations (inherit common flags) ----
 template <>
 struct DispatchTraits<FunctionCallArgs> : DispatchFlagTraits<FunctionCallArgs>
 {
@@ -802,145 +792,66 @@ struct DispatchTraits<AnnotationArgs> : DispatchFlagTraits<AnnotationArgs>
     // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
 };
 
-// Store large payloads on heap; small ones by value
-template <class T>
-class DispatchStore
+template <>
+struct DispatchTraits<file_processor::ProcessBlocksResult> : DispatchFlagTraits<void>
 {
-  public:
-    using ValueType                = T;
-    constexpr static bool kIsLarge = DispatchTraits<T>::kIsLarge;
-    using StoreType                = std::conditional_t<kIsLarge, std::unique_ptr<T>, T>;
-
-    // Forwarding constructor handling l-values and r-values
-    // The enable_if_t restricts the constructor to only accept types compatible with T
-    // and to prevent hijacking copy or move constructors with this general constructor
-    template <
-        typename U,
-        typename = std::enable_if_t<std::is_constructible_v<T, U&&> && !std::is_same_v<std::decay_t<U>, DispatchStore>,
-                                    DispatchStore>>
-    explicit DispatchStore(U&& args) : store_(MakeStore(std::forward<U>(args)))
-    {}
-    DispatchStore() = default;
-
-    const T& operator*() const
-    {
-        if constexpr (kIsLarge)
-        {
-            return *store_;
-        }
-        else
-        {
-            return store_;
-        }
-    }
-
-    T& operator*()
-    {
-        if constexpr (kIsLarge)
-        {
-            return *store_;
-        }
-        else
-        {
-            return store_;
-        }
-    }
-
-    const T* operator->() const
-    {
-        if constexpr (kIsLarge)
-        {
-            return store_.get();
-        }
-        else
-        {
-            return &store_;
-        }
-    }
-
-    T* operator->()
-    {
-        if constexpr (kIsLarge)
-        {
-            return store_.get();
-        }
-        else
-        {
-            return &store_;
-        }
-    }
-
-  private:
-    template <typename U>
-    StoreType MakeStore(U&& input)
-    {
-        if constexpr (kIsLarge)
-        {
-            return std::make_unique<T>(std::forward<U>(input));
-        }
-        else
-        {
-            return T(std::forward<U>(input));
-        }
-    }
-
-    StoreType store_;
+    // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
 };
 
-// --- Variant of all payloads (by DispatchStore policy) ---
-using DispatchArgs = std::variant<DispatchStore<FunctionCallArgs>,
-                                  DispatchStore<MethodCallArgs>,
-                                  DispatchStore<StateBeginMarkerArgs>,
-                                  DispatchStore<StateEndMarkerArgs>,
-                                  DispatchStore<FrameEndMarkerArgs>,
-                                  DispatchStore<DisplayMessageArgs>,
-                                  DispatchStore<DriverArgs>,
-                                  DispatchStore<ExeFileArgs>,
-                                  DispatchStore<FillMemoryArgs>,
-                                  DispatchStore<FillMemoryResourceValueArgs>,
-                                  DispatchStore<ResizeWindowArgs>,
-                                  DispatchStore<ResizeWindow2Args>,
-                                  DispatchStore<CreateHardwareBufferArgs>,
-                                  DispatchStore<DestroyHardwareBufferArgs>,
-                                  DispatchStore<CreateHeapAllocationArgs>,
-                                  DispatchStore<SetDevicePropertiesArgs>,
-                                  DispatchStore<SetDeviceMemoryPropertiesArgs>,
-                                  DispatchStore<SetOpaqueAddressArgs>,
-                                  DispatchStore<SetRayTracingShaderGroupHandlesArgs>,
-                                  DispatchStore<SetSwapchainImageStateArgs>,
-                                  DispatchStore<BeginResourceInitArgs>,
-                                  DispatchStore<EndResourceInitArgs>,
-                                  DispatchStore<InitBufferArgs>,
-                                  DispatchStore<InitImageArgs>,
-                                  DispatchStore<InitSubresourceArgs>,
-                                  DispatchStore<InitDx12AccelerationStructureArgs>,
-                                  DispatchStore<GetDxgiAdapterArgs>,
-                                  DispatchStore<GetDx12RuntimeArgs>,
-                                  DispatchStore<ExecuteBlocksFromFileArgs>,
-                                  DispatchStore<SetTlasToBlasDependencyArgs>,
-                                  DispatchStore<SetEnvironmentVariablesArgs>,
-                                  DispatchStore<VulkanAccelerationStructuresBuildMetaArgs>,
-                                  DispatchStore<VulkanAccelerationStructuresCopyMetaArgs>,
-                                  DispatchStore<VulkanAccelerationStructuresWritePropertiesMetaArgs>,
-                                  DispatchStore<ViewRelativeLocationArgs>,
-                                  DispatchStore<InitializeMetaArgs>,
-                                  DispatchStore<AnnotationArgs>,
-                                  DispatchStore<SetOpaqueDescriptorDataArgs>>;
-
-// Helper to create DispatchArgs variant from arbitrary ArgPayload type, with sanity checks
-template <typename ArgPayload>
-inline DispatchArgs MakeDispatchArgs(ArgPayload&& payload)
+template <>
+struct DispatchTraits<std::monostate> : DispatchFlagTraits<void>
 {
-    using Args     = util::RemoveCvRef_t<ArgPayload>;
-    using ArgStore = DispatchStore<Args>;
+    // Is not dispatched to decoders, and thus requires a custom DispatchVisitor::VisitCommand overload
+};
 
-    static_assert(util::IsVariantAlternative_v<ArgStore, DispatchArgs>,
-                  "Invalid ArgPayload type, not storable in DispatchArgs");
-    static_assert(std::is_constructible_v<Args, ArgPayload&&>,
-                  "DispatchArgs alternative not constructible from supplied payload");
+template <typename T>
+using DispatchAlternativeType = std::remove_pointer_t<std::remove_cvref_t<T>>;
+;
+template <typename Alternative>
+struct DispatchAlternativeTraits : DispatchTraits<DispatchAlternativeType<Alternative>>
+{};
 
-    return DispatchArgs{ std::in_place_type<ArgStore>, std::forward<ArgPayload>(payload) };
-}
+// --- Variant of all payloads by reference, storage in allocator
+using DispatchArgs = std::variant<std::monostate,
+                                  file_processor::ProcessBlocksResult*,
+                                  FunctionCallArgs*,
+                                  MethodCallArgs*,
+                                  StateBeginMarkerArgs*,
+                                  StateEndMarkerArgs*,
+                                  FrameEndMarkerArgs*,
+                                  DisplayMessageArgs*,
+                                  DriverArgs*,
+                                  ExeFileArgs*,
+                                  FillMemoryArgs*,
+                                  FillMemoryResourceValueArgs*,
+                                  ResizeWindowArgs*,
+                                  ResizeWindow2Args*,
+                                  CreateHardwareBufferArgs*,
+                                  DestroyHardwareBufferArgs*,
+                                  CreateHeapAllocationArgs*,
+                                  SetDevicePropertiesArgs*,
+                                  SetDeviceMemoryPropertiesArgs*,
+                                  SetOpaqueAddressArgs*,
+                                  SetRayTracingShaderGroupHandlesArgs*,
+                                  SetSwapchainImageStateArgs*,
+                                  BeginResourceInitArgs*,
+                                  EndResourceInitArgs*,
+                                  InitBufferArgs*,
+                                  InitImageArgs*,
+                                  InitSubresourceArgs*,
+                                  InitDx12AccelerationStructureArgs*,
+                                  GetDxgiAdapterArgs*,
+                                  GetDx12RuntimeArgs*,
+                                  ExecuteBlocksFromFileArgs*,
+                                  SetTlasToBlasDependencyArgs*,
+                                  SetEnvironmentVariablesArgs*,
+                                  VulkanAccelerationStructuresBuildMetaArgs*,
+                                  VulkanAccelerationStructuresCopyMetaArgs*,
+                                  VulkanAccelerationStructuresWritePropertiesMetaArgs*,
+                                  ViewRelativeLocationArgs*,
+                                  InitializeMetaArgs*,
+                                  AnnotationArgs*,
+                                  SetOpaqueDescriptorDataArgs*>;
 
 template <typename Args>
 inline size_t GetDispatchArgsDataSize(Args& args)

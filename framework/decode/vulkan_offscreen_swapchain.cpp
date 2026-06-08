@@ -95,6 +95,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
     {
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
+    swapchain_resources_[*replay_swapchain]->forced_offscreen = true;
 
     default_queue_ = GetDeviceQueue(device_table_, device_info, default_queue_family_index_, 0);
 
@@ -150,7 +151,7 @@ VkResult VulkanOffscreenSwapchain::GetSwapchainImagesKHR(VkResult               
     }
 
     VkResult result =
-        CreateSwapchainResourceData(device_info, swapchain_info, capture_image_count, replay_image_count, images, true);
+        CreateSwapchainResourceData(device_info, swapchain_info, capture_image_count, replay_image_count, images);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Offscreen swapchain failed to CreateSwapchainResourceData for swapchain (ID = %" PRIu64 ")",
@@ -249,7 +250,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
                             ->virtual_swapchain_images[present_info->pImageIndices[i]]
                             .image;
         }
-        frame_boundary_.imageCount = images.size();
+        GFXRECON_NARROWING_ASSIGN(frame_boundary_.imageCount, images.size());
         frame_boundary_.pImages    = images.data();
         ++frame_boundary_.frameID;
 
@@ -286,26 +287,25 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
     return original_result;
 }
 
-void VulkanOffscreenSwapchain::FrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID           func,
-                                                    const VulkanDeviceInfo*              device_info,
-                                                    const VulkanSemaphoreInfo*           semaphore_info,
-                                                    const VulkanImageInfo*               image_info,
-                                                    VulkanInstanceInfo*                  instance_info,
-                                                    const graphics::VulkanInstanceTable* instance_table,
-                                                    const graphics::VulkanDeviceTable*   device_table,
-                                                    application::Application*            application)
+void VulkanOffscreenSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*                    device_info,
+                                                 const VulkanSemaphoreInfo*                 semaphore_info,
+                                                 const VulkanImageInfo*                     image_info,
+                                                 VulkanInstanceInfo*                        instance_info,
+                                                 const graphics::VulkanInstanceTable*       instance_table,
+                                                 const graphics::VulkanDeviceTable*         device_table,
+                                                 application::Application*                  application,
+                                                 const std::optional<std::array<float, 2>>& scale)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(semaphore_info);
+    GFXRECON_UNREFERENCED_PARAMETER(image_info);
     GFXRECON_UNREFERENCED_PARAMETER(instance_info);
     GFXRECON_UNREFERENCED_PARAMETER(instance_table);
     GFXRECON_UNREFERENCED_PARAMETER(device_table);
     GFXRECON_UNREFERENCED_PARAMETER(application);
+    GFXRECON_UNREFERENCED_PARAMETER(scale);
 
-    GFXRECON_ASSERT(device_info != nullptr);
-
-    VkSemaphore semaphore = (semaphore_info == nullptr ? VK_NULL_HANDLE : semaphore_info->handle);
-    VkImage     image     = (image_info == nullptr ? VK_NULL_HANDLE : image_info->handle);
-
-    func(device_info->handle, semaphore, image);
+    GFXRECON_LOG_WARNING("%s is not implemented and should not be called", __func__);
 }
 
 // queue_info could be nullptr. It means it doesn't specify a VkQueue and use default_queue. Its purpose is to singal

@@ -25,8 +25,10 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_as.h"
+#include "decode/vulkan_replay_options.h"
 #include "util/defines.h"
 #include "format/format.h"
+#include "util/logging.h"
 
 #include <list>
 #include <stdint.h>
@@ -36,6 +38,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+static constexpr Index UNDEFINED_INDEX = ~(static_cast<Index>(0x0));
 
 enum class DumpResourcesPipelineStage
 {
@@ -77,7 +81,6 @@ enum class DumpResourceType
 using DumpedHostData                  = std::vector<uint8_t>;
 using DumpedImageHostData             = std::vector<DumpedHostData>;
 using DumpedCopyBufferRegionsHostData = std::vector<DumpedHostData>;
-using DumpedCopyImageRegionsHostData  = std::vector<DumpedImageHostData>;
 
 struct AccelerationStructureDumpedHostData
 {
@@ -187,9 +190,9 @@ struct DumpedImage
         DumpedImageSubresource() = default;
 
         DumpedImageSubresource(
-            VkImageAspectFlagBits a, const VkExtent3D& e, const VkExtent3D& se, uint32_t le, uint32_t la) :
+            VkImageAspectFlagBits a, const VkExtent3D& e, const VkExtent3D& se, uint32_t le, uint32_t la, uint32_t d) :
             aspect(a),
-            extent(e), scaled_extent(se), level(le), layer(la)
+            extent(e), scaled_extent(se), level(le), layer(la), depth(d)
         {}
 
         VkImageAspectFlagBits aspect{ VkImageAspectFlagBits(0) };
@@ -197,6 +200,7 @@ struct DumpedImage
         VkExtent3D            scaled_extent{ 0, 0, 0 };
         uint32_t              level{ 0 };
         uint32_t              layer{ 0 };
+        uint32_t              depth{ 0 };
     };
 
     DumpedImage& operator=(const DumpedImage& other)
@@ -320,43 +324,67 @@ struct DumpedResourceBase
 {
     DumpedResourceBase() = default;
 
-    DumpedResourceBase(DumpResourceType t, DumpResourcesPipelineStage ps, uint64_t bcb, uint64_t cmd, uint64_t qs) :
-        type(t), ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs)
+    DumpedResourceBase(DumpResourcesPipelineStage ps,
+                       uint64_t                   bcb,
+                       uint64_t                   cmd,
+                       uint64_t                   qs,
+                       Index                      sii,
+                       uint64_t                   sicbi,
+                       Index                      sci,
+                       Index                      eccbi) :
+        ppl_stage(ps),
+        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(UNDEFINED_INDEX), subpass(UNDEFINED_INDEX),
+        submit_info_index(sii), submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci),
+        execute_cmds_cmd_buf_index(eccbi)
     {}
 
-    DumpedResourceBase(DumpResourceType           t,
-                       DumpResourcesPipelineStage ps,
+    DumpedResourceBase(DumpResourcesPipelineStage ps,
                        uint64_t                   bcb,
                        uint64_t                   cmd,
                        uint64_t                   qs,
                        uint64_t                   rp,
-                       uint64_t                   sp) :
-        type(t),
-        ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp)
+                       uint64_t                   sp,
+                       Index                      sii,
+                       uint64_t                   sicbi,
+                       Index                      sci,
+                       Index                      eccbi) :
+        ppl_stage(ps),
+        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp), submit_info_index(sii),
+        submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci), execute_cmds_cmd_buf_index(eccbi)
     {}
 
-    DumpedResourceBase(DumpResourceType t, DumpResourcesPipelineStage ps, uint64_t cmd, uint64_t qs) :
-        type(t), ppl_stage(ps), bcb_index(0), cmd_index(cmd), qs_index(qs), render_pass(0), subpass(0)
-    {}
+    DumpedResourceBase(const DumpedResourceBase& other, DumpResourceType t) : DumpedResourceBase(other) { type = t; }
 
     DumpResourceType type{ DumpResourceType::kNone };
 
     DumpResourcesPipelineStage ppl_stage{ DumpResourcesPipelineStage::kNone };
 
     // BeginCommandBuffer index
-    uint64_t bcb_index{ 0 };
+    Index bcb_index{ UNDEFINED_INDEX };
 
     // The command's index (vkCmdDraw, vkCmdDispatch, etc)
-    uint64_t cmd_index{ 0 };
+    Index cmd_index{ UNDEFINED_INDEX };
 
     // The QueueSubmit index
-    uint64_t qs_index{ 0 };
+    Index qs_index{ UNDEFINED_INDEX };
 
     // The render pass index in which this resource is dumped
-    uint64_t render_pass{ 0 };
+    Index render_pass{ UNDEFINED_INDEX };
 
     // The sub pass index in which this resource is dumped
-    uint64_t subpass{ 0 };
+    Index subpass{ UNDEFINED_INDEX };
+
+    // The submit info index from the queue submission
+    Index submit_info_index{ UNDEFINED_INDEX };
+
+    // The index of the command buffer in the pCommandBuffers from the submit info
+    Index submit_info_cmd_buf_index{ UNDEFINED_INDEX };
+
+    // The block index of the execute commands (only for secondaries)
+    Index execute_cmds_index{ UNDEFINED_INDEX };
+
+    // The index of the se secondary command buffer in the pCommandBuffers of execute commands (only for secondaries)
+    Index execute_cmds_cmd_buf_index{ UNDEFINED_INDEX };
 };
 
 struct DumpedVertexIndexBuffer : DumpedResourceBase
@@ -366,32 +394,34 @@ struct DumpedVertexIndexBuffer : DumpedResourceBase
     DumpedVertexIndexBuffer() = delete;
 
     // For vertex buffers
-    DumpedVertexIndexBuffer(DumpResourceType t,
-                            uint64_t         bcb,
-                            uint64_t         cmd,
-                            uint64_t         qs,
-                            uint32_t         b,
-                            VkBuffer         buffer,
-                            format::HandleId id,
-                            VkDeviceSize     s,
-                            VkDeviceSize     o) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs),
+    DumpedVertexIndexBuffer(const DumpedResourceBase& dumped_resource_base,
+                            DumpResourceType          t,
+                            uint32_t                  b,
+                            VkBuffer                  buffer,
+                            format::HandleId          id,
+                            VkDeviceSize              s,
+                            VkDeviceSize              o) :
+        DumpedResourceBase(dumped_resource_base, t),
         buffer(buffer, id, o, s), binding(b)
-    {}
+    {
+        GFXRECON_ASSERT(ppl_stage == DumpResourcesPipelineStage::kGraphics);
+        GFXRECON_ASSERT(t == DumpResourceType::kVertex);
+    }
 
     // For index buffers
-    DumpedVertexIndexBuffer(DumpResourceType t,
-                            uint64_t         bcb,
-                            uint64_t         cmd,
-                            uint64_t         qs,
-                            VkIndexType      it,
-                            VkBuffer         buffer,
-                            format::HandleId id,
-                            VkDeviceSize     s,
-                            VkDeviceSize     o) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs),
+    DumpedVertexIndexBuffer(const DumpedResourceBase& dumped_resource_base,
+                            DumpResourceType          t,
+                            VkIndexType               it,
+                            VkBuffer                  buffer,
+                            format::HandleId          id,
+                            VkDeviceSize              s,
+                            VkDeviceSize              o) :
+        DumpedResourceBase(dumped_resource_base, t),
         buffer(buffer, id, o, s), index_type(it)
-    {}
+    {
+        GFXRECON_ASSERT(ppl_stage == DumpResourcesPipelineStage::kGraphics);
+        GFXRECON_ASSERT(t == DumpResourceType::kIndex);
+    }
 
     DumpedBuffer buffer;
 
@@ -409,132 +439,106 @@ struct DumpedDescriptor : DumpedResourceBase
     DumpedDescriptor() = delete;
 
     // Buffer descriptors for graphics
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
-                     uint64_t                   rp,
-                     uint64_t                   sp,
-                     VkShaderStageFlags         ss,
-                     VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
-                     VkBuffer                   buffer,
-                     format::HandleId           id,
-                     VkDeviceSize               offset,
-                     VkDeviceSize               size,
-                     DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+    DumpedDescriptor(const DumpedResourceBase& dumped_resource_base,
+                     DumpResourceType          t,
+                     VkShaderStageFlags        ss,
+                     VkDescriptorType          dt,
+                     const DescriptorLocation& desc_tu,
+                     VkBuffer                  buffer,
+                     format::HandleId          id,
+                     VkDeviceSize              offset,
+                     VkDeviceSize              size) :
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
     // Inline uniform buffers for graphics
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
-                     uint64_t                   rp,
-                     uint64_t                   sp,
-                     VkShaderStageFlags         ss,
-                     VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0),
-        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
+    DumpedDescriptor(const DumpedResourceBase& dumped_resource_base,
+                     DumpResourceType          t,
+                     VkShaderStageFlags        ss,
+                     VkDescriptorType          dt,
+                     const DescriptorLocation& desc_tu) :
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Graphics image descriptors
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
-                     uint64_t                   rp,
-                     uint64_t                   sp,
-                     VkShaderStageFlags         ss,
-                     VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
-                     const VulkanImageInfo*     img_info,
-                     ImageDumpResult            cd,
-                     DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs, rp, sp),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+    DumpedDescriptor(const DumpedResourceBase& dumped_resource_base,
+                     DumpResourceType          t,
+                     VkShaderStageFlags        ss,
+                     VkDescriptorType          dt,
+                     const DescriptorLocation& desc_tu,
+                     const VulkanImageInfo*    img_info,
+                     ImageDumpResult           cd) :
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+    {}
+
+    // Acceleration structure for Graphics
+    DumpedDescriptor(const DumpedResourceBase&                 dumped_resource_base,
+                     DumpResourceType                          t,
+                     VkShaderStageFlags                        ss,
+                     VkDescriptorType                          dt,
+                     const DescriptorLocation&                 desc_tu,
+                     const VulkanAccelerationStructureKHRInfo* as_info,
+                     bool                                      dbib) :
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
 
     // Dispatch ray tracing image descriptors
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
+    DumpedDescriptor(const DumpedResourceBase&  dumped_resource_base,
+                     DumpResourceType           t,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
+                     const DescriptorLocation&  desc_tu,
                      const VulkanImageInfo*     img_info,
                      ImageDumpResult            cd,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
-        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing buffer descriptors
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
+    DumpedDescriptor(const DumpedResourceBase&  dumped_resource_base,
+                     DumpResourceType           t,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
-                     uint32_t                   ai,
+                     const DescriptorLocation&  desc_tu,
                      VkBuffer                   buffer,
                      format::HandleId           id,
                      VkDeviceSize               offset,
                      VkDeviceSize               size,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
     // Dispatch ray tracing inline uniform buffers
-    DumpedDescriptor(DumpResourceType           t,
-                     uint64_t                   bcb,
-                     uint64_t                   cmd,
-                     uint64_t                   qs,
+    DumpedDescriptor(const DumpedResourceBase&  dumped_resource_base,
+                     DumpResourceType           t,
                      VkShaderStageFlags         ss,
                      VkDescriptorType           dt,
-                     uint32_t                   s,
-                     uint32_t                   b,
+                     const DescriptorLocation&  desc_tu,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(0),
-        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Acceleration structure for TraceRays
-    DumpedDescriptor(DumpResourceType                          t,
-                     uint64_t                                  bcb,
-                     uint64_t                                  cmd,
-                     uint64_t                                  qs,
+    DumpedDescriptor(const DumpedResourceBase&                 dumped_resource_base,
+                     DumpResourceType                          t,
                      VkShaderStageFlags                        ss,
                      VkDescriptorType                          dt,
-                     uint32_t                                  s,
-                     uint32_t                                  b,
-                     uint32_t                                  ai,
+                     const DescriptorLocation&                 desc_tu,
                      const VulkanAccelerationStructureKHRInfo* as_info,
                      bool                                      dbib,
                      DumpResourcesPipelineStage                ps) :
-        DumpedResourceBase(t, ps, bcb, cmd, qs),
-        stages(ss), desc_type(dt), set(s), binding(b), array_index(ai),
+        DumpedResourceBase(dumped_resource_base, t),
+        stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
 
@@ -549,10 +553,8 @@ struct DumpedDescriptor : DumpedResourceBase
 
     VkShaderStageFlags stages{ VkShaderStageFlagBits(0) };
 
-    VkDescriptorType desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
-    uint32_t         set{ 0 };
-    uint32_t         binding{ 0 };
-    uint32_t         array_index{ 0 };
+    VkDescriptorType   desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
+    DescriptorLocation desc_tuple;
 };
 
 struct DumpedRenderTarget : DumpedResourceBase
@@ -561,17 +563,13 @@ struct DumpedRenderTarget : DumpedResourceBase
     // Deleting the default construct should help to ensure that variable are set
     DumpedRenderTarget() = delete;
 
-    DumpedRenderTarget(DumpResourceType       t,
-                       uint64_t               bcb,
-                       uint64_t               cmd,
-                       uint64_t               qs,
-                       uint64_t               rp,
-                       uint64_t               sp,
-                       uint32_t               l,
-                       bool                   before,
-                       const VulkanImageInfo* img_info,
-                       ImageDumpResult        cd) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kGraphics, bcb, cmd, qs, rp, sp),
+    DumpedRenderTarget(const DumpedResourceBase& base,
+                       DumpResourceType          t,
+                       uint32_t                  l,
+                       bool                      before,
+                       const VulkanImageInfo*    img_info,
+                       ImageDumpResult           cd) :
+        DumpedResourceBase(base, t),
         location(l), dumped_image(img_info, cd)
     {
         if (before)
@@ -595,18 +593,12 @@ struct TransferedImageInfo
 {
     TransferedImageInfo() = delete;
 
-    TransferedImageInfo(format::HandleId i, VkFormat f, VkExtent3D e, VkImageLayout l) :
-        id(i), format(f), extent(e), layout(l)
-    {}
+    TransferedImageInfo(const VulkanImageInfo& img_info, VkImageLayout l) : image_info(img_info), layout(l) {}
 
-    TransferedImageInfo(const TransferedImageInfo& other) :
-        id(other.id), format(other.format), extent(other.extent), layout(other.layout)
-    {}
+    TransferedImageInfo(const TransferedImageInfo& other) : image_info(other.image_info), layout(other.layout) {}
 
-    format::HandleId id;
-    VkFormat         format;
-    VkExtent3D       extent;
-    VkImageLayout    layout;
+    const VulkanImageInfo image_info;
+    VkImageLayout         layout;
 };
 
 struct DumpedInitBufferMetaCommand
@@ -656,50 +648,38 @@ struct DumpedCopyBufferToImage
 {
     DumpedCopyBufferToImage() = delete;
 
-    DumpedCopyBufferToImage(format::HandleId s, const TransferedImageInfo& transf_img_info) :
-        src_buffer(s), dst_image(transf_img_info)
+    DumpedCopyBufferToImage(format::HandleId           s,
+                            const TransferedImageInfo& transf_img_info,
+                            const VulkanImageInfo*     img_inf,
+                            ImageDumpResult            cd) :
+        src_buffer(s),
+        dst_image(transf_img_info), dumped_image(img_inf, cd)
     {}
 
-    struct CopyRegion
-    {
-        CopyRegion() = delete;
-        CopyRegion(const VkBufferImageCopy& r, const VulkanImageInfo* img_inf, ImageDumpResult cd) :
-            region(r), dumped_image(img_inf, cd)
-        {}
-
-        VkBufferImageCopy region;
-        DumpedImage       dumped_image;
-    };
-
-    std::vector<CopyRegion> regions;
+    std::vector<VkBufferImageCopy> regions;
 
     format::HandleId    src_buffer;
     TransferedImageInfo dst_image;
+    DumpedImage         dumped_image;
 };
 
 struct DumpedCopyImage
 {
     DumpedCopyImage() = delete;
 
-    DumpedCopyImage(const TransferedImageInfo& src_img, const TransferedImageInfo& dst_img) :
-        src_image(src_img), dst_image(dst_img)
+    DumpedCopyImage(const TransferedImageInfo& src_img,
+                    const TransferedImageInfo& dst_img,
+                    const VulkanImageInfo*     img_inf,
+                    ImageDumpResult            cd) :
+        src_image(src_img),
+        dst_image(dst_img), dumped_image(img_inf, cd)
     {}
 
-    struct CopyRegion
-    {
-        CopyRegion() = delete;
-        CopyRegion(const VkImageCopy& r, const VulkanImageInfo* img_inf, ImageDumpResult cd) :
-            dumped_image(img_inf, cd), region(r)
-        {}
-
-        DumpedImage dumped_image;
-        VkImageCopy region;
-    };
-
-    std::vector<CopyRegion> regions;
+    std::vector<VkImageCopy> regions;
 
     TransferedImageInfo src_image;
     TransferedImageInfo dst_image;
+    DumpedImage         dumped_image;
 };
 
 struct DumpedCopyImageToBuffer
@@ -727,27 +707,20 @@ struct DumpedBlitImage
 {
     DumpedBlitImage() = delete;
 
-    DumpedBlitImage(const TransferedImageInfo& si, const TransferedImageInfo& di, VkFilter f) :
-        src_image(si), dst_image(di), filter(f)
+    DumpedBlitImage(const TransferedImageInfo& si,
+                    const TransferedImageInfo& di,
+                    const VulkanImageInfo*     img_inf,
+                    ImageDumpResult            cd,
+                    VkFilter                   f) :
+        src_image(si),
+        dst_image(di), dumped_image(img_inf, cd), filter(f)
     {}
 
-    struct CopyRegion
-    {
-        CopyRegion() = delete;
-        CopyRegion(const VkImageBlit& r, const VulkanImageInfo* img_inf, ImageDumpResult cd) :
-            dumped_image(img_inf, cd), region(r)
-        {}
-
-        DumpedImage dumped_image;
-        VkImageBlit region;
-    };
-
-    std::vector<CopyRegion> regions;
-
-    TransferedImageInfo src_image;
-    TransferedImageInfo dst_image;
-
-    VkFilter filter;
+    TransferedImageInfo      src_image;
+    TransferedImageInfo      dst_image;
+    DumpedImage              dumped_image;
+    VkFilter                 filter;
+    std::vector<VkImageBlit> regions;
 };
 
 struct AccelerationStructureTransfer
@@ -795,29 +768,34 @@ struct DumpedTransferCommand : DumpedResourceBase
     DumpedTransferCommand() = delete;
 
     // InitBufferMetaCommand
-    DumpedTransferCommand(DumpResourceType t, uint64_t cmd, uint64_t qs, format::HandleId b, VkDeviceSize s) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase& dumped_resource_base,
+                          DumpResourceType          t,
+                          format::HandleId          b,
+                          VkDeviceSize              s) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedInitBufferMetaCommand>, b, s), has_before(false)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kInitBufferMetaCommand);
     }
 
     // InitImageMetaCommand
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           const TransferedImageInfo& transf_img_info,
                           const VulkanImageInfo*     img_info) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedInitImageMetaCommand>, transf_img_info, img_info), has_before(false)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kInitImageMetaCommand);
     }
 
     // CopyBuffer
-    DumpedTransferCommand(
-        DumpResourceType t, uint64_t cmd, uint64_t qs, format::HandleId s, format::HandleId d, bool hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase& dumped_resource_base,
+                          DumpResourceType          t,
+                          format::HandleId          s,
+                          format::HandleId          d,
+                          bool                      hb) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyBuffer>, s, d), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyBuffer);
@@ -829,77 +807,83 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // CopyBufferToImage
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           format::HandleId           s,
                           const TransferedImageInfo& transf_img_info,
+                          const VulkanImageInfo*     img_inf,
+                          ImageDumpResult            cd,
                           bool                       hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedCopyBufferToImage>, s, transf_img_info), has_before(hb)
+        DumpedResourceBase(dumped_resource_base, t),
+        dumped_resource(std::in_place_type<DumpedCopyBufferToImage>, s, transf_img_info, img_inf, cd), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyBufferToImage);
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyBufferToImage(s, transf_img_info);
+            dumped_resource_before.emplace<DumpedCopyBufferToImage>(s, transf_img_info, img_inf, cd);
         }
     }
 
     // CopyImage
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           const TransferedImageInfo& si,
                           const TransferedImageInfo& di,
+                          const VulkanImageInfo*     img_inf,
+                          ImageDumpResult            cd,
                           bool                       hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedCopyImage>, si, di), has_before(hb)
+        DumpedResourceBase(dumped_resource_base, t),
+        dumped_resource(std::in_place_type<DumpedCopyImage>, si, di, img_inf, cd), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyImage);
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyImage(si, di);
+            dumped_resource_before.emplace<DumpedCopyImage>(si, di, img_inf, cd);
         }
     }
 
     // CopyImageToBuffer
-    DumpedTransferCommand(
-        DumpResourceType t, uint64_t cmd, uint64_t qs, const TransferedImageInfo& si, format::HandleId d, bool hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
+                          const TransferedImageInfo& si,
+                          format::HandleId           d,
+                          bool                       hb) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyImageToBuffer>, si, d), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyImageToBuffer);
 
         if (hb)
         {
-            dumped_resource_before = DumpedCopyImageToBuffer(si, d);
+            dumped_resource_before.emplace<DumpedCopyImageToBuffer>(si, d);
         }
     }
 
     // BlitImage
-    DumpedTransferCommand(DumpResourceType           t,
-                          uint64_t                   cmd,
-                          uint64_t                   qs,
+    DumpedTransferCommand(const DumpedResourceBase&  dumped_resource_base,
+                          DumpResourceType           t,
                           const TransferedImageInfo& si,
                           const TransferedImageInfo& di,
+                          const VulkanImageInfo*     img_inf,
+                          ImageDumpResult            cd,
                           VkFilter                   f,
                           bool                       hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
-        dumped_resource(std::in_place_type<DumpedBlitImage>, si, di, f), has_before(hb)
+        DumpedResourceBase(dumped_resource_base, t),
+        dumped_resource(std::in_place_type<DumpedBlitImage>, si, di, img_inf, cd, f), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kBlitImage);
 
         if (hb)
         {
-            dumped_resource_before = DumpedBlitImage(si, di, f);
+            dumped_resource_before.emplace<DumpedBlitImage>(si, di, img_inf, cd, f);
         }
     }
 
     // Build AS
-    DumpedTransferCommand(DumpResourceType t, uint64_t cmd, uint64_t qs, bool hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+    DumpedTransferCommand(const DumpedResourceBase& dumped_resource_base, DumpResourceType t, bool hb) :
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedBuildAccelerationStructure>), has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kBuildAccelerationStructure);
@@ -911,16 +895,15 @@ struct DumpedTransferCommand : DumpedResourceBase
     }
 
     // Copy AS
-    DumpedTransferCommand(DumpResourceType                          t,
-                          uint64_t                                  cmd,
-                          uint64_t                                  qs,
+    DumpedTransferCommand(const DumpedResourceBase&                 dumped_resource_base,
+                          DumpResourceType                          t,
                           format::HandleId                          s,
                           format::HandleId                          d,
                           VkCopyAccelerationStructureModeKHR        m,
                           const VulkanAccelerationStructureKHRInfo* as_info,
                           bool                                      dump_input_buffers,
                           bool                                      hb) :
-        DumpedResourceBase(t, DumpResourcesPipelineStage::kTransfer, cmd, qs),
+        DumpedResourceBase(dumped_resource_base, t),
         dumped_resource(std::in_place_type<DumpedCopyAccelerationStructure>, s, d, m, as_info, dump_input_buffers),
         has_before(hb)
     {

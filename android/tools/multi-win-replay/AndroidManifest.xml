@@ -13,8 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
         android:supportsRtl="true"
-        android:extractNativeLibs="true"
         android:hasCode="true">
+        <meta-data android:name="com.android.graphics.injectLayers.enable"
+                   android:value="true"/>
         <activity android:name=".ReplayActivity"
                   android:exported="true"
                   android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout"

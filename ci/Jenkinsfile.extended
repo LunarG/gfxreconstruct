@@ -1,37 +1,209 @@
+/*
+** Copyright (c) 2026 Valve Corporation
+** Copyright (c) 2026 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
+def testedCommit = ''
+def runExtended = true
+def scriptLabel = 'Linux'
+
+def gitRemoteCredentialsId(scmConfig) {
+    def remoteConfig = scmConfig.userRemoteConfigs?.first()
+    if (!remoteConfig?.credentialsId) {
+        error('Unable to resolve Git credentials ID from Jenkins SCM configuration')
+    }
+    return remoteConfig.credentialsId
+}
+
 pipeline {
+    // The pipeline itself does not hold an agent.  Individual stages allocate
+    // Linux or test-machine agents only when they need a workspace.
     agent none
 
     options {
+        // Extended is scheduled and can also be launched manually.  Keep only
+        // one active run so two extended runs cannot promote main at once.
         disableConcurrentBuilds(abortPrevious: true)
         buildDiscarder(logRotator(
             daysToKeepStr: '90',
-            numToKeepStr: '100',
-            artifactDaysToKeepStr: '90',
-            artifactNumToKeepStr: '100'
+            artifactDaysToKeepStr: '14'
         ))
     }
 
+    triggers {
+        // Scheduled gate: Jenkins runs this once on weekday evenings.  The
+        // candidate selection stage decides whether there is anything to test.
+        cron('TZ=America/Denver\nH 22 * * 1-5')
+    }
+
+    parameters {
+        // Manual escape hatch.  Normally extended skips when main already points
+        // at the tested commit, but this lets someone rerun the matrix anyway.
+        booleanParam(
+            name: 'FORCE_EXTENDED_RUN',
+            defaultValue: false,
+            description: 'Run extended tests even if main already points at the tested commit.'
+        )
+    }
+
     stages {
+        stage('Select Candidate') {
+            steps {
+                script {
+                    // The selection script uses sh and Git, so run it on a
+                    // Linux agent instead of allowing Jenkins to pick Windows.
+                    node(scriptLabel) {
+                        cleanWs(deleteDirs: true)
+                        // Checkout gives this fresh workspace the CI scripts.
+                        checkout scm
+                        // This script fetches origin/main and the dev-tested
+                        // marker ref, then writes small files Jenkins can read.
+                        sh './ci/selectExtendedCandidate.sh ci-metadata'
+
+                        testedCommit = readFile('ci-metadata/extended-tested-commit.txt').trim()
+                        if (!(testedCommit ==~ /[0-9a-fA-F]{40}/)) {
+                            error("Invalid tested commit SHA from dev tested marker: ${testedCommit}")
+                        }
+
+                        currentBuild.description = "candidate ${testedCommit.take(12)}"
+
+                        // Shell scripts communicate simple booleans through
+                        // files because Jenkins Pipeline state is Groovy-side.
+                        def shouldRunExtended = readFile('ci-metadata/extended-should-run.txt').trim() == 'true'
+
+                        if (!shouldRunExtended && !params.FORCE_EXTENDED_RUN) {
+                            echo "origin/main already points to ${testedCommit}; skipping extended tests."
+                            currentBuild.result = 'NOT_BUILT'
+                            currentBuild.description = "Skipped: main already at ${testedCommit.take(12)}"
+                            runExtended = false
+                            return
+                        }
+
+                        if (!shouldRunExtended) {
+                            // FORCE_EXTENDED_RUN keeps runExtended true, so the
+                            // matrix runs even though there will be no promotion.
+                            echo "Forcing extended tests even though origin/main already points to ${testedCommit}."
+                            currentBuild.description = "forced candidate ${testedCommit.take(12)}"
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Extended Tests') {
+            when {
+                // Declarative Pipeline evaluates this before entering the stage.
+                // Select Candidate sets runExtended false for a normal skip.
+                expression { return runExtended }
+            }
+
             steps {
                 script {
                     def tests
+                    // Each helper below receives the exact commit SHA to check
+                    // out.  This pins all test machines to the same commit even
+                    // if dev advances while extended is running.
+                    def requestedBranches = [[name: testedCommit]]
 
                     node {
-                        checkout scm
+                        // Checkout once on any agent so runJob.groovy can be
+                        // loaded and used to construct the parallel closures.
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: requestedBranches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
                         def runJob = load 'ci/runJob.groovy'
 
                         tests = [
-                            'Android Rel64': runJob.gfxrTestAndroid('Android R64 Ext', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "extended-suite.json"),
-                            'Linux Mesa Rel64': runJob.gfxrTestLinux('Linux Mesa Rel64 Ext', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit64, "extended-suite.json"),
-                            'Linux Nvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "extended-suite.json"),
-                            'Windows AMD Rel64': runJob.gfxrTestWindows('Win AMD Rel64 Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json"),
-                            'Windows Nvidia Rel64': runJob.gfxrTestWindows('Win Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json"),
+                            'Android Rel64': runJob.gfxrTestAndroid('Android R64 Ext', runJob.ReleaseMode, runJob.AndroidLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Linux Mesa Rel64': runJob.gfxrTestLinux('Linux Mesa Rel64 Ext', runJob.ReleaseMode, runJob.LinuxMesaLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Linux Nvidia Rel64': runJob.gfxrTestLinux('Linux Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.LinuxNvidiaLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Windows AMD Rel64': runJob.gfxrTestWindows('Win AMD Rel64 Ext', runJob.ReleaseMode, runJob.WinAMDExtendedLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Windows Nvidia Rel64': runJob.gfxrTestWindows('Win Nvidia Rel64 Ext', runJob.ReleaseMode, runJob.WinNvidiaExtendedLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Windows11 AMD 9070 Rel64': runJob.gfxrTestWindows('Win11 AMD 9070 Rel64 Ext', runJob.ReleaseMode, runJob.Win11AMD9070Label, runJob.Bit64, "extended-suite.json", requestedBranches),
+                            'Windows11 Nvidia 50XX Rel64': runJob.gfxrTestWindows('Win11 Nvidia 50XX Rel64 Ext', runJob.ReleaseMode, runJob.Win11Nvidia50XXLabel, runJob.Bit64, "extended-suite.json", requestedBranches),
                         ]
                     }
+                    // The closures allocate their own platform-specific agents.
                     parallel tests
                 }
             }
         }
+
+        stage('Promote Main') {
+            when {
+                // Promote only after an actual extended run and only if the
+                // previous stages have not marked the build failed/unstable.
+                expression { return runExtended && currentBuild.currentResult == 'SUCCESS' }
+            }
+
+            steps {
+                script {
+                    // Promotion uses sh and Git push, so keep it on Linux.
+                    node(scriptLabel) {
+                        cleanWs(deleteDirs: true)
+
+                        // Start from the exact commit that passed extended tests
+                        // so this workspace has the CI scripts from that tested
+                        // revision.  promoteMain.sh will re-fetch main and
+                        // fast-forward it to testedCommit.
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: testedCommit]],
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+
+                        // promoteMain.sh uses the exact tested SHA.  It does not
+                        // merge the moving dev branch and it never force-pushes.
+                        withCredentials([gitUsernamePassword(
+                            credentialsId: gitRemoteCredentialsId(scm),
+                            gitToolName: 'Default'
+                        )]) {
+                            sh "./ci/promoteMain.sh ${testedCommit}"
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    post {
+        failure {
+            script {
+                node {
+                    googlechatnotification(
+                        url: 'id:Google-Chat-GFXR',
+                        message: "Build failed: <${env.BUILD_URL}|Extended #${env.BUILD_NUMBER}>",
+                        notifyFailure: false,
+                    )
+                }
+            }
+        }
+    }
+
 }

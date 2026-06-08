@@ -41,7 +41,7 @@ class OpenXrDetectionConsumer : public OpenXrConsumer
 {
   public:
     OpenXrDetectionConsumer() {}
-    bool         WasOpenXrAPIDetected() { return openxr_consumer_usage_; }
+    bool         WasOpenXrAPIDetected() const { return openxr_consumer_usage_; }
     virtual void Process_xrCreateSession(const ApiCallInfo&         call_info,
                                          XrResult                   returnValue,
                                          gfxrecon::format::HandleId instance,

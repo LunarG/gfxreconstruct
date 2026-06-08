@@ -400,13 +400,26 @@ class VulkanReplayDumpResourcesBase
     void
     OverrideEndCommandBuffer(const ApiCallInfo& call_info, PFN_vkEndCommandBuffer func, VkCommandBuffer commandBuffer);
 
+    void OverrideCmdBeginQuery(const ApiCallInfo&         call_info,
+                               PFN_vkCmdBeginQuery        func,
+                               VkCommandBuffer            original_command_buffer,
+                               const VulkanQueryPoolInfo* queryPool,
+                               uint32_t                   query,
+                               VkQueryControlFlags        flags);
+
+    void OverrideCmdEndQuery(const ApiCallInfo&         call_info,
+                             PFN_vkCmdEndQuery          func,
+                             VkCommandBuffer            original_command_buffer,
+                             const VulkanQueryPoolInfo* queryPool,
+                             uint32_t                   query);
+
     void OverrideCmdExecuteCommands(const ApiCallInfo&       call_info,
                                     PFN_vkCmdExecuteCommands func,
                                     VkCommandBuffer          commandBuffer,
                                     uint32_t                 commandBufferCount,
                                     const VkCommandBuffer*   pCommandBuffers);
 
-    VkResult QueueSubmit(const std::vector<VkSubmitInfo>&   modified_submit_infos,
+    VkResult QueueSubmit(std::span<const VkSubmitInfo>      submit_infos,
                          const graphics::VulkanDeviceTable& device_table,
                          const VulkanQueueInfo*             queue,
                          VkFence                            fence,
@@ -463,8 +476,9 @@ class VulkanReplayDumpResourcesBase
                     GetPNextMetaStruct<Decoded_VkPipelineLibraryCreateInfoKHR>(create_info_meta->pNext);
                 if (pipeline_library_info != nullptr)
                 {
-                    const uint32_t          library_count = pipeline_library_info->pLibraries.GetLength();
-                    const format::HandleId* ppl_ids       = pipeline_library_info->pLibraries.GetPointer();
+                    const auto library_count =
+                        GFXRECON_NARROWING_CAST(uint32_t, pipeline_library_info->pLibraries.GetLength());
+                    const format::HandleId* ppl_ids = pipeline_library_info->pLibraries.GetPointer();
 
                     for (uint32_t lib_idx = 0; lib_idx < library_count; ++lib_idx)
                     {
@@ -518,6 +532,7 @@ class VulkanReplayDumpResourcesBase
     // Like OverrideCmdBuildAccelerationStructuresKHR Handles population of acceleration_structures_context_ map.
     // In this case of copying AS it simply makes the new entry in the map to point at the src AS's entry.
     void HandleCmdCopyAccelerationStructureKHR(const graphics::VulkanDeviceTable&        device_table,
+                                               const VulkanCommandBufferInfo*            original_command_buffer,
                                                const VulkanAccelerationStructureKHRInfo* src,
                                                const VulkanAccelerationStructureKHRInfo* dst);
 
@@ -690,14 +705,14 @@ class VulkanReplayDumpResourcesBase
     std::vector<std::shared_ptr<const TransferDumpingContext>> FindTransferContextBcbIndex(uint64_t bcb_index) const;
     std::vector<std::shared_ptr<TransferDumpingContext>>       FindTransferContextCmdIndex(uint64_t cmd_index);
     std::shared_ptr<TransferDumpingContext> FindTransferContextBcbQsIndex(uint64_t bcb_index, uint64_t qs_index);
-    std::shared_ptr<TransferDumpingContext> FindTransferContext(VkCommandBuffer original_command_buffer,
-                                                                decode::Index   qs_index);
 
     // Context tracking. This functions should be called when a dumping context has done its job.
     // The context will be erased from its corresponding map and the active_contexts_ counter will be
     // adjusted accordingly.
     template <typename MapOfContexts>
-    void ReleaseDumpingContexts(MapOfContexts contexts, decode::Index qs_index);
+    void ReleaseDumpingContexts(MapOfContexts& contexts, decode::Index qs_index);
+
+    void ReleaseDumpingContexts(decode::Index qs_index);
 
     void HandleCmdBindVertexBuffers2(const ApiCallInfo&          call_info,
                                      PFN_vkCmdBindVertexBuffers2 func,

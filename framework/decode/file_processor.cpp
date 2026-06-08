@@ -22,30 +22,21 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/async_processor.h"
+#include "decode/block_buffer.h"
 #include "decode/file_processor.h"
-
+#include "decode/file_processor_visitors.h" // Must be after file_processor.h for FileProcessor callbacks
 #include "format/format_util.h"
 #include "util/logging.h"
 
 #include <string>
-#include <limits>
-#if defined(__ANDROID__)
-#include <android/trace.h>
-#else
-#define ATrace_beginSection(name)
-#define ATrace_endSection()
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-const uint32_t kFirstFrame = 0;
-
 FileProcessor::FileProcessor() :
-    current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
-    annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), block_limit_(0),
-    pending_capture_uses_frame_markers_(false), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1),
-    loading_trimmed_capture_state_(false), pool_(util::HeapBufferPool::Create())
+    async_block_iterator_(), compressor_(nullptr), first_frame_(kFirstFrame + 1), file_header_({ 0, 0, 0, 0 }),
+    working_uncompressed_store_(kWorkingStoreInitialSize)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -64,7 +55,37 @@ void FileProcessor::WaitDecodersIdle()
     {
         decoder->WaitIdle();
     }
+}
+
+void FileProcessor::StartAsyncProcessing()
+{
+    GFXRECON_ASSERT(process_frame_number_ == kFirstFrame);
+    block_parser_->SetOperationMode(BlockParser::OperationMode::kEnqueued);
+    async_processor_ = std::make_unique<AsyncProcessor>(*this, *block_parser_);
+    async_processor_->SetPreloadFrameRange(preload_frame_range_);
+    if (quit_before_frame_ != 0)
+    {
+        async_processor_->SetQuitBeforeFrame(quit_before_frame_);
+    }
+
+    // Blocks until async_processor_ flushes its first batch (or finishes processing with no batches).
+    async_processor_->LaunchAsyncThread();
+
+    // c.f. file_processor_types.h re: iterator semantics.
+    async_block_iterator_ = BlockIterator(&async_processor_->GetBatchIterator());
+}
+
+void FileProcessor::SetPreloadFrameRange(FrameRange frame_range)
+{
+    GFXRECON_LOG_DEBUG(
+        "Preload frame range set to [%" PRIu64 ", %" PRIu64 ")", frame_range.begin_frame, frame_range.end_frame);
+    preload_frame_range_ = frame_range;
 };
+
+void FileProcessor::SetQuitBeforeFrame(FrameNumber frame_number)
+{
+    quit_before_frame_ = frame_number;
+}
 
 bool FileProcessor::Initialize(const std::string& filename)
 {
@@ -76,8 +97,7 @@ bool FileProcessor::Initialize(const std::string& filename)
     }
     else
     {
-        GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
-        error_state_ = kErrorOpeningFile;
+        dispatch_error_state_ = kErrorOpeningFile;
     }
 
     if (success)
@@ -89,113 +109,80 @@ bool FileProcessor::Initialize(const std::string& filename)
         auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
             HandleBlockReadError(err, message);
         } };
-        block_parser_ = std::make_unique<BlockParser>(err_handler, pool_, compressor_.get());
-        success       = block_parser_.get() != nullptr;
-        if (!success)
+        block_parser_    = std::make_unique<BlockParser>(err_handler, compressor_.get());
+        if (block_parser_.get() != nullptr)
         {
-            error_state_ = kErrorOpeningFile;
+            // For immediate dispatching (the default mode of operation) no need to defer decompression
+            block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
+        }
+        else
+        {
+            dispatch_error_state_ = kErrorOpeningFile;
+            success               = false;
         }
     }
 
     return success;
-}
-
-std::string FileProcessor::ApplyAbsolutePath(const std::string& file)
-{
-    if (absolute_path_.empty())
-    {
-        return file;
-    }
-
-    return absolute_path_ + file;
 }
 
 bool FileProcessor::ProcessNextFrame()
 {
-    auto block_processor = [this]() { return this->ProcessBlocksOneFrame(); };
-    return DoProcessNextFrame(block_processor);
+    if (AsyncProcessingEnabled())
+    {
+        return ProcessNextFrameAsync();
+    }
+    return ProcessNextFrameSync();
 }
 
-bool FileProcessor::ProcessBlocksOneFrame()
+bool FileProcessor::ProcessNextFrameAsync()
 {
-    ATrace_beginSection("ProcessBlocksOneFrame");
-    block_parser_->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
-    if (current_frame_number_ == kFirstFrame)
-    {
-        // Process initial resources state
-        ATrace_beginSection("InitState");
-        if (!ProcessBlocks())
-        {
-            return false;
-        }
-        ATrace_endSection();
-    }
+    // Note that this call may block on empty queue, but the async
+    // queue loader should always close the queue on end processing or error
+    // NOTE: If the dispatch visitor is reused from frame to frame, then should be Reset().
+    DispatchVisitor dispatch_visitor(*this, decoders_, annotation_handler_);
+    async_block_iterator_ = ReplayOneFrame(dispatch_visitor, async_block_iterator_, BlockIterator());
 
-    int64_t start_offset = 0;
-    bool    do_repeat    = (repeat_frame_n_times_ > 0) && (!file_stack_.empty());
+    const ProcessBlocksResult& result = dispatch_visitor.GetReplayResult();
+    HandleReplayResult(result, async_block_iterator_);
 
-    if (do_repeat)
-    {
-        start_offset = GetCurrentFile().active_file->Tell();
-    }
-
-    uint32_t start_frame = current_frame_number_;
-
-    // Handle limited command counts (e.g. from trim ranges or secondary files)
-    uint32_t remaining_commands_before = 0;
-
-    remaining_commands_before = GetCurrentFile().remaining_commands;
-
-    for (uint32_t i = 0; i <= repeat_frame_n_times_; ++i)
-    {
-        // Ensure we replay with the same frame number
-        current_frame_number_ = start_frame;
-
-        for (ApiDecoder* decoder : decoders_)
-        {
-            decoder->SetCurrentFrameNumber(current_frame_number_);
-        }
-
-        GetCurrentFile().remaining_commands =
-            (i < repeat_frame_n_times_) ? remaining_commands_before + 1 : remaining_commands_before;
-
-        if (!ProcessBlocks())
-        {
-            return false;
-        }
-
-        if (i < repeat_frame_n_times_)
-        {
-            SeekActiveFile(start_offset, util::platform::FileSeekSet);
-        }
-    }
-
-    ATrace_endSection();
-    return true;
+    return ContinueProcessing(result.state);
 }
 
-bool FileProcessor::DoProcessNextFrame(const std::function<bool()>& block_processor)
+bool FileProcessor::ProcessNextFrameSync()
 {
-    bool success = IsFileValid();
-
-    if (success)
+    if (!IsFileValid())
     {
-
-        success = block_processor();
-    }
-    else
-    {
-        error_state_ = CheckFileStatus();
+        dispatch_error_state_ = CheckFileStatus();
+        return false;
     }
 
-    return success;
+    // The dispatch function is correct only for non-enqueued, and requires decompression during ParsedBlock creation
+    GFXRECON_ASSERT(block_parser_->GetOperationMode() == BlockParser::OperationMode::kImmediate);
+    GFXRECON_ASSERT(block_parser_->GetDecompressionPolicy() == BlockParser::DecompressionPolicy::kAlways);
+
+    DispatchVisitor                          dispatch_visitor(*this, decoders_, annotation_handler_);
+    file_processor::SynchronousProcessPolicy process_policy{ *this, dispatch_visitor };
+
+    // This is immediate mode, process and dispatch frame numbers are matched.
+    // This should be true for initialization and every frame when not replaying from preload.
+    // But we don't call down this path after preloading and before replay is complete.
+    GFXRECON_ASSERT(dispatch_frame_number_ == process_frame_number_);
+
+    SetDecoderFrameNumber(dispatch_frame_number_);
+    ProcessBlockState process_result = ProcessBlocks(process_policy);
+
+    // ProcessBlocks can update process_frame_number_, so keep them in sync here
+    dispatch_frame_number_ = process_frame_number_;
+
+    // Pick up any errors from block processing, and make them application visible.
+    dispatch_error_state_ = process_error_state_;
+
+    return ContinueProcessing(process_result);
 }
 
 bool FileProcessor::ProcessAllFrames()
 {
     bool success = true;
-
-    block_index_ = 0;
 
     while (success)
     {
@@ -205,40 +192,20 @@ bool FileProcessor::ProcessAllFrames()
         }
     }
 
-    return (error_state_ == kErrorNone);
+    return (process_error_state_ == kErrorNone);
 }
 
-bool FileProcessor::ContinueDecoding()
+bool FileProcessor::CheckAllDecodersComplete(uint64_t block_index) const
 {
-    bool early_exit = false;
-    // If a block limit was specified, obey it.
-    // If not (block_limit_ = 0),  then the consumer may determine early exit
-    if (block_limit_ > 0)
+    bool all_complete = true;
+    for (auto& decoder : decoders_)
     {
-        if (block_index_ > block_limit_)
-        {
-            early_exit = true;
-        }
-    }
-    else
-    {
-        int completed_decoders = 0;
-
-        for (auto& decoder : decoders_)
-        {
-            if (decoder->IsComplete(block_index_) == true)
-            {
-                completed_decoders++;
-            }
-        }
-
-        if (completed_decoders == decoders_.size())
-        {
-            early_exit = true;
-        }
+        // NOTE: MUST NOT return false on first incomplete decode as the "decoder->IsComplete"
+        // calls may have side effects.
+        all_complete &= decoder->IsComplete(block_index);
     }
 
-    return !early_exit;
+    return all_complete;
 }
 
 bool FileProcessor::ProcessFileHeader()
@@ -288,21 +255,21 @@ bool FileProcessor::ProcessFileHeader()
                     GFXRECON_LOG_ERROR("Failed to initialize file compression module (type = %u); replay of "
                                        "compressed data will not be possible",
                                        enabled_options_.compression_type);
-                    success      = false;
-                    error_state_ = kErrorUnsupportedCompressionType;
+                    success               = false;
+                    dispatch_error_state_ = kErrorUnsupportedCompressionType;
                 }
             }
         }
         else
         {
             GFXRECON_LOG_ERROR("File header contains invalid four character code");
-            error_state_ = kErrorInvalidFourCC;
+            dispatch_error_state_ = kErrorInvalidFourCC;
         }
     }
     else
     {
         GFXRECON_LOG_ERROR("Failed to read file header");
-        error_state_ = kErrorReadingFileHeader;
+        dispatch_error_state_ = kErrorReadingFileHeader;
     }
 
     return success;
@@ -327,32 +294,27 @@ void FileProcessor::DecrementRemainingCommands()
     }
 }
 
-bool FileProcessor::ProcessBlocks()
+template <typename ProcessPolicy>
+FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(ProcessPolicy& policy)
 {
-    ATrace_beginSection("ProcessBlocks");
-    BlockBuffer block_buffer;
-    bool        success = true;
+    BlockBuffer       block_buffer;
+    ProcessBlockState process_state = ProcessBlockState::kContinue;
+    BlockParser&      block_parser  = *block_parser_.get();
+    ProcessVisitor    process_visitor(*this);
 
-    BlockParser& block_parser = GetBlockParser();
-    // NOTE: To test deferred decompression operation uncomment next line
-    // block_parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kQueueOptimized);
-
-    ProcessVisitor  process_visitor(*this);
-    DispatchVisitor dispatch_visitor(decoders_, annotation_handler_);
-
-    while (success)
+    while (process_state == ProcessBlockState::kContinue)
     {
         PrintBlockInfo();
-        success = ContinueDecoding();
+
+        if constexpr (ProcessPolicy::kUpdateDispatchState)
+        {
+            dispatch_block_index_ = process_block_index_;
+        }
+        bool success = policy.ContinueBlockProcessing(process_block_index_);
 
         if (success)
         {
-            success = GetBlockBuffer(block_parser, block_buffer);
-
-            for (auto decoder : decoders_)
-            {
-                decoder->SetCurrentBlockIndex(block_index_);
-            }
+            success = ReadBlockBuffer(block_parser, block_buffer);
 
             if (success)
             {
@@ -362,58 +324,68 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    block_parser.SetBlockIndex(block_index_);
-                    block_parser.SetFrameNumber(current_frame_number_);
+                    block_parser.SetBlockIndex(process_block_index_);
+                    block_parser.SetFrameNumber(process_frame_number_);
                     // NOTE: upon successful parsing, the block_buffer block data has been moved to the
                     // parsed_block, though the block header is still valid.
-                    ParsedBlock parsed_block = block_parser.ParseBlock(block_buffer);
+                    ParsedBlock& parsed_block = block_parser.ParseBlock(block_buffer);
 
                     // NOTE: Visitable is either Ready or DeferredDecompression,
                     //       Invalid, Unknown, and Skip are not Visitable
                     if (parsed_block.IsVisitable())
                     {
-                        // Deferred decompress failure implies a late uncovering of an invalid block.
-                        success = parsed_block.Decompress(block_parser); // Safe without testing block state.
                         if (success)
                         {
                             std::visit(process_visitor, parsed_block.GetArgs());
                             success = process_visitor.IsSuccess();
                             if (success)
                             {
-                                std::visit(dispatch_visitor, parsed_block.GetArgs());
+                                process_state = policy.Dispatch(process_block_index_, parsed_block);
+                                if ((ProcessBlockState::kContinue == process_state) &&
+                                    process_visitor.IsFrameDelimiter())
+                                {
+                                    process_state = ProcessBlockState::kFrameBoundary;
+                                }
+                            }
+                            else
+                            {
+                                process_state = ProcessBlockState::kError;
                             }
                         }
+                        else
+                        {
+                            // Decompression failed. Decompress logs error.
+                            process_state = ProcessBlockState::kError;
+                        }
                     }
-
+                    else if (!parsed_block.IsValid())
+                    {
+                        // Invalid block. Error already logged in ParseBlock.
+                        process_state = ProcessBlockState::kError;
+                    }
                     // NOTE: Warnings for unknown/invalid blocks are handled in the BlockParser
-                    if (process_visitor.IsStateDelimiter())
-                    {
-                        ++block_index_;
-                        DecrementRemainingCommands();
-                        break;
-                    }
-                    if (process_visitor.IsFrameDelimiter())
-                    {
-                        // The ProcessVisitor (pre-dispatch) is not the right place to update the frame state, so do it
-                        // here
-                        UpdateEndFrameState();
-                        ++block_index_;
-                        DecrementRemainingCommands();
-                        break;
-                    }
                 }
+                ++process_block_index_;
+                DecrementRemainingCommands();
             }
-            else
+            else // ReadBlockBuffer failed
             {
-                success = HandleBlockEof("read", true);
+                process_state = HandleBlockEof("read", true);
             }
         }
-        ++block_index_;
-        DecrementRemainingCommands();
+        else // ContinueBlockProcessing returned false
+        {
+            process_state = ProcessBlockState::kEndProcessing;
+        }
     }
-    ATrace_endSection();
 
-    return success;
+    // Update the frame number etc.
+    if (process_state == ProcessBlockState::kFrameBoundary)
+    {
+        UpdateEndFrameState();
+    }
+
+    return process_state;
 }
 
 // While ReadBlockBuffer both reads the block header and the block body, checks for
@@ -438,12 +410,6 @@ bool FileProcessor::ReadBlockBuffer(BlockParser& parser, BlockBuffer& block_buff
     return success;
 }
 
-// Preloading overloads this to get preloaded blocks
-bool FileProcessor::GetBlockBuffer(BlockParser& parser, BlockBuffer& block_buffer)
-{
-    return ReadBlockBuffer(parser, block_buffer);
-}
-
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
     // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
@@ -459,21 +425,101 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     return false;
 }
 
-util::DataSpan FileProcessor::ReadSpan(size_t bytes)
-{
-    // File entry is non-const to allow read bytes to be non-const (i.e. potentially reflect a stateful operation)
-    // without forcing use of mutability
-    auto& active_file = file_stack_.back().active_file;
-    GFXRECON_ASSERT(active_file);
+template file_processor::ProcessBlockState
+FileProcessor::ProcessBlocks<file_processor::PreloadProcessPolicy>(file_processor::PreloadProcessPolicy& policy);
+template file_processor::ProcessBlockState
+FileProcessor::ProcessBlocks<file_processor::AsyncProcessPolicy>(file_processor::AsyncProcessPolicy& policy);
 
-    util::DataSpan read_span = active_file->ReadSpan(bytes);
-    if (!read_span.empty())
+void FileProcessor::HandleReplayResult(const ProcessBlocksResult& result, const file_processor::BlockIterator& iterator)
+{
+    dispatch_error_state_  = result.error;
+    dispatch_frame_number_ = result.frame_number;
+
+    if (result.state == ProcessBlockState::kContinue)
     {
-        // Note: Should this += read_span.size() instead... though current behavior of ReadSpan doesn't support partial
-        // reads
-        bytes_read_ += bytes;
+        if (iterator == file_processor::BlockIterator())
+        {
+            GFXRECON_LOG_FATAL(
+                "Should never encounter end of queue without a terminating ProcessBlocksResult ahead of it.");
+            dispatch_error_state_ = BlockIOError::kErrorReadingBlockData;
+        }
     }
-    return read_span;
+}
+
+file_processor::BlockIterator
+FileProcessor::ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator begin, BlockIterator end)
+{
+    GFXRECON_ASSERT(begin != end);
+    BlockParser& block_parser = GetBlockParser();
+
+    ProcessBlockState             state = ProcessBlockState::kContinue;
+    file_processor::BlockIterator it    = begin;
+
+    SetDecoderFrameNumber(dispatch_frame_number_);
+    while ((it != end) && (ProcessBlockState::kContinue == state))
+    {
+        ParsedBlock& block = *it;
+        // We assume that only known, visitable blocks were preloaded
+        GFXRECON_ASSERT(block.IsVisitable());
+
+        if (block.NeedsDecompression())
+        {
+            // Note: This path is destructive to replayed blocks.
+            //
+            // Decompression during replay sets the args data pointer to the working_uncompressed_store_ data.
+            // The block is ready to dispatch; however, it will become invalid as soon as the next block is
+            // decompressed. This is because the working store will be overwritten with the most recently
+            // decompressed data, and since the working store automatically resizes as needed, the data
+            // pointer may become stale.
+            //
+            // For performance reasons, we are neither updating the block state nor deleting the block until
+            // *after* all preloaded blocks (or at least blocks in a given batch have been replayed. This
+            // means that replayed blocks are effectively invalid, yet they are retained and still marked as valid.
+            //
+            // If in the future we need to support the reuse of preloaded blocks, we will need a way to:
+            //  1: restore the args data pointer, or
+            //  2: retain the decompressed data in the block batch (likely as a dynamic allocation in the HLA), or
+            //  3: allocate the decompressed buffer storage at block creation time, but still defer decompression.
+            if (!block.Decompress(block_parser, working_uncompressed_store_))
+            {
+                // As is the case with decompression failure during block parsing, decompression failure on replay
+                // is fatal.
+                //
+                // Note: Error message generation is done by the block decompression code
+                dispatch_visitor.SetReplayResult(
+                    { dispatch_frame_number_, kErrorReadingCompressedBlockData, ProcessBlockState::kError });
+                break;
+            }
+        }
+
+        // update the "dispatched" block index for the application facing interfaces and decoders
+        dispatch_block_index_ = block.GetBlockIndex();
+        if (ContinueBlockProcessing<file_processor::ContinueProcessingPolicy::DecoderOnly>(
+                dispatch_block_index_)) // Requires the dispatch_block_index_ to be updated
+        {
+            dispatch_visitor.SetBlockIndex(dispatch_block_index_);
+            state = std::visit(dispatch_visitor, block.GetArgs());
+        }
+        else
+        {
+            state = ProcessBlockState::kEndProcessing;
+        }
+
+        ++it;
+    }
+    return it;
+}
+
+bool FileProcessor::IsFileValid() const
+{
+    if (!file_stack_.empty())
+    {
+        return file_stack_.back().active_file->IsReady();
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool FileProcessor::SeekActiveFile(const FileInputStreamPtr&      active_file,
@@ -521,8 +567,7 @@ bool FileProcessor::SetActiveFile(const std::string& filename, bool execute_till
 
         if (!opened || !active_file->IsOpen())
         {
-            GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
-            error_state_ = kErrorOpeningFile;
+            process_error_state_ = kErrorOpeningFile;
             return false;
         }
 
@@ -533,7 +578,7 @@ bool FileProcessor::SetActiveFile(const std::string& filename, bool execute_till
 
     // Now that we have a new stream or old, push it on the stack
     file_stack_.emplace_back(std::move(active_file), execute_till_eof);
-    error_state_ = kErrorNone;
+    process_error_state_ = kErrorNone;
     return true;
 }
 
@@ -565,8 +610,9 @@ void FileProcessor::HandleBlockReadError(BlockIOError error_code, const char* er
     }
     else
     {
-        GFXRECON_LOG_ERROR("%s (frame %u block %" PRIu64 ")", error_message, current_frame_number_, block_index_);
-        error_state_ = error_code;
+        GFXRECON_LOG_ERROR(
+            "%s (frame %u block %" PRIu64 ")", error_message, process_frame_number_, process_block_index_);
+        process_error_state_ = error_code;
     }
 }
 
@@ -581,13 +627,13 @@ void FileProcessor::UpdateEndFrameState()
         GFXRECON_ASSERT(!capture_uses_frame_markers_);
         capture_uses_frame_markers_         = true;
         pending_capture_uses_frame_markers_ = false;
-        current_frame_number_               = kFirstFrame;
+        process_frame_number_               = kFirstFrame;
         GFXRECON_LOG_WARNING("Explicit frame markers found in file format (0.0) file w/ gfxrecon-version < (1.0.1). "
                              "Patch input file format with 'gfxrecon-file-version-patch'");
     }
 
     // Make sure to increment the frame number on the way out.
-    ++current_frame_number_;
+    ++process_frame_number_;
 }
 
 bool FileProcessor::ProcessFrameDelimiter(gfxrecon::format::ApiCallId call_id)
@@ -600,7 +646,7 @@ bool FileProcessor::ProcessFrameDelimiter(const FrameEndMarkerArgs& end_frame)
     // Validate frame end marker's frame number matches current_frame_number_ when capture_uses_frame_markers_ is
     // true.
     GFXRECON_ASSERT((!capture_uses_frame_markers_) ||
-                    (current_frame_number_ == (end_frame.frame_number - first_frame_)));
+                    (process_frame_number_ == (end_frame.frame_number - first_frame_)));
     if (IsFrameDelimiter(format::BlockType::kFrameMarkerBlock, format::MarkerType::kEndMarker))
     {
         // If this is the first FrameEndMarker, this frame has side effects to be applied after dispatch
@@ -640,10 +686,14 @@ void FileProcessor::ProcessStateBeginMarker(const StateBeginMarkerArgs& state_be
     loading_trimmed_capture_state_ = true;
 }
 
+void FileProcessor::ProcessStateEndMarkerFrameState(const StateEndMarkerArgs& state_end)
+{
+    first_frame_ = state_end.frame_number;
+}
+
 void FileProcessor::ProcessStateEndMarker(const StateEndMarkerArgs& state_end)
 {
     GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, state_end.frame_number);
-    first_frame_                   = state_end.frame_number;
     loading_trimmed_capture_state_ = false;
 }
 
@@ -657,7 +707,7 @@ void FileProcessor::ProcessAnnotation(const AnnotationArgs& annotation)
         format::GfxrVersion version = format::ParseVersionFromOperations(annotation.annotation_data.c_str());
         if (version.SupportsFrameMarkers())
         {
-            GFXRECON_ASSERT(current_frame_number_ == kFirstFrame);
+            GFXRECON_ASSERT(process_frame_number_ == kFirstFrame);
             capture_uses_frame_markers_  = true;
             file_supports_frame_markers_ = true;
         }
@@ -689,18 +739,19 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 
 void FileProcessor::PrintBlockInfo() const
 {
-    if (enable_print_block_info_ && ((block_index_from_ < 0 || block_index_to_ < 0) ||
-                                     (block_index_from_ <= block_index_ && block_index_to_ >= block_index_)))
+    if (enable_print_block_info_ &&
+        ((block_index_from_ < 0 || block_index_to_ < 0) ||
+         (block_index_from_ <= process_block_index_ && block_index_to_ >= process_block_index_)))
     {
         GFXRECON_LOG_INFO(
-            "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
+            "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", process_block_index_, process_frame_number_);
     }
 }
 
-bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_block)
+FileProcessor::ProcessBlockState FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_block)
 {
 
-    bool success = false;
+    ProcessBlockState state = ProcessBlockState::kEndProcessing;
     if (!AtEof())
     {
         // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
@@ -712,15 +763,16 @@ bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_
         {
             GFXRECON_LOG_ERROR("Failed to %s block header (frame %u block %" PRIu64 ")",
                                operation,
-                               current_frame_number_,
-                               block_index_);
+                               process_frame_number_,
+                               process_block_index_);
         }
         else
         {
             GFXRECON_LOG_ERROR("Failed to %s block header", operation);
         }
 
-        error_state_ = kErrorReadingBlockHeader;
+        process_error_state_ = kErrorReadingBlockHeader;
+        state                = ProcessBlockState::kError;
     }
     else
     {
@@ -730,10 +782,21 @@ bool FileProcessor::HandleBlockEof(const char* operation, bool report_frame_and_
         if (current_file.execute_till_eof)
         {
             file_stack_.pop_back();
-            success = !file_stack_.empty();
+            if (!file_stack_.empty())
+            {
+                state = ProcessBlockState::kContinue;
+            }
         }
     }
-    return success;
+    return state;
+}
+
+void FileProcessor::SetDecoderFrameNumber(uint64_t frame_number)
+{
+    for (auto* decoder : decoders_)
+    {
+        decoder->SetCurrentFrameNumber(frame_number);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,9 +1,33 @@
+/*
+** Copyright (c) 2026 Valve Corporation
+** Copyright (c) 2026 LunarG, Inc.
+**
+** Permission is hereby granted, free of charge, to any person obtaining a
+** copy of this software and associated documentation files (the "Software"),
+** to deal in the Software without restriction, including without limitation
+** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+** and/or sell copies of the Software, and to permit persons to whom the
+** Software is furnished to do so, subject to the following conditions:
+**
+** The above copyright notice and this permission notice shall be included in
+** all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+** DEALINGS IN THE SOFTWARE.
+*/
+
 def gfxrTestWindows(
     String name,
     String buildMode,
     String label,
     String bits,
-    String testSuite
+    String testSuite,
+    def branches
 ) {
     echo "Creating closure for ${name} with label: ${label}"
     return {
@@ -25,12 +49,22 @@ def gfxrTestWindows(
                     bat 'if exist vulkantest-results rmdir /s /q vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout scm
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+                        def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withEnv([
                                 "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "PROJECT_COMMIT=${projectCommit}",
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
@@ -38,12 +72,17 @@ def gfxrTestWindows(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                bat(script: 'ci/runJob.bat')
+                                bat(script: 'git submodule update --init --recursive --depth 1')
+                                bat(script: 'git describe --tags --always')
+                                bat(script: 'ci/cloneTests.bat')
+                                bat(script: 'ci/buildGfxr.bat')
+                                bat(script: 'ci/cloneSuites.bat')
+                                bat(script: 'ci/runTest.bat')
                             }
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
@@ -67,7 +106,8 @@ def gfxrTestLinux(
     String buildMode,
     String label,
     String bits,
-    String testSuite
+    String testSuite,
+    def branches
 ) {
     return {
         stage(name) {
@@ -87,12 +127,22 @@ def gfxrTestLinux(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout scm
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+                        def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withEnv([
                                 "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "PROJECT_COMMIT=${projectCommit}",
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
@@ -100,12 +150,17 @@ def gfxrTestLinux(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                sh(script: 'ci/runJob.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxr.sh')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/runTest.sh')
                             }
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
@@ -129,7 +184,8 @@ def gfxrTestAndroid(
     String buildMode,
     String label,
     String bits,
-    String testSuite
+    String testSuite,
+    def branches
 ) {
     return {
         stage(name) {
@@ -149,12 +205,22 @@ def gfxrTestAndroid(
                     sh 'rm -rf vulkantest-results'
 
                     dir('gfxreconstruct') {
-                        checkout scm
+                        // Use a curated subset of SCM fields: enough to preserve checkout behavior
+                        // while avoiding brittle plugin/runtime metadata from the live `scm` object.
+                        def scmVars = checkout([
+                            $class: 'GitSCM',
+                            branches: branches,
+                            doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                            extensions: scm.extensions,
+                            submoduleCfg: scm.submoduleCfg,
+                            userRemoteConfigs: scm.userRemoteConfigs
+                        ])
+                        def projectCommit = scmVars.GIT_COMMIT ?: env.GIT_COMMIT
 
                         catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                             withEnv([
                                 "PROJECT_REPO=${scm.userRemoteConfigs.first().url}",
-                                "PROJECT_COMMIT=${env.GIT_COMMIT}",
+                                "PROJECT_COMMIT=${projectCommit}",
                                 "TEST_REPO=git@github.com:LunarG/VulkanTests",
                                 "TEST_SUITE_REPO=git@github.com:LunarG/ci-gfxr-suites",
                                 "TEST_SUITE=${testSuite}",
@@ -162,12 +228,17 @@ def gfxrTestAndroid(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${name}"
                             ]) {
-                                sh(script: 'ci/runJobAndroid.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxrAndroid.sh')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/runTestAndroid.sh')
                             }
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: false,
                         onlyIfSuccessful: false,
@@ -253,12 +324,17 @@ def gfxrTestWindowsManual(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
-                                bat(script: 'ci/runJob.bat')
+                                bat(script: 'git submodule update --init --recursive --depth 1')
+                                bat(script: 'git describe --tags --always')
+                                bat(script: 'ci/cloneTests.bat')
+                                bat(script: 'ci/buildGfxr.bat')
+                                bat(script: 'ci/cloneSuites.bat')
+                                bat(script: 'ci/runTest.bat')
                             }
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
@@ -329,12 +405,17 @@ def gfxrTestLinuxManual(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
-                                sh(script: 'ci/runJob.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxr.sh')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/runTest.sh')
                             }
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
@@ -405,12 +486,17 @@ def gfxrTestAndroidManual(
                                 "BUILD_MODE=${buildMode}",
                                 "RESULTS_DIR=../vulkantest-results/${stageName}"
                             ]) {
-                                sh(script: 'ci/runJobAndroid.sh')
+                                sh(script: 'git submodule update --init --recursive --depth 1')
+                                sh(script: 'git describe --tags --always')
+                                sh(script: 'ci/cloneTests.sh')
+                                sh(script: 'sh ci/buildGfxrAndroid.sh')
+                                sh(script: 'ci/cloneSuites.sh')
+                                sh(script: 'ci/runTestAndroid.sh')
                             }
                         }
                     }
                     archiveArtifacts(
-                        artifacts: 'vulkantest-results/**',
+                        artifacts: 'python-venv.txt,vulkantest-results/**',
                         excludes: '**/*.gfxr,**/core,**/core.*,**/*.jsonl,**/*.gfxa',
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
@@ -445,6 +531,8 @@ return [
     WinNvidiaLabel : 'Windows-NVIDIA-20XX-stable',
     Win11AMDLabel : 'Windows11-AMD-6800-stable',
     Win11ARMLabel : 'Windows11-ARM-GFXR',
+    Win11AMD9070Label : 'Windows11-AMD-9070',
+    Win11Nvidia50XXLabel : 'Windows11-NVIDIA-50XX',
     WinAMDExtendedLabel: 'Windows-AMD-6800-tcwinamd2',
     WinNvidiaExtendedLabel: 'Windows-NVIDIA-2080-stable-exclusive',
 

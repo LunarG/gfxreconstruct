@@ -25,8 +25,10 @@
 #include "application/metal_context.h"
 #include "application/application.h"
 
+GFXRECON_BEGIN_SUPPRESS_APPLE_SDK_WARNINGS
 #include <Carbon/Carbon.h>
 #include <QuartzCore/QuartzCore.h>
+GFXRECON_END_SUPPRESS_APPLE_SDK_WARNINGS
 
 #if !__has_feature(objc_arc)
 #error "Compile this with -fobjc-arc"

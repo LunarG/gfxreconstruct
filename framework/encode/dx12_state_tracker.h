@@ -118,6 +118,8 @@ class Dx12StateTracker
 
     void TrackOpenExistingHeapFromAddress(void** heap, const void* address);
 
+    void TrackOpenExistingHeapFromFileMapping(void** heap, const void* handle);
+
     void TrackFenceSetEventOnCompletion(ID3D12Fence_Wrapper* fence, UINT64 value, HANDLE event);
 
     void TrackFenceSignal(ID3D12Fence_Wrapper* fence, UINT64 value);
@@ -195,6 +197,8 @@ class Dx12StateTracker
                             const util::MemoryOutputStream* parameter_buffer);
 
     void TrackPrivateData(IUnknown_Wrapper* wrapper, REFGUID name, UINT data_size, const void* data);
+
+    void TrackPrivateDataInterface(IUnknown_Wrapper* wrapper, REFGUID name, const IUnknown* data);
 
     void TrackResidencyPriority(ID3D12Device1_Wrapper*          device_wrapper,
                                 UINT                            num_objects,

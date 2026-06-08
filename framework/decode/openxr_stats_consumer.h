@@ -55,7 +55,7 @@ struct OpenXrInstanceTracker
     uint32_t                 app_version{ 0 };
     std::string              engine_name;
     uint32_t                 engine_version{ 0 };
-    uint32_t                 api_version{ 0 };
+    XrVersion                api_version{ 0 };
     std::vector<std::string> enabled_extensions;
 };
 

@@ -89,9 +89,12 @@ class VulkanDeviceAddressTracker
      * @brief   Retrieve a buffer by providing a replay-time VkDeviceAddress within its range.
      *
      * @param   replay_address  a replay-time VkDeviceAddress pointing inside a buffer.
+     * @param   offset           a pointer to a size_t where the offset from the base of
+     *                           the buffer is returned. Can be null and in this case is ignored
      * @return  a const-pointer to a found BufferInfo or nullptr.
      */
-    [[nodiscard]] const VulkanBufferInfo* GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const;
+    [[nodiscard]] const VulkanBufferInfo* GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address,
+                                                                         size_t*         offset = nullptr) const;
 
     /**
      * @brief   Retrieve a buffer info-struct by providing its vulkan-handle.
@@ -101,6 +104,23 @@ class VulkanDeviceAddressTracker
      */
     [[nodiscard]] VulkanBufferInfo*       GetBufferByHandle(VkBuffer handle);
     [[nodiscard]] const VulkanBufferInfo* GetBufferByHandle(VkBuffer handle) const;
+
+    /**
+     * @brief   Retrieve a set of acceleration-structure handles by providing a replay-time VkDeviceAddress.
+     *
+     * @note    AccelerationStructures can be aliases and reference the same buffer.
+     *          There is also a direct correspondence between AS-addresses and the address of associated buffers.
+     *
+     *          -> AS-address == buffer-address + AS-offset
+     *
+     *          So this function is just a helper and will look-up an associated buffer instead,
+     *          and delegate the actual query to that.
+     *
+     * @param   replay_address  a replay-time VkDeviceAddress for an acceleration-structure.
+     * @return  a const-ref to a set of (alias) const AccelerationStructureKHRInfo*.
+     */
+    [[nodiscard]] const std::unordered_set<const VulkanAccelerationStructureKHRInfo*>&
+    GetAccelerationStructuresByReplayDeviceAddress(VkDeviceAddress replay_address) const;
 
     /**
      * @brief   Retrieve a set of acceleration-structure handles by providing a capture-time VkDeviceAddress.

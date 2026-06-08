@@ -56,9 +56,10 @@ class Dx12ResourceValueTrackingConsumer : public Dx12ReplayConsumer
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE Mode) override;
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
-        const format::InitDx12AccelerationStructureCommandHeader&             command_header,
-        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
-        const uint8_t*                                                        build_inputs_data) override;
+        const format::InitDx12AccelerationStructureCommandHeader&                           command_header,
+        const std::vector<format::InitDx12AccelerationStructureGeometryDesc>&               geometry_descs,
+        StructPointerDecoder<Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS>* build_inputs,
+        const uint8_t*                                                                      build_inputs_data) override;
 
     virtual void OverrideExecuteIndirect(DxObjectInfo* command_list_object_info,
                                          DxObjectInfo* command_signature_object_info,

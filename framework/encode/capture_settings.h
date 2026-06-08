@@ -249,7 +249,7 @@ class CaptureSettings
         uint32_t                     accel_struct_padding{ 0 };
         bool                         force_command_serialization{ false };
         bool                         queue_zero_only{ false };
-        bool                         allow_pipeline_compile_required{ false };
+        bool                         allow_pipeline_compile_required{ true };
         bool                         quit_after_frame_ranges{ false };
         bool                         force_fifo_present_mode{ true };
         bool                         use_asset_file{ false };
@@ -320,7 +320,8 @@ class CaptureSettings
     static format::CompressionType ParseCompressionTypeString(const std::string&      value_string,
                                                               format::CompressionType default_value);
 
-    static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
+    static util::LoggingSeverity ParseLogLevelString(const std::string&    value_string,
+                                                     util::LoggingSeverity default_value);
 
     static void ParseUintRangeList(const std::string&            value_string,
                                    std::vector<util::UintRange>* frames,

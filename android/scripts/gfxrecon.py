@@ -99,6 +99,10 @@ def CreateReplayParser():
     parser.add_argument('--debug-messenger-level', metavar='LEVEL', help='Specify highest debug messenger severity level. Options are: debug, info, warning, and error. Default is warning. (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
+
+    parser.add_argument('--loop-frame', default=0, help='Replay the given frame repeatedly')
+    parser.add_argument('--loop-count', default=0, help='Replay the repeated frame N times')
+
     parser.add_argument('--cpu-mask', metavar='binary_mask', help='Set of CPU cores used by the replayer. `binary-mask` is a succession of "0" and "1" that specifies used/unused cores read from left to right. For example "10010" activates the first and fourth cores and deactivate all other cores. If the option is not set, all cores can be used. If the option is set only for some cores, the other cores are not used. (forwarded to replay tool)')
     parser.add_argument('--screenshot-all', action='store_true', default=False, help='Generate screenshots for all frames.  When this option is specified, --screenshots is ignored (forwarded to replay tool)')
     parser.add_argument('--screenshots', metavar='RANGES', help='Generate screenshots for the specified frames.  Target frames are specified as a comma separated list of frame ranges.  A frame range can be specified as a single value, to specify a single frame, or as two hyphenated values, to specify the first and last frames to process.  Frame ranges should be specified in ascending order and cannot overlap.  Note that frame numbering is 1-based (i.e. the first frame is frame 1).  Example: 200,301-305 will generate six screenshots (forwarded to replay tool)')
@@ -136,12 +140,21 @@ def CreateReplayParser():
     parser.add_argument('--dump-resources-dir', metavar='DIR', help='Directory to write dump resources output files.')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
-    parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
+    parser.add_argument('--pcj', '--pipeline-creation-jobs', metavar='PCJ', default=1, help='Specify the number of pipeline-creation-jobs or background-threads.')
     parser.add_argument('--save-pipeline-cache', metavar='DEVICE_FILE', help='If set, produces pipeline caches at replay time instead of using the one saved at capture time and save those caches in DEVICE_FILE. (forwarded to replay tool)')
     parser.add_argument('--load-pipeline-cache', metavar='DEVICE_FILE', help='If set, loads data created by the `--save-pipeline-cache` option in DEVICE_FILE and uses it to create the pipelines instead of the pipeline caches saved at capture time. (forwarded to replay tool)')
     parser.add_argument('--add-new-pipeline-caches', action='store_true', default=False, help='If set, allows gfxreconstruct to create new vkPipelineCache objects when it encounters a pipeline created without cache. This option can be used in coordination with `--save-pipeline-cache` and `--load-pipeline-cache`. (forwarded to replay tool)')
     parser.add_argument('--quit-after-frame', metavar='FRAME', help='Specify a frame after which replay will terminate.')
     parser.add_argument('--screenshot-ignore-FrameBoundaryANDROID', action='store_true', default=False, help='If set, frames switced with vkFrameBoundANDROID will be ignored from the screenshot handler.')
+    parser.add_argument('--wait-before-first-submit', metavar='MILLISECONDS', help='Wait for the specified amount of milliseconds before processing the first submit. (forwarded to replay tool)')
+    parser.add_argument('--idle-before-submit', action='store_true', default=False, help='Wait for the GPU to become idle before each submit. (forwarded to replay tool)')
+    parser.add_argument('--serialize-render-passes', action='store_true', default=False, help='Serialize render passes by injecting execution barriers before render pass begin during replay. (forwarded to replay tool)')
+    parser.add_argument('--frame-warm-up-spirv', metavar='DEVICE_FILE', help='Specify a user-provided SPIR-V compute shader for the warm-up pass. The shader must use entry point main and set 0, binding 0 as a storage buffer. Warm-up runs before the first submit of each replayed frame only when this option and a non-zero --frame-warm-up-load are both provided. (forwarded to replay tool)')
+    parser.add_argument('--frame-warm-up-load', metavar='LOAD', default=0, help='Specify workload scale factor for a compute dispatch warm-up pass run before each frame replay. Default is 0 (disabled). (forwarded to replay tool)')
+    parser.add_argument('--wait-before-frame', metavar='MILLISECONDS', default=0, help='Wait for the specified amount of milliseconds before starting to replay each frame. Default is 0 (no wait). (forwarded to replay tool)')
+    parser.add_argument('--serialize-queue-submissions', action='store_true', default=False, help='Serialize submit entries within one vkQueueSubmit or vkQueueSubmit2 call by adding semaphores between consecutive submits during replay. (forwarded to replay tool)')
+    parser.add_argument('--replay-event-plugin-path', metavar='PATH', help='Path to a replay event plugin library. If specified, the plugin will be loaded and used to process replay events. (forwarded to replay tool)')
+    parser.add_argument('--replay-event-plugin-params', metavar='PARAMS', help='Parameters to forward to the replay event plugin. The format of the parameters is determined by the plugin and is not interpreted by the replay tool. (forwarded to replay tool)')
 
     return parser
 
@@ -172,6 +185,14 @@ def MakeExtrasString(args):
 
     if args.paused:
         arg_list.append('--paused')
+
+    if args.loop_frame:
+        arg_list.append("--loop-frame")
+        arg_list.append('{}'.format(args.loop_frame))
+
+    if args.loop_count:
+        arg_list.append('--loop-count')
+        arg_list.append('{}'.format(args.loop_count))
 
     if args.cpu_mask:
         arg_list.append('--cpu-mask')
@@ -320,6 +341,39 @@ def MakeExtrasString(args):
 
     if args.screenshot_ignore_FrameBoundaryANDROID:
         arg_list.append('--screenshot-ignore-FrameBoundaryANDROID')
+
+    if args.wait_before_first_submit:
+        arg_list.append('--wait-before-first-submit')
+        arg_list.append('{}'.format(args.wait_before_first_submit))
+
+    if args.idle_before_submit:
+        arg_list.append('--idle-before-submit')
+
+    if args.serialize_render_passes:
+        arg_list.append('--serialize-render-passes')
+
+    if args.frame_warm_up_spirv:
+        arg_list.append('--frame-warm-up-spirv')
+        arg_list.append('{}'.format(args.frame_warm_up_spirv))
+
+    if args.frame_warm_up_load:
+        arg_list.append('--frame-warm-up-load')
+        arg_list.append('{}'.format(args.frame_warm_up_load))
+    
+    if args.serialize_queue_submissions:
+        arg_list.append('--serialize-queue-submissions')
+
+    if args.wait_before_frame:
+        arg_list.append('--wait-before-frame')
+        arg_list.append('{}'.format(args.wait_before_frame))
+
+    if args.replay_event_plugin_path:
+        arg_list.append('--replay-event-plugin-path')
+        arg_list.append('{}'.format(args.replay_event_plugin_path))
+
+    if args.replay_event_plugin_params:
+        arg_list.append('--replay-event-plugin-params')
+        arg_list.append('{}'.format(args.replay_event_plugin_params))
 
     if args.file:
         arg_list.append(args.file)
