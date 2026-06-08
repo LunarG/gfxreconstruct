@@ -54,8 +54,8 @@ void TraceEndSection()
 struct SampleReplayPlugin
 {
     GfxrReplayPluginV1 base;
-    int sleep_around_gpu_frame_ms = 0;
-    bool first_queue_submit_in_frame = true;
+    int                sleep_around_gpu_frame_ms   = 0;
+    bool               first_queue_submit_in_frame = true;
 };
 
 static void destroy(GfxrReplayPluginV1* self)
@@ -86,17 +86,19 @@ static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrRepla
 
     GFXRECON_LOG_INFO("Received event type %u at timestamp %llu ns", event->type, event->timestamp_ns);
 
-    SampleReplayPlugin* plugin = reinterpret_cast<SampleReplayPlugin*>(self);
-    int half_sleep_ms = plugin->sleep_around_gpu_frame_ms / 2;
+    SampleReplayPlugin* plugin        = reinterpret_cast<SampleReplayPlugin*>(self);
+    int                 half_sleep_ms = plugin->sleep_around_gpu_frame_ms / 2;
 
     switch (event->type)
     {
         case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN:
             if (plugin->first_queue_submit_in_frame)
             {
-                if (half_sleep_ms > 0) std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
+                if (half_sleep_ms > 0)
+                    std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
                 TraceBeginSection("GFXRFrame");
-                if (half_sleep_ms > 0) std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
+                if (half_sleep_ms > 0)
+                    std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
                 plugin->first_queue_submit_in_frame = false;
             }
             TraceBeginSection("GFXRQueueSubmit");
@@ -108,9 +110,11 @@ static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrRepla
             plugin->first_queue_submit_in_frame = true;
             break;
         case GFXR_REPLAY_EVENT_FRAME_END:
-            if (half_sleep_ms > 0) std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
+            if (half_sleep_ms > 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
             TraceEndSection();
-            if (half_sleep_ms > 0) std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
+            if (half_sleep_ms > 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
             break;
         default:
             break;
@@ -144,23 +148,23 @@ GFXR_REPLAY_PLUGIN_EXPORT GfxrReplayPluginV1* gfxrCreateReplayPluginV1(const Gfx
                       create_info->plugin_params ? create_info->plugin_params : "null");
 
     SampleReplayPlugin* plugin = new SampleReplayPlugin;
-    plugin->base.abi_version = GFXR_REPLAY_PLUGIN_ABI_VERSION;
-    plugin->base.struct_size = sizeof(GfxrReplayPluginV1);
-    plugin->base.destroy     = destroy;
-    plugin->base.on_event    = on_event;
+    plugin->base.abi_version   = GFXR_REPLAY_PLUGIN_ABI_VERSION;
+    plugin->base.struct_size   = sizeof(GfxrReplayPluginV1);
+    plugin->base.destroy       = destroy;
+    plugin->base.on_event      = on_event;
 
     if (create_info->plugin_params != nullptr)
     {
-        std::string params_str(create_info->plugin_params);
-        std::istringstream iss(params_str);
-        std::string token;
+        std::string              params_str(create_info->plugin_params);
+        std::istringstream       iss(params_str);
+        std::string              token;
         std::vector<std::string> args;
-        
+
         while (iss >> token)
         {
             args.push_back(token);
         }
-        
+
         for (size_t i = 0; i < args.size(); ++i)
         {
             if (args[i].find("sleep-around-gpu-frame-ms=") == 0)
