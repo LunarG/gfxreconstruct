@@ -2989,6 +2989,81 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCreateTensorARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkTensorCreateInfoARM>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkTensorARM>*          pTensor)
+{
+    // Return if not the first time through loop
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCreateTensorARM(call_info, returnValue, device, pCreateInfo, pAllocator, pTensor);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            tensor,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    // Return for all loop iterations
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkDestroyTensorARM(call_info, device, tensor, pAllocator);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCreateTensorViewARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkTensorViewCreateInfoARM>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkTensorViewARM>*      pView)
+{
+    // Return if not the first time through loop
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCreateTensorViewARM(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyTensorViewARM(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            tensorView,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    // Return for all loop iterations
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkDestroyTensorViewARM(call_info, device, tensorView, pAllocator);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkBindTensorMemoryARM(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindTensorMemoryInfoARM>* pBindInfos)
+{
+    // Return if not the first time through loop
+    if (getFrameLoopInfo().IsRepetition())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkBindTensorMemoryARM(call_info, returnValue, device, bindInfoCount, pBindInfos);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateOpticalFlowSessionNV(
     const ApiCallInfo&                          call_info,
     args::CreateOpticalFlowSessionNV&           args)
