@@ -46,6 +46,7 @@
 #include <cassert>
 #include <memory>
 #include <mutex>
+#include <algorithm>
 #include <set>
 #include <unordered_map>
 
@@ -1772,8 +1773,25 @@ class VulkanCaptureManager : public ApiCaptureManager
                 device, pBindInfos[i].session, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
             auto wrapper =
                 vulkan_wrappers::GetWrapper<vulkan_wrappers::DataGraphPipelineSessionARMWrapper>(pBindInfos[i].session);
-            wrapper->object_index = pBindInfos[i].objectIndex;
-            wrapper->bind_point   = pBindInfos[i].bindPoint;
+
+            const format::HandleId memory_id =
+                vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceMemoryWrapper>(pBindInfos[i].memory);
+            auto it = std::find_if(wrapper->memory_bindings.begin(),
+                                   wrapper->memory_bindings.end(),
+                                   [&](const vulkan_wrappers::DataGraphPipelineSessionARMWrapper::MemoryBinding& b) {
+                                       return b.bind_point == pBindInfos[i].bindPoint &&
+                                              b.object_index == pBindInfos[i].objectIndex;
+                                   });
+            if (it != wrapper->memory_bindings.end())
+            {
+                it->bind_memory_id = memory_id;
+                it->bind_offset    = pBindInfos[i].memoryOffset;
+            }
+            else
+            {
+                wrapper->memory_bindings.push_back(
+                    { pBindInfos[i].bindPoint, pBindInfos[i].objectIndex, memory_id, pBindInfos[i].memoryOffset });
+            }
         }
     }
 

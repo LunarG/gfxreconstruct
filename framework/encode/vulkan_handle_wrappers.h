@@ -686,8 +686,14 @@ struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
 
 struct DataGraphPipelineSessionARMWrapper : public HandleWrapper<VkDataGraphPipelineSessionARM>, AssetWrapperBase
 {
-    VkDataGraphPipelineSessionBindPointARM                         bind_point;
-    uint32_t                                                       object_index;
+    struct MemoryBinding
+    {
+        VkDataGraphPipelineSessionBindPointARM bind_point{};
+        uint32_t                               object_index{ 0 };
+        format::HandleId                       bind_memory_id{ format::kNullHandleId };
+        VkDeviceSize                           bind_offset{ 0 };
+    };
+    std::vector<MemoryBinding>                                     memory_bindings;
     vulkan_state_info::CreateDependencyInfo                        pipeline_dependency;
     std::vector<vulkan_state_info::CreateDependencyInfo>           pipeline_shader_module_dependencies;
     vulkan_state_info::CreateDependencyInfo                        pipeline_layout_dependency;

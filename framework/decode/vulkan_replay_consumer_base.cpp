@@ -14185,11 +14185,13 @@ VulkanReplayConsumerBase::OverrideCreateTensorARM(PFN_vkCreateTensorARM         
     auto* tensor_info = reinterpret_cast<VulkanTensorARMInfo*>(tensor->GetConsumerData(0));
     GFXRECON_ASSERT(tensor_info != nullptr);
 
+    VkTensorDescriptionARM modified_description_storage;
     if (replaying_trimmed_capture_)
     {
-        auto modified_description = const_cast<VkTensorDescriptionARM*>(modified_create_info.pDescription);
-        modified_description->usage |= VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM;
-        modified_description->usage |= VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM;
+        modified_description_storage = *modified_create_info.pDescription;
+        modified_description_storage.usage |= VK_TENSOR_USAGE_TRANSFER_SRC_BIT_ARM;
+        modified_description_storage.usage |= VK_TENSOR_USAGE_TRANSFER_DST_BIT_ARM;
+        modified_create_info.pDescription = &modified_description_storage;
     }
 
     result = allocator->CreateTensor(
