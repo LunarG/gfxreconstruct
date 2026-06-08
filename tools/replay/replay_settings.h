@@ -438,9 +438,4 @@ static void PrintUsage(const char* exe_name)
 #endif
 }
 
-static bool GetRenderPassBarrier(const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    return arg_parser.IsOptionSet(kRenderPassBarrierArgument);
-}
-
 #endif // GFXRECON_REPLAY_SETTINGS_H

@@ -246,11 +246,6 @@ inline int64_t FileTell(FILE* stream)
     return _ftelli64(stream);
 }
 
-inline int64_t FileTell(int fd)
-{
-    return _lseeki64(fd, 0, FileSeekCurrent);
-}
-
 inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 {
     int32_t result = _fseeki64(stream, offset, origin);
@@ -430,7 +425,7 @@ inline void* GetProcAddress(LibraryHandle handle, const char* name)
 
 inline std::string GetEnv(const char* name)
 {
-    std::string      env_value;
+    std::string env_value;
 
 #if defined(__ANDROID__)
     const prop_info* pi = __system_property_find(name);
@@ -552,11 +547,6 @@ inline int64_t FileTell(FILE* stream)
     return ftello(stream);
 }
 
-inline int64_t FileTell(int fd)
-{
-    return lseek64(fd, 0, SEEK_CUR);
-}
-
 inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 {
     int32_t result = fseeko(stream, offset, origin);
@@ -580,7 +570,7 @@ inline bool FileWriteNoLock(const void* buffer, size_t bytes, FILE* stream)
 #else
         write_count = fwrite_unlocked(buffer, bytes, 1, stream);
 #endif
-        err         = ferror(stream);
+        err = ferror(stream);
     } while (write_count < 1 && (err == EWOULDBLOCK || err == EINTR || err == EAGAIN));
     return (write_count == 1 || bytes == 0);
 }
@@ -594,9 +584,9 @@ inline bool FileReadNoLock(void* buffer, size_t bytes, FILE* stream)
 #if defined(__APPLE__) || (defined(__ANDROID__) && (__ANDROID_API__ < 28))
         read_count = fread(buffer, bytes, 1, stream);
 #else
-        read_count  = fread_unlocked(buffer, bytes, 1, stream);
+        read_count = fread_unlocked(buffer, bytes, 1, stream);
 #endif
-        err        = ferror(stream);
+        err = ferror(stream);
     } while (!feof(stream) && read_count < 1 && (err == EWOULDBLOCK || err == EINTR || err == EAGAIN));
     return (read_count == 1 || bytes == 0);
 }
@@ -702,7 +692,7 @@ inline std::string GetCpuAffinity()
     std::string affinity;
 
 #ifdef __linux__
-    cpu_set_t   mask;
+    cpu_set_t mask;
     if (sched_getaffinity(0, sizeof(mask), &mask))
     {
         return affinity;

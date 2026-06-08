@@ -53,7 +53,6 @@
 #include "util/platform.h"
 #include "util/logging.h"
 #include "util/callbacks.h"
-#include "graphics/vulkan_resources_util.h"
 
 #include "spirv_reflect.h"
 
@@ -63,9 +62,6 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 
 #include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
 #include <limits>
 #include <numeric>
 #include <unordered_set>
@@ -399,7 +395,6 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         fps_info_->ProcessStateEndMarker(frame_number);
     }
-    frame_first_queue_submit = true;
 
     if (options_.dumping_resources)
     {
@@ -8550,23 +8545,6 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                                                   const VulkanQueueInfo*                                queue_info,
                                                   const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
-    if (!frame_first_queue_submit)
-    {
-        frame_first_queue_submit = true;
-        if (sleep_around_gpu_frame_ms_ > 0.0)
-        {
-            auto device_info = object_info_table_->GetVkDeviceInfo(queue_info->parent_id);
-            if (device_info)
-            {
-                auto device_table = GetDeviceTable(device_info->handle);
-                device_table->DeviceWaitIdle(device_info->handle);
-            }
-            std::this_thread::sleep_for(
-                std::chrono::microseconds(static_cast<int64_t>(sleep_around_gpu_frame_ms_ * 1000.0)));
-        }
-        ATrace_endSection();
-    }
-
     assert((queue_info != nullptr) && (pPresentInfo != nullptr) && !pPresentInfo->IsNull());
 
     VkResult   result             = VK_SUCCESS;
@@ -10480,8 +10458,6 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
 
-    InsertRenderPassBarrier(command_buffer, command_buffer_info);
-
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), contents);
 }
 
@@ -10522,8 +10498,6 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     }
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
-
-    InsertRenderPassBarrier(command_buffer, command_buffer_info);
 
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
 }
@@ -12046,8 +12020,8 @@ bool VulkanReplayConsumerBase::SkipPipelineCreationForCompileRequired(VkResult  
 
     if (original_result == VK_PIPELINE_COMPILE_REQUIRED)
     {
-        GFXRECON_LOG_WARNING("Skipping execution of VkPipeline creation due to original result being "
-                             "VK_PIPELINE_COMPILE_REQUIRED(_EXT). Returning VK_NULL_HANDLE for created pipeline.");
+        GFXRECON_LOG_WARNING_ONCE("Replay is skipping execution of VkPipeline creation due to original result(s) being "
+                                  "VK_PIPELINE_COMPILE_REQUIRED(_EXT). Returning VK_NULL_HANDLE for created pipeline.");
 
         VkPipeline* handles = pipelines->GetHandlePointer();
         for (uint32_t i = 0; i < pipelines->GetLength(); ++i)
@@ -12067,39 +12041,23 @@ void VulkanReplayConsumerBase::RemoveFailOnCompileRequiredFlags(T* create_infos,
                       std::is_same_v<T, VkRayTracingPipelineCreateInfoNV>,
                   "only Vk***PipelineCreateInfo types supported");
 
-    std::string pipeline_type_str;
+    constexpr const char* pipeline_type_name = std::is_same_v<T, VkGraphicsPipelineCreateInfo>  ? "graphics"
+                                               : std::is_same_v<T, VkComputePipelineCreateInfo> ? "compute"
+                                               : std::is_same_v<T, VkRayTracingPipelineCreateInfoKHR>
+                                                   ? "raytracing (KHR)"
+                                                   : "raytracing (NV)";
 
-    if constexpr (std::is_same_v<T, VkGraphicsPipelineCreateInfo>)
+    if (create_infos != nullptr)
     {
-        pipeline_type_str = "graphics pipeline";
-    }
-    else if constexpr (std::is_same_v<T, VkComputePipelineCreateInfo>)
-    {
-        pipeline_type_str = "compute pipeline";
-    }
-    else if constexpr (std::is_same_v<T, VkRayTracingPipelineCreateInfoKHR>)
-    {
-        pipeline_type_str = "raytracing pipeline (KHR)";
-    }
-    else if constexpr (std::is_same_v<T, VkRayTracingPipelineCreateInfoNV>)
-    {
-        pipeline_type_str = "raytracing pipeline (NV)";
-    }
-
-    if (create_infos == nullptr)
-    {
-        return;
-    }
-
-    for (uint32_t i = 0; i < create_info_count; ++i)
-    {
-        if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
+        for (uint32_t i = 0; i < create_info_count; ++i)
         {
-            create_infos[i].flags &= ~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT;
-            GFXRECON_LOG_WARNING("Removed VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT flag from a %s - "
-                                 "create-info index: %u during replay.",
-                                 pipeline_type_str.c_str(),
-                                 i);
+            if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
+            {
+                create_infos[i].flags &= ~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT;
+                GFXRECON_LOG_WARNING_ONCE("Replay is removing VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT "
+                                          "flags for %s pipeline-creation calls",
+                                          pipeline_type_name);
+            }
         }
     }
 }
@@ -12606,7 +12564,8 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     HandlePointerDecoder<VkPipeline>*                           pPipelines)
 {
     // avoid async operations if an externally synchronized pipeline-cache is used
-    bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE;
+    bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE &&
+                          pipeline_cache_info->requires_external_synchronization;
 
     // avoid async operations when VK_PIPELINE_COMPILE_REQUIRED was returned during capture
     avoid_async_op = avoid_async_op || SkipPipelineCreationForCompileRequired(returnValue, pPipelines);
@@ -12729,7 +12688,8 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     HandlePointerDecoder<VkPipeline>*                                pPipelines)
 {
     // avoid async operations if an externally synchronized pipeline-cache is used
-    bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE;
+    bool avoid_async_op = pipeline_cache_info != nullptr && pipeline_cache_info->handle != VK_NULL_HANDLE &&
+                          pipeline_cache_info->requires_external_synchronization;
 
     // avoid async operations when VK_PIPELINE_COMPILE_REQUIRED was returned during capture
     avoid_async_op = avoid_async_op || SkipPipelineCreationForCompileRequired(returnValue, pPipelines);

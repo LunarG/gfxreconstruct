@@ -1694,11 +1694,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void ClearRecaptureHandleIds() override;
     virtual bool IsRecapture() override { return options_.capture; }
 
-    void SetWaitBeforeFirstFrameMinMs(uint32_t ms) { wait_before_first_frame_min_ms_ = ms; }
-    void SetSleepAroundGpuFrameMs(double ms) { sleep_around_gpu_frame_ms_ = ms; }
-    void SetFrameWarmUpGpuLoad(uint32_t load) { frame_warm_up_gpu_load_ = load; }
-    void WarmUpDevice(const VulkanQueueInfo* queue_info, uint32_t warm_up_load);
-
     //// End recapture members
 
   private:

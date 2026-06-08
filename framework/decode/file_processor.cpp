@@ -30,13 +30,6 @@
 #include "util/logging.h"
 
 #include <string>
-#include <limits>
-#if defined(__ANDROID__)
-#include <android/trace.h>
-#else
-#define ATrace_beginSection(name)
-#define ATrace_endSection()
-#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -116,7 +109,7 @@ bool FileProcessor::Initialize(const std::string& filename)
         auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
             HandleBlockReadError(err, message);
         } };
-        block_parser_    = std::make_unique<BlockParser>(err_handler, compressor_.get());
+        block_parser_ = std::make_unique<BlockParser>(err_handler, compressor_.get());
         if (block_parser_.get() != nullptr)
         {
             // For immediate dispatching (the default mode of operation) no need to defer decompression
@@ -125,7 +118,7 @@ bool FileProcessor::Initialize(const std::string& filename)
         else
         {
             dispatch_error_state_ = kErrorOpeningFile;
-            success      = false;
+            success               = false;
         }
     }
 
@@ -167,7 +160,7 @@ bool FileProcessor::ProcessNextFrameSync()
     GFXRECON_ASSERT(block_parser_->GetOperationMode() == BlockParser::OperationMode::kImmediate);
     GFXRECON_ASSERT(block_parser_->GetDecompressionPolicy() == BlockParser::DecompressionPolicy::kAlways);
 
-    DispatchVisitor  dispatch_visitor(*this, decoders_, annotation_handler_);
+    DispatchVisitor                          dispatch_visitor(*this, decoders_, annotation_handler_);
     file_processor::SynchronousProcessPolicy process_policy{ *this, dispatch_visitor };
 
     // This is immediate mode, process and dispatch frame numbers are matched.
@@ -262,7 +255,7 @@ bool FileProcessor::ProcessFileHeader()
                     GFXRECON_LOG_ERROR("Failed to initialize file compression module (type = %u); replay of "
                                        "compressed data will not be possible",
                                        enabled_options_.compression_type);
-                    success      = false;
+                    success               = false;
                     dispatch_error_state_ = kErrorUnsupportedCompressionType;
                 }
             }
@@ -385,7 +378,6 @@ FileProcessor::ProcessBlockState FileProcessor::ProcessBlocks(ProcessPolicy& pol
             process_state = ProcessBlockState::kEndProcessing;
         }
     }
-    ATrace_endSection();
 
     // Update the frame number etc.
     if (process_state == ProcessBlockState::kFrameBoundary)
@@ -780,7 +772,7 @@ FileProcessor::ProcessBlockState FileProcessor::HandleBlockEof(const char* opera
         }
 
         process_error_state_ = kErrorReadingBlockHeader;
-        state        = ProcessBlockState::kError;
+        state                = ProcessBlockState::kError;
     }
     else
     {

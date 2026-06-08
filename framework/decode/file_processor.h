@@ -142,7 +142,7 @@ class FileProcessor
 
     // These have "process_" side semantics
     bool         GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
-    uint64_t GetNumBytesRead() const { return bytes_read_; }
+    uint64_t     GetNumBytesRead() const { return bytes_read_; }
     BlockIOError GetErrorState() const { return dispatch_error_state_; }
 
     bool EntireFileWasProcessed() const

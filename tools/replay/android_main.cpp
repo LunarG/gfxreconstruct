@@ -172,7 +172,6 @@ void android_main(struct android_app* app)
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
-                replay_options.render_pass_barrier = GetRenderPassBarrier(arg_parser);
 
                 std::unique_ptr<gfxrecon::decode::VulkanReplayConsumer> vulkan_replay_consumer;
 

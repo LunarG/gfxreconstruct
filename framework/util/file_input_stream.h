@@ -57,12 +57,11 @@ class FStreamFileInputStream
     bool IsError() const;
     bool IsReady() const;
 
-    bool     Open(const std::string& filename);
-    void     Close();
-    bool     FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
-    int64_t  Tell() const;
-    bool     ReadBytes(void* buffer, size_t bytes);
-    size_t   PeekBytes(void* buffer, size_t bytes);
+    bool   Open(const std::string& filename);
+    void   Close();
+    bool   FileSeek(int64_t offset, util::platform::FileSeekOrigin origin);
+    bool   ReadBytes(void* buffer, size_t bytes);
+    size_t PeekBytes(void* buffer, size_t bytes);
 
     explicit operator bool() const { return IsOpen(); }
 
@@ -81,10 +80,7 @@ class FStreamFileInputStream
     // exceed the read ahead buffer size, and we want to avoid moving large amounts of data.
     constexpr static size_t kMaxPeekBytes = 32U;
 
-    size_t GetMaxPeekBytes() const noexcept
-    {
-        return kMaxPeekBytes;
-    }
+    size_t GetMaxPeekBytes() const noexcept { return kMaxPeekBytes; }
 
   protected:
     bool   HasReadAhead() const noexcept;
@@ -102,8 +98,8 @@ class FStreamFileInputStream
     char*                          read_ahead_buffer_{ nullptr };
 #endif
 
-    size_t        read_ahead_bytes_  = 0U;
-    size_t        read_ahead_offset_ = 0U;
+    size_t read_ahead_bytes_  = 0U;
+    size_t read_ahead_offset_ = 0U;
 };
 
 GFXRECON_END_NAMESPACE(util)

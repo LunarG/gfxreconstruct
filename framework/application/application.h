@@ -77,8 +77,6 @@ class Application final
 
     void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
-    void SetRepeatFrameNTimes(uint32_t repeat_frame_n_times);
-
     bool PlaySingleFrame();
 
     void ProcessEvents(bool wait_for_input);
@@ -93,20 +91,14 @@ class Application final
     void InitializeDx12WsiContext();
 #endif
 
-    void StopRunning()
-    {
-        running_ = false;
-    }
+    void StopRunning() { running_ = false; }
 
     uint32_t GetCurrentFrameNumber() const
     {
         return GFXRECON_NARROWING_CAST(uint32_t, file_processor_->GetCurrentFrameNumber());
     }
 
-    plugin::ReplayEventSink* GetReplayEventSink() const
-    {
-        return replay_event_sink_.get();
-    }
+    plugin::ReplayEventSink* GetReplayEventSink() const { return replay_event_sink_.get(); }
 
     void SetReplayEventSink(std::unique_ptr<plugin::ReplayEventSink> replay_event_sink)
     {
