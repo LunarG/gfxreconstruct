@@ -180,6 +180,7 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
     // VkPhysicalDeviceSamplerYcbcrConversionFeatures structure
     bool vulkan_1_1_features_found               = false;
     bool sampler_ycbcr_conversion_features_found = false;
+    bool maintenance10_found                     = false;
 
     while (current_struct->pNext != nullptr)
     {
@@ -325,6 +326,26 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             }
             break;
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR:
+            {
+                auto* maintenance10_features =
+                    reinterpret_cast<VkPhysicalDeviceMaintenance10FeaturesKHR*>(current_struct);
+                if (maintenance10_features->maintenance10 == VK_FALSE &&
+                    graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                                 create_info->enabledExtensionCount,
+                                                                 VK_KHR_MAINTENANCE_10_EXTENSION_NAME))
+                {
+                    VkPhysicalDeviceMaintenance10FeaturesKHR supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR, nullptr
+                    };
+                    GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+                    result.feature_maintenance10          = supported_features.maintenance10;
+                    maintenance10_features->maintenance10 = supported_features.maintenance10;
+                }
+                maintenance10_found = true;
+            }
+            break;
+
             default:
                 break;
         }
@@ -341,6 +362,23 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
         if (result.feature_samplerYcbcrConversion == VK_TRUE)
         {
             current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&sampler_ycbcr_conversion_features);
+            current_struct        = current_struct->pNext;
+        }
+    }
+
+    if (!maintenance10_found && graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                                             create_info->enabledExtensionCount,
+                                                                             VK_KHR_MAINTENANCE_10_EXTENSION_NAME))
+    {
+        static VkPhysicalDeviceMaintenance10FeaturesKHR feature_maintenance10 = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR, nullptr
+        };
+        GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, feature_maintenance10);
+        result.feature_maintenance10 = feature_maintenance10.maintenance10;
+        if (feature_maintenance10.maintenance10 == VK_TRUE)
+        {
+            current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&feature_maintenance10);
+            current_struct        = current_struct->pNext;
         }
     }
 

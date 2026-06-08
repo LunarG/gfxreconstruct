@@ -99,9 +99,10 @@ MinMaxVertexIndex FindMinMaxVertexIndices(const std::vector<uint8_t>& index_data
                                           int32_t                     vertex_offset,
                                           VkIndexType                 type);
 
-ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
-                             VkPhysicalDevice                     phys_dev,
-                             const VulkanImageInfo*               image_info);
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*             instance_table,
+                             VkPhysicalDevice                                 phys_dev,
+                             const VulkanImageInfo*                           image_info,
+                             const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
 
 // Fetch image from the GPU into host memory
 VkResult DumpImage(DumpedImage&                         dumped_image,

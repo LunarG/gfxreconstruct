@@ -21,7 +21,6 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_replay_dump_resources_common.h"
 #include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -859,14 +858,15 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
     return result;
 }
 
-VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                               device,
-                                         VkPhysicalDevice                                       physical_device,
-                                         const graphics::VulkanDeviceTable&                     device_table,
-                                         const graphics::VulkanInstanceTable&                   instance_table,
+VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               device,
+                                         VkPhysicalDevice                       physical_device,
+                                         const graphics::VulkanDeviceTable&     device_table,
+                                         const graphics::VulkanInstanceTable&   instance_table,
+                                         const VulkanDevicePropertyFeatureInfo& physical_device_features_info,
                                          const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
     device_(device),
     device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
-    memory_properties_(memory_properties)
+    memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info)
 
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -1573,6 +1573,32 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
     return result;
 }
 
+bool VulkanResourcesUtil::CanTransferResolve(
+    const VulkanInstanceTable&                       instance_table,
+    VkPhysicalDevice                                 physical_device,
+    VkFormat                                         format,
+    VkImageTiling                                    tiling,
+    const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+{
+    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_OPTIMAL || tiling == VK_IMAGE_TILING_LINEAR);
+
+    VkFormatProperties format_properties{};
+    instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_properties);
+    const VkFormatFeatureFlags& supported_feature_flags = tiling == VK_IMAGE_TILING_LINEAR
+                                                              ? format_properties.linearTilingFeatures
+                                                              : format_properties.optimalTilingFeatures;
+    const bool maintenance10_supported = physical_device_features_info.feature_maintenance10 != VK_FALSE;
+
+    if ((supported_feature_flags & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) == VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT ||
+        (maintenance10_supported && (supported_feature_flags & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
+                                       VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT))
+    {
+        return true;
+    }
+
+    return false;
+}
+
 VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                                            VkImage           image,
                                            VkFormat          format,
@@ -1587,17 +1613,10 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
     GFXRECON_ASSERT(memory_properties_);
     GFXRECON_ASSERT((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
 
-    VkFormatProperties format_properties{};
-    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
-    if ((tiling == VK_IMAGE_TILING_OPTIMAL &&
-         (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-             VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
-        (((tiling == VK_IMAGE_TILING_LINEAR &&
-           (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-               VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))))
+    if (!CanTransferResolve(instance_table_, physical_device_, format, tiling, physical_device_features_info_))
     {
-        GFXRECON_LOG_WARNING_ONCE(
-            "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
+        GFXRECON_LOG_WARNING_ONCE("Multisampled images with format %s cannot be resolved",
+                                  util::ToString(format).c_str());
         return VK_ERROR_FEATURE_NOT_PRESENT;
     }
 

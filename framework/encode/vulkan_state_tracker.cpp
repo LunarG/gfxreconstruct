@@ -2116,6 +2116,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                                                           buffer.bind_device->physical_device->handle,
                                                           buffer.bind_device->layer_table,
                                                           *buffer.bind_device->physical_device->layer_table_ref,
+                                                          buffer.bind_device->property_feature_info,
                                                           buffer.bind_device->physical_device->memory_properties));
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
@@ -2168,6 +2169,7 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                                                   buffer.bind_device->physical_device->handle,
                                                   buffer.bind_device->layer_table,
                                                   *buffer.bind_device->physical_device->layer_table_ref,
+                                                  buffer.bind_device->property_feature_info,
                                                   buffer.bind_device->physical_device->memory_properties));
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);

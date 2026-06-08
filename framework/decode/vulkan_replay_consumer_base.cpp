@@ -82,6 +82,8 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME,
 };
 
+const std::unordered_set<std::string> kVulkanDumpResourcesExtensions = { VK_KHR_MAINTENANCE_10_EXTENSION_NAME };
+
 // Device extensions to enable for trimming state setup, when available.
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
@@ -3508,6 +3510,19 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     {
         GFXRECON_LOG_WARNING("Failed to get device extensions. Cannot perform sanity checks or filters for "
                              "extension availability. Some replay features may not work correctly.");
+    }
+
+    // Enable device extensions required for dump resources
+    for (const auto& vdr_required_extension : kVulkanDumpResourcesExtensions)
+    {
+        const bool is_extension_supported =
+            graphics::feature_util::IsSupportedExtension(available_extensions, vdr_required_extension.c_str());
+        const bool is_extension_already_requested =
+            graphics::feature_util::IsSupportedExtension(modified_extensions, vdr_required_extension.c_str());
+        if (is_extension_supported && !is_extension_already_requested)
+        {
+            modified_extensions.push_back(vdr_required_extension.c_str());
+        }
     }
 
     modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());

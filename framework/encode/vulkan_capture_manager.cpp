@@ -2221,6 +2221,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 device_wrapper->physical_device->handle,
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
+                                                device_wrapper->property_feature_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
@@ -2254,6 +2255,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 device_wrapper->physical_device->handle,
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
+                                                device_wrapper->property_feature_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     std::vector<VkImageAspectFlagBits> aspects;
@@ -2288,21 +2290,21 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
 
     for (auto aspect : aspects)
     {
-        auto& image_resource                = image_resources.emplace_back();
-        image_resource.handle_id            = image_wrapper->handle_id;
-        image_resource.image                = image_wrapper->handle;
-        image_resource.format               = image_wrapper->format;
-        image_resource.type                 = image_wrapper->image_type;
-        image_resource.extent               = image_wrapper->extent;
-        image_resource.level_count          = image_wrapper->mip_levels;
-        image_resource.layer_count          = image_wrapper->array_layers;
-        image_resource.tiling               = image_wrapper->tiling;
-        image_resource.sample_count         = image_wrapper->samples;
-        image_resource.layout               = image_wrapper->current_layout;
-        image_resource.queue_family_index   = image_wrapper->queue_family_index;
-        image_resource.external_format      = image_wrapper->external_format;
-        image_resource.size                 = image_wrapper->size;
-        image_resource.aspect               = aspect;
+        auto& image_resource              = image_resources.emplace_back();
+        image_resource.handle_id          = image_wrapper->handle_id;
+        image_resource.image              = image_wrapper->handle;
+        image_resource.format             = image_wrapper->format;
+        image_resource.type               = image_wrapper->image_type;
+        image_resource.extent             = image_wrapper->extent;
+        image_resource.level_count        = image_wrapper->mip_levels;
+        image_resource.layer_count        = image_wrapper->array_layers;
+        image_resource.tiling             = image_wrapper->tiling;
+        image_resource.sample_count       = image_wrapper->samples;
+        image_resource.layout             = image_wrapper->current_layout;
+        image_resource.queue_family_index = image_wrapper->queue_family_index;
+        image_resource.external_format    = image_wrapper->external_format;
+        image_resource.size               = image_wrapper->size;
+        image_resource.aspect             = aspect;
 
         num_staging_bytes += image_wrapper->size;
     }

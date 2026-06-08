@@ -61,6 +61,8 @@ struct VulkanDevicePropertyFeatureInfo
 
     VkBool32 feature_samplerYcbcrConversion{ VK_FALSE };
 
+    VkBool32 feature_maintenance10{ VK_FALSE };
+
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
 };
 

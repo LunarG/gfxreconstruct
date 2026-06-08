@@ -27,9 +27,7 @@
 #include "format/format.h"
 #include "util/defines.h"
 #include "generated/generated_vulkan_dispatch_table.h"
-
-#include "vulkan/vulkan.h"
-#include "vulkan/vulkan_core.h"
+#include "graphics/vulkan_device_util.h"
 
 #include <vector>
 #include <functional>
@@ -48,6 +46,7 @@ class VulkanResourcesUtil
                         VkPhysicalDevice                                       physical_device,
                         const VulkanDeviceTable&                               device_table,
                         const VulkanInstanceTable&                             instance_table,
+                        const VulkanDevicePropertyFeatureInfo&                 physical_device_features_info,
                         const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties = {});
 
     ~VulkanResourcesUtil();
@@ -202,6 +201,12 @@ class VulkanResourcesUtil
 
     void BlitImage(VkCommandBuffer command_buffer, const blit_image_params_t& blit_image_params);
 
+    static bool CanTransferResolve(const VulkanInstanceTable&                       instance_table,
+                                   VkPhysicalDevice                                 physical_device,
+                                   VkFormat                                         format,
+                                   VkImageTiling                                    tiling,
+                                   const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
+
   private:
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
@@ -300,6 +305,9 @@ class VulkanResourcesUtil
 
     // in case we don't have knowledge about memory-properties, we cannot query/allocate memory.
     std::optional<VkPhysicalDeviceMemoryProperties> memory_properties_;
+
+    // Required to check available physical device features
+    const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info_;
 
     struct command_assets_t
     {

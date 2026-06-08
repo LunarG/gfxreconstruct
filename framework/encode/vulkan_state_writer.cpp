@@ -3204,6 +3204,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                             device_wrapper->physical_device->handle,
                                                             device_wrapper->layer_table,
                                                             *device_wrapper->physical_device->layer_table_ref,
+                                                            device_wrapper->property_feature_info,
                                                             device_wrapper->physical_device->memory_properties);
 
                 // Sparse images require staging copy for the following process because dumping image data with mapping
@@ -3345,6 +3346,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                                                     device_wrapper->physical_device->handle,
                                                     device_wrapper->layer_table,
                                                     *device_wrapper->physical_device->layer_table_ref,
+                                                    device_wrapper->property_feature_info,
                                                     device_wrapper->physical_device->memory_properties);
 
         if (max_staging_copy_size > 0)

@@ -1306,7 +1306,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
                 // possible to be dumped in the capture file in the first place.
                 GFXRECON_ASSERT(CanDumpImage(instance_table_,
                                              device_info_->parent,
-                                             &init_image->copied_image.image_info) == ImageDumpResult::kCanDump);
+                                             &init_image->copied_image.image_info,
+                                             device_info_->property_feature_info) == ImageDumpResult::kCanDump);
 
                 auto& new_dumped_init_image =
                     std::get<DumpedInitImageMetaCommand>(new_dumped_transfer_cmd->dumped_resource);
@@ -1420,7 +1421,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
             {
                 auto* copy_buffer_to_image        = static_cast<TransferParams::CopyBufferToImage*>(base_transfer_cmd);
                 const VulkanImageInfo* image_info = &copy_buffer_to_image->copied_image.image_info;
-                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
+                const ImageDumpResult  can_dump_image = CanDumpImage(
+                    instance_table_, device_info_->parent, image_info, device_info_->property_feature_info);
 
                 auto& new_dumped_transfer_cmd = copy_buffer_to_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
@@ -1514,7 +1516,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
             {
                 auto*                  copy_image     = static_cast<TransferParams::CopyImage*>(base_transfer_cmd);
                 const VulkanImageInfo* image_info     = &copy_image->copied_image.image_info;
-                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
+                const ImageDumpResult  can_dump_image = CanDumpImage(
+                    instance_table_, device_info_->parent, image_info, device_info_->property_feature_info);
 
                 auto& new_dumped_transfer_cmd = copy_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
@@ -1681,7 +1684,8 @@ VkResult TransferDumpingContext::DumpTransferCommands(Index submit_info_index, I
             {
                 auto*                  blit_image     = static_cast<TransferParams::BlitImage*>(base_transfer_cmd);
                 const VulkanImageInfo* image_info     = &blit_image->copied_image.image_info;
-                const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info_->parent, image_info);
+                const ImageDumpResult  can_dump_image = CanDumpImage(
+                    instance_table_, device_info_->parent, image_info, device_info_->property_feature_info);
 
                 auto& new_dumped_transfer_cmd = blit_image->dumped_resources.dumped_transfer_command =
                     std::make_unique<DumpedTransferCommand>(dumped_resource_base,
