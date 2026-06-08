@@ -20,7 +20,6 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_replay_frame_loop_consumer.h"
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -62,6 +61,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateDescriptorPool(
     HandlePointerDecoder<VkDescriptorPool>*                   pDescriptorPool)
 {
     format::HandleId pool_id = *pDescriptorPool->GetPointer();
+    GFXRECON_ASSERT(pDescriptorPool != nullptr && pDescriptorPool->GetPointer() != nullptr);
 
     if (frame_loop_info_.IsRepetition())
     {
@@ -156,10 +156,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
     }
 
     VulkanReplayConsumer::Process_vkResetDescriptorPool(call_info, returnValue, device, descriptorPool, flags);
-
-    // For pools that contain dangling descriptor sets, this code will only be reached once,
-    // during the final iteration of the loop range.
-    RemovePoolDanglingCreateDescriptors(descriptorPool);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkAllocateDescriptorSets(
@@ -217,6 +213,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
+        bool skip_call = false;
         for (format::HandleId set_handle : pDescriptorSets->GetSpan())
         {
             if (dangling_create_descriptor_sets_.contains(set_handle))
@@ -228,30 +225,17 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
             {
                 // Descriptor set freed during loop range but created before
                 dangling_destroy_descriptor_sets_.insert(set_handle);
-                return;
+                skip_call = true;
             }
+        }
+        if (skip_call)
+        {
+            return;
         }
     }
 
     VulkanReplayConsumer::Process_vkFreeDescriptorSets(
         call_info, returnValue, device, descriptorPool, descriptorSetCount, pDescriptorSets);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
-    const ApiCallInfo&                              call_info,
-    VkResult                                        returnValue,
-    format::HandleId                                queue,
-    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
-{
-    // Get device
-    CommonObjectInfoTable& table      = GetObjectInfoTable();
-    VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
-    VkDevice               device     = queue_info->parent;
-    GFXRECON_ASSERT(device);
-    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
-    GFXRECON_ASSERT(device_table);
-
-    VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, returnValue, queue, pPresentInfo);
 }
 
 GFXRECON_END_NAMESPACE(decode)

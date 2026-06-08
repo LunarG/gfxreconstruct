@@ -81,11 +81,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                       uint32_t                               descriptorSetCount,
                                       HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
-                                   VkResult                                        returnValue,
-                                   format::HandleId                                queue,
-                                   StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
-
   private:
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
 
