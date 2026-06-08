@@ -65,7 +65,6 @@ enum BlockIOError : int32_t
     kErrorWritingCompressedBlockData   = -17,
     kErrorCopyingBlockData             = -18,
     kErrorUnsupportedBlockType         = -19
-
 };
 
 class BlockParser
@@ -176,10 +175,10 @@ class BlockParser
 
     struct ParameterReadResult
     {
-        bool                   success           = true;
-        bool                   is_compressed     = false;
-        size_t                 uncompressed_size = 0;
-        BlockSpan              buffer;
+        bool      success           = true;
+        bool      is_compressed     = false;
+        size_t    uncompressed_size = 0;
+        BlockSpan buffer;
     };
 
     template <typename... Args>
@@ -190,7 +189,8 @@ class BlockParser
     }
 
     template <typename T, typename... Args>
-    requires std::constructible_from<T, Args&&...> T* Emplace(Args&&... args)
+        requires std::constructible_from<T, Args&&...>
+    T* Emplace(Args&&... args)
     {
         return block_allocator_.GetCurrentBatch().emplace<T>(std::forward<Args>(args)...);
     }

@@ -8561,7 +8561,8 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                 auto device_table = GetDeviceTable(device_info->handle);
                 device_table->DeviceWaitIdle(device_info->handle);
             }
-            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int64_t>(sleep_around_gpu_frame_ms_ * 1000.0)));
+            std::this_thread::sleep_for(
+                std::chrono::microseconds(static_cast<int64_t>(sleep_around_gpu_frame_ms_ * 1000.0)));
         }
         ATrace_endSection();
     }

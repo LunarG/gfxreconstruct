@@ -191,8 +191,7 @@ struct DumpedImage
 
         DumpedImageSubresource(
             VkImageAspectFlagBits a, const VkExtent3D& e, const VkExtent3D& se, uint32_t le, uint32_t la, uint32_t d) :
-            aspect(a),
-            extent(e), scaled_extent(se), level(le), layer(la), depth(d)
+            aspect(a), extent(e), scaled_extent(se), level(le), layer(la), depth(d)
         {}
 
         VkImageAspectFlagBits aspect{ VkImageAspectFlagBits(0) };
@@ -289,7 +288,7 @@ struct DumpedAccelerationStructure
         DumpedBuildInputAABBBuffer() = delete;
 
         DumpedBuildInputAABBBuffer(const AccelerationStructureDumpResourcesContext::AABBS& aabbs) :
-            aabb_buffer(aabbs.buffer, aabbs.buffer_size), range(aabbs.range){};
+            aabb_buffer(aabbs.buffer, aabbs.buffer_size), range(aabbs.range) {};
 
         DumpedBuffer aabb_buffer;
 
@@ -332,9 +331,8 @@ struct DumpedResourceBase
                        uint64_t                   sicbi,
                        Index                      sci,
                        Index                      eccbi) :
-        ppl_stage(ps),
-        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(UNDEFINED_INDEX), subpass(UNDEFINED_INDEX),
-        submit_info_index(sii), submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci),
+        ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(UNDEFINED_INDEX),
+        subpass(UNDEFINED_INDEX), submit_info_index(sii), submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci),
         execute_cmds_cmd_buf_index(eccbi)
     {}
 
@@ -348,9 +346,9 @@ struct DumpedResourceBase
                        uint64_t                   sicbi,
                        Index                      sci,
                        Index                      eccbi) :
-        ppl_stage(ps),
-        bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp), submit_info_index(sii),
-        submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci), execute_cmds_cmd_buf_index(eccbi)
+        ppl_stage(ps), bcb_index(bcb), cmd_index(cmd), qs_index(qs), render_pass(rp), subpass(sp),
+        submit_info_index(sii), submit_info_cmd_buf_index(sicbi), execute_cmds_index(sci),
+        execute_cmds_cmd_buf_index(eccbi)
     {}
 
     DumpedResourceBase(const DumpedResourceBase& other, DumpResourceType t) : DumpedResourceBase(other) { type = t; }
@@ -401,8 +399,7 @@ struct DumpedVertexIndexBuffer : DumpedResourceBase
                             format::HandleId          id,
                             VkDeviceSize              s,
                             VkDeviceSize              o) :
-        DumpedResourceBase(dumped_resource_base, t),
-        buffer(buffer, id, o, s), binding(b)
+        DumpedResourceBase(dumped_resource_base, t), buffer(buffer, id, o, s), binding(b)
     {
         GFXRECON_ASSERT(ppl_stage == DumpResourcesPipelineStage::kGraphics);
         GFXRECON_ASSERT(t == DumpResourceType::kVertex);
@@ -416,8 +413,7 @@ struct DumpedVertexIndexBuffer : DumpedResourceBase
                             format::HandleId          id,
                             VkDeviceSize              s,
                             VkDeviceSize              o) :
-        DumpedResourceBase(dumped_resource_base, t),
-        buffer(buffer, id, o, s), index_type(it)
+        DumpedResourceBase(dumped_resource_base, t), buffer(buffer, id, o, s), index_type(it)
     {
         GFXRECON_ASSERT(ppl_stage == DumpResourcesPipelineStage::kGraphics);
         GFXRECON_ASSERT(t == DumpResourceType::kIndex);
@@ -448,8 +444,7 @@ struct DumpedDescriptor : DumpedResourceBase
                      format::HandleId          id,
                      VkDeviceSize              offset,
                      VkDeviceSize              size) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
@@ -459,8 +454,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      VkShaderStageFlags        ss,
                      VkDescriptorType          dt,
                      const DescriptorLocation& desc_tu) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Graphics image descriptors
@@ -471,8 +466,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      const DescriptorLocation& desc_tu,
                      const VulkanImageInfo*    img_info,
                      ImageDumpResult           cd) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Acceleration structure for Graphics
@@ -483,8 +478,7 @@ struct DumpedDescriptor : DumpedResourceBase
                      const DescriptorLocation&                 desc_tu,
                      const VulkanAccelerationStructureKHRInfo* as_info,
                      bool                                      dbib) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
 
@@ -497,8 +491,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      const VulkanImageInfo*     img_info,
                      ImageDumpResult            cd,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        dumped_resource(std::in_place_type<DumpedImage>, img_info, cd)
     {}
 
     // Dispatch ray tracing buffer descriptors
@@ -512,8 +506,7 @@ struct DumpedDescriptor : DumpedResourceBase
                      VkDeviceSize               offset,
                      VkDeviceSize               size,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedBuffer>, buffer, id, offset, size)
     {}
 
@@ -524,8 +517,8 @@ struct DumpedDescriptor : DumpedResourceBase
                      VkDescriptorType           dt,
                      const DescriptorLocation&  desc_tu,
                      DumpResourcesPipelineStage ps) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu), dumped_resource(std::in_place_type<DumpedBuffer>, 0)
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        dumped_resource(std::in_place_type<DumpedBuffer>, 0)
     {}
 
     // Acceleration structure for TraceRays
@@ -537,8 +530,7 @@ struct DumpedDescriptor : DumpedResourceBase
                      const VulkanAccelerationStructureKHRInfo* as_info,
                      bool                                      dbib,
                      DumpResourcesPipelineStage                ps) :
-        DumpedResourceBase(dumped_resource_base, t),
-        stages(ss), desc_type(dt), desc_tuple(desc_tu),
+        DumpedResourceBase(dumped_resource_base, t), stages(ss), desc_type(dt), desc_tuple(desc_tu),
         dumped_resource(std::in_place_type<DumpedAccelerationStructure>, as_info, dbib)
     {}
 
@@ -568,9 +560,7 @@ struct DumpedRenderTarget : DumpedResourceBase
                        uint32_t                  l,
                        bool                      before,
                        const VulkanImageInfo*    img_info,
-                       ImageDumpResult           cd) :
-        DumpedResourceBase(base, t),
-        location(l), dumped_image(img_info, cd)
+                       ImageDumpResult cd) : DumpedResourceBase(base, t), location(l), dumped_image(img_info, cd)
     {
         if (before)
         {
@@ -651,9 +641,7 @@ struct DumpedCopyBufferToImage
     DumpedCopyBufferToImage(format::HandleId           s,
                             const TransferedImageInfo& transf_img_info,
                             const VulkanImageInfo*     img_inf,
-                            ImageDumpResult            cd) :
-        src_buffer(s),
-        dst_image(transf_img_info), dumped_image(img_inf, cd)
+                            ImageDumpResult cd) : src_buffer(s), dst_image(transf_img_info), dumped_image(img_inf, cd)
     {}
 
     std::vector<VkBufferImageCopy> regions;
@@ -670,9 +658,7 @@ struct DumpedCopyImage
     DumpedCopyImage(const TransferedImageInfo& src_img,
                     const TransferedImageInfo& dst_img,
                     const VulkanImageInfo*     img_inf,
-                    ImageDumpResult            cd) :
-        src_image(src_img),
-        dst_image(dst_img), dumped_image(img_inf, cd)
+                    ImageDumpResult            cd) : src_image(src_img), dst_image(dst_img), dumped_image(img_inf, cd)
     {}
 
     std::vector<VkImageCopy> regions;
@@ -711,9 +697,7 @@ struct DumpedBlitImage
                     const TransferedImageInfo& di,
                     const VulkanImageInfo*     img_inf,
                     ImageDumpResult            cd,
-                    VkFilter                   f) :
-        src_image(si),
-        dst_image(di), dumped_image(img_inf, cd), filter(f)
+                    VkFilter                   f) : src_image(si), dst_image(di), dumped_image(img_inf, cd), filter(f)
     {}
 
     TransferedImageInfo      src_image;
@@ -732,8 +716,7 @@ struct AccelerationStructureTransfer
                                   uint32_t                                  m,
                                   const VulkanAccelerationStructureKHRInfo* as_info,
                                   bool                                      dump_input_buffers) :
-        dumped_as(as_info, dump_input_buffers),
-        src_as(s), dst_as(d), mode(m)
+        dumped_as(as_info, dump_input_buffers), src_as(s), dst_as(d), mode(m)
     {}
 
     format::HandleId src_as;
@@ -756,8 +739,7 @@ struct DumpedCopyAccelerationStructure
                                     format::HandleId                          d,
                                     VkCopyAccelerationStructureModeKHR        m,
                                     const VulkanAccelerationStructureKHRInfo* as_info,
-                                    bool                                      dump_input_buffers) :
-        dumped_copy_info(s, d, m, as_info, dump_input_buffers)
+                                    bool dump_input_buffers) : dumped_copy_info(s, d, m, as_info, dump_input_buffers)
     {}
 
     AccelerationStructureTransfer dumped_copy_info;
@@ -795,8 +777,8 @@ struct DumpedTransferCommand : DumpedResourceBase
                           format::HandleId          s,
                           format::HandleId          d,
                           bool                      hb) :
-        DumpedResourceBase(dumped_resource_base, t),
-        dumped_resource(std::in_place_type<DumpedCopyBuffer>, s, d), has_before(hb)
+        DumpedResourceBase(dumped_resource_base, t), dumped_resource(std::in_place_type<DumpedCopyBuffer>, s, d),
+        has_before(hb)
     {
         GFXRECON_ASSERT(t == DumpResourceType::kCopyBuffer);
 

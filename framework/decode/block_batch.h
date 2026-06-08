@@ -107,8 +107,8 @@ class BlockBatch
     }
 #endif
 
-    void    reset();
-    void    reset_no_list()
+    void reset();
+    void reset_no_list()
     {
         // Only for use with emplace_block(false, ...) batches
         GFXRECON_ASSERT((head_ == nullptr) && (tail_ == nullptr));
@@ -117,14 +117,8 @@ class BlockBatch
 
     size_t BytesRemaining() const noexcept;
 
-    void SetBatchTag(uint64_t tag) noexcept
-    {
-        batch_tag_ = tag;
-    }
-    uint64_t GetBatchTag() const noexcept
-    {
-        return batch_tag_;
-    }
+    void     SetBatchTag(uint64_t tag) noexcept { batch_tag_ = tag; }
+    uint64_t GetBatchTag() const noexcept { return batch_tag_; }
 
   private:
     util::HybridLinearAllocator allocator_;
