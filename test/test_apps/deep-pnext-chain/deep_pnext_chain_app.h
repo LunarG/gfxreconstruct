@@ -34,7 +34,7 @@ class App : public gfxrecon::test::TestAppBase
     void configure_instance_builder(test::InstanceBuilder& instance_builder, vkmock::TestConfig*) override;
     void configure_device_builder(test::DeviceBuilder&        device_builder,
                                   test::PhysicalDevice const& physical_device,
-                                  vkmock::TestConfig*   test_config) override;
+                                  vkmock::TestConfig*         test_config) override;
     bool frame(const int frame_num) override;
 
   private:

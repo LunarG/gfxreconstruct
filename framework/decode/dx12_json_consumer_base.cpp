@@ -59,7 +59,7 @@ bool Dx12JsonConsumerBase::IsValid() const
 void Dx12JsonConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocation_id, uint64_t allocation_size)
 {
     writer_->SetCurrentBlockIndex(block_index_);
-    auto& jdata = writer_->WriteMetaCommandStart("CreateHeapAllocationCommand");
+    auto& jdata              = writer_->WriteMetaCommandStart("CreateHeapAllocationCommand");
     jdata["allocation_id"]   = allocation_id;
     jdata["allocation_size"] = allocation_size;
     writer_->WriteBlockEnd();
@@ -69,7 +69,7 @@ void Dx12JsonConsumerBase::ProcessInitSubresourceCommand(const format::InitSubre
                                                          const uint8_t*                              data)
 {
     writer_->SetCurrentBlockIndex(block_index_);
-    auto& jdata = writer_->WriteMetaCommandStart("InitSubresourceCommand");
+    auto& jdata             = writer_->WriteMetaCommandStart("InitSubresourceCommand");
     jdata["thread_id"]      = command_header.thread_id;
     jdata["device_id"]      = command_header.device_id;
     jdata["resource_id"]    = command_header.resource_id;
@@ -132,7 +132,7 @@ void Dx12JsonConsumerBase::ProcessFillMemoryResourceValueCommand(
     const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
 {
     writer_->SetCurrentBlockIndex(block_index_);
-    auto& jdata = writer_->WriteMetaCommandStart("FillMemoryResourceValueCommand");
+    auto& jdata                   = writer_->WriteMetaCommandStart("FillMemoryResourceValueCommand");
     jdata["thread_id"]            = command_header.thread_id;
     jdata["resource_value_count"] = command_header.resource_value_count;
     // There are two blocks of values in data so we need to add together their sizes to know how big the blob to dump
@@ -151,7 +151,7 @@ void Dx12JsonConsumerBase::ProcessFillMemoryResourceValueCommand(
 void Dx12JsonConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
     writer_->SetCurrentBlockIndex(block_index_);
-    auto& jdata = writer_->WriteMetaCommandStart("DxgiAdapterInfo");
+    auto& jdata        = writer_->WriteMetaCommandStart("DxgiAdapterInfo");
     jdata["thread_id"] = adapter_info_header.thread_id;
     FieldToJson(jdata["adapter_desc"], adapter_info_header.adapter_desc);
     writer_->WriteBlockEnd();

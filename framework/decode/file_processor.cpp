@@ -109,7 +109,7 @@ bool FileProcessor::Initialize(const std::string& filename)
         auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
             HandleBlockReadError(err, message);
         } };
-        block_parser_ = std::make_unique<BlockParser>(err_handler, compressor_.get());
+        block_parser_    = std::make_unique<BlockParser>(err_handler, compressor_.get());
         if (block_parser_.get() != nullptr)
         {
             // For immediate dispatching (the default mode of operation) no need to defer decompression
