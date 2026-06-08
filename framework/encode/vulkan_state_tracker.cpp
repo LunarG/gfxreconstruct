@@ -1558,7 +1558,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             {
                 auto& binding = wrapper->bindings[current_binding];
 
-                assert(binding.uniform_texel_buffer_views != nullptr);
+                GFXRECON_ASSERT(binding.uniform_texel_buffer_views != nullptr ||
+                                binding.storage_texel_buffer_views != nullptr);
 
                 // Check count for consecutive updates.
                 uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
