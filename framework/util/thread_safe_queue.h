@@ -74,7 +74,7 @@ class QueueBase
     }
 
     template <typename... Args>
-        requires std::constructible_from<value_type, Args&&...>
+    requires std::constructible_from<value_type, Args&&...>
     bool emplace(Args&&... args)
     {
         {
@@ -234,18 +234,12 @@ class ThreadSafeQueue
     void close() { queue_.close(); }
 
     template <typename... Args>
-        requires std::constructible_from<value_type, Args&&...>
-    bool emplace(Args&&... args)
-    {
-        return queue_.emplace(std::forward<Args>(args)...);
-    }
+    requires std::constructible_from<value_type, Args&&...>
+    bool emplace(Args&&... args) { return queue_.emplace(std::forward<Args>(args)...); }
 
     template <typename U>
-        requires std::constructible_from<value_type, U&&>
-    bool push(U&& value)
-    {
-        return queue_.emplace(std::forward<U>(value));
-    }
+    requires std::constructible_from<value_type, U&&>
+    bool push(U&& value) { return queue_.emplace(std::forward<U>(value)); }
 
     // Blocks until a value is available or the queue is closed. Returns std::nullopt if the queue is empty and closed.
     pop_type pop() { return queue_.pop(); }

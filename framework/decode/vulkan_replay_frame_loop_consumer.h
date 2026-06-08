@@ -37,7 +37,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     VulkanReplayFrameLoopConsumer(std::shared_ptr<application::Application> application,
                                   const VulkanReplayOptions&                options,
                                   graphics::FrameLoopInfo&                  frame_loop_info) :
-        VulkanReplayFrameLoopConsumerBase(application, options), frame_loop_info_(frame_loop_info)
+        VulkanReplayFrameLoopConsumerBase(application, options),
+        frame_loop_info_(frame_loop_info)
     {}
 
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }

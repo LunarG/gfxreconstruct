@@ -125,7 +125,8 @@ class DispatchVisitor
     DispatchVisitor(FileProcessor&                  file_processor,
                     const std::vector<ApiDecoder*>& decoders,
                     AnnotationHandler*              annotation_handler) :
-        file_processor_(file_processor), decoders_(decoders), annotation_handler_(annotation_handler)
+        file_processor_(file_processor),
+        decoders_(decoders), annotation_handler_(annotation_handler)
     {}
 
     void SetBlockIndex(uint64_t block_index) { block_index_ = block_index; }

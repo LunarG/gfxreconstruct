@@ -80,7 +80,10 @@ class FStreamFileInputStream
     // exceed the read ahead buffer size, and we want to avoid moving large amounts of data.
     constexpr static size_t kMaxPeekBytes = 32U;
 
-    size_t GetMaxPeekBytes() const noexcept { return kMaxPeekBytes; }
+    size_t GetMaxPeekBytes() const noexcept
+    {
+        return kMaxPeekBytes;
+    }
 
   protected:
     bool   HasReadAhead() const noexcept;

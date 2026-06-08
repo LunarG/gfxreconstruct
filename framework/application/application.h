@@ -98,7 +98,10 @@ class Application final
         return GFXRECON_NARROWING_CAST(uint32_t, file_processor_->GetCurrentFrameNumber());
     }
 
-    plugin::ReplayEventSink* GetReplayEventSink() const { return replay_event_sink_.get(); }
+    plugin::ReplayEventSink* GetReplayEventSink() const
+    {
+        return replay_event_sink_.get();
+    }
 
     void SetReplayEventSink(std::unique_ptr<plugin::ReplayEventSink> replay_event_sink)
     {

@@ -189,8 +189,7 @@ class BlockParser
     }
 
     template <typename T, typename... Args>
-        requires std::constructible_from<T, Args&&...>
-    T* Emplace(Args&&... args)
+    requires std::constructible_from<T, Args&&...> T* Emplace(Args&&... args)
     {
         return block_allocator_.GetCurrentBatch().emplace<T>(std::forward<Args>(args)...);
     }
