@@ -117,11 +117,6 @@ struct VulkanDelegateDumpedCopyBufferRegions
     DumpedCopyBufferRegionsHostData regions_data;
 };
 
-struct VulkanDelegateDumpedCopyImageRegions
-{
-    DumpedCopyImageRegionsHostData regions_data;
-};
-
 struct VulkanDelegateDumpedBuildAccelerationStructures
 {
     std::vector<AccelerationStructureDumpedHostData> data;
@@ -138,7 +133,6 @@ struct VulkanDelegateTransferCommandDumpedData
                  VulkanDelegateBufferDumpedData,
                  VulkanDelegateImageDumpedData,
                  VulkanDelegateDumpedCopyBufferRegions,
-                 VulkanDelegateDumpedCopyImageRegions,
                  VulkanDelegateDumpedBuildAccelerationStructures,
                  VulkanDelegateDumpedCopyAccelerationStructure>
         dumped_data;
