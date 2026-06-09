@@ -1436,11 +1436,17 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 assert((immutable_image && binding.images != nullptr) ||
                        (!immutable_image && binding.storage_images != nullptr));
 
-                format::HandleId*      dst_sampler_ids = &binding.sampler_ids[current_array_element];
-                format::HandleId*      dst_image_ids   = &binding.handle_ids[current_array_element];
-                VkDescriptorImageInfo* dst_info        = immutable_image ? &binding.images[current_array_element]
-                                                                         : &binding.storage_images[current_array_element];
-                const uint8_t*         src_address     = bytes + current_offset;
+                format::HandleId* dst_sampler_ids = nullptr;
+                if (binding.type == VK_DESCRIPTOR_TYPE_SAMPLER ||
+                    binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+                {
+                    GFXRECON_ASSERT(binding.sampler_ids != nullptr);
+                    dst_sampler_ids = &binding.sampler_ids[current_array_element];
+                }
+                format::HandleId*      dst_image_ids = &binding.handle_ids[current_array_element];
+                VkDescriptorImageInfo* dst_info      = immutable_image ? &binding.images[current_array_element]
+                                                                       : &binding.storage_images[current_array_element];
+                const uint8_t*         src_address   = bytes + current_offset;
 
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {
