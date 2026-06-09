@@ -1440,7 +1440,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 if (binding.type == VK_DESCRIPTOR_TYPE_SAMPLER ||
                     binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
                 {
-                    assert(binding.sampler_ids != nullptr);
+                    GFXRECON_ASSERT(binding.sampler_ids != nullptr);
                     dst_sampler_ids = &binding.sampler_ids[current_array_element];
                 }
                 format::HandleId*      dst_image_ids = &binding.handle_ids[current_array_element];
