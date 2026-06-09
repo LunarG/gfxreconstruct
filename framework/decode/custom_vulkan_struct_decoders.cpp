@@ -759,36 +759,29 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDataGraphPipelineConstantARM* wrapper)
 {
-    GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+    GFXRECON_ASSERT(wrapper != nullptr && wrapper->decoded_value != nullptr);
 
     size_t                          bytes_read = 0;
     VkDataGraphPipelineConstantARM* value      = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    bytes_read += ValueDecoder::DecodeEnumValue(buffer + bytes_read, buffer_size - bytes_read, &value->sType);
+    bytes_read += DecodePNextStruct(buffer + bytes_read, buffer_size - bytes_read, &wrapper->pNext);
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->id));
+    bytes_read += ValueDecoder::DecodeUInt32Value(buffer + bytes_read, buffer_size - bytes_read, &value->id);
     value->pConstantData = nullptr;
 
-    if (value->pNext)
+    if (gfxrecon::graphics::vulkan_struct_get_pnext<VkTensorDescriptionARM>(value))
     {
-        const VkTensorDescriptionARM* description =
-            gfxrecon::graphics::vulkan_struct_get_pnext<VkTensorDescriptionARM>(value);
-        if (description != nullptr)
-        {
-            uint32_t pointer_attrib = 0;
-            bytes_read +=
-                ValueDecoder::DecodeUInt32Value(buffer + bytes_read, buffer_size - bytes_read, &pointer_attrib);
-            size_t size = 0;
-            bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &size);
-            wrapper->pConstantData = DecodeAllocator::Allocate<uint8_t>(size);
-            bytes_read += ValueDecoder::DecodeUInt8Array(
-                (buffer + bytes_read), (buffer_size - bytes_read), (void*)wrapper->pConstantData, size);
+        uint32_t pointer_attrib = 0;
+        bytes_read += ValueDecoder::DecodeUInt32Value(buffer + bytes_read, buffer_size - bytes_read, &pointer_attrib);
+        size_t size = 0;
+        bytes_read += ValueDecoder::DecodeSizeTValue(buffer + bytes_read, buffer_size - bytes_read, &size);
+        wrapper->pConstantData = DecodeAllocator::Allocate<uint8_t>(size);
+        bytes_read +=
+            ValueDecoder::DecodeUInt8Array(buffer + bytes_read, buffer_size - bytes_read, wrapper->pConstantData, size);
 
-            value->pConstantData = wrapper->pConstantData;
-        }
+        value->pConstantData = wrapper->pConstantData;
     }
-
     return bytes_read;
 }
 

@@ -13983,6 +13983,8 @@ void VulkanReplayConsumerBase::InitializeReplayDataGraphOpticalFlowInfo(VulkanPh
     replay_device_info->data_graph_optical_flow_initialized = true;
     replay_device_info->data_graph_optical_flow_infos.clear();
 
+    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+
     VkPhysicalDevice physical_device = physical_device_info->handle;
     auto*            instance_table  = GetInstanceTable(physical_device);
     GFXRECON_ASSERT(instance_table != nullptr);
@@ -14176,15 +14178,16 @@ VulkanReplayConsumerBase::OverrideCreateTensorARM(PFN_vkCreateTensorARM         
     GFXRECON_ASSERT(allocator != nullptr);
 
     VulkanResourceAllocator::ResourceData allocator_data;
-    auto                                  replay_tensor = tensor->GetHandlePointer();
-    auto                                  capture_id    = (*tensor->GetPointer());
+    auto*                                 replay_tensor = tensor->GetHandlePointer();
+    auto                                  capture_id    = *tensor->GetPointer();
 
-    auto                  replay_create_info   = pCreateInfo->GetPointer();
+    auto*                 replay_create_info   = pCreateInfo->GetPointer();
     VkTensorCreateInfoARM modified_create_info = *replay_create_info;
 
-    auto* tensor_info = reinterpret_cast<VulkanTensorARMInfo*>(tensor->GetConsumerData(0));
+    auto* tensor_info = static_cast<VulkanTensorARMInfo*>(tensor->GetConsumerData(0));
     GFXRECON_ASSERT(tensor_info != nullptr);
 
+    // inject TRANSFER-usage bits when replaying a trimmed capture. needed for initialization
     VkTensorDescriptionARM modified_description_storage;
     if (replaying_trimmed_capture_)
     {
@@ -14197,7 +14200,7 @@ VulkanReplayConsumerBase::OverrideCreateTensorARM(PFN_vkCreateTensorARM         
     result = allocator->CreateTensor(
         &modified_create_info, GetAllocationCallbacks(pAllocator), capture_id, replay_tensor, &allocator_data);
 
-    if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_tensor) != VK_NULL_HANDLE))
+    if (result == VK_SUCCESS && replay_create_info != nullptr && *replay_tensor != VK_NULL_HANDLE)
     {
         tensor_info->allocator_data = allocator_data;
         tensor_info->tiling         = replay_create_info->pDescription->tiling;
@@ -14208,27 +14211,32 @@ VulkanReplayConsumerBase::OverrideCreateTensorARM(PFN_vkCreateTensorARM         
         tensor_info->pStrides.clear();
 
         for (uint32_t i = 0; i < tensor_info->dimensionCount; ++i)
+        {
             tensor_info->pDimensions[i] = replay_create_info->pDescription->pDimensions[i];
+        }
 
         if (replay_create_info->pDescription->pStrides != nullptr)
         {
             tensor_info->pStrides.resize(tensor_info->dimensionCount);
             for (uint32_t i = 0; i < tensor_info->dimensionCount; ++i)
+            {
                 tensor_info->pStrides[i] = replay_create_info->pDescription->pStrides[i];
+            }
         }
 
-        VkTensorMemoryRequirementsInfoARM tensor_mem_req{};
-        tensor_mem_req.sType  = VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM;
+        VkTensorMemoryRequirementsInfoARM tensor_mem_req{ VK_STRUCTURE_TYPE_TENSOR_MEMORY_REQUIREMENTS_INFO_ARM };
         tensor_mem_req.tensor = (*replay_tensor);
 
-        VkMemoryRequirements2 replay_req_2{};
-        replay_req_2.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+        VkMemoryRequirements2 replay_req_2{ VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2 };
 
-        allocator->GetTensorMemoryRequirementsARM(&tensor_mem_req, &replay_req_2, tensor_info->allocator_data);
+        // call directly (not via allocator) so capture_mem_reqs is not polluted with zeros;
+        // the decoded vkGetTensorMemoryRequirementsARM replay sets them from the actual captured values.
+        GetDeviceTable(device_info->handle)
+            ->GetTensorMemoryRequirementsARM(device_info->handle, &tensor_mem_req, &replay_req_2);
         tensor_info->size = replay_req_2.memoryRequirements.size;
 
-        if ((replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
-            (replay_create_info->queueFamilyIndexCount > 0) && (replay_create_info->pQueueFamilyIndices != nullptr))
+        if (replay_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT &&
+            replay_create_info->queueFamilyIndexCount > 0 && replay_create_info->pQueueFamilyIndices != nullptr)
         {
             tensor_info->queue_family_index = replay_create_info->pQueueFamilyIndices[0];
         }

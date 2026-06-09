@@ -64,6 +64,7 @@ class VulkanStructDecodersHeaderGeneratorOptions(VulkanBaseGeneratorOptions):
             'format/platform_types.h',
             'generated/generated_vulkan_struct_decoders_forward.h',
             'util/defines.h',
+            'util/logging.h',
         ))
         self.begin_end_file_data.system_headers.append('memory')
         self.begin_end_file_data.namespaces.extend(('gfxrecon', 'decode'))
@@ -125,6 +126,7 @@ class VulkanStructDecodersHeaderGenerator(
         body += '        switch ({})\n'.format(var_name)
         body += '        {\n'
         body += '            default:\n'
+        body += '                GFXRECON_LOG_WARNING_ONCE("Decoded_VkBaseOutStructure::AllocateAppropriate: unrecognized sType 0x%x", peek_structure_type);\n'
         body += '                return_type = DecodeAllocator::Allocate<Decoded_VkBaseOutStructure>(len, initialize);\n'
         body += '                break;\n'
         for child, struct_type in entries:
@@ -150,6 +152,7 @@ class VulkanStructDecodersHeaderGenerator(
         body += '        switch ({})\n'.format(var_name)
         body += '        {\n'
         body += '            default:\n'
+        body += '                GFXRECON_LOG_WARNING_ONCE("Decoded_VkBaseOutStructure::DecodeAppropriate: unrecognized sType 0x%x", peek_structure_type);\n'
         body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);\n'
         body += '                break;\n'
         for child, struct_type in entries:

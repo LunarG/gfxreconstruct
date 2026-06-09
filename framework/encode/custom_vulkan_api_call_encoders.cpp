@@ -1061,12 +1061,18 @@ VKAPI_ATTR VkResult VKAPI_CALL vkGetTensorOpaqueCaptureDescriptorDataARM(VkDevic
                                                                          const VkTensorCaptureDescriptorDataInfoARM*,
                                                                          void*)
 {
+    GFXRECON_LOG_WARNING_ONCE(
+        "%s: skipping capture of VkPhysicalDeviceDescriptorBufferTensorFeaturesARM::descriptorBufferTensorDescriptors",
+        __func__);
     return VK_SUCCESS;
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL
 vkGetTensorViewOpaqueCaptureDescriptorDataARM(VkDevice, const VkTensorViewCaptureDescriptorDataInfoARM*, void*)
 {
+    GFXRECON_LOG_WARNING_ONCE(
+        "%s: skipping capture of VkPhysicalDeviceDescriptorBufferTensorFeaturesARM::descriptorBufferTensorDescriptors",
+        __func__);
     return VK_SUCCESS;
 }
 
