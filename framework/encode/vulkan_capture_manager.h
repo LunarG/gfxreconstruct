@@ -303,6 +303,11 @@ class VulkanCaptureManager : public ApiCaptureManager
                                   const VkAllocationCallbacks* pAllocator,
                                   VkBuffer*                    pBuffer);
 
+    VkResult OverrideCreateTensorARM(VkDevice                     device,
+                                     const VkTensorCreateInfoARM* pCreateInfo,
+                                     const VkAllocationCallbacks* pAllocator,
+                                     VkTensorARM*                 pTensor);
+
     VkResult OverrideCreateImage(VkDevice                     device,
                                  const VkImageCreateInfo*     pCreateInfo,
                                  const VkAllocationCallbacks* pAllocator,
