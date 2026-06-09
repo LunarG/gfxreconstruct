@@ -60,7 +60,7 @@ If an exception is made to a principle, there should be a well-considered, docum
 
 **A capture file should contain as much as possible all of the unmodified graphics API call context made by the application for the captured, trimmed range of frames.**
 
-The capture file should preserve the original application API call, parameters, object associations, and observed results as captured.  This data should be stored as an ApiCall or MethodCall block when possible, representing the API call in its original form.
+The capture file should preserve the original application API calls and parameters, object associations, and observed results for each call.  This data should be stored as an ApiCall or MethodCall block when possible, representing each API call in its original form.
 
 When necessary, Metadata commands may encode additional information as a modifier for a recorded API call or may substitute an abstraction.  If the Metadata substitutes an abstraction, that abstraction must represent the API call object, parameters, and result so that it should be possible to **reconstruct** the original app’s sequence of API commands from the captured data.
 
