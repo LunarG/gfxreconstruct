@@ -28,17 +28,18 @@
 #if ENABLE_OPENXR_SUPPORT
 #include "encode/openxr_handle_wrapper_util.h"
 #endif
+#if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/vulkan_handle_wrapper_util.h"
+#endif
 #if defined(WIN32)
 #include "encode/dx12_object_wrapper_util.h"
 #endif
 
 #include "format/format.h"
+#include "format/platform_types.h"
 #include "util/defines.h"
 #include "util/output_stream.h"
 #include "util/platform.h"
-
-#include "vulkan/vulkan.h"
 
 #include <cstring>
 #include <cwchar>
@@ -85,8 +86,10 @@ class ParameterEncoder
     template<typename T>
     void EncodeFunctionPtr(T value)                                                                                   { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     template<typename Wrapper>
     void EncodeVulkanHandleValue(typename Wrapper::HandleType value)                                                  { EncodeHandleIdValue(vulkan_wrappers::GetWrappedId<Wrapper>(value)); }
+#endif // GFXRECON_ENABLE_VULKAN
 
 
 #if ENABLE_OPENXR_SUPPORT
@@ -134,8 +137,10 @@ class ParameterEncoder
     template<typename T>
     void EncodeVoidPtrPtr(const T* const* ptr, bool omit_data = false, bool omit_addr = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     template<typename Wrapper>
     void EncodeVulkanHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false) { EncodeWrappedVulkanHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }
+#endif // GFXRECON_ENABLE_VULKAN
 
 #if ENABLE_OPENXR_SUPPORT
     template<typename Wrapper>
@@ -174,8 +179,10 @@ class ParameterEncoder
     void EncodeUInt8Array(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
     void EncodeVoidArray(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     template<typename Wrapper>
     void EncodeVulkanHandleArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedVulkanHandleArray<Wrapper>(arr, len, omit_data, omit_addr); }
+#endif // GFXRECON_ENABLE_VULKAN
 
 #if ENABLE_OPENXR_SUPPORT
     template<typename Wrapper>
@@ -450,6 +457,7 @@ class ParameterEncoder
         }
     }
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     template <typename Wrapper>
     void EncodeWrappedVulkanHandlePointer(const typename Wrapper::HandleType* ptr,
                                           bool                                omit_data = false,
@@ -473,6 +481,7 @@ class ParameterEncoder
             }
         }
     }
+#endif // GFXRECON_ENABLE_VULKAN
 
 #if ENABLE_OPENXR_SUPPORT
     template <typename Wrapper>
@@ -615,6 +624,7 @@ class ParameterEncoder
         EncodeArray(arr, len, omit_data, omit_addr);
     }
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     template <typename Wrapper>
     void EncodeWrappedVulkanHandleArray(const typename Wrapper::HandleType* arr,
                                         size_t                              len,
@@ -645,6 +655,7 @@ class ParameterEncoder
             }
         }
     }
+#endif // GFXRECON_ENABLE_VULKAN
 
 #if ENABLE_OPENXR_SUPPORT
     template <typename Wrapper>

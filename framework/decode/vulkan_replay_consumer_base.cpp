@@ -33,7 +33,12 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_enum_util.h"
+#include "encode/capture_manager.h"
+
+#if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/vulkan_capture_manager.h"
+#endif
+
 #include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "decode/vulkan_submit_job.h"
@@ -1396,6 +1401,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
                     "SetupForRecapture should be called before InitializeLoader().")
     get_instance_proc_addr_ = get_instance_proc_addr;
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(create_instance, create_device);
 
     // Logger is already initialized by replay, so inform capture manager not to initialize it again.
@@ -1403,6 +1409,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
 
     gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
     gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
+#endif // GFXRECON_ENABLE_VULKAN
 }
 
 void VulkanReplayConsumerBase::PushRecaptureHandleId(const format::HandleId* id)

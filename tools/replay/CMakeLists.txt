@@ -44,9 +44,9 @@ target_sources(gfxrecon-replay
                     ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/parse_dump_resources_cli.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.h
-                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.cpp>
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.h>
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h>
                     $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
                     $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
 )
