@@ -2146,7 +2146,11 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
     }
 
     state_table_.VisitWrappers([this, buffer_wrapper](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
-        GFXRECON_ASSERT(acc_wrapper != nullptr && acc_wrapper->buffer != nullptr);
+        GFXRECON_ASSERT(acc_wrapper != nullptr);
+        if (acc_wrapper->buffer == nullptr)
+        {
+            return;
+        }
         auto build_state_it = acc_wrapper->buffer->acceleration_structures.find(acc_wrapper->address);
 
         if (build_state_it != acc_wrapper->buffer->acceleration_structures.end() &&
@@ -2170,6 +2174,10 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                 resource_util->second.ReadFromBufferResource(
                     buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
             }
+        }
+        if (acc_wrapper->buffer == buffer_wrapper)
+        {
+            acc_wrapper->buffer = nullptr;
         }
     });
 
