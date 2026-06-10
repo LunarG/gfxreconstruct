@@ -422,10 +422,9 @@ void Log::LogMessage(
         {
             fatal_callback_(non_indented_version.c_str());
         }
-        else
-        {
-            std::abort();
-        }
+
+        // guarantee LOG_FATAL is fatal
+        std::abort();
     }
 }
 

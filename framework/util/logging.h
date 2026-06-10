@@ -107,7 +107,7 @@ class Log
     // NOTE: not thread-safe. must be called before any concurrent logging.
     static void SetFatalCallback(FatalCallback callback);
 
-    static void Release() {}
+    static void Release() { fatal_callback_ = {}; }
 
     static void LogMessage(
         LoggingSeverity severity, const char* file, const char* function, const char* line, const char* message, ...);

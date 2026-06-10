@@ -456,12 +456,13 @@ TEST_CASE("FatalCallback invoked on LOG_FATAL", "[logging]")
     gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kFatal);
 
     bool called = false;
-    gfxrecon::util::Log::SetFatalCallback([&called](const char*) { called = true; });
-    GFXRECON_LOG_FATAL("test fatal");
+    gfxrecon::util::Log::SetFatalCallback([&called](const char*) {
+        called = true;
+        throw std::runtime_error("abort intercepted");
+    });
+    REQUIRE_THROWS_AS(([] { GFXRECON_LOG_FATAL("test fatal"); }()), std::runtime_error);
     REQUIRE(called);
 
-    // `called` goes out of scope after this test; replace the lambda before it becomes a dangling reference.
-    gfxrecon::util::Log::SetFatalCallback([](const char*) {});
     gfxrecon::util::Log::Release();
 }
 
@@ -472,6 +473,5 @@ TEST_CASE("FatalCallback throw propagates", "[logging]")
 
     REQUIRE_THROWS_AS(([] { GFXRECON_LOG_FATAL("test fatal throw"); }()), std::runtime_error);
 
-    gfxrecon::util::Log::SetFatalCallback([](const char*) {});
     gfxrecon::util::Log::Release();
 }
