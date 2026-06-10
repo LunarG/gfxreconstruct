@@ -800,6 +800,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--serialize-queue-submissions]
                           [--replay-event-plugin-path PATH]
                           [--replay-event-plugin-params PARAMS]
+                          [--isolate-render-passes]
                           [file]
 
 Launch the replay tool.
@@ -1043,6 +1044,8 @@ options:
                         Parameters to forward to the replay event plugin. The format
                         of the parameters is determined by the plugin and is not
                         interpreted by the replay tool. (forwarded to replay tool)
+  --isolate-render-passes
+                        Isolate render passes by splitting the command buffer into multiple submits.
 ```
 
 The command will force-stop an active replay process before starting the replay

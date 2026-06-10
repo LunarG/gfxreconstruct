@@ -174,6 +174,7 @@ const char kFrameWarmUpLoad[]           = "--frame-warm-up-load";
 const char kSerializeQueueSubmissions[] = "--serialize-queue-submissions";
 const char kReplayEventPluginPath[]     = "--replay-event-plugin-path";
 const char kReplayEventPluginParams[]   = "--replay-event-plugin-params";
+const char kIsolateRenderPasses[]       = "--isolate-render-passes";
 
 enum class WsiPlatform
 {
@@ -1396,6 +1397,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 
     replay_options.replay_event_plugin_path   = arg_parser.GetArgumentValue(kReplayEventPluginPath);
     replay_options.replay_event_plugin_params = arg_parser.GetArgumentValue(kReplayEventPluginParams);
+    replay_options.isolate_render_passes      = arg_parser.IsOptionSet(kIsolateRenderPasses);
 
     return replay_options;
 }
