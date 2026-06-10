@@ -50,20 +50,50 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
                                      HandlePointerDecoder<VkCommandPool>*                   pCommandPool) override;
 
+    void Process_vkCreateDescriptorPool(const ApiCallInfo&                                        call_info,
+                                        VkResult                                                  returnValue,
+                                        format::HandleId                                          device,
+                                        StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                        HandlePointerDecoder<VkDescriptorPool>* pDescriptorPool) override;
+
+    void Process_vkDestroyDescriptorPool(const ApiCallInfo&                                   call_info,
+                                         format::HandleId                                     device,
+                                         format::HandleId                                     descriptorPool,
+                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    void Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
+                                       VkResult                   returnValue,
+                                       format::HandleId           device,
+                                       format::HandleId           descriptorPool,
+                                       VkDescriptorPoolResetFlags flags) override;
+
     void Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
                                           VkResult                                                   returnValue,
                                           format::HandleId                                           device,
                                           StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                           HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
-                                   VkResult                                        returnValue,
-                                   format::HandleId                                queue,
-                                   StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
+    void Process_vkFreeDescriptorSets(const ApiCallInfo&                     call_info,
+                                      VkResult                               returnValue,
+                                      format::HandleId                       device,
+                                      format::HandleId                       descriptorPool,
+                                      uint32_t                               descriptorSetCount,
+                                      HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
+
+  private:
+    void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
 
   private:
     graphics::FrameLoopInfo&             frame_loop_info_;
-    std::unordered_set<VkDescriptorPool> active_descriptor_pools_;
+
+    /// A "dangling" resource is one that was either
+    /// - created during the loop range but destroyed after it
+    /// - or created before the loop range but destroyed during it
+    std::unordered_set<format::HandleId> dangling_create_descriptor_pools_;
+    std::unordered_set<format::HandleId> dangling_create_descriptor_sets_;
+    std::unordered_set<format::HandleId> dangling_destroy_descriptor_pools_;
+    std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
