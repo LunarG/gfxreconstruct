@@ -428,7 +428,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_A
             // These cases have no additional values to encode.
             break;
         default:
-            GFXRECON_LOG_ERROR("Unrecognized D3D12_RENDER_PASS_BEGINNING_ACCESS union type %u", value.Type);
+            GFXRECON_LOG_ERROR_ONCE("Unrecognized D3D12_RENDER_PASS_BEGINNING_ACCESS union type %u", value.Type);
             break;
     }
 }
@@ -453,7 +453,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
             // These cases have no additional values to encode.
             break;
         default:
-            GFXRECON_LOG_ERROR("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value.Type);
+            GFXRECON_LOG_ERROR_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value.Type);
             break;
     }
 }
