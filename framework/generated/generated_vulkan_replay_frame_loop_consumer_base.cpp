@@ -41,12 +41,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkInstance>*           pInstance)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pInstance->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateInstance(call_info, returnValue, pCreateInfo, pAllocator, pInstance);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateInstance(call_info, returnValue, pCreateInfo, pAllocator, pInstance);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
@@ -54,12 +61,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
     format::HandleId                            instance,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if instance is in allocatedLoopResources
+
+    // Call Process_vkDestroyInstance if:
+    //    We are not looping
+    //    We are looping and instance is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(instance) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyInstance(call_info, instance, pAllocator);
+        // Remove instance from allocatedLoopResources
+        if (inAllocatedLoopResources(instance))
+        {
+            allocatedLoopResources.erase(instance);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyInstance(call_info, instance, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDevice(
@@ -70,12 +90,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDevice>*             pDevice)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pDevice->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDevice(call_info, returnValue, physicalDevice, pCreateInfo, pAllocator, pDevice);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDevice(call_info, returnValue, physicalDevice, pCreateInfo, pAllocator, pDevice);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
@@ -83,12 +110,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if device is in allocatedLoopResources
+
+    // Call Process_vkDestroyDevice if:
+    //    We are not looping
+    //    We are looping and device is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(device) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDevice(call_info, device, pAllocator);
+        // Remove device from allocatedLoopResources
+        if (inAllocatedLoopResources(device))
+        {
+            allocatedLoopResources.erase(device);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyDevice(call_info, device, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateMemory(
@@ -99,12 +139,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateMemory(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDeviceMemory>*       pMemory)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pMemory->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkAllocateMemory(call_info, returnValue, device, pAllocateInfo, pAllocator, pMemory);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkAllocateMemory(call_info, returnValue, device, pAllocateInfo, pAllocator, pMemory);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkFreeMemory(
@@ -113,43 +160,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeMemory(
     format::HandleId                            memory,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkFreeMemory(call_info, device, memory, pAllocator);
-}
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if memory is in allocatedLoopResources
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            memory,
-    VkDeviceSize                                offset,
-    VkDeviceSize                                size,
-    VkMemoryMapFlags                            flags,
-    PointerDecoder<uint64_t, void*>*            ppData)
-{
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    // Call Process_vkFreeMemory if:
+    //    We are not looping
+    //    We are looping and memory is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(memory) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkFreeMemory(call_info, device, memory, pAllocator);
+        // Remove memory from allocatedLoopResources
+        if (inAllocatedLoopResources(memory))
+        {
+            allocatedLoopResources.erase(memory);
+        }
     }
-    VulkanReplayConsumer::Process_vkMapMemory(call_info, returnValue, device, memory, offset, size, flags, ppData);
-}
-
-void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            device,
-    format::HandleId                            memory)
-{
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory(
@@ -208,12 +237,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFence(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkFence>*              pFence)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pFence->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateFence(call_info, returnValue, device, pCreateInfo, pAllocator, pFence);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateFence(call_info, returnValue, device, pCreateInfo, pAllocator, pFence);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
@@ -222,12 +258,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
     format::HandleId                            fence,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if fence is in allocatedLoopResources
+
+    // Call Process_vkDestroyFence if:
+    //    We are not looping
+    //    We are looping and fence is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(fence) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyFence(call_info, device, fence, pAllocator);
+        // Remove fence from allocatedLoopResources
+        if (inAllocatedLoopResources(fence))
+        {
+            allocatedLoopResources.erase(fence);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyFence(call_info, device, fence, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSemaphore(
@@ -238,12 +287,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSemaphore(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSemaphore>*          pSemaphore)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSemaphore->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateSemaphore(call_info, returnValue, device, pCreateInfo, pAllocator, pSemaphore);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateSemaphore(call_info, returnValue, device, pCreateInfo, pAllocator, pSemaphore);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(
@@ -252,12 +308,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(
     format::HandleId                            semaphore,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if semaphore is in allocatedLoopResources
+
+    // Call Process_vkDestroySemaphore if:
+    //    We are not looping
+    //    We are looping and semaphore is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(semaphore) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, device, semaphore, pAllocator);
+        // Remove semaphore from allocatedLoopResources
+        if (inAllocatedLoopResources(semaphore))
+        {
+            allocatedLoopResources.erase(semaphore);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, device, semaphore, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateQueryPool(
@@ -268,12 +337,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateQueryPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkQueryPool>*          pQueryPool)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pQueryPool->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateQueryPool(call_info, returnValue, device, pCreateInfo, pAllocator, pQueryPool);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateQueryPool(call_info, returnValue, device, pCreateInfo, pAllocator, pQueryPool);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
@@ -282,12 +358,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
     format::HandleId                            queryPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if queryPool is in allocatedLoopResources
+
+    // Call Process_vkDestroyQueryPool if:
+    //    We are not looping
+    //    We are looping and queryPool is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(queryPool) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, device, queryPool, pAllocator);
+        // Remove queryPool from allocatedLoopResources
+        if (inAllocatedLoopResources(queryPool))
+        {
+            allocatedLoopResources.erase(queryPool);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, device, queryPool, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(
@@ -298,12 +387,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pBuffer->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateBuffer(call_info, returnValue, device, pCreateInfo, pAllocator, pBuffer);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateBuffer(call_info, returnValue, device, pCreateInfo, pAllocator, pBuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(
@@ -312,12 +408,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(
     format::HandleId                            buffer,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if buffer is in allocatedLoopResources
+
+    // Call Process_vkDestroyBuffer if:
+    //    We are not looping
+    //    We are looping and buffer is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(buffer) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, device, buffer, pAllocator);
+        // Remove buffer from allocatedLoopResources
+        if (inAllocatedLoopResources(buffer))
+        {
+            allocatedLoopResources.erase(buffer);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, device, buffer, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImage(
@@ -328,12 +437,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImage(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkImage>*              pImage)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pImage->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateImage(call_info, returnValue, device, pCreateInfo, pAllocator, pImage);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateImage(call_info, returnValue, device, pCreateInfo, pAllocator, pImage);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImage(
@@ -342,12 +458,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImage(
     format::HandleId                            image,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if image is in allocatedLoopResources
+
+    // Call Process_vkDestroyImage if:
+    //    We are not looping
+    //    We are looping and image is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(image) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyImage(call_info, device, image, pAllocator);
+        // Remove image from allocatedLoopResources
+        if (inAllocatedLoopResources(image))
+        {
+            allocatedLoopResources.erase(image);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyImage(call_info, device, image, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImageView(
@@ -358,12 +487,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImageView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkImageView>*          pView)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pView->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateImageView(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateImageView(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
@@ -372,28 +508,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
     format::HandleId                            imageView,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkDestroyImageView(call_info, device, imageView, pAllocator);
-}
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if imageView is in allocatedLoopResources
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkCommandPool>*        pCommandPool)
-{
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    // Call Process_vkDestroyImageView if:
+    //    We are not looping
+    //    We are looping and imageView is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(imageView) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyImageView(call_info, device, imageView, pAllocator);
+        // Remove imageView from allocatedLoopResources
+        if (inAllocatedLoopResources(imageView))
+        {
+            allocatedLoopResources.erase(imageView);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
@@ -402,12 +535,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
     format::HandleId                            commandPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if commandPool is in allocatedLoopResources
+
+    // Call Process_vkDestroyCommandPool if:
+    //    We are not looping
+    //    We are looping and commandPool is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(commandPool) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, device, commandPool, pAllocator);
+        // Remove commandPool from allocatedLoopResources
+        if (inAllocatedLoopResources(commandPool))
+        {
+            allocatedLoopResources.erase(commandPool);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, device, commandPool, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateCommandBuffers(
@@ -432,8 +578,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     uint32_t                                    commandBufferCount,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -448,12 +593,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkEvent>*              pEvent)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pEvent->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateEvent(call_info, returnValue, device, pCreateInfo, pAllocator, pEvent);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateEvent(call_info, returnValue, device, pCreateInfo, pAllocator, pEvent);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(
@@ -462,12 +614,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(
     format::HandleId                            event,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if event is in allocatedLoopResources
+
+    // Call Process_vkDestroyEvent if:
+    //    We are not looping
+    //    We are looping and event is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(event) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
+        // Remove event from allocatedLoopResources
+        if (inAllocatedLoopResources(event))
+        {
+            allocatedLoopResources.erase(event);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBufferView(
@@ -478,12 +643,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBufferView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkBufferView>*         pView)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pView->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateBufferView(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateBufferView(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBufferView(
@@ -492,12 +664,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBufferView(
     format::HandleId                            bufferView,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if bufferView is in allocatedLoopResources
+
+    // Call Process_vkDestroyBufferView if:
+    //    We are not looping
+    //    We are looping and bufferView is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(bufferView) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, device, bufferView, pAllocator);
+        // Remove bufferView from allocatedLoopResources
+        if (inAllocatedLoopResources(bufferView))
+        {
+            allocatedLoopResources.erase(bufferView);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, device, bufferView, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShaderModule(
@@ -508,12 +693,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShaderModule(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderModule>*       pShaderModule)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pShaderModule->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateShaderModule(call_info, returnValue, device, pCreateInfo, pAllocator, pShaderModule);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateShaderModule(call_info, returnValue, device, pCreateInfo, pAllocator, pShaderModule);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderModule(
@@ -522,12 +714,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderModule(
     format::HandleId                            shaderModule,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if shaderModule is in allocatedLoopResources
+
+    // Call Process_vkDestroyShaderModule if:
+    //    We are not looping
+    //    We are looping and shaderModule is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(shaderModule) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, device, shaderModule, pAllocator);
+        // Remove shaderModule from allocatedLoopResources
+        if (inAllocatedLoopResources(shaderModule))
+        {
+            allocatedLoopResources.erase(shaderModule);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, device, shaderModule, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineCache(
@@ -538,12 +743,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineCache(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipelineCache>*      pPipelineCache)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pPipelineCache->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreatePipelineCache(call_info, returnValue, device, pCreateInfo, pAllocator, pPipelineCache);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreatePipelineCache(call_info, returnValue, device, pCreateInfo, pAllocator, pPipelineCache);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineCache(
@@ -552,12 +764,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineCache(
     format::HandleId                            pipelineCache,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if pipelineCache is in allocatedLoopResources
+
+    // Call Process_vkDestroyPipelineCache if:
+    //    We are not looping
+    //    We are looping and pipelineCache is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(pipelineCache) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, device, pipelineCache, pAllocator);
+        // Remove pipelineCache from allocatedLoopResources
+        if (inAllocatedLoopResources(pipelineCache))
+        {
+            allocatedLoopResources.erase(pipelineCache);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, device, pipelineCache, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkMergePipelineCaches(
@@ -586,12 +811,37 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
+    bool doReplay = false;
+    if (!getFrameLoopInfo().IsLooping())
     {
-        return;
+        doReplay = true;
     }
-    VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    else
+    {
+        for (uint32_t i=0; i < createInfoCount; i++)
+        {
+            format::HandleId handle = *(pPipelines[i].GetPointer());
+            if (!inAllocatedLoopResources(handle))
+            {
+                doReplay = true;
+                break;
+            }
+        }
+    }
+    if (doReplay)
+    {
+        VulkanReplayConsumer::Process_vkCreateComputePipelines(call_info, returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        // If we are looping, save the handles in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            for (uint32_t i=0; i < createInfoCount; i++)
+            {
+                format::HandleId handle = *(pPipelines[i].GetPointer());
+                allocatedLoopResources.insert(handle);
+            }
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipeline(
@@ -600,12 +850,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipeline(
     format::HandleId                            pipeline,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if pipeline is in allocatedLoopResources
+
+    // Call Process_vkDestroyPipeline if:
+    //    We are not looping
+    //    We are looping and pipeline is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(pipeline) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, device, pipeline, pAllocator);
+        // Remove pipeline from allocatedLoopResources
+        if (inAllocatedLoopResources(pipeline))
+        {
+            allocatedLoopResources.erase(pipeline);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, device, pipeline, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineLayout(
@@ -616,12 +879,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipelineLayout>*     pPipelineLayout)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pPipelineLayout->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreatePipelineLayout(call_info, returnValue, device, pCreateInfo, pAllocator, pPipelineLayout);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreatePipelineLayout(call_info, returnValue, device, pCreateInfo, pAllocator, pPipelineLayout);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineLayout(
@@ -630,12 +900,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineLayout(
     format::HandleId                            pipelineLayout,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if pipelineLayout is in allocatedLoopResources
+
+    // Call Process_vkDestroyPipelineLayout if:
+    //    We are not looping
+    //    We are looping and pipelineLayout is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(pipelineLayout) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, device, pipelineLayout, pAllocator);
+        // Remove pipelineLayout from allocatedLoopResources
+        if (inAllocatedLoopResources(pipelineLayout))
+        {
+            allocatedLoopResources.erase(pipelineLayout);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, device, pipelineLayout, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSampler(
@@ -646,12 +929,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSampler(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSampler>*            pSampler)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSampler->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateSampler(call_info, returnValue, device, pCreateInfo, pAllocator, pSampler);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateSampler(call_info, returnValue, device, pCreateInfo, pAllocator, pSampler);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySampler(
@@ -660,12 +950,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySampler(
     format::HandleId                            sampler,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if sampler is in allocatedLoopResources
+
+    // Call Process_vkDestroySampler if:
+    //    We are not looping
+    //    We are looping and sampler is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(sampler) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroySampler(call_info, device, sampler, pAllocator);
+        // Remove sampler from allocatedLoopResources
+        if (inAllocatedLoopResources(sampler))
+        {
+            allocatedLoopResources.erase(sampler);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroySampler(call_info, device, sampler, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorSetLayout(
@@ -676,12 +979,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorSetLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSetLayout->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDescriptorSetLayout(call_info, returnValue, device, pCreateInfo, pAllocator, pSetLayout);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDescriptorSetLayout(call_info, returnValue, device, pCreateInfo, pAllocator, pSetLayout);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
@@ -690,73 +1000,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
     format::HandleId                            descriptorSetLayout,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, device, descriptorSetLayout, pAllocator);
-}
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if descriptorSetLayout is in allocatedLoopResources
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorPool(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkDescriptorPool>*     pDescriptorPool)
-{
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    // Call Process_vkDestroyDescriptorSetLayout if:
+    //    We are not looping
+    //    We are looping and descriptorSetLayout is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(descriptorSetLayout) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, device, descriptorSetLayout, pAllocator);
+        // Remove descriptorSetLayout from allocatedLoopResources
+        if (inAllocatedLoopResources(descriptorSetLayout))
+        {
+            allocatedLoopResources.erase(descriptorSetLayout);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDescriptorPool(call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorPool);
-}
-
-void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorPool(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            device,
-    format::HandleId                            descriptorPool,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
-{
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, device, descriptorPool, pAllocator);
-}
-
-void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateDescriptorSets(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
-{
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkAllocateDescriptorSets(call_info, returnValue, device, pAllocateInfo, pDescriptorSets);
-}
-
-void VulkanReplayFrameLoopConsumerBase::Process_vkFreeDescriptorSets(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            descriptorPool,
-    uint32_t                                    descriptorSetCount,
-    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
-{
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkFreeDescriptorSets(call_info, returnValue, device, descriptorPool, descriptorSetCount, pDescriptorSets);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
@@ -769,12 +1031,37 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
+    bool doReplay = false;
+    if (!getFrameLoopInfo().IsLooping())
     {
-        return;
+        doReplay = true;
     }
-    VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    else
+    {
+        for (uint32_t i=0; i < createInfoCount; i++)
+        {
+            format::HandleId handle = *(pPipelines[i].GetPointer());
+            if (!inAllocatedLoopResources(handle))
+            {
+                doReplay = true;
+                break;
+            }
+        }
+    }
+    if (doReplay)
+    {
+        VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(call_info, returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        // If we are looping, save the handles in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            for (uint32_t i=0; i < createInfoCount; i++)
+            {
+                format::HandleId handle = *(pPipelines[i].GetPointer());
+                allocatedLoopResources.insert(handle);
+            }
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFramebuffer(
@@ -785,12 +1072,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFramebuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkFramebuffer>*        pFramebuffer)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pFramebuffer->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateFramebuffer(call_info, returnValue, device, pCreateInfo, pAllocator, pFramebuffer);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateFramebuffer(call_info, returnValue, device, pCreateInfo, pAllocator, pFramebuffer);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFramebuffer(
@@ -799,12 +1093,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFramebuffer(
     format::HandleId                            framebuffer,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if framebuffer is in allocatedLoopResources
+
+    // Call Process_vkDestroyFramebuffer if:
+    //    We are not looping
+    //    We are looping and framebuffer is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(framebuffer) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, device, framebuffer, pAllocator);
+        // Remove framebuffer from allocatedLoopResources
+        if (inAllocatedLoopResources(framebuffer))
+        {
+            allocatedLoopResources.erase(framebuffer);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, device, framebuffer, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass(
@@ -815,12 +1122,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pRenderPass->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateRenderPass(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateRenderPass(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
@@ -829,12 +1143,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
     format::HandleId                            renderPass,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if renderPass is in allocatedLoopResources
+
+    // Call Process_vkDestroyRenderPass if:
+    //    We are not looping
+    //    We are looping and renderPass is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(renderPass) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, device, renderPass, pAllocator);
+        // Remove renderPass from allocatedLoopResources
+        if (inAllocatedLoopResources(renderPass))
+        {
+            allocatedLoopResources.erase(renderPass);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, device, renderPass, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
@@ -875,12 +1202,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorUpdateTemplate
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pDescriptorUpdateTemplate->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplate(call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplate(call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplate(
@@ -889,12 +1223,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     format::HandleId                            descriptorUpdateTemplate,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if descriptorUpdateTemplate is in allocatedLoopResources
+
+    // Call Process_vkDestroyDescriptorUpdateTemplate if:
+    //    We are not looping
+    //    We are looping and descriptorUpdateTemplate is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(descriptorUpdateTemplate) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, device, descriptorUpdateTemplate, pAllocator);
+        // Remove descriptorUpdateTemplate from allocatedLoopResources
+        if (inAllocatedLoopResources(descriptorUpdateTemplate))
+        {
+            allocatedLoopResources.erase(descriptorUpdateTemplate);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, device, descriptorUpdateTemplate, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversion(
@@ -905,12 +1252,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversion(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pYcbcrConversion->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(call_info, returnValue, device, pCreateInfo, pAllocator, pYcbcrConversion);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(call_info, returnValue, device, pCreateInfo, pAllocator, pYcbcrConversion);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
@@ -919,12 +1273,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
     format::HandleId                            ycbcrConversion,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if ycbcrConversion is in allocatedLoopResources
+
+    // Call Process_vkDestroySamplerYcbcrConversion if:
+    //    We are not looping
+    //    We are looping and ycbcrConversion is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(ycbcrConversion) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, device, ycbcrConversion, pAllocator);
+        // Remove ycbcrConversion from allocatedLoopResources
+        if (inAllocatedLoopResources(ycbcrConversion))
+        {
+            allocatedLoopResources.erase(ycbcrConversion);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, device, ycbcrConversion, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2(
@@ -935,12 +1302,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pRenderPass->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateRenderPass2(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateRenderPass2(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlot(
@@ -951,12 +1325,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlot(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pPrivateDataSlot->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreatePrivateDataSlot(call_info, returnValue, device, pCreateInfo, pAllocator, pPrivateDataSlot);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreatePrivateDataSlot(call_info, returnValue, device, pCreateInfo, pAllocator, pPrivateDataSlot);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
@@ -965,12 +1346,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
     format::HandleId                            privateDataSlot,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if privateDataSlot is in allocatedLoopResources
+
+    // Call Process_vkDestroyPrivateDataSlot if:
+    //    We are not looping
+    //    We are looping and privateDataSlot is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(privateDataSlot) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, pAllocator);
+        // Remove privateDataSlot from allocatedLoopResources
+        if (inAllocatedLoopResources(privateDataSlot))
+        {
+            allocatedLoopResources.erase(privateDataSlot);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
@@ -994,8 +1388,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1023,12 +1416,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySurfaceKHR(
     format::HandleId                            surface,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if surface is in allocatedLoopResources
+
+    // Call Process_vkDestroySurfaceKHR if:
+    //    We are not looping
+    //    We are looping and surface is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(surface) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, instance, surface, pAllocator);
+        // Remove surface from allocatedLoopResources
+        if (inAllocatedLoopResources(surface))
+        {
+            allocatedLoopResources.erase(surface);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, instance, surface, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSwapchainKHR(
@@ -1039,12 +1445,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchain)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSwapchain->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateSwapchainKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pSwapchain);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateSwapchainKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pSwapchain);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySwapchainKHR(
@@ -1053,12 +1466,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySwapchainKHR(
     format::HandleId                            swapchain,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if swapchain is in allocatedLoopResources
+
+    // Call Process_vkDestroySwapchainKHR if:
+    //    We are not looping
+    //    We are looping and swapchain is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(swapchain) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, device, swapchain, pAllocator);
+        // Remove swapchain from allocatedLoopResources
+        if (inAllocatedLoopResources(swapchain))
+        {
+            allocatedLoopResources.erase(swapchain);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, device, swapchain, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayModeKHR(
@@ -1070,12 +1496,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayModeKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDisplayModeKHR>*     pMode)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pMode->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDisplayModeKHR(call_info, returnValue, physicalDevice, display, pCreateInfo, pAllocator, pMode);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDisplayModeKHR(call_info, returnValue, physicalDevice, display, pCreateInfo, pAllocator, pMode);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayPlaneSurfaceKHR(
@@ -1086,12 +1519,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayPlaneSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
@@ -1103,12 +1543,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSwapchains->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, returnValue, device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, returnValue, device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXlibSurfaceKHR(
@@ -1119,12 +1566,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXlibSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXcbSurfaceKHR(
@@ -1135,12 +1589,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXcbSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWaylandSurfaceKHR(
@@ -1151,12 +1612,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWaylandSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAndroidSurfaceKHR(
@@ -1167,12 +1635,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAndroidSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWin32SurfaceKHR(
@@ -1183,12 +1658,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWin32SurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateVideoSessionKHR(
@@ -1199,12 +1681,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateVideoSessionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pVideoSession->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateVideoSessionKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pVideoSession);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateVideoSessionKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pVideoSession);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionKHR(
@@ -1213,12 +1702,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionKHR(
     format::HandleId                            videoSession,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if videoSession is in allocatedLoopResources
+
+    // Call Process_vkDestroyVideoSessionKHR if:
+    //    We are not looping
+    //    We are looping and videoSession is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(videoSession) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, device, videoSession, pAllocator);
+        // Remove videoSession from allocatedLoopResources
+        if (inAllocatedLoopResources(videoSession))
+        {
+            allocatedLoopResources.erase(videoSession);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, device, videoSession, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindVideoSessionMemoryKHR(
@@ -1245,12 +1747,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateVideoSessionParametersKH
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pVideoSessionParameters->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateVideoSessionParametersKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pVideoSessionParameters);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateVideoSessionParametersKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pVideoSessionParameters);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionParametersKHR(
@@ -1259,12 +1768,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionParametersK
     format::HandleId                            videoSessionParameters,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if videoSessionParameters is in allocatedLoopResources
+
+    // Call Process_vkDestroyVideoSessionParametersKHR if:
+    //    We are not looping
+    //    We are looping and videoSessionParameters is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(videoSessionParameters) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, device, videoSessionParameters, pAllocator);
+        // Remove videoSessionParameters from allocatedLoopResources
+        if (inAllocatedLoopResources(videoSessionParameters))
+        {
+            allocatedLoopResources.erase(videoSessionParameters);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, device, videoSessionParameters, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkImportSemaphoreFdKHR(
@@ -1289,12 +1811,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorUpdateTemplate
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pDescriptorUpdateTemplate->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplateKHR(
@@ -1303,12 +1832,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     format::HandleId                            descriptorUpdateTemplate,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if descriptorUpdateTemplate is in allocatedLoopResources
+
+    // Call Process_vkDestroyDescriptorUpdateTemplateKHR if:
+    //    We are not looping
+    //    We are looping and descriptorUpdateTemplate is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(descriptorUpdateTemplate) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, device, descriptorUpdateTemplate, pAllocator);
+        // Remove descriptorUpdateTemplate from allocatedLoopResources
+        if (inAllocatedLoopResources(descriptorUpdateTemplate))
+        {
+            allocatedLoopResources.erase(descriptorUpdateTemplate);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, device, descriptorUpdateTemplate, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2KHR(
@@ -1319,12 +1861,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2KHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pRenderPass->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkImportFenceFdKHR(
@@ -1341,32 +1890,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkImportFenceFdKHR(
     VulkanReplayConsumer::Process_vkImportFenceFdKHR(call_info, returnValue, device, pImportFenceFdInfo);
 }
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkAcquireProfilingLockKHR(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
-{
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkAcquireProfilingLockKHR(call_info, returnValue, device, pInfo);
-}
-
-void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseProfilingLockKHR(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            device)
-{
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkReleaseProfilingLockKHR(call_info, device);
-}
-
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversionKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -1375,12 +1898,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversionKH
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pYcbcrConversion->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pYcbcrConversion);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pYcbcrConversion);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversionKHR(
@@ -1389,12 +1919,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversionK
     format::HandleId                            ycbcrConversion,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if ycbcrConversion is in allocatedLoopResources
+
+    // Call Process_vkDestroySamplerYcbcrConversionKHR if:
+    //    We are not looping
+    //    We are looping and ycbcrConversion is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(ycbcrConversion) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, device, ycbcrConversion, pAllocator);
+        // Remove ycbcrConversion from allocatedLoopResources
+        if (inAllocatedLoopResources(ycbcrConversion))
+        {
+            allocatedLoopResources.erase(ycbcrConversion);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, device, ycbcrConversion, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2KHR(
@@ -1434,12 +1977,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDeferredOperationKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDeferredOperationKHR>* pDeferredOperation)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pDeferredOperation->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDeferredOperationKHR(call_info, returnValue, device, pAllocator, pDeferredOperation);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDeferredOperationKHR(call_info, returnValue, device, pAllocator, pDeferredOperation);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDeferredOperationKHR(
@@ -1448,12 +1998,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDeferredOperationKHR(
     format::HandleId                            operation,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if operation is in allocatedLoopResources
+
+    // Call Process_vkDestroyDeferredOperationKHR if:
+    //    We are not looping
+    //    We are looping and operation is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(operation) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, device, operation, pAllocator);
+        // Remove operation from allocatedLoopResources
+        if (inAllocatedLoopResources(operation))
+        {
+            allocatedLoopResources.erase(operation);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, device, operation, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2KHR(
@@ -1477,8 +2040,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1507,12 +2069,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineBinaryKHR(
     format::HandleId                            pipelineBinary,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if pipelineBinary is in allocatedLoopResources
+
+    // Call Process_vkDestroyPipelineBinaryKHR if:
+    //    We are not looping
+    //    We are looping and pipelineBinary is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(pipelineBinary) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, device, pipelineBinary, pAllocator);
+        // Remove pipelineBinary from allocatedLoopResources
+        if (inAllocatedLoopResources(pipelineBinary))
+        {
+            allocatedLoopResources.erase(pipelineBinary);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, device, pipelineBinary, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseCapturedPipelineDataKHR(
@@ -1522,8 +2097,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseCapturedPipelineDataKHR
     StructPointerDecoder<Decoded_VkReleaseCapturedPipelineDataInfoKHR>* pInfo,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1536,8 +2110,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesKHR(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1552,12 +2125,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugReportCallbackEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pCallback->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pCallback);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pCallback);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
@@ -1566,12 +2146,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
     format::HandleId                            callback,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if callback is in allocatedLoopResources
+
+    // Call Process_vkDestroyDebugReportCallbackEXT if:
+    //    We are not looping
+    //    We are looping and callback is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(callback) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, instance, callback, pAllocator);
+        // Remove callback from allocatedLoopResources
+        if (inAllocatedLoopResources(callback))
+        {
+            allocatedLoopResources.erase(callback);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, instance, callback, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateStreamDescriptorSurfaceGGP(
@@ -1582,12 +2175,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateStreamDescriptorSurfaceG
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateViSurfaceNN(
@@ -1598,12 +2198,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateViSurfaceNN(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateViSurfaceNN(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateViSurfaceNN(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseDisplayEXT(
@@ -1612,8 +2219,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseDisplayEXT(
     format::HandleId                            physicalDevice,
     format::HandleId                            display)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1661,12 +2267,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIOSSurfaceMVK(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMacOSSurfaceMVK(
@@ -1677,12 +2290,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMacOSSurfaceMVK(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugUtilsMessengerEXT(
@@ -1693,12 +2313,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugUtilsMessengerEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pMessenger->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pMessenger);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pMessenger);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
@@ -1707,12 +2334,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
     format::HandleId                            messenger,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if messenger is in allocatedLoopResources
+
+    // Call Process_vkDestroyDebugUtilsMessengerEXT if:
+    //    We are not looping
+    //    We are looping and messenger is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(messenger) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, instance, messenger, pAllocator);
+        // Remove messenger from allocatedLoopResources
+        if (inAllocatedLoopResources(messenger))
+        {
+            allocatedLoopResources.erase(messenger);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, instance, messenger, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateValidationCacheEXT(
@@ -1723,12 +2363,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateValidationCacheEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkValidationCacheEXT>* pValidationCache)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pValidationCache->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateValidationCacheEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pValidationCache);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateValidationCacheEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pValidationCache);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyValidationCacheEXT(
@@ -1737,12 +2384,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyValidationCacheEXT(
     format::HandleId                            validationCache,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if validationCache is in allocatedLoopResources
+
+    // Call Process_vkDestroyValidationCacheEXT if:
+    //    We are not looping
+    //    We are looping and validationCache is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(validationCache) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, device, validationCache, pAllocator);
+        // Remove validationCache from allocatedLoopResources
+        if (inAllocatedLoopResources(validationCache))
+        {
+            allocatedLoopResources.erase(validationCache);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, device, validationCache, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureNV(
@@ -1753,12 +2413,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructure)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pAccelerationStructure->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateAccelerationStructureNV(call_info, returnValue, device, pCreateInfo, pAllocator, pAccelerationStructure);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateAccelerationStructureNV(call_info, returnValue, device, pCreateInfo, pAllocator, pAccelerationStructure);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureNV(
@@ -1767,8 +2434,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureNV
     format::HandleId                            accelerationStructure,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1800,12 +2466,37 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
+    bool doReplay = false;
+    if (!getFrameLoopInfo().IsLooping())
     {
-        return;
+        doReplay = true;
     }
-    VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    else
+    {
+        for (uint32_t i=0; i < createInfoCount; i++)
+        {
+            format::HandleId handle = *(pPipelines[i].GetPointer());
+            if (!inAllocatedLoopResources(handle))
+            {
+                doReplay = true;
+                break;
+            }
+        }
+    }
+    if (doReplay)
+    {
+        VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(call_info, returnValue, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        // If we are looping, save the handles in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            for (uint32_t i=0; i < createInfoCount; i++)
+            {
+                format::HandleId handle = *(pPipelines[i].GetPointer());
+                allocatedLoopResources.insert(handle);
+            }
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleasePerformanceConfigurationINTEL(
@@ -1814,8 +2505,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleasePerformanceConfiguratio
     format::HandleId                            device,
     format::HandleId                            configuration)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1830,12 +2520,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImagePipeSurfaceFUCHSIA(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMetalSurfaceEXT(
@@ -1846,12 +2543,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMetalSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateMetalSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateMetalSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseFullScreenExclusiveModeEXT(
@@ -1860,8 +2564,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseFullScreenExclusiveMode
     format::HandleId                            device,
     format::HandleId                            swapchain)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1876,12 +2579,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateHeadlessSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateHeadlessSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateHeadlessSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesEXT(
@@ -1890,8 +2600,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkReleaseSwapchainImagesInfoKHR>* pReleaseInfo)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }
@@ -1906,12 +2615,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectCommandsLayoutNV
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectCommandsLayoutNV>* pIndirectCommandsLayout)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pIndirectCommandsLayout->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutNV(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutNV(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutNV(
@@ -1920,12 +2636,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutN
     format::HandleId                            indirectCommandsLayout,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if indirectCommandsLayout is in allocatedLoopResources
+
+    // Call Process_vkDestroyIndirectCommandsLayoutNV if:
+    //    We are not looping
+    //    We are looping and indirectCommandsLayout is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(indirectCommandsLayout) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, device, indirectCommandsLayout, pAllocator);
+        // Remove indirectCommandsLayout from allocatedLoopResources
+        if (inAllocatedLoopResources(indirectCommandsLayout))
+        {
+            allocatedLoopResources.erase(indirectCommandsLayout);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, device, indirectCommandsLayout, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlotEXT(
@@ -1936,12 +2665,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlotEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pPrivateDataSlot->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreatePrivateDataSlotEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pPrivateDataSlot);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreatePrivateDataSlotEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pPrivateDataSlot);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlotEXT(
@@ -1950,12 +2686,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlotEXT(
     format::HandleId                            privateDataSlot,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if privateDataSlot is in allocatedLoopResources
+
+    // Call Process_vkDestroyPrivateDataSlotEXT if:
+    //    We are not looping
+    //    We are looping and privateDataSlot is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(privateDataSlot) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, device, privateDataSlot, pAllocator);
+        // Remove privateDataSlot from allocatedLoopResources
+        if (inAllocatedLoopResources(privateDataSlot))
+        {
+            allocatedLoopResources.erase(privateDataSlot);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, device, privateDataSlot, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDirectFBSurfaceEXT(
@@ -1966,12 +2715,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDirectFBSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDirectFBSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDirectFBSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateScreenSurfaceQNX(
@@ -1982,12 +2738,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateScreenSurfaceQNX(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSurface->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateScreenSurfaceQNX(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateScreenSurfaceQNX(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMicromapEXT(
@@ -1998,12 +2761,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMicromapEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkMicromapEXT>*        pMicromap)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pMicromap->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateMicromapEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pMicromap);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateMicromapEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pMicromap);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
@@ -2012,12 +2782,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
     format::HandleId                            micromap,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if micromap is in allocatedLoopResources
+
+    // Call Process_vkDestroyMicromapEXT if:
+    //    We are not looping
+    //    We are looping and micromap is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(micromap) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, device, micromap, pAllocator);
+        // Remove micromap from allocatedLoopResources
+        if (inAllocatedLoopResources(micromap))
+        {
+            allocatedLoopResources.erase(micromap);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, device, micromap, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateOpticalFlowSessionNV(
@@ -2028,12 +2811,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateOpticalFlowSessionNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkOpticalFlowSessionNV>* pSession)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSession->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateOpticalFlowSessionNV(call_info, returnValue, device, pCreateInfo, pAllocator, pSession);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateOpticalFlowSessionNV(call_info, returnValue, device, pCreateInfo, pAllocator, pSession);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyOpticalFlowSessionNV(
@@ -2042,12 +2832,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyOpticalFlowSessionNV(
     format::HandleId                            session,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if session is in allocatedLoopResources
+
+    // Call Process_vkDestroyOpticalFlowSessionNV if:
+    //    We are not looping
+    //    We are looping and session is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(session) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, device, session, pAllocator);
+        // Remove session from allocatedLoopResources
+        if (inAllocatedLoopResources(session))
+        {
+            allocatedLoopResources.erase(session);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, device, session, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindOpticalFlowSessionImageNV(
@@ -2076,12 +2879,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pShaders->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, returnValue, device, createInfoCount, pCreateInfos, pAllocator, pShaders);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, returnValue, device, createInfoCount, pCreateInfos, pAllocator, pShaders);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderEXT(
@@ -2090,12 +2900,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderEXT(
     format::HandleId                            shader,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if shader is in allocatedLoopResources
+
+    // Call Process_vkDestroyShaderEXT if:
+    //    We are not looping
+    //    We are looping and shader is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(shader) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, device, shader, pAllocator);
+        // Remove shader from allocatedLoopResources
+        if (inAllocatedLoopResources(shader))
+        {
+            allocatedLoopResources.erase(shader);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, device, shader, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
@@ -2109,12 +2932,37 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipeline>*           pPipelines)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
+    bool doReplay = false;
+    if (!getFrameLoopInfo().IsLooping())
     {
-        return;
+        doReplay = true;
     }
-    VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, returnValue, device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+    else
+    {
+        for (uint32_t i=0; i < createInfoCount; i++)
+        {
+            format::HandleId handle = *(pPipelines[i].GetPointer());
+            if (!inAllocatedLoopResources(handle))
+            {
+                doReplay = true;
+                break;
+            }
+        }
+    }
+    if (doReplay)
+    {
+        VulkanReplayConsumer::Process_vkCreateDataGraphPipelinesARM(call_info, returnValue, device, deferredOperation, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        // If we are looping, save the handles in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            for (uint32_t i=0; i < createInfoCount; i++)
+            {
+                format::HandleId handle = *(pPipelines[i].GetPointer());
+                allocatedLoopResources.insert(handle);
+            }
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelineSessionARM(
@@ -2125,12 +2973,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelineSession
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDataGraphPipelineSessionARM>* pSession)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pSession->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateDataGraphPipelineSessionARM(call_info, returnValue, device, pCreateInfo, pAllocator, pSession);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateDataGraphPipelineSessionARM(call_info, returnValue, device, pCreateInfo, pAllocator, pSession);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindDataGraphPipelineSessionMemoryARM(
@@ -2154,12 +3009,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDataGraphPipelineSessio
     format::HandleId                            session,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if session is in allocatedLoopResources
+
+    // Call Process_vkDestroyDataGraphPipelineSessionARM if:
+    //    We are not looping
+    //    We are looping and session is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(session) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, device, session, pAllocator);
+        // Remove session from allocatedLoopResources
+        if (inAllocatedLoopResources(session))
+        {
+            allocatedLoopResources.erase(session);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, device, session, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectCommandsLayoutEXT(
@@ -2170,12 +3038,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectCommandsLayoutEX
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectCommandsLayoutEXT>* pIndirectCommandsLayout)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pIndirectCommandsLayout->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutEXT(
@@ -2184,12 +3059,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutE
     format::HandleId                            indirectCommandsLayout,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if indirectCommandsLayout is in allocatedLoopResources
+
+    // Call Process_vkDestroyIndirectCommandsLayoutEXT if:
+    //    We are not looping
+    //    We are looping and indirectCommandsLayout is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(indirectCommandsLayout) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, device, indirectCommandsLayout, pAllocator);
+        // Remove indirectCommandsLayout from allocatedLoopResources
+        if (inAllocatedLoopResources(indirectCommandsLayout))
+        {
+            allocatedLoopResources.erase(indirectCommandsLayout);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, device, indirectCommandsLayout, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectExecutionSetEXT(
@@ -2200,12 +3088,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectExecutionSetEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectExecutionSetEXT>* pIndirectExecutionSet)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pIndirectExecutionSet->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectExecutionSet);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectExecutionSet);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectExecutionSetEXT(
@@ -2214,12 +3109,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectExecutionSetEXT
     format::HandleId                            indirectExecutionSet,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if indirectExecutionSet is in allocatedLoopResources
+
+    // Call Process_vkDestroyIndirectExecutionSetEXT if:
+    //    We are not looping
+    //    We are looping and indirectExecutionSet is in allocatedLoopResources
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping() ||
+        inAllocatedLoopResources(indirectExecutionSet) ||
+        getFrameLoopInfo().IsFinalIteration())
     {
-        return;
+        VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, device, indirectExecutionSet, pAllocator);
+        // Remove indirectExecutionSet from allocatedLoopResources
+        if (inAllocatedLoopResources(indirectExecutionSet))
+        {
+            allocatedLoopResources.erase(indirectExecutionSet);
+        }
     }
-    VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, device, indirectExecutionSet, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureKHR(
@@ -2230,12 +3138,19 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureKHR
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure)
 {
-    // Return if not the first time through loop
-    if (getFrameLoopInfo().IsRepetition())
+    format::HandleId handle = *pAccelerationStructure->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
     {
-        return;
+        VulkanReplayConsumer::Process_vkCreateAccelerationStructureKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pAccelerationStructure);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
     }
-    VulkanReplayConsumer::Process_vkCreateAccelerationStructureKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pAccelerationStructure);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureKHR(
@@ -2244,8 +3159,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyAccelerationStructureKH
     format::HandleId                            accelerationStructure,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    // Return for all loop iterations
-    if (getFrameLoopInfo().IsLooping())
+    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())
     {
         return;
     }

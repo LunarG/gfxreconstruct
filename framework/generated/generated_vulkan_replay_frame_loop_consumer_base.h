@@ -93,21 +93,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            memory,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
-    void Process_vkMapMemory(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            memory,
-        VkDeviceSize                                offset,
-        VkDeviceSize                                size,
-        VkMemoryMapFlags                            flags,
-        PointerDecoder<uint64_t, void*>*            ppData) override;
-
-    void Process_vkUnmapMemory(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            device,
-        format::HandleId                            memory) override;
-
     void Process_vkBindBufferMemory(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -215,14 +200,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            device,
         format::HandleId                            imageView,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
-
-    void Process_vkCreateCommandPool(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkCommandPool>*        pCommandPool) override;
 
     void Process_vkDestroyCommandPool(
         const ApiCallInfo&                          call_info,
@@ -365,35 +342,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            device,
         format::HandleId                            descriptorSetLayout,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
-
-    void Process_vkCreateDescriptorPool(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkDescriptorPool>*     pDescriptorPool) override;
-
-    void Process_vkDestroyDescriptorPool(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            device,
-        format::HandleId                            descriptorPool,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
-
-    void Process_vkAllocateDescriptorSets(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
-        HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets) override;
-
-    void Process_vkFreeDescriptorSets(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            descriptorPool,
-        uint32_t                                    descriptorSetCount,
-        HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets) override;
 
     void Process_vkCreateGraphicsPipelines(
         const ApiCallInfo&                          call_info,
@@ -672,16 +620,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         VkResult                                    returnValue,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkImportFenceFdInfoKHR>* pImportFenceFdInfo) override;
-
-    void Process_vkAcquireProfilingLockKHR(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo) override;
-
-    void Process_vkReleaseProfilingLockKHR(
-        const ApiCallInfo&                          call_info,
-        format::HandleId                            device) override;
 
     void Process_vkCreateSamplerYcbcrConversionKHR(
         const ApiCallInfo&                          call_info,
@@ -1103,6 +1041,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            device,
         format::HandleId                            accelerationStructure,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    protected:
+        std::set<format::HandleId> allocatedLoopResources;
+        bool inAllocatedLoopResources(format::HandleId handle)
+        {
+             return std::find(allocatedLoopResources.begin(), allocatedLoopResources.end(), handle) !=
+                    allocatedLoopResources.end();
+        }
 };
 
 GFXRECON_END_NAMESPACE(decode)
