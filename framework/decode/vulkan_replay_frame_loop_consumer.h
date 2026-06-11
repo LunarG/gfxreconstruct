@@ -96,6 +96,15 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
                                format::HandleId                            fence) override;
 
+    void Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
+                                       VkResult                  returnValue,
+                                       format::HandleId          device,
+                                       format::HandleId          swapchain,
+                                       uint64_t                  timeout,
+                                       format::HandleId          semaphore,
+                                       format::HandleId          fence,
+                                       PointerDecoder<uint32_t>* pImageIndex) override;
+
     void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
                                    VkResult                                        returnValue,
                                    format::HandleId                                queue,
