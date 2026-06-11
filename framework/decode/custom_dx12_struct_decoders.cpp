@@ -1182,14 +1182,14 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_PIP
 
                 if (type == format::kInvalidSubobjectType)
                 {
-                    GFXRECON_LOG_FATAL(
+                    GFXRECON_LOG_ERROR(
                         "A pipeline state subobject encoding indicates that the stream contained an unrecognized "
                         "subobject type during capture and the captured data is incomplete, which may cause replay to "
                         "fail.");
                 }
                 else
                 {
-                    GFXRECON_LOG_FATAL("Pipeline state subobject decoding encountered unrecognized subobject type "
+                    GFXRECON_LOG_ERROR("Pipeline state subobject decoding encountered unrecognized subobject type "
                                        "D3D12_PIPELINE_STATE_SUBOBJECT_TYPE = %d, which may cause replay to fail.",
                                        type);
                 }

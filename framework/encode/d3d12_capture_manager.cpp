@@ -785,7 +785,7 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         if (increment < sizeof(void*))
         {
             // The actual descriptor size is too small to store the pointer to the descriptor wrapper.
-            GFXRECON_LOG_FATAL("The descriptor increment size %u is too small to support descriptor wrapping",
+            GFXRECON_LOG_ERROR("The descriptor increment size %u is too small to support descriptor wrapping",
                                increment);
         }
 
@@ -3041,13 +3041,13 @@ HRESULT D3D12CaptureManager::OverrideD3D12CreateVersionedRootSignatureDeserializ
 void D3D12CaptureManager::OverrideID3D12GraphicsCommandList10_SetProgram(ID3D12GraphicsCommandList10_Wrapper* wrapper,
                                                                          const D3D12_SET_PROGRAM_DESC*        pDesc)
 {
-    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::SetProgram");
+    GFXRECON_LOG_ERROR("Calling unsupported function ID3D12GraphicsCommandList10::SetProgram");
 }
 
 void D3D12CaptureManager::OverrideID3D12GraphicsCommandList10_DispatchGraph(
     ID3D12GraphicsCommandList10_Wrapper* wrapper, const D3D12_DISPATCH_GRAPH_DESC* pDesc)
 {
-    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::DispatchGraph");
+    GFXRECON_LOG_ERROR("Calling unsupported function ID3D12GraphicsCommandList10::DispatchGraph");
 }
 
 void D3D12CaptureManager::PostProcess_ID3D12Device5_CreateStateObject(ID3D12Device5_Wrapper*         device5_wrapper,

@@ -55,7 +55,7 @@ static void RequireVulkanCaptureEnabled()
     VulkanCaptureManager* vulkan_capture_manager = VulkanCaptureManager::Get();
     if (!vulkan_capture_manager)
     {
-        GFXRECON_LOG_FATAL(
+        GFXRECON_LOG_ERROR(
             "Capture configuration error. Attempting OpenXR capture without Vulkan graphics API capture enabled.");
     }
     GFXRECON_ASSERT(vulkan_capture_manager != nullptr);

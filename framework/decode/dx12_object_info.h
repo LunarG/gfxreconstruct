@@ -209,7 +209,7 @@ T* GetExtraInfo(DxObjectInfo* info)
         return static_cast<T*>(info->extra_info.get());
     }
 
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+    GFXRECON_LOG_ERROR("%s object does not have an associated info structure", T::kObjectType);
 
     return nullptr;
 }
@@ -222,7 +222,7 @@ const T* GetExtraInfo(const DxObjectInfo* info)
         return static_cast<T*>(info->extra_info.get());
     }
 
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+    GFXRECON_LOG_ERROR("%s object does not have an associated info structure", T::kObjectType);
 
     return nullptr;
 }

@@ -79,7 +79,6 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                             ori
         if (wsi_context == nullptr)
         {
             GFXRECON_LOG_FATAL("Failed to create wsi context. Replay cannot continue.");
-            return VK_ERROR_UNKNOWN;
         }
 
         auto* window_factory = wsi_context->GetWindowFactory();
@@ -87,7 +86,6 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                             ori
         if (window_factory == nullptr)
         {
             GFXRECON_LOG_FATAL("%s window factory creation failed. Replay cannot continue.", wsi_context->GetWsiName());
-            return VK_ERROR_UNKNOWN;
         }
 
         // By default, the created window will be automatically in full screen mode, and its location will be set to 0,0
@@ -105,7 +103,6 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                             ori
             // Failure to create a window is a fatal error.
             GFXRECON_LOG_FATAL("Failed to create %s window for use with surface creation. Replay cannot continue.",
                                wsi_context->GetWsiName());
-            return VK_ERROR_UNKNOWN;
         }
 
         window_factory->created_window_.emplace(window, window_index_);

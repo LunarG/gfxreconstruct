@@ -53,7 +53,7 @@ T* GetExtraInfo(HandlePointerDecoder<void*>* handle_ptr_decoder)
         return static_cast<T*>(object_info->extra_info.get());
     }
 
-    GFXRECON_LOG_FATAL("%s object does not have an associated info structure", T::kObjectType);
+    GFXRECON_LOG_ERROR("%s object does not have an associated info structure", T::kObjectType);
 
     return nullptr;
 }

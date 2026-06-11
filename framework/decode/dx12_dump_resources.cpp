@@ -2054,7 +2054,6 @@ void Dx12DumpResources::CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr 
     {
         GFXRECON_LOG_FATAL(
             "Invalid fence value (UINT64_MAX). Device may have been removed. GFXR is unable to continue.");
-        return;
     }
     if (completed_value < fence_wait_value)
     {

@@ -502,7 +502,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         // BeginCommandBuffer and QueueSubmit lists are expected to have the same length
         if (jargs[decode::DUMP_ARG_BEGIN_COMMAND_BUFFER].size() != jargs[decode::DUMP_ARG_QUEUE_SUBMIT].size())
         {
-            GFXRECON_LOG_FATAL("Malformed VDR input json: BeginCommandBuffer and QueueSubmit index lists are "
+            GFXRECON_LOG_ERROR("Malformed VDR input json: BeginCommandBuffer and QueueSubmit index lists are "
                                "expected to have the same length.");
             vulkan_replay_options.dumping_resources = false;
             return false;
@@ -519,7 +519,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                           vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.end(),
                           new_pair) != vulkan_replay_options.BeginCommandBufferQueueSubmit_Indices.end())
             {
-                GFXRECON_LOG_FATAL("Malformed VDR input json: BeginCommandBuffer and QueueSubmit index pair (%" PRIu64
+                GFXRECON_LOG_ERROR("Malformed VDR input json: BeginCommandBuffer and QueueSubmit index pair (%" PRIu64
                                    ", %" PRIu64 ") already exist",
                                    bcb,
                                    qs);

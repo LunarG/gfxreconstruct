@@ -913,7 +913,7 @@ void EncodeDXGIFeatureStruct(ParameterEncoder* encoder, void* feature_data, DXGI
             encoder->EncodeInt32Value(*reinterpret_cast<int32_t*>(feature_data));
             break;
         default:
-            GFXRECON_LOG_FATAL("Failed to encode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
+            GFXRECON_LOG_ERROR("Failed to encode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
                                "unrecognized DXGI_FEATURE type %d",
                                feature);
             break;

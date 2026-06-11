@@ -425,7 +425,7 @@ void Dx12ReplayConsumerBase::ProcessCreateHeapAllocationCommand(uint64_t allocat
     }
     else
     {
-        GFXRECON_LOG_FATAL("Failed to create extertnal heap allocation (ID = %" PRIu64 ") of size %" PRIu64,
+        GFXRECON_LOG_ERROR("Failed to create extertnal heap allocation (ID = %" PRIu64 ") of size %" PRIu64,
                            allocation_id,
                            allocation_size);
     }
@@ -2433,7 +2433,7 @@ Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddress(DxObjectInfo*       
     }
     else
     {
-        GFXRECON_LOG_FATAL("No heap allocation has been created for ID3D12Device3::OpenExistingHeapFromAddress "
+        GFXRECON_LOG_ERROR("No heap allocation has been created for ID3D12Device3::OpenExistingHeapFromAddress "
                            "allocation ID = %" PRIu64,
                            allocation_id);
     }
@@ -2504,7 +2504,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromFileMapping(DxObject
     }
     else
     {
-        GFXRECON_LOG_FATAL("No heap allocation has been created for ID3D12Device3::OpenExistingHeapFromFileMapping "
+        GFXRECON_LOG_ERROR("No heap allocation has been created for ID3D12Device3::OpenExistingHeapFromFileMapping "
                            "allocation ID = %" PRIu64,
                            allocation_id);
     }
@@ -2550,7 +2550,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideOpenExistingHeapFromAddress1(DxObjectInf
     }
     else
     {
-        GFXRECON_LOG_FATAL("No heap allocation has been created for ID3D12Device13::OpenExistingHeapFromAddress1 "
+        GFXRECON_LOG_ERROR("No heap allocation has been created for ID3D12Device13::OpenExistingHeapFromAddress1 "
                            "allocation ID = %" PRIu64,
                            allocation_id);
     }
@@ -3741,7 +3741,7 @@ HANDLE Dx12ReplayConsumerBase::GetEventObject(uint64_t event_id, bool reset)
         }
         else
         {
-            GFXRECON_LOG_FATAL("Event creation failed for ID3D12Fence::SetEventOnCompletion");
+            GFXRECON_LOG_ERROR("Event creation failed for ID3D12Fence::SetEventOnCompletion");
         }
     }
 
@@ -5005,7 +5005,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateVersionedRootSignatureDeseria
     Decoded_GUID                     pRootSignatureDeserializerInterface,
     PointerDecoder<uint64_t, void*>* ppRootSignatureDeserializer)
 {
-    GFXRECON_LOG_FATAL(
+    GFXRECON_LOG_ERROR(
         "Calling unsupported function D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary");
     return E_NOTIMPL;
 }
@@ -5013,13 +5013,13 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12CreateVersionedRootSignatureDeseria
 void Dx12ReplayConsumerBase::OverrideSetProgram(DxObjectInfo* replay_object_info,
                                                 StructPointerDecoder<Decoded_D3D12_SET_PROGRAM_DESC>* pDesc)
 {
-    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::SetProgram");
+    GFXRECON_LOG_ERROR("Calling unsupported function ID3D12GraphicsCommandList10::SetProgram");
 }
 
 void Dx12ReplayConsumerBase::OverrideDispatchGraph(DxObjectInfo* replay_object_info,
                                                    StructPointerDecoder<Decoded_D3D12_DISPATCH_GRAPH_DESC>* pDesc)
 {
-    GFXRECON_LOG_FATAL("Calling unsupported function ID3D12GraphicsCommandList10::DispatchGraph");
+    GFXRECON_LOG_ERROR("Calling unsupported function ID3D12GraphicsCommandList10::DispatchGraph");
 }
 
 HRESULT Dx12ReplayConsumerBase::OverrideCreateMetaCommand(DxObjectInfo*                device5_object_info,
