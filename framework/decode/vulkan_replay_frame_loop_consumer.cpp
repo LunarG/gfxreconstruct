@@ -420,15 +420,14 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImageKHR(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            swapchain,
-    uint64_t                                    timeout,
-    format::HandleId                            semaphore,
-    format::HandleId                            fence,
-    PointerDecoder<uint32_t>*                   pImageIndex)
+void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
+                                                                  VkResult                  returnValue,
+                                                                  format::HandleId          device,
+                                                                  format::HandleId          swapchain,
+                                                                  uint64_t                  timeout,
+                                                                  format::HandleId          semaphore,
+                                                                  format::HandleId          fence,
+                                                                  PointerDecoder<uint32_t>* pImageIndex)
 {
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
