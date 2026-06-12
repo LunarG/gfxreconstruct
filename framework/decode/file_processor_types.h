@@ -35,14 +35,20 @@
 #include <cinttypes>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
+#include <limits>
 #include <deque>
 #include <optional>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+class AnnotationHandler;
+class ApiDecoder;
 class FileProcessor;
 
 GFXRECON_BEGIN_NAMESPACE(file_processor)
@@ -55,25 +61,59 @@ enum class ProcessBlockState : int32_t
     // Returned when ProcessBlocks ...
     kFrameBoundary = 1,  // encountered a frame boundary
     kContinue      = 0,  // never returned by ProcessBlocks. Denotes placeholder/noop ProcessBlocksResult.
-    kEndProcessing = -1, // completed processing (!ContinueDecoding or clean EOF)
+    kEndProcessing = -1, // completed processing (block limit reached or decoder complete)
     kError         = -2, // encountered an error
+    kEndOfFile     = -3, // clean EOF on the root capture file
 };
 
-// Stores block processing state at return of ProcessBlocks in async or preload mode
+// Stores block processing state at return of ProcessBlocks in async or preload mode.
+// Constructed either as a full process-side result (has_process_state = true) or as a
+// dispatch-side exit signal carrying only state and error (has_process_state = false).
 using FrameCount  = uint64_t;
 using FrameNumber = uint64_t;
 struct ProcessBlocksResult
 {
-    // NOTE: This is the frame_number of the *next* frame
-    // Snapshot of process_frame_number_ at return.
-    uint64_t frame_number{ 0U };
-
-    // Snapshot of the process_error_state_ at return.
-    BlockIOError error{ BlockIOError::kErrorNone };
-
-    // ProcessBlocks return value.
+    // Always meaningful.
     ProcessBlockState state{ ProcessBlockState::kContinue };
+    BlockIOError      error{ BlockIOError::kErrorNone };
+
+    // Process-side snapshot fields; only valid when has_process_state is true.
+    // NOTE: frame_number is the *next* frame -- snapshot of process_frame_number_ at return.
+    uint64_t frame_number{ 0U };
+    uint64_t bytes_read{ 0 };
+    bool     capture_uses_frame_markers{ false };
+    bool     file_supports_frame_markers{ false };
+    bool     has_process_state{ false };
+    // Padding for alignment (5 bytes)
+
+    ProcessBlocksResult() = default;
+
+    // Dispatch-side exit: state and error only; no valid process-side snapshot.
+    ProcessBlocksResult(ProcessBlockState s, BlockIOError e) : state(s), error(e) {}
+
+    // Process-side result: full snapshot.
+    ProcessBlocksResult(
+        ProcessBlockState s, BlockIOError e, uint64_t frame, uint64_t bytes, bool markers, bool file_markers) :
+        state(s),
+        error(e), frame_number(frame), bytes_read(bytes), capture_uses_frame_markers(markers),
+        file_supports_frame_markers(file_markers), has_process_state(true)
+    {}
 };
+
+// Assert struct size to assure changes are intentional and optimal w.r.t. placement and padding
+static_assert(sizeof(ProcessBlocksResult) <= 32, "ProcessBlocksResult must not exceed 32 bytes");
+
+// Zero-based index of the first frame.
+constexpr FrameNumber kFirstFrame = 0;
+
+// Maximum representable frame number; used as a sentinel meaning "no upper bound".
+constexpr FrameNumber kMaxFrame = std::numeric_limits<FrameNumber>::max();
+
+// Decrement a frame number, preserving kMaxFrame and preventing underflow at 0.
+inline constexpr FrameNumber DecrementFrame(FrameNumber frame)
+{
+    return (frame != 0 && frame != kMaxFrame) ? frame - 1 : frame;
+}
 
 // Range of frame numbers with half open [begin(), end()) semantics.
 struct FrameRange
@@ -83,16 +123,15 @@ struct FrameRange
 
     FrameNumber begin() const noexcept { return begin_frame; }
     FrameNumber end() const noexcept { return end_frame; }
-    bool        contains(FrameNumber frame) { return (begin_frame <= frame) && (frame < end_frame); }
+    bool        contains(FrameNumber frame) const noexcept { return (begin_frame <= frame) && (frame < end_frame); }
     bool        empty() const noexcept { return begin_frame == end_frame; }
     bool        valid() const noexcept { return begin_frame <= end_frame; }
 
     template <typename T, typename U>
     static FrameRange MakeFromOneBased(T inclusive_begin1, U exclusive_end1)
     {
-        GFXRECON_ASSERT((inclusive_begin1 > 0) && (exclusive_end1 > 0));
-        return FrameRange(GFXRECON_NARROWING_CAST(FrameNumber, (inclusive_begin1 - 1)),
-                          GFXRECON_NARROWING_CAST(FrameNumber, (exclusive_end1 - 1)));
+        return FrameRange(DecrementFrame(GFXRECON_NARROWING_CAST(FrameNumber, inclusive_begin1)),
+                          DecrementFrame(GFXRECON_NARROWING_CAST(FrameNumber, exclusive_end1)));
     }
 
     FrameRange(FrameNumber inclusive_begin, FrameNumber exclusive_end) :
@@ -103,11 +142,31 @@ struct FrameRange
     FrameRange() = default;
 };
 
+// Dispatch-side configuration: the decoders and annotation handler that receive decoded blocks.
+// Set before InitializeFrameProcessing(); must not be mutated after async init.
+struct DispatchConfig
+{
+    std::vector<decode::ApiDecoder*> decoders;
+    decode::AnnotationHandler*       annotation_handler{ nullptr };
+};
+
+// Parameters for InitializeFrameProcessing().
+// Default {} gives sync mode with no preload.
+struct FrameProcessingParams
+{
+    bool        async{ false };
+    FrameRange  preload_range{};
+    FrameNumber quit_before_frame{ kMaxFrame };
+    bool        print_block_info{ false };
+    int64_t     block_index_from{ 0 };
+    int64_t     block_index_to{ 0 };
+};
+
 // Iteration framework for traversing ParsedBlocks across batches during replay.
 //
 // The two-level design allows block consumers to iterate blocks directly as a uniform
 // stream, independent of how batches are sourced and packaged. Block consumers should
-// not carry batch concerns (transport layering); BatchIterator is the mode seam —
+// not carry batch concerns (transport layering); BatchIterator is the mode seam --
 // async and preload require structurally incompatible batch sources. Batch boundaries
 // are rare relative to block advances, so virtual dispatch at Advance() amortizes
 // cheaply, making a templated design unnecessary.
@@ -116,7 +175,7 @@ struct FrameRange
 //   Defines the queue protocol. batch_ always holds the current batch; AtEnd() is true
 //   when batch_ is null (source exhausted). Two concrete forms:
 //     - AsyncBatchIterator: wraps a thread-safe queue. Advance() BLOCKS until the async
-//       parse thread delivers a batch or signals EOF. The queue is consumed — no rewind.
+//       parse thread delivers a batch or signals EOF. The queue is consumed -- no rewind.
 //     - PreloadBatchIterator (preload_file_processor.h): wraps a std::deque<BatchPtr>.
 //       Advance() is non-blocking. Rewind() resets the cursor to the deque beginning,
 //       making it the only BatchIterator subclass that supports re-traversal.
@@ -128,7 +187,7 @@ struct FrameRange
 //   BatchIterator::Advance() transparently to move to the next batch.
 //   Limitations:
 //     - Forward-only: no decrement, no random access.
-//     - Backed by AsyncBatchIterator: single-pass — the underlying queue is consumed.
+//     - Backed by AsyncBatchIterator: single-pass -- the underlying queue is consumed.
 //     - Default-constructed BlockIterator{} is the end sentinel (block_ == nullptr);
 //       compare against it to detect exhaustion.
 //     - Empty batches are forbidden; asserted in debug builds at construction.
@@ -165,7 +224,7 @@ class BatchIterator
 };
 
 // Block-level iterator over batches supplied by a BatchIterator.
-// Construction reads the current batch head — no Advance() is triggered.
+// Construction reads the current batch head -- no Advance() is triggered.
 class BlockIterator
 {
   public:
@@ -261,6 +320,34 @@ struct ContinueProcessingPolicy
         constexpr static bool kCheckBlockLimit = true;
         constexpr static bool kCheckDecoders   = true;
     };
+};
+
+// Functor that tracks a set of block indices to skip during processing.
+// Calls on_complete() once all targeted blocks have been skipped.
+class BlockSkip
+{
+  public:
+    BlockSkip(std::unordered_set<uint64_t>&& blocks_to_skip, std::function<void()>&& on_complete) :
+        blocks_to_skip_(std::move(blocks_to_skip)), on_complete_(std::move(on_complete))
+    {}
+
+    bool operator()(uint64_t block_index)
+    {
+        if (blocks_to_skip_.count(block_index))
+        {
+            if ((++blocks_skipped_ == blocks_to_skip_.size()) && on_complete_)
+            {
+                on_complete_();
+            }
+            return true;
+        }
+        return false;
+    }
+
+  private:
+    std::unordered_set<uint64_t> blocks_to_skip_;
+    uint64_t                     blocks_skipped_{ 0 };
+    std::function<void()>        on_complete_;
 };
 
 GFXRECON_END_NAMESPACE(file_processor)

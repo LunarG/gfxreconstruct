@@ -30,9 +30,8 @@
 #include "decode/api_decoder.h"
 #include "decode/api_payload.h"
 #include "decode/block_parser.h"
+#include "decode/block_processor.h"
 #include "decode/file_processor_types.h"
-#include "util/clock_cache.h"
-#include "util/compressor.h"
 #include "util/defines.h"
 #include "decode/decode_allocator.h"
 #include "util/logging.h"
@@ -45,6 +44,7 @@
 #include <memory>
 #include <string>
 #include <type_traits> // ParsedBlock
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -59,44 +59,61 @@ class AsyncProcessPolicy;
 class DispatchVisitor;
 class PreloadProcessPolicy;
 class ProcessVisitor;
+class SynchronousProcessPolicy;
 GFXRECON_END_NAMESPACE(file_processor)
 
 class FileProcessor
 {
   public:
-    using BlockIterator       = file_processor::BlockIterator;
-    using DispatchVisitor     = file_processor::DispatchVisitor;
-    using FrameNumber         = file_processor::FrameNumber;
-    using FrameCount          = file_processor::FrameCount;
-    using FrameRange          = file_processor::FrameRange;
-    using ProcessBlockState   = file_processor::ProcessBlockState;
-    using ProcessBlocksResult = file_processor::ProcessBlocksResult;
-    using ProcessVisitor      = file_processor::ProcessVisitor;
+    using BlockIterator         = file_processor::BlockIterator;
+    using DispatchVisitor       = file_processor::DispatchVisitor;
+    using FrameNumber           = file_processor::FrameNumber;
+    using FrameCount            = file_processor::FrameCount;
+    using FrameRange            = file_processor::FrameRange;
+    using FrameProcessingParams = file_processor::FrameProcessingParams;
+    using ProcessBlockState     = file_processor::ProcessBlockState;
+    using ProcessBlocksResult   = file_processor::ProcessBlocksResult;
+    using DispatchConfig        = file_processor::DispatchConfig;
+    using ProcessVisitor        = file_processor::ProcessVisitor;
+    using BlockSkip             = file_processor::BlockSkip;
 
     constexpr static FrameNumber kFirstFrame = 0;
+    constexpr static FrameNumber kMaxFrame   = file_processor::kMaxFrame;
+    static FrameNumber           DecrementFrame(FrameNumber f) { return file_processor::DecrementFrame(f); }
 
-    FileProcessor();
-
-    FileProcessor(uint64_t block_limit);
+    FileProcessor(uint64_t block_limit = 0);
 
     virtual ~FileProcessor();
 
     void WaitDecodersIdle();
 
-    void SetAnnotationProcessor(AnnotationHandler* handler) { annotation_handler_ = handler; }
+    void SetAnnotationProcessor(AnnotationHandler* handler) { config_.annotation_handler = handler; }
 
-    void StartAsyncProcessing();
-    void SetPreloadFrameRange(FrameRange frame_range);
-    void SetQuitBeforeFrame(FrameNumber frame_number);
-
-    void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
+    void AddDecoder(ApiDecoder* decoder) { config_.decoders.push_back(decoder); }
 
     void RemoveDecoder(ApiDecoder* decoder)
     {
-        decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end());
+        auto& d = config_.decoders;
+        d.erase(std::remove(d.begin(), d.end(), decoder), d.end());
     }
 
     bool Initialize(const std::string& filename);
+
+    // Called implicitly by ProcessAllFrames() and directly by Application::Run()
+    // Must be called at most once after Initialize() and before ProcessNextFrame()
+    // Default params{} gives sync mode with no preload. Block limit is set via the constructor.
+    bool InitializeFrameProcessing(const FrameProcessingParams& params = {});
+
+    bool IsFrameProcessingInitialized() const { return frame_processing_initialized_; }
+
+    // May be called after Initialize() and before InitializeFrameProcessing().
+    // Safe to call even after Initialize() re-creates the BlockProcessor.
+    void SetBlocksToSkip(const std::unordered_set<uint64_t>& blocks_to_skip);
+
+    // In async mode, skip completion is reported only after dispatch reaches this
+    // in-band marker. This means the consumer has observed the stream past all
+    // skipped blocks, not merely that the process thread has read and omitted them.
+    bool IsSkippingFinished() const { return dispatch_skipping_finished_; }
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.
@@ -105,66 +122,21 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
-    template <typename CheckPolicy>
-    bool ContinueBlockProcessing(uint64_t block_index)
-    {
-        bool early_exit = false;
-        // If a block limit was specified, obey it.
-        // If not (block_limit_ = 0),  then the consumer may determine early exit
-
-        // Note:
-        // The odd mix of runtime and Policy checks support the backwards compatible logic,
-        // while still allowing policy control of Continue checks.
-        //
-        // The historical functionality is that if block_limit_ is set decoders are *never* checked, period.
-        // With the sync/async split, this means that even in synchronous operation or during replay, when we enable
-        // checking the decoders, we still don't if block_limit_ is set.
-        if (block_limit_ > 0)
-        {
-            if constexpr (CheckPolicy::kCheckBlockLimit)
-            {
-                early_exit = block_index > block_limit_;
-            }
-        }
-        else if constexpr (CheckPolicy::kCheckDecoders)
-        {
-            early_exit = CheckAllDecodersComplete(block_index);
-        }
-
-        return !early_exit;
-    } // Check process_block_index_ against block_limit_
-
-    const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
+    const std::vector<format::FileOptionPair>& GetFileOptions() const { return proc_->file_options; }
 
     // Application facing interface returns the *dispatched* frame and block index, to preserve expected semantics.
     uint64_t GetCurrentFrameNumber() const noexcept { return dispatch_frame_number_; }
     uint64_t GetCurrentBlockIndex() const noexcept { return dispatch_block_index_; }
 
-    // These have "process_" side semantics
     bool         GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
-    uint64_t GetNumBytesRead() const { return bytes_read_; }
+    uint64_t     GetNumBytesRead() const { return dispatch_bytes_read_; }
     BlockIOError GetErrorState() const { return dispatch_error_state_; }
 
-    bool EntireFileWasProcessed() const
-    {
-        if (file_stack_.empty())
-        {
-            return true;
-        }
+    bool EntireFileWasProcessed() const { return dispatch_terminal_state_ == ProcessBlockState::kEndOfFile; }
 
-        return file_stack_.front().active_file->IsEof();
-    }
-
-    bool                      UsesFrameMarkers() const { return capture_uses_frame_markers_; }
-    bool                      FileSupportsFrameMarkers() const { return file_supports_frame_markers_; }
-    const format::FileHeader& GetFileHeader() const { return file_header_; }
-
-    void SetPrintBlockInfoFlag(bool enable_print_block_info, int64_t block_index_from, int64_t block_index_to)
-    {
-        enable_print_block_info_ = enable_print_block_info;
-        block_index_from_        = block_index_from;
-        block_index_to_          = block_index_to;
-    }
+    bool                      UsesFrameMarkers() const { return dispatch_capture_uses_frame_markers_; }
+    bool                      FileSupportsFrameMarkers() const { return dispatch_file_supports_frame_markers_; }
+    const format::FileHeader& GetFileHeader() const { return proc_->file_header; }
 
     // Returns whether the call_id is a frame delimiter and handles frame delimiting logic
     // Called from ProcessVisitor.
@@ -183,8 +155,6 @@ class FileProcessor
     void ProcessAnnotation(const AnnotationArgs& annotation);
 
   protected:
-    using BlockProcessor = std::function<bool()>;
-
     bool AsyncProcessingEnabled() const { return async_processor_.get() != nullptr; }
 
     // Read from active file
@@ -202,56 +172,50 @@ class FileProcessor
 
     ProcessBlockState HandleBlockEof(const char* operation, bool report_frame_and_block);
 
-    // Async processing needs to be to queury this frame wise.
+    // Async processing needs to be to query this frame wise.
     friend class AsyncProcessor;
-    FrameNumber  GetProcessFrameNumber() const noexcept { return process_frame_number_; }
-    BlockIOError GetProcessErrorState() const noexcept { return process_error_state_; }
+    friend class file_processor::SynchronousProcessPolicy;
+    FrameNumber  GetProcessFrameNumber() const noexcept { return proc_->frame_number; }
+    BlockIOError GetProcessErrorState() const noexcept { return proc_->error_state; }
 
   protected:
-    std::vector<ApiDecoder*> decoders_;
-    AnnotationHandler*       annotation_handler_{ nullptr };
-    uint64_t                 bytes_read_{ 0 };
+    // When non-zero, stop after this many blocks and never check decoder completion.
+    uint64_t       block_limit_{ 0 };
+    DispatchConfig config_;
 
-    // Frame, block, and error tracking state:
-    // Members prefixed 'process_' refer to state during ProcessBlocks (reading, parsing, enqueueing).
-    // Members prefixed 'dispatch_' refer to state during dispatch operations (DispatchVisitor, Replay*).
+    // All process-side (I/O and parse thread) state lives here.
+    // In async mode, ownership transfers to AsyncProcessor at InitializeFrameProcessing time;
+    // proc_ becomes null after the transfer -- any residual dispatch-thread access will null-deref.
+    std::unique_ptr<BlockProcessor> proc_;
+
+    // Dispatch-side frame/block/error tracking -- main-thread exclusive.
     //
+    // Members prefixed 'dispatch_' refer to state during dispatch operations (DispatchVisitor, Replay*).
     // For API compatibility, state queries return the dispatch_<state> values.
     //
-    // In immediate mode (not preload, not asynchronous), process_<state> is propagated as needed
-    // to dispatch_<state> in order to support application-facing state access.
+    // Frame numbers are zero-based (see kFirstFrame) and name the frame currently being dispatched,
+    // or the frame that will become current on the next dispatch call.
     //
-    // Frame numbers are zero-based (see kFirstFrame) and name the frame currently being processed or
-    // dispatched, or the frame that will become current on the next call into the process or dispatch hierarchies.
-    //
-    // The three are grouped, and then kept in separate cachelines. (for async processing)
-
-    // *_frame_number_: Frame numbers advance only on frame boundaries, and not on terminating exit conditions (error or
-    // EOF).
-    // *_error_state_: The error state observed during block processing and dispatch.
-    // *_block_index_:The index of the block currently being processed or dispatched, or the next block that will be.
-    alignas(util::kConstructiveAlign) uint64_t process_frame_number_{ kFirstFrame };
-    BlockIOError process_error_state_{ kErrorInvalidFileDescriptor };
-    uint64_t     process_block_index_{ 0 };
-
+    // dispatch_* and proc_->* are kept in separate cachelines for async cache-line isolation.
     alignas(util::kConstructiveAlign) uint64_t dispatch_frame_number_{ kFirstFrame };
-    BlockIOError dispatch_error_state_{ kErrorNone };
-    uint64_t     dispatch_block_index_{ 0 };
+    BlockIOError      dispatch_error_state_{ kErrorNone };
+    uint64_t          dispatch_block_index_{ 0 };
+    ProcessBlockState dispatch_terminal_state_{ ProcessBlockState::kContinue };
 
     // Owns the current async batch; only accessed by the main thread on operator++
     BlockIterator async_block_iterator_;
 
     BlockIterator ReplayOneFrame(DispatchVisitor& dispatch_visitor, BlockIterator begin, BlockIterator end);
-    void          HandleReplayResult(const ProcessBlocksResult& result, const file_processor::BlockIterator& iterator);
+    void          HandleReplayResult(const ProcessBlocksResult& result);
 
     bool         IsFileValid() const;
     BlockIOError CheckFileStatus() const
     {
-        if (file_stack_.empty())
+        if (proc_->file_stack.empty())
         {
             return kErrorInvalidFileDescriptor;
         }
-        const auto& active_file = file_stack_.back().active_file;
+        const auto& active_file = proc_->file_stack.back().active_file;
         // If not EOF, determine reason for invalid state.
         if (!active_file->IsOpen())
         {
@@ -267,11 +231,11 @@ class FileProcessor
 
     bool AtEof() const
     {
-        if (file_stack_.empty())
+        if (proc_->file_stack.empty())
         {
             return true;
         }
-        return file_stack_.back().active_file->IsEof();
+        return proc_->file_stack.back().active_file->IsEof();
     }
 
     // Control the update, continue, and dispatch functionality from a policy
@@ -283,18 +247,15 @@ class FileProcessor
 
     BlockParser& GetBlockParser()
     {
-        GFXRECON_ASSERT(block_parser_.get() != nullptr);
-        return *block_parser_;
+        GFXRECON_ASSERT(proc_->block_parser.get() != nullptr);
+        return *proc_->block_parser;
     }
 
   private:
-    bool CheckAllDecodersComplete(uint64_t block_index) const;
-    bool ProcessFileHeader();
-    bool ProcessNextFrameAsync();
-    bool ProcessNextFrameSync();
-
-    // NOTE: These two can't be const as derived class updates state.
-    virtual bool SkipBlockProcessing() { return false; } // No block skipping in base class
+    bool                ProcessFileHeader();
+    bool                ProcessNextFrameAsync();
+    bool                ProcessNextFrameSync();
+    ProcessBlocksResult MakeResult(ProcessBlockState state) const;
 
     bool SeekActiveFile(const FileInputStreamPtr& file, int64_t offset, util::platform::FileSeekOrigin origin);
 
@@ -310,63 +271,37 @@ class FileProcessor
     void DecrementRemainingCommands();
 
   private:
+    bool     frame_processing_initialized_{ false };
+    uint64_t dispatch_bytes_read_{ 0 };
+    bool     dispatch_capture_uses_frame_markers_{ false };
+    bool     dispatch_file_supports_frame_markers_{ false };
+    bool     dispatch_skipping_finished_{ true };
+    bool     loading_trimmed_capture_state_{ false };
+
+    // Stored at FileProcessor level so they survive a BlockProcessor re-creation in Initialize().
+    // Transferred to BlockProcessor in InitializeFrameProcessing().
+    std::unordered_set<uint64_t> pending_blocks_to_skip_;
+
+    // Cached copies of capture-file metadata set during Initialize() from proc_.
+    // Remain valid after proc_ transfers to AsyncProcessor.
+    format::FileHeader                  file_header_{};
     std::vector<format::FileOptionPair> file_options_;
-    format::EnabledOptions              enabled_options_;
-    uint64_t                            block_limit_{ 0 }; // No block limit by default
-    bool                                pending_capture_uses_frame_markers_{ false };
-    bool                                capture_uses_frame_markers_{ false };
-    bool                                file_supports_frame_markers_{ false };
-    uint64_t                            first_frame_;
-    bool                                enable_print_block_info_{ false };
-    int64_t                             block_index_from_{ 0 };
-    int64_t                             block_index_to_{ 0 };
-    bool                                loading_trimmed_capture_state_{ false };
 
-    std::string        absolute_path_;
-    format::FileHeader file_header_;
+    // Replay-time decompressor (dispatch/main-thread exclusive).
+    // Cloned from proc_->compressor_ in InitializeFrameProcessing() before async transfer.
+    std::unique_ptr<util::Compressor> replay_compressor_;
 
-    // Working store for replay time decompression
-    // Working store for replay time decompression
+    // Working store for replay-time decompression (dispatch/main-thread exclusive).
     constexpr static size_t kWorkingStoreInitialSize = 4096;
     util::HeapBuffer        working_uncompressed_store_;
 
-  protected:
-    std::unique_ptr<util::Compressor> compressor_;
-    std::unique_ptr<BlockParser>      block_parser_;
-
-    struct ActiveFileContext
+    BlockProcessor::ActiveFileContext& GetCurrentFile()
     {
-        ActiveFileContext(FileInputStreamPtr&& active_file_, bool execute_til_eof_ = false) :
-            active_file(std::move(active_file_)), execute_till_eof(execute_til_eof_){};
-
-        FileInputStreamPtr active_file;
-        uint32_t           remaining_commands{ 0 };
-        bool               execute_till_eof{ false };
-    };
-
-    std::deque<ActiveFileContext> file_stack_;
-
-  private:
-    ActiveFileContext& GetCurrentFile()
-    {
-        GFXRECON_ASSERT(file_stack_.size());
-        return file_stack_.back();
+        GFXRECON_ASSERT(proc_->file_stack.size());
+        return proc_->file_stack.back();
     }
 
-    struct InputStreamGetKey
-    {
-        const std::string& operator()(const FileInputStreamPtr& input_stream)
-        {
-            GFXRECON_ASSERT(input_stream);
-            return input_stream->GetFilename();
-        }
-    };
-    using ActiveStreamCache = util::ClockCache<FileInputStreamPtr, 3, std::string, InputStreamGetKey>;
-    ActiveStreamCache stream_cache_;
-
     std::unique_ptr<AsyncProcessor> async_processor_{};
-    FrameRange                      preload_frame_range_{ 0, 0 };
-    FrameNumber                     quit_before_frame_{ 0 };
 };
 
 extern template file_processor::ProcessBlockState

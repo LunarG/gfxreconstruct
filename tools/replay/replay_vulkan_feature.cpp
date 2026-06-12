@@ -108,7 +108,7 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
     {
         RegisterConsumerAndDecoder(fps_info);
 
-        file_processor_->SetPrintBlockInfoFlag(
+        application_->SetPrintBlockInfoFlag(
             replay_options_.enable_print_block_info, replay_options_.block_index_from, replay_options_.block_index_to);
     }
 }

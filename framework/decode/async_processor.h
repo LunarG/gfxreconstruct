@@ -84,6 +84,7 @@ class AsyncProcessor
     };
 
     AsyncBatchIterator& GetBatchIterator() { return async_batch_iterator_; }
+    void                SetBlockLimit(uint64_t limit);
     void                SetPreloadFrameRange(const FrameRange& frame_range);
     void                SetQuitBeforeFrame(FrameNumber frame_number);
 
@@ -189,7 +190,7 @@ class AsyncProcessor
     void ThrottleQueue();
     void AdjustDecompressionPolicy(BatchCount pending_batches);
 
-    void AddResultsBlock(FrameNumber frame_number, BlockIOError error_state, ProcessBlockState state);
+    void AddResultsBlock(const file_processor::ProcessBlocksResult& result);
     void AddContinueBatch();
 
     // This is the block loading and processing child thread.
@@ -209,6 +210,7 @@ class AsyncProcessor
     // frame range.  During preload, different rules apply. Highwater becomes "sufficient batches to hold all frames in
     // preload range" and decompression policy is kAlways.
     alignas(util::kConstructiveAlign) uint64_t quit_before_frame_{ kMaxFrameNumber };
+    uint64_t          block_limit_{ 0 };
     FrameRange        preload_frame_range_{};
     std::atomic<bool> keep_alive_{ false }; // Thread teardown control
 
@@ -239,10 +241,9 @@ class AsyncProcessPolicy
 {
   public:
     using AsyncInstrumentation = decode::AsyncProcessor::AsyncInstrumentation;
-    AsyncProcessPolicy(FileProcessor& file_processor, AsyncInstrumentation& async_stats) :
-        file_processor_(file_processor), async_stats_(async_stats)
+    AsyncProcessPolicy(uint64_t block_limit, AsyncInstrumentation& async_stats) :
+        block_limit_(block_limit), async_stats_(async_stats)
     {}
-    constexpr static bool kUpdateDispatchState = false;
     bool                  ContinueBlockProcessing(uint64_t block_index);
     ProcessBlockState     Dispatch(uint64_t block_index, ParsedBlock& block)
     {
@@ -251,7 +252,7 @@ class AsyncProcessPolicy
     }
 
   private:
-    FileProcessor&        file_processor_;
+    uint64_t              block_limit_;
     AsyncInstrumentation& async_stats_;
 };
 

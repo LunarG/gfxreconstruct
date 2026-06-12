@@ -138,12 +138,7 @@ const uint8_t* BlockParser::DecompressSpan(const BlockBuffer::BlockSpan& compres
                                            size_t                        expanded_size,
                                            uint8_t*                      uncompressed_buffer) const
 {
-    GFXRECON_ASSERT(!compressed_span.empty());
-    GFXRECON_ASSERT(uncompressed_buffer != nullptr);
-    size_t uncompressed_size = compressor_->Decompress(compressed_span.size(),
-                                                       reinterpret_cast<const uint8_t*>(compressed_span.data()),
-                                                       expanded_size,
-                                                       uncompressed_buffer);
+    size_t uncompressed_size = compressor_->Decompress(compressed_span, expanded_size, uncompressed_buffer);
     if (uncompressed_size != expanded_size)
     {
         HandleBlockReadError(kErrorReadingCompressedBlockData, "Failed to decompress block data");

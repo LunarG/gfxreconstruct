@@ -26,6 +26,7 @@
 #include "util/logging.h"
 #include "decode/async_processor.h"
 #include "decode/file_processor.h"
+#include "decode/file_processor_visitors.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -64,6 +65,13 @@ void AsyncProcessor::NotifyBatchIndexDequeued(BatchCount batch_index)
     {
         throttle_cv_.notify_one();
     }
+}
+
+void AsyncProcessor::SetBlockLimit(uint64_t limit)
+{
+    // Only callable before launching thread. (Avoids synchronization.)
+    GFXRECON_ASSERT(!async_thread_.joinable());
+    block_limit_ = limit;
 }
 
 void AsyncProcessor::SetPreloadFrameRange(const FrameRange& frame_range)
@@ -189,9 +197,7 @@ void AsyncProcessor::AdjustDecompressionPolicy(BatchCount pending_batches)
 }
 
 // Add the results block for the current frame with a strictly increasing frame index
-void AsyncProcessor::AddResultsBlock(FrameNumber       frame_number,
-                                     BlockIOError      error_state,
-                                     ProcessBlockState process_state)
+void AsyncProcessor::AddResultsBlock(const file_processor::ProcessBlocksResult& result)
 {
     // As frame numbers can be non-contiguous, we use a frame enqueueing index for uniqueness.
     // The "frame index" encoded in a ProcessBlocksResult is not the frame number due to frame stuttering,
@@ -199,7 +205,7 @@ void AsyncProcessor::AddResultsBlock(FrameNumber       frame_number,
     // The frame index is strictly increasing with each results block enqueued.
     ++enqueued_frame_index_;
     async_stats_.AddFrame();
-    block_parser_.EmplaceResultsBlock(frame_number, error_state, process_state);
+    block_parser_.EmplaceResultsBlock(result);
 }
 
 // Continue blocks are used for in-band signaling, specifically to unblock async startup
@@ -210,7 +216,7 @@ void AsyncProcessor::AddResultsBlock(FrameNumber       frame_number,
 // treats it as a no-op control marker and ignores the other result fields.
 void AsyncProcessor::AddContinueBatch()
 {
-    AddResultsBlock(0, BlockIOError::kErrorNone, ProcessBlockState::kContinue);
+    AddResultsBlock(file_processor::ProcessBlocksResult(ProcessBlockState::kContinue, BlockIOError::kErrorNone));
     block_parser_.GetBlockAllocator().FlushBatch();
 }
 
@@ -232,7 +238,7 @@ void AsyncProcessor::ThreadMain()
 
     // Start with async_thread_ doing the minimal, and adjust if it gets too far ahead
     block_parser_.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
-    file_processor::AsyncProcessPolicy process_policy{ file_processor_, async_stats_ };
+    file_processor::AsyncProcessPolicy process_policy{ block_limit_, async_stats_ };
 
     FrameNumber frame_number        = file_processor_.GetProcessFrameNumber();
     bool        continue_processing = true;
@@ -261,11 +267,11 @@ void AsyncProcessor::ThreadMain()
                 block_parser_.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
             }
         }
-        ProcessBlockState process_state = file_processor_.ProcessBlocks(process_policy);
-        BlockIOError      error_state   = file_processor_.GetProcessErrorState();
-        frame_number                    = file_processor_.GetProcessFrameNumber();
+        ProcessBlockState                   process_state = file_processor_.ProcessBlocks(process_policy);
+        file_processor::ProcessBlocksResult result        = file_processor_.MakeResult(process_state);
+        frame_number                                      = result.frame_number;
         // Push all processed blocks onto the queue, and add the end of frame/end of process result to the queue
-        AddResultsBlock(frame_number, error_state, process_state);
+        AddResultsBlock(result);
 
         if (preloading)
         {
@@ -470,7 +476,7 @@ void AsyncProcessor::AsyncInstrumentation::AddPendingAtWait(FrameCount          
 GFXRECON_BEGIN_NAMESPACE(file_processor)
 bool AsyncProcessPolicy::ContinueBlockProcessing(uint64_t block_index)
 {
-    return file_processor_.ContinueBlockProcessing<ContinueProcessingPolicy::BlockLimitOnly>(block_index);
+    return file_processor::ContinueBlockLimit(block_limit_, block_index);
 }
 GFXRECON_END_NAMESPACE(file_processor)
 
