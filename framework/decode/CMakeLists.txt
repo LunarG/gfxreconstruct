@@ -346,6 +346,28 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${D3D12_SUPPORT}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_dx12_struct_decoders_to_json.cpp>
 )
 
+file(APPEND "${CMAKE_BINARY_DIR}/sherlock_debug.txt" "SHERLOCK DEBUG: ANDROID='${ANDROID}', CMAKE_SYSTEM_NAME='${CMAKE_SYSTEM_NAME}'\n")
+message(STATUS "SHERLOCK DEBUG: ANDROID='${ANDROID}'")
+message(STATUS "SHERLOCK DEBUG: CMAKE_SYSTEM_NAME='${CMAKE_SYSTEM_NAME}'")
+
+if(ANDROID OR CMAKE_SYSTEM_NAME STREQUAL "Android")
+    file(APPEND "${CMAKE_BINARY_DIR}/sherlock_debug.txt" "SHERLOCK DEBUG: Selecting Android RenderDoc capture\n")
+    message(STATUS "SHERLOCK DEBUG: Selecting Android RenderDoc capture")
+    target_sources(gfxrecon_decode
+                   PRIVATE
+                        ${CMAKE_CURRENT_LIST_DIR}/renderdoc_app.h
+                        ${CMAKE_CURRENT_LIST_DIR}/renderdoc_capture.h
+                        ${CMAKE_CURRENT_LIST_DIR}/renderdoc_capture_android.cpp)
+else()
+    file(APPEND "${CMAKE_BINARY_DIR}/sherlock_debug.txt" "SHERLOCK DEBUG: Selecting Stub RenderDoc capture\n")
+    message(STATUS "SHERLOCK DEBUG: Selecting Stub RenderDoc capture")
+    target_sources(gfxrecon_decode
+                   PRIVATE
+                        ${CMAKE_CURRENT_LIST_DIR}/renderdoc_app.h
+                        ${CMAKE_CURRENT_LIST_DIR}/renderdoc_capture.h
+                        ${CMAKE_CURRENT_LIST_DIR}/renderdoc_capture_stub.cpp)
+endif()
+
 if (${GFXRECON_AGS_SUPPORT_FINAL})
 target_sources(gfxrecon_decode
                PRIVATE

@@ -323,6 +323,8 @@ class FileProcessor
     bool                                loading_trimmed_capture_state_{ false };
 
     std::string        absolute_path_;
+    std::string        capture_file_path_;
+    bool               renderdoc_capturing_{ false };
     format::FileHeader file_header_;
 
     // Working store for replay time decompression

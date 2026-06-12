@@ -26,6 +26,7 @@
 #include "decode/block_buffer.h"
 #include "decode/file_processor.h"
 #include "decode/file_processor_visitors.h" // Must be after file_processor.h for FileProcessor callbacks
+#include "decode/renderdoc_capture.h"
 #include "format/format_util.h"
 #include "util/logging.h"
 
@@ -104,6 +105,7 @@ bool FileProcessor::Initialize(const std::string& filename)
     {
         // Find absolute path of capture file
         absolute_path_ = util::filepath::GetBasedir(filename);
+        capture_file_path_ = filename;
 
         // Initialize block parser, with the compressor created during file header processing.
         auto err_handler = BlockParser::ErrorHandler{ [this](BlockIOError err, const char* message) {
@@ -628,8 +630,19 @@ void FileProcessor::UpdateEndFrameState()
         capture_uses_frame_markers_         = true;
         pending_capture_uses_frame_markers_ = false;
         process_frame_number_               = kFirstFrame;
-        GFXRECON_LOG_WARNING("Explicit frame markers found in file format (0.0) file w/ gfxrecon-version < (1.0.1). "
+        GFXRECON_LOG_WARNING("Explicit frame markers found in file format (0.0) file w/ gfxrecon-version < (1.0.1).  "
                              "Patch input file format with 'gfxrecon-file-version-patch'");
+    }
+
+    if (renderdoc_capturing_)
+    {
+        const auto* rdoc_api = GetRenderDocApi();
+        if (rdoc_api != nullptr)
+        {
+            GFXRECON_LOG_INFO("Ending RenderDoc frame capture...");
+            rdoc_api->EndFrameCapture(nullptr, nullptr);
+        }
+        renderdoc_capturing_ = false;
     }
 
     // Make sure to increment the frame number on the way out.
@@ -695,6 +708,32 @@ void FileProcessor::ProcessStateEndMarker(const StateEndMarkerArgs& state_end)
 {
     GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, state_end.frame_number);
     loading_trimmed_capture_state_ = false;
+
+    if (ShouldCreateRenderDocCapture() && !renderdoc_capturing_)
+    {
+        const auto* rdoc_api = GetRenderDocApi();
+        if (rdoc_api != nullptr)
+        {
+            std::string template_path = GetRenderDocCaptureFilePathTemplate(capture_file_path_);
+            GFXRECON_LOG_INFO("Setting RenderDoc capture template to: %s", template_path.c_str());
+            rdoc_api->SetCaptureFilePathTemplate(template_path.c_str());
+            
+            GFXRECON_LOG_INFO("Starting RenderDoc frame capture...");
+            rdoc_api->StartFrameCapture(nullptr, nullptr);
+            if (rdoc_api->IsFrameCapturing() == 1)
+            {
+                renderdoc_capturing_ = true;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to start RenderDoc frame capture.");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("RenderDoc capture requested but API could not be loaded.");
+        }
+    }
 }
 
 void FileProcessor::ProcessAnnotation(const AnnotationArgs& annotation)

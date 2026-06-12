@@ -214,6 +214,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_resource_consumer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_referenced_block_consumer.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/decode/renderdoc_capture.h
+                    ${GFXRECON_SOURCE_DIR}/framework/decode/renderdoc_capture_android.cpp
               )
 
 if (OPENXR_SUPPORT_ENABLED)
