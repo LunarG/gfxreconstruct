@@ -33,6 +33,7 @@
 #include <functional>
 #include <map>
 #include <optional>
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -207,6 +208,46 @@ class VulkanResourcesUtil
                                    VkImageTiling                                    tiling,
                                    const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
 
+    static bool IsFormatSupported(const VulkanInstanceTable& instance_table,
+                                  VkPhysicalDevice           physical_device,
+                                  VkFormat                   format,
+                                  VkImageTiling              tiling,
+                                  VkFormatFeatureFlags       feature_flags);
+
+    static bool IsImageSupported(const VulkanInstanceTable& instance_table,
+                                 VkPhysicalDevice           physical_device,
+                                 VkFormat                   format,
+                                 VkImageType                type,
+                                 const VkExtent3D&          extent,
+                                 uint32_t                   level_count,
+                                 uint32_t                   layer_count,
+                                 VkSampleCountFlagBits      sample_count,
+                                 VkImageTiling              tiling,
+                                 VkImageUsageFlags          usage_flags,
+                                 VkFormatFeatureFlags       feature_flags,
+                                 VkImageCreateFlags         create_flags);
+
+    static bool CanRenderPassResolve(const VulkanInstanceTable&                       instance_table,
+                                     VkPhysicalDevice                                 physical_device,
+                                     VkFormat                                         format,
+                                     VkImageTiling                                    tiling,
+                                     const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
+
+    //! Describes how a multisampled image of a given format can be resolved to a single-sample image.
+    enum class MultisampleResolveMethod
+    {
+        kUnsupported = 0,
+        kTransfer,
+        kRenderPass,
+    };
+
+    static MultisampleResolveMethod
+    SelectResolveMethod(const VulkanInstanceTable&                       instance_table,
+                        VkPhysicalDevice                                 physical_device,
+                        VkFormat                                         format,
+                        VkImageTiling                                    tiling,
+                        const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info);
+
   private:
     VkCommandBuffer CreateCommandBufferAndBegin(uint32_t queue_family_index);
 
@@ -264,6 +305,22 @@ class VulkanResourcesUtil
                           VkImageLayout     current_layout,
                           VkImage*          resolve_image,
                           VkDeviceMemory*   resolve_memory);
+
+    // The created image views are written to resolved_image_view and ms_image_view. They are referenced by
+    // command_buffer and must outlive its execution; the caller owns and must destroy them after submission.
+    VkResult RenderPassResolve(VkCommandBuffer       command_buffer,
+                               VkImage               image,
+                               VkFormat              format,
+                               VkImageType           type,
+                               VkImageTiling         tiling,
+                               const VkExtent3D&     extent,
+                               uint32_t              array_layers,
+                               VkImageLayout         current_layout,
+                               VkImageAspectFlagBits aspect,
+                               VkImage*              resolved_image,
+                               VkDeviceMemory*       resolved_image_memory,
+                               VkImageView*          resolved_image_view,
+                               VkImageView*          ms_image_view);
 
     VkQueue GetQueue(uint32_t queue_family_index, uint32_t queue_index);
 

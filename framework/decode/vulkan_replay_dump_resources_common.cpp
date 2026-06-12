@@ -68,11 +68,11 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*             in
     // Check for multisampled images that cannot be resolved
     if (image_info->sample_count != VK_SAMPLE_COUNT_1_BIT)
     {
-        if (!graphics::VulkanResourcesUtil::CanTransferResolve(
-                *instance_table, phys_dev, image_info->format, image_info->tiling, physical_device_features_info))
+        if (graphics::VulkanResourcesUtil::SelectResolveMethod(
+                *instance_table, phys_dev, image_info->format, image_info->tiling, physical_device_features_info) ==
+            graphics::VulkanResourcesUtil::MultisampleResolveMethod::kUnsupported)
         {
-            GFXRECON_LOG_WARNING("Multisampled image with format %s does not support "
-                                 "\"VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT\" will not be dumped.",
+            GFXRECON_LOG_WARNING("Multisampled image with format %s cannot be resolved and will not be dumped.",
                                  util::ToString<VkFormat>(image_info->format).c_str());
             return ImageDumpResult::kCanNotResolve;
         }

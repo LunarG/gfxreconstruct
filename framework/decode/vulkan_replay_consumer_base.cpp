@@ -82,7 +82,9 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME,
 };
 
-const std::unordered_set<std::string> kVulkanDumpResourcesExtensions = { VK_KHR_MAINTENANCE_10_EXTENSION_NAME };
+const std::unordered_set<std::string> kVulkanDumpResourcesExtensions = { VK_KHR_MAINTENANCE_10_EXTENSION_NAME,
+                                                                         VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
+                                                                         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME };
 
 // Device extensions to enable for trimming state setup, when available.
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
@@ -3519,6 +3521,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
             graphics::feature_util::IsSupportedExtension(available_extensions, vdr_required_extension.c_str());
         const bool is_extension_already_requested =
             graphics::feature_util::IsSupportedExtension(modified_extensions, vdr_required_extension.c_str());
+
         if (is_extension_supported && !is_extension_already_requested)
         {
             modified_extensions.push_back(vdr_required_extension.c_str());
@@ -3585,6 +3588,33 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
 
     // Track state of physical device properties and features at device creation
     device_info->property_feature_info = create_state.property_feature_info;
+
+    // Detect presense of required device extensions (VK_KHR_dynamic_rendering and VK_KHR_depth_stencil_resolve) used by
+    // dump resources in order to handle resolve of multisampled depth-stencil images
+    if (options_.dumping_resources)
+    {
+        if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 3, 0))
+        {
+            // Dynamic rendering is promoted to core in Vulkan 1.3
+            device_info->property_feature_info.dynamic_rendering_depth_stencil_resolve = true;
+        }
+        else if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
+        {
+            // In 1.2 VK_KHR_depth_stencil_resolve is moved in core. Need to check only for VK_KHR_dynamic_rendering
+            device_info->property_feature_info.dynamic_rendering_depth_stencil_resolve =
+                graphics::feature_util::IsSupportedExtension(create_state.modified_extensions,
+                                                             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+        }
+        else
+        {
+            // In older version we need to check for both extensions
+            device_info->property_feature_info.dynamic_rendering_depth_stencil_resolve =
+                graphics::feature_util::IsSupportedExtension(create_state.modified_extensions,
+                                                             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME) &&
+                graphics::feature_util::IsSupportedExtension(create_state.modified_extensions,
+                                                             VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
+        }
+    }
 
     // Keep track of what queue families this device is planning on using.  This information is
     // very important if we end up using the VulkanVirtualSwapchain path.

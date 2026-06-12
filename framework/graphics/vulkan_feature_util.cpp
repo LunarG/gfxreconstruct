@@ -145,6 +145,19 @@ bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, 
     return false;
 }
 
+bool IsSupportedExtension(const char* const* extensions_names, uint32_t extension_count, const char* extension)
+{
+    for (uint32_t i = 0; i < extension_count; ++i)
+    {
+        if (util::platform::StringCompare(extensions_names[i], extension) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool IsSupportedExtension(const std::vector<const char*>& extensions_names, const char* extension)
 {
     assert(extension != nullptr);

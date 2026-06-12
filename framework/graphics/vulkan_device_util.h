@@ -27,6 +27,7 @@
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
+#include <vulkan/vulkan_core.h>
 
 namespace gfxrecon::decode
 {
@@ -62,6 +63,13 @@ struct VulkanDevicePropertyFeatureInfo
     VkBool32 feature_samplerYcbcrConversion{ VK_FALSE };
 
     VkBool32 feature_maintenance10{ VK_FALSE };
+
+    VkBool32 feature_dynamic_rendering{ VK_FALSE };
+
+    // This aggregates the support of the two required extensions (VK_KHR_dynamic_rendering and
+    // VK_KHR_depth_stencil_resolve) that are used in order to handle resolve of multisampled depth-stencil images
+    // through dynamic rendering.
+    bool dynamic_rendering_depth_stencil_resolve{ false };
 
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
 };
@@ -99,6 +107,12 @@ class VulkanDeviceUtil
                                                   const graphics::VulkanInstanceTable* instance_table,
                                                   const VkPhysicalDevice               physical_device,
                                                   T*                                   feature_struct);
+
+    template <typename T>
+    VkBool32 EnableDynamicRenderingFeatures(const VulkanInstanceUtilInfo&        instance_info,
+                                            const graphics::VulkanInstanceTable* instance_table,
+                                            const VkPhysicalDevice               physical_device,
+                                            T*                                   feature_struct);
 
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
     VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };
