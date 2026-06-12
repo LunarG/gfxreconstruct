@@ -97,7 +97,7 @@ jobs:
         git diff --exit-code || { echo "Generated code differs from branch contents"; exit 1; }
     - name: Run build script
       run: |
-        python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps
+        python3 scripts/build.py --config ${{ matrix.config.type }} --skip-check-code-style --parallel 0 --test-apps --cmake-extra "GFXRECON_ENABLE_RELEASE_ASSERTS=ON"
       env:
         SCCACHE_GHA_ENABLED: on
         CMAKE_C_COMPILER_LAUNCHER: sccache
@@ -180,7 +180,7 @@ jobs:
         git diff --exit-code; if ($LASTEXITCODE -ne 0) { Write-Error "Generated code differs from branch contents"; exit 1 }
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps
+        python scripts\build.py --skip-check-code-style --config ${{ matrix.config.type }} --parallel 0 --test-apps --cmake-extra "GFXRECON_ENABLE_RELEASE_ASSERTS=ON"
     - name: Run test app test cases
       id: test_apps
       run: |
