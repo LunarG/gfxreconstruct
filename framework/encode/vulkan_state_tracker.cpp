@@ -1741,7 +1741,7 @@ void VulkanStateTracker::TrackQueryReset(VkCommandBuffer command_buffer,
     auto& query_pool_info =
         wrapper->recorded_queries[vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool)];
 
-    for (uint32_t i = first_query; i < query_count; ++i)
+    for (uint32_t i = first_query; i < first_query + query_count; ++i)
     {
         query_pool_info[i].active = false;
     }
@@ -1754,7 +1754,7 @@ void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool);
     assert((first_query + query_count) <= wrapper->pending_queries.size());
 
-    for (uint32_t i = first_query; i < query_count; ++i)
+    for (uint32_t i = first_query; i < first_query + query_count; ++i)
     {
         wrapper->pending_queries[i].active = false;
     }
