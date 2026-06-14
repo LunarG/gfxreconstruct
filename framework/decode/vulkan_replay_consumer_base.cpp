@@ -82,10 +82,6 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME,
 };
 
-const std::unordered_set<std::string> kVulkanDumpResourcesExtensions = { VK_KHR_MAINTENANCE_10_EXTENSION_NAME,
-                                                                         VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
-                                                                         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME };
-
 // Device extensions to enable for trimming state setup, when available.
 const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
 
@@ -3251,13 +3247,7 @@ void VulkanReplayConsumerBase::PostCreateInstanceUpdateState(const VkInstance   
 {
     AddInstanceTable(replay_instance);
 
-    if (modified_create_info.pApplicationInfo != nullptr)
-    {
-        instance_info.util_info.api_version = modified_create_info.pApplicationInfo->apiVersion;
-        instance_info.util_info.enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
-                                                          modified_create_info.ppEnabledExtensionNames +
-                                                              modified_create_info.enabledExtensionCount);
-    }
+    instance_info.util_info.PostCreateInstanceUpdateState(modified_create_info);
 }
 
 VkResult
@@ -3514,8 +3504,8 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                              "extension availability. Some replay features may not work correctly.");
     }
 
-    // Enable device extensions required for dump resources
-    for (const auto& vdr_required_extension : kVulkanDumpResourcesExtensions)
+    // Enable device extensions required for resolving multisampled depth/stencil images
+    for (const auto& vdr_required_extension : graphics::kVulkanDepthStencilResolveExtensions)
     {
         const bool is_extension_supported =
             graphics::feature_util::IsSupportedExtension(available_extensions, vdr_required_extension.c_str());
@@ -3588,33 +3578,6 @@ VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDev
 
     // Track state of physical device properties and features at device creation
     device_info->property_feature_info = create_state.property_feature_info;
-
-    // Detect presense of required device extensions (VK_KHR_dynamic_rendering and VK_KHR_depth_stencil_resolve) used by
-    // dump resources in order to handle resolve of multisampled depth-stencil images
-    if (options_.dumping_resources)
-    {
-        if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 3, 0))
-        {
-            // Dynamic rendering is promoted to core in Vulkan 1.3
-            device_info->property_feature_info.dynamic_rendering_depth_stencil_resolve = true;
-        }
-        else if (physical_device_info->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
-        {
-            // In 1.2 VK_KHR_depth_stencil_resolve is moved in core. Need to check only for VK_KHR_dynamic_rendering
-            device_info->property_feature_info.dynamic_rendering_depth_stencil_resolve =
-                graphics::feature_util::IsSupportedExtension(create_state.modified_extensions,
-                                                             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
-        }
-        else
-        {
-            // In older version we need to check for both extensions
-            device_info->property_feature_info.dynamic_rendering_depth_stencil_resolve =
-                graphics::feature_util::IsSupportedExtension(create_state.modified_extensions,
-                                                             VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME) &&
-                graphics::feature_util::IsSupportedExtension(create_state.modified_extensions,
-                                                             VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
-        }
-    }
 
     // Keep track of what queue families this device is planning on using.  This information is
     // very important if we end up using the VulkanVirtualSwapchain path.

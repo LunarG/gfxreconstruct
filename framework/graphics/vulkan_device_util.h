@@ -26,8 +26,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
-#include "vulkan/vulkan.h"
-#include <vulkan/vulkan_core.h>
+#include <unordered_set>
 
 namespace gfxrecon::decode
 {
@@ -37,6 +36,12 @@ struct VulkanReplayDeviceInfo;
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+static const std::unordered_set<std::string> kVulkanDepthStencilResolveExtensions = {
+    VK_KHR_MAINTENANCE_10_EXTENSION_NAME,
+    VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
+};
 
 struct VulkanInstanceUtilInfo;
 

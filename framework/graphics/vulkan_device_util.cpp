@@ -460,6 +460,31 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
         }
     }
 
+    if (instance_info.api_version >= VK_MAKE_VERSION(1, 3, 0))
+    {
+        // Dynamic rendering is promoted to core in Vulkan 1.3
+        result.dynamic_rendering_depth_stencil_resolve = true;
+    }
+    else if (instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
+    {
+        // In 1.2 VK_KHR_depth_stencil_resolve is moved in core. Need to check only for VK_KHR_dynamic_rendering
+        result.dynamic_rendering_depth_stencil_resolve =
+            graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                         create_info->enabledExtensionCount,
+                                                         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+    }
+    else
+    {
+        // In older version we need to check for both extensions
+        result.dynamic_rendering_depth_stencil_resolve =
+            graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                         create_info->enabledExtensionCount,
+                                                         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME) &&
+            graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                         create_info->enabledExtensionCount,
+                                                         VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
+    }
+
     return result;
 }
 
