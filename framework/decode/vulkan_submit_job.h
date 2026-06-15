@@ -339,6 +339,15 @@ class VulkanSubmitJobExecution
     void SerializeExecution(std::span<VkSubmitInfo2> submit_infos2);
 
   private:
+    /**
+     * @brief  Just submit the jobs in the plan without modifying any other submit infos.
+     *
+     * @param  plan             plan with submit-indexed jobs to submit.
+     *
+     * @note   Any signal semaphores returned by the jobs will be ignored.
+     */
+    void SubmitStandalone(VulkanSubmitJobPlan plan) const;
+
     VulkanSubmitJobExecutor& executor_;
 
     /// Original waits stripped from each submit before injection, keyed by either `VkSubmitInfo*` or `VkSubmitInfo2*`.
