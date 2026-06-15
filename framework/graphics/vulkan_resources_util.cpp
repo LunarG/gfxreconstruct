@@ -1760,7 +1760,6 @@ VkResult VulkanResourcesUtil::RenderPassResolve(VkCommandBuffer       command_bu
                            VK_FORMAT_FEATURE_TRANSFER_SRC_BIT),
                           0))
     {
-        GFXRECON_ASSERT(0);
         return VK_ERROR_FORMAT_NOT_SUPPORTED;
     }
 

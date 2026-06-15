@@ -359,7 +359,8 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             {
                 auto* maintenance10_features =
                     reinterpret_cast<VkPhysicalDeviceMaintenance10FeaturesKHR*>(current_struct);
-                if (maintenance10_features->maintenance10 == VK_FALSE &&
+                result.feature_maintenance10 = maintenance10_features->maintenance10;
+                if (result.feature_maintenance10 == VK_FALSE &&
                     graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
                                                                  create_info->enabledExtensionCount,
                                                                  VK_KHR_MAINTENANCE_10_EXTENSION_NAME))
@@ -377,8 +378,9 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
 
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:
             {
-                auto* vulkan_1_3_features = reinterpret_cast<VkPhysicalDeviceVulkan13Features*>(current_struct);
-                if (vulkan_1_3_features->dynamicRendering == VK_FALSE &&
+                auto* vulkan_1_3_features        = reinterpret_cast<VkPhysicalDeviceVulkan13Features*>(current_struct);
+                result.feature_dynamic_rendering = vulkan_1_3_features->dynamicRendering;
+                if (result.feature_dynamic_rendering == VK_FALSE &&
                     graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
                                                                  create_info->enabledExtensionCount,
                                                                  VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
@@ -394,7 +396,8 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             {
                 auto* dynamic_rendering_features =
                     reinterpret_cast<VkPhysicalDeviceDynamicRenderingFeatures*>(current_struct);
-                if (dynamic_rendering_features->dynamicRendering == VK_FALSE &&
+                result.feature_dynamic_rendering = dynamic_rendering_features->dynamicRendering;
+                if (result.feature_dynamic_rendering == VK_FALSE &&
                     graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
                                                                  create_info->enabledExtensionCount,
                                                                  VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
@@ -417,6 +420,8 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
         static VkPhysicalDeviceSamplerYcbcrConversionFeatures sampler_ycbcr_conversion_features = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES
         };
+        sampler_ycbcr_conversion_features.pNext = nullptr;
+
         result.feature_samplerYcbcrConversion = EnableSamplerYcbcrConversionFeatures(
             instance_info, instance_table, physical_device, &sampler_ycbcr_conversion_features);
         if (result.feature_samplerYcbcrConversion == VK_TRUE)
@@ -431,8 +436,10 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                                                                              VK_KHR_MAINTENANCE_10_EXTENSION_NAME))
     {
         static VkPhysicalDeviceMaintenance10FeaturesKHR feature_maintenance10 = {
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR, nullptr
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR
         };
+        feature_maintenance10.pNext = nullptr;
+
         GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, feature_maintenance10);
         result.feature_maintenance10 = feature_maintenance10.maintenance10;
         if (feature_maintenance10.maintenance10 == VK_TRUE)
@@ -449,8 +456,10 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
                                                      VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
     {
         static VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering_features = {
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES, nullptr
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES
         };
+        dynamic_rendering_features.pNext = nullptr;
+
         result.feature_dynamic_rendering =
             EnableDynamicRenderingFeatures(instance_info, instance_table, physical_device, &dynamic_rendering_features);
         if (dynamic_rendering_features.dynamicRendering == VK_TRUE)
