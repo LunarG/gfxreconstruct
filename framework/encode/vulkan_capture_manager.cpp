@@ -1793,24 +1793,20 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
             auto pipeline_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineWrapper>(
                 deferred_operation_wrapper->pPipelines[i]);
 
-            if (deferred_operation_wrapper)
-            {
-                // We need to set device_id here because some hardware may not have the feature
-                // rayTracingPipelineShaderGroupHandleCaptureReplay so the device_id cannot be set by
-                // VulkanStateTracker::TrackRayTracingShaderGroupHandles
-                pipeline_wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
-                pipeline_wrapper->deferred_operation.handle_id         = deferred_operation_wrapper->handle_id;
-                pipeline_wrapper->deferred_operation.create_call_id    = deferred_operation_wrapper->create_call_id;
-                pipeline_wrapper->deferred_operation.create_parameters = deferred_operation_wrapper->create_parameters;
-            }
+            // We need to set device_id here because some hardware may not have the feature
+            // rayTracingPipelineShaderGroupHandleCaptureReplay so the device_id cannot be set by
+            // VulkanStateTracker::TrackRayTracingShaderGroupHandles
+            pipeline_wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+            pipeline_wrapper->num_shader_group_handles     = deferred_operation_wrapper->create_infos[i].groupCount;
+            pipeline_wrapper->deferred_operation.handle_id = deferred_operation_wrapper->handle_id;
+            pipeline_wrapper->deferred_operation.create_call_id    = deferred_operation_wrapper->create_call_id;
+            pipeline_wrapper->deferred_operation.create_parameters = deferred_operation_wrapper->create_parameters;
 
             if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
             {
                 const uint32_t data_size =
                     device_wrapper->property_feature_info.property_shaderGroupHandleCaptureReplaySize *
                     deferred_operation_wrapper->create_infos[i].groupCount;
-
-                pipeline_wrapper->num_shader_group_handles = deferred_operation_wrapper->create_infos[i].groupCount;
 
                 std::vector<uint8_t> data(data_size);
                 result = device_table->GetRayTracingCaptureReplayShaderGroupHandlesKHR(
