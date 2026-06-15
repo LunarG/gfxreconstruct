@@ -138,13 +138,19 @@ VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*
 
 void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo> submit_infos)
 {
+    // Special case for empty submit array. Just submit the plan with no semaphores.
+    if (submit_infos.empty())
+    {
+        SubmitStandalone(std::move(plan));
+        return;
+    }
+
     // Ensure that InjectBefore is not called multiple times for the same submit infos.
     GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo& info) {
         return !original_wait_semaphores_.contains(&info) && !injected_wait_semaphores_.contains(&info);
     }));
 
     // Gather original wait-semaphores for each submit and prepare storage for injected wait-semaphores.
-    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_infos.size(); ++submit_index)
     {
         // Only gather original wait-semaphores if there are jobs to execute for this submit.
@@ -156,6 +162,7 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
     }
 
     // Execute jobs for each submit and gather injected wait-semaphores
+    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_jobs.size(); ++submit_index)
     {
         auto& jobs = submit_jobs[submit_index].jobs;
@@ -198,13 +205,19 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
 
 void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo2> submit_infos)
 {
+    // Special case for empty submit array. Just submit the plan with no semaphores.
+    if (submit_infos.empty())
+    {
+        SubmitStandalone(std::move(plan));
+        return;
+    }
+
     // Ensure that InjectBefore is not called multiple times for the same submit infos.
     GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo2& info) {
         return !original_wait_semaphores_.contains(&info) && !injected_wait_semaphore_infos_.contains(&info);
     }));
 
     // Gather original wait-semaphores for each submit and prepare storage for injected wait-semaphores.
-    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_infos.size(); ++submit_index)
     {
         VkSubmitInfo2& submit_info              = submit_infos[submit_index];
@@ -218,6 +231,7 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
     }
 
     // Execute jobs for each submit and gather injected wait-semaphores
+    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_jobs.size(); ++submit_index)
     {
         auto& jobs = submit_jobs[submit_index].jobs;
@@ -540,6 +554,18 @@ void VulkanSubmitJobExecution::SerializeExecution(std::span<VkSubmitInfo2> submi
     for (VkSubmitInfo2& submit_info2 : submit_infos2)
     {
         InjectSemaphore(submit_info2, *injected_semaphore_info);
+    }
+}
+
+void VulkanSubmitJobExecution::SubmitStandalone(VulkanSubmitJobPlan plan) const
+{
+    for (const auto& jobs : plan.GetSubmitJobs())
+    {
+        for (const auto& job : jobs.jobs)
+        {
+            // Do not care about the returned semaphore.
+            job({});
+        }
     }
 }
 
