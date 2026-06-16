@@ -10407,6 +10407,33 @@ void VulkanReplayConsumerBase::MaybeInjectExecutionBarrier(const VulkanCommandBu
     util::EndInjectedCommands();
 }
 
+std::vector<format::HandleId> VulkanReplayConsumerBase::GetRenderPassAttachmentImageViewIds(
+    const VulkanFramebufferInfo*                         framebuffer_info,
+    const VulkanRenderPassInfo*                          render_pass_info,
+    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder)
+{
+    const size_t attachment_count = render_pass_info->attachment_description_final_layouts.size();
+
+    const format::HandleId* attachment_image_view_ids = nullptr;
+    if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
+        VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
+    {
+        // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
+        const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
+            render_pass_begin_info_decoder->GetMetaStructPointer()->pNext);
+
+        GFXRECON_ASSERT(attachment_begin_info)
+        GFXRECON_ASSERT(attachment_begin_info->pAttachments.GetLength() == attachment_count);
+        attachment_image_view_ids = attachment_begin_info->pAttachments.GetPointer();
+    }
+    else
+    {
+        GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() == attachment_count);
+        attachment_image_view_ids = framebuffer_info->attachment_image_view_ids.data();
+    }
+    return { attachment_image_view_ids, attachment_image_view_ids + attachment_count };
+}
+
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
     VulkanCommandBufferInfo*                             command_buffer_info,
@@ -10428,29 +10455,8 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        const format::HandleId* attachment_image_view_ids = nullptr;
-        if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
-            VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
-        {
-            // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
-            const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
-                render_pass_begin_info_decoder->GetMetaStructPointer()->pNext);
-
-            GFXRECON_ASSERT(attachment_begin_info)
-            GFXRECON_ASSERT(attachment_begin_info->pAttachments.GetLength() ==
-                            render_pass_info->attachment_description_final_layouts.size());
-            attachment_image_view_ids = attachment_begin_info->pAttachments.GetPointer();
-        }
-        else
-        {
-            GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
-                            render_pass_info->attachment_description_final_layouts.size());
-            attachment_image_view_ids = framebuffer_info->attachment_image_view_ids.data();
-        }
-
-        command_buffer_info->active_render_pass_attachment_image_view_ids.assign(
-            attachment_image_view_ids,
-            attachment_image_view_ids + render_pass_info->attachment_description_final_layouts.size());
+        command_buffer_info->active_render_pass_attachment_image_view_ids =
+            GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
@@ -10479,30 +10485,8 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        const format::HandleId* attachment_image_view_ids = nullptr;
-        if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
-            VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
-        {
-            // The attachments for imageless framebuffers are provided in the pNext chain of
-            // vkCmdBeginRenderPass
-            const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
-                render_pass_begin_info_decoder->GetMetaStructPointer()->pNext);
-
-            GFXRECON_ASSERT(attachment_begin_info)
-            GFXRECON_ASSERT(attachment_begin_info->pAttachments.GetLength() ==
-                            render_pass_info->attachment_description_final_layouts.size());
-            attachment_image_view_ids = attachment_begin_info->pAttachments.GetPointer();
-        }
-        else
-        {
-            GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
-                            render_pass_info->attachment_description_final_layouts.size());
-            attachment_image_view_ids = framebuffer_info->attachment_image_view_ids.data();
-        }
-
-        command_buffer_info->active_render_pass_attachment_image_view_ids.assign(
-            attachment_image_view_ids,
-            attachment_image_view_ids + render_pass_info->attachment_description_final_layouts.size());
+        command_buffer_info->active_render_pass_attachment_image_view_ids =
+            GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
@@ -10513,8 +10497,8 @@ void VulkanReplayConsumerBase::ApplyRenderPassFinalLayouts(VulkanCommandBufferIn
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
 
-    if ((command_buffer_info->active_render_pass_id == format::kNullHandleId) ||
-        (command_buffer_info->active_framebuffer_id == format::kNullHandleId))
+    if (command_buffer_info->active_render_pass_id == format::kNullHandleId ||
+        command_buffer_info->active_framebuffer_id == format::kNullHandleId)
     {
         return;
     }
