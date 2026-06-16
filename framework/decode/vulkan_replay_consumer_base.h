@@ -1392,6 +1392,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
                                     VkSubpassContents                                    contents);
 
+    std::vector<format::HandleId> GetRenderPassAttachmentImageViewIds(
+        const VulkanFramebufferInfo*                         framebuffer_info,
+        const VulkanRenderPassInfo*                          render_pass_info,
+        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder);
+
+    void ApplyRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info);
+
     void OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass func, VulkanCommandBufferInfo* command_buffer_info);
 
     void OverrideCmdEndRenderPass2(PFN_vkCmdEndRenderPass2                         func,
