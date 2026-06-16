@@ -10497,32 +10497,19 @@ void VulkanReplayConsumerBase::ApplyRenderPassFinalLayouts(VulkanCommandBufferIn
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
 
-    if (command_buffer_info->active_render_pass_id == format::kNullHandleId ||
-        command_buffer_info->active_framebuffer_id == format::kNullHandleId)
+    const auto& attachment_image_view_ids = command_buffer_info->active_render_pass_attachment_image_view_ids;
+    if (attachment_image_view_ids.empty())
     {
         return;
     }
 
-    auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(command_buffer_info->active_framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(command_buffer_info->active_render_pass_id);
-    if ((render_pass_info == nullptr) || (framebuffer_info == nullptr))
+    if (render_pass_info == nullptr)
     {
         return;
     }
 
-    const format::HandleId* attachment_image_view_ids = nullptr;
-    if (!command_buffer_info->active_render_pass_attachment_image_view_ids.empty())
-    {
-        GFXRECON_ASSERT(command_buffer_info->active_render_pass_attachment_image_view_ids.size() ==
-                        render_pass_info->attachment_description_final_layouts.size());
-        attachment_image_view_ids = command_buffer_info->active_render_pass_attachment_image_view_ids.data();
-    }
-    else
-    {
-        GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
-                        render_pass_info->attachment_description_final_layouts.size());
-        attachment_image_view_ids = framebuffer_info->attachment_image_view_ids.data();
-    }
+    GFXRECON_ASSERT(attachment_image_view_ids.size() == render_pass_info->attachment_description_final_layouts.size());
 
     for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
     {
