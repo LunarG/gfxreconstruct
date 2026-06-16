@@ -41,7 +41,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
  * The callback receives the submit's original wait-semaphores and returns a semaphore that should be waited on by
  * the original submit-info.
  */
-typedef std::function<VkSemaphore(const std::span<graphics::VulkanSemaphore>)> VulkanSubmitJob;
+typedef std::function<graphics::VulkanSemaphore(const std::span<graphics::VulkanSemaphore>)> VulkanSubmitJob;
 
 /**
  * @brief   For each submit entry, multiple jobs can be registered.
