@@ -151,7 +151,7 @@ LoggingTargetDebugView::LoggingTargetDebugView()
 
 void LoggingTargetDebugView::LogMessage(LoggingSeverity severity, const std::string& message)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     if (!WillOutputMessage(severity))
     {
         return;

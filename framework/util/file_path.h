@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(filepath)
 
-#if defined(WIN32)
+#if defined(_WIN32)
 const char kPathSep             = '\\';
 const char kPathSepStr[]        = "\\";
 const char kAltPathSep          = '/';

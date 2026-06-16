@@ -63,7 +63,7 @@ class Dx12StructDecodersHeaderGenerator(
     def write_include(self):
         """Method override."""
         code = ''
-        code += '#ifdef WIN32\n'
+        code += '#if defined(_WIN32)\n'
 
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():

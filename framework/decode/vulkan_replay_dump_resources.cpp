@@ -50,7 +50,7 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #include <dirent.h>
 #endif
 

@@ -26,7 +26,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 // If we're on Windows, we will use the actually D3D headers for defining
 // the various types we use in OpenXR.
@@ -6811,7 +6811,7 @@ struct D3D12_DISPATCH_GRAPH_DESC
 
 #endif // !defined(D3D12_SUPPORT)
 
-#endif // !defined(WIN32)
+#endif // !defined(_WIN32)
 #endif // ENABLE_OPENXR_SUPPORT
 
 #endif // GFXRECON_PLATFORM_TYPES_D3D_OVERRIDES_H

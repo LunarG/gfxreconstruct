@@ -83,7 +83,7 @@ bool FStreamFileInputStream::Open(const std::string& filename)
     const bool success = result == 0;
 #else
 
-#if defined(WIN32)
+#if defined(_WIN32)
     int mode = _O_RDONLY | _O_BINARY;
 #else
     int mode = O_RDONLY | O_BINARY;

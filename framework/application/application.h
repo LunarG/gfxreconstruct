@@ -91,7 +91,7 @@ class Application final
 
     bool InitializeWsiContext(const char* surfaceExtensionName, void* pPlatformSpecificData = nullptr);
 
-#if defined(WIN32)
+#if defined(_WIN32)
     void InitializeDx12WsiContext();
 #endif
 

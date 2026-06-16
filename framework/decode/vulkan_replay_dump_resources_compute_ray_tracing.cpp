@@ -41,7 +41,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #include <dirent.h>
 #endif
 

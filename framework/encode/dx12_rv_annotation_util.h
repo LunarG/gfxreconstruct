@@ -30,7 +30,7 @@
 #include <memory>
 #include <vector>
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #include <D3D12.h>
 #endif
 
@@ -46,7 +46,7 @@ class RvAnnotationUtil
     static constexpr uint16_t kDescriptorMask = 0x5DEF;
     static constexpr uint64_t kShaderIDMask   = 0x57BD37BD12345678ull;
 
-#if defined(WIN32)
+#if defined(_WIN32)
     static void AddRvAnnotation(D3D12_GPU_VIRTUAL_ADDRESS* result);
 
     static void AddRvAnnotation(D3D12_GPU_DESCRIPTOR_HANDLE* result);

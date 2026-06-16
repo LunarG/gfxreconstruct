@@ -39,7 +39,7 @@
 #include <unordered_set>
 #include <atomic>
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #include <pthread.h>
 #endif
 
@@ -173,7 +173,7 @@ class PageGuardManager
             aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa), end_address(ea),
             use_write_watch(ww), is_modified(false), own_shadow_memory(os), ref_count(0)
         {
-#if defined(WIN32)
+#if defined(_WIN32)
             if (shadow_memory == nullptr)
             {
                 modified_addresses = std::make_unique<void*[]>(total_pages);
@@ -200,7 +200,7 @@ class PageGuardManager
         bool        own_shadow_memory;
         uint32_t    ref_count;
 
-#if defined(WIN32)
+#if defined(_WIN32)
         // Memory for retrieving modified pages with GetWriteWatch.
         std::unique_ptr<void*[]> modified_addresses;
 #endif
@@ -289,7 +289,7 @@ class PageGuardManager
     // Only applies to WIN32 builds and Linux/Android builds with PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION defined.
     const bool enable_read_write_same_page_;
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
     pthread_t       signal_handler_watcher_thread_;
     static uint32_t signal_handler_watcher_restores_;
 

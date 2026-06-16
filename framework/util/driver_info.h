@@ -47,7 +47,7 @@ bool AMD_GetUMDInfo(const std::string& active_driver_path, std::string& driver_i
 
 bool AMD_IsDriverActive(const std::string& umd_path);
 
-#if defined(WIN32)
+#if defined(_WIN32)
 bool GetDriverInfo(std::string& driver_info, format::ApiFamilyId api_family, std::vector<LUID>& adapter_luids);
 
 bool RegistryDxDriverVersion(std::string& driver_info, const std::vector<LUID>& adapter_luids);

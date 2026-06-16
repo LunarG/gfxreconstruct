@@ -47,7 +47,7 @@
 #warning "Unsupported compiler: this project requires support for C++20."
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -74,7 +74,7 @@
 #endif
 
 #include <fcntl.h>
-#if defined(WIN32)
+#if defined(_WIN32)
 #include <io.h>
 #define PLATFORM_OPEN_FD _open
 #define PLATFORM_CLOSE_FD _close
@@ -118,7 +118,7 @@ enum FileSeekOrigin
 const int32_t kMaxPropertyLength = 255;
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 typedef DWORD   pid_t;
 typedef HMODULE LibraryHandle;
@@ -373,7 +373,7 @@ inline bool SetCpuAffinity(const std::string& affinity)
     return (SetProcessAffinityMask(GetCurrentProcess(), mask) != 0);
 }
 
-#else // !defined(WIN32)
+#else // !defined(_WIN32)
 
 // Error value indicating string was truncated
 #define STRUNCATE 80
@@ -969,7 +969,7 @@ inline uintptr_t GetPageStartAddress(const void* ptr)
 inline void* AlignedAlloc(size_t size, size_t alignment)
 {
     alignment = util::next_pow_2(alignment);
-#if defined(WIN32)
+#if defined(_WIN32)
     return _aligned_malloc(size, alignment);
 #elif defined(__ANDROID__)
     constexpr size_t pointer_size = sizeof(void*);
@@ -988,7 +988,7 @@ inline void* AlignedAlloc(size_t size, size_t alignment)
 
 inline void AlignedFree(void* ptr)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
     _aligned_free(ptr);
 #elif defined(__ANDROID__)
     free(ptr);
@@ -997,7 +997,7 @@ inline void AlignedFree(void* ptr)
 #endif
 }
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 /// @brief Heuristically determine whether a pointer likely refers to readable
 ///        memory in the current process on Windows.
