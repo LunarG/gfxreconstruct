@@ -1776,7 +1776,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
         dc_context->GetDrawCallActiveCommandBuffers(first, last);
         for (CommandBufferIterator it = first; it < last; ++it)
         {
-            func(*it, pRenderingInfo->GetPointer());
+            dc_context->RecordCmdBeginRendering(*it, pRenderingInfo->GetPointer());
         }
     }
 
@@ -1815,12 +1815,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRendering(const ApiCallInfo&  
         {
             dc_context->EndRendering();
         }
-
-        CommandBufferIterator first, last;
-        dc_context->GetDrawCallActiveCommandBuffers(first, last);
-        for (CommandBufferIterator it = first; it < last; ++it)
+        else
         {
-            func(*it);
+            CommandBufferIterator first, last;
+            dc_context->GetDrawCallActiveCommandBuffers(first, last);
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                dc_context->RecordCmdEndRendering(*it);
+            }
         }
     }
 
