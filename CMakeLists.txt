@@ -363,6 +363,7 @@ endif (UNIX AND NOT APPLE)
 add_library(windows_specific INTERFACE)
 
 target_compile_definitions(windows_specific INTERFACE
+        WIN32
         WIN32_LEAN_AND_MEAN
         NOMINMAX
         VK_USE_PLATFORM_WIN32_KHR
