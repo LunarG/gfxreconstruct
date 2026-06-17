@@ -30,6 +30,7 @@
 #if defined(D3D12_SUPPORT)
 #include "generated/generated_dx12_consumer.h"
 #include "generated/generated_dx12_decoder.h"
+#include "graphics/dx12_shader_tool.h"
 #endif
 #include "util/argument_parser.h"
 #include "util/file_path.h"
@@ -69,7 +70,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("             \t\tuse <file>.shaders in working directory. Create directory");
     GFXRECON_WRITE_CONSOLE("             \t\tif necessary. Each shader is placed in individual file");
     GFXRECON_WRITE_CONSOLE("             \t\tnamed sh<handle_id> where handle_id is handle id of the");
-    GFXRECON_WRITE_CONSOLE("             \t\tCreateShaderModule call. See gfxrecon-replay --replace-shaders.");
+    GFXRECON_WRITE_CONSOLE("             \t\tCreateShaderModule call(Vulkan)");
+    GFXRECON_WRITE_CONSOLE("             \t\tand Create*Pipeline/CreateStateObject/AddToStateObject call(DX12).");
+    GFXRECON_WRITE_CONSOLE("             \t\tSee gfxrecon-replay --replace-shaders.");
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
@@ -274,121 +277,56 @@ class Dx12ExtractConsumer : public gfxrecon::decode::Dx12Consumer
             auto& vertex_shader = pDesc->GetPointer()->VS;
             if ((vertex_shader.BytecodeLength > 0) && (vertex_shader.pShaderBytecode != nullptr))
             {
-                const void* orig_code = vertex_shader.pShaderBytecode;
-                size_t      orig_size = vertex_shader.BytecodeLength;
-                std::string file_name = "sh" + std::to_string(handle_id) + ".vso";
-                std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                FILE*   fp     = nullptr;
-                int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                if (result == 0)
-                {
-                    if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
-                    }
-                    gfxrecon::util::platform::FileClose(fp);
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                }
+                gfxrecon::graphics::Dx12ShaderTool::ExtractPipelineShaderToDir(
+                    extract_dir_,
+                    handle_id,
+                    gfxrecon::graphics::Dx12ShaderTool::ShaderType::kVertex,
+                    vertex_shader.pShaderBytecode,
+                    vertex_shader.BytecodeLength);
             }
 
             auto& pixel_shader = pDesc->GetPointer()->PS;
             if ((pixel_shader.BytecodeLength > 0) && (pixel_shader.pShaderBytecode != nullptr))
             {
-                const void* orig_code = pixel_shader.pShaderBytecode;
-                size_t      orig_size = pixel_shader.BytecodeLength;
-                std::string file_name = "sh" + std::to_string(handle_id) + ".pso";
-                std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                FILE*   fp     = nullptr;
-                int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                if (result == 0)
-                {
-                    if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
-                    }
-                    gfxrecon::util::platform::FileClose(fp);
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                }
+                gfxrecon::graphics::Dx12ShaderTool::ExtractPipelineShaderToDir(
+                    extract_dir_,
+                    handle_id,
+                    gfxrecon::graphics::Dx12ShaderTool::ShaderType::kPixel,
+                    pixel_shader.pShaderBytecode,
+                    pixel_shader.BytecodeLength);
             }
 
             auto& domain_shader = pDesc->GetPointer()->DS;
             if ((domain_shader.BytecodeLength > 0) && (domain_shader.pShaderBytecode != nullptr))
             {
-                const void* orig_code = domain_shader.pShaderBytecode;
-                size_t      orig_size = domain_shader.BytecodeLength;
-                std::string file_name = "sh" + std::to_string(handle_id) + ".dso";
-                std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                FILE*   fp     = nullptr;
-                int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                if (result == 0)
-                {
-                    if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
-                    }
-                    gfxrecon::util::platform::FileClose(fp);
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                }
+                gfxrecon::graphics::Dx12ShaderTool::ExtractPipelineShaderToDir(
+                    extract_dir_,
+                    handle_id,
+                    gfxrecon::graphics::Dx12ShaderTool::ShaderType::kDomain,
+                    domain_shader.pShaderBytecode,
+                    domain_shader.BytecodeLength);
             }
 
             auto& hull_shader = pDesc->GetPointer()->HS;
             if ((hull_shader.BytecodeLength > 0) && (hull_shader.pShaderBytecode != nullptr))
             {
-                const void* orig_code = hull_shader.pShaderBytecode;
-                size_t      orig_size = hull_shader.BytecodeLength;
-                std::string file_name = "sh" + std::to_string(handle_id) + ".hso";
-                std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                FILE*   fp     = nullptr;
-                int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                if (result == 0)
-                {
-                    if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
-                    }
-                    gfxrecon::util::platform::FileClose(fp);
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                }
+                gfxrecon::graphics::Dx12ShaderTool::ExtractPipelineShaderToDir(
+                    extract_dir_,
+                    handle_id,
+                    gfxrecon::graphics::Dx12ShaderTool::ShaderType::kHull,
+                    hull_shader.pShaderBytecode,
+                    hull_shader.BytecodeLength);
             }
 
             auto& geometry_shader = pDesc->GetPointer()->GS;
             if ((geometry_shader.BytecodeLength > 0) && (geometry_shader.pShaderBytecode != nullptr))
             {
-                const void* orig_code = geometry_shader.pShaderBytecode;
-                size_t      orig_size = geometry_shader.BytecodeLength;
-                std::string file_name = "sh" + std::to_string(handle_id) + ".gso";
-                std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                FILE*   fp     = nullptr;
-                int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                if (result == 0)
-                {
-                    if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
-                    }
-                    gfxrecon::util::platform::FileClose(fp);
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                }
+                gfxrecon::graphics::Dx12ShaderTool::ExtractPipelineShaderToDir(
+                    extract_dir_,
+                    handle_id,
+                    gfxrecon::graphics::Dx12ShaderTool::ShaderType::kGeometry,
+                    geometry_shader.pShaderBytecode,
+                    geometry_shader.BytecodeLength);
             }
         }
     }
@@ -409,25 +347,12 @@ class Dx12ExtractConsumer : public gfxrecon::decode::Dx12Consumer
             auto& compute_shader = pDesc->GetPointer()->CS;
             if ((compute_shader.BytecodeLength > 0) && (compute_shader.pShaderBytecode != nullptr))
             {
-                const void* orig_code = compute_shader.pShaderBytecode;
-                size_t      orig_size = compute_shader.BytecodeLength;
-                std::string file_name = "sh" + std::to_string(handle_id) + ".cso";
-                std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                FILE*   fp     = nullptr;
-                int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                if (result == 0)
-                {
-                    if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete", file_name.c_str());
-                    }
-                    gfxrecon::util::platform::FileClose(fp);
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                }
+                gfxrecon::graphics::Dx12ShaderTool::ExtractPipelineShaderToDir(
+                    extract_dir_,
+                    handle_id,
+                    gfxrecon::graphics::Dx12ShaderTool::ShaderType::kCompute,
+                    compute_shader.pShaderBytecode,
+                    compute_shader.BytecodeLength);
             }
         }
     }
@@ -452,26 +377,8 @@ class Dx12ExtractConsumer : public gfxrecon::decode::Dx12Consumer
                 {
                     auto& dxil_lib = reinterpret_cast<const D3D12_DXIL_LIBRARY_DESC*>(subobjects[i].pDesc)->DXILLibrary;
 
-                    const void* orig_code = dxil_lib.pShaderBytecode;
-                    size_t      orig_size = dxil_lib.BytecodeLength;
-                    std::string file_name = "sh" + std::to_string(handle_id) + "_" + std::to_string(i) + ".dxil";
-                    std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                    FILE*   fp     = nullptr;
-                    int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                    if (result == 0)
-                    {
-                        if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                        {
-                            GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete",
-                                                   file_name.c_str());
-                        }
-                        gfxrecon::util::platform::FileClose(fp);
-                    }
-                    else
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                    }
+                    gfxrecon::graphics::Dx12ShaderTool::ExtractStateObjectDxilLibraryToDir(
+                        extract_dir_, handle_id, i, dxil_lib.pShaderBytecode, dxil_lib.BytecodeLength);
                 }
             }
         }
@@ -498,26 +405,8 @@ class Dx12ExtractConsumer : public gfxrecon::decode::Dx12Consumer
                 {
                     auto& dxil_lib = reinterpret_cast<const D3D12_DXIL_LIBRARY_DESC*>(subobjects[i].pDesc)->DXILLibrary;
 
-                    const void* orig_code = dxil_lib.pShaderBytecode;
-                    size_t      orig_size = dxil_lib.BytecodeLength;
-                    std::string file_name = "sh" + std::to_string(handle_id) + "_" + std::to_string(i) + ".dxil";
-                    std::string file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
-
-                    FILE*   fp     = nullptr;
-                    int32_t result = gfxrecon::util::platform::FileOpen(&fp, file_path.c_str(), "wb");
-                    if (result == 0)
-                    {
-                        if (!gfxrecon::util::platform::FileWrite(orig_code, orig_size, fp))
-                        {
-                            GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not complete",
-                                                   file_name.c_str());
-                        }
-                        gfxrecon::util::platform::FileClose(fp);
-                    }
-                    else
-                    {
-                        GFXRECON_WRITE_CONSOLE("Error while writing file %s: Could not open", file_name.c_str());
-                    }
+                    gfxrecon::graphics::Dx12ShaderTool::ExtractStateObjectDxilLibraryToDir(
+                        extract_dir_, handle_id, i, dxil_lib.pShaderBytecode, dxil_lib.BytecodeLength);
                 }
             }
         }
