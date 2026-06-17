@@ -548,25 +548,13 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     assert(src_image_info != nullptr);
     assert(dst_image != VK_NULL_HANDLE);
 
-    VkImageLayout old_layout;
-    assert(original_command_buffer_info_ != nullptr);
-    const auto img_layout_entry = original_command_buffer_info_->image_layout_barriers.find(src_image_info->capture_id);
-    if (img_layout_entry != original_command_buffer_info_->image_layout_barriers.end())
-    {
-        old_layout = img_layout_entry->second;
-    }
-    else
-    {
-        old_layout = VK_IMAGE_LAYOUT_GENERAL;
-    }
-
     // Make sure any potential writes are complete and transition image to TRANSFER_SRC_OPTIMAL layout
     VkImageMemoryBarrier img_barrier;
     img_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     img_barrier.pNext               = nullptr;
     img_barrier.srcAccessMask       = VK_ACCESS_MEMORY_WRITE_BIT;
     img_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
-    img_barrier.oldLayout           = old_layout;
+    img_barrier.oldLayout           = src_image_info->intermediate_layout;
     img_barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -641,13 +629,29 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
                                 GFXRECON_NARROWING_CAST(uint32_t, copies.size()),
                                 copies.data());
 
-    // Wait for transfer and transition source image back to previous layout
+    // Wait for transfer and prepare image layout for dumping
+    img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    img_barrier.image         = dst_image;
+    device_table_->CmdPipelineBarrier(DR_command_buffer_,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                      VkDependencyFlags(0),
+                                      0,
+                                      nullptr,
+                                      0,
+                                      nullptr,
+                                      1,
+                                      &img_barrier);
+
+    // Revert source image layout
     img_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
     img_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
     img_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    img_barrier.newLayout     = old_layout;
+    img_barrier.newLayout     = src_image_info->intermediate_layout;
     img_barrier.image         = src_image_info->handle;
-
     device_table_->CmdPipelineBarrier(DR_command_buffer_,
                                       VK_PIPELINE_STAGE_TRANSFER_BIT,
                                       VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,

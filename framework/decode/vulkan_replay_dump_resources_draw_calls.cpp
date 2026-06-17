@@ -1722,7 +1722,7 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                         auto& image_raw_data = std::get<VulkanDelegateImageDumpedData>(res_info.dumped_data);
 
                         VkResult res = DumpImage(new_dumped_image,
-                                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                 image_info->intermediate_layout,
                                                  options_.dump_resources_scale,
                                                  options_.dump_resources_dump_raw_images,
                                                  img_subres_range,
