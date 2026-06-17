@@ -2121,5 +2121,57 @@ void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
                                     nullptr);
 }
 
+VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
+                            VkQueue                            queue,
+                            const VkSubmitInfo2&               submit_info_2,
+                            VkFence                            fence)
+{
+    // Check if the implementation supports either vkQueueSubmit2 (Vulkan 1.3) or vkQueueSubmit2KHR
+    // (VK_KHR_synchronization2). In either case submit directly without converting
+    if (device_table.QueueSubmit2 != graphics::noop::vkQueueSubmit2)
+    {
+        return device_table.QueueSubmit2(queue, 1, &submit_info_2, fence);
+    }
+    else if (device_table.QueueSubmit2KHR != graphics::noop::vkQueueSubmit2KHR)
+    {
+        return device_table.QueueSubmit2KHR(queue, 1, &submit_info_2, fence);
+    }
+
+    // Otherwise fall back to vkQueueSubmit. The per-semaphore stage masks are only meaningful for queue-side
+    // synchronization, which is irrelevant here because the dump-resources submits are serialized with host fence
+    // waits.
+    std::vector<VkSemaphore>          wait_semaphores(submit_info_2.waitSemaphoreInfoCount);
+    std::vector<VkPipelineStageFlags> wait_stage_masks(submit_info_2.waitSemaphoreInfoCount);
+    for (uint32_t i = 0; i < submit_info_2.waitSemaphoreInfoCount; ++i)
+    {
+        wait_semaphores[i]  = submit_info_2.pWaitSemaphoreInfos[i].semaphore;
+        wait_stage_masks[i] = static_cast<VkPipelineStageFlags>(submit_info_2.pWaitSemaphoreInfos[i].stageMask);
+    }
+
+    std::vector<VkCommandBuffer> command_buffers(submit_info_2.commandBufferInfoCount);
+    for (uint32_t i = 0; i < submit_info_2.commandBufferInfoCount; ++i)
+    {
+        command_buffers[i] = submit_info_2.pCommandBufferInfos[i].commandBuffer;
+    }
+
+    std::vector<VkSemaphore> signal_semaphores(submit_info_2.signalSemaphoreInfoCount);
+    for (uint32_t i = 0; i < submit_info_2.signalSemaphoreInfoCount; ++i)
+    {
+        signal_semaphores[i] = submit_info_2.pSignalSemaphoreInfos[i].semaphore;
+    }
+
+    const VkSubmitInfo submit_info{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                                    submit_info_2.pNext,
+                                    submit_info_2.waitSemaphoreInfoCount,
+                                    submit_info_2.waitSemaphoreInfoCount ? wait_semaphores.data() : nullptr,
+                                    submit_info_2.waitSemaphoreInfoCount ? wait_stage_masks.data() : nullptr,
+                                    submit_info_2.commandBufferInfoCount,
+                                    submit_info_2.commandBufferInfoCount ? command_buffers.data() : nullptr,
+                                    submit_info_2.signalSemaphoreInfoCount,
+                                    submit_info_2.signalSemaphoreInfoCount ? signal_semaphores.data() : nullptr };
+
+    return device_table.QueueSubmit(queue, 1, &submit_info, fence);
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

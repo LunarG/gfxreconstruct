@@ -1847,9 +1847,72 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderingKHR(const ApiCallInfo
 
 VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo>      submit_infos,
                                                     const graphics::VulkanDeviceTable& device_table,
-                                                    const VulkanQueueInfo*             queue_info,
+                                                    const VulkanQueueInfo*             queue,
                                                     VkFence                            fence,
-                                                    uint64_t                           qs_index)
+                                                    uint64_t                           index)
+{
+    // Losslessly widen each VkSubmitInfo into a VkSubmitInfo2 and forward to the canonical QueueSubmit2 implementation.
+    std::vector<VkSubmitInfo2>                          submit_infos_2(submit_infos.size());
+    std::vector<std::vector<VkSemaphoreSubmitInfo>>     wait_semaphores(submit_infos.size());
+    std::vector<std::vector<VkCommandBufferSubmitInfo>> command_buffers(submit_infos.size());
+    std::vector<std::vector<VkSemaphoreSubmitInfo>>     signal_semaphores(submit_infos.size());
+
+    for (size_t i = 0; i < submit_infos.size(); ++i)
+    {
+        const VkSubmitInfo& submit_info = submit_infos[i];
+
+        // Wait semaphores. The per-semaphore wait stage moves from pWaitDstStageMask into VkSemaphoreSubmitInfo.
+        wait_semaphores[i].resize(submit_info.waitSemaphoreCount);
+        for (uint32_t j = 0; j < submit_info.waitSemaphoreCount; ++j)
+        {
+            wait_semaphores[i][j] = VkSemaphoreSubmitInfo{
+                VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+                nullptr,
+                submit_info.pWaitSemaphores[j],
+                0, // value (binary semaphore; timeline values via VkTimelineSemaphoreSubmitInfo are not translated)
+                submit_info.pWaitDstStageMask ? static_cast<VkPipelineStageFlags2>(submit_info.pWaitDstStageMask[j])
+                                              : VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+                0
+            };
+        }
+
+        // Command buffers
+        command_buffers[i].resize(submit_info.commandBufferCount);
+        for (uint32_t j = 0; j < submit_info.commandBufferCount; ++j)
+        {
+            command_buffers[i][j] = VkCommandBufferSubmitInfo{
+                VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, submit_info.pCommandBuffers[j], 0
+            };
+        }
+
+        // Signal semaphores. A VkSubmitInfo signals once all submitted work completes, i.e. at ALL_COMMANDS.
+        signal_semaphores[i].resize(submit_info.signalSemaphoreCount);
+        for (uint32_t j = 0; j < submit_info.signalSemaphoreCount; ++j)
+        {
+            signal_semaphores[i][j] = VkSemaphoreSubmitInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO, nullptr,
+                                                             submit_info.pSignalSemaphores[j],        0,
+                                                             VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,    0 };
+        }
+
+        submit_infos_2[i] = VkSubmitInfo2{ VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+                                           submit_info.pNext,
+                                           0,
+                                           static_cast<uint32_t>(wait_semaphores[i].size()),
+                                           wait_semaphores[i].size() ? wait_semaphores[i].data() : nullptr,
+                                           static_cast<uint32_t>(command_buffers[i].size()),
+                                           command_buffers[i].size() ? command_buffers[i].data() : nullptr,
+                                           static_cast<uint32_t>(signal_semaphores[i].size()),
+                                           signal_semaphores[i].size() ? signal_semaphores[i].data() : nullptr };
+    }
+
+    return QueueSubmit2(submit_infos_2, device_table, queue, fence, index);
+}
+
+VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInfo2>     submit_infos,
+                                                     const graphics::VulkanDeviceTable& device_table,
+                                                     const VulkanQueueInfo*             queue_info,
+                                                     VkFence                            fence,
+                                                     uint64_t                           qs_index)
 {
 #define CHECK_VK_ERROR(_res_, _func_)                                                                               \
     if (_res_ != VK_SUCCESS)                                                                                        \
@@ -1870,25 +1933,26 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
     const size_t submit_count = submit_infos.size();
     for (size_t si = 0; si < submit_count; ++si)
     {
-        std::vector<VkCommandBuffer> submit_cbs;
-        VkResult                     res = VK_SUCCESS;
+        std::vector<VkCommandBufferSubmitInfo> submit_cbs;
+        VkResult                               res = VK_SUCCESS;
 
-        // For each VkSubmitInfo we shall create a different fence. The provided fence will be used only in the last
-        // VkSubmitInfo. If none is provided then we will create one.
+        // For each VkSubmitInfo2 we shall create a different fence. The provided fence will be used only in the last
+        // VkSubmitInfo2. If none is provided then we will create one.
         const bool     last_submit_info  = (si == submit_count - 1);
         const bool     create_temp_fence = (!last_submit_info) || (last_submit_info && (fence == VK_NULL_HANDLE));
         TemporaryFence submission_fence(create_temp_fence ? VK_NULL_HANDLE : fence, queue_info->parent, device_table);
 
-        VkSubmitInfo modified_submit_info = submit_infos[si];
-        for (uint32_t cb = 0; cb < submit_infos[si].commandBufferCount; ++cb)
+        VkSubmitInfo2 modified_submit_info = submit_infos[si];
+        for (uint32_t cb = 0; cb < submit_infos[si].commandBufferInfoCount; ++cb)
         {
-            const bool            last_cmd_buf   = (cb == submit_infos[si].commandBufferCount - 1);
-            const VkCommandBuffer command_buffer = submit_infos[si].pCommandBuffers[cb];
+            const bool            last_cmd_buf   = (cb == submit_infos[si].commandBufferInfoCount - 1);
+            const VkCommandBuffer command_buffer = submit_infos[si].pCommandBufferInfos[cb].commandBuffer;
 
             // The command_buffer (primary) is not marked for dumping
             if (cb_bcb_map_.find(command_buffer) == cb_bcb_map_.end())
             {
-                submit_cbs.push_back(command_buffer);
+                submit_cbs.push_back(VkCommandBufferSubmitInfo{
+                    VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
 
                 // Look for transfer contexts from secondaries. This case can happen when command_buffer is a primary
                 // which is not marked for dumping but contains vkCmdExecuteCommands with secondaries that are marked to
@@ -1913,7 +1977,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
                     {
                         transfer_contexts.emplace(std::make_pair(static_cast<Index>(si), static_cast<Index>(cb)),
                                                   transf_context);
-                        submit_cbs.push_back(command_buffer);
+                        submit_cbs.push_back(VkCommandBufferSubmitInfo{
+                            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
                         has_transfer_or_dispatch = true;
                     }
                 }
@@ -1925,7 +1990,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
                                               dispatch_context);
                     // Dispatch/RayTracing context uses a clone command buffer. We submit that one instead of the
                     // original.
-                    submit_cbs.push_back(dispatch_context->GetDispatchRaysCommandBuffer());
+                    submit_cbs.push_back(VkCommandBufferSubmitInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+                                                                    nullptr,
+                                                                    dispatch_context->GetDispatchRaysCommandBuffer(),
+                                                                    0 });
                     has_transfer_or_dispatch = true;
                 }
 
@@ -1935,10 +2003,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
                     // Submit previous command buffers from this VkSubmitInfo before dumping draw calls
                     if (!submit_cbs.empty())
                     {
-                        modified_submit_info.commandBufferCount = static_cast<uint32_t>(submit_cbs.size());
-                        modified_submit_info.pCommandBuffers    = submit_cbs.data();
-                        res                                     = device_table.QueueSubmit(
-                            queue_info->handle, 1, &modified_submit_info, submission_fence.handle);
+                        modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
+                        modified_submit_info.pCommandBufferInfos    = submit_cbs.data();
+                        res                                         = SubmitInfo2OnQueue(
+                            device_table, queue_info->handle, modified_submit_info, submission_fence.handle);
                         CHECK_VK_ERROR(res, "QueueSubmit")
 
                         // The fence might be reused. Wait and reset
@@ -1955,10 +2023,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
                         }
 
                         // The semaphores have been used up by the submission. Don't use them again.
-                        modified_submit_info.waitSemaphoreCount   = 0;
-                        modified_submit_info.pWaitSemaphores      = nullptr;
-                        modified_submit_info.signalSemaphoreCount = 0;
-                        modified_submit_info.pSignalSemaphores    = nullptr;
+                        modified_submit_info.waitSemaphoreInfoCount   = 0;
+                        modified_submit_info.pWaitSemaphoreInfos      = nullptr;
+                        modified_submit_info.signalSemaphoreInfoCount = 0;
+                        modified_submit_info.pSignalSemaphoreInfos    = nullptr;
                         submit_cbs.clear();
                     }
 
@@ -1967,17 +2035,18 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
                     CHECK_VK_ERROR(res, "DumpDrawCalls")
 
                     // The semaphores have been used up by the submission. Don't use them again.
-                    modified_submit_info.waitSemaphoreCount   = 0;
-                    modified_submit_info.pWaitSemaphores      = nullptr;
-                    modified_submit_info.signalSemaphoreCount = 0;
-                    modified_submit_info.pSignalSemaphores    = nullptr;
+                    modified_submit_info.waitSemaphoreInfoCount   = 0;
+                    modified_submit_info.pWaitSemaphoreInfos      = nullptr;
+                    modified_submit_info.signalSemaphoreInfoCount = 0;
+                    modified_submit_info.pSignalSemaphoreInfos    = nullptr;
 
                     // Insert original command buffer in the vector for submission. If has_transfer_or_dispatch is true
                     // then the command buffer has already been submitted
                     if (!has_transfer_or_dispatch)
                     {
                         GFXRECON_ASSERT(submit_cbs.empty());
-                        submit_cbs.push_back(command_buffer);
+                        submit_cbs.push_back(VkCommandBufferSubmitInfo{
+                            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffer, 0 });
                     }
                 }
             }
@@ -1985,9 +2054,9 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
 
         if (!submit_cbs.empty())
         {
-            modified_submit_info.commandBufferCount = static_cast<uint32_t>(submit_cbs.size());
-            modified_submit_info.pCommandBuffers    = submit_cbs.data();
-            res = device_table.QueueSubmit(queue_info->handle, 1, &modified_submit_info, submission_fence.handle);
+            modified_submit_info.commandBufferInfoCount = static_cast<uint32_t>(submit_cbs.size());
+            modified_submit_info.pCommandBufferInfos    = submit_cbs.data();
+            res = SubmitInfo2OnQueue(device_table, queue_info->handle, modified_submit_info, submission_fence.handle);
             CHECK_VK_ERROR(res, "QueueSubmit")
 
             res = submission_fence.Wait();
