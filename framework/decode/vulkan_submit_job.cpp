@@ -177,9 +177,9 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)
             {
-                VkSemaphore submit_semaphore = job(original_wait_semaphores);
-                GFXRECON_ASSERT(submit_semaphore != VK_NULL_HANDLE);
-                injected_wait_semaphores.push_back(submit_semaphore);
+                graphics::VulkanSemaphore submit_semaphore = job(original_wait_semaphores);
+                GFXRECON_ASSERT(submit_semaphore.semaphore != VK_NULL_HANDLE);
+                injected_wait_semaphores.push_back(submit_semaphore.semaphore);
             }
 
             // Replace the original waits with waits for the injected jobs.
@@ -246,13 +246,13 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)
             {
-                VkSemaphore submit_semaphore = job(original_wait_semaphores);
-                GFXRECON_ASSERT(submit_semaphore != VK_NULL_HANDLE);
+                graphics::VulkanSemaphore submit_semaphore = job(original_wait_semaphores);
+                GFXRECON_ASSERT(submit_semaphore.semaphore != VK_NULL_HANDLE);
 
                 VkSemaphoreSubmitInfo semaphore_info = {};
                 semaphore_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-                semaphore_info.semaphore             = submit_semaphore;
-                semaphore_info.value                 = 1;
+                semaphore_info.semaphore             = submit_semaphore.semaphore;
+                semaphore_info.value                 = submit_semaphore.timeline_value;
                 semaphore_info.stageMask             = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
                 injected_wait_semaphore_infos.push_back(semaphore_info);
             }

@@ -55,7 +55,7 @@ class VulkanFrameWarmUp
     VulkanFrameWarmUp(const VulkanFrameWarmUp&)            = delete;
     VulkanFrameWarmUp& operator=(const VulkanFrameWarmUp&) = delete;
 
-    VkSemaphore WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
+    graphics::VulkanSemaphore WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
   private:
     const graphics::VulkanDeviceTable* device_table_{ nullptr };
@@ -75,7 +75,7 @@ class VulkanFrameWarmUp
     VkPipeline            pipeline_{ VK_NULL_HANDLE };
     VkBuffer              buffer_{ VK_NULL_HANDLE };
     VkDeviceMemory        buffer_memory_{ VK_NULL_HANDLE };
-    VkSemaphore           semaphore_{ VK_NULL_HANDLE };
+    graphics::VulkanSemaphore semaphore_{ VK_NULL_HANDLE };
 };
 
 using VulkanPerDeviceFrameWarmUp = std::unordered_map<const VulkanDeviceInfo*, VulkanFrameWarmUp>;
