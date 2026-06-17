@@ -165,6 +165,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_swapchain.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_swapchain.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_submit_info_helper.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_submit_info_helper.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_submit_job.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_submit_job.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.h
