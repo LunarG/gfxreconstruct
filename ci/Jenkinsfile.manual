@@ -60,6 +60,11 @@ pipeline {
             defaultValue: 'commit-suite.json',
             description: 'Test suite filename'
         )
+        string(
+            name: 'REPLAY_DUMP_SUITE',
+            defaultValue: 'replay-dump.json',
+            description: 'Replay dump suite filename (leave empty to skip replay dump tests)'
+        )
         choice(
             name: 'BUILD_MODE',
             choices: ['Release', 'Debug'],
@@ -141,7 +146,8 @@ pipeline {
                                         params.TEST_REPO,
                                         params.TEST_BRANCH,
                                         params.TEST_SUITE_REPO,
-                                        params.TEST_SUITE_BRANCH
+                                        params.TEST_SUITE_BRANCH,
+                                        params.REPLAY_DUMP_SUITE
                                     )
                                     break
                                 case 'windows':
@@ -156,7 +162,8 @@ pipeline {
                                         params.TEST_REPO,
                                         params.TEST_BRANCH,
                                         params.TEST_SUITE_REPO,
-                                        params.TEST_SUITE_BRANCH
+                                        params.TEST_SUITE_BRANCH,
+                                        params.REPLAY_DUMP_SUITE
                                     )
                                     break
                             }
