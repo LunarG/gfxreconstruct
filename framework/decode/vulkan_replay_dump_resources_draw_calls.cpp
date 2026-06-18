@@ -1144,10 +1144,10 @@ bool DrawCallsDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
     return secondaries_.find(index) != secondaries_.end();
 }
 
-VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
-                                                const VkSubmitInfo& submit_info,
-                                                Index               submit_info_index,
-                                                Index               submit_info_cmd_buf_index)
+VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
+                                                const VkSubmitInfo2& submit_info,
+                                                Index                submit_info_index,
+                                                Index                submit_info_cmd_buf_index)
 {
     const size_t n_drawcalls = command_buffers_.size();
 
@@ -1159,18 +1159,24 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
     // Dump render targets
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
-        VkSubmitInfo si;
-        si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        si.pNext                = submit_info.pNext;
-        si.waitSemaphoreCount   = !cb ? submit_info.waitSemaphoreCount : 0;
-        si.pWaitSemaphores      = !cb ? submit_info.pWaitSemaphores : nullptr;
-        si.pWaitDstStageMask    = !cb ? submit_info.pWaitDstStageMask : nullptr;
-        si.commandBufferCount   = 1;
-        si.pCommandBuffers      = &command_buffers_[cb];
-        si.signalSemaphoreCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreCount : 0;
-        si.pSignalSemaphores    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphores : nullptr;
+        const VkCommandBufferSubmitInfo cb_info{
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffers_[cb], 0 /* deviceMask */
+        };
 
-        VkResult res = device_table_->QueueSubmit(queue, 1, &si, submission_fence.handle);
+        // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
+        // last clone, so the application-visible synchronization is preserved across the split submissions.
+        VkSubmitInfo2 si{};
+        si.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+        si.pNext                    = submit_info.pNext;
+        si.flags                    = submit_info.flags;
+        si.waitSemaphoreInfoCount   = !cb ? submit_info.waitSemaphoreInfoCount : 0;
+        si.pWaitSemaphoreInfos      = !cb ? submit_info.pWaitSemaphoreInfos : nullptr;
+        si.commandBufferInfoCount   = 1;
+        si.pCommandBufferInfos      = &cb_info;
+        si.signalSemaphoreInfoCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreInfoCount : 0;
+        si.pSignalSemaphoreInfos    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphoreInfos : nullptr;
+
+        VkResult res = SubmitInfo2OnQueue(*device_table_, queue, si, submission_fence.handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(

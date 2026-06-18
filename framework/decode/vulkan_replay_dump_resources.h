@@ -517,6 +517,12 @@ class VulkanReplayDumpResourcesBase
                          VkFence                            fence,
                          uint64_t                           index);
 
+    VkResult QueueSubmit2(std::span<const VkSubmitInfo2>     submit_infos_2,
+                          const graphics::VulkanDeviceTable& device_table,
+                          const VulkanQueueInfo*             queue,
+                          VkFence                            fence,
+                          uint64_t                           index);
+
     bool MustDumpQueueSubmitIndex(uint64_t index) const;
 
     bool IsRecording() const { return active_contexts_; }

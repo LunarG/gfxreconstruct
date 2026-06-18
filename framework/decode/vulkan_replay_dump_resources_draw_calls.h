@@ -205,10 +205,10 @@ class DrawCallsDumpingContext
 
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
-    VkResult DumpDrawCalls(VkQueue             queue,
-                           const VkSubmitInfo& submit_info,
-                           Index               submit_info_index,
-                           Index               submit_info_cmd_buf_index);
+    VkResult DumpDrawCalls(VkQueue              queue,
+                           const VkSubmitInfo2& submit_info,
+                           Index                submit_info_index,
+                           Index                submit_info_cmd_buf_index);
 
     VkResult DumpRenderTargetAttachments(uint64_t                  cmd_buf_index,
                                          DrawCallParams&           dc_params,

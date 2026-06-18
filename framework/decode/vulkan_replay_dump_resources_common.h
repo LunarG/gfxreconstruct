@@ -159,6 +159,15 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
 
 std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
 
+// Submit a single VkSubmitInfo2 to the queue using vkQueueSubmit2 when it is available. On devices that do not support
+// synchronization2, the submit info is converted into a VkSubmitInfo and submitted via vkQueueSubmit. The
+// dump-resources submissions are serialized with host fence waits, so the wait-stage masks lost during down-conversion
+// do not affect correctness.
+VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
+                            VkQueue                            queue,
+                            const VkSubmitInfo2&               submit_info_2,
+                            VkFence                            fence);
+
 // Inject a CmdCopyBuffer(command_buffer, src, dst, regions.count(), regions.size()) into the provided command buffer
 // followed by the appropriate pipeline barrier
 void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,

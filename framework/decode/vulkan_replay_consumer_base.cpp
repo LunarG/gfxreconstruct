@@ -4536,6 +4536,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 }
 
 VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2                           func,
+                                                        uint64_t                                     index,
                                                         VkResult                                     original_result,
                                                         const VulkanQueueInfo*                       queue_info,
                                                         uint32_t                                     submitCount,
@@ -4719,8 +4720,17 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         current_submits_span = std::span(modified_submit_infos.data(), modified_submit_infos.size());
     }
 
-    result = func(
-        queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
+    {
+        auto* device_table = GetDeviceTable(queue_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+        resource_dumper_->QueueSubmit2(current_submits_span, *device_table, queue_info, fence, index);
+    }
+    else
+    {
+        result = func(
+            queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
 
     // The result to report to the event sink might be different from the
     // result of the actual QueueSubmit call if synchronization is enabled.
