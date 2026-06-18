@@ -303,24 +303,59 @@ def get_default_sdk_root():
     )
 
 
-def discover_latest_sdk_root():
-    sdk_root = get_default_sdk_root()
+def get_sdk_root_candidates():
+    sdk_roots = []
+    sdk_dir_2 = os.environ.get("SDK_DIR_2")
+    if sdk_dir_2:
+        sdk_roots.append(Path(sdk_dir_2).expanduser())
+    sdk_roots.append(get_default_sdk_root())
+    return sdk_roots
+
+
+def has_api_dump_manifest_at_expected_path(search_dir):
+    candidates = [
+        search_dir / API_DUMP_MANIFEST,
+        search_dir / "share" / "vulkan" / "explicit_layer.d" / API_DUMP_MANIFEST,
+        search_dir / "etc" / "vulkan" / "explicit_layer.d" / API_DUMP_MANIFEST,
+        search_dir / "macOS" / "share" / "vulkan" / "explicit_layer.d" / API_DUMP_MANIFEST,
+    ]
+    return any(path.is_file() for path in candidates)
+
+
+def looks_like_sdk_dir(path):
+    return any(
+        search_dir.is_dir() and has_api_dump_manifest_at_expected_path(search_dir)
+        for search_dir in get_sdk_search_dirs(path)
+    )
+
+
+def resolve_sdk_root(path):
+    try:
+        return path.resolve()
+    except OSError as err:
+        warn("Failed to resolve Vulkan SDK path {}: {}".format(path, err))
+        return path.absolute()
+
+
+def select_sdk_root(sdk_root):
     print("Searching Vulkan SDK root: {}".format(sdk_root))
     if not sdk_root.exists():
-        fail("Vulkan SDK root does not exist: {}".format(sdk_root), EXIT_INVALID_INPUT)
+        warn("Vulkan SDK root does not exist: {}".format(sdk_root))
+        return None
     if not sdk_root.is_dir():
-        fail(
-            "Vulkan SDK root is not a directory: {}".format(sdk_root),
-            EXIT_INVALID_INPUT,
-        )
+        warn("Vulkan SDK root is not a directory: {}".format(sdk_root))
+        return None
+
+    if looks_like_sdk_dir(sdk_root):
+        selected = resolve_sdk_root(sdk_root)
+        print("Selected Vulkan SDK root: {}".format(selected))
+        return selected
 
     try:
         children = list(sdk_root.iterdir())
     except OSError as err:
-        fail(
-            "Failed to scan Vulkan SDK root {}: {}".format(sdk_root, err),
-            EXIT_INVALID_INPUT,
-        )
+        warn("Failed to scan Vulkan SDK root {}: {}".format(sdk_root, err))
+        return None
 
     candidates = []
     for child in children:
@@ -338,19 +373,27 @@ def discover_latest_sdk_root():
         candidates.append((version, child))
 
     if not candidates:
-        fail(
-            "No valid Vulkan SDK directories found under {}".format(sdk_root),
-            EXIT_INVALID_INPUT,
-        )
+        warn("No valid Vulkan SDK directories found under {}".format(sdk_root))
+        return None
 
     _version, selected = max(candidates, key=lambda candidate: candidate[0])
-    try:
-        selected = selected.resolve()
-    except OSError as err:
-        warn("Failed to resolve Vulkan SDK path {}: {}".format(selected, err))
-        selected = selected.absolute()
+    selected = resolve_sdk_root(selected)
     print("Selected Vulkan SDK root: {}".format(selected))
     return selected
+
+
+def discover_latest_sdk_root():
+    sdk_roots = get_sdk_root_candidates()
+    for sdk_root in sdk_roots:
+        selected = select_sdk_root(sdk_root)
+        if selected is not None:
+            return selected
+    fail(
+        "No usable Vulkan SDK found under search roots: {}".format(
+            ", ".join(str(path) for path in sdk_roots)
+        ),
+        EXIT_INVALID_INPUT,
+    )
 
 
 def windows_sdk_search_dirs(sdk_root):
