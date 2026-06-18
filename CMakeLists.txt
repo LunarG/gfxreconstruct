@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2018-2026 LunarG, Inc.
 # Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -27,6 +27,8 @@
 ###############################################################################
 cmake_minimum_required(VERSION 3.16.3)
 project(GFXReconstruct LANGUAGES CXX)
+
+set(GFXRECON_SOURCE_DIR "${PROJECT_SOURCE_DIR}")
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 

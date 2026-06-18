@@ -96,3 +96,9 @@ include_directories("${GFXRECON_SOURCE_DIR}/external/SPIRV-Reflect")
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
+# No-op stub so shared framework CMakeLists.txt files can call this macro on
+# Android without error.  The desktop root CMakeLists.txt provides the real
+# implementation that wires up code-style checks, lint, and the test package.
+macro(common_build_directives TARGET)
+endmacro()
