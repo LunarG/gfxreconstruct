@@ -97,9 +97,10 @@ void android_main(struct android_app* app)
     // If --remote-connect or --remote-listen is specified, the controller supplies the replay settings. Because the
     // user explicitly requested remote control, treat any failure to establish it as fatal rather than silently
     // falling back to the intent arguments.
-    gfxrecon::util::RemoteChannel remote_channel;
-    if (gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments) ==
-        gfxrecon::replay::RemoteSetupResult::kFailed)
+    gfxrecon::util::RemoteChannel             remote_channel;
+    const gfxrecon::replay::RemoteSetupResult remote_setup =
+        gfxrecon::replay::SetupRemoteChannel(remote_channel, arg_parser, options, arguments);
+    if (remote_setup == gfxrecon::replay::RemoteSetupResult::kFailed)
     {
         run = false;
     }
@@ -145,7 +146,11 @@ void android_main(struct android_app* app)
                     kApplicationName, fp, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
             };
 
-            success = gfxrecon::replay::RunReplay(g_file_processor, g_features, arg_parser, filename, make_application);
+            gfxrecon::util::RemoteChannel* const controller =
+                (remote_setup == gfxrecon::replay::RemoteSetupResult::kConnected) ? &remote_channel : nullptr;
+
+            success = gfxrecon::replay::RunReplay(
+                g_file_processor, g_features, arg_parser, filename, make_application, controller);
         }
         catch (std::runtime_error& error)
         {

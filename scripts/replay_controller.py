@@ -236,6 +236,7 @@ def handle_session(conn, options, output_dir, hello=None):
         return False
 
     success = False
+    prev_msg_type = None
     while True:
         frame = recv_frame(conn)
         if frame is None:
@@ -245,7 +246,14 @@ def handle_session(conn, options, output_dir, hello=None):
         msg = json.loads(frame)
         msg_type = msg.get('type')
 
-        if msg_type == 'file':
+        if msg_type == 'status':
+            if prev_msg_type == 'status' and sys.stdout.isatty():
+                # Move up a line and clear it, overwriting the previous status.
+                print('\033[F\033[K', end='')
+            print(
+                f"--- {msg.get('state')}: frame {msg.get('frame')}, block {msg.get('block')}"
+            )
+        elif msg_type == 'file':
             # A "file" message is always followed by a raw binary frame.
             name = msg.get('name', 'unnamed')
             expected = msg.get('size', 0)
@@ -258,6 +266,8 @@ def handle_session(conn, options, output_dir, hello=None):
             break
         else:
             print(f'Unknown message: {msg}', file=sys.stderr)
+
+        prev_msg_type = msg_type
 
     if recv_rate > 0:
         print(f'--- recv throttle: {recv_rate / (1 << 20):.1f} MiB/s, '

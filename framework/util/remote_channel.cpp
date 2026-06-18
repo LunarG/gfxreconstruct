@@ -766,6 +766,11 @@ void RemoteChannel::LogSendQueueStats() const
                     static_cast<double>(stat_stall_ns_.load()) / 1e6);
 }
 
+void RemoteChannel::SendStatus(const std::string& state, uint64_t frame, uint64_t block)
+{
+    SendJson({ { "type", "status" }, { "state", state }, { "frame", frame }, { "block", block } });
+}
+
 void RemoteChannel::SendDone(bool success)
 {
     SendJson({ { "type", "done" }, { "success", success } });

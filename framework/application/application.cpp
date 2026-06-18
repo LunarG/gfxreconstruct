@@ -24,6 +24,7 @@
 #include "application/application.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "util/remote_channel.h"
 #include "decode/preload_file_processor.h"
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -284,7 +285,9 @@ void Application::Run()
 
 void Application::SetPaused(bool paused)
 {
-    if (file_processor_ != nullptr && paused_ != paused)
+    const bool changed = (paused_ != paused);
+
+    if (file_processor_ != nullptr && changed)
     {
         uint32_t current_frame = file_processor_->GetCurrentFrameNumber();
         if (paused)
@@ -298,6 +301,21 @@ void Application::SetPaused(bool paused)
     }
 
     paused_ = paused;
+
+    if (changed)
+    {
+        SendRemoteStatus();
+    }
+}
+
+void Application::SendRemoteStatus()
+{
+    if (remote_channel_ != nullptr && file_processor_ != nullptr)
+    {
+        remote_channel_->SendStatus(paused_ ? "paused" : "running",
+                                    file_processor_->GetCurrentFrameNumber(),
+                                    file_processor_->GetCurrentBlockIndex());
+    }
 }
 
 bool Application::PlaySingleFrame()
@@ -328,6 +346,8 @@ bool Application::PlaySingleFrame()
             {
                 GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
             }
+
+            SendRemoteStatus();
         }
         else
         {

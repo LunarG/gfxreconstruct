@@ -413,7 +413,7 @@ TEST_CASE("OpenOutputFile sends the whole file to the active channel when the st
     CHECK(std::string(received.begin(), received.end()) == expected);
 }
 
-TEST_CASE("RemoteChannel reports completion", "[remote_channel]")
+TEST_CASE("RemoteChannel reports status and completion", "[remote_channel]")
 {
     TestController                     controller;
     util::RemoteChannel                channel;
@@ -424,6 +424,13 @@ TEST_CASE("RemoteChannel reports completion", "[remote_channel]")
     controller.SendJson(SettingsMessage());
     REQUIRE(controller.RecvJson().at("type") == "ready");
     REQUIRE(runner.Result());
+
+    channel.SendStatus("paused", 42, 1337);
+    const json status = controller.RecvJson();
+    CHECK(status.at("type") == "status");
+    CHECK(status.at("state") == "paused");
+    CHECK(status.at("frame") == 42);
+    CHECK(status.at("block") == 1337);
 
     channel.SendDone(true);
     const json done = controller.RecvJson();

@@ -89,6 +89,7 @@ replay     → controller:  {"type":"ready"}
 ### Replay → controller
 
 ```json
+{"type":"status","state":"running","frame":42,"block":1234}
 {"type":"file","name":"dump/frame_0042.png","size":204800}
 <204800 raw bytes — separate binary frame, no encoding>
 {"type":"done","success":true}
@@ -127,6 +128,23 @@ re-normalized, and fails the handshake instead of printing usage text.
 
 The same payload shape will carry capture-side settings, whose native model is
 already a `<string, string>` map. The key sets are disjoint; the shape is not.
+
+## Status Messages
+
+`{"type":"status","state":S,"frame":N,"block":B}` is a complete snapshot of
+replay's state, sent after each replayed frame and whenever `state` changes.
+`state` is `running` or `paused`, whatever caused the change (keyboard,
+controller, or Android focus); controllers should tolerate values they do not
+recognize.
+
+`frame` and `block` are monotonic positions, not fractions: the capture file
+carries no total frame or block count, so no percentage is reported. A
+percentage would require a total stamped at capture time (a future capture-side
+addition) or a full pre-scan, which is impossible for a streamed capture. Use
+`block` for a finer-grained position and rate than `frame` alone.
+
+Only state owned by the tool's main loop belongs in `status`. A subsystem
+reports through a message of its own.
 
 ## File Streaming
 

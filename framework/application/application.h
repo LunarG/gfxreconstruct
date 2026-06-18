@@ -30,6 +30,7 @@
 #include "decode/window.h"
 #include "util/defines.h"
 #include "util/date_time.h"
+#include "util/remote_channel.h"
 #include "graphics/fps_info.h"
 #include "graphics/frame_loop_info.h"
 #include "plugin/replay_event_sink.h"
@@ -126,7 +127,16 @@ class Application final
             replay_event_sink ? std::move(replay_event_sink) : std::make_unique<plugin::NullReplayEventSink>();
     }
 
+    // Set an optional, non-owning channel used to report replay status to a remote controller. Pass nullptr (the
+    // default) to disable status reporting.
+    void SetRemoteChannel(util::RemoteChannel* remote_channel)
+    {
+        remote_channel_ = remote_channel;
+    }
+
   private:
+    void SendRemoteStatus();
+
     bool IsFrameProcessingInitialized() const
     {
         return file_processor_ && file_processor_->IsFrameProcessingInitialized();
@@ -153,6 +163,8 @@ class Application final
                                                                                      ///< capture file data.
 
     std::unique_ptr<plugin::ReplayEventSink> replay_event_sink_ = std::make_unique<plugin::NullReplayEventSink>();
+
+    util::RemoteChannel* remote_channel_ = nullptr; ///< Optional, non-owning channel for reporting replay status.
 
 #if defined(BUILD_ANDROID_APP)
     struct android_app* android_app_{nullptr};

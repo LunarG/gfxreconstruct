@@ -152,7 +152,8 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
                std::vector<std::unique_ptr<ReplayFeatureBase>>&                                 features,
                util::ArgumentParser&                                                            arg_parser,
                const std::string&                                                               filename,
-               std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application)
+               std::function<std::shared_ptr<application::Application>(decode::FileProcessor*)> make_application,
+               util::RemoteChannel*                                                             remote_channel)
 {
     uint32_t loop_frame        = 0;
     uint32_t loop_count        = graphics::FrameLoopInfo::INFINITE_ITERATIONS;
@@ -285,6 +286,7 @@ bool RunReplay(std::unique_ptr<decode::FileProcessor>&                          
 
     application->SetFpsInfo(&fps_info);
     application->SetAsyncProcessing(arg_parser.IsOptionSet(kAsyncProcessingOption));
+    application->SetRemoteChannel(remote_channel);
 
     fps_info.BeginFile();
     application->Run();
