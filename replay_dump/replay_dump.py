@@ -43,8 +43,6 @@ API_DUMP_LAYER = "VK_LAYER_LUNARG_api_dump"
 API_DUMP_MANIFEST = "VkLayer_api_dump.json"
 REPLAY_ENV_VAR = "GFXRECON_REPLAY"
 TARGET_DRIVER_ENV_VAR = "TARGET_DRIVER"
-VK_LOADER_DEBUG_ENV_VAR = "VK_LOADER_DEBUG"
-VK_LOADER_DEBUG_DRIVER = "driver"
 LINUX_AT_SECURE = 23
 LOADER_LAYER_FILTER_ENV_VARS = (
     "VK_LOADER_LAYERS_DISABLE",
@@ -524,18 +522,6 @@ def get_privileged_process_status():
     return elevated
 
 
-def add_loader_debug_driver(env):
-    current_debug = env.get(VK_LOADER_DEBUG_ENV_VAR)
-    if current_debug:
-        enabled = [item.strip() for item in current_debug.split(",")]
-        if VK_LOADER_DEBUG_DRIVER not in enabled:
-            env[VK_LOADER_DEBUG_ENV_VAR] = "{},{}".format(
-                current_debug, VK_LOADER_DEBUG_DRIVER
-            )
-    else:
-        env[VK_LOADER_DEBUG_ENV_VAR] = VK_LOADER_DEBUG_DRIVER
-
-
 def get_manifest_layer_library_path(manifest_path):
     try:
         with manifest_path.open("r", encoding="utf-8") as manifest_file:
@@ -643,14 +629,13 @@ def configure_api_dump_layer_path(env):
 def build_replay_environment(output_path):
     env = os.environ.copy()
     env["VK_INSTANCE_LAYERS"] = API_DUMP_LAYER
-    add_loader_debug_driver(env)
     target_driver = env.get(TARGET_DRIVER_ENV_VAR)
     if target_driver:
         env["VK_ICD_FILENAMES"] = target_driver
     configure_api_dump_layer_path(env)
     print("VULKAN_LOADER_PRIVILEGED={}".format(get_privileged_process_status()))
     print("{}={}".format(TARGET_DRIVER_ENV_VAR, env.get(TARGET_DRIVER_ENV_VAR, "")))
-    print("{}={}".format(VK_LOADER_DEBUG_ENV_VAR, env.get(VK_LOADER_DEBUG_ENV_VAR, "")))
+    print("VK_LOADER_DEBUG={}".format(env.get("VK_LOADER_DEBUG", "")))
     for name in (
         "VK_INSTANCE_LAYERS",
         "VK_LAYER_PATH",
