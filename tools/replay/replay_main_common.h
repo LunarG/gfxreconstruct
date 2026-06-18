@@ -40,7 +40,36 @@ struct android_app;
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+
+GFXRECON_BEGIN_NAMESPACE(util)
+class RemoteChannel;
+GFXRECON_END_NAMESPACE(util)
+
 GFXRECON_BEGIN_NAMESPACE(replay)
+
+// Outcome of attempting to establish a remote-controller connection.
+enum class RemoteSetupResult
+{
+    kNotRequested, // --remote-connect was not specified; the channel is unused.
+    kConnected,    // Connected and handshake succeeded; arg_parser now holds the controller's settings.
+    kFailed        // --remote-connect was given but the connection or handshake failed (a fatal message was logged).
+};
+
+// If arg_parser has --remote-connect set, connect channel to the controller, perform the handshake, replace arg_parser
+// with the controller-provided settings, and begin relaying log output to the controller. On failure the specific
+// reason is logged (by RemoteChannel) and kFailed is returned; the caller decides how to abort. Does nothing and
+// returns kNotRequested when --remote-connect is absent.
+// options and arguments are the tool's name lists with every loaded Feature's entries already
+// appended, the same lists the command-line parser was built from. Remote settings are parsed
+// against them so a Feature option means the same thing from a controller as from the command line.
+RemoteSetupResult SetupRemoteChannel(util::RemoteChannel&  channel,
+                                     util::ArgumentParser& arg_parser,
+                                     const std::string&    options,
+                                     const std::string&    arguments);
+
+// Stop relaying log output, then notify the controller that replay finished. Both steps are no-ops when channel is not
+// connected, so this is safe to call unconditionally.
+void ShutdownRemoteChannel(util::RemoteChannel& channel, bool success);
 
 // Populate features from the module registry.
 void LoadFeatures(std::vector<std::unique_ptr<ReplayFeatureBase>>& features);

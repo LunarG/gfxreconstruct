@@ -99,6 +99,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager_uffd.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/page_status_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/platform.h
+                    ${CMAKE_CURRENT_LIST_DIR}/remote_channel.h
+                    ${CMAKE_CURRENT_LIST_DIR}/remote_channel.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/span.h
@@ -177,6 +179,7 @@ if (ANDROID)
 else()
     target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
     target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
+    target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:ws2_32.lib>)
 endif()
 
 if (UNIX AND NOT APPLE AND NOT ANDROID)
