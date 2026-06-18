@@ -1725,6 +1725,7 @@ VkResult VulkanResourcesUtil::RenderPassResolve(VkCommandBuffer       command_bu
                                                 VkImageView*          resolved_image_view,
                                                 VkImageView*          ms_image_view)
 {
+    GFXRECON_ASSERT(memory_properties_);
     GFXRECON_ASSERT(resolved_image != nullptr);
     GFXRECON_ASSERT(resolved_image_memory != nullptr);
     GFXRECON_ASSERT(resolved_image_view != nullptr);
