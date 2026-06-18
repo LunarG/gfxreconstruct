@@ -54,6 +54,8 @@ LOADER_DRIVER_FILTER_ENV_VARS = (
     "VK_ADD_DRIVER_FILES",
     "VK_LOADER_DRIVERS_DISABLE",
     "VK_LOADER_DRIVERS_SELECT",
+    "VK_LOADER_DISABLE_SELECT",
+    "VK_LOADER_DEVICE_SELECT",
 )
 MAX_DIFFS = 200
 IGNORED_COMPARE_KEYS = {
@@ -629,6 +631,7 @@ def configure_api_dump_layer_path(env):
 def build_replay_environment(output_path):
     env = os.environ.copy()
     env["VK_INSTANCE_LAYERS"] = API_DUMP_LAYER
+    env["VK_LOADER_DISABLE_SELECT"] = "1"
     target_driver = env.get(TARGET_DRIVER_ENV_VAR)
     if target_driver:
         env["VK_ICD_FILENAMES"] = target_driver
