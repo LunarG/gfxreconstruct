@@ -5457,7 +5457,8 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
     VkCommandBuffer           command_buffer            = in_commandBuffer->handle;
     VkBindDescriptorSetsInfo* bind_descriptor_sets_info = pBindDescriptorSetsInfo->GetPointer();
 
-    if (bind_descriptor_sets_info != nullptr && UseAddressReplacement(device_info))
+    if (bind_descriptor_sets_info != nullptr && UseAddressReplacement(device_info) &&
+        !in_commandBuffer->bound_pipelines.empty())
     {
         auto*               bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
         VkPipelineBindPoint pipelineBindPoint              = in_commandBuffer->bound_pipelines.begin()->first;
