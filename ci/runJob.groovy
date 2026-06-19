@@ -498,6 +498,11 @@ def gfxrTestAndroidManual(
                         allowEmptyArchive: true,
                         onlyIfSuccessful: false
                     )
+                    junit(
+                        testResults: 'vulkantest-results/**/*.xml',
+                        allowEmptyResults: true,
+                        keepLongStdio: true
+                    )
                 } finally {
                     retry(3) {
                         try {
