@@ -1480,6 +1480,8 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
 }
 #endif
 
+// Only provide the usage functions if a define is not present
+#if !defined(GFXR_TOOL_SETTINGS_NO_USAGE)
 static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
@@ -1524,5 +1526,6 @@ static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::Ar
 
     return false;
 }
+#endif // GFXR_TOOL_SETTINGS_NO_USAGE
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H
