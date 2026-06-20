@@ -23,8 +23,10 @@
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_instance_util.h"
 #include "decode/vulkan_object_info.h"
+#include "graphics/vulkan_feature_util.h"
 
 #include "util/logging.h"
+#include <vulkan/vulkan_core.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -165,6 +167,31 @@ VkBool32 VulkanDeviceUtil::EnableSamplerYcbcrConversionFeatures(const VulkanInst
     return feature_struct->samplerYcbcrConversion;
 }
 
+template <typename T>
+VkBool32 VulkanDeviceUtil::EnableDynamicRenderingFeatures(const VulkanInstanceUtilInfo& instance_info,
+                                                          const VulkanInstanceTable*    instance_table,
+                                                          const VkPhysicalDevice        physical_device,
+                                                          T*                            feature_struct)
+{
+    // Type must be feature struct type that contains dynamicRendering
+    static_assert(std::is_same<T, VkPhysicalDeviceVulkan13Features>::value ||
+                      std::is_same<T, VkPhysicalDeviceDynamicRenderingFeatures>::value,
+                  "Unexpected type for EnableDynamicRenderingFeatures");
+
+    // Enable dynamic rendering feature if it supported by the device
+    if (!feature_struct->dynamicRendering)
+    {
+        T supported_features{ feature_struct->sType, nullptr };
+        GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+        if (supported_features.dynamicRendering)
+        {
+            feature_struct->dynamicRendering = VK_TRUE;
+        }
+    }
+
+    return feature_struct->dynamicRendering;
+}
+
 VulkanDevicePropertyFeatureInfo
 VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilInfo& instance_info,
                                                        const VulkanInstanceTable*    instance_table,
@@ -179,7 +206,10 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
     // If the pNext chain includes a VkPhysicalDeviceVulkan11Features structure, then it must not include a
     // VkPhysicalDeviceSamplerYcbcrConversionFeatures structure
     bool vulkan_1_1_features_found               = false;
+    bool vulkan_1_3_features_found               = false;
     bool sampler_ycbcr_conversion_features_found = false;
+    bool maintenance10_found                     = false;
+    bool dynamic_rendering_found                 = false;
 
     while (current_struct->pNext != nullptr)
     {
@@ -325,6 +355,60 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
             }
             break;
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR:
+            {
+                auto* maintenance10_features =
+                    reinterpret_cast<VkPhysicalDeviceMaintenance10FeaturesKHR*>(current_struct);
+                result.feature_maintenance10 = maintenance10_features->maintenance10;
+                if (result.feature_maintenance10 == VK_FALSE &&
+                    graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                                 create_info->enabledExtensionCount,
+                                                                 VK_KHR_MAINTENANCE_10_EXTENSION_NAME))
+                {
+                    VkPhysicalDeviceMaintenance10FeaturesKHR supported_features{
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR, nullptr
+                    };
+                    GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, supported_features);
+                    result.feature_maintenance10          = supported_features.maintenance10;
+                    maintenance10_features->maintenance10 = supported_features.maintenance10;
+                }
+                maintenance10_found = true;
+            }
+            break;
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES:
+            {
+                auto* vulkan_1_3_features        = reinterpret_cast<VkPhysicalDeviceVulkan13Features*>(current_struct);
+                result.feature_dynamic_rendering = vulkan_1_3_features->dynamicRendering;
+                if (result.feature_dynamic_rendering == VK_FALSE &&
+                    graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                                 create_info->enabledExtensionCount,
+                                                                 VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+                {
+                    result.feature_dynamic_rendering = EnableDynamicRenderingFeatures(
+                        instance_info, instance_table, physical_device, vulkan_1_3_features);
+                }
+                vulkan_1_3_features_found = true;
+            }
+            break;
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES:
+            {
+                auto* dynamic_rendering_features =
+                    reinterpret_cast<VkPhysicalDeviceDynamicRenderingFeatures*>(current_struct);
+                result.feature_dynamic_rendering = dynamic_rendering_features->dynamicRendering;
+                if (result.feature_dynamic_rendering == VK_FALSE &&
+                    graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                                 create_info->enabledExtensionCount,
+                                                                 VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+                {
+                    result.feature_dynamic_rendering = EnableDynamicRenderingFeatures(
+                        instance_info, instance_table, physical_device, dynamic_rendering_features);
+                }
+                dynamic_rendering_found = true;
+            }
+            break;
+
             default:
                 break;
         }
@@ -336,12 +420,78 @@ VulkanDeviceUtil::EnableRequiredPhysicalDeviceFeatures(const VulkanInstanceUtilI
         static VkPhysicalDeviceSamplerYcbcrConversionFeatures sampler_ycbcr_conversion_features = {
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES
         };
+        sampler_ycbcr_conversion_features.pNext = nullptr;
+
         result.feature_samplerYcbcrConversion = EnableSamplerYcbcrConversionFeatures(
             instance_info, instance_table, physical_device, &sampler_ycbcr_conversion_features);
         if (result.feature_samplerYcbcrConversion == VK_TRUE)
         {
             current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&sampler_ycbcr_conversion_features);
+            current_struct        = current_struct->pNext;
         }
+    }
+
+    if (!maintenance10_found && graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                                             create_info->enabledExtensionCount,
+                                                                             VK_KHR_MAINTENANCE_10_EXTENSION_NAME))
+    {
+        static VkPhysicalDeviceMaintenance10FeaturesKHR feature_maintenance10 = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_10_FEATURES_KHR
+        };
+        feature_maintenance10.pNext = nullptr;
+
+        GetPhysicalDeviceFeatures(instance_info, instance_table, physical_device, feature_maintenance10);
+        result.feature_maintenance10 = feature_maintenance10.maintenance10;
+        if (feature_maintenance10.maintenance10 == VK_TRUE)
+        {
+            current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&feature_maintenance10);
+            current_struct        = current_struct->pNext;
+        }
+    }
+
+    // Enabling the feature without also enabling the extension can cause the device creation to fail
+    if (!vulkan_1_3_features_found && !dynamic_rendering_found &&
+        graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                     create_info->enabledExtensionCount,
+                                                     VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME))
+    {
+        static VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering_features = {
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES
+        };
+        dynamic_rendering_features.pNext = nullptr;
+
+        result.feature_dynamic_rendering =
+            EnableDynamicRenderingFeatures(instance_info, instance_table, physical_device, &dynamic_rendering_features);
+        if (dynamic_rendering_features.dynamicRendering == VK_TRUE)
+        {
+            current_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(&dynamic_rendering_features);
+            current_struct        = current_struct->pNext;
+        }
+    }
+
+    if (instance_info.api_version >= VK_MAKE_VERSION(1, 3, 0))
+    {
+        // Dynamic rendering is promoted to core in Vulkan 1.3
+        result.dynamic_rendering_depth_stencil_resolve = true;
+    }
+    else if (instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
+    {
+        // In 1.2 VK_KHR_depth_stencil_resolve is moved in core. Need to check only for VK_KHR_dynamic_rendering
+        result.dynamic_rendering_depth_stencil_resolve =
+            graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                         create_info->enabledExtensionCount,
+                                                         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+    }
+    else
+    {
+        // In older version we need to check for both extensions
+        result.dynamic_rendering_depth_stencil_resolve =
+            graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                         create_info->enabledExtensionCount,
+                                                         VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME) &&
+            graphics::feature_util::IsSupportedExtension(create_info->ppEnabledExtensionNames,
+                                                         create_info->enabledExtensionCount,
+                                                         VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
     }
 
     return result;

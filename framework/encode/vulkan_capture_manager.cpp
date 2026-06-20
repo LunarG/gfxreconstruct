@@ -585,58 +585,57 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
     }
     singleton_->layer_settings_ = GetVulkanLayerTraceSettings(pCreateInfo);
 
+    VkInstanceCreateInfo     create_info_copy = (*pCreateInfo);
+    std::vector<const char*> modified_extensions;
+
     if (CreateInstance())
     {
-        if (singleton_->IsPageGuardMemoryModeExternal())
+        assert(pCreateInfo != nullptr);
+
+        const bool is_external_memory_mode = singleton_->IsPageGuardMemoryModeExternal();
+
+        // TODO: Only enable KHR_get_physical_device_properties_2 for 1.0 API version.
+        size_t             extension_count = create_info_copy.enabledExtensionCount;
+        const char* const* extensions      = create_info_copy.ppEnabledExtensionNames;
+
+        bool has_dev_prop2    = false;
+        bool has_ext_mem_caps = false;
+
+        for (size_t i = 0; i < extension_count; ++i)
         {
-            assert(pCreateInfo != nullptr);
+            auto entry = extensions[i];
 
-            VkInstanceCreateInfo create_info_copy = (*pCreateInfo);
+            modified_extensions.push_back(entry);
 
-            // TODO: Only enable KHR_get_physical_device_properties_2 for 1.0 API version.
-            size_t                   extension_count = create_info_copy.enabledExtensionCount;
-            const char* const*       extensions      = create_info_copy.ppEnabledExtensionNames;
-            std::vector<const char*> modified_extensions;
-
-            bool has_dev_prop2    = false;
-            bool has_ext_mem_caps = false;
-
-            for (size_t i = 0; i < extension_count; ++i)
+            if (util::platform::StringCompare(entry, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
             {
-                auto entry = extensions[i];
-
-                modified_extensions.push_back(entry);
-
-                if (util::platform::StringCompare(entry, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
-                {
-                    has_dev_prop2 = true;
-                }
-
-                if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
-                {
-                    has_ext_mem_caps = true;
-                }
+                has_dev_prop2 = true;
             }
 
-            if (!has_dev_prop2)
+            if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
             {
-                modified_extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+                has_ext_mem_caps = true;
             }
-
-            if (!has_ext_mem_caps)
-            {
-                modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
-            }
-
-            create_info_copy.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
-            create_info_copy.ppEnabledExtensionNames = modified_extensions.data();
-
-            result = vulkan_layer_table_.CreateInstance(&create_info_copy, pAllocator, pInstance);
         }
-        else
+
+        // All VK_KHR_get_physical_device_properties2 functionalities are included in Vulkan 1.1,
+        // otherwise always enable it if available.
+        if (!has_dev_prop2 && pCreateInfo->pApplicationInfo != nullptr &&
+            pCreateInfo->pApplicationInfo->apiVersion < VK_MAKE_VERSION(1, 1, 0))
         {
-            result = vulkan_layer_table_.CreateInstance(pCreateInfo, pAllocator, pInstance);
+            modified_extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
         }
+
+        // KHR_external_memory_capabilities is only required for the external page guard memory mode.
+        if (is_external_memory_mode && !has_ext_mem_caps)
+        {
+            modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
+        }
+
+        create_info_copy.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+        create_info_copy.ppEnabledExtensionNames = modified_extensions.data();
+
+        result = vulkan_layer_table_.CreateInstance(&create_info_copy, pAllocator, pInstance);
     }
 
     if ((result == VK_SUCCESS) && (pCreateInfo->pApplicationInfo != nullptr))
@@ -644,6 +643,8 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
         auto api_version              = pCreateInfo->pApplicationInfo->apiVersion;
         auto instance_wrapper         = vulkan_wrappers::GetWrapper<vulkan_wrappers::InstanceWrapper>(*pInstance);
         instance_wrapper->api_version = api_version;
+
+        instance_wrapper->util_info.PostCreateInstanceUpdateState(create_info_copy);
 
         // Warn when enabled API version is newer than the supported API version.
         if (api_version > VK_HEADER_VERSION_COMPLETE)
@@ -674,10 +675,6 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 
     const graphics::VulkanInstanceTable* instance_table = vulkan_wrappers::GetInstanceTable(physicalDevice);
     auto physical_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
-
-    graphics::VulkanDeviceUtil                device_util;
-    graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
-        physical_device_wrapper->instance_info, instance_table, physicalDevice, pCreateInfo_unwrapped);
 
     // TODO: Only enable KHR_external_memory_capabilities for 1.0 API version.
     size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
@@ -757,8 +754,26 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
         }
     }
 
+    // Enable device extensions required for resolving multisampled depth/stencil images
+    for (const auto& vdr_required_extension : graphics::kVulkanDepthStencilResolveExtensions)
+    {
+        const bool is_extension_supported =
+            graphics::feature_util::IsSupportedExtension(supported_extensions, vdr_required_extension.c_str());
+        const bool is_extension_already_requested =
+            graphics::feature_util::IsSupportedExtension(modified_extensions, vdr_required_extension.c_str());
+
+        if (is_extension_supported && !is_extension_already_requested)
+        {
+            modified_extensions.push_back(vdr_required_extension.c_str());
+        }
+    }
+
     pCreateInfo_unwrapped->enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
     pCreateInfo_unwrapped->ppEnabledExtensionNames = modified_extensions.data();
+
+    graphics::VulkanDeviceUtil                device_util;
+    graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
+        physical_device_wrapper->parent_info, instance_table, physicalDevice, pCreateInfo_unwrapped);
 
     VkDeviceQueueCreateInfo modified_queue_ci = {};
 
@@ -921,7 +936,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
             info.buffer                    = buffer_wrapper->handle;
             uint64_t opaque_address        = 0;
 
-            if (device_wrapper->physical_device->instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
+            if (device_wrapper->physical_device->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
                 opaque_address = device_table->GetBufferOpaqueCaptureAddress(device_unwrapped, &info);
             }
@@ -1412,7 +1427,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
                                                          memory_wrapper->handle };
 
             uint64_t address = 0;
-            if (device_wrapper->physical_device->instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
+            if (device_wrapper->physical_device->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
                 address = vulkan_wrappers::GetDeviceTable(device)->GetDeviceMemoryOpaqueCaptureAddress(device_unwrapped,
                                                                                                        &info);
@@ -1481,7 +1496,7 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice
     auto physical_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
     GFXRECON_ASSERT(physical_device_wrapper != nullptr)
 
-    if (physical_device_wrapper->instance_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
+    if (physical_device_wrapper->parent_info.api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
     }
@@ -2051,7 +2066,7 @@ void VulkanCaptureManager::ProcessEnumeratePhysicalDevices(VkResult          res
                     physical_device_wrapper->memory_properties = std::move(memory_properties);
                 }
 
-                physical_device_wrapper->instance_info.api_version = instance_wrapper->api_version;
+                physical_device_wrapper->parent_info.api_version = instance_wrapper->api_version;
 
                 WriteSetDevicePropertiesCommand(physical_device_id, properties);
                 WriteSetDeviceMemoryPropertiesCommand(physical_device_id, physical_device_wrapper->memory_properties);
@@ -2221,6 +2236,7 @@ void VulkanCaptureManager::ProcessImportFdForBuffer(VkDevice device, VkBuffer bu
                                                 device_wrapper->physical_device->handle,
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
+                                                device_wrapper->property_feature_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     VkResult result = resource_util.CreateStagingBuffer(buffer_wrapper->size);
@@ -2254,6 +2270,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
                                                 device_wrapper->physical_device->handle,
                                                 device_wrapper->layer_table,
                                                 *device_wrapper->physical_device->layer_table_ref,
+                                                device_wrapper->property_feature_info,
                                                 device_wrapper->physical_device->memory_properties);
 
     std::vector<VkImageAspectFlagBits> aspects;
@@ -2288,21 +2305,21 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
 
     for (auto aspect : aspects)
     {
-        auto& image_resource                = image_resources.emplace_back();
-        image_resource.handle_id            = image_wrapper->handle_id;
-        image_resource.image                = image_wrapper->handle;
-        image_resource.format               = image_wrapper->format;
-        image_resource.type                 = image_wrapper->image_type;
-        image_resource.extent               = image_wrapper->extent;
-        image_resource.level_count          = image_wrapper->mip_levels;
-        image_resource.layer_count          = image_wrapper->array_layers;
-        image_resource.tiling               = image_wrapper->tiling;
-        image_resource.sample_count         = image_wrapper->samples;
-        image_resource.layout               = image_wrapper->current_layout;
-        image_resource.queue_family_index   = image_wrapper->queue_family_index;
-        image_resource.external_format      = image_wrapper->external_format;
-        image_resource.size                 = image_wrapper->size;
-        image_resource.aspect               = aspect;
+        auto& image_resource              = image_resources.emplace_back();
+        image_resource.handle_id          = image_wrapper->handle_id;
+        image_resource.image              = image_wrapper->handle;
+        image_resource.format             = image_wrapper->format;
+        image_resource.type               = image_wrapper->image_type;
+        image_resource.extent             = image_wrapper->extent;
+        image_resource.level_count        = image_wrapper->mip_levels;
+        image_resource.layer_count        = image_wrapper->array_layers;
+        image_resource.tiling             = image_wrapper->tiling;
+        image_resource.sample_count       = image_wrapper->samples;
+        image_resource.layout             = image_wrapper->current_layout;
+        image_resource.queue_family_index = image_wrapper->queue_family_index;
+        image_resource.external_format    = image_wrapper->external_format;
+        image_resource.size               = image_wrapper->size;
+        image_resource.aspect             = aspect;
 
         num_staging_bytes += image_wrapper->size;
     }

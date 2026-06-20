@@ -3247,13 +3247,7 @@ void VulkanReplayConsumerBase::PostCreateInstanceUpdateState(const VkInstance   
 {
     AddInstanceTable(replay_instance);
 
-    if (modified_create_info.pApplicationInfo != nullptr)
-    {
-        instance_info.util_info.api_version = modified_create_info.pApplicationInfo->apiVersion;
-        instance_info.util_info.enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
-                                                          modified_create_info.ppEnabledExtensionNames +
-                                                              modified_create_info.enabledExtensionCount);
-    }
+    instance_info.util_info.PostCreateInstanceUpdateState(modified_create_info);
 }
 
 VkResult
@@ -3508,6 +3502,20 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     {
         GFXRECON_LOG_WARNING("Failed to get device extensions. Cannot perform sanity checks or filters for "
                              "extension availability. Some replay features may not work correctly.");
+    }
+
+    // Enable device extensions required for resolving multisampled depth/stencil images
+    for (const auto& vdr_required_extension : graphics::kVulkanDepthStencilResolveExtensions)
+    {
+        const bool is_extension_supported =
+            graphics::feature_util::IsSupportedExtension(available_extensions, vdr_required_extension.c_str());
+        const bool is_extension_already_requested =
+            graphics::feature_util::IsSupportedExtension(modified_extensions, vdr_required_extension.c_str());
+
+        if (is_extension_supported && !is_extension_already_requested)
+        {
+            modified_extensions.push_back(vdr_required_extension.c_str());
+        }
     }
 
     modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());

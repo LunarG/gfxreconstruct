@@ -42,9 +42,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
-                             VkPhysicalDevice                     phys_dev,
-                             const VulkanImageInfo*               image_info)
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*             instance_table,
+                             VkPhysicalDevice                                 phys_dev,
+                             const VulkanImageInfo*                           image_info,
+                             const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
     GFXRECON_ASSERT(phys_dev != VK_NULL_HANDLE);
@@ -67,15 +68,11 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table
     // Check for multisampled images that cannot be resolved
     if (image_info->sample_count != VK_SAMPLE_COUNT_1_BIT)
     {
-        if ((image_info->tiling == VK_IMAGE_TILING_OPTIMAL &&
-             (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
-            (image_info->tiling == VK_IMAGE_TILING_LINEAR &&
-             (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))
+        if (graphics::VulkanResourcesUtil::SelectResolveMethod(
+                *instance_table, phys_dev, image_info->format, image_info->tiling, physical_device_features_info) ==
+            graphics::VulkanResourcesUtil::MultisampleResolveMethod::kUnsupported)
         {
-            GFXRECON_LOG_WARNING("Multisampled image with format %s does not support "
-                                 "\"VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT\" will not be dumped.",
+            GFXRECON_LOG_WARNING("Multisampled image with format %s cannot be resolved and will not be dumped.",
                                  util::ToString<VkFormat>(image_info->format).c_str());
             return ImageDumpResult::kCanNotResolve;
         }
@@ -354,6 +351,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                                 device_info->parent,
                                                 *device_table,
                                                 *instance_table,
+                                                device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     // Choose the format in which the image will be dumped from the gpu into the host memory
@@ -546,6 +544,7 @@ VkResult DumpBuffer(const DumpedBuffer&                  dumped_buffer,
                                                 device_info->parent,
                                                 *device_table,
                                                 *instance_table,
+                                                device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     GFXRECON_ASSERT(dumped_buffer.size);

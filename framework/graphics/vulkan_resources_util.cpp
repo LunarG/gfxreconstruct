@@ -21,7 +21,6 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/vulkan_replay_dump_resources_common.h"
 #include "util/to_string.h"
 #include "vulkan_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -859,14 +858,15 @@ bool NextRowTexelCoordinates(VkImageType       imageType,
     return result;
 }
 
-VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                                               device,
-                                         VkPhysicalDevice                                       physical_device,
-                                         const graphics::VulkanDeviceTable&                     device_table,
-                                         const graphics::VulkanInstanceTable&                   instance_table,
+VulkanResourcesUtil::VulkanResourcesUtil(VkDevice                               device,
+                                         VkPhysicalDevice                       physical_device,
+                                         const graphics::VulkanDeviceTable&     device_table,
+                                         const graphics::VulkanInstanceTable&   instance_table,
+                                         const VulkanDevicePropertyFeatureInfo& physical_device_features_info,
                                          const std::optional<VkPhysicalDeviceMemoryProperties>& memory_properties) :
     device_(device),
     device_table_(device_table), physical_device_(physical_device), instance_table_(instance_table),
-    memory_properties_(memory_properties)
+    memory_properties_(memory_properties), physical_device_features_info_(physical_device_features_info)
 
 {
     GFXRECON_ASSERT(device != VK_NULL_HANDLE);
@@ -1573,6 +1573,434 @@ VkResult VulkanResourcesUtil::SubmitCommandBuffer(VkCommandBuffer command_buffer
     return result;
 }
 
+bool VulkanResourcesUtil::IsFormatSupported(const VulkanInstanceTable& instance_table,
+                                            VkPhysicalDevice           physical_device,
+                                            VkFormat                   format,
+                                            VkImageTiling              tiling,
+                                            VkFormatFeatureFlags       feature_flags)
+{
+    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_LINEAR || tiling == VK_IMAGE_TILING_OPTIMAL);
+
+    VkFormatProperties format_props;
+    instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_props);
+    const VkFormatFeatureFlags& supported_features =
+        tiling == VK_IMAGE_TILING_OPTIMAL ? format_props.optimalTilingFeatures : format_props.linearTilingFeatures;
+    if ((supported_features & feature_flags) != feature_flags)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool VulkanResourcesUtil::IsImageSupported(const VulkanInstanceTable& instance_table,
+                                           VkPhysicalDevice           physical_device,
+                                           VkFormat                   format,
+                                           VkImageType                type,
+                                           const VkExtent3D&          extent,
+                                           uint32_t                   level_count,
+                                           uint32_t                   layer_count,
+                                           VkSampleCountFlagBits      sample_count,
+                                           VkImageTiling              tiling,
+                                           VkImageUsageFlags          usage_flags,
+                                           VkFormatFeatureFlags       feature_flags,
+                                           VkImageCreateFlags         create_flags)
+{
+    if (!IsFormatSupported(instance_table, physical_device, format, tiling, feature_flags))
+    {
+        return false;
+    }
+
+    VkImageFormatProperties image_format_props;
+    VkResult                res = instance_table.GetPhysicalDeviceImageFormatProperties(
+        physical_device, format, type, tiling, usage_flags, create_flags, &image_format_props);
+    if (res != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    if ((image_format_props.maxMipLevels < level_count) || (image_format_props.maxArrayLayers < layer_count) ||
+        ((image_format_props.sampleCounts & sample_count) != sample_count) ||
+        (image_format_props.maxExtent.width < extent.width || image_format_props.maxExtent.height < extent.height ||
+         image_format_props.maxExtent.depth < extent.depth))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool VulkanResourcesUtil::CanRenderPassResolve(
+    const VulkanInstanceTable&                       instance_table,
+    VkPhysicalDevice                                 physical_device,
+    VkFormat                                         format,
+    VkImageTiling                                    tiling,
+    const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+{
+    // A dynamic-rendering resolve requires the dynamicRendering feature to be enabled.
+    if (physical_device_features_info.feature_dynamic_rendering == VK_FALSE)
+    {
+        return false;
+    }
+
+    // The resolve target must be usable as the matching attachment and as a transfer source for the copy-out.
+    const VkFormatFeatureFlags feature_flags =
+        (vkuFormatIsDepthOrStencil(format) ? VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+                                           : VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) |
+        VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
+    if (!IsFormatSupported(instance_table, physical_device, format, tiling, feature_flags))
+    {
+        return false;
+    }
+
+    // Depth/stencil resolve additionally needs the depth-stencil-resolve capability. Color resolve via
+    // dynamic rendering does not. The resolve modes used (VK_RESOLVE_MODE_SAMPLE_ZERO_BIT for depth/stencil,
+    // VK_RESOLVE_MODE_AVERAGE_BIT for color) are guaranteed to be supported by the spec.
+    if (vkuFormatIsDepthOrStencil(format) &&
+        physical_device_features_info.dynamic_rendering_depth_stencil_resolve != VK_TRUE)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+VulkanResourcesUtil::MultisampleResolveMethod
+VulkanResourcesUtil::SelectResolveMethod(const VulkanInstanceTable&                       instance_table,
+                                         VkPhysicalDevice                                 physical_device,
+                                         VkFormat                                         format,
+                                         VkImageTiling                                    tiling,
+                                         const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+{
+    if (CanTransferResolve(instance_table, physical_device, format, tiling, physical_device_features_info))
+    {
+        return MultisampleResolveMethod::kTransfer;
+    }
+
+    if (CanRenderPassResolve(instance_table, physical_device, format, tiling, physical_device_features_info))
+    {
+        return MultisampleResolveMethod::kRenderPass;
+    }
+
+    return MultisampleResolveMethod::kUnsupported;
+}
+
+bool VulkanResourcesUtil::CanTransferResolve(
+    const VulkanInstanceTable&                       instance_table,
+    VkPhysicalDevice                                 physical_device,
+    VkFormat                                         format,
+    VkImageTiling                                    tiling,
+    const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
+{
+    GFXRECON_ASSERT(tiling == VK_IMAGE_TILING_OPTIMAL || tiling == VK_IMAGE_TILING_LINEAR);
+
+    VkFormatProperties format_properties{};
+    instance_table.GetPhysicalDeviceFormatProperties(physical_device, format, &format_properties);
+    const VkFormatFeatureFlags& supported_feature_flags = tiling == VK_IMAGE_TILING_LINEAR
+                                                              ? format_properties.linearTilingFeatures
+                                                              : format_properties.optimalTilingFeatures;
+
+    const bool maintenance10_supported = physical_device_features_info.feature_maintenance10 != VK_FALSE;
+    if ((supported_feature_flags & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) == VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT ||
+        (maintenance10_supported && (supported_feature_flags & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
+                                        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+VkResult VulkanResourcesUtil::RenderPassResolve(VkCommandBuffer       command_buffer,
+                                                VkImage               image,
+                                                VkFormat              format,
+                                                VkImageType           type,
+                                                VkImageTiling         tiling,
+                                                const VkExtent3D&     extent,
+                                                uint32_t              array_layers,
+                                                VkImageLayout         current_layout,
+                                                VkImageAspectFlagBits aspect,
+                                                VkImage*              resolved_image,
+                                                VkDeviceMemory*       resolved_image_memory,
+                                                VkImageView*          resolved_image_view,
+                                                VkImageView*          ms_image_view)
+{
+    GFXRECON_ASSERT(memory_properties_);
+    GFXRECON_ASSERT(resolved_image != nullptr);
+    GFXRECON_ASSERT(resolved_image_memory != nullptr);
+    GFXRECON_ASSERT(resolved_image_view != nullptr);
+    GFXRECON_ASSERT(ms_image_view != nullptr);
+    // According to the spec a VK_IMAGE_TYPE_3D image cannot be multisampled
+    GFXRECON_ASSERT(type == VK_IMAGE_TYPE_1D || type == VK_IMAGE_TYPE_2D);
+    // A single aspect is expected per call. Depth/stencil images are resolved one aspect at a time.
+    GFXRECON_ASSERT(aspect == VK_IMAGE_ASPECT_COLOR_BIT || aspect == VK_IMAGE_ASPECT_DEPTH_BIT ||
+                    aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+
+    *resolved_image        = VK_NULL_HANDLE;
+    *resolved_image_memory = VK_NULL_HANDLE;
+    *resolved_image_view   = VK_NULL_HANDLE;
+    *ms_image_view         = VK_NULL_HANDLE;
+
+    const VkImageUsageFlags usage_flags =
+        ((vkuFormatIsDepthOrStencil(format) ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+                                            : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) |
+         VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+
+    if (!IsImageSupported(instance_table_,
+                          physical_device_,
+                          format,
+                          type,
+                          extent,
+                          1,
+                          array_layers,
+                          VK_SAMPLE_COUNT_1_BIT,
+                          tiling,
+                          usage_flags,
+                          ((vkuFormatIsDepthOrStencil(format) ? VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+                                                              : VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) |
+                           VK_FORMAT_FEATURE_TRANSFER_SRC_BIT),
+                          0))
+    {
+        return VK_ERROR_FORMAT_NOT_SUPPORTED;
+    }
+
+    // Create resolved image
+    const VkImageCreateInfo image_ci = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+                                         nullptr,
+                                         0,
+                                         type,
+                                         format,
+                                         extent,
+                                         1,
+                                         array_layers,
+                                         VK_SAMPLE_COUNT_1_BIT,
+                                         tiling,
+                                         usage_flags,
+                                         VK_SHARING_MODE_EXCLUSIVE,
+                                         0,
+                                         nullptr,
+                                         VK_IMAGE_LAYOUT_UNDEFINED };
+
+    VkResult res = device_table_.CreateImage(device_, &image_ci, nullptr, resolved_image);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("%s:%u: vkCreateImage failed with %s", __FILE__, __LINE__, util::ToString(res).c_str());
+        return res;
+    }
+
+    VkMemoryRequirements memory_requirements;
+    uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
+    device_table_.GetImageMemoryRequirements(device_, *resolved_image, &memory_requirements);
+    bool found = FindMemoryTypeIndex(*memory_properties_,
+                                     memory_requirements.memoryTypeBits,
+                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                     &memory_type_index,
+                                     nullptr);
+    if (!found)
+    {
+        GFXRECON_LOG_ERROR(
+            "Failed to find a device local memory type for multisample resolve temporary image creation");
+        device_table_.DestroyImage(device_, *resolved_image, nullptr);
+        *resolved_image = VK_NULL_HANDLE;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+    alloc_info.pNext                = nullptr;
+    alloc_info.allocationSize       = memory_requirements.size;
+    alloc_info.memoryTypeIndex      = memory_type_index;
+
+    res = device_table_.AllocateMemory(device_, &alloc_info, nullptr, resolved_image_memory);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to allocate device memory type for multisample resolve temporary image creation");
+        device_table_.DestroyImage(device_, *resolved_image, nullptr);
+        *resolved_image = VK_NULL_HANDLE;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    res = device_table_.BindImageMemory(device_, *resolved_image, *resolved_image_memory, 0);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING(
+            "%s:%u: vkBindImageMemory failed with %s", __FILE__, __LINE__, util::ToString(res).c_str());
+        device_table_.DestroyImage(device_, *resolved_image, nullptr);
+        device_table_.FreeMemory(device_, *resolved_image_memory, nullptr);
+        *resolved_image        = VK_NULL_HANDLE;
+        *resolved_image_memory = VK_NULL_HANDLE;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Create image view for resolved image
+    const VkImageViewType image_view_type =
+        type == VK_IMAGE_TYPE_1D ? (array_layers > 1 ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D)
+                                 : (array_layers > 1 ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D);
+
+    VkImageViewCreateInfo image_view_ci = {
+        VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        nullptr,
+        0,
+        *resolved_image,
+        image_view_type,
+        format,
+        { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
+        { static_cast<VkImageAspectFlags>(aspect), 0, 1, 0, array_layers }
+    };
+
+    res = device_table_.CreateImageView(device_, &image_view_ci, nullptr, resolved_image_view);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING(
+            "%s:%u: vkCreateImageView failed with %s", __FILE__, __LINE__, util::ToString(res).c_str());
+        device_table_.DestroyImage(device_, *resolved_image, nullptr);
+        device_table_.FreeMemory(device_, *resolved_image_memory, nullptr);
+        *resolved_image        = VK_NULL_HANDLE;
+        *resolved_image_memory = VK_NULL_HANDLE;
+        *resolved_image_view   = VK_NULL_HANDLE;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Create image view for multisampled image
+    image_view_ci.image = image;
+
+    res = device_table_.CreateImageView(device_, &image_view_ci, nullptr, ms_image_view);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING(
+            "%s:%u: vkCreateImageView failed with %s", __FILE__, __LINE__, util::ToString(res).c_str());
+        device_table_.DestroyImageView(device_, *resolved_image_view, nullptr);
+        device_table_.DestroyImage(device_, *resolved_image, nullptr);
+        device_table_.FreeMemory(device_, *resolved_image_memory, nullptr);
+        *resolved_image        = VK_NULL_HANDLE;
+        *resolved_image_memory = VK_NULL_HANDLE;
+        *resolved_image_view   = VK_NULL_HANDLE;
+        *ms_image_view         = VK_NULL_HANDLE;
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    // Transition new image into appropriate layout. For
+    VkImageMemoryBarrier img_barrier = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                                         nullptr,
+                                         0,
+                                         VK_ACCESS_MEMORY_WRITE_BIT,
+                                         VK_IMAGE_LAYOUT_UNDEFINED,
+                                         VK_IMAGE_LAYOUT_GENERAL,
+                                         VK_QUEUE_FAMILY_IGNORED,
+                                         VK_QUEUE_FAMILY_IGNORED,
+                                         *resolved_image,
+                                         { graphics::GetFormatAspects(format), 0, 1, 0, VK_REMAINING_ARRAY_LAYERS } };
+
+    device_table_.CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &img_barrier);
+
+    // Transition multisampled source image into appropriate layout
+    img_barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT | VK_ACCESS_TRANSFER_READ_BIT;
+    img_barrier.dstAccessMask =
+        vkuFormatIsDepthOrStencil(format)
+            ? (VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
+            : (VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+    img_barrier.oldLayout = current_layout;
+    img_barrier.newLayout = vkuFormatIsDepthOrStencil(format) ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+                                                              : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    img_barrier.image     = image;
+    device_table_.CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &img_barrier);
+
+    VkRenderingInfo rendering_info = { VK_STRUCTURE_TYPE_RENDERING_INFO,
+                                       nullptr,
+                                       0,
+                                       VkRect2D{ { 0, 0 }, { extent.width, extent.height } },
+                                       array_layers,
+                                       0,
+                                       0,
+                                       nullptr,
+                                       nullptr,
+                                       nullptr };
+
+    const VkRenderingAttachmentInfo attachment = { VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+                                                   nullptr,
+                                                   *ms_image_view,
+                                                   vkuFormatIsDepthOrStencil(format)
+                                                       ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+                                                       : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                   vkuFormatIsDepthOrStencil(format) ? VK_RESOLVE_MODE_SAMPLE_ZERO_BIT
+                                                                                     : VK_RESOLVE_MODE_AVERAGE_BIT,
+                                                   *resolved_image_view,
+                                                   VK_IMAGE_LAYOUT_GENERAL,
+                                                   VK_ATTACHMENT_LOAD_OP_LOAD,
+                                                   VK_ATTACHMENT_STORE_OP_STORE,
+                                                   {} };
+    if (aspect == VK_IMAGE_ASPECT_COLOR_BIT)
+    {
+        rendering_info.colorAttachmentCount = 1;
+        rendering_info.pColorAttachments    = &attachment;
+    }
+    else if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+    {
+        rendering_info.pDepthAttachment = &attachment;
+    }
+    else if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+    {
+        rendering_info.pStencilAttachment = &attachment;
+    }
+
+    device_table_.CmdBeginRenderingKHR(command_buffer, &rendering_info);
+    device_table_.CmdEndRenderingKHR(command_buffer);
+
+    // Transition resolved image
+    img_barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+    img_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    img_barrier.oldLayout     = VK_IMAGE_LAYOUT_GENERAL;
+    img_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    img_barrier.image         = *resolved_image;
+    device_table_.CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &img_barrier);
+
+    // Transition multisampled image back to original layout
+    img_barrier.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    img_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    img_barrier.oldLayout     = vkuFormatIsDepthOrStencil(format) ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+                                                                  : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    img_barrier.newLayout     = current_layout;
+    img_barrier.image         = image;
+    device_table_.CmdPipelineBarrier(command_buffer,
+                                     VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     0,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &img_barrier);
+
+    return VK_SUCCESS;
+}
+
 VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
                                            VkImage           image,
                                            VkFormat          format,
@@ -1586,20 +2014,6 @@ VkResult VulkanResourcesUtil::ResolveImage(VkCommandBuffer   command_buffer,
 {
     GFXRECON_ASSERT(memory_properties_);
     GFXRECON_ASSERT((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
-
-    VkFormatProperties format_properties{};
-    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
-    if ((tiling == VK_IMAGE_TILING_OPTIMAL &&
-         (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-             VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
-        (((tiling == VK_IMAGE_TILING_LINEAR &&
-           (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-               VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))))
-    {
-        GFXRECON_LOG_WARNING_ONCE(
-            "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
-        return VK_ERROR_FEATURE_NOT_PRESENT;
-    }
 
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -1787,6 +2201,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
         VkDeviceSize              staging_offset      = 0;
         VkImage                   resolve_image       = VK_NULL_HANDLE;
         VkDeviceMemory            resolve_memory      = VK_NULL_HANDLE;
+        VkImageView               resolve_image_view  = VK_NULL_HANDLE;
+        VkImageView               ms_image_view       = VK_NULL_HANDLE;
         VkImage                   scaled_image        = VK_NULL_HANDLE;
         VkDeviceMemory            scaled_image_memory = VK_NULL_HANDLE;
         bool                      use_blit            = false;
@@ -1804,6 +2220,8 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
             std::swap(staging_offset, other.staging_offset);
             std::swap(resolve_image, other.resolve_image);
             std::swap(resolve_memory, other.resolve_memory);
+            std::swap(resolve_image_view, other.resolve_image_view);
+            std::swap(ms_image_view, other.ms_image_view);
             std::swap(scaled_image, other.scaled_image);
             std::swap(scaled_image_memory, other.scaled_image_memory);
             std::swap(use_blit, other.use_blit);
@@ -1824,6 +2242,16 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
                 {
                     device_table->DestroyImage(device, resolve_image, nullptr);
                     device_table->FreeMemory(device, resolve_memory, nullptr);
+                }
+
+                // Image views created by the render-pass resolve path (null for the transfer path).
+                if (resolve_image_view != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyImageView(device, resolve_image_view, nullptr);
+                }
+                if (ms_image_view != VK_NULL_HANDLE)
+                {
+                    device_table->DestroyImageView(device, ms_image_view, nullptr);
                 }
 
                 if (scaled_image != VK_NULL_HANDLE)
@@ -1960,16 +2388,44 @@ VkResult VulkanResourcesUtil::ReadImageResources(const std::vector<ImageResource
 
             if (img.sample_count != VK_SAMPLE_COUNT_1_BIT)
             {
-                result = ResolveImage(command_buffer,
-                                      img.image,
-                                      img.format,
-                                      img.type,
-                                      img.tiling,
-                                      img.extent,
-                                      img.layer_count,
-                                      img.layout,
-                                      &tmp_data[i].resolve_image,
-                                      &tmp_data[i].resolve_memory);
+                switch (SelectResolveMethod(
+                    instance_table_, physical_device_, img.format, img.tiling, physical_device_features_info_))
+                {
+                    case MultisampleResolveMethod::kTransfer:
+                        result = ResolveImage(command_buffer,
+                                              img.image,
+                                              img.format,
+                                              img.type,
+                                              img.tiling,
+                                              img.extent,
+                                              img.layer_count,
+                                              img.layout,
+                                              &tmp_data[i].resolve_image,
+                                              &tmp_data[i].resolve_memory);
+                        break;
+
+                    case MultisampleResolveMethod::kRenderPass:
+                        result = RenderPassResolve(command_buffer,
+                                                   img.image,
+                                                   img.format,
+                                                   img.type,
+                                                   img.tiling,
+                                                   img.extent,
+                                                   img.layer_count,
+                                                   img.layout,
+                                                   img.aspect,
+                                                   &tmp_data[i].resolve_image,
+                                                   &tmp_data[i].resolve_memory,
+                                                   &tmp_data[i].resolve_image_view,
+                                                   &tmp_data[i].ms_image_view);
+                        break;
+
+                    case MultisampleResolveMethod::kUnsupported:
+                        GFXRECON_LOG_WARNING_ONCE("Multisampled images with format %s cannot be resolved",
+                                                  util::ToString(img.format).c_str());
+                        return VK_ERROR_FEATURE_NOT_PRESENT;
+                }
+
                 if (result != VK_SUCCESS)
                 {
                     last_error = result;

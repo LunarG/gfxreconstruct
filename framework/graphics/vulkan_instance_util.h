@@ -37,6 +37,8 @@ struct VulkanInstanceUtilInfo
     std::vector<std::string> enabled_extensions{};
 
     bool IsEnabledExtension(const char* extension) const;
+
+    void PostCreateInstanceUpdateState(const VkInstanceCreateInfo& modified_create_info);
 };
 
 GFXRECON_END_NAMESPACE(graphics)
