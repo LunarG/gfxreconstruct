@@ -1046,8 +1046,7 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         std::set<format::HandleId> allocatedLoopResources;
         bool inAllocatedLoopResources(format::HandleId handle)
         {
-             return std::find(allocatedLoopResources.begin(), allocatedLoopResources.end(), handle) !=
-                    allocatedLoopResources.end();
+             return allocatedLoopResources.contains(handle);
         }
 };
 

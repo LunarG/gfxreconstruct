@@ -141,7 +141,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     // Support for vkMapMemory/vkUnMapMemory
     bool inMappedLoopMemory(format::HandleId handle)
     {
-        return std::find(mapped_loop_memory.begin(), mapped_loop_memory.end(), handle) != mapped_loop_memory.end();
+        return mapped_loop_memory.contains(handle);
     }
 
     // Private data
