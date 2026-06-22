@@ -138,12 +138,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     };
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
 
-    // Support for vkMapMemory/vkUnMapMemory
-    bool inMappedLoopMemory(format::HandleId handle)
-    {
-        return mapped_loop_memory.contains(handle);
-    }
-
     // Private data
   private:
     graphics::FrameLoopInfo& frame_loop_info_;

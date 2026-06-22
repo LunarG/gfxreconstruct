@@ -50,7 +50,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateInstance(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateInstance(call_info, returnValue, pCreateInfo, pAllocator, pInstance);
         // If we are looping, save the handle in allocatedLoopResources
@@ -76,10 +76,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(instance))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(instance))
         VulkanReplayConsumer::Process_vkDestroyInstance(call_info, instance, pAllocator);
     }
-    else if (inAllocatedLoopResources(instance))
+    else if (allocatedLoopResources.contains(instance))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -112,7 +112,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDevice(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDevice(call_info, returnValue, physicalDevice, pCreateInfo, pAllocator, pDevice);
         // If we are looping, save the handle in allocatedLoopResources
@@ -138,10 +138,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(device))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(device))
         VulkanReplayConsumer::Process_vkDestroyDevice(call_info, device, pAllocator);
     }
-    else if (inAllocatedLoopResources(device))
+    else if (allocatedLoopResources.contains(device))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -174,7 +174,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateMemory(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkAllocateMemory(call_info, returnValue, device, pAllocateInfo, pAllocator, pMemory);
         // If we are looping, save the handle in allocatedLoopResources
@@ -201,10 +201,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeMemory(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(memory))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(memory))
         VulkanReplayConsumer::Process_vkFreeMemory(call_info, device, memory, pAllocator);
     }
-    else if (inAllocatedLoopResources(memory))
+    else if (allocatedLoopResources.contains(memory))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -285,7 +285,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFence(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateFence(call_info, returnValue, device, pCreateInfo, pAllocator, pFence);
         // If we are looping, save the handle in allocatedLoopResources
@@ -312,10 +312,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(fence))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(fence))
         VulkanReplayConsumer::Process_vkDestroyFence(call_info, device, fence, pAllocator);
     }
-    else if (inAllocatedLoopResources(fence))
+    else if (allocatedLoopResources.contains(fence))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -348,7 +348,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSemaphore(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateSemaphore(call_info, returnValue, device, pCreateInfo, pAllocator, pSemaphore);
         // If we are looping, save the handle in allocatedLoopResources
@@ -375,10 +375,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(semaphore))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(semaphore))
         VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, device, semaphore, pAllocator);
     }
-    else if (inAllocatedLoopResources(semaphore))
+    else if (allocatedLoopResources.contains(semaphore))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -411,7 +411,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateQueryPool(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateQueryPool(call_info, returnValue, device, pCreateInfo, pAllocator, pQueryPool);
         // If we are looping, save the handle in allocatedLoopResources
@@ -438,10 +438,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(queryPool))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(queryPool))
         VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, device, queryPool, pAllocator);
     }
-    else if (inAllocatedLoopResources(queryPool))
+    else if (allocatedLoopResources.contains(queryPool))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -474,7 +474,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateBuffer(call_info, returnValue, device, pCreateInfo, pAllocator, pBuffer);
         // If we are looping, save the handle in allocatedLoopResources
@@ -501,10 +501,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(buffer))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(buffer))
         VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, device, buffer, pAllocator);
     }
-    else if (inAllocatedLoopResources(buffer))
+    else if (allocatedLoopResources.contains(buffer))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -537,7 +537,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImage(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateImage(call_info, returnValue, device, pCreateInfo, pAllocator, pImage);
         // If we are looping, save the handle in allocatedLoopResources
@@ -564,10 +564,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImage(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(image))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(image))
         VulkanReplayConsumer::Process_vkDestroyImage(call_info, device, image, pAllocator);
     }
-    else if (inAllocatedLoopResources(image))
+    else if (allocatedLoopResources.contains(image))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -600,7 +600,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImageView(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateImageView(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
         // If we are looping, save the handle in allocatedLoopResources
@@ -627,10 +627,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(imageView))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(imageView))
         VulkanReplayConsumer::Process_vkDestroyImageView(call_info, device, imageView, pAllocator);
     }
-    else if (inAllocatedLoopResources(imageView))
+    else if (allocatedLoopResources.contains(imageView))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -662,10 +662,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(commandPool))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(commandPool))
         VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, device, commandPool, pAllocator);
     }
-    else if (inAllocatedLoopResources(commandPool))
+    else if (allocatedLoopResources.contains(commandPool))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -727,7 +727,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateEvent(call_info, returnValue, device, pCreateInfo, pAllocator, pEvent);
         // If we are looping, save the handle in allocatedLoopResources
@@ -754,10 +754,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(event))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(event))
         VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
     }
-    else if (inAllocatedLoopResources(event))
+    else if (allocatedLoopResources.contains(event))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -790,7 +790,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBufferView(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateBufferView(call_info, returnValue, device, pCreateInfo, pAllocator, pView);
         // If we are looping, save the handle in allocatedLoopResources
@@ -817,10 +817,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBufferView(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(bufferView))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(bufferView))
         VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, device, bufferView, pAllocator);
     }
-    else if (inAllocatedLoopResources(bufferView))
+    else if (allocatedLoopResources.contains(bufferView))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -853,7 +853,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShaderModule(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateShaderModule(call_info, returnValue, device, pCreateInfo, pAllocator, pShaderModule);
         // If we are looping, save the handle in allocatedLoopResources
@@ -880,10 +880,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderModule(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(shaderModule))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(shaderModule))
         VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, device, shaderModule, pAllocator);
     }
-    else if (inAllocatedLoopResources(shaderModule))
+    else if (allocatedLoopResources.contains(shaderModule))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -916,7 +916,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineCache(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreatePipelineCache(call_info, returnValue, device, pCreateInfo, pAllocator, pPipelineCache);
         // If we are looping, save the handle in allocatedLoopResources
@@ -943,10 +943,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineCache(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(pipelineCache))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(pipelineCache))
         VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, device, pipelineCache, pAllocator);
     }
-    else if (inAllocatedLoopResources(pipelineCache))
+    else if (allocatedLoopResources.contains(pipelineCache))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -999,7 +999,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
         for (uint32_t i=0; i < createInfoCount; i++)
         {
             format::HandleId handle = *(pPipelines[i].GetPointer());
-            if (!inAllocatedLoopResources(handle))
+            if (!allocatedLoopResources.contains(handle))
             {
                 doReplay = true;
                 break;
@@ -1037,10 +1037,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipeline(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(pipeline))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(pipeline))
         VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, device, pipeline, pAllocator);
     }
-    else if (inAllocatedLoopResources(pipeline))
+    else if (allocatedLoopResources.contains(pipeline))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1073,7 +1073,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineLayout(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreatePipelineLayout(call_info, returnValue, device, pCreateInfo, pAllocator, pPipelineLayout);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1100,10 +1100,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineLayout(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(pipelineLayout))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(pipelineLayout))
         VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, device, pipelineLayout, pAllocator);
     }
-    else if (inAllocatedLoopResources(pipelineLayout))
+    else if (allocatedLoopResources.contains(pipelineLayout))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1136,7 +1136,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSampler(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateSampler(call_info, returnValue, device, pCreateInfo, pAllocator, pSampler);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1163,10 +1163,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySampler(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(sampler))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(sampler))
         VulkanReplayConsumer::Process_vkDestroySampler(call_info, device, sampler, pAllocator);
     }
-    else if (inAllocatedLoopResources(sampler))
+    else if (allocatedLoopResources.contains(sampler))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1199,7 +1199,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorSetLayout(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDescriptorSetLayout(call_info, returnValue, device, pCreateInfo, pAllocator, pSetLayout);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1226,10 +1226,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(descriptorSetLayout))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(descriptorSetLayout))
         VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, device, descriptorSetLayout, pAllocator);
     }
-    else if (inAllocatedLoopResources(descriptorSetLayout))
+    else if (allocatedLoopResources.contains(descriptorSetLayout))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1266,7 +1266,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
         for (uint32_t i=0; i < createInfoCount; i++)
         {
             format::HandleId handle = *(pPipelines[i].GetPointer());
-            if (!inAllocatedLoopResources(handle))
+            if (!allocatedLoopResources.contains(handle))
             {
                 doReplay = true;
                 break;
@@ -1305,7 +1305,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFramebuffer(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateFramebuffer(call_info, returnValue, device, pCreateInfo, pAllocator, pFramebuffer);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1332,10 +1332,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFramebuffer(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(framebuffer))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(framebuffer))
         VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, device, framebuffer, pAllocator);
     }
-    else if (inAllocatedLoopResources(framebuffer))
+    else if (allocatedLoopResources.contains(framebuffer))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1368,7 +1368,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateRenderPass(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1395,10 +1395,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(renderPass))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(renderPass))
         VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, device, renderPass, pAllocator);
     }
-    else if (inAllocatedLoopResources(renderPass))
+    else if (allocatedLoopResources.contains(renderPass))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1461,7 +1461,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorUpdateTemplate
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplate(call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1488,10 +1488,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(descriptorUpdateTemplate))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(descriptorUpdateTemplate))
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, device, descriptorUpdateTemplate, pAllocator);
     }
-    else if (inAllocatedLoopResources(descriptorUpdateTemplate))
+    else if (allocatedLoopResources.contains(descriptorUpdateTemplate))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1524,7 +1524,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversion(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(call_info, returnValue, device, pCreateInfo, pAllocator, pYcbcrConversion);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1551,10 +1551,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(ycbcrConversion))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(ycbcrConversion))
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, device, ycbcrConversion, pAllocator);
     }
-    else if (inAllocatedLoopResources(ycbcrConversion))
+    else if (allocatedLoopResources.contains(ycbcrConversion))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1587,7 +1587,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateRenderPass2(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1615,7 +1615,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlot(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreatePrivateDataSlot(call_info, returnValue, device, pCreateInfo, pAllocator, pPrivateDataSlot);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1642,10 +1642,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(privateDataSlot))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(privateDataSlot))
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, pAllocator);
     }
-    else if (inAllocatedLoopResources(privateDataSlot))
+    else if (allocatedLoopResources.contains(privateDataSlot))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1720,10 +1720,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySurfaceKHR(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(surface))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(surface))
         VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, instance, surface, pAllocator);
     }
-    else if (inAllocatedLoopResources(surface))
+    else if (allocatedLoopResources.contains(surface))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1756,7 +1756,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSwapchainKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateSwapchainKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pSwapchain);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1783,10 +1783,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySwapchainKHR(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(swapchain))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(swapchain))
         VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, device, swapchain, pAllocator);
     }
-    else if (inAllocatedLoopResources(swapchain))
+    else if (allocatedLoopResources.contains(swapchain))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -1820,7 +1820,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayModeKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDisplayModeKHR(call_info, returnValue, physicalDevice, display, pCreateInfo, pAllocator, pMode);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1848,7 +1848,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayPlaneSurfaceKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1879,7 +1879,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
         for (uint32_t i=0; i < swapchainCount; i++)
         {
             format::HandleId handle = *(pSwapchains[i].GetPointer());
-            if (!inAllocatedLoopResources(handle))
+            if (!allocatedLoopResources.contains(handle))
             {
                 doReplay = true;
                 break;
@@ -1918,7 +1918,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXlibSurfaceKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1946,7 +1946,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXcbSurfaceKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -1974,7 +1974,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWaylandSurfaceKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2002,7 +2002,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAndroidSurfaceKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2030,7 +2030,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWin32SurfaceKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2058,7 +2058,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateVideoSessionKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateVideoSessionKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pVideoSession);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2085,10 +2085,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionKHR(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(videoSession))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(videoSession))
         VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, device, videoSession, pAllocator);
     }
-    else if (inAllocatedLoopResources(videoSession))
+    else if (allocatedLoopResources.contains(videoSession))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2137,7 +2137,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateVideoSessionParametersKH
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateVideoSessionParametersKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pVideoSessionParameters);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2164,10 +2164,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionParametersK
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(videoSessionParameters))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(videoSessionParameters))
         VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, device, videoSessionParameters, pAllocator);
     }
-    else if (inAllocatedLoopResources(videoSessionParameters))
+    else if (allocatedLoopResources.contains(videoSessionParameters))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2214,7 +2214,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorUpdateTemplate
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2241,10 +2241,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(descriptorUpdateTemplate))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(descriptorUpdateTemplate))
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, device, descriptorUpdateTemplate, pAllocator);
     }
-    else if (inAllocatedLoopResources(descriptorUpdateTemplate))
+    else if (allocatedLoopResources.contains(descriptorUpdateTemplate))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2277,7 +2277,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2KHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(call_info, returnValue, device, pCreateInfo, pAllocator, pRenderPass);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2319,7 +2319,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversionKH
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pYcbcrConversion);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2346,10 +2346,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversionK
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(ycbcrConversion))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(ycbcrConversion))
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, device, ycbcrConversion, pAllocator);
     }
-    else if (inAllocatedLoopResources(ycbcrConversion))
+    else if (allocatedLoopResources.contains(ycbcrConversion))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2411,7 +2411,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDeferredOperationKHR(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDeferredOperationKHR(call_info, returnValue, device, pAllocator, pDeferredOperation);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2438,10 +2438,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDeferredOperationKHR(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(operation))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(operation))
         VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, device, operation, pAllocator);
     }
-    else if (inAllocatedLoopResources(operation))
+    else if (allocatedLoopResources.contains(operation))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2517,10 +2517,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineBinaryKHR(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(pipelineBinary))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(pipelineBinary))
         VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, device, pipelineBinary, pAllocator);
     }
-    else if (inAllocatedLoopResources(pipelineBinary))
+    else if (allocatedLoopResources.contains(pipelineBinary))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2580,7 +2580,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugReportCallbackEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pCallback);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2607,10 +2607,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(callback))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(callback))
         VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, instance, callback, pAllocator);
     }
-    else if (inAllocatedLoopResources(callback))
+    else if (allocatedLoopResources.contains(callback))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2643,7 +2643,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateStreamDescriptorSurfaceG
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2671,7 +2671,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateViSurfaceNN(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateViSurfaceNN(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2745,7 +2745,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIOSSurfaceMVK(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2773,7 +2773,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMacOSSurfaceMVK(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2801,7 +2801,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugUtilsMessengerEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pMessenger);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2828,10 +2828,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(messenger))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(messenger))
         VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, instance, messenger, pAllocator);
     }
-    else if (inAllocatedLoopResources(messenger))
+    else if (allocatedLoopResources.contains(messenger))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2864,7 +2864,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateValidationCacheEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateValidationCacheEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pValidationCache);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2891,10 +2891,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyValidationCacheEXT(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(validationCache))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(validationCache))
         VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, device, validationCache, pAllocator);
     }
-    else if (inAllocatedLoopResources(validationCache))
+    else if (allocatedLoopResources.contains(validationCache))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -2927,7 +2927,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureNV(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateAccelerationStructureNV(call_info, returnValue, device, pCreateInfo, pAllocator, pAccelerationStructure);
         // If we are looping, save the handle in allocatedLoopResources
@@ -2987,7 +2987,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         for (uint32_t i=0; i < createInfoCount; i++)
         {
             format::HandleId handle = *(pPipelines[i].GetPointer());
-            if (!inAllocatedLoopResources(handle))
+            if (!allocatedLoopResources.contains(handle))
             {
                 doReplay = true;
                 break;
@@ -3039,7 +3039,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImagePipeSurfaceFUCHSIA(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3067,7 +3067,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMetalSurfaceEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateMetalSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3108,7 +3108,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateHeadlessSurfaceEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateHeadlessSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3149,7 +3149,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectCommandsLayoutNV
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutNV(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3176,10 +3176,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutN
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(indirectCommandsLayout))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(indirectCommandsLayout))
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, device, indirectCommandsLayout, pAllocator);
     }
-    else if (inAllocatedLoopResources(indirectCommandsLayout))
+    else if (allocatedLoopResources.contains(indirectCommandsLayout))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3212,7 +3212,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlotEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreatePrivateDataSlotEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pPrivateDataSlot);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3239,10 +3239,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlotEXT(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(privateDataSlot))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(privateDataSlot))
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, device, privateDataSlot, pAllocator);
     }
-    else if (inAllocatedLoopResources(privateDataSlot))
+    else if (allocatedLoopResources.contains(privateDataSlot))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3275,7 +3275,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDirectFBSurfaceEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDirectFBSurfaceEXT(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3303,7 +3303,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateScreenSurfaceQNX(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateScreenSurfaceQNX(call_info, returnValue, instance, pCreateInfo, pAllocator, pSurface);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3331,7 +3331,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMicromapEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateMicromapEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pMicromap);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3358,10 +3358,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(micromap))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(micromap))
         VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, device, micromap, pAllocator);
     }
-    else if (inAllocatedLoopResources(micromap))
+    else if (allocatedLoopResources.contains(micromap))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3394,7 +3394,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateOpticalFlowSessionNV(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateOpticalFlowSessionNV(call_info, returnValue, device, pCreateInfo, pAllocator, pSession);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3421,10 +3421,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyOpticalFlowSessionNV(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(session))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(session))
         VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, device, session, pAllocator);
     }
-    else if (inAllocatedLoopResources(session))
+    else if (allocatedLoopResources.contains(session))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3477,7 +3477,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
         for (uint32_t i=0; i < createInfoCount; i++)
         {
             format::HandleId handle = *(pShaders[i].GetPointer());
-            if (!inAllocatedLoopResources(handle))
+            if (!allocatedLoopResources.contains(handle))
             {
                 doReplay = true;
                 break;
@@ -3515,10 +3515,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderEXT(
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(shader))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(shader))
         VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, device, shader, pAllocator);
     }
-    else if (inAllocatedLoopResources(shader))
+    else if (allocatedLoopResources.contains(shader))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3556,7 +3556,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
         for (uint32_t i=0; i < createInfoCount; i++)
         {
             format::HandleId handle = *(pPipelines[i].GetPointer());
-            if (!inAllocatedLoopResources(handle))
+            if (!allocatedLoopResources.contains(handle))
             {
                 doReplay = true;
                 break;
@@ -3595,7 +3595,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelineSession
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateDataGraphPipelineSessionARM(call_info, returnValue, device, pCreateInfo, pAllocator, pSession);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3637,10 +3637,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDataGraphPipelineSessio
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(session))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(session))
         VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, device, session, pAllocator);
     }
-    else if (inAllocatedLoopResources(session))
+    else if (allocatedLoopResources.contains(session))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3673,7 +3673,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectCommandsLayoutEX
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3700,10 +3700,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutE
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(indirectCommandsLayout))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(indirectCommandsLayout))
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, device, indirectCommandsLayout, pAllocator);
     }
-    else if (inAllocatedLoopResources(indirectCommandsLayout))
+    else if (allocatedLoopResources.contains(indirectCommandsLayout))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3736,7 +3736,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectExecutionSetEXT(
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateIndirectExecutionSetEXT(call_info, returnValue, device, pCreateInfo, pAllocator, pIndirectExecutionSet);
         // If we are looping, save the handle in allocatedLoopResources
@@ -3763,10 +3763,10 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectExecutionSetEXT
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(indirectExecutionSet))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(indirectExecutionSet))
         VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, device, indirectExecutionSet, pAllocator);
     }
-    else if (inAllocatedLoopResources(indirectExecutionSet))
+    else if (allocatedLoopResources.contains(indirectExecutionSet))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.
@@ -3799,7 +3799,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureKHR
 
     // Pass the call along if we are not looping or
     // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
     {
         VulkanReplayConsumer::Process_vkCreateAccelerationStructureKHR(call_info, returnValue, device, pCreateInfo, pAllocator, pAccelerationStructure);
         // If we are looping, save the handle in allocatedLoopResources

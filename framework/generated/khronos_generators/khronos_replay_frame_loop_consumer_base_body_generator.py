@@ -57,7 +57,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    format::HandleId handle = *' + values[-1].name + '->GetPointer();\n\n'
             body += '    // Pass the call along if we are not looping or\n'
             body += '    // if we are looping and the handle is not in allocatedLoopResources\n'
-            body += '    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))\n'
+            body += '    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))\n'
             body += '    {\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
             body += '        // If we are looping, save the handle in allocatedLoopResources\n'
@@ -80,7 +80,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '        for (uint32_t i=0; i < '+values[-4].name+'; i++)\n'
             body += '        {\n'
             body += '            format::HandleId handle = *('+values[-1].name+'[i].GetPointer());\n'
-            body += '            if (!inAllocatedLoopResources(handle))\n'
+            body += '            if (!allocatedLoopResources.contains(handle))\n'
             body += '            {\n'
             body += '                doReplay = true;\n'
             body += '                break;\n'
@@ -113,10 +113,10 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
             body += '    if (!getFrameLoopInfo().IsLooping())\n'
             body += '    {\n'
-            body += '        GFXRECON_ASSERT(!inAllocatedLoopResources(' + values[-2].name + '))\n'
+            body += '        GFXRECON_ASSERT(!allocatedLoopResources.contains(' + values[-2].name + '))\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
             body += '    }\n'
-            body += '    else if (inAllocatedLoopResources(' + values[-2].name + '))\n'
+            body += '    else if (allocatedLoopResources.contains(' + values[-2].name + '))\n'
             body += '    {\n'
             body += '        // Looping special case:\n'
             body += '        // This resource has been allocated WITHIN the loop range.\n'

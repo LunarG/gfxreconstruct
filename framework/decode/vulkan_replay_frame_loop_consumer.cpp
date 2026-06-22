@@ -433,7 +433,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo&      
     // if we are looping and the handle is not in mapped_loop_memory
     if (frame_loop_info_.IsLooping())
     {
-        if (inMappedLoopMemory(memory))
+        if (mapped_loop_memory.contains(memory))
         {
             return; // Already mapped in loop range, skip re-mapping
         }
@@ -526,10 +526,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& cal
     //    We are looping and this is the last iteration
     if (!getFrameLoopInfo().IsLooping())
     {
-        GFXRECON_ASSERT(!inAllocatedLoopResources(memory))
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(memory));
         VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
     }
-    else if (inMappedLoopMemory(memory))
+    else if (mapped_loop_memory.contains(memory))
     {
         // Looping special case:
         // This resource has been allocated WITHIN the loop range.

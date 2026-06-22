@@ -1044,10 +1044,6 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
 
     protected:
         std::set<format::HandleId> allocatedLoopResources;
-        bool inAllocatedLoopResources(format::HandleId handle)
-        {
-             return allocatedLoopResources.contains(handle);
-        }
 };
 
 GFXRECON_END_NAMESPACE(decode)
