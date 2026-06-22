@@ -141,7 +141,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     // Support for vkMapMemory/vkUnMapMemory
     bool inMappedLoopMemory(format::HandleId handle)
     {
-        return std::find(mappedLoopMemory.begin(), mappedLoopMemory.end(), handle) != mappedLoopMemory.end();
+        return std::find(mapped_loop_memory.begin(), mapped_loop_memory.end(), handle) != mapped_loop_memory.end();
     }
 
     // Private data
@@ -159,7 +159,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
 
     // Support for vkMapMemory/vkUnMapMemory
-    std::set<format::HandleId> mappedLoopMemory;
+    std::set<format::HandleId> mapped_loop_memory;
 
     // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
     std::unordered_map<format::HandleId, bool> profilingLockState;

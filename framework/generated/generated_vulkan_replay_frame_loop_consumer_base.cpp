@@ -69,16 +69,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyInstance(
     //    We are not looping
     //    We are looping and instance is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(instance) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(instance))
         VulkanReplayConsumer::Process_vkDestroyInstance(call_info, instance, pAllocator);
-        // Remove instance from allocatedLoopResources
-        if (inAllocatedLoopResources(instance))
-        {
-            allocatedLoopResources.erase(instance);
-        }
+    }
+    else if (inAllocatedLoopResources(instance))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyInstance(call_info, instance, pAllocator);
+        allocatedLoopResources.erase(instance);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyInstance(call_info, instance, pAllocator);
     }
 }
 
@@ -118,16 +126,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDevice(
     //    We are not looping
     //    We are looping and device is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(device) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(device))
         VulkanReplayConsumer::Process_vkDestroyDevice(call_info, device, pAllocator);
-        // Remove device from allocatedLoopResources
-        if (inAllocatedLoopResources(device))
-        {
-            allocatedLoopResources.erase(device);
-        }
+    }
+    else if (inAllocatedLoopResources(device))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDevice(call_info, device, pAllocator);
+        allocatedLoopResources.erase(device);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDevice(call_info, device, pAllocator);
     }
 }
 
@@ -168,16 +184,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeMemory(
     //    We are not looping
     //    We are looping and memory is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(memory) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(memory))
         VulkanReplayConsumer::Process_vkFreeMemory(call_info, device, memory, pAllocator);
-        // Remove memory from allocatedLoopResources
-        if (inAllocatedLoopResources(memory))
-        {
-            allocatedLoopResources.erase(memory);
-        }
+    }
+    else if (inAllocatedLoopResources(memory))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkFreeMemory(call_info, device, memory, pAllocator);
+        allocatedLoopResources.erase(memory);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkFreeMemory(call_info, device, memory, pAllocator);
     }
 }
 
@@ -266,16 +290,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
     //    We are not looping
     //    We are looping and fence is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(fence) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(fence))
         VulkanReplayConsumer::Process_vkDestroyFence(call_info, device, fence, pAllocator);
-        // Remove fence from allocatedLoopResources
-        if (inAllocatedLoopResources(fence))
-        {
-            allocatedLoopResources.erase(fence);
-        }
+    }
+    else if (inAllocatedLoopResources(fence))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyFence(call_info, device, fence, pAllocator);
+        allocatedLoopResources.erase(fence);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyFence(call_info, device, fence, pAllocator);
     }
 }
 
@@ -316,16 +348,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySemaphore(
     //    We are not looping
     //    We are looping and semaphore is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(semaphore) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(semaphore))
         VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, device, semaphore, pAllocator);
-        // Remove semaphore from allocatedLoopResources
-        if (inAllocatedLoopResources(semaphore))
-        {
-            allocatedLoopResources.erase(semaphore);
-        }
+    }
+    else if (inAllocatedLoopResources(semaphore))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, device, semaphore, pAllocator);
+        allocatedLoopResources.erase(semaphore);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroySemaphore(call_info, device, semaphore, pAllocator);
     }
 }
 
@@ -366,16 +406,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
     //    We are not looping
     //    We are looping and queryPool is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(queryPool) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(queryPool))
         VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, device, queryPool, pAllocator);
-        // Remove queryPool from allocatedLoopResources
-        if (inAllocatedLoopResources(queryPool))
-        {
-            allocatedLoopResources.erase(queryPool);
-        }
+    }
+    else if (inAllocatedLoopResources(queryPool))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, device, queryPool, pAllocator);
+        allocatedLoopResources.erase(queryPool);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyQueryPool(call_info, device, queryPool, pAllocator);
     }
 }
 
@@ -416,16 +464,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBuffer(
     //    We are not looping
     //    We are looping and buffer is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(buffer) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(buffer))
         VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, device, buffer, pAllocator);
-        // Remove buffer from allocatedLoopResources
-        if (inAllocatedLoopResources(buffer))
-        {
-            allocatedLoopResources.erase(buffer);
-        }
+    }
+    else if (inAllocatedLoopResources(buffer))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, device, buffer, pAllocator);
+        allocatedLoopResources.erase(buffer);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyBuffer(call_info, device, buffer, pAllocator);
     }
 }
 
@@ -466,16 +522,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImage(
     //    We are not looping
     //    We are looping and image is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(image) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(image))
         VulkanReplayConsumer::Process_vkDestroyImage(call_info, device, image, pAllocator);
-        // Remove image from allocatedLoopResources
-        if (inAllocatedLoopResources(image))
-        {
-            allocatedLoopResources.erase(image);
-        }
+    }
+    else if (inAllocatedLoopResources(image))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyImage(call_info, device, image, pAllocator);
+        allocatedLoopResources.erase(image);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyImage(call_info, device, image, pAllocator);
     }
 }
 
@@ -516,16 +580,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
     //    We are not looping
     //    We are looping and imageView is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(imageView) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(imageView))
         VulkanReplayConsumer::Process_vkDestroyImageView(call_info, device, imageView, pAllocator);
-        // Remove imageView from allocatedLoopResources
-        if (inAllocatedLoopResources(imageView))
-        {
-            allocatedLoopResources.erase(imageView);
-        }
+    }
+    else if (inAllocatedLoopResources(imageView))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyImageView(call_info, device, imageView, pAllocator);
+        allocatedLoopResources.erase(imageView);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyImageView(call_info, device, imageView, pAllocator);
     }
 }
 
@@ -543,16 +615,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
     //    We are not looping
     //    We are looping and commandPool is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(commandPool) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(commandPool))
         VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, device, commandPool, pAllocator);
-        // Remove commandPool from allocatedLoopResources
-        if (inAllocatedLoopResources(commandPool))
-        {
-            allocatedLoopResources.erase(commandPool);
-        }
+    }
+    else if (inAllocatedLoopResources(commandPool))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, device, commandPool, pAllocator);
+        allocatedLoopResources.erase(commandPool);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyCommandPool(call_info, device, commandPool, pAllocator);
     }
 }
 
@@ -622,16 +702,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyEvent(
     //    We are not looping
     //    We are looping and event is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(event) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(event))
         VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
-        // Remove event from allocatedLoopResources
-        if (inAllocatedLoopResources(event))
-        {
-            allocatedLoopResources.erase(event);
-        }
+    }
+    else if (inAllocatedLoopResources(event))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
+        allocatedLoopResources.erase(event);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
     }
 }
 
@@ -672,16 +760,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyBufferView(
     //    We are not looping
     //    We are looping and bufferView is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(bufferView) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(bufferView))
         VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, device, bufferView, pAllocator);
-        // Remove bufferView from allocatedLoopResources
-        if (inAllocatedLoopResources(bufferView))
-        {
-            allocatedLoopResources.erase(bufferView);
-        }
+    }
+    else if (inAllocatedLoopResources(bufferView))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, device, bufferView, pAllocator);
+        allocatedLoopResources.erase(bufferView);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyBufferView(call_info, device, bufferView, pAllocator);
     }
 }
 
@@ -722,16 +818,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderModule(
     //    We are not looping
     //    We are looping and shaderModule is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(shaderModule) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(shaderModule))
         VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, device, shaderModule, pAllocator);
-        // Remove shaderModule from allocatedLoopResources
-        if (inAllocatedLoopResources(shaderModule))
-        {
-            allocatedLoopResources.erase(shaderModule);
-        }
+    }
+    else if (inAllocatedLoopResources(shaderModule))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, device, shaderModule, pAllocator);
+        allocatedLoopResources.erase(shaderModule);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyShaderModule(call_info, device, shaderModule, pAllocator);
     }
 }
 
@@ -772,16 +876,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineCache(
     //    We are not looping
     //    We are looping and pipelineCache is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(pipelineCache) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(pipelineCache))
         VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, device, pipelineCache, pAllocator);
-        // Remove pipelineCache from allocatedLoopResources
-        if (inAllocatedLoopResources(pipelineCache))
-        {
-            allocatedLoopResources.erase(pipelineCache);
-        }
+    }
+    else if (inAllocatedLoopResources(pipelineCache))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, device, pipelineCache, pAllocator);
+        allocatedLoopResources.erase(pipelineCache);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyPipelineCache(call_info, device, pipelineCache, pAllocator);
     }
 }
 
@@ -858,16 +970,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipeline(
     //    We are not looping
     //    We are looping and pipeline is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(pipeline) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(pipeline))
         VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, device, pipeline, pAllocator);
-        // Remove pipeline from allocatedLoopResources
-        if (inAllocatedLoopResources(pipeline))
-        {
-            allocatedLoopResources.erase(pipeline);
-        }
+    }
+    else if (inAllocatedLoopResources(pipeline))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, device, pipeline, pAllocator);
+        allocatedLoopResources.erase(pipeline);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyPipeline(call_info, device, pipeline, pAllocator);
     }
 }
 
@@ -908,16 +1028,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineLayout(
     //    We are not looping
     //    We are looping and pipelineLayout is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(pipelineLayout) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(pipelineLayout))
         VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, device, pipelineLayout, pAllocator);
-        // Remove pipelineLayout from allocatedLoopResources
-        if (inAllocatedLoopResources(pipelineLayout))
-        {
-            allocatedLoopResources.erase(pipelineLayout);
-        }
+    }
+    else if (inAllocatedLoopResources(pipelineLayout))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, device, pipelineLayout, pAllocator);
+        allocatedLoopResources.erase(pipelineLayout);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyPipelineLayout(call_info, device, pipelineLayout, pAllocator);
     }
 }
 
@@ -958,16 +1086,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySampler(
     //    We are not looping
     //    We are looping and sampler is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(sampler) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(sampler))
         VulkanReplayConsumer::Process_vkDestroySampler(call_info, device, sampler, pAllocator);
-        // Remove sampler from allocatedLoopResources
-        if (inAllocatedLoopResources(sampler))
-        {
-            allocatedLoopResources.erase(sampler);
-        }
+    }
+    else if (inAllocatedLoopResources(sampler))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroySampler(call_info, device, sampler, pAllocator);
+        allocatedLoopResources.erase(sampler);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroySampler(call_info, device, sampler, pAllocator);
     }
 }
 
@@ -1008,16 +1144,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
     //    We are not looping
     //    We are looping and descriptorSetLayout is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(descriptorSetLayout) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(descriptorSetLayout))
         VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, device, descriptorSetLayout, pAllocator);
-        // Remove descriptorSetLayout from allocatedLoopResources
-        if (inAllocatedLoopResources(descriptorSetLayout))
-        {
-            allocatedLoopResources.erase(descriptorSetLayout);
-        }
+    }
+    else if (inAllocatedLoopResources(descriptorSetLayout))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, device, descriptorSetLayout, pAllocator);
+        allocatedLoopResources.erase(descriptorSetLayout);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(call_info, device, descriptorSetLayout, pAllocator);
     }
 }
 
@@ -1101,16 +1245,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFramebuffer(
     //    We are not looping
     //    We are looping and framebuffer is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(framebuffer) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(framebuffer))
         VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, device, framebuffer, pAllocator);
-        // Remove framebuffer from allocatedLoopResources
-        if (inAllocatedLoopResources(framebuffer))
-        {
-            allocatedLoopResources.erase(framebuffer);
-        }
+    }
+    else if (inAllocatedLoopResources(framebuffer))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, device, framebuffer, pAllocator);
+        allocatedLoopResources.erase(framebuffer);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyFramebuffer(call_info, device, framebuffer, pAllocator);
     }
 }
 
@@ -1151,16 +1303,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
     //    We are not looping
     //    We are looping and renderPass is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(renderPass) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(renderPass))
         VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, device, renderPass, pAllocator);
-        // Remove renderPass from allocatedLoopResources
-        if (inAllocatedLoopResources(renderPass))
-        {
-            allocatedLoopResources.erase(renderPass);
-        }
+    }
+    else if (inAllocatedLoopResources(renderPass))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, device, renderPass, pAllocator);
+        allocatedLoopResources.erase(renderPass);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, device, renderPass, pAllocator);
     }
 }
 
@@ -1231,16 +1391,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     //    We are not looping
     //    We are looping and descriptorUpdateTemplate is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(descriptorUpdateTemplate) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(descriptorUpdateTemplate))
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, device, descriptorUpdateTemplate, pAllocator);
-        // Remove descriptorUpdateTemplate from allocatedLoopResources
-        if (inAllocatedLoopResources(descriptorUpdateTemplate))
-        {
-            allocatedLoopResources.erase(descriptorUpdateTemplate);
-        }
+    }
+    else if (inAllocatedLoopResources(descriptorUpdateTemplate))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, device, descriptorUpdateTemplate, pAllocator);
+        allocatedLoopResources.erase(descriptorUpdateTemplate);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(call_info, device, descriptorUpdateTemplate, pAllocator);
     }
 }
 
@@ -1281,16 +1449,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
     //    We are not looping
     //    We are looping and ycbcrConversion is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(ycbcrConversion) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(ycbcrConversion))
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, device, ycbcrConversion, pAllocator);
-        // Remove ycbcrConversion from allocatedLoopResources
-        if (inAllocatedLoopResources(ycbcrConversion))
-        {
-            allocatedLoopResources.erase(ycbcrConversion);
-        }
+    }
+    else if (inAllocatedLoopResources(ycbcrConversion))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, device, ycbcrConversion, pAllocator);
+        allocatedLoopResources.erase(ycbcrConversion);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(call_info, device, ycbcrConversion, pAllocator);
     }
 }
 
@@ -1354,16 +1530,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
     //    We are not looping
     //    We are looping and privateDataSlot is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(privateDataSlot) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(privateDataSlot))
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, pAllocator);
-        // Remove privateDataSlot from allocatedLoopResources
-        if (inAllocatedLoopResources(privateDataSlot))
-        {
-            allocatedLoopResources.erase(privateDataSlot);
-        }
+    }
+    else if (inAllocatedLoopResources(privateDataSlot))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, pAllocator);
+        allocatedLoopResources.erase(privateDataSlot);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, pAllocator);
     }
 }
 
@@ -1424,16 +1608,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySurfaceKHR(
     //    We are not looping
     //    We are looping and surface is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(surface) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(surface))
         VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, instance, surface, pAllocator);
-        // Remove surface from allocatedLoopResources
-        if (inAllocatedLoopResources(surface))
-        {
-            allocatedLoopResources.erase(surface);
-        }
+    }
+    else if (inAllocatedLoopResources(surface))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, instance, surface, pAllocator);
+        allocatedLoopResources.erase(surface);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroySurfaceKHR(call_info, instance, surface, pAllocator);
     }
 }
 
@@ -1474,16 +1666,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySwapchainKHR(
     //    We are not looping
     //    We are looping and swapchain is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(swapchain) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(swapchain))
         VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, device, swapchain, pAllocator);
-        // Remove swapchain from allocatedLoopResources
-        if (inAllocatedLoopResources(swapchain))
-        {
-            allocatedLoopResources.erase(swapchain);
-        }
+    }
+    else if (inAllocatedLoopResources(swapchain))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, device, swapchain, pAllocator);
+        allocatedLoopResources.erase(swapchain);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroySwapchainKHR(call_info, device, swapchain, pAllocator);
     }
 }
 
@@ -1710,16 +1910,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionKHR(
     //    We are not looping
     //    We are looping and videoSession is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(videoSession) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(videoSession))
         VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, device, videoSession, pAllocator);
-        // Remove videoSession from allocatedLoopResources
-        if (inAllocatedLoopResources(videoSession))
-        {
-            allocatedLoopResources.erase(videoSession);
-        }
+    }
+    else if (inAllocatedLoopResources(videoSession))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, device, videoSession, pAllocator);
+        allocatedLoopResources.erase(videoSession);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(call_info, device, videoSession, pAllocator);
     }
 }
 
@@ -1776,16 +1984,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyVideoSessionParametersK
     //    We are not looping
     //    We are looping and videoSessionParameters is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(videoSessionParameters) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(videoSessionParameters))
         VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, device, videoSessionParameters, pAllocator);
-        // Remove videoSessionParameters from allocatedLoopResources
-        if (inAllocatedLoopResources(videoSessionParameters))
-        {
-            allocatedLoopResources.erase(videoSessionParameters);
-        }
+    }
+    else if (inAllocatedLoopResources(videoSessionParameters))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, device, videoSessionParameters, pAllocator);
+        allocatedLoopResources.erase(videoSessionParameters);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyVideoSessionParametersKHR(call_info, device, videoSessionParameters, pAllocator);
     }
 }
 
@@ -1840,16 +2056,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorUpdateTemplat
     //    We are not looping
     //    We are looping and descriptorUpdateTemplate is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(descriptorUpdateTemplate) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(descriptorUpdateTemplate))
         VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, device, descriptorUpdateTemplate, pAllocator);
-        // Remove descriptorUpdateTemplate from allocatedLoopResources
-        if (inAllocatedLoopResources(descriptorUpdateTemplate))
-        {
-            allocatedLoopResources.erase(descriptorUpdateTemplate);
-        }
+    }
+    else if (inAllocatedLoopResources(descriptorUpdateTemplate))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, device, descriptorUpdateTemplate, pAllocator);
+        allocatedLoopResources.erase(descriptorUpdateTemplate);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(call_info, device, descriptorUpdateTemplate, pAllocator);
     }
 }
 
@@ -1927,16 +2151,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversionK
     //    We are not looping
     //    We are looping and ycbcrConversion is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(ycbcrConversion) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(ycbcrConversion))
         VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, device, ycbcrConversion, pAllocator);
-        // Remove ycbcrConversion from allocatedLoopResources
-        if (inAllocatedLoopResources(ycbcrConversion))
-        {
-            allocatedLoopResources.erase(ycbcrConversion);
-        }
+    }
+    else if (inAllocatedLoopResources(ycbcrConversion))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, device, ycbcrConversion, pAllocator);
+        allocatedLoopResources.erase(ycbcrConversion);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(call_info, device, ycbcrConversion, pAllocator);
     }
 }
 
@@ -2006,16 +2238,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDeferredOperationKHR(
     //    We are not looping
     //    We are looping and operation is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(operation) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(operation))
         VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, device, operation, pAllocator);
-        // Remove operation from allocatedLoopResources
-        if (inAllocatedLoopResources(operation))
-        {
-            allocatedLoopResources.erase(operation);
-        }
+    }
+    else if (inAllocatedLoopResources(operation))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, device, operation, pAllocator);
+        allocatedLoopResources.erase(operation);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDeferredOperationKHR(call_info, device, operation, pAllocator);
     }
 }
 
@@ -2077,16 +2317,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPipelineBinaryKHR(
     //    We are not looping
     //    We are looping and pipelineBinary is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(pipelineBinary) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(pipelineBinary))
         VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, device, pipelineBinary, pAllocator);
-        // Remove pipelineBinary from allocatedLoopResources
-        if (inAllocatedLoopResources(pipelineBinary))
-        {
-            allocatedLoopResources.erase(pipelineBinary);
-        }
+    }
+    else if (inAllocatedLoopResources(pipelineBinary))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, device, pipelineBinary, pAllocator);
+        allocatedLoopResources.erase(pipelineBinary);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(call_info, device, pipelineBinary, pAllocator);
     }
 }
 
@@ -2154,16 +2402,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
     //    We are not looping
     //    We are looping and callback is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(callback) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(callback))
         VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, instance, callback, pAllocator);
-        // Remove callback from allocatedLoopResources
-        if (inAllocatedLoopResources(callback))
-        {
-            allocatedLoopResources.erase(callback);
-        }
+    }
+    else if (inAllocatedLoopResources(callback))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, instance, callback, pAllocator);
+        allocatedLoopResources.erase(callback);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, instance, callback, pAllocator);
     }
 }
 
@@ -2342,16 +2598,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugUtilsMessengerEXT(
     //    We are not looping
     //    We are looping and messenger is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(messenger) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(messenger))
         VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, instance, messenger, pAllocator);
-        // Remove messenger from allocatedLoopResources
-        if (inAllocatedLoopResources(messenger))
-        {
-            allocatedLoopResources.erase(messenger);
-        }
+    }
+    else if (inAllocatedLoopResources(messenger))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, instance, messenger, pAllocator);
+        allocatedLoopResources.erase(messenger);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(call_info, instance, messenger, pAllocator);
     }
 }
 
@@ -2392,16 +2656,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyValidationCacheEXT(
     //    We are not looping
     //    We are looping and validationCache is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(validationCache) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(validationCache))
         VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, device, validationCache, pAllocator);
-        // Remove validationCache from allocatedLoopResources
-        if (inAllocatedLoopResources(validationCache))
-        {
-            allocatedLoopResources.erase(validationCache);
-        }
+    }
+    else if (inAllocatedLoopResources(validationCache))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, device, validationCache, pAllocator);
+        allocatedLoopResources.erase(validationCache);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(call_info, device, validationCache, pAllocator);
     }
 }
 
@@ -2644,16 +2916,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutN
     //    We are not looping
     //    We are looping and indirectCommandsLayout is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(indirectCommandsLayout) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(indirectCommandsLayout))
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, device, indirectCommandsLayout, pAllocator);
-        // Remove indirectCommandsLayout from allocatedLoopResources
-        if (inAllocatedLoopResources(indirectCommandsLayout))
-        {
-            allocatedLoopResources.erase(indirectCommandsLayout);
-        }
+    }
+    else if (inAllocatedLoopResources(indirectCommandsLayout))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, device, indirectCommandsLayout, pAllocator);
+        allocatedLoopResources.erase(indirectCommandsLayout);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(call_info, device, indirectCommandsLayout, pAllocator);
     }
 }
 
@@ -2694,16 +2974,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlotEXT(
     //    We are not looping
     //    We are looping and privateDataSlot is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(privateDataSlot) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(privateDataSlot))
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, device, privateDataSlot, pAllocator);
-        // Remove privateDataSlot from allocatedLoopResources
-        if (inAllocatedLoopResources(privateDataSlot))
-        {
-            allocatedLoopResources.erase(privateDataSlot);
-        }
+    }
+    else if (inAllocatedLoopResources(privateDataSlot))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, device, privateDataSlot, pAllocator);
+        allocatedLoopResources.erase(privateDataSlot);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(call_info, device, privateDataSlot, pAllocator);
     }
 }
 
@@ -2790,16 +3078,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyMicromapEXT(
     //    We are not looping
     //    We are looping and micromap is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(micromap) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(micromap))
         VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, device, micromap, pAllocator);
-        // Remove micromap from allocatedLoopResources
-        if (inAllocatedLoopResources(micromap))
-        {
-            allocatedLoopResources.erase(micromap);
-        }
+    }
+    else if (inAllocatedLoopResources(micromap))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, device, micromap, pAllocator);
+        allocatedLoopResources.erase(micromap);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyMicromapEXT(call_info, device, micromap, pAllocator);
     }
 }
 
@@ -2840,16 +3136,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyOpticalFlowSessionNV(
     //    We are not looping
     //    We are looping and session is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(session) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(session))
         VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, device, session, pAllocator);
-        // Remove session from allocatedLoopResources
-        if (inAllocatedLoopResources(session))
-        {
-            allocatedLoopResources.erase(session);
-        }
+    }
+    else if (inAllocatedLoopResources(session))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, device, session, pAllocator);
+        allocatedLoopResources.erase(session);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyOpticalFlowSessionNV(call_info, device, session, pAllocator);
     }
 }
 
@@ -2908,16 +3212,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyShaderEXT(
     //    We are not looping
     //    We are looping and shader is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(shader) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(shader))
         VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, device, shader, pAllocator);
-        // Remove shader from allocatedLoopResources
-        if (inAllocatedLoopResources(shader))
-        {
-            allocatedLoopResources.erase(shader);
-        }
+    }
+    else if (inAllocatedLoopResources(shader))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, device, shader, pAllocator);
+        allocatedLoopResources.erase(shader);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyShaderEXT(call_info, device, shader, pAllocator);
     }
 }
 
@@ -3017,16 +3329,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDataGraphPipelineSessio
     //    We are not looping
     //    We are looping and session is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(session) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(session))
         VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, device, session, pAllocator);
-        // Remove session from allocatedLoopResources
-        if (inAllocatedLoopResources(session))
-        {
-            allocatedLoopResources.erase(session);
-        }
+    }
+    else if (inAllocatedLoopResources(session))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, device, session, pAllocator);
+        allocatedLoopResources.erase(session);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyDataGraphPipelineSessionARM(call_info, device, session, pAllocator);
     }
 }
 
@@ -3067,16 +3387,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectCommandsLayoutE
     //    We are not looping
     //    We are looping and indirectCommandsLayout is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(indirectCommandsLayout) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(indirectCommandsLayout))
         VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, device, indirectCommandsLayout, pAllocator);
-        // Remove indirectCommandsLayout from allocatedLoopResources
-        if (inAllocatedLoopResources(indirectCommandsLayout))
-        {
-            allocatedLoopResources.erase(indirectCommandsLayout);
-        }
+    }
+    else if (inAllocatedLoopResources(indirectCommandsLayout))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, device, indirectCommandsLayout, pAllocator);
+        allocatedLoopResources.erase(indirectCommandsLayout);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutEXT(call_info, device, indirectCommandsLayout, pAllocator);
     }
 }
 
@@ -3117,16 +3445,24 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyIndirectExecutionSetEXT
     //    We are not looping
     //    We are looping and indirectExecutionSet is in allocatedLoopResources
     //    We are looping and this is the last iteration
-    if (!getFrameLoopInfo().IsLooping() ||
-        inAllocatedLoopResources(indirectExecutionSet) ||
-        getFrameLoopInfo().IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(indirectExecutionSet))
         VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, device, indirectExecutionSet, pAllocator);
-        // Remove indirectExecutionSet from allocatedLoopResources
-        if (inAllocatedLoopResources(indirectExecutionSet))
-        {
-            allocatedLoopResources.erase(indirectExecutionSet);
-        }
+    }
+    else if (inAllocatedLoopResources(indirectExecutionSet))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, device, indirectExecutionSet, pAllocator);
+        allocatedLoopResources.erase(indirectExecutionSet);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkDestroyIndirectExecutionSetEXT(call_info, device, indirectExecutionSet, pAllocator);
     }
 }
 

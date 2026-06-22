@@ -105,16 +105,25 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    //    We are not looping\n'
             body += '    //    We are looping and ' + values[-2].name + ' is in allocatedLoopResources\n'
             body += '    //    We are looping and this is the last iteration\n'
-            body += '    if (!getFrameLoopInfo().IsLooping() ||\n'
-            body += '        inAllocatedLoopResources(' + values[-2].name + ') ||\n'
-            body += '        getFrameLoopInfo().IsFinalIteration())\n'
+
+            body += '    if (!getFrameLoopInfo().IsLooping())\n'
             body += '    {\n'
+            body += '        GFXRECON_ASSERT(!inAllocatedLoopResources(' + values[-2].name + '))\n'
             body += '        ' + self.genCallReplayConsumer(return_type, name, values)
-            body += '        // Remove ' + values[-2].name + ' from allocatedLoopResources\n'
-            body += '        if (inAllocatedLoopResources(' + values[-2].name + '))\n'
-            body += '        {\n'
-            body += '            allocatedLoopResources.erase(' + values[-2].name + ');\n'
-            body += '        }\n'
+            body += '    }\n'
+            body += '    else if (inAllocatedLoopResources(' + values[-2].name + '))\n'
+            body += '    {\n'
+            body += '        // Looping special case:\n'
+            body += '        // This resource has been allocated WITHIN the loop range.\n'
+            body += '        ' + self.genCallReplayConsumer(return_type, name, values)
+            body += '        allocatedLoopResources.erase(' + values[-2].name + ');\n'
+            body += '    }\n'
+            body += '    else if (getFrameLoopInfo().IsFinalIteration())\n'
+            body += '    {\n'
+            body += '        // Looping special case:\n'
+            body += '        // This resource has been allocated BEFORE the loop range.\n'
+            body += '        // Since it might still be in use during the loop range, ONLY free it in the last iteration.\n'
+            body += '        ' + self.genCallReplayConsumer(return_type, name, values)
             body += '    }\n'
 
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED:
