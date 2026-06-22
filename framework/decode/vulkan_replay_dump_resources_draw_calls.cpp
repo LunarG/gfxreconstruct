@@ -28,6 +28,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "decode/vulkan_descriptor_utils.h"
 #include "graphics/vulkan_resources_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/compressor.h"
@@ -1722,7 +1723,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                     auto&      new_dumped_image = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
                     const auto dumped_desc_entry =
                         render_pass_dumped_descriptors_[rp].image_descriptors.find(desc_tuple);
-                    if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].image_descriptors.end())
+                    if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].image_descriptors.end() ||
+                        dumped_desc_entry->second.image_info != image_info)
                     {
                         VulkanDelegateDumpResourceContext res_info = res_info_base;
                         res_info.dumped_resource                   = &new_dumped_desc;
@@ -1801,7 +1803,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                                                size);
 
                 const auto& dumped_desc_entry = render_pass_dumped_descriptors_[rp].buffer_descriptors.find(desc_tuple);
-                if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end())
+                if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end() ||
+                    dumped_desc_entry->second.buffer_info.capture_id != buffer_info->capture_id)
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1868,7 +1871,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                                                                                size);
 
                 const auto& dumped_desc_entry = render_pass_dumped_descriptors_[rp].buffer_descriptors.find(desc_tuple);
-                if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end())
+                if (dumped_desc_entry == render_pass_dumped_descriptors_[rp].buffer_descriptors.end() ||
+                    dumped_desc_entry->second.buffer_info.capture_id != buffer_info->capture_id)
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1946,7 +1950,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                 auto&       new_dumped_as = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
                 const auto& dumped_descs_entry =
                     render_pass_dumped_descriptors_[rp].acceleration_structures.find(desc_tuple);
-                if (dumped_descs_entry == render_pass_dumped_descriptors_[rp].acceleration_structures.end())
+                if (dumped_descs_entry == render_pass_dumped_descriptors_[rp].acceleration_structures.end() ||
+                    dumped_descs_entry->second.as_info->capture_id != as_info->capture_id)
                 {
                     render_pass_dumped_descriptors_[rp].acceleration_structures.emplace(desc_tuple, new_dumped_as);
 
@@ -2664,6 +2669,25 @@ VkResult DrawCallsDumpingContext::BeginCommandBuffer(VulkanCommandBufferInfo*   
     }
 
     return VK_SUCCESS;
+}
+
+void DrawCallsDumpingContext::PushDescriptorSet(
+    VkShaderStageFlags                                        stage_flags,
+    uint32_t                                                  set,
+    uint32_t                                                  descriptor_write_count,
+    const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes)
+{
+    const std::vector<VkPipelineBindPoint> pipeline_bind_points =
+        graphics::ShaderStageFlagsToPipelineBindPoints(stage_flags);
+    if (std::find(pipeline_bind_points.begin(), pipeline_bind_points.end(), VK_PIPELINE_BIND_POINT_GRAPHICS) ==
+        pipeline_bind_points.end())
+    {
+        return;
+    }
+
+    auto& bound_desc_set = bound_descriptor_sets_gr_[set];
+    HandleDescriptorUpdate(
+        object_info_table_, descriptor_write_count, p_descriptor_writes, &bound_desc_set, stage_flags);
 }
 
 void DrawCallsDumpingContext::BindDescriptorSets(

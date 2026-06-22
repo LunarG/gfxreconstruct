@@ -120,6 +120,11 @@ class DispatchTraceRaysDumpingContext
                             uint32_t                                           dynamicOffsetCount,
                             const uint32_t*                                    pDynamicOffsets);
 
+    void PushDescriptorSet(VkShaderStageFlags                                        stage_flags,
+                           uint32_t                                                  set,
+                           uint32_t                                                  descriptor_write_count,
+                           const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes);
+
     VkResult DumpDispatchTraceRays(Index submit_info_index, Index submit_info_cmd_buf_index);
 
     VkResult DumpMutableResources(const DumpedResourceBase& dumped_resource_base, bool is_dispatch);

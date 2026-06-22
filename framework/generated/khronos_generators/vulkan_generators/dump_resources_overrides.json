@@ -17,6 +17,8 @@
     "vkCmdBindDescriptorSets": "OverrideCmdBindDescriptorSets",
     "vkCmdBindDescriptorSets2": "OverrideCmdBindDescriptorSets2",
     "vkCmdBindDescriptorSets2KHR": "OverrideCmdBindDescriptorSets2",
+    "vkCmdPushDescriptorSet": "OverrideCmdPushDescriptorSet",
+    "vkCmdPushDescriptorSetKHR": "OverrideCmdPushDescriptorSetKHR",
     "vkCmdDispatch": "OverrideCmdDispatch",
     "vkCmdDispatchIndirect": "OverrideCmdDispatchIndirect",
     "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",

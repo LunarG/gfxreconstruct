@@ -21,6 +21,7 @@
 */
 
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_descriptor_utils.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
@@ -390,6 +391,46 @@ void DispatchTraceRaysDumpingContext::FinalizeCommandBuffer(bool is_dispatch)
     else
     {
         ++current_trace_rays_index_;
+    }
+}
+
+void DispatchTraceRaysDumpingContext::PushDescriptorSet(
+    VkShaderStageFlags                                        stage_flags,
+    uint32_t                                                  set,
+    uint32_t                                                  descriptor_write_count,
+    const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes)
+{
+    const std::vector<VkPipelineBindPoint> pipeline_bind_points =
+        graphics::ShaderStageFlagsToPipelineBindPoints(stage_flags);
+
+    const bool has_compute =
+        std::find(pipeline_bind_points.begin(), pipeline_bind_points.end(), VK_PIPELINE_BIND_POINT_COMPUTE) !=
+        pipeline_bind_points.end();
+    const bool has_ray_tracing =
+        std::find(pipeline_bind_points.begin(), pipeline_bind_points.end(), VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR) !=
+        pipeline_bind_points.end();
+
+    if (!has_compute && !has_ray_tracing)
+    {
+        return;
+    }
+
+    if (has_compute)
+    {
+        HandleDescriptorUpdate(object_info_table_,
+                               descriptor_write_count,
+                               p_descriptor_writes,
+                               &bound_descriptor_sets_compute_[set],
+                               stage_flags);
+    }
+
+    if (has_ray_tracing)
+    {
+        HandleDescriptorUpdate(object_info_table_,
+                               descriptor_write_count,
+                               p_descriptor_writes,
+                               &bound_descriptor_sets_ray_tracing_[set],
+                               stage_flags);
     }
 }
 
@@ -1706,7 +1747,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
 
                     auto&       new_dumped_image   = std::get<DumpedImage>(new_dumped_desc.dumped_resource);
                     const auto& dumped_descs_entry = dumped_descriptors.image_descriptors.find(desc_tuple);
-                    if (dumped_descs_entry == dumped_descriptors.image_descriptors.end())
+                    if (dumped_descs_entry == dumped_descriptors.image_descriptors.end() ||
+                        dumped_descs_entry->second.image_info != img_info)
                     {
                         VulkanDelegateDumpResourceContext res_info = res_info_base;
                         res_info.dumped_resource                   = &new_dumped_desc;
@@ -1775,7 +1817,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                     ppl_stage);
 
                 const auto& dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(desc_tuple);
-                if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end())
+                if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end() ||
+                    dumped_desc_entry->second.buffer_info.capture_id != buffer_info->capture_id)
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1842,7 +1885,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                     ppl_stage);
 
                 const auto dumped_desc_entry = dumped_descriptors.buffer_descriptors.find(desc_tuple);
-                if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end())
+                if (dumped_desc_entry == dumped_descriptors.buffer_descriptors.end() ||
+                    dumped_desc_entry->second.buffer_info.capture_id != buffer_info->capture_id)
                 {
                     const auto& new_dumped_buffer = std::get<DumpedBuffer>(new_dumped_desc.dumped_resource);
                     VulkanDelegateDumpResourceContext res_info = res_info_base;
@@ -1923,7 +1967,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
 
                 auto&       new_dumped_as     = std::get<DumpedAccelerationStructure>(new_dumped_desc.dumped_resource);
                 const auto& dumped_desc_entry = dumped_descriptors.acceleration_structures.find(desc_tuple);
-                if (dumped_desc_entry == dumped_descriptors.acceleration_structures.end())
+                if (dumped_desc_entry == dumped_descriptors.acceleration_structures.end() ||
+                    dumped_desc_entry->second.as_info->capture_id != as_info->capture_id)
                 {
                     dumped_descriptors.acceleration_structures.emplace(desc_tuple, new_dumped_as);
 

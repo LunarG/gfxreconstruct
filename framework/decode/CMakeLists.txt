@@ -208,6 +208,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_address_replacer_shaders.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_address_tracker.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_descriptor_utils.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_descriptor_utils.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_captured_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_frame_warm_up.h

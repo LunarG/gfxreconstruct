@@ -21,6 +21,7 @@
 */
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/vulkan_descriptor_utils.h"
 #include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
@@ -1201,6 +1202,77 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
         dr_context->BindDescriptorSets(
             pipeline_bind_point, first_set, desc_set_infos, dynamicOffsetCount, pDynamicOffsets);
     }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdPushDescriptorSet(
+    const ApiCallInfo&                                  call_info,
+    PFN_vkCmdPushDescriptorSet                          func,
+    VkCommandBuffer                                     original_command_buffer,
+    VkPipelineBindPoint                                 pipeline_bind_point,
+    const VulkanPipelineLayoutInfo*                     layout_info,
+    uint32_t                                            set,
+    uint32_t                                            descriptor_write_count,
+    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes)
+{
+    const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts =
+        FindDrawCallDumpingContexts(original_command_buffer);
+    for (auto dc_context : dc_contexts)
+    {
+        dc_context->PushDescriptorSet(PipelineBindPointToShaderStageFlags(pipeline_bind_point),
+                                      set,
+                                      descriptor_write_count,
+                                      p_descriptor_writes);
+
+        CommandBufferIterator first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (CommandBufferIterator it = first; it < last; ++it)
+        {
+            func(*it,
+                 pipeline_bind_point,
+                 layout_info->handle,
+                 set,
+                 descriptor_write_count,
+                 p_descriptor_writes->GetPointer());
+        }
+    }
+
+    const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts =
+        FindDispatchTraceRaysContexts(original_command_buffer);
+    for (auto dr_context : dr_contexts)
+    {
+        VkCommandBuffer dr_cmd_buf = dr_context->GetDispatchRaysCommandBuffer();
+        func(dr_cmd_buf,
+             pipeline_bind_point,
+             layout_info->handle,
+             set,
+             descriptor_write_count,
+             p_descriptor_writes->GetPointer());
+
+        dr_context->PushDescriptorSet(PipelineBindPointToShaderStageFlags(pipeline_bind_point),
+                                      set,
+                                      descriptor_write_count,
+                                      p_descriptor_writes);
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdPushDescriptorSetKHR(
+    const ApiCallInfo&                                  call_info,
+    PFN_vkCmdPushDescriptorSet                          func,
+    VkCommandBuffer                                     original_command_buffer,
+    VkPipelineBindPoint                                 pipeline_bind_point,
+    const VulkanPipelineLayoutInfo*                     layout_info,
+    uint32_t                                            set,
+    uint32_t                                            descriptor_write_count,
+    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes)
+{
+    OverrideCmdPushDescriptorSet(call_info,
+                                 func,
+                                 original_command_buffer,
+                                 pipeline_bind_point,
+                                 layout_info,
+                                 set,
+                                 descriptor_write_count,
+                                 p_descriptor_writes);
 }
 
 void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(

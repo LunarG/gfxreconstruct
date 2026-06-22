@@ -40,6 +40,7 @@
 #endif
 
 #include "graphics/vulkan_feature_util.h"
+#include "decode/vulkan_descriptor_utils.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "decode/vulkan_submit_job.h"
 #include "format/format.h"
@@ -11988,104 +11989,7 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     // The information gathered here is only relevant when dumping or for portability-features
     if (UseExtraDescriptorInfo(device_info))
     {
-        const auto* writes_meta = p_descriptor_writes->GetMetaStructPointer();
-
-        for (uint32_t s = 0; s < descriptor_write_count; ++s)
-        {
-            const auto&              write_meta        = writes_meta[s];
-            VulkanDescriptorSetInfo* dst_desc_set_info = GetObjectInfoTable().GetVkDescriptorSetInfo(write_meta.dstSet);
-            GFXRECON_ASSERT(dst_desc_set_info != nullptr);
-
-            const VkWriteDescriptorSet* write = write_meta.decoded_value;
-            GFXRECON_ASSERT(write != nullptr);
-
-            const uint32_t binding = write->dstBinding;
-            GFXRECON_ASSERT(dst_desc_set_info->descriptors.find(binding) != dst_desc_set_info->descriptors.end());
-            auto& descriptor_set_binding_info = dst_desc_set_info->descriptors[binding];
-            GFXRECON_ASSERT(descriptor_set_binding_info.desc_type == write->descriptorType ||
-                            descriptor_set_binding_info.desc_type == VK_DESCRIPTOR_TYPE_MUTABLE_EXT);
-
-            if (auto* inline_uniform_block_write =
-                    graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write);
-                inline_uniform_block_write != nullptr &&
-                write->descriptorType == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
-            {
-                const uint32_t offset = write->dstArrayElement;
-                const uint32_t size   = write->descriptorCount;
-                GFXRECON_ASSERT(descriptor_set_binding_info.inline_uniform_block.size() >= offset + size);
-                util::platform::MemoryCopy(descriptor_set_binding_info.inline_uniform_block.data() + offset,
-                                           size,
-                                           inline_uniform_block_write->pData,
-                                           size);
-
-                // skip iterating individual bytes in below loop
-                continue;
-            }
-
-            for (uint32_t i = 0; i < write->descriptorCount; ++i)
-            {
-                const uint32_t arr_idx = write->dstArrayElement + i;
-
-                switch (write->descriptorType)
-                {
-                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    {
-                        auto& desc_image_info           = descriptor_set_binding_info.image_info[arr_idx];
-                        desc_image_info.image_layout    = write->pImageInfo[i].imageLayout;
-                        desc_image_info.image_view_info = object_info_table_->GetVkImageViewInfo(
-                            write_meta.pImageInfo->GetMetaStructPointer()[i].imageView);
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                    {
-                        auto& desc_buffer_info       = descriptor_set_binding_info.buffer_info[arr_idx];
-                        desc_buffer_info.buffer_info = object_info_table_->GetVkBufferInfo(
-                            write_meta.pBufferInfo->GetMetaStructPointer()[i].buffer);
-                        desc_buffer_info.offset = write->pBufferInfo[i].offset;
-                        desc_buffer_info.range  = write->pBufferInfo[i].range;
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                    {
-                        descriptor_set_binding_info.texel_buffer_view_info[arr_idx] =
-                            object_info_table_->GetVkBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[i]);
-                    }
-                    break;
-
-                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                    {
-                        const auto* as_descriptors_meta =
-                            GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(write_meta.pNext);
-                        if (as_descriptors_meta != nullptr)
-                        {
-                            const auto* as_ids = as_descriptors_meta->pAccelerationStructures.GetPointer();
-                            for (uint32_t as = 0; as < as_descriptors_meta->decoded_value->accelerationStructureCount;
-                                 ++as)
-                            {
-                                const auto* as_info = object_info_table_->GetVkAccelerationStructureKHRInfo(as_ids[as]);
-                                if (as_info != nullptr)
-                                {
-                                    descriptor_set_binding_info.acceleration_structs_khr_info[arr_idx] = as_info;
-                                }
-                            }
-                        }
-                    }
-                    break;
-
-                    default:
-                        break;
-                }
-            }
-        }
+        HandleDescriptorUpdate(*object_info_table_, descriptor_write_count, p_descriptor_writes);
     }
 }
 

@@ -322,6 +322,24 @@ class VulkanReplayDumpResourcesBase
                                        uint32_t                        dynamicOffsetCount,
                                        const uint32_t*                 pDynamicOffsets);
 
+    void OverrideCmdPushDescriptorSet(const ApiCallInfo&                                  call_info,
+                                      PFN_vkCmdPushDescriptorSet                          func,
+                                      VkCommandBuffer                                     original_command_buffer,
+                                      VkPipelineBindPoint                                 pipeline_bind_point,
+                                      const VulkanPipelineLayoutInfo*                     layout_info,
+                                      uint32_t                                            set,
+                                      uint32_t                                            descriptor_write_count,
+                                      StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes);
+
+    void OverrideCmdPushDescriptorSetKHR(const ApiCallInfo&                                  call_info,
+                                         PFN_vkCmdPushDescriptorSet                          func,
+                                         VkCommandBuffer                                     original_command_buffer,
+                                         VkPipelineBindPoint                                 pipeline_bind_point,
+                                         const VulkanPipelineLayoutInfo*                     layout_info,
+                                         uint32_t                                            set,
+                                         uint32_t                                            descriptor_write_count,
+                                         StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes);
+
     void
     OverrideCmdBindDescriptorSets2(const ApiCallInfo&                                      call_info,
                                    PFN_vkCmdBindDescriptorSets2                            func,
