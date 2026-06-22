@@ -41,6 +41,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkInstance>*           pInstance)
 {
+    // Check for null cases
+    if (pInstance == nullptr || pInstance->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pInstance->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -98,6 +103,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDevice>*             pDevice)
 {
+    // Check for null cases
+    if (pDevice == nullptr || pDevice->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pDevice->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -155,6 +165,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkAllocateMemory(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDeviceMemory>*       pMemory)
 {
+    // Check for null cases
+    if (pMemory == nullptr || pMemory->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pMemory->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -261,6 +276,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFence(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkFence>*              pFence)
 {
+    // Check for null cases
+    if (pFence == nullptr || pFence->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pFence->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -319,6 +339,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSemaphore(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSemaphore>*          pSemaphore)
 {
+    // Check for null cases
+    if (pSemaphore == nullptr || pSemaphore->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSemaphore->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -377,6 +402,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateQueryPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkQueryPool>*          pQueryPool)
 {
+    // Check for null cases
+    if (pQueryPool == nullptr || pQueryPool->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pQueryPool->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -435,6 +465,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
+    // Check for null cases
+    if (pBuffer == nullptr || pBuffer->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pBuffer->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -493,6 +528,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImage(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkImage>*              pImage)
 {
+    // Check for null cases
+    if (pImage == nullptr || pImage->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pImage->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -551,6 +591,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImageView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkImageView>*          pView)
 {
+    // Check for null cases
+    if (pView == nullptr || pView->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pView->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -673,6 +718,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkEvent>*              pEvent)
 {
+    // Check for null cases
+    if (pEvent == nullptr || pEvent->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pEvent->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -731,6 +781,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBufferView(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkBufferView>*         pView)
 {
+    // Check for null cases
+    if (pView == nullptr || pView->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pView->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -789,6 +844,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShaderModule(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderModule>*       pShaderModule)
 {
+    // Check for null cases
+    if (pShaderModule == nullptr || pShaderModule->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pShaderModule->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -847,6 +907,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineCache(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipelineCache>*      pPipelineCache)
 {
+    // Check for null cases
+    if (pPipelineCache == nullptr || pPipelineCache->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pPipelineCache->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -999,6 +1064,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPipelineLayout>*     pPipelineLayout)
 {
+    // Check for null cases
+    if (pPipelineLayout == nullptr || pPipelineLayout->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pPipelineLayout->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1057,6 +1127,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSampler(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSampler>*            pSampler)
 {
+    // Check for null cases
+    if (pSampler == nullptr || pSampler->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSampler->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1115,6 +1190,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorSetLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout)
 {
+    // Check for null cases
+    if (pSetLayout == nullptr || pSetLayout->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSetLayout->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1216,6 +1296,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFramebuffer(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkFramebuffer>*        pFramebuffer)
 {
+    // Check for null cases
+    if (pFramebuffer == nullptr || pFramebuffer->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pFramebuffer->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1274,6 +1359,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
+    // Check for null cases
+    if (pRenderPass == nullptr || pRenderPass->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pRenderPass->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1362,6 +1452,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorUpdateTemplate
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
+    // Check for null cases
+    if (pDescriptorUpdateTemplate == nullptr || pDescriptorUpdateTemplate->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pDescriptorUpdateTemplate->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1420,6 +1515,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversion(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
+    // Check for null cases
+    if (pYcbcrConversion == nullptr || pYcbcrConversion->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pYcbcrConversion->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1478,6 +1578,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
+    // Check for null cases
+    if (pRenderPass == nullptr || pRenderPass->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pRenderPass->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1501,6 +1606,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlot(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
+    // Check for null cases
+    if (pPrivateDataSlot == nullptr || pPrivateDataSlot->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pPrivateDataSlot->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1637,6 +1747,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSwapchainKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchain)
 {
+    // Check for null cases
+    if (pSwapchain == nullptr || pSwapchain->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSwapchain->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1696,6 +1811,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayModeKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDisplayModeKHR>*     pMode)
 {
+    // Check for null cases
+    if (pMode == nullptr || pMode->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pMode->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1719,6 +1839,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDisplayPlaneSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1743,17 +1868,35 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchains)
 {
-    format::HandleId handle = *pSwapchains->GetPointer();
-
-    // Pass the call along if we are not looping or
-    // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
+    bool doReplay = false;
+    if (!getFrameLoopInfo().IsLooping())
+    {
+        doReplay = true;
+    }
+    else
+    {
+        for (uint32_t i=0; i < swapchainCount; i++)
+        {
+            format::HandleId handle = *(pSwapchains[i].GetPointer());
+            if (!inAllocatedLoopResources(handle))
+            {
+                doReplay = true;
+                break;
+            }
+        }
+    }
+    if (doReplay)
     {
         VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(call_info, returnValue, device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
-        // If we are looping, save the handle in allocatedLoopResources
+        // If we are looping, save the handles in allocatedLoopResources
         if (getFrameLoopInfo().IsLooping())
         {
-            allocatedLoopResources.insert(handle);
+            for (uint32_t i=0; i < swapchainCount; i++)
+            {
+                format::HandleId handle = *(pSwapchains[i].GetPointer());
+                allocatedLoopResources.insert(handle);
+            }
         }
     }
 }
@@ -1766,6 +1909,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXlibSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1789,6 +1937,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateXcbSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1812,6 +1965,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWaylandSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1835,6 +1993,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAndroidSurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1858,6 +2021,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateWin32SurfaceKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1881,6 +2049,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateVideoSessionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
 {
+    // Check for null cases
+    if (pVideoSession == nullptr || pVideoSession->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pVideoSession->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -1955,6 +2128,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateVideoSessionParametersKH
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkVideoSessionParametersKHR>* pVideoSessionParameters)
 {
+    // Check for null cases
+    if (pVideoSessionParameters == nullptr || pVideoSessionParameters->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pVideoSessionParameters->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2027,6 +2205,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDescriptorUpdateTemplate
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
+    // Check for null cases
+    if (pDescriptorUpdateTemplate == nullptr || pDescriptorUpdateTemplate->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pDescriptorUpdateTemplate->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2085,6 +2268,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2KHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
+    // Check for null cases
+    if (pRenderPass == nullptr || pRenderPass->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pRenderPass->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2122,6 +2310,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSamplerYcbcrConversionKH
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSamplerYcbcrConversion>* pYcbcrConversion)
 {
+    // Check for null cases
+    if (pYcbcrConversion == nullptr || pYcbcrConversion->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pYcbcrConversion->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2209,6 +2402,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDeferredOperationKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDeferredOperationKHR>* pDeferredOperation)
 {
+    // Check for null cases
+    if (pDeferredOperation == nullptr || pDeferredOperation->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pDeferredOperation->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2373,6 +2571,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugReportCallbackEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
+    // Check for null cases
+    if (pCallback == nullptr || pCallback->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pCallback->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2431,6 +2634,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateStreamDescriptorSurfaceG
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2454,6 +2662,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateViSurfaceNN(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2523,6 +2736,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIOSSurfaceMVK(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2546,6 +2764,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMacOSSurfaceMVK(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2569,6 +2792,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDebugUtilsMessengerEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
+    // Check for null cases
+    if (pMessenger == nullptr || pMessenger->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pMessenger->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2627,6 +2855,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateValidationCacheEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkValidationCacheEXT>* pValidationCache)
 {
+    // Check for null cases
+    if (pValidationCache == nullptr || pValidationCache->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pValidationCache->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2685,6 +2918,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructure)
 {
+    // Check for null cases
+    if (pAccelerationStructure == nullptr || pAccelerationStructure->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pAccelerationStructure->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2792,6 +3030,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateImagePipeSurfaceFUCHSIA(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2815,6 +3058,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMetalSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2851,6 +3099,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateHeadlessSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2887,6 +3140,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectCommandsLayoutNV
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectCommandsLayoutNV>* pIndirectCommandsLayout)
 {
+    // Check for null cases
+    if (pIndirectCommandsLayout == nullptr || pIndirectCommandsLayout->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pIndirectCommandsLayout->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -2945,6 +3203,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePrivateDataSlotEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkPrivateDataSlot>*    pPrivateDataSlot)
 {
+    // Check for null cases
+    if (pPrivateDataSlot == nullptr || pPrivateDataSlot->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pPrivateDataSlot->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3003,6 +3266,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDirectFBSurfaceEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3026,6 +3294,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateScreenSurfaceQNX(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
+    // Check for null cases
+    if (pSurface == nullptr || pSurface->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSurface->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3049,6 +3322,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateMicromapEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkMicromapEXT>*        pMicromap)
 {
+    // Check for null cases
+    if (pMicromap == nullptr || pMicromap->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pMicromap->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3107,6 +3385,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateOpticalFlowSessionNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkOpticalFlowSessionNV>* pSession)
 {
+    // Check for null cases
+    if (pSession == nullptr || pSession->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSession->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3183,17 +3466,35 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
-    format::HandleId handle = *pShaders->GetPointer();
-
-    // Pass the call along if we are not looping or
-    // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !inAllocatedLoopResources(handle))
+    // Pass the call along if we are not looping or if all the handles are not in allocatedLoopResources.
+    bool doReplay = false;
+    if (!getFrameLoopInfo().IsLooping())
+    {
+        doReplay = true;
+    }
+    else
+    {
+        for (uint32_t i=0; i < createInfoCount; i++)
+        {
+            format::HandleId handle = *(pShaders[i].GetPointer());
+            if (!inAllocatedLoopResources(handle))
+            {
+                doReplay = true;
+                break;
+            }
+        }
+    }
+    if (doReplay)
     {
         VulkanReplayConsumer::Process_vkCreateShadersEXT(call_info, returnValue, device, createInfoCount, pCreateInfos, pAllocator, pShaders);
-        // If we are looping, save the handle in allocatedLoopResources
+        // If we are looping, save the handles in allocatedLoopResources
         if (getFrameLoopInfo().IsLooping())
         {
-            allocatedLoopResources.insert(handle);
+            for (uint32_t i=0; i < createInfoCount; i++)
+            {
+                format::HandleId handle = *(pShaders[i].GetPointer());
+                allocatedLoopResources.insert(handle);
+            }
         }
     }
 }
@@ -3285,6 +3586,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelineSession
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDataGraphPipelineSessionARM>* pSession)
 {
+    // Check for null cases
+    if (pSession == nullptr || pSession->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pSession->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3358,6 +3664,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectCommandsLayoutEX
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectCommandsLayoutEXT>* pIndirectCommandsLayout)
 {
+    // Check for null cases
+    if (pIndirectCommandsLayout == nullptr || pIndirectCommandsLayout->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pIndirectCommandsLayout->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3416,6 +3727,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateIndirectExecutionSetEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkIndirectExecutionSetEXT>* pIndirectExecutionSet)
 {
+    // Check for null cases
+    if (pIndirectExecutionSet == nullptr || pIndirectExecutionSet->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pIndirectExecutionSet->GetPointer();
 
     // Pass the call along if we are not looping or
@@ -3474,6 +3790,11 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateAccelerationStructureKHR
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure)
 {
+    // Check for null cases
+    if (pAccelerationStructure == nullptr || pAccelerationStructure->IsNull())
+    {
+        return;
+    }
     format::HandleId handle = *pAccelerationStructure->GetPointer();
 
     // Pass the call along if we are not looping or

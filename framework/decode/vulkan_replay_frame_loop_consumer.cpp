@@ -522,16 +522,26 @@ void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& cal
 
     // Call Process_vkUnmapMemory if:
     //    We are not looping
-    //    We are looping and memory in mapped_loop_memory, i.e. it is mapped/unmapped inside loop
+    //    We are looping and memory is in mapped_loop_memory, i.e. it is mapped/unmapped inside loop
     //    We are looping and this is the last iteration
-    if (!frame_loop_info_.IsLooping() || inMappedLoopMemory(memory) || frame_loop_info_.IsFinalIteration())
+    if (!getFrameLoopInfo().IsLooping())
     {
+        GFXRECON_ASSERT(!inAllocatedLoopResources(memory))
         VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
     }
-    // Remove memory handle from mapped_loop_memory
-    if (inMappedLoopMemory(memory))
+    else if (inMappedLoopMemory(memory))
     {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
         mapped_loop_memory.erase(memory);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
     }
 }
 

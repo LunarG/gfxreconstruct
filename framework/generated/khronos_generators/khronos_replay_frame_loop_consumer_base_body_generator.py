@@ -35,7 +35,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
 
     def genCallReplayConsumer(self, return_type, name, values):
-        call = 'VulkanReplayConsumer::Process_' + name + '('
+        call = f'{self.platform_type}ReplayConsumer::Process_' + name + '('
         args=['call_info']
         if return_type != 'void':
             args.append('returnValue')
@@ -49,6 +49,11 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
         if name in self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES:
 
+            body += '    // Check for null cases\n'
+            body += '    if (' + values[-1].name  + ' == nullptr || ' + values[-1].name  + '->IsNull())\n'
+            body += '    {\n'
+            body += '        return;\n'
+            body += '    }\n'
             body += '    format::HandleId handle = *' + values[-1].name + '->GetPointer();\n\n'
             body += '    // Pass the call along if we are not looping or\n'
             body += '    // if we are looping and the handle is not in allocatedLoopResources\n'
@@ -151,7 +156,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
 
     def generate_replay_frame_loop_consumer_content(self, api_data):
         """Performs C++ code generation for the replay frame loop consumer."""
-        platform_type = api_data.api_class_prefix
+        self.platform_type = api_data.api_class_prefix
 
         self.newline()
 
@@ -167,7 +172,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             cmddef = '\n'
             cmddef += self.make_consumer_func_decl(
                         return_type,
-                        '{}ReplayFrameLoopConsumerBase::Process_'.format(platform_type) + cmd,
+                        '{}ReplayFrameLoopConsumerBase::Process_'.format(self.platform_type) + cmd,
                         values
                         ) + '\n'
             cmddef += '{\n'

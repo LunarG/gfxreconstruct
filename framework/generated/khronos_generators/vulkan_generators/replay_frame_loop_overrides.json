@@ -64,9 +64,7 @@
     "vkCreateTensorViewARM",
     "vkCreateValidationCacheEXT",
     "vkCreateVideoSessionKHR",
-    "vkCreateVideoSessionParametersKHR",
-    "vkCreateShadersEXT",
-    "vkCreateSharedSwapchainsKHR"
+    "vkCreateVideoSessionParametersKHR"
   ],
 
   "comment" : "These are entry points that allocate multiple handles",
@@ -76,7 +74,9 @@
     "vkCreateDataGraphPipelinesARM",
     "vkCreateGraphicsPipelines",
     "vkCreateRayTracingPipelinesKHR",
-    "vkCreateRayTracingPipelinesNV"
+    "vkCreateRayTracingPipelinesNV",
+    "vkCreateShadersEXT",
+    "vkCreateSharedSwapchainsKHR"
   ],
 
   "comment" : "These are entry points that free resources specified via a single handle",
