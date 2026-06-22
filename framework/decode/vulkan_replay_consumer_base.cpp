@@ -313,6 +313,9 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // free replacer internal vulkan-resources
     device_address_replacers_.clear();
 
+    // free frame warm up resources
+    device_frame_warmups_.clear();
+
     // process queued async tasks
     background_queue_.join_all();
     main_thread_queue_.poll();
@@ -3737,6 +3740,9 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
         // free potential swapchain-resources for the device
         GFXRECON_ASSERT(swapchain_)
         swapchain_->CleanDeviceResources(device_info->handle, device_table);
+
+        // free frame warm up resources before the device is destroyed
+        device_frame_warmups_.erase(device_info);
 
         device_info->allocator->Destroy();
     }
