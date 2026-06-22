@@ -53,6 +53,9 @@ class FrameLoopInfo
     /// has already been played at least once and we are currently replaying it again.
     bool IsRepetition() const { return is_repetition_; }
 
+    /// Returns true if this is the final iteration of the loop range
+    bool IsFinalIteration() const { return loop_iterations_ == 1; }
+
     void     SetLooping(bool looping) { is_looping_ = looping; }
     uint32_t GetLoopFrame() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }

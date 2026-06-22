@@ -13,13 +13,13 @@ set(nlohmann_json_DIR "${GFXRECON_SOURCE_DIR}/external/nlohmann-json/share/cmake
 find_package(nlohmann_json REQUIRED CONFIG PATHS "${nlohmann_json_DIR}" NO_DEFAULT_PATH)
 
 include(../../framework/cmake-config/PlatformConfig.cmake)
-add_subdirectory(../../framework/util ${PROJECT_SOURCE_DIR}/../../framework/util/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../../framework/plugin ${PROJECT_SOURCE_DIR}/../../framework/plugin/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/graphics ${PROJECT_SOURCE_DIR}/../../framework/graphics/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/format ${PROJECT_SOURCE_DIR}/../../framework/format/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/decode ${PROJECT_SOURCE_DIR}/../../framework/decode/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/encode ${PROJECT_SOURCE_DIR}/../../framework/encode/build/tools/replay/${ANDROID_ABI})
-add_subdirectory(../../framework/application ${PROJECT_SOURCE_DIR}/../../framework/application/build/tools/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util ${PROJECT_SOURCE_DIR}/build/framework/util/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${PROJECT_SOURCE_DIR}/build/framework/plugin/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics ${PROJECT_SOURCE_DIR}/build/framework/graphics/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format ${PROJECT_SOURCE_DIR}/build/framework/format/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode ${PROJECT_SOURCE_DIR}/build/framework/decode/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode ${PROJECT_SOURCE_DIR}/build/framework/encode/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application ${PROJECT_SOURCE_DIR}/build/framework/application/replay/${ANDROID_ABI})
 
 add_library(gfxrecon-replay
             SHARED
@@ -27,10 +27,16 @@ add_library(gfxrecon-replay
                 ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_pre_processing.h
                 ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.h
                 ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_feature.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.cpp
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.cpp
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
 
 target_include_directories(gfxrecon-replay

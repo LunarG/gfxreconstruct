@@ -42,5 +42,20 @@ bool VulkanInstanceUtilInfo::IsEnabledExtension(const char* extension) const
     return false;
 }
 
+void VulkanInstanceUtilInfo::PostCreateInstanceUpdateState(const VkInstanceCreateInfo& modified_create_info)
+{
+    if (modified_create_info.pApplicationInfo != nullptr)
+    {
+        api_version = modified_create_info.pApplicationInfo->apiVersion;
+    }
+
+    if (modified_create_info.ppEnabledExtensionNames != nullptr && modified_create_info.enabledExtensionCount)
+    {
+        enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
+                                  modified_create_info.ppEnabledExtensionNames +
+                                      modified_create_info.enabledExtensionCount);
+    }
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

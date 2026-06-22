@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2018-2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -22,38 +22,17 @@
 */
 
 #include "replay_settings.h"
+#include "replay_main_common.h"
 
 #include "application/android_context.h"
 #include "application/android_window.h"
 #include "decode/file_processor.h"
-#include "decode/preload_file_processor.h"
-#include "decode/vulkan_replay_frame_loop_consumer.h"
-#include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_tracked_object_info_table.h"
-#include "decode/vulkan_pre_process_consumer.h"
 #include "format/format.h"
-#include "graphics/frame_loop_info.h"
-#include "plugin/replay_event_plugin_loader.h"
-
-// Includes for recapture
-#include "encode/vulkan_capture_manager.h"
-#include "recapture_vulkan_entry.h"
-
-#if ENABLE_OPENXR_SUPPORT
-#include "decode/openxr_tracked_object_info_table.h"
-#include "generated/generated_openxr_decoder.h"
-#include "generated/generated_openxr_replay_consumer.h"
-#endif
-#include "generated/generated_vulkan_decoder.h"
-#include "generated/generated_vulkan_replay_consumer.h"
 #include "util/android/activity.h"
 #include "util/android/intent.h"
-#include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "parse_dump_resources_cli.h"
-#include "replay_pre_processing.h"
-#include "util/android/intent.h"
 
 #include <android/log.h>
 #include <android/window.h>
@@ -63,7 +42,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <utility>
 
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
@@ -74,32 +52,20 @@ const int32_t kSwipeDistance = 200;
 void    ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event);
 
-static std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor;
+// Globals required by the extern "C" query callbacks called from outside this TU.
+static std::unique_ptr<gfxrecon::decode::FileProcessor>                  g_file_processor;
+static std::vector<std::unique_ptr<gfxrecon::replay::ReplayFeatureBase>> g_features;
 
 extern "C"
 {
     uint64_t MainGetCurrentBlockIndex()
     {
-        if (file_processor != nullptr)
-        {
-            return file_processor->GetCurrentBlockIndex();
-        }
-        else
-        {
-            return 0;
-        }
+        return g_file_processor ? g_file_processor->GetCurrentBlockIndex() : 0;
     }
 
     bool MainGetLoadingTrimmedState()
     {
-        if (file_processor != nullptr)
-        {
-            return file_processor->GetLoadingTrimmedState();
-        }
-        else
-        {
-            return false;
-        }
+        return g_file_processor ? g_file_processor->GetLoadingTrimmedState() : false;
     }
 }
 
@@ -110,6 +76,8 @@ void android_main(struct android_app* app)
 
     // Keep screen on while window is active.
     ANativeActivity_setWindowFlags(app->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
+
+    gfxrecon::replay::LoadFeatures(g_features);
 
     std::string                    args = gfxrecon::util::GetIntentExtra(app, kArgsExtentKey);
     gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments);
@@ -131,195 +99,25 @@ void android_main(struct android_app* app)
 
     if (run)
     {
-        // Update logging with values retrieved from command line arguments
         gfxrecon::util::Log::Settings log_settings;
         GetLogSettings(arg_parser, log_settings);
         gfxrecon::util::Log::UpdateWithSettings(log_settings);
 
         std::string filename = kDefaultCaptureFile;
-
         if (arg_parser.GetPositionalArgumentsCount() == 1)
         {
-            const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
-            filename                                             = positional_arguments[0];
+            filename = arg_parser.GetPositionalArguments()[0];
         }
 
         try
         {
-            uint32_t loop_frame        = 0;
-            uint32_t loop_count        = gfxrecon::graphics::FrameLoopInfo::INFINITE_ITERATIONS;
-            bool     enable_frame_loop = GetLoopFrame(arg_parser, loop_frame);
-            GetLoopCount(arg_parser, loop_count);
+            auto make_application = [&](gfxrecon::decode::FileProcessor* fp) {
+                return std::make_shared<gfxrecon::application::Application>(
+                    kApplicationName, fp, VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
+            };
 
-            if (arg_parser.IsOptionSet(kPreloadMeasurementRangeOption) || enable_frame_loop)
-            {
-                file_processor = std::make_unique<gfxrecon::decode::PreloadFileProcessor>();
-            }
-            else
-            {
-                file_processor = std::make_unique<gfxrecon::decode::FileProcessor>();
-            }
-
-            if (!file_processor->Initialize(filename))
-            {
-                GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
-            }
-            else
-            {
-                auto application = std::make_shared<gfxrecon::application::Application>(
-                    kApplicationName, file_processor.get(), VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
-
-                gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
-                gfxrecon::decode::VulkanReplayOptions          replay_options =
-                    GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
-
-                std::unique_ptr<gfxrecon::decode::VulkanReplayConsumer> vulkan_replay_consumer;
-
-                gfxrecon::graphics::FrameLoopInfo fl_info;
-                if (enable_frame_loop)
-                {
-                    fl_info = gfxrecon::graphics::FrameLoopInfo(loop_frame, loop_count);
-                    application->SetFrameLoopInfo(&fl_info);
-
-                    vulkan_replay_consumer = std::make_unique<gfxrecon::decode::VulkanReplayFrameLoopConsumer>(
-                        application, replay_options, fl_info);
-                }
-                else
-                {
-                    vulkan_replay_consumer =
-                        std::make_unique<gfxrecon::decode::VulkanReplayConsumer>(application, replay_options);
-                }
-
-                if (!replay_options.replay_event_plugin_path.empty())
-                {
-                    auto replay_event_sink = gfxrecon::plugin::LoadPlugin(
-                        { replay_options.replay_event_plugin_path, replay_options.replay_event_plugin_params });
-                    application->SetReplayEventSink(std::move(replay_event_sink));
-                }
-
-                gfxrecon::decode::VulkanDecoder vulkan_decoder;
-
-                if (replay_options.capture)
-                {
-                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::InitSingleton();
-
-                    // Set replay to use the GetInstanceProcAddr function from RecaptureVulkanEntry so that replay first
-                    // calls into the capture layer instead of directly into the loader and Vulkan runtime.
-                    // Also sets the capture manager's instance and device creation callbacks.
-                    vulkan_replay_consumer->SetupForRecapture(gfxrecon::vulkan_recapture::GetInstanceProcAddr,
-                                                              gfxrecon::vulkan_recapture::dispatch_CreateInstance,
-                                                              gfxrecon::vulkan_recapture::dispatch_CreateDevice);
-                }
-
-                ApiReplayOptions  api_replay_options;
-                ApiReplayConsumer api_replay_consumer;
-                api_replay_options.vk_replay_options   = &replay_options;
-                api_replay_consumer.vk_replay_consumer = vulkan_replay_consumer.get();
-
-                if (IsRunPreProcessConsumer(api_replay_options))
-                {
-                    RunPreProcessConsumer(filename, api_replay_options, api_replay_consumer);
-                }
-
-                uint32_t measurement_start_frame;
-                uint32_t measurement_end_frame;
-                bool     has_mfr = GetMeasurementFrameRange(arg_parser, measurement_start_frame, measurement_end_frame);
-
-                std::string measurement_file_name;
-                GetMeasurementFilename(arg_parser, measurement_file_name);
-
-                bool     quit_after_frame = false;
-                uint32_t quit_frame;
-
-                if (replay_options.quit_after_frame)
-                {
-                    quit_after_frame = true;
-                    GetQuitAfterFrame(arg_parser, quit_frame);
-                }
-
-                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_start_frame),
-                                                     static_cast<uint64_t>(measurement_end_frame),
-                                                     has_mfr,
-                                                     replay_options.quit_after_measurement_frame_range,
-                                                     replay_options.flush_measurement_frame_range,
-                                                     replay_options.flush_inside_measurement_range,
-                                                     replay_options.preload_measurement_range,
-                                                     measurement_file_name,
-                                                     quit_after_frame,
-                                                     quit_frame);
-
-                vulkan_replay_consumer->SetFatalErrorHandler(
-                    [](const char* message) { throw std::runtime_error(message); });
-                vulkan_replay_consumer->SetFpsInfo(&fps_info);
-
-                vulkan_decoder.AddConsumer(vulkan_replay_consumer.get());
-
-                file_processor->AddDecoder(&vulkan_decoder);
-
-                file_processor->SetPrintBlockInfoFlag(replay_options.enable_print_block_info,
-                                                      replay_options.block_index_from,
-                                                      replay_options.block_index_to);
-
-                application->SetPauseFrame(GetPauseFrame(arg_parser));
-
-#if ENABLE_OPENXR_SUPPORT
-                gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
-                gfxrecon::decode::OpenXrDecoder        openxr_decoder;
-                gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
-                openxr_replay_consumer.SetVulkanReplayConsumer(vulkan_replay_consumer.get());
-                openxr_replay_consumer.SetAndroidApp(app);
-                openxr_replay_consumer.SetFpsInfo(&fps_info);
-                openxr_decoder.AddConsumer(&openxr_replay_consumer);
-                file_processor->AddDecoder(&openxr_decoder);
-#endif
-
-                // Warn if the capture layer is active.
-                CheckActiveLayers(kLayerProperty);
-
-                // Start the application in the paused state, preventing replay from starting before the app
-                // gained focus event is received.
-                application->SetPaused(true);
-
-                app->userData = application.get();
-                application->SetFpsInfo(&fps_info);
-
-                fps_info.BeginFile();
-
-                application->Run();
-
-                // Add one so that it matches the trim range frame number semantic
-                fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
-
-                if ((file_processor->GetCurrentFrameNumber() > 0) &&
-                    (file_processor->GetErrorState() == gfxrecon::decode::BlockIOError::kErrorNone))
-                {
-                    if (file_processor->GetCurrentFrameNumber() < measurement_start_frame)
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
-                            "Measurements were never started, cannot calculate measurement range FPS.",
-                            measurement_start_frame,
-                            file_processor->GetCurrentFrameNumber());
-                    }
-                    else
-                    {
-                        fps_info.LogMeasurements();
-                    }
-                }
-                else if (file_processor->GetErrorState() != gfxrecon::decode::BlockIOError::kErrorNone)
-                {
-                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
-                }
-                else
-                {
-                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-                }
-
-                if (replay_options.capture)
-                {
-                    gfxrecon::vulkan_recapture::RecaptureVulkanEntry::DestroySingleton();
-                }
-            }
+            gfxrecon::replay::RunReplay(
+                g_file_processor, g_features, arg_parser, filename, kLayerProperty, make_application);
         }
         catch (std::runtime_error& error)
         {

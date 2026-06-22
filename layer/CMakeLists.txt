@@ -53,8 +53,8 @@ target_sources(VkLayer_gfxreconstruct
                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.h
                    ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.cpp
-                   ${PROJECT_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
-                   ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
               )
 
 target_include_directories(VkLayer_gfxreconstruct
