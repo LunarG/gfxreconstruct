@@ -22,6 +22,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "format/format_util.h"
 #include "encode/d3d12_capture_manager.h"
 
 #include "graphics/dx12_util.h"

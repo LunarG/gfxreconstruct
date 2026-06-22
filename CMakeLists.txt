@@ -151,6 +151,14 @@ else()
     message(STATUS "OpenXR support disabled!")
 endif()
 
+option(GFXRECON_ENABLE_VULKAN "Enable Vulkan capture support. NOTE: the default is ON and setting this to OFF is experimental." ON)
+if (GFXRECON_ENABLE_VULKAN)
+    add_definitions(-DGFXRECON_ENABLE_VULKAN)
+    message(STATUS "Vulkan support enabled")
+else()
+    message(STATUS "Vulkan support disabled")
+endif()
+
 # Apply misc build directives to the given target
 macro(common_build_directives TARGET)
     target_code_style_build_directives(${TARGET})

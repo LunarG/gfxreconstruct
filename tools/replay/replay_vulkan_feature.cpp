@@ -24,11 +24,13 @@
 #include "replay_vulkan_feature.h"
 
 #include "decode/vulkan_replay_frame_loop_consumer.h"
-#include "encode/vulkan_capture_manager.h"
 #include "parse_dump_resources_cli.h"
+#if defined(GFXRECON_ENABLE_VULKAN)
+#include "encode/vulkan_capture_manager.h"
 #include "recapture_vulkan_entry.h"
-#include "plugin/replay_event_plugin_loader.h"
+#endif
 
+#include "plugin/replay_event_plugin_loader.h"
 #include "util/feature_module_registry.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -103,6 +105,7 @@ void ReplayVulkanFeature::RegisterDecodeComponents(graphics::FpsInfo* fps_info)
 
 void ReplayVulkanFeature::DetectAndSetupRecapture()
 {
+#if defined(GFXRECON_ENABLE_VULKAN)
     if (is_enabled_ && replay_options_.capture)
     {
         vulkan_recapture::RecaptureVulkanEntry::InitSingleton();
@@ -114,6 +117,7 @@ void ReplayVulkanFeature::DetectAndSetupRecapture()
                                             vulkan_recapture::dispatch_CreateInstance,
                                             vulkan_recapture::dispatch_CreateDevice);
     }
+#endif // GFXRECON_ENABLE_VULKAN
 }
 
 void ReplayVulkanFeature::CompletePreProcessingPass()
@@ -148,10 +152,12 @@ void ReplayVulkanFeature::Destroy()
 {
     replay_consumer_.reset();
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     if (is_enabled_ && replay_options_.capture)
     {
         vulkan_recapture::RecaptureVulkanEntry::DestroySingleton();
     }
+#endif // GFXRECON_ENABLE_VULKAN
 }
 
 GFXRECON_END_NAMESPACE(replay)
