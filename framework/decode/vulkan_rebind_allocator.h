@@ -454,19 +454,27 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         [[nodiscard]] bool is_compatible(VkDeviceSize                   offset,
                                          const VkMemoryRequirements&    capture_req,
                                          const VkMemoryRequirements&    replay_req,
-                                         const VmaAllocationCreateInfo& create_info) const
+                                         const VmaAllocationCreateInfo& create_info,
+                                         bool                           allow_unsized) const
         {
-            // If capture_req.size is 0, it means the memory requirement is not recorded in the capture file.
+            // If captured requirement sizes are 0, it means the memory requirement is not recorded in the capture file.
             // It didn't call vkGetImageMemoryRequirements or vkGetBufferMemoryRequirements before, like swapchain
             // images. We can't be sure it's compatible.
-            if (capture_req.size == 0)
+            const bool have_capture_sizes = (capture_req.size != 0) && (capture_mem_req.size != 0);
+
+            // However, we want to allow memory aliasing for buffer suballocations which might not call
+            // vkGetBufferMemoryRequirements, resulting in a capture size of 0, so we pass a flag allow_unsized for
+            // buffers.
+            if (!have_capture_sizes && !allow_unsized)
             {
                 return false;
             }
 
             // memory offset and size is in the range. mem_req and create_info are the same.
             if ((offset >= offset_from_original_device_memory) &&
-                ((offset + capture_req.size) <= (offset_from_original_device_memory + capture_mem_req.size)) &&
+                // capture-space containment: additional tightening if we have capture sizes.
+                (!have_capture_sizes ||
+                 ((offset + capture_req.size) <= (offset_from_original_device_memory + capture_mem_req.size))) &&
                 ((offset + replay_req.size) <= (offset_from_original_device_memory + replay_mem_req.size)) &&
                 (replay_req.alignment == replay_mem_req.alignment) &&
                 (replay_req.memoryTypeBits == replay_mem_req.memoryTypeBits) &&
@@ -668,6 +676,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                   bool                           requires_dedicated_allocation,
                                   bool                           prefers_dedicated_allocation,
                                   const VmaAllocationCreateInfo& alc_create_info,
+                                  bool                           allow_unsized,
                                   VmaMemoryInfo**                vma_mem_info);
 
     void RemoveVmaMemoryInfo(ResourceAllocInfo& resource_alloc_info, uint64_t object_handle);

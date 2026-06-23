@@ -640,6 +640,9 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
     allocator_->GetBufferMemoryRequirements(
         buffer, replay_req, requires_dedicated_allocation, prefers_dedicated_allocation);
 
+    // We don't know if this buffer will be sub-allocated, so we don't want a dedicated allocation
+    prefers_dedicated_allocation = false;
+
     replay_req.alignment = std::max<VkDeviceSize>(replay_req.alignment, min_buffer_alignment_);
 
     VmaAllocationCreateInfo create_info{};
@@ -661,6 +664,7 @@ VulkanRebindAllocator::AllocateMemoryForBuffer(VkBuffer                         
                           requires_dedicated_allocation,
                           prefers_dedicated_allocation,
                           create_info,
+                          true,
                           vma_mem_info))
     {
         return VK_SUCCESS;
@@ -956,6 +960,7 @@ VkResult VulkanRebindAllocator::AllocateMemoryForImage(VkImage                  
                           requires_dedicated_allocation,
                           prefers_dedicated_allocation,
                           create_info,
+                          false,
                           vma_mem_info))
     {
         return VK_SUCCESS;
@@ -2501,6 +2506,7 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
                           requires_dedicated_allocation,
                           prefers_dedicated_allocation,
                           create_info,
+                          dedicated_buffer != VK_NULL_HANDLE, // allow unsized capture requirements for buffers
                           vma_mem_info))
     {
         return VK_SUCCESS;
@@ -2782,6 +2788,7 @@ bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               mem
                                               bool                           requires_dedicated_allocation,
                                               bool                           prefers_dedicated_allocation,
                                               const VmaAllocationCreateInfo& alc_create_info,
+                                              bool                           allow_unsized,
                                               VmaMemoryInfo**                vma_mem_info)
 {
     if (requires_dedicated_allocation || prefers_dedicated_allocation)
@@ -2791,7 +2798,7 @@ bool VulkanRebindAllocator::FindVmaMemoryInfo(MemoryAllocInfo&               mem
 
     for (auto& mem_info : memory_alloc_info.vma_mem_infos)
     {
-        if (mem_info->is_compatible(original_offset, capture_mem_req, replay_mem_req, alc_create_info))
+        if (mem_info->is_compatible(original_offset, capture_mem_req, replay_mem_req, alc_create_info, allow_unsized))
         {
             *vma_mem_info = mem_info.get();
             return true;
