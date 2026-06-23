@@ -734,7 +734,7 @@ void Process_vkCmdPushDescriptorSet2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet2                 func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo);
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
 
 void Process_vkCmdPushDescriptorSetWithTemplate2(
     const ApiCallInfo&                          call_info,
@@ -1171,7 +1171,7 @@ void Process_vkCmdPushDescriptorSet2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet2KHR              func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo);
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
 
 void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo&                          call_info,

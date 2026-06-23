@@ -340,6 +340,17 @@ class VulkanReplayDumpResourcesBase
                                          uint32_t                                            descriptor_write_count,
                                          StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes);
 
+    void OverrideCmdPushDescriptorSet2(const ApiCallInfo&                                     call_info,
+                                       PFN_vkCmdPushDescriptorSet2                            func,
+                                       VkCommandBuffer                                        original_command_buffer,
+                                       StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
+
+    void
+    OverrideCmdPushDescriptorSet2KHR(const ApiCallInfo&                                     call_info,
+                                     PFN_vkCmdPushDescriptorSet2KHR                         func,
+                                     VkCommandBuffer                                        original_command_buffer,
+                                     StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
+
     void
     OverrideCmdBindDescriptorSets2(const ApiCallInfo&                                      call_info,
                                    PFN_vkCmdBindDescriptorSets2                            func,

@@ -3856,7 +3856,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSet2(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushDescriptorSet2(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSet2, in_commandBuffer, in_pPushDescriptorSetInfo);
+        resource_dumper_->Process_vkCmdPushDescriptorSet2(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSet2, in_commandBuffer, pPushDescriptorSetInfo);
     }
 }
 
@@ -7170,7 +7170,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSet2KHR(
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdPushDescriptorSet2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSet2KHR, in_commandBuffer, in_pPushDescriptorSetInfo);
+        resource_dumper_->Process_vkCmdPushDescriptorSet2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSet2KHR, in_commandBuffer, pPushDescriptorSetInfo);
     }
 }
 

@@ -2032,30 +2032,11 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet2                 func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo)
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pPushDescriptorSetInfo);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pPushDescriptorSetInfo);
-            }
-        }
+        OverrideCmdPushDescriptorSet2(call_info, func, commandBuffer, pPushDescriptorSetInfo);
     }
 }
 
@@ -3677,30 +3658,11 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet2KHR              func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo)
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pPushDescriptorSetInfo);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pPushDescriptorSetInfo);
-            }
-        }
+        OverrideCmdPushDescriptorSet2KHR(call_info, func, commandBuffer, pPushDescriptorSetInfo);
     }
 }
 
