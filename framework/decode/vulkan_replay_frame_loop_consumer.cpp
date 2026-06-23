@@ -420,6 +420,30 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo&               call_info,
+                                                        VkResult                         returnValue,
+                                                        format::HandleId                 device,
+                                                        format::HandleId                 memory,
+                                                        VkDeviceSize                     offset,
+                                                        VkDeviceSize                     size,
+                                                        VkMemoryMapFlags                 flags,
+                                                        PointerDecoder<uint64_t, void*>* ppData)
+{
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in mapped_loop_memory
+    if (frame_loop_info_.IsLooping())
+    {
+        if (mapped_loop_memory.contains(memory))
+        {
+            return; // Already mapped in loop range, skip re-mapping
+        }
+
+        // First time mapping in the loop
+        mapped_loop_memory.insert(memory);
+    }
+    VulkanReplayConsumer::Process_vkMapMemory(call_info, returnValue, device, memory, offset, size, flags, ppData);
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
                                                                   VkResult                  returnValue,
                                                                   format::HandleId          device,
@@ -485,6 +509,68 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
         FixupDeviceFences(queue_info->parent_id, queue);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& call_info,
+                                                          format::HandleId   device,
+                                                          format::HandleId   memory)
+{
+    // Skip for loop iterations 1-(n-1).
+    // Skip if looping and if not final iteration
+    // Execute if memory is in mapped_loop_memory
+
+    // Call Process_vkUnmapMemory if:
+    //    We are not looping
+    //    We are looping and memory is in mapped_loop_memory, i.e. it is mapped/unmapped inside loop
+    //    We are looping and this is the last iteration
+    if (!getFrameLoopInfo().IsLooping())
+    {
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(memory));
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
+    }
+    else if (mapped_loop_memory.contains(memory))
+    {
+        // Looping special case:
+        // This resource has been allocated WITHIN the loop range.
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
+        mapped_loop_memory.erase(memory);
+    }
+    else if (getFrameLoopInfo().IsFinalIteration())
+    {
+        // Looping special case:
+        // This resource has been allocated BEFORE the loop range.
+        // Since it might still be in use during the loop range, ONLY free it in the last iteration.
+        VulkanReplayConsumer::Process_vkUnmapMemory(call_info, device, memory);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkAcquireProfilingLockKHR(
+    const ApiCallInfo&                                           call_info,
+    VkResult                                                     returnValue,
+    format::HandleId                                             device,
+    StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
+{
+    // If we are not looping, if current lock state for this device is undefined, or
+    // the current state is false (not acquired), call replay consumer
+    if (!frame_loop_info_.IsLooping() || !profilingLockState.contains(device) || !profilingLockState[device])
+    {
+        VulkanReplayConsumer::Process_vkAcquireProfilingLockKHR(call_info, returnValue, device, pInfo);
+        // We're assuming call was successful. We don't have a way to check result.
+        profilingLockState[device] = true;
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info,
+                                                                      format::HandleId   device)
+{
+    // If we are not looping, if current lock state for this device is undefined, or
+    // the current state is true (acquired), call replay consumer
+    if (!frame_loop_info_.IsLooping() || !profilingLockState.contains(device) || profilingLockState[device])
+    {
+        VulkanReplayConsumer::Process_vkReleaseProfilingLockKHR(call_info, device);
+        // We're assuming call was successful. We don't have a way to check result.
+        profilingLockState[device] = false;
     }
 }
 

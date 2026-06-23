@@ -110,6 +110,24 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                    format::HandleId                                queue,
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
 
+    void Process_vkMapMemory(const ApiCallInfo&               call_info,
+                             VkResult                         returnValue,
+                             format::HandleId                 device,
+                             format::HandleId                 memory,
+                             VkDeviceSize                     offset,
+                             VkDeviceSize                     size,
+                             VkMemoryMapFlags                 flags,
+                             PointerDecoder<uint64_t, void*>* ppData) override;
+
+    void Process_vkUnmapMemory(const ApiCallInfo& call_info, format::HandleId device, format::HandleId memory) override;
+
+    void Process_vkAcquireProfilingLockKHR(const ApiCallInfo&                                           call_info,
+                                           VkResult                                                     returnValue,
+                                           format::HandleId                                             device,
+                                           StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo) override;
+
+    void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, format::HandleId device) override;
+
     // Private declarations
   private:
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
@@ -133,6 +151,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 
     std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
+
+    // Support for vkMapMemory/vkUnMapMemory
+    std::set<format::HandleId> mapped_loop_memory;
+
+    // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
+    std::unordered_map<format::HandleId, bool> profilingLockState;
 };
 
 GFXRECON_END_NAMESPACE(decode)
