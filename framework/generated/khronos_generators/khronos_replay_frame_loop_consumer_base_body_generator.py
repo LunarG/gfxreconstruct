@@ -79,7 +79,7 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
             body += '    {\n'
             body += '        for (uint32_t i=0; i < '+values[-4].name+'; i++)\n'
             body += '        {\n'
-            body += '            format::HandleId handle = *('+values[-1].name+'[i].GetPointer());\n'
+            body += '            format::HandleId handle = '+values[-1].name+'->GetPointer()[i];\n'
             body += '            if (!allocatedLoopResources.contains(handle))\n'
             body += '            {\n'
             body += '                doReplay = true;\n'
