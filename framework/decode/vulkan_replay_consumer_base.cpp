@@ -8031,9 +8031,21 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             }
         }
 
+        auto instance_table = GetInstanceTable(physical_device_info->parent);
+
+        uint32_t present_mode_count = 0;
+        instance_table->GetPhysicalDeviceSurfacePresentModesKHR(
+            physical_device_info->handle, modified_create_info.surface, &present_mode_count, nullptr);
+
+        std::vector<VkPresentModeKHR> supported_present_modes(present_mode_count);
+        instance_table->GetPhysicalDeviceSurfacePresentModesKHR(physical_device_info->handle,
+                                                                modified_create_info.surface,
+                                                                &present_mode_count,
+                                                                supported_present_modes.data());
+
+        VkPresentModeKHR present_mode = modified_create_info.presentMode;
         if (options_.present_mode_option != util::PresentModeOption::kCapture)
         {
-            VkPresentModeKHR present_mode = modified_create_info.presentMode;
 
             switch (options_.present_mode_option)
             {
@@ -8053,30 +8065,29 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                     // If something else, just leave it untouched.
                     break;
             }
+        }
+        bool is_supported = std::find(supported_present_modes.begin(), supported_present_modes.end(), present_mode) !=
+                            supported_present_modes.end();
 
-            auto instance_table = GetInstanceTable(physical_device_info->parent);
-
-            uint32_t present_mode_count;
-            instance_table->GetPhysicalDeviceSurfacePresentModesKHR(
-                physical_device_info->handle, modified_create_info.surface, &present_mode_count, nullptr);
-
-            std::vector<VkPresentModeKHR> supported_present_modes(present_mode_count);
-            instance_table->GetPhysicalDeviceSurfacePresentModesKHR(physical_device_info->handle,
-                                                                    modified_create_info.surface,
-                                                                    &present_mode_count,
-                                                                    supported_present_modes.data());
-
-            bool is_supported =
-                std::find(supported_present_modes.begin(), supported_present_modes.end(), present_mode) !=
-                supported_present_modes.end();
-
-            if (is_supported)
+        if (is_supported)
+        {
+            modified_create_info.presentMode = present_mode;
+        }
+        else
+        {
+            if (options_.present_mode_option != util::PresentModeOption::kCapture)
             {
-                modified_create_info.presentMode = present_mode;
+                GFXRECON_LOG_FATAL("Swapchain present mode '%s' is requested but not supported",
+                                   util::ToString<VkPresentModeKHR>(present_mode).c_str())
+                RaiseFatalError("Swapchain present mode specified by --present-mode is not supported");
             }
             else
             {
-                GFXRECON_LOG_ERROR("Swapchain present mode '%s' is requested but not supported",
+                // The user didn't specify a present mode to use, so because the trace's present mode is unsupported,
+                // use FIFO instead
+                modified_create_info.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+                GFXRECON_LOG_ERROR("Swapchain present mode '%s' is requested but not supported, using "
+                                   "VK_PRESENT_MODE_FIFO_KHR instead",
                                    util::ToString<VkPresentModeKHR>(present_mode).c_str())
             }
         }
