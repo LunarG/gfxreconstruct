@@ -157,6 +157,14 @@ uint32_t FindTransferQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
  */
 uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families);
 
+/**
+ * @brief   Map shader-stage flags to corresponding pipeline bind points.
+ *
+ * @param[in]   flags   The shader-stage flags
+ * @return  The pipeline bind points implied by the given stage flags
+ */
+std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

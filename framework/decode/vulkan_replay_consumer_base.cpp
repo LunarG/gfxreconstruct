@@ -5472,15 +5472,23 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
 
     if (bind_descriptor_sets_info != nullptr && UseAddressReplacement(device_info))
     {
-        auto*               bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
-        VkPipelineBindPoint pipelineBindPoint              = in_commandBuffer->bound_pipelines.begin()->first;
-        auto&               address_replacer               = GetDeviceAddressReplacer(device_info);
-        address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
-                                                      pipelineBindPoint,
-                                                      bind_descriptor_sets_info->firstSet,
-                                                      bind_descriptor_sets_info->descriptorSetCount,
-                                                      &bind_descriptor_sets_info_meta->pDescriptorSets,
-                                                      GetDeviceAddressTracker(device_info));
+        auto* bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
+        auto& address_replacer               = GetDeviceAddressReplacer(device_info);
+
+        // derive bind-points from stage-flags. process for all bound pipelines.
+        for (VkPipelineBindPoint bind_point :
+             graphics::ShaderStageFlagsToPipelineBindPoints(bind_descriptor_sets_info->stageFlags))
+        {
+            if (in_commandBuffer->bound_pipelines.contains(bind_point))
+            {
+                address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
+                                                              bind_point,
+                                                              bind_descriptor_sets_info->firstSet,
+                                                              bind_descriptor_sets_info->descriptorSetCount,
+                                                              &bind_descriptor_sets_info_meta->pDescriptorSets,
+                                                              GetDeviceAddressTracker(device_info));
+            }
+        }
     }
     func(command_buffer, bind_descriptor_sets_info);
 }
