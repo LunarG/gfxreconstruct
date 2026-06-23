@@ -33,7 +33,12 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_enum_util.h"
+#include "encode/capture_manager.h"
+
+#if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/vulkan_capture_manager.h"
+#endif
+
 #include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "decode/vulkan_submit_job.h"
@@ -1396,6 +1401,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
                     "SetupForRecapture should be called before InitializeLoader().")
     get_instance_proc_addr_ = get_instance_proc_addr;
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(create_instance, create_device);
 
     // Logger is already initialized by replay, so inform capture manager not to initialize it again.
@@ -1403,6 +1409,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
 
     gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
     gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
+#endif // GFXRECON_ENABLE_VULKAN
 }
 
 void VulkanReplayConsumerBase::PushRecaptureHandleId(const format::HandleId* id)
@@ -5465,15 +5472,23 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
 
     if (bind_descriptor_sets_info != nullptr && UseAddressReplacement(device_info))
     {
-        auto*               bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
-        VkPipelineBindPoint pipelineBindPoint              = in_commandBuffer->bound_pipelines.begin()->first;
-        auto&               address_replacer               = GetDeviceAddressReplacer(device_info);
-        address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
-                                                      pipelineBindPoint,
-                                                      bind_descriptor_sets_info->firstSet,
-                                                      bind_descriptor_sets_info->descriptorSetCount,
-                                                      &bind_descriptor_sets_info_meta->pDescriptorSets,
-                                                      GetDeviceAddressTracker(device_info));
+        auto* bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
+        auto& address_replacer               = GetDeviceAddressReplacer(device_info);
+
+        // derive bind-points from stage-flags. process for all bound pipelines.
+        for (VkPipelineBindPoint bind_point :
+             graphics::ShaderStageFlagsToPipelineBindPoints(bind_descriptor_sets_info->stageFlags))
+        {
+            if (in_commandBuffer->bound_pipelines.contains(bind_point))
+            {
+                address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
+                                                              bind_point,
+                                                              bind_descriptor_sets_info->firstSet,
+                                                              bind_descriptor_sets_info->descriptorSetCount,
+                                                              &bind_descriptor_sets_info_meta->pDescriptorSets,
+                                                              GetDeviceAddressTracker(device_info));
+            }
+        }
     }
     func(command_buffer, bind_descriptor_sets_info);
 }

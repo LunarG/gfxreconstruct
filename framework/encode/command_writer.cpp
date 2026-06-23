@@ -22,6 +22,8 @@
 
 #include "encode/command_writer.h"
 
+#include "format/format_util.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 

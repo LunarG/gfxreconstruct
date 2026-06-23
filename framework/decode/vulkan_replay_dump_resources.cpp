@@ -1212,7 +1212,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets2(
     const auto bind_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
 
     std::vector<VkPipelineBindPoint> bind_points =
-        ShaderStageFlagsToPipelineBindPoints(bind_meta->decoded_value->stageFlags);
+        graphics::ShaderStageFlagsToPipelineBindPoints(bind_meta->decoded_value->stageFlags);
 
     const auto layout_info = object_info_table_->GetVkPipelineLayoutInfo(bind_meta->layout);
 

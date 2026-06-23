@@ -67,6 +67,10 @@ configure_file("${GFXRECON_SOURCE_DIR}/project_version_string.h.in" "${CMAKE_BIN
 add_library(project_version "${GFXRECON_SOURCE_DIR}/project_version.cpp")
 target_include_directories(project_version PUBLIC "${CMAKE_BINARY_DIR}")
 
+# For now, Android requires Vulkan to be enabled
+set(GFXRECON_ENABLE_VULKAN ON)
+add_definitions(-DGFXRECON_ENABLE_VULKAN)
+
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE
                                 _FILE_OFFSET_BITS=64

@@ -158,8 +158,6 @@ std::string ShaderStageFlagsToString(VkShaderStageFlags flags);
 
 void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::string>& stage_names);
 
-std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags);
-
 // Submit a single VkSubmitInfo2 to the queue using vkQueueSubmit2 when it is available. On devices that do not support
 // synchronization2, the submit info is converted into a VkSubmitInfo and submitted via vkQueueSubmit. The
 // dump-resources submissions are serialized with host fence waits, so the wait-stage masks lost during down-conversion

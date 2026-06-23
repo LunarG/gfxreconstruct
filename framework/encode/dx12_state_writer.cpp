@@ -21,6 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "format/format_util.h"
 #include "encode/dx12_state_writer.h"
 
 #include "generated/generated_dx12_api_call_encoders.h"
