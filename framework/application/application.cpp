@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2026 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -100,6 +100,16 @@ const WsiContext* Application::GetWsiContext(const std::string& wsi_extension, b
     {
         itr = wsi_contexts_.find(wsi_extension);
     }
+
+#if defined(__ANDROID__)
+    // Allow non-Vulkan consumers (e.g. WebGPU) to request the Android context by the
+    // platform-generic key "ANDROID" instead of VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
+    // avoiding a dependency on a Vulkan extension string in non-Vulkan code paths.
+    if (itr == wsi_contexts_.end() && wsi_extension == "ANDROID")
+    {
+        itr = wsi_contexts_.find(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+    }
+#endif
 
     // If auto_select is enabled and we still don't have a valid WSI context, use
     //  first one we have
