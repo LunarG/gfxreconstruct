@@ -173,7 +173,6 @@
   "comment" : "executing the last looping iteration.",
   "resourceFreeNotFullyImplemented":
   [
-    "vkDestroyPipeline",
     "vkDestroyPipelineBinaryKHR",
     "vkDestroyAccelerationStructureKHR",
     "vkDestroyAccelerationStructureNV",

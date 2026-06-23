@@ -1014,7 +1014,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateComputePipelines(
         {
             for (uint32_t i=0; i < createInfoCount; i++)
             {
-                format::HandleId handle = *(pPipelines[i].GetPointer());
+                format::HandleId handle = pPipelines->GetPointer()[i];
                 allocatedLoopResources.insert(handle);
             }
         }
@@ -1281,7 +1281,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
         {
             for (uint32_t i=0; i < createInfoCount; i++)
             {
-                format::HandleId handle = *(pPipelines[i].GetPointer());
+                format::HandleId handle = pPipelines->GetPointer()[i];
                 allocatedLoopResources.insert(handle);
             }
         }
@@ -1894,7 +1894,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateSharedSwapchainsKHR(
         {
             for (uint32_t i=0; i < swapchainCount; i++)
             {
-                format::HandleId handle = *(pSwapchains[i].GetPointer());
+                format::HandleId handle = pSwapchains->GetPointer()[i];
                 allocatedLoopResources.insert(handle);
             }
         }
@@ -3002,7 +3002,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRayTracingPipelinesNV(
         {
             for (uint32_t i=0; i < createInfoCount; i++)
             {
-                format::HandleId handle = *(pPipelines[i].GetPointer());
+                format::HandleId handle = pPipelines->GetPointer()[i];
                 allocatedLoopResources.insert(handle);
             }
         }
@@ -3492,7 +3492,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateShadersEXT(
         {
             for (uint32_t i=0; i < createInfoCount; i++)
             {
-                format::HandleId handle = *(pShaders[i].GetPointer());
+                format::HandleId handle = pShaders->GetPointer()[i];
                 allocatedLoopResources.insert(handle);
             }
         }
@@ -3571,7 +3571,7 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateDataGraphPipelinesARM(
         {
             for (uint32_t i=0; i < createInfoCount; i++)
             {
-                format::HandleId handle = *(pPipelines[i].GetPointer());
+                format::HandleId handle = pPipelines->GetPointer()[i];
                 allocatedLoopResources.insert(handle);
             }
         }
