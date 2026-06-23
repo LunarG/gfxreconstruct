@@ -43,6 +43,71 @@ GFXRECON_BEGIN_NAMESPACE(decode)
         }                                                                     \
     }
 
+namespace
+{
+VkImageAspectFlags GetAspectMask(VkFormat format)
+{
+    switch (format)
+    {
+        case VK_FORMAT_D16_UNORM:
+        case VK_FORMAT_X8_D24_UNORM_PACK32:
+        case VK_FORMAT_D32_SFLOAT:
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
+        case VK_FORMAT_S8_UINT:
+            return VK_IMAGE_ASPECT_STENCIL_BIT;
+        case VK_FORMAT_D16_UNORM_S8_UINT:
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        default:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
+
+VkAccessFlags GetAccessFlags(VkImageLayout layout)
+{
+    switch (layout)
+    {
+        case VK_IMAGE_LAYOUT_UNDEFINED:
+            return 0;
+        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+            return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+            return VK_ACCESS_SHADER_READ_BIT;
+        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+            return VK_ACCESS_TRANSFER_READ_BIT;
+        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+            return VK_ACCESS_TRANSFER_WRITE_BIT;
+        default:
+            return VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    }
+}
+} // namespace
+
+VulkanReplayFrameLoopConsumer::~VulkanReplayFrameLoopConsumer()
+{
+    if (restoration_command_pool_ != VK_NULL_HANDLE && restoration_device_ != VK_NULL_HANDLE)
+    {
+        const graphics::VulkanDeviceTable* dev_table = GetDeviceTable(restoration_device_);
+        if (dev_table)
+        {
+            dev_table->DestroyCommandPool(restoration_device_, restoration_command_pool_, nullptr);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
+{
+    VulkanReplayConsumer::ProcessStateEndMarker(frame_number);
+    if (frame_loop_info_.GetLoopFrame() == 1)
+    {
+        CaptureInitialFenceStates();
+        RecordInitialLayouts();
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
     const ApiCallInfo&                                     call_info,
     VkResult                                               returnValue,
@@ -409,7 +474,16 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
         result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
+        // Restore image layouts at the loop boundary
+        RestoreImageLayouts(device, device_table, queue_info);
+
         FixupDeviceFences(queue_info->parent_id, queue);
+    }
+
+    frame_number_++;
+    if (frame_loop_info_.AtLoopFrame(frame_number_) && !frame_loop_info_.IsLooping())
+    {
+        RecordInitialLayouts();
     }
 }
 
@@ -475,6 +549,12 @@ void VulkanReplayFrameLoopConsumer::Process_vkAcquireProfilingLockKHR(
         // We're assuming call was successful. We don't have a way to check result.
         profilingLockState[device] = true;
     }
+
+    frame_number_++;
+    if (frame_loop_info_.AtLoopFrame(frame_number_) && !frame_loop_info_.IsLooping())
+    {
+        RecordInitialLayouts();
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info,
@@ -490,5 +570,160 @@ void VulkanReplayFrameLoopConsumer::Process_vkReleaseProfilingLockKHR(const ApiC
     }
 }
 
+void VulkanReplayFrameLoopConsumer::RecordInitialLayouts()
+{
+    initial_image_layouts_.clear();
+    GetObjectInfoTable().VisitVkImageInfo([this](const VulkanImageInfo* info) {
+        if (info != nullptr && info->handle != VK_NULL_HANDLE)
+        {
+            initial_image_layouts_[info->capture_id] = info->current_layout;
+        }
+    });
+}
+
+bool VulkanReplayFrameLoopConsumer::InitializeRestorationResources(VkDevice device, uint32_t queue_family_index)
+{
+    if (restoration_command_pool_ != VK_NULL_HANDLE)
+    {
+        return true;
+    }
+
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+    GFXRECON_ASSERT(device_table);
+
+    VkCommandPoolCreateInfo pool_create_info = {};
+    pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    pool_create_info.queueFamilyIndex = queue_family_index;
+
+    VkResult result = device_table->CreateCommandPool(device, &pool_create_info, nullptr, &restoration_command_pool_);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to create restoration command pool, result=%d", result);
+        return false;
+    }
+
+    restoration_device_ = device;
+
+    VkCommandBufferAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = restoration_command_pool_;
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount = 1;
+
+    result = device_table->AllocateCommandBuffers(device, &alloc_info, &restoration_command_buffer_);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to allocate restoration command buffer, result=%d", result);
+        device_table->DestroyCommandPool(device, restoration_command_pool_, nullptr);
+        restoration_command_pool_ = VK_NULL_HANDLE;
+        restoration_device_ = VK_NULL_HANDLE;
+        return false;
+    }
+
+    return true;
+}
+
+void VulkanReplayFrameLoopConsumer::RestoreImageLayouts(
+    VkDevice device,
+    const graphics::VulkanDeviceTable* device_table,
+    VulkanQueueInfo* queue_info)
+{
+    std::vector<VkImageMemoryBarrier> barriers;
+
+    GetObjectInfoTable().VisitVkImageInfo([this, &barriers](const VulkanImageInfo* info) {
+        if (info == nullptr || info->handle == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        VkImageLayout target_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        auto it = initial_image_layouts_.find(info->capture_id);
+        if (it != initial_image_layouts_.end())
+        {
+            target_layout = it->second;
+        }
+        else
+        {
+            target_layout = info->initial_layout;
+        }
+
+        if (target_layout == VK_IMAGE_LAYOUT_UNDEFINED || target_layout == VK_IMAGE_LAYOUT_PREINITIALIZED)
+        {
+            return;
+        }
+
+        if (info->current_layout != target_layout)
+        {
+            VkImageMemoryBarrier barrier = {};
+            barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            barrier.oldLayout = info->current_layout;
+            barrier.newLayout = target_layout;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.image = info->handle;
+            
+            barrier.subresourceRange.aspectMask = GetAspectMask(info->format);
+            barrier.subresourceRange.baseMipLevel = 0;
+            barrier.subresourceRange.levelCount = info->level_count;
+            barrier.subresourceRange.baseArrayLayer = 0;
+            barrier.subresourceRange.layerCount = info->layer_count;
+
+            barrier.srcAccessMask = GetAccessFlags(info->current_layout);
+            barrier.dstAccessMask = GetAccessFlags(target_layout);
+
+            barriers.push_back(barrier);
+
+            auto mutable_info = const_cast<VulkanImageInfo*>(info);
+            mutable_info->current_layout = target_layout;
+        }
+    });
+
+    if (barriers.empty())
+    {
+        return;
+    }
+
+    if (!InitializeRestorationResources(device, queue_info->family_index))
+    {
+        return;
+    }
+
+    // Record commands
+    VkCommandBufferBeginInfo begin_info = {};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    device_table->BeginCommandBuffer(restoration_command_buffer_, &begin_info);
+
+    device_table->CmdPipelineBarrier(
+        restoration_command_buffer_,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        0,
+        0, nullptr,
+        0, nullptr,
+        static_cast<uint32_t>(barriers.size()), barriers.data()
+    );
+
+    device_table->EndCommandBuffer(restoration_command_buffer_);
+
+    // Submit
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &restoration_command_buffer_;
+
+    VkQueue replayed_queue = queue_info->handle;
+    VkResult result = device_table->QueueSubmit(replayed_queue, 1, &submit_info, VK_NULL_HANDLE);
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to submit layout restoration commands, result=%d", result);
+    }
+    else
+    {
+        device_table->QueueWaitIdle(replayed_queue);
+    }
+}
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -42,6 +42,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
         frame_loop_info_(frame_loop_info)
     {}
 
+    ~VulkanReplayFrameLoopConsumer() override;
+
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
     virtual void OnLoopStart() override;
@@ -121,6 +123,11 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
     void CaptureInitialFenceStates();
 
+    // Image layout restoration helpers
+    void RecordInitialLayouts();
+    void RestoreImageLayouts(VkDevice device, const graphics::VulkanDeviceTable* device_table, VulkanQueueInfo* queue_info);
+    bool InitializeRestorationResources(VkDevice device, uint32_t queue_family_index);
+
     // Private data
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
@@ -140,6 +147,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
 
     // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
     std::unordered_map<format::HandleId, bool> profilingLockState;
+
+    // Image layout restoration data
+    std::unordered_map<format::HandleId, VkImageLayout>    initial_image_layouts_;
+    VkCommandPool                                          restoration_command_pool_{ VK_NULL_HANDLE };
+    VkCommandBuffer                                        restoration_command_buffer_{ VK_NULL_HANDLE };
+    VkDevice                                               restoration_device_{ VK_NULL_HANDLE };
+    uint64_t                                               frame_number_{ 1 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
