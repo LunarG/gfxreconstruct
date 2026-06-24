@@ -412,6 +412,22 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     }
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteTimestamp(
+    const ApiCallInfo&         call_info,
+    format::HandleId           commandBuffer,
+    VkPipelineStageFlagBits    pipelineStage,
+    format::HandleId           queryPool,
+    uint32_t                   query)
+{
+    if (frame_loop_info_.IsRepetition())
+    {
+        // Skip writing timestamps during repetition to avoid "query not reset" errors
+        // if the capture doesn't reset them in the frame.
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp(call_info, commandBuffer, pipelineStage, queryPool, query);
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& call_info,
                                                           format::HandleId   device,
                                                           format::HandleId   memory)
