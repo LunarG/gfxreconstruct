@@ -33,7 +33,12 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_enum_util.h"
+#include "encode/capture_manager.h"
+
+#if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/vulkan_capture_manager.h"
+#endif
+
 #include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "decode/vulkan_submit_job.h"
@@ -1396,6 +1401,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
                     "SetupForRecapture should be called before InitializeLoader().")
     get_instance_proc_addr_ = get_instance_proc_addr;
 
+#if defined(GFXRECON_ENABLE_VULKAN)
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(create_instance, create_device);
 
     // Logger is already initialized by replay, so inform capture manager not to initialize it again.
@@ -1403,6 +1409,7 @@ void VulkanReplayConsumerBase::SetupForRecapture(PFN_vkGetInstanceProcAddr get_i
 
     gfxrecon::encode::CommonCaptureManager::SetDefaultUniqueIdOffset(kRecaptureHandleIdOffset);
     gfxrecon::encode::CommonCaptureManager::SetForceDefaultUniqueId(false);
+#endif // GFXRECON_ENABLE_VULKAN
 }
 
 void VulkanReplayConsumerBase::PushRecaptureHandleId(const format::HandleId* id)
@@ -3250,13 +3257,7 @@ void VulkanReplayConsumerBase::PostCreateInstanceUpdateState(const VkInstance   
 {
     AddInstanceTable(replay_instance);
 
-    if (modified_create_info.pApplicationInfo != nullptr)
-    {
-        instance_info.util_info.api_version = modified_create_info.pApplicationInfo->apiVersion;
-        instance_info.util_info.enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
-                                                          modified_create_info.ppEnabledExtensionNames +
-                                                              modified_create_info.enabledExtensionCount);
-    }
+    instance_info.util_info.PostCreateInstanceUpdateState(modified_create_info);
 }
 
 VkResult
@@ -3511,6 +3512,20 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     {
         GFXRECON_LOG_WARNING("Failed to get device extensions. Cannot perform sanity checks or filters for "
                              "extension availability. Some replay features may not work correctly.");
+    }
+
+    // Enable device extensions required for resolving multisampled depth/stencil images
+    for (const auto& vdr_required_extension : graphics::kVulkanDepthStencilResolveExtensions)
+    {
+        const bool is_extension_supported =
+            graphics::feature_util::IsSupportedExtension(available_extensions, vdr_required_extension.c_str());
+        const bool is_extension_already_requested =
+            graphics::feature_util::IsSupportedExtension(modified_extensions, vdr_required_extension.c_str());
+
+        if (is_extension_supported && !is_extension_already_requested)
+        {
+            modified_extensions.push_back(vdr_required_extension.c_str());
+        }
     }
 
     modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
@@ -4542,6 +4557,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
 }
 
 VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2                           func,
+                                                        uint64_t                                     index,
                                                         VkResult                                     original_result,
                                                         const VulkanQueueInfo*                       queue_info,
                                                         uint32_t                                     submitCount,
@@ -4725,8 +4741,17 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         current_submits_span = std::span(modified_submit_infos.data(), modified_submit_infos.size());
     }
 
-    result = func(
-        queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    if (options_.dumping_resources && resource_dumper_->MustDumpQueueSubmitIndex(index))
+    {
+        auto* device_table = GetDeviceTable(queue_info->handle);
+        GFXRECON_ASSERT(device_table != nullptr);
+        resource_dumper_->QueueSubmit2(current_submits_span, *device_table, queue_info, fence, index);
+    }
+    else
+    {
+        result = func(
+            queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
 
     // The result to report to the event sink might be different from the
     // result of the actual QueueSubmit call if synchronization is enabled.
@@ -5447,15 +5472,23 @@ void VulkanReplayConsumerBase::OverrideCmdBindDescriptorSets2(
 
     if (bind_descriptor_sets_info != nullptr && UseAddressReplacement(device_info))
     {
-        auto*               bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
-        VkPipelineBindPoint pipelineBindPoint              = in_commandBuffer->bound_pipelines.begin()->first;
-        auto&               address_replacer               = GetDeviceAddressReplacer(device_info);
-        address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
-                                                      pipelineBindPoint,
-                                                      bind_descriptor_sets_info->firstSet,
-                                                      bind_descriptor_sets_info->descriptorSetCount,
-                                                      &bind_descriptor_sets_info_meta->pDescriptorSets,
-                                                      GetDeviceAddressTracker(device_info));
+        auto* bind_descriptor_sets_info_meta = pBindDescriptorSetsInfo->GetMetaStructPointer();
+        auto& address_replacer               = GetDeviceAddressReplacer(device_info);
+
+        // derive bind-points from stage-flags. process for all bound pipelines.
+        for (VkPipelineBindPoint bind_point :
+             graphics::ShaderStageFlagsToPipelineBindPoints(bind_descriptor_sets_info->stageFlags))
+        {
+            if (in_commandBuffer->bound_pipelines.contains(bind_point))
+            {
+                address_replacer.ProcessCmdBindDescriptorSets(in_commandBuffer,
+                                                              bind_point,
+                                                              bind_descriptor_sets_info->firstSet,
+                                                              bind_descriptor_sets_info->descriptorSetCount,
+                                                              &bind_descriptor_sets_info_meta->pDescriptorSets,
+                                                              GetDeviceAddressTracker(device_info));
+            }
+        }
     }
     func(command_buffer, bind_descriptor_sets_info);
 }
@@ -10123,6 +10156,9 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     GFXRECON_ASSERT(command_buffer_info != nullptr)
     command_buffer_info->is_frame_boundary = false;
     command_buffer_info->frame_buffer_ids.clear();
+    command_buffer_info->active_render_pass_id = format::kNullHandleId;
+    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
+    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->bound_pipelines.clear();
     command_buffer_info->push_constant_data.clear();
     command_buffer_info->push_constant_stage_flags     = 0;
@@ -10410,6 +10446,33 @@ void VulkanReplayConsumerBase::MaybeInjectExecutionBarrier(const VulkanCommandBu
     util::EndInjectedCommands();
 }
 
+std::vector<format::HandleId> VulkanReplayConsumerBase::GetRenderPassAttachmentImageViewIds(
+    const VulkanFramebufferInfo*                         framebuffer_info,
+    const VulkanRenderPassInfo*                          render_pass_info,
+    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder)
+{
+    const size_t attachment_count = render_pass_info->attachment_description_final_layouts.size();
+
+    const format::HandleId* attachment_image_view_ids = nullptr;
+    if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
+        VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
+    {
+        // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
+        const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
+            render_pass_begin_info_decoder->GetMetaStructPointer()->pNext);
+
+        GFXRECON_ASSERT(attachment_begin_info)
+        GFXRECON_ASSERT(attachment_begin_info->pAttachments.GetLength() == attachment_count);
+        attachment_image_view_ids = attachment_begin_info->pAttachments.GetPointer();
+    }
+    else
+    {
+        GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() == attachment_count);
+        attachment_image_view_ids = framebuffer_info->attachment_image_view_ids.data();
+    }
+    return { attachment_image_view_ids, attachment_image_view_ids + attachment_count };
+}
+
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
     VulkanCommandBufferInfo*                             command_buffer_info,
@@ -10422,45 +10485,17 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->active_framebuffer_id = framebuffer_id;
+    command_buffer_info->active_render_pass_id = render_pass_id;
+    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        const format::HandleId* attachment_image_view_ids = nullptr;
-        if ((framebuffer_info->framebuffer_flags & VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT) ==
-            VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT)
-        {
-            // The attachments for imageless framebuffers are provided in the pNext chain of vkCmdBeginRenderPass
-            const auto* attachment_begin_info = GetPNextMetaStruct<Decoded_VkRenderPassAttachmentBeginInfo>(
-                render_pass_begin_info_decoder->GetMetaStructPointer()->pNext);
-
-            GFXRECON_ASSERT(attachment_begin_info)
-            GFXRECON_ASSERT(attachment_begin_info->pAttachments.GetLength() ==
-                            render_pass_info->attachment_description_final_layouts.size());
-            attachment_image_view_ids = attachment_begin_info->pAttachments.GetPointer();
-        }
-        else
-        {
-            GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
-                            render_pass_info->attachment_description_final_layouts.size());
-            attachment_image_view_ids = framebuffer_info->attachment_image_view_ids.data();
-        }
-
-        for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
-        {
-            auto image_view_id   = attachment_image_view_ids[i];
-            auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-            command_buffer_info->image_layout_barriers[image_view_info->image_id] =
-                render_pass_info->attachment_description_final_layouts[i];
-
-            const VulkanImageViewInfo* img_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-            assert(image_view_info != nullptr);
-            VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(img_view_info->image_id);
-            assert(img_info);
-            img_info->intermediate_layout = render_pass_info->attachment_description_final_layouts[i];
-        }
+        command_buffer_info->active_render_pass_attachment_image_view_ids =
+            GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
@@ -10480,41 +10515,71 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     auto       framebuffer_id        = render_pass_info_meta->framebuffer;
     auto       render_pass_id        = render_pass_info_meta->renderPass;
     command_buffer_info->frame_buffer_ids.push_back(framebuffer_id);
+    command_buffer_info->active_framebuffer_id = framebuffer_id;
+    command_buffer_info->active_render_pass_id = render_pass_id;
+    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = true;
 
     auto framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
     auto render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
     if ((render_pass_info != nullptr) && (framebuffer_info != nullptr))
     {
-        GFXRECON_ASSERT(framebuffer_info->attachment_image_view_ids.size() ==
-                        render_pass_info->attachment_description_final_layouts.size());
-
-        for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
-        {
-            auto image_view_id   = framebuffer_info->attachment_image_view_ids[i];
-            auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-            command_buffer_info->image_layout_barriers[image_view_info->image_id] =
-                render_pass_info->attachment_description_final_layouts[i];
-
-            const VulkanImageViewInfo* img_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
-            assert(image_view_info != nullptr);
-            VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(img_view_info->image_id);
-            assert(img_info);
-            img_info->intermediate_layout = render_pass_info->attachment_description_final_layouts[i];
-        }
+        command_buffer_info->active_render_pass_attachment_image_view_ids =
+            GetRenderPassAttachmentImageViewIds(framebuffer_info, render_pass_info, render_pass_begin_info_decoder);
     }
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
-
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
+}
+
+void VulkanReplayConsumerBase::ApplyRenderPassFinalLayouts(VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    const auto& attachment_image_view_ids = command_buffer_info->active_render_pass_attachment_image_view_ids;
+    if (attachment_image_view_ids.empty())
+    {
+        return;
+    }
+
+    auto render_pass_info = object_info_table_->GetVkRenderPassInfo(command_buffer_info->active_render_pass_id);
+    if (render_pass_info == nullptr)
+    {
+        return;
+    }
+
+    GFXRECON_ASSERT(attachment_image_view_ids.size() == render_pass_info->attachment_description_final_layouts.size());
+
+    for (size_t i = 0; i < render_pass_info->attachment_description_final_layouts.size(); ++i)
+    {
+        auto image_view_id   = attachment_image_view_ids[i];
+        auto image_view_info = object_info_table_->GetVkImageViewInfo(image_view_id);
+        if (image_view_info == nullptr)
+        {
+            continue;
+        }
+
+        command_buffer_info->image_layout_barriers[image_view_info->image_id] =
+            render_pass_info->attachment_description_final_layouts[i];
+
+        VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(image_view_info->image_id);
+        if (img_info != nullptr)
+        {
+            img_info->intermediate_layout = render_pass_info->attachment_description_final_layouts[i];
+        }
+    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdEndRenderPass(PFN_vkCmdEndRenderPass   func,
                                                         VulkanCommandBufferInfo* command_buffer_info)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
-    command_buffer_info->in_rendering_scope = false;
     func(command_buffer_info->handle);
+    ApplyRenderPassFinalLayouts(command_buffer_info);
+    command_buffer_info->active_render_pass_id = format::kNullHandleId;
+    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
+    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->in_rendering_scope = false;
 }
 
 void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
@@ -10523,8 +10588,12 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
-    command_buffer_info->in_rendering_scope = false;
     func(command_buffer_info->handle, pSubpassEndInfo->GetPointer());
+    ApplyRenderPassFinalLayouts(command_buffer_info);
+    command_buffer_info->active_render_pass_id = format::kNullHandleId;
+    command_buffer_info->active_framebuffer_id = format::kNullHandleId;
+    command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
+    command_buffer_info->in_rendering_scope = false;
 }
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRendering(

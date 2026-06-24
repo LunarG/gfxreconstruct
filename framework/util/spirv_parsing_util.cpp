@@ -127,7 +127,15 @@ LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description
 static bool check_type_potential_ref(const SpvReflectTypeDescription* td)
 {
     return td->storage_class == spv::StorageClassPhysicalStorageBuffer ||
-           (td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64 && !td->traits.numeric.scalar.signedness);
+           // uint64_t
+           (td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64 && !td->traits.numeric.scalar.signedness) ||
+           // uvec2
+           (td->op == SpvOpTypeVector && td->traits.numeric.vector.component_count == 2 &&
+            td->traits.numeric.scalar.width == 32 && !td->traits.numeric.scalar.signedness) ||
+           // uvec2 array
+           ((td->op == SpvOpTypeRuntimeArray || td->op == SpvOpTypeArray) &&
+            td->traits.numeric.vector.component_count == 2 && td->traits.numeric.scalar.width == 32 &&
+            !td->traits.numeric.scalar.signedness);
 }
 
 // Instruction represents a single Spv::Op instruction.

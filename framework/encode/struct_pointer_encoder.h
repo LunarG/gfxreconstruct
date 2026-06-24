@@ -24,14 +24,19 @@
 #ifndef GFXRECON_ENCODE_STRUCT_POINTER_ENCODER_H
 #define GFXRECON_ENCODE_STRUCT_POINTER_ENCODER_H
 
+#include "encode/custom_common_struct_encoders.h"
+#if defined(GFXRECON_ENABLE_VULKAN)
 #include "encode/custom_vulkan_struct_encoders.h"
+#endif
 #if ENABLE_OPENXR_SUPPORT
 #include "encode/custom_openxr_struct_encoders.h"
 #endif
 
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
+#if defined(GFXRECON_ENABLE_VULKAN)
 #include "generated/generated_vulkan_struct_encoders.h"
+#endif
 #if ENABLE_OPENXR_SUPPORT
 #include "generated/generated_openxr_struct_encoders.h"
 #endif
@@ -110,6 +115,8 @@ typename std::enable_if<!std::is_integral<SizeT>::value>::type EncodeStructArray
     }
 }
 
+// pNext chain handling is Vulkan-only
+#if defined(GFXRECON_ENABLE_VULKAN)
 /// For some structs, spec mandates that `pNext` must be `NULL`.
 /// On the other hand, vendor extensions may add structures to the pNext chain.
 /// To handle this, we encode the pNext chain if it is valid, otherwise we encode a null pNext pointer.
@@ -124,6 +131,7 @@ inline void EncodePNextStructIfValid(ParameterEncoder* encoder, const void* pNex
         encoder->EncodeStructPtrPreamble(nullptr);
     }
 }
+#endif // GFXRECON_ENABLE_VULKAN
 
 #if ENABLE_OPENXR_SUPPORT
 inline void EncodeNextStructIfValid(ParameterEncoder* encoder, const void* value)

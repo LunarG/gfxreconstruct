@@ -184,6 +184,7 @@ void Dx12JsonConsumerBase::ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoC
 void Dx12JsonConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                                     HRESULT          original_result,
                                                                     D3D12_FEATURE    feature,
+                                                                    const void*      feature_meta_struct_data,
                                                                     const void*      capture_feature_data,
                                                                     void*            replay_feature_data,
                                                                     UINT             feature_data_size)
@@ -199,11 +200,246 @@ void Dx12JsonConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::Hand
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["Feature"] = feature;
-        FieldToJson(args["pFeatureSupportData"], nullptr);
+        if ((feature_data_size > 0) && (feature_meta_struct_data != nullptr))
+        {
+            switch (feature)
+            {
+                case D3D12_FEATURE_D3D12_OPTIONS:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_ARCHITECTURE:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_FEATURE_LEVELS:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_FEATURE_LEVELS*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_FORMAT_SUPPORT:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_FORMAT_SUPPORT*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS*>(
+                                    feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_FORMAT_INFO:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_FORMAT_INFO*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT*>(
+                                    feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_SHADER_MODEL:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_SHADER_MODEL*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS1:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS1*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_SUPPORT:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_SUPPORT*>(
+                                    feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_ROOT_SIGNATURE:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_ROOT_SIGNATURE*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_ARCHITECTURE1:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_ARCHITECTURE1*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS2:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS2*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_SHADER_CACHE:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_SHADER_CACHE*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_COMMAND_QUEUE_PRIORITY:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY*>(
+                                    feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS3:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS3*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_EXISTING_HEAPS:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_EXISTING_HEAPS*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS4:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS4*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_SERIALIZATION:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_SERIALIZATION*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_CROSS_NODE:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_CROSS_NODE*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS5:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS5*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_DISPLAYABLE:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_DISPLAYABLE*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS6:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS6*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_QUERY_META_COMMAND:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_QUERY_META_COMMAND*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS7:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS7*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPE_COUNT:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPE_COUNT*>(
+                                    capture_feature_data));
+                    break;
+                case D3D12_FEATURE_PROTECTED_RESOURCE_SESSION_TYPES:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_PROTECTED_RESOURCE_SESSION_TYPES*>(
+                                    feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS8:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS8*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS9:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS9*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS10:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS10*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS11:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS11*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS12:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS12*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS13:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS13*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS14:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS14*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS15:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS15*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS16:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS16*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS17:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS17*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS18:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS18*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS19:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS19*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS20:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS20*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_PREDICATION:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_PREDICATION*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_PLACED_RESOURCE_SUPPORT_INFO:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_PLACED_RESOURCE_SUPPORT_INFO*>(
+                                    feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_HARDWARE_COPY:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_HARDWARE_COPY*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_OPTIONS21:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_D3D12_OPTIONS21*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_D3D12_TIGHT_ALIGNMENT:
+                    FieldToJson(
+                        args["pFeatureSupportData"],
+                        static_cast<const Decoded_D3D12_FEATURE_DATA_TIGHT_ALIGNMENT*>(feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_APPLICATION_SPECIFIC_DRIVER_STATE:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_APPLICATION_SPECIFIC_DRIVER_STATE*>(
+                                    feature_meta_struct_data));
+                    break;
+                case D3D12_FEATURE_BYTECODE_BYPASS_HASH_SUPPORTED:
+                    FieldToJson(args["pFeatureSupportData"],
+                                static_cast<const Decoded_D3D12_FEATURE_DATA_BYTECODE_BYPASS_HASH_SUPPORTED*>(
+                                    feature_meta_struct_data));
+                    break;
+                default:
+                    FieldToJson(args["pFeatureSupportData"], nullptr);
+                    FieldToJson(args[format::kNameWarning],
+                                "Incomplete conversion: Unknown D3D12_FEATURE, pFeatureSupportData not supported yet.");
+                    break;
+            }
+        }
+        else
+        {
+            FieldToJson(args["pFeatureSupportData"], nullptr);
+        }
         args["FeatureSupportDataSize"] = feature_data_size;
-        /// @todo Complete conversion of the void * contents of Process_ID3D12Device_CheckFeatureSupport. See
-        /// <https://learn.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12device-checkfeaturesupport>
-        FieldToJson(args[format::kNameWarning], "Incomplete conversion: pFeatureSupportData not supported yet.");
     }
     writer_->WriteBlockEnd();
 }
@@ -226,11 +462,15 @@ void Dx12JsonConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::Han
     nlohmann::ordered_json& args = method[format::kNameArgs];
     {
         args["Feature"] = feature;
-        FieldToJson(args["pFeatureSupportData"], nullptr);
+        if ((feature_data_size > 0) && (capture_feature_data != nullptr))
+        {
+            args["pFeatureSupportData"] = *(static_cast<const BOOL*>(capture_feature_data));
+        }
+        else
+        {
+            FieldToJson(args["pFeatureSupportData"], nullptr);
+        }
         args["FeatureSupportDataSize"] = feature_data_size;
-        /// @todo Complete conversion of the void * contents of Process_IDXGIFactory5_CheckFeatureSupport. See
-        /// <https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_5/nf-dxgi1_5-idxgifactory5-checkfeaturesupport>
-        FieldToJson(args[format::kNameWarning], "Incomplete conversion: pFeatureSupportData not supported yet.");
     }
     writer_->WriteBlockEnd();
 }

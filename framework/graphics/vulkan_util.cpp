@@ -165,5 +165,33 @@ uint32_t FindComputeQueueFamilyIndex(const VulkanQueueFamilyFlags& families)
     return VK_QUEUE_FAMILY_IGNORED;
 }
 
+std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags)
+{
+    std::vector<VkPipelineBindPoint> bind_points;
+
+    constexpr VkShaderStageFlags graphics_flags =
+        VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_TASK_BIT_EXT | VK_SHADER_STAGE_MESH_BIT_EXT;
+    constexpr VkShaderStageFlags compute_flags = VK_SHADER_STAGE_COMPUTE_BIT;
+    constexpr VkShaderStageFlags rt_flags      = VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR |
+                                            VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR |
+                                            VK_SHADER_STAGE_INTERSECTION_BIT_KHR | VK_SHADER_STAGE_CALLABLE_BIT_KHR;
+
+    if (flags & graphics_flags)
+    {
+        bind_points.push_back(VK_PIPELINE_BIND_POINT_GRAPHICS);
+    }
+
+    if (flags & compute_flags)
+    {
+        bind_points.push_back(VK_PIPELINE_BIND_POINT_COMPUTE);
+    }
+
+    if (flags & rt_flags)
+    {
+        bind_points.push_back(VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
+    }
+    return bind_points;
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -237,9 +237,9 @@ decode::VulkanAddressReplacer::submit_asset_t::~submit_asset_t()
         {
             free_command_buffers_fn(device, command_pool, 1, &command_buffer);
         }
-        if (destroy_semaphore_fn != nullptr && signal_semaphore != VK_NULL_HANDLE)
+        if (destroy_semaphore_fn != nullptr && signal_semaphore.semaphore != VK_NULL_HANDLE)
         {
-            destroy_semaphore_fn(device, signal_semaphore, nullptr);
+            destroy_semaphore_fn(device, signal_semaphore.semaphore, nullptr);
         }
     }
 }
@@ -339,15 +339,16 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     }
 }
 
-VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
-                                                         const std::span<VkDeviceAddress>          addresses_to_replace,
-                                                         const decode::VulkanDeviceAddressTracker& address_tracker,
-                                                         const std::span<graphics::VulkanSemaphore> wait_semaphores)
+graphics::VulkanSemaphore
+VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
+                                             const std::span<VkDeviceAddress>           addresses_to_replace,
+                                             const decode::VulkanDeviceAddressTracker&  address_tracker,
+                                             const std::span<graphics::VulkanSemaphore> wait_semaphores)
 {
     if (addresses_to_replace.empty())
     {
         // nothing to replace
-        return VK_NULL_HANDLE;
+        return graphics::VulkanSemaphore{ VK_NULL_HANDLE };
     }
 
     GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting "
@@ -377,7 +378,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBuff
             {
                 GFXRECON_LOG_WARNING_ONCE(
                     "VulkanAddressReplacer::UpdateBufferAddresses: could not create required submit-assets");
-                return VK_NULL_HANDLE;
+                return graphics::VulkanSemaphore{ VK_NULL_HANDLE };
             }
 
             device_table_->ResetFences(device_, 1, &submit_asset.fence);
@@ -419,7 +420,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBuff
             submit_info.commandBufferCount   = 1;
             submit_info.pCommandBuffers      = &submit_asset.command_buffer;
             submit_info.signalSemaphoreCount = 1;
-            submit_info.pSignalSemaphores    = &submit_asset.signal_semaphore;
+            submit_info.pSignalSemaphores    = &submit_asset.signal_semaphore.semaphore;
 
             // submit
             device_table_->QueueSubmit(queue_, 1, &submit_info, submit_asset.fence);
@@ -439,7 +440,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBuff
         run_compute_replace(&fake_info, addresses_to_replace, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
     }
 
-    return VK_NULL_HANDLE;
+    return graphics::VulkanSemaphore{ VK_NULL_HANDLE };
 }
 
 void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*                  command_buffer_info,
@@ -2221,12 +2222,12 @@ bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
     }
 
     // create a signal-semaphore
-    if (submit_asset.signal_semaphore == VK_NULL_HANDLE)
+    if (submit_asset.signal_semaphore.semaphore == VK_NULL_HANDLE)
     {
         VkSemaphoreCreateInfo semaphore_create_info = {};
         semaphore_create_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        VkResult result =
-            device_table_->CreateSemaphore(device_, &semaphore_create_info, nullptr, &submit_asset.signal_semaphore);
+        VkResult result                             = device_table_->CreateSemaphore(
+            device_, &semaphore_create_info, nullptr, &submit_asset.signal_semaphore.semaphore);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal semaphore creation failed");

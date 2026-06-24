@@ -31,6 +31,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <type_traits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -96,6 +97,23 @@ inline void hash_combine(std::size_t& seed, const T& v)
 {
     std::hash<T> hasher;
     seed ^= hasher(v) + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
+}
+
+/**
+ * @brief       Similar to hash_combine above but works with uint64_t which size is consistent between 32/64 builds
+ *
+ * @tparam  T       value template-type
+ * @param   seed    a provided reference to a seed. will be combined with the newly created value-hash.
+ * @param   v       a provided value
+ */
+
+template <class T>
+inline void hash_combine_64(uint64_t& seed, const T& v)
+{
+    static_assert(std::is_integral_v<T> || std::is_enum_v<T>, "hash_combine_64 requires an integral or enum type");
+
+    const uint64_t value = static_cast<uint64_t>(v);
+    seed ^= SplitMixFinalizer(value) + 0x9e3779b97f4a7c15ULL + (seed << 12U) + (seed >> 4U);
 }
 
 /**

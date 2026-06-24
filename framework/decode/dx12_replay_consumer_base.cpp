@@ -3857,10 +3857,12 @@ void Dx12ReplayConsumerBase::InitializeScreenshotHandler()
 void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                                       HRESULT          original_result,
                                                                       D3D12_FEATURE    feature,
+                                                                      const void*      feature_meta_struct_data,
                                                                       const void*      capture_feature_data,
                                                                       void*            replay_feature_data,
                                                                       UINT             feature_data_size)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(feature_meta_struct_data);
     GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
 
     auto replay_object = MapObject<ID3D12Device>(object_id);

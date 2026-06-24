@@ -95,7 +95,7 @@ class BlockBatch
 
     bool empty() const noexcept { return head_ == nullptr; }
 
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) || defined(GFXRECON_ENABLE_RELEASE_ASSERTS)
     // Returns true if block is reachable by walking the linked list from Head().
     // Intended for use in debug assertions only — O(n).
     bool ContainsBlock(const pointer block) const noexcept

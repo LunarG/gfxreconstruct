@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2018-2026 LunarG, Inc.
 # Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -27,6 +27,8 @@
 ###############################################################################
 cmake_minimum_required(VERSION 3.16.3)
 project(GFXReconstruct LANGUAGES CXX)
+
+set(GFXRECON_SOURCE_DIR "${PROJECT_SOURCE_DIR}")
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 
@@ -147,6 +149,14 @@ if (GFXRECON_ENABLE_OPENXR)
     endif()
 else()
     message(STATUS "OpenXR support disabled!")
+endif()
+
+option(GFXRECON_ENABLE_VULKAN "Enable Vulkan capture support. NOTE: the default is ON and setting this to OFF is experimental." ON)
+if (GFXRECON_ENABLE_VULKAN)
+    add_definitions(-DGFXRECON_ENABLE_VULKAN)
+    message(STATUS "Vulkan support enabled")
+else()
+    message(STATUS "Vulkan support disabled")
 endif()
 
 # Apply misc build directives to the given target

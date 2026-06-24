@@ -70,6 +70,11 @@ Application::Application(const std::string&     name,
     pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension),
     fps_info_(nullptr), frame_loop_info_{ nullptr }
 {
+#if defined(__ANDROID__)
+    android_app_           = reinterpret_cast<struct android_app*>(platform_specific_wsi_data);
+    android_app_->userData = this;
+#endif
+
     if (!cli_wsi_extension_.empty())
     {
         InitializeWsiContext(cli_wsi_extension_.c_str(), platform_specific_wsi_data);

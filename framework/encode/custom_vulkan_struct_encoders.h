@@ -55,11 +55,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorGetInfoEXT& value
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryToImageCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageToMemoryCopy& value);
 
-// Platform defined structures that are external to Vulkan.
-void EncodeStruct(ParameterEncoder* encoder, const ACL& value);
-void EncodeStruct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
-void EncodeStruct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

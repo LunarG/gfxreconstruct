@@ -260,8 +260,13 @@ class Dx12DecoderBase : public ApiDecoder
 
         for (auto consumer : GetConsumers())
         {
-            consumer->Process_ID3D12Device_CheckFeatureSupport(
-                object_id, return_value, feature, capture_data, feature_data.GetOutputPointer(), feature_data_size);
+            consumer->Process_ID3D12Device_CheckFeatureSupport(object_id,
+                                                               return_value,
+                                                               feature,
+                                                               feature_data.GetMetaStructPointer(),
+                                                               capture_data,
+                                                               feature_data.GetOutputPointer(),
+                                                               feature_data_size);
         }
 
         return bytes_read;

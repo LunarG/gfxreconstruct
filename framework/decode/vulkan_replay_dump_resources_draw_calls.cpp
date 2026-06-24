@@ -157,6 +157,55 @@ void DrawCallsDumpingContext::Release()
     current_cb_index_   = 0;
 }
 
+PFN_vkCmdBeginRendering DrawCallsDumpingContext::ResolveCmdBeginRendering() const
+{
+    if (device_table_->CmdBeginRendering != graphics::noop::vkCmdBeginRendering)
+    {
+        return device_table_->CmdBeginRendering;
+    }
+
+    if (device_table_->CmdBeginRenderingKHR != graphics::noop::vkCmdBeginRenderingKHR)
+    {
+        return device_table_->CmdBeginRenderingKHR;
+    }
+
+    return nullptr;
+}
+
+PFN_vkCmdEndRendering DrawCallsDumpingContext::ResolveCmdEndRendering() const
+{
+    if (device_table_->CmdEndRendering != graphics::noop::vkCmdEndRendering)
+    {
+        return device_table_->CmdEndRendering;
+    }
+
+    if (device_table_->CmdEndRenderingKHR != graphics::noop::vkCmdEndRenderingKHR)
+    {
+        return device_table_->CmdEndRenderingKHR;
+    }
+
+    return nullptr;
+}
+
+void DrawCallsDumpingContext::RecordCmdBeginRendering(VkCommandBuffer        command_buffer,
+                                                      const VkRenderingInfo* rendering_info) const
+{
+    const PFN_vkCmdBeginRendering cmd_begin_rendering = ResolveCmdBeginRendering();
+    if (cmd_begin_rendering != nullptr)
+    {
+        cmd_begin_rendering(command_buffer, rendering_info);
+    }
+}
+
+void DrawCallsDumpingContext::RecordCmdEndRendering(VkCommandBuffer command_buffer) const
+{
+    const PFN_vkCmdEndRendering cmd_end_rendering = ResolveCmdEndRendering();
+    if (cmd_end_rendering != nullptr)
+    {
+        cmd_end_rendering(command_buffer);
+    }
+}
+
 DrawCallsDumpingContext::DrawCallParams* DrawCallsDumpingContext::InsertNewDrawParameters(
     uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance)
 {
@@ -988,21 +1037,13 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
 
     GFXRECON_ASSERT(!RP_indices_.empty());
 
-    for (const auto& [key, inside_renderpass] : active_queries_)
-    {
-        if (inside_renderpass)
-        {
-            device_table_->CmdEndQuery(current_command_buffer, key.first, key.second);
-        }
-    }
-
     if (current_render_pass_type_ == RenderPassType::kRenderPass)
     {
         device_table_->CmdEndRenderPass(current_command_buffer);
     }
     else if (current_render_pass_type_ == RenderPassType::kDynamicRendering)
     {
-        device_table_->CmdEndRenderingKHR(current_command_buffer);
+        RecordCmdEndRendering(current_command_buffer);
 
         // Transition render targets into TRANSFER_SRC_OPTIMAL
         assert(current_renderpass_ == render_targets_.size() - 1);
@@ -1043,14 +1084,6 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer(DrawCallsDumpingContext::Dra
                     cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                 }
             }
-        }
-    }
-
-    for (const auto& [key, inside_renderpass] : active_queries_)
-    {
-        if (!inside_renderpass)
-        {
-            device_table_->CmdEndQuery(current_command_buffer, key.first, key.second);
         }
     }
 
@@ -1111,10 +1144,10 @@ bool DrawCallsDumpingContext::ShouldHandleExecuteCommands(uint64_t index) const
     return secondaries_.find(index) != secondaries_.end();
 }
 
-VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
-                                                const VkSubmitInfo& submit_info,
-                                                Index               submit_info_index,
-                                                Index               submit_info_cmd_buf_index)
+VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue              queue,
+                                                const VkSubmitInfo2& submit_info,
+                                                Index                submit_info_index,
+                                                Index                submit_info_cmd_buf_index)
 {
     const size_t n_drawcalls = command_buffers_.size();
 
@@ -1126,18 +1159,24 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(VkQueue             queue,
     // Dump render targets
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
-        VkSubmitInfo si;
-        si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        si.pNext                = submit_info.pNext;
-        si.waitSemaphoreCount   = !cb ? submit_info.waitSemaphoreCount : 0;
-        si.pWaitSemaphores      = !cb ? submit_info.pWaitSemaphores : nullptr;
-        si.pWaitDstStageMask    = !cb ? submit_info.pWaitDstStageMask : nullptr;
-        si.commandBufferCount   = 1;
-        si.pCommandBuffers      = &command_buffers_[cb];
-        si.signalSemaphoreCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreCount : 0;
-        si.pSignalSemaphores    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphores : nullptr;
+        const VkCommandBufferSubmitInfo cb_info{
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, command_buffers_[cb], 0 /* deviceMask */
+        };
 
-        VkResult res = device_table_->QueueSubmit(queue, 1, &si, submission_fence.handle);
+        // Forward the original submit's wait semaphores only on the first clone and its signal semaphores only on the
+        // last clone, so the application-visible synchronization is preserved across the split submissions.
+        VkSubmitInfo2 si{};
+        si.sType                    = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+        si.pNext                    = submit_info.pNext;
+        si.flags                    = submit_info.flags;
+        si.waitSemaphoreInfoCount   = !cb ? submit_info.waitSemaphoreInfoCount : 0;
+        si.pWaitSemaphoreInfos      = !cb ? submit_info.pWaitSemaphoreInfos : nullptr;
+        si.commandBufferInfoCount   = 1;
+        si.pCommandBufferInfos      = &cb_info;
+        si.signalSemaphoreInfoCount = (cb == (n_drawcalls - 1)) ? submit_info.signalSemaphoreInfoCount : 0;
+        si.pSignalSemaphoreInfos    = (cb == (n_drawcalls - 1)) ? submit_info.pSignalSemaphoreInfos : nullptr;
+
+        VkResult res = SubmitInfo2OnQueue(*device_table_, queue, si, submission_fence.handle);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR(
@@ -1458,15 +1497,16 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
             continue;
         }
 
-        const VulkanImageInfo* image_info     = render_targets_[rp][sp].color_att_imgs[i];
-        const ImageDumpResult  can_dump_image = CanDumpImage(instance_table_, device_info->parent, image_info);
-        auto&                  dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
+        const VulkanImageInfo* image_info = render_targets_[rp][sp].color_att_imgs[i];
+        const ImageDumpResult  can_dump_image =
+            CanDumpImage(instance_table_, device_info->parent, image_info, device_info->property_feature_info);
+        auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
                                                                               DumpResourceType::kRtv,
                                                                               static_cast<uint32_t>(i),
                                                                               before_command,
                                                                               image_info,
                                                                               can_dump_image)
-                                                                     : *(dumped_rts.begin() + i);
+                                                    : *(dumped_rts.begin() + i);
         if (can_dump_image != ImageDumpResult::kCanDump)
         {
             continue;
@@ -1527,7 +1567,8 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t          
     {
         const VulkanImageInfo* image_info = render_targets_[rp][sp].depth_att_img;
 
-        const ImageDumpResult can_dump_image = CanDumpImage(instance_table_, device_info->parent, image_info);
+        const ImageDumpResult can_dump_image =
+            CanDumpImage(instance_table_, device_info->parent, image_info, device_info->property_feature_info);
         // The "before" depth target will be at the back() of the vector
         GFXRECON_ASSERT(image_info != nullptr);
         auto& dumped_rt = insert_new_resource_entry ? dumped_rts.emplace_back(dumped_resource_base,
@@ -1661,8 +1702,8 @@ VkResult DrawCallsDumpingContext::DumpDescriptors(uint64_t                  cmd_
                         continue;
                     }
 
-                    const ImageDumpResult can_dump_image =
-                        CanDumpImage(instance_table_, device_info->parent, image_info);
+                    const ImageDumpResult can_dump_image = CanDumpImage(
+                        instance_table_, device_info->parent, image_info, device_info->property_feature_info);
 
                     auto& new_dumped_desc =
                         dc_params.dumped_resources.dumped_descriptors.emplace_back(dumped_resource_base,
@@ -1981,6 +2022,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(DrawCallParams& dc_par
                                                 device_info->parent,
                                                 *device_table_,
                                                 *instance_table_,
+                                                device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     if (!IsDrawCallIndirect(dc_params.type))
@@ -2139,12 +2181,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t               
         GFXRECON_LOG_ERROR("Failed to find a transfer queue")
         return VK_ERROR_UNKNOWN;
     }
-
-    graphics::VulkanResourcesUtil resource_util(device_info->handle,
-                                                device_info->parent,
-                                                *device_table_,
-                                                *instance_table_,
-                                                *phys_dev_info->replay_device_info->memory_properties);
 
     MinMaxVertexIndex min_max_vertex_indices = { 0, 0 };
     bool              empty_draw_call        = false;
@@ -3403,7 +3439,7 @@ void DrawCallsDumpingContext::EndRendering()
     size_t cmd_buf_idx = current_cb_index_;
     for (auto it = first; it < last; ++it, ++cmd_buf_idx)
     {
-        device_table_->CmdEndRendering(*it);
+        RecordCmdEndRendering(*it);
     }
 
     ++current_renderpass_;
@@ -3518,16 +3554,6 @@ void DrawCallsDumpingContext::BindIndexBuffer(
     bound_index_buffer_.offset      = offset;
     bound_index_buffer_.index_type  = index_type;
     bound_index_buffer_.size        = index_buffer_size;
-}
-
-void DrawCallsDumpingContext::CmdBeginQuery(VkQueryPool queryPool, uint32_t query)
-{
-    active_queries_[{ queryPool, query }] = active_renderpass_ != nullptr;
-}
-
-void DrawCallsDumpingContext::CmdEndQuery(VkQueryPool queryPool, uint32_t query)
-{
-    active_queries_.erase({ queryPool, query });
 }
 
 void DrawCallsDumpingContext::SetRenderTargets(const std::vector<VulkanImageInfo*>& color_att_imgs,
