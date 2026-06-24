@@ -25,14 +25,14 @@ else()
     message(FATAL_ERROR "Failed to find OpenXR headers for support.  Continuing with it disabled!")
 endif()
 
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util ${PROJECT_SOURCE_DIR}/build/framework/util/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${PROJECT_SOURCE_DIR}/build/framework/plugin/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics ${PROJECT_SOURCE_DIR}/build/framework/graphics/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format ${PROJECT_SOURCE_DIR}/build/framework/format/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode ${PROJECT_SOURCE_DIR}/build/framework/decode/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode ${PROJECT_SOURCE_DIR}/build/framework/encode/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application ${PROJECT_SOURCE_DIR}/build/framework/application/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK ${PROJECT_SOURCE_DIR}/build/external/OpenXR-SDK/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util util)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin plugin)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics graphics)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format format)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode decode)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode encode)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application application)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK OpenXR-SDK)
 
 add_library(gfxrecon-quest-replay
             SHARED
