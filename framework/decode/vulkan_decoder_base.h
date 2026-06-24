@@ -57,6 +57,18 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void WaitIdle() override;
 
+    virtual void OnLoopStart() override
+    {
+        for (auto consumer : consumers_)
+        {
+            auto listener = dynamic_cast<LoopStartListener*>(consumer);
+            if (listener != nullptr)
+            {
+                listener->OnLoopStart();
+            }
+        }
+    }
+
     virtual bool IsComplete(uint64_t block_index) override
     {
         return decode::IsComplete<VulkanConsumer*>(consumers_, block_index);
