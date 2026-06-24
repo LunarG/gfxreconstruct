@@ -34,13 +34,12 @@ target_include_directories(gfxrecon-testapp-base
                                ${GFXRECON_SOURCE_DIR}/test/icd)
 
 set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_SOURCE_DIR}/..)
-set(FRAMEWORK_BUILD_DIR ${GFXRECON_ANDROID_DIR}/framework/build/test_apps)
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util ${FRAMEWORK_BUILD_DIR}/util/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${FRAMEWORK_BUILD_DIR}/plugin/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode ${FRAMEWORK_BUILD_DIR}/decode/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics ${FRAMEWORK_BUILD_DIR}/graphics/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format ${FRAMEWORK_BUILD_DIR}/format/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application ${FRAMEWORK_BUILD_DIR}/application/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util util)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin plugin)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode decode)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics graphics)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format format)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application application)
 
 target_link_libraries(gfxrecon-testapp-base
     PUBLIC
@@ -52,8 +51,7 @@ macro(common_build_directives TARGET)
 endmacro()
 
 macro(add_test_app TEST_NAME)
-    add_subdirectory(${GFXRECON_SOURCE_DIR}/test/test_apps/${TEST_NAME}
-                     ${GFXRECON_ANDROID_TEST_APPS_DIR}/${TEST_NAME}/build/${ANDROID_ABI})
+    add_subdirectory(${GFXRECON_SOURCE_DIR}/test/test_apps/${TEST_NAME} ${TEST_NAME})
 endmacro()
 
 add_test_app(acquired-image)

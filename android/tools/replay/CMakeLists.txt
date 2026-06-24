@@ -13,13 +13,13 @@ set(nlohmann_json_DIR "${GFXRECON_SOURCE_DIR}/external/nlohmann-json/share/cmake
 find_package(nlohmann_json REQUIRED CONFIG PATHS "${nlohmann_json_DIR}" NO_DEFAULT_PATH)
 
 include(../../framework/cmake-config/PlatformConfig.cmake)
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util ${PROJECT_SOURCE_DIR}/build/framework/util/replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${PROJECT_SOURCE_DIR}/build/framework/plugin/replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics ${PROJECT_SOURCE_DIR}/build/framework/graphics/replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format ${PROJECT_SOURCE_DIR}/build/framework/format/replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode ${PROJECT_SOURCE_DIR}/build/framework/decode/replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode ${PROJECT_SOURCE_DIR}/build/framework/encode/replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application ${PROJECT_SOURCE_DIR}/build/framework/application/replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util util)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin plugin)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics graphics)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format format)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode decode)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode encode)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application application)
 
 add_library(gfxrecon-replay
             SHARED

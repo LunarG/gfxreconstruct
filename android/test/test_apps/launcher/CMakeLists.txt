@@ -35,7 +35,7 @@ project(gfxrecon-test-launcher)
 set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(COMMON_DIR ${GFXRECON_ANDROID_TEST_APPS_DIR}/common)
-add_subdirectory(${COMMON_DIR} ${COMMON_DIR}/build/${ANDROID_ABI})
+add_subdirectory(${COMMON_DIR} common)
 
 
 add_library(${PROJECT_NAME}
