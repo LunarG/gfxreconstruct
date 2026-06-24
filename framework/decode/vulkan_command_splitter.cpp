@@ -57,17 +57,19 @@ VkCommandBuffer VulkanCommandBufferSplitInfo::GetNextHandle(const VulkanCommandB
         const VulkanDeviceInfo* device_info = object_table_->GetVkDeviceInfo(command_buffer_info->parent_id);
         GFXRECON_ASSERT(device_info == device_info_);
 
-        // Create a new handle for the split.
+        constexpr size_t NEW_COMMAND_BUFFER_COUNT = 8;
+        const size_t     previous_size            = associated_handles_.size();
+        associated_handles_.resize(previous_size + NEW_COMMAND_BUFFER_COUNT);
+        VkCommandBuffer* new_handles_ptr = associated_handles_.data() + previous_size;
+
+        // Create a bunch of new handles for the split.
         VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
         alloc_info.commandPool                 = pool_info->handle;
         alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        alloc_info.commandBufferCount          = 1;
+        alloc_info.commandBufferCount          = NEW_COMMAND_BUFFER_COUNT;
 
-        VkResult result = device_table_->AllocateCommandBuffers(device_info_->handle, &alloc_info, &next_handle);
+        VkResult result = device_table_->AllocateCommandBuffers(device_info_->handle, &alloc_info, new_handles_ptr);
         GFXRECON_ASSERT(result == VK_SUCCESS);
-
-        // Store the new handle in the associated handles vector and update the index for next time.
-        associated_handles_.push_back(next_handle);
     }
 
     next_handle = associated_handles_[next_associated_index_];
