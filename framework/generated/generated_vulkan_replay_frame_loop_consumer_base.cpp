@@ -646,6 +646,34 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyImageView(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkCommandPool>*        pCommandPool)
+{
+    // Check for null cases
+    if (pCommandPool == nullptr || pCommandPool->IsNull())
+    {
+        return;
+    }
+    format::HandleId handle = *pCommandPool->GetPointer();
+
+    // Pass the call along if we are not looping or
+    // if we are looping and the handle is not in allocatedLoopResources
+    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
+    {
+        VulkanReplayConsumer::Process_vkCreateCommandPool(call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
+        // If we are looping, save the handle in allocatedLoopResources
+        if (getFrameLoopInfo().IsLooping())
+        {
+            allocatedLoopResources.insert(handle);
+        }
+    }
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,

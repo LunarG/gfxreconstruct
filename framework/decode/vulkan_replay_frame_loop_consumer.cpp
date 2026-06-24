@@ -51,18 +51,15 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
     HandlePointerDecoder<VkCommandPool>*                   pCommandPool)
 {
-    if (frame_loop_info_.IsRepetition())
-    {
-        // Don't repeatedly recreate the command pool during the looping frame
-        return;
-    }
-
     // Set VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT in order to prevent validation
     // error regarding implicitly resetting the command buffer
-    VkCommandPoolCreateInfo* create_info = pCreateInfo->GetPointer();
-    create_info->flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    if (pCreateInfo != nullptr && pCreateInfo->GetPointer() != nullptr)
+    {
+        VkCommandPoolCreateInfo* create_info = pCreateInfo->GetPointer();
+        create_info->flags |= VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    }
 
-    VulkanReplayConsumer::Process_vkCreateCommandPool(
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(
         call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
 }
 
