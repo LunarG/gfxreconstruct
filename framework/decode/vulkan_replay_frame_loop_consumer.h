@@ -91,11 +91,11 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                    format::HandleId                                queue,
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
 
-    void Process_vkCmdWriteTimestamp(const ApiCallInfo&         call_info,
-                                     format::HandleId           commandBuffer,
-                                     VkPipelineStageFlagBits    pipelineStage,
-                                     format::HandleId           queryPool,
-                                     uint32_t                   query) override;
+    void Process_vkCmdWriteTimestamp(const ApiCallInfo&      call_info,
+                                     format::HandleId        commandBuffer,
+                                     VkPipelineStageFlagBits pipelineStage,
+                                     format::HandleId        queryPool,
+                                     uint32_t                query) override;
 
     void Process_vkMapMemory(const ApiCallInfo&               call_info,
                              VkResult                         returnValue,

@@ -253,8 +253,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
         call_info, returnValue, device, descriptorPool, descriptorSetCount, pDescriptorSets);
 }
 
-
-
 void VulkanReplayFrameLoopConsumer::OnLoopStart()
 {
     WaitDevicesIdle();
@@ -273,7 +271,7 @@ void VulkanReplayFrameLoopConsumer::CaptureInitialFenceStates()
             auto device_info = table.GetVkDeviceInfo(fence_info->parent_id);
             if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
             {
-                VkDevice device = device_info->handle;
+                VkDevice                           device       = device_info->handle;
                 const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
                 if (device_table != nullptr)
                 {
@@ -282,7 +280,8 @@ void VulkanReplayFrameLoopConsumer::CaptureInitialFenceStates()
                     GFXRECON_LOG_DEBUG("  Fence %" PRIu64 " (handle %" PRIu64 ") initial state: %s",
                                        fence_info->capture_id,
                                        (uint64_t)fence_info->handle,
-                                       status == VK_SUCCESS ? "SIGNALED" : (status == VK_NOT_READY ? "UNSIGNALED" : "ERROR"));
+                                       status == VK_SUCCESS ? "SIGNALED"
+                                                            : (status == VK_NOT_READY ? "UNSIGNALED" : "ERROR"));
                 }
             }
         }
@@ -327,14 +326,18 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
 
         if (initial_status == VK_NOT_READY && current_status == VK_SUCCESS)
         {
-            GFXRECON_LOG_DEBUG("Fence %" PRIu64 " (handle %" PRIu64 ") was initially UNSIGNALED but is now SIGNALED. Will reset it.",
-                               fence_id, (uint64_t)fence_info->handle);
+            GFXRECON_LOG_DEBUG("Fence %" PRIu64 " (handle %" PRIu64
+                               ") was initially UNSIGNALED but is now SIGNALED. Will reset it.",
+                               fence_id,
+                               (uint64_t)fence_info->handle);
             fences_to_reset.push_back(fence_info->handle);
         }
         else if (initial_status == VK_SUCCESS && current_status == VK_NOT_READY)
         {
-            GFXRECON_LOG_DEBUG("Fence %" PRIu64 " (handle %" PRIu64 ") was initially SIGNALED but is now UNSIGNALED. Will signal it.",
-                               fence_id, (uint64_t)fence_info->handle);
+            GFXRECON_LOG_DEBUG("Fence %" PRIu64 " (handle %" PRIu64
+                               ") was initially SIGNALED but is now UNSIGNALED. Will signal it.",
+                               fence_id,
+                               (uint64_t)fence_info->handle);
             fences_to_signal.push_back(fence_info->handle);
         }
     }
@@ -352,7 +355,7 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
         VulkanQueueInfo* queue_info = table.GetVkQueueInfo(queue);
         for (VkFence fence : fences_to_signal)
         {
-            VkResult         result       = device_table->QueueSubmit(queue_info->handle, 0, nullptr, fence);
+            VkResult result = device_table->QueueSubmit(queue_info->handle, 0, nullptr, fence);
             CHECK_VK_RESULT(result, "vkQueueSubmit");
         }
     }
@@ -382,8 +385,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo&      
     VulkanReplayConsumer::Process_vkMapMemory(call_info, returnValue, device, memory, offset, size, flags, ppData);
 }
 
-
-
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     const ApiCallInfo&                              call_info,
     VkResult                                        returnValue,
@@ -412,12 +413,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteTimestamp(
-    const ApiCallInfo&         call_info,
-    format::HandleId           commandBuffer,
-    VkPipelineStageFlagBits    pipelineStage,
-    format::HandleId           queryPool,
-    uint32_t                   query)
+void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteTimestamp(const ApiCallInfo&      call_info,
+                                                                format::HandleId        commandBuffer,
+                                                                VkPipelineStageFlagBits pipelineStage,
+                                                                format::HandleId        queryPool,
+                                                                uint32_t                query)
 {
     if (frame_loop_info_.IsRepetition())
     {
