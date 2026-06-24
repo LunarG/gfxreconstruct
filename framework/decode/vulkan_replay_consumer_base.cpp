@@ -9023,11 +9023,6 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
         screenshot_handler_->EndFrame();
     }
 
-    if (options_.isolate_render_passes)
-    {
-        GetDeviceCommandSplitter(GetObjectInfoTable().GetVkDeviceInfo(queue_info->parent_id)).EndFrame();
-    }
-
     return result;
 }
 
@@ -10217,6 +10212,13 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     VulkanCommandBufferInfo*                                command_buffer_info,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* begin_info_decoder)
 {
+    if (options_.isolate_render_passes)
+    {
+        auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        GFXRECON_ASSERT(device_info != nullptr);
+        GetDeviceCommandSplitter(device_info).BeginCommandBuffer(command_buffer_info);
+    }
+
     ClearCommandBufferInfo(command_buffer_info);
 
     VkCommandBuffer                 command_buffer = command_buffer_info->handle;
@@ -10274,6 +10276,27 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommand
     }
 
     return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateCommandPool(
+    PFN_vkCreateCommandPool                                      func,
+    VkResult                                                     original_result,
+    const VulkanDeviceInfo*                                      device_info,
+    const StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+    HandlePointerDecoder<VkCommandPool>*                         pCommandPool)
+{
+    const VkCommandPoolCreateInfo* create_info = pCreateInfo->GetPointer();
+    if (create_info != nullptr)
+    {
+        auto* command_pool_info         = reinterpret_cast<VulkanCommandPoolInfo*>(pCommandPool->GetConsumerData(0));
+        command_pool_info->create_flags = create_info->flags;
+    }
+
+    return func(device_info->handle,
+                pCreateInfo->GetPointer(),
+                GetAllocationCallbacks(pAllocator),
+                pCommandPool->GetHandlePointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPool  func,
@@ -10560,6 +10583,12 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    subpass_begin_info_decode)
 {
+    if (options_.isolate_render_passes)
+    {
+        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+    }
+
     MaybeInjectExecutionBarrier(command_buffer_info);
 
     const auto render_pass_info_meta = render_pass_begin_info_decoder->GetMetaStructPointer();
@@ -10651,6 +10680,12 @@ void VulkanReplayConsumerBase::OverrideCmdEndRenderPass2(
     command_buffer_info->active_framebuffer_id = format::kNullHandleId;
     command_buffer_info->active_render_pass_attachment_image_view_ids.clear();
     command_buffer_info->in_rendering_scope = false;
+
+    if (options_.isolate_render_passes)
+    {
+        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
@@ -10659,6 +10694,12 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRendering(
     StructPointerDecoder<Decoded_VkRenderingInfo>* rendering_info_decoder)
 {
     GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    if (options_.isolate_render_passes)
+    {
+        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+    }
 
     MaybeInjectExecutionBarrier(command_buffer_info);
     command_buffer_info->in_rendering_scope = true;
@@ -10672,6 +10713,12 @@ void VulkanReplayConsumerBase::OverrideCmdEndRendering(PFN_vkCmdEndRendering    
     GFXRECON_ASSERT(command_buffer_info != nullptr);
     command_buffer_info->in_rendering_scope = false;
     func(command_buffer_info->handle);
+
+    if (options_.isolate_render_passes)
+    {
+        VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+        GetDeviceCommandSplitter(device_info).SplitCommandBuffer(command_buffer_info);
+    }
 }
 
 void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(

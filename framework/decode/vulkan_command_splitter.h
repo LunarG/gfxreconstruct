@@ -118,7 +118,7 @@ class VulkanCommandSplitter
     /// @param command_buffer_info The command buffer info structure to reset.
     void ResetCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
-    void EndFrame();
+    void BeginCommandBuffer(VulkanCommandBufferInfo* command_buffer_info);
 
   private:
     graphics::VulkanSemaphore

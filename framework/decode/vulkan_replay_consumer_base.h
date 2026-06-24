@@ -1335,6 +1335,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         VulkanCommandBufferInfo*  command_buffer_info,
                                         VkCommandBufferResetFlags flags);
 
+    VkResult OverrideCreateCommandPool(PFN_vkCreateCommandPool                                      func,
+                                       VkResult                                                     original_result,
+                                       const VulkanDeviceInfo*                                      device_info,
+                                       const StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>* pCreateInfo,
+                                       const StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                       HandlePointerDecoder<VkCommandPool>*                         pCommandPool);
+
     VkResult OverrideResetCommandPool(PFN_vkResetCommandPool  func,
                                       VkResult                original_result,
                                       const VulkanDeviceInfo* device_info,

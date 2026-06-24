@@ -346,11 +346,23 @@ void VulkanCommandSplitter::ResetCommandBuffer(VulkanCommandBufferInfo* command_
     }
 }
 
-void VulkanCommandSplitter::EndFrame()
+void VulkanCommandSplitter::BeginCommandBuffer(VulkanCommandBufferInfo* command_buffer_info)
 {
-    // TODO: Need to consider what happens on a subsequent frame:
-    // when an app that re-records the same primary command buffer each frame via an implicit reset
-    // (vkBeginCommandBuffer on a RESET_COMMAND_BUFFER_BIT pool) never triggers ResetCommandBuffer.
+    VulkanCommandPoolInfo* command_pool_info = object_table_->GetVkCommandPoolInfo(command_buffer_info->pool_id);
+    GFXRECON_ASSERT(command_pool_info != nullptr);
+
+    if (command_pool_info->create_flags & VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
+    {
+        // If the command pool was created with the RESET_COMMAND_BUFFER_BIT flag, then the command buffer is implicitly
+        // reset when vkBeginCommandBuffer is called. In this case, we need to reset all the split command buffers
+        // together and restore the command buffer info handle.
+        if (original_command_buffer_id_.contains(command_buffer_info->handle))
+        {
+            // Reset current handle and let `ResetCommandBuffer` handle the rest of the split handles.
+            device_table_->ResetCommandBuffer(command_buffer_info->handle, 0);
+            ResetCommandBuffer(command_buffer_info);
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
