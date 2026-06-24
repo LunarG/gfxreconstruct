@@ -103,7 +103,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(
     format::HandleId                                     descriptorPool,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    if (frame_loop_info_.IsRepetition() && !frame_loop_info_.IsFinalIteration())
+    if (frame_loop_info_.IsRepetition())
     {
         // Skip destruction of descriptor pools with a dangling destruction
         if (dangling_destroy_descriptor_pools_.contains(descriptorPool))
@@ -156,7 +156,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkResetDescriptorPool(const ApiCallI
                                                                   format::HandleId           descriptorPool,
                                                                   VkDescriptorPoolResetFlags flags)
 {
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsFinalIteration())
+    if (frame_loop_info_.IsLooping())
     {
         // If any of the sets in this pool are dangling, skip pool reset
         for (format::HandleId set_id : dangling_create_descriptor_sets_)
@@ -212,7 +212,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
                                                                  uint32_t           descriptorSetCount,
                                                                  HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets)
 {
-    if (frame_loop_info_.IsRepetition() && !frame_loop_info_.IsFinalIteration())
+    if (frame_loop_info_.IsRepetition())
     {
         // If any of the descriptor sets are in the dangling list,
         // then we want to omit their destruction
