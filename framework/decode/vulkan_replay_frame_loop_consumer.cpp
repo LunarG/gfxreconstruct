@@ -389,14 +389,6 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
 
     if (manual_wait_fences.size() > 0)
     {
-        GFXRECON_LOG_DEBUG("Synthetically waiting on %" PRIu64 " fences...", manual_wait_fences.size());
-        result = device_table->WaitForFences(vk_device,
-                                             manual_wait_fences.size(),
-                                             manual_wait_fences.data(),
-                                             VK_TRUE,
-                                             std::numeric_limits<uint64_t>::max());
-        CHECK_VK_RESULT(result, "vkWaitForFences");
-
         GFXRECON_LOG_DEBUG("Resetting %" PRIu64 " synthetically waited on fences...", manual_wait_fences.size());
         result = device_table->ResetFences(vk_device, manual_wait_fences.size(), manual_wait_fences.data());
         CHECK_VK_RESULT(result, "vkResetFences");
