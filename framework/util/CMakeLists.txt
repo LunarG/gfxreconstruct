@@ -256,6 +256,21 @@ if (OPENXR_SUPPORT_ENABLED)
     target_compile_definitions(gfxrecon_util PUBLIC ENABLE_OPENXR_SUPPORT=1)
 endif()
 
+option(GFXRECON_ENABLE_USERFAULTFD "If the target platform supports it, build userfaultfd memory tracking functionality" ON)
+if (((NOT WIN32) AND (NOT APPLE) AND GFXRECON_ENABLE_USERFAULTFD))
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_ENABLE_USERFAULTFD=1)
+endif()
+
+option(GFXRECON_PLATFORM_SUPPORTS_GETTID "Indicate whether or not the platform supports SYS_gettid" ON)
+if ((NOT APPLE) AND GFXRECON_PLATFORM_SUPPORTS_GETTID)
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_PLATFORM_SUPPORTS_GETTID=1)
+endif()
+
+option(GFXRECON_PLATFORM_SUPPORTS_TGKILL "Indicate whether or not the platform supports SYS_tgkill" ON)
+if ((NOT APPLE) AND GFXRECON_PLATFORM_SUPPORTS_TGKILL)
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_PLATFORM_SUPPORTS_TGKILL=1)
+endif()
+
 common_build_directives(gfxrecon_util)
 
 if (${RUN_TESTS})
