@@ -194,7 +194,7 @@ class VulkanReplayConsumerBodyGenerator(
         """Method override."""
         # Override functions receive the decoded return value in addition to parameters.
         call_expr = ''
-        if name not in ['vkQueueSubmit', 'vkBeginCommandBuffer']:
+        if name not in ['vkQueueSubmit', 'vkQueueSubmit2', 'vkQueueSubmit2KHR', 'vkBeginCommandBuffer']:
             call_expr = '{}({}, returnValue, {})'.format(
                 self.REPLAY_OVERRIDES[name], dispatch_func, arg_list
             )

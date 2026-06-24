@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2025 LunarG, Inc.
+# Copyright (c) 2025-2026 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,14 +33,14 @@ target_include_directories(gfxrecon-testapp-base
                                ${GFXRECON_SOURCE_DIR}/test/test_apps/common
                                ${GFXRECON_SOURCE_DIR}/test/icd)
 
-set(FRAMEWORK_DIR ${GFXRECON_ANDROID_DIR}/framework)
 set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_SOURCE_DIR}/..)
-add_subdirectory(${FRAMEWORK_DIR}/util ${FRAMEWORK_DIR}/util/build/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${FRAMEWORK_DIR}/plugin/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/decode ${FRAMEWORK_DIR}/decode/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/graphics ${FRAMEWORK_DIR}/graphics/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/format ${FRAMEWORK_DIR}/format/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/application ${FRAMEWORK_DIR}/application/build/${ANDROID_ABI})
+set(FRAMEWORK_BUILD_DIR ${GFXRECON_ANDROID_DIR}/framework/build/test_apps)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util ${FRAMEWORK_BUILD_DIR}/util/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${FRAMEWORK_BUILD_DIR}/plugin/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode ${FRAMEWORK_BUILD_DIR}/decode/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics ${FRAMEWORK_BUILD_DIR}/graphics/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format ${FRAMEWORK_BUILD_DIR}/format/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application ${FRAMEWORK_BUILD_DIR}/application/${ANDROID_ABI})
 
 target_link_libraries(gfxrecon-testapp-base
     PUBLIC

@@ -1436,11 +1436,17 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 assert((immutable_image && binding.images != nullptr) ||
                        (!immutable_image && binding.storage_images != nullptr));
 
-                format::HandleId*      dst_sampler_ids = &binding.sampler_ids[current_array_element];
-                format::HandleId*      dst_image_ids   = &binding.handle_ids[current_array_element];
-                VkDescriptorImageInfo* dst_info        = immutable_image ? &binding.images[current_array_element]
-                                                                         : &binding.storage_images[current_array_element];
-                const uint8_t*         src_address     = bytes + current_offset;
+                format::HandleId* dst_sampler_ids = nullptr;
+                if (binding.type == VK_DESCRIPTOR_TYPE_SAMPLER ||
+                    binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+                {
+                    GFXRECON_ASSERT(binding.sampler_ids != nullptr);
+                    dst_sampler_ids = &binding.sampler_ids[current_array_element];
+                }
+                format::HandleId*      dst_image_ids = &binding.handle_ids[current_array_element];
+                VkDescriptorImageInfo* dst_info      = immutable_image ? &binding.images[current_array_element]
+                                                                       : &binding.storage_images[current_array_element];
+                const uint8_t*         src_address   = bytes + current_offset;
 
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {
@@ -1735,7 +1741,7 @@ void VulkanStateTracker::TrackQueryReset(VkCommandBuffer command_buffer,
     auto& query_pool_info =
         wrapper->recorded_queries[vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool)];
 
-    for (uint32_t i = first_query; i < query_count; ++i)
+    for (uint32_t i = first_query; i < first_query + query_count; ++i)
     {
         query_pool_info[i].active = false;
     }
@@ -1748,7 +1754,7 @@ void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool);
     assert((first_query + query_count) <= wrapper->pending_queries.size());
 
-    for (uint32_t i = first_query; i < query_count; ++i)
+    for (uint32_t i = first_query; i < first_query + query_count; ++i)
     {
         wrapper->pending_queries[i].active = false;
     }
@@ -2110,6 +2116,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                                                           buffer.bind_device->physical_device->handle,
                                                           buffer.bind_device->layer_table,
                                                           *buffer.bind_device->physical_device->layer_table_ref,
+                                                          buffer.bind_device->property_feature_info,
                                                           buffer.bind_device->physical_device->memory_properties));
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
@@ -2140,7 +2147,11 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
     }
 
     state_table_.VisitWrappers([this, buffer_wrapper](vulkan_wrappers::AccelerationStructureKHRWrapper* acc_wrapper) {
-        GFXRECON_ASSERT(acc_wrapper != nullptr && acc_wrapper->buffer != nullptr);
+        GFXRECON_ASSERT(acc_wrapper != nullptr);
+        if (acc_wrapper->buffer == nullptr)
+        {
+            return;
+        }
         auto build_state_it = acc_wrapper->buffer->acceleration_structures.find(acc_wrapper->address);
 
         if (build_state_it != acc_wrapper->buffer->acceleration_structures.end() &&
@@ -2158,12 +2169,17 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                                                   buffer.bind_device->physical_device->handle,
                                                   buffer.bind_device->layer_table,
                                                   *buffer.bind_device->physical_device->layer_table_ref,
+                                                  buffer.bind_device->property_feature_info,
                                                   buffer.bind_device->physical_device->memory_properties));
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                 resource_util->second.ReadFromBufferResource(
                     buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
             }
+        }
+        if (acc_wrapper->buffer == buffer_wrapper)
+        {
+            acc_wrapper->buffer = nullptr;
         }
     });
 

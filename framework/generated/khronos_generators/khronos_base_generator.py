@@ -479,8 +479,11 @@ class KhronosBaseGenerator(OutputGenerator):
         # Map of Khronos function names to override function names.  Calls to Khronos functions in the map
         # will be replaced by the override value.
         self.REPLAY_OVERRIDES = {}
-        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_OVERRIDES = {}
-        self.REPLAY_FRAME_LOOP_RESOURCE_FREE_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED = {}
+        self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED = {}
         self.DUMP_RESOURCES_OVERRIDES = {}
         self.DUMP_RESOURCES_TRANSFER_API_CALLS = {}
         self.REPLAY_ASYNC_OVERRIDES = {}
@@ -703,11 +706,16 @@ class KhronosBaseGenerator(OutputGenerator):
             frame_loop_overrides = json.loads(
                 open(replay_frame_loop_overrides_filename , 'r').read()
             )
-            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_OVERRIDES = frame_loop_overrides[
-                'resourceAllocate']
-            self.REPLAY_FRAME_LOOP_RESOURCE_FREE_OVERRIDES = frame_loop_overrides[
-                'resourceFree']
-
+            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_SINGLE_HANDLE_OVERRIDES = frame_loop_overrides[
+                'resourceAllocateSingleHandle']
+            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES = frame_loop_overrides[
+                'resourceAllocateMultipleHandles']
+            self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES = frame_loop_overrides[
+                'resourceFreeSingleHandle']
+            self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED = frame_loop_overrides[
+                'resourceAllocateNotFullyImplemented']
+            self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED = frame_loop_overrides[
+                'resourceFreeNotFullyImplemented']
         if dump_resources_overrides_filename is not None:
             dump_resources_overrides = json.loads(
                 open(dump_resources_overrides_filename, 'r').read()

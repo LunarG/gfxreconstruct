@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2021-2026 LunarG, Inc.
 # Copyright (c) 2025 Advanced Micro Devices, Inc.
 # All rights reserved
 #
@@ -74,14 +74,26 @@ target_sources(gfxrecon_graphics
                )
 endif()
 
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_graphics PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_graphics PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
 target_include_directories(gfxrecon_graphics
                            PUBLIC
-                               ${PROJECT_SOURCE_DIR}/build
-                               ${PROJECT_SOURCE_DIR}/framework
-                               ${PROJECT_SOURCE_DIR}/external
+                               ${GFXRECON_SOURCE_DIR}/build
+                               ${GFXRECON_SOURCE_DIR}/framework
+                               ${GFXRECON_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
 
-target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific gfxrecon_replay_event_plugin_abi)
+target_link_libraries(gfxrecon_graphics gfxrecon_util vulkan_registry platform_specific)
+
+# The replay event plugin ABI target is an INTERFACE-only header library.  It
+# is present on desktop and when the replay tool adds framework/plugin before
+# framework/graphics.  The capture layer (which does not add plugin) skips it.
+if (TARGET gfxrecon_replay_event_plugin_abi)
+    target_link_libraries(gfxrecon_graphics gfxrecon_replay_event_plugin_abi)
+endif()
 
 common_build_directives(gfxrecon_graphics)
 

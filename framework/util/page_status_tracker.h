@@ -51,7 +51,7 @@ class PageStatusTracker
     void SetActiveWriteBlock(size_t index, bool value) { active_writes_[index] = value ? 1 : 0; }
     void SetActiveReadBlock(size_t index, bool value) { active_reads_[index] = value ? 1 : 0; }
 
-    void SetAllBlocksActiveWrite() { std::fill(active_writes_.begin(), active_writes_.end(), 1); }
+    void SetAllBlocksActiveWrite() { std::fill(active_writes_.begin(), active_writes_.end(), static_cast<uint8_t>(1)); }
 
     const PageStatus& GetActiveWrites() const { return active_writes_; }
 

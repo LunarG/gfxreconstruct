@@ -41,6 +41,10 @@
 #include <vector>
 #include <limits>
 
+#if defined(__ANDROID__)
+struct android_app;
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
@@ -91,7 +95,17 @@ class Application final
     void InitializeDx12WsiContext();
 #endif
 
-    void StopRunning() { running_ = false; }
+#if defined(__ANDROID__)
+    struct android_app* GetAndroidApplication()
+    {
+        return android_app_;
+    }
+#endif
+
+    void StopRunning()
+    {
+        running_ = false;
+    }
 
     uint32_t GetCurrentFrameNumber() const
     {
@@ -131,6 +145,10 @@ class Application final
                                                                                      ///< capture file data.
 
     std::unique_ptr<plugin::ReplayEventSink> replay_event_sink_ = std::make_unique<plugin::NullReplayEventSink>();
+
+#if defined(__ANDROID__)
+    struct android_app* android_app_{nullptr};
+#endif
     // clang-format on
 };
 

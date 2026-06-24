@@ -43,16 +43,13 @@
 #include <pthread.h>
 #endif
 
-#if defined(WIN32) || defined(__APPLE__)
-#define USERFAULTFD_SUPPORTED 0
-#else
-#include <linux/userfaultfd.h>
+#if defined(GFXRECON_ENABLE_USERFAULTFD) && defined(UFFD_USER_MODE_ONLY) && defined(UFFDIO_WRITEPROTECT) && \
+    defined(UFFDIO_WRITEPROTECT_MODE_WP)
 // Older kernels might not support all features we need from userfaultfd. Check what is available.
-#if defined(UFFD_USER_MODE_ONLY) && defined(UFFDIO_WRITEPROTECT) && defined(UFFDIO_WRITEPROTECT_MODE_WP)
+#include <linux/userfaultfd.h>
 #define USERFAULTFD_SUPPORTED 1
 #else
 #define USERFAULTFD_SUPPORTED 0
-#endif
 #endif
 
 #if defined(__ANDROID__)

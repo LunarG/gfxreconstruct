@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018-2020,2023-2025 LunarG, Inc.
+# Copyright (c) 2018-2020,2023-2026 LunarG, Inc.
 # Copyright (c) 2018-2023 Advanced Micro Devices, Inc. All rights reserved
 # All rights reserved
 #
@@ -26,10 +26,21 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
+if (ANDROID)
+    add_library(native_app_glue STATIC
+                ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
+    target_include_directories(native_app_glue PUBLIC
+                               ${ANDROID_NDK}/sources/android/native_app_glue)
+endif()
+
 add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.h>
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/activity.cpp>
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.h>
+                    $<$<BOOL:${ANDROID}>:${CMAKE_CURRENT_LIST_DIR}/android/intent.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/alignment_utils.h
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.h
                     ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
@@ -121,12 +132,12 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/type_traits_extras.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_common_to_string.cpp
-                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h>
-                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp>
-                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_openxr_type_util.h>
-                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
-                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
-                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp>
+                    $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_type_util.h>
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_stype_util.h
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
@@ -135,18 +146,38 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
-                    $<$<BOOL:${WAYLAND_FOUND}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
 )
 
 
 target_include_directories(gfxrecon_util
                            PUBLIC
-                               ${PROJECT_SOURCE_DIR}/framework
+                               ${GFXRECON_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${D3D12_INCLUDE_DIRECTORIES}>)
-target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
-target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
 
-if (UNIX AND NOT APPLE)
+if (ANDROID)
+    target_include_directories(gfxrecon_util PUBLIC
+                               ${ANDROID_NDK}/sources/android/native_app_glue
+                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                               ${GFXRECON_SOURCE_DIR}/external/stb)
+    target_compile_definitions(gfxrecon_util PUBLIC
+                               GFXRECON_ENABLE_LZ4_COMPRESSION
+                               GFXRECON_ENABLE_ZSTD_COMPRESSION
+                               GFXRECON_ENABLE_ZLIB_COMPRESSION
+                               GFXRECON_ENABLE_PNG_SCREENSHOT)
+    target_link_libraries(gfxrecon_util
+                          platform_specific vulkan_registry spirv_registry spirv-reflect-static
+                          nlohmann_json::nlohmann_json
+                          android log
+                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
+                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
+                          z)
+else()
+    target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
+    target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
+endif()
+
+if (UNIX AND NOT APPLE AND NOT ANDROID)
     # Check for clock_gettime in libc
     include(CheckLibraryExists)
     check_library_exists(c clock_gettime "" HAVE_GETTIME)
@@ -212,7 +243,7 @@ if (TARGET ZLIB::ZLIB)
 
     target_include_directories(gfxrecon_util
                                SYSTEM PUBLIC
-                                   ${PROJECT_SOURCE_DIR}/external/stb)
+                                   ${GFXRECON_SOURCE_DIR}/external/stb)
 endif()
 
 if (TARGET ZSTD::ZSTD)
@@ -221,8 +252,23 @@ if (TARGET ZSTD::ZSTD)
 endif()
 
 if (OPENXR_SUPPORT_ENABLED)
-    target_include_directories(gfxrecon_util PUBLIC ${PROJECT_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_include_directories(gfxrecon_util PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
     target_compile_definitions(gfxrecon_util PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
+
+option(GFXRECON_ENABLE_USERFAULTFD "If the target platform supports it, build userfaultfd memory tracking functionality" ON)
+if (((NOT WIN32) AND (NOT APPLE) AND GFXRECON_ENABLE_USERFAULTFD))
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_ENABLE_USERFAULTFD=1)
+endif()
+
+option(GFXRECON_PLATFORM_SUPPORTS_GETTID "Indicate whether or not the platform supports SYS_gettid" ON)
+if ((NOT APPLE) AND GFXRECON_PLATFORM_SUPPORTS_GETTID)
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_PLATFORM_SUPPORTS_GETTID=1)
+endif()
+
+option(GFXRECON_PLATFORM_SUPPORTS_TGKILL "Indicate whether or not the platform supports SYS_tgkill" ON)
+if ((NOT APPLE) AND GFXRECON_PLATFORM_SUPPORTS_TGKILL)
+    target_compile_definitions(gfxrecon_util PUBLIC GFXRECON_PLATFORM_SUPPORTS_TGKILL=1)
 endif()
 
 common_build_directives(gfxrecon_util)

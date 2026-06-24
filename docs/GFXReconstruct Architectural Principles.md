@@ -58,9 +58,13 @@ If an exception is made to a principle, there should be a well-considered, docum
 
 ## RECONSTRUCT 
 
-**A capture file should contain as much as possible all of the unmodified graphics API calls made by the application for the captured, trimmed range of frames.**
+**A capture file should contain as much as possible all of the unmodified graphics API call context made by the application for the captured, trimmed range of frames.**
 
-It may contain more commands represented by Metadata commands but it should be possible to **reconstruct** the original app’s sequence of API commands from the captured “api call” blocks.
+The capture file should preserve the original application API calls and parameters, object associations, and observed results for each call.  This data should be stored as an ApiCall or MethodCall block when possible, representing each API call in its original form.
+
+When necessary, Metadata commands may encode additional information as a modifier for a recorded API call or may substitute an abstraction.  If the Metadata substitutes an abstraction, that abstraction must represent the API call object, parameters, and result so that it should be possible to **reconstruct** the original app’s sequence of API commands from the captured data.
+
+If a call truly cannot be represented in its original form wholly or piecewise, that case must be documented as an exception.
 
 * Implications:  
   * With no options enabled, capture should record as much as possible a “vanilla” capture that does not record additional graphics API calls.  Graphics calls to retrieve additional information should be represented as metadata command blocks (e.g. existing FillMemoryCommandHeader “MetaData Command”) so that it is differentiated from the app’s calls. Graphics calls that must be modified to enable replay should be represented as or augmented with metadata command blocks (e.g. SetOpaqueAddressCommand).  

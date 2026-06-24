@@ -47,6 +47,7 @@ VkResult GetDeviceExtensions(VkPhysicalDevice                         physical_d
 
 bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, const char* extension);
 bool IsSupportedExtension(const std::vector<const char*>& extensions_names, const char* extension);
+bool IsSupportedExtension(const char* const* extensions_names, uint32_t extension_count, const char* extension);
 
 bool EnableExtensionIfSupported(const std::vector<VkExtensionProperties>& properties,
                                 std::vector<const char*>*                 extensions,

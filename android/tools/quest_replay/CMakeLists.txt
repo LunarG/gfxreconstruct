@@ -25,14 +25,14 @@ else()
     message(FATAL_ERROR "Failed to find OpenXR headers for support.  Continuing with it disabled!")
 endif()
 
-add_subdirectory(../../framework/util ${PROJECT_SOURCE_DIR}/../../framework/util/build/tools/quest_replay/${ANDROID_ABI})
-add_subdirectory(../../../framework/plugin ${PROJECT_SOURCE_DIR}/../../framework/plugin/build/tools/quest_replay/${ANDROID_ABI})
-add_subdirectory(../../framework/graphics ${PROJECT_SOURCE_DIR}/../../framework/graphics/build/tools/quest_replay/${ANDROID_ABI})
-add_subdirectory(../../framework/format ${PROJECT_SOURCE_DIR}/../../framework/format/build/tools/quest_replay/${ANDROID_ABI})
-add_subdirectory(../../framework/decode ${PROJECT_SOURCE_DIR}/../../framework/decode/build/tools/quest_replay/${ANDROID_ABI})
-add_subdirectory(../../framework/encode ${PROJECT_SOURCE_DIR}/../../framework/encode/build/tools/quest_replay/${ANDROID_ABI})
-add_subdirectory(../../framework/application ${PROJECT_SOURCE_DIR}/../../framework/application/build/tools/quest_replay/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK ${PROJECT_SOURCE_DIR}/../../framework/application/build/tools/quest_replay_openxr/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util ${PROJECT_SOURCE_DIR}/build/framework/util/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${PROJECT_SOURCE_DIR}/build/framework/plugin/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics ${PROJECT_SOURCE_DIR}/build/framework/graphics/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format ${PROJECT_SOURCE_DIR}/build/framework/format/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode ${PROJECT_SOURCE_DIR}/build/framework/decode/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode ${PROJECT_SOURCE_DIR}/build/framework/encode/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application ${PROJECT_SOURCE_DIR}/build/framework/application/quest_replay/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK ${PROJECT_SOURCE_DIR}/build/external/OpenXR-SDK/quest_replay/${ANDROID_ABI})
 
 add_library(gfxrecon-quest-replay
             SHARED
@@ -43,6 +43,13 @@ add_library(gfxrecon-quest-replay
                 ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.h
                 ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_feature.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.cpp
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.cpp
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.cpp
                 ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
 
 target_include_directories(gfxrecon-quest-replay

@@ -50,20 +50,113 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                      StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
                                      HandlePointerDecoder<VkCommandPool>*                   pCommandPool) override;
 
+    void Process_vkCreateDescriptorPool(const ApiCallInfo&                                        call_info,
+                                        VkResult                                                  returnValue,
+                                        format::HandleId                                          device,
+                                        StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                        HandlePointerDecoder<VkDescriptorPool>* pDescriptorPool) override;
+
+    void Process_vkDestroyDescriptorPool(const ApiCallInfo&                                   call_info,
+                                         format::HandleId                                     device,
+                                         format::HandleId                                     descriptorPool,
+                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    void Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
+                                       VkResult                   returnValue,
+                                       format::HandleId           device,
+                                       format::HandleId           descriptorPool,
+                                       VkDescriptorPoolResetFlags flags) override;
+
     void Process_vkAllocateDescriptorSets(const ApiCallInfo&                                         call_info,
                                           VkResult                                                   returnValue,
                                           format::HandleId                                           device,
                                           StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
                                           HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
+    void Process_vkFreeDescriptorSets(const ApiCallInfo&                     call_info,
+                                      VkResult                               returnValue,
+                                      format::HandleId                       device,
+                                      format::HandleId                       descriptorPool,
+                                      uint32_t                               descriptorSetCount,
+                                      HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
+
+    void Process_vkWaitForFences(const ApiCallInfo&             call_info,
+                                 VkResult                       returnValue,
+                                 format::HandleId               device,
+                                 uint32_t                       fenceCount,
+                                 HandlePointerDecoder<VkFence>* pFences,
+                                 VkBool32                       waitAll,
+                                 uint64_t                       timeout) override;
+
+    void Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
+                               VkResult                                    returnValue,
+                               format::HandleId                            queue,
+                               uint32_t                                    submitCount,
+                               StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                               format::HandleId                            fence) override;
+
+    void Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
+                                       VkResult                  returnValue,
+                                       format::HandleId          device,
+                                       format::HandleId          swapchain,
+                                       uint64_t                  timeout,
+                                       format::HandleId          semaphore,
+                                       format::HandleId          fence,
+                                       PointerDecoder<uint32_t>* pImageIndex) override;
+
     void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
                                    VkResult                                        returnValue,
                                    format::HandleId                                queue,
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
 
+    void Process_vkMapMemory(const ApiCallInfo&               call_info,
+                             VkResult                         returnValue,
+                             format::HandleId                 device,
+                             format::HandleId                 memory,
+                             VkDeviceSize                     offset,
+                             VkDeviceSize                     size,
+                             VkMemoryMapFlags                 flags,
+                             PointerDecoder<uint64_t, void*>* ppData) override;
+
+    void Process_vkUnmapMemory(const ApiCallInfo& call_info, format::HandleId device, format::HandleId memory) override;
+
+    void Process_vkAcquireProfilingLockKHR(const ApiCallInfo&                                           call_info,
+                                           VkResult                                                     returnValue,
+                                           format::HandleId                                             device,
+                                           StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo) override;
+
+    void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, format::HandleId device) override;
+
+    // Private declarations
   private:
-    graphics::FrameLoopInfo&             frame_loop_info_;
-    std::unordered_set<VkDescriptorPool> active_descriptor_pools_;
+    void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
+    struct FenceTracking
+    {
+        std::unordered_map<format::HandleId, uint32_t> signaled_fences_;
+        std::unordered_map<format::HandleId, uint32_t> waited_upon_fences_;
+    };
+    void FixupDeviceFences(format::HandleId device, format::HandleId queue);
+
+    // Private data
+  private:
+    graphics::FrameLoopInfo& frame_loop_info_;
+
+    /// A "dangling" resource is one that was either
+    /// - created during the loop range but destroyed after it
+    /// - or created before the loop range but destroyed during it
+    std::unordered_set<format::HandleId> dangling_create_descriptor_pools_;
+    std::unordered_set<format::HandleId> dangling_create_descriptor_sets_;
+    std::unordered_set<format::HandleId> dangling_destroy_descriptor_pools_;
+    std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
+
+    std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
+
+    // Support for vkMapMemory/vkUnMapMemory
+    std::set<format::HandleId> mapped_loop_memory;
+
+    // Support for vkAcquireProfilingLockKHR/vkReleaseProfilingLockKHR
+    std::unordered_map<format::HandleId, bool> profilingLockState;
 };
 
 GFXRECON_END_NAMESPACE(decode)
