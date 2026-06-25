@@ -42,6 +42,7 @@
 #include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "decode/vulkan_submit_job.h"
+#include "decode/vulkan_swapchain_format.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_decoders.h"
@@ -7981,11 +7982,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                 }
             }
 
-            // fallback to a safe surface-format
-            modified_create_info.imageFormat = fallback_color_formats[0];
-            GFXRECON_LOG_WARNING_ONCE(
-                "Replay adjusted unsupported surface imageFormat (%d) to VK_FORMAT_B8G8R8A8_UNORM",
-                replay_create_info->imageFormat);
+            // fallback to a supported surface-format
+            const VkFormat fallback_format = SelectFallbackSurfaceFormat(
+                *physical_device_info->surface_formats, vkuFormatIsSRGB(replay_create_info->imageFormat));
+
+            modified_create_info.imageFormat = fallback_format;
+            GFXRECON_LOG_WARNING_ONCE("Replay adjusted unsupported surface imageFormat (%s -> %s)",
+                                      util::ToString<VkFormat>(replay_create_info->imageFormat).c_str(),
+                                      util::ToString<VkFormat>(fallback_format).c_str());
         }
 
         if (colorspace_extension_used_unsupported)
@@ -10760,9 +10764,18 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
     }
     else if (img_info->is_swapchain_image && img_info->format != modified_create_info.format)
     {
-        // for swapchain-images set image-view to a fallback format, avoid issues with distorted HDR/SRGB colors
-        modified_create_info.format =
-            vkuFormatIsSRGB(modified_create_info.format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
+        // for swapchain-images set image-view to a fallback format, avoid issues with distorted HDR/SRGB colors.
+        // when the swapchain fell back to a BGRA8 format we preserve the captured view's sRGB-ness; for any other
+        // fallback format we match the swapchain image format exactly to keep the view format-compatible.
+        if (img_info->format == VK_FORMAT_B8G8R8A8_UNORM || img_info->format == VK_FORMAT_B8G8R8A8_SRGB)
+        {
+            modified_create_info.format =
+                vkuFormatIsSRGB(modified_create_info.format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
+        }
+        else
+        {
+            modified_create_info.format = img_info->format;
+        }
     }
 
     if (device_info->property_feature_info.feature_descriptorBufferCaptureReplay && !UseAddressReplacement(device_info))
