@@ -390,11 +390,13 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                 }
             }
             uint32_t semaphore_count = static_cast<uint32_t>(copy_cmd_data.semaphores.size());
-            if (semaphore_count < capture_image_count)
+            // Semaphores for signaling to present that copy is finished. Since our presentation of real hardware images
+            // waits on these, they should be coordinated with the replay (real) images.
+            if (semaphore_count < *replay_image_count)
             {
-                copy_cmd_data.semaphores.resize(capture_image_count);
+                copy_cmd_data.semaphores.resize(*replay_image_count);
 
-                for (uint32_t ii = semaphore_count; ii < capture_image_count; ++ii)
+                for (uint32_t ii = semaphore_count; ii < *replay_image_count; ++ii)
                 {
                     VkSemaphoreCreateInfo semaphore_create_info = {
                         VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, // sType
@@ -956,11 +958,12 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         const auto& virtual_image = swapchain_resources->virtual_swapchain_images[capture_image_index];
         const auto& replay_image  = swapchain_resources->replay_swapchain_images[replay_image_index];
 
-        // Use a command buffer and semaphore from the same queue index
+        // Use a command buffer and fence from the same queue index
         auto& copy_cmd_data  = swapchain_resources->copy_cmd_data[queue_family_index];
         auto  command_buffer = copy_cmd_data.command_buffers[capture_image_index];
-        auto  copy_semaphore = copy_cmd_data.semaphores[capture_image_index];
         auto  copy_fence     = copy_cmd_data.fences[capture_image_index];
+        // The semaphore will be waited by the present which should be coordinated by hardware image indices
+        auto copy_semaphore = copy_cmd_data.semaphores[replay_image_index];
 
         std::vector<VkSemaphore> wait_semaphores;
         std::vector<VkSemaphore> signal_semaphores;
