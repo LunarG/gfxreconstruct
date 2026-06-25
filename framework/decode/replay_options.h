@@ -76,7 +76,6 @@ struct ReplayOptions
     uint32_t                     screenshot_interval{ 1 };
     std::string                  screenshot_dir;
     std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
-    uint32_t                     screenshot_width, screenshot_height;
     bool                         screenshot_ignore_frameBoundaryAndroid{ false };
     int32_t                      num_pipeline_creation_jobs{ 0 };
     std::string                  asset_file_path;
