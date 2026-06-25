@@ -43,6 +43,27 @@ GFXRECON_BEGIN_NAMESPACE(decode)
         }                                                                     \
     }
 
+void VulkanReplayFrameLoopConsumer::ProcessStateEndMarker(uint64_t frame_number)
+{
+    VulkanReplayConsumer::ProcessStateEndMarker(frame_number);
+
+    // If trim state had to be loaded, call OnLoopStart() again
+    per_device_fence_tracking_.clear();
+    OnLoopStart();
+}
+
+void VulkanReplayFrameLoopConsumer::OnLoopStart()
+{
+    WaitDevicesIdle();
+    GFXRECON_LOG_DEBUG("VulkanReplayFrameLoopConsumer::OnLoopStart()");
+    CommonObjectInfoTable& table = GetObjectInfoTable();
+    table.VisitVkFenceInfo([this](const VulkanFenceInfo* fence_info) {
+        GFXRECON_LOG_DEBUG("Tracking fence state for fence %" PRIu64, fence_info->capture_id);
+        format::HandleId device_id = fence_info->parent_id;
+        this->TrackFenceState(device_id, fence_info->capture_id);
+    });
+}
+
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
     const ApiCallInfo&                                     call_info,
     VkResult                                               returnValue,
@@ -256,60 +277,37 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeDescriptorSets(const ApiCallIn
         call_info, returnValue, device, descriptorPool, descriptorSetCount, pDescriptorSets);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkWaitForFences(const ApiCallInfo&             call_info,
-                                                            VkResult                       returnValue,
-                                                            format::HandleId               device,
-                                                            uint32_t                       fenceCount,
-                                                            HandlePointerDecoder<VkFence>* pFences,
-                                                            VkBool32                       waitAll,
-                                                            uint64_t                       timeout)
+void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(
+    const ApiCallInfo&                                   call_info,
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    StructPointerDecoder<Decoded_VkFenceCreateInfo>*     pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkFence>*                       pFence)
 {
+    if (frame_loop_info_.IsRepetition())
+    {
+        // Reset the fence on loop repetitions instead of creating it
+        VkDevice device_handle = GetObjectInfoTable().GetVkDeviceInfo(device)->handle;
+        GFXRECON_ASSERT(device_handle != 0);
+        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_handle);
+        VkResult res = device_table->ResetFences(device_handle, 1, pFence->GetHandlePointer());
+        CHECK_VK_RESULT(res, "vkResetFences");
+        return;
+    }
+
+    VulkanReplayConsumer::Process_vkCreateFence(call_info, returnValue, device, pCreateInfo, pAllocator, pFence);
+
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
-        for (format::HandleId fence : pFences->GetSpan())
+        // Record this fence as having an initial state of unsignaled
+        if (!per_device_fence_tracking_.contains(device))
         {
-            TrackFenceState(device, fence);
+            per_device_fence_tracking_[device] = {};
         }
+        FenceTracking& t                               = per_device_fence_tracking_[device];
+        t.initial_fence_states_[*pFence->GetPointer()] = false;
     }
-
-    VulkanReplayConsumer::Process_vkWaitForFences(
-        call_info, returnValue, device, fenceCount, pFences, waitAll, timeout);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkResetFences(const ApiCallInfo&             call_info,
-                                                          VkResult                       returnValue,
-                                                          format::HandleId               device,
-                                                          uint32_t                       fenceCount,
-                                                          HandlePointerDecoder<VkFence>* pFences)
-{
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
-    {
-        for (format::HandleId fence : pFences->GetSpan())
-        {
-            TrackFenceState(device, fence);
-        }
-    }
-
-    VulkanReplayConsumer::Process_vkResetFences(call_info, returnValue, device, fenceCount, pFences);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
-                                                          VkResult                                    returnValue,
-                                                          format::HandleId                            queue,
-                                                          uint32_t                                    submitCount,
-                                                          StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                                                          format::HandleId                            fence)
-{
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
-    {
-        CommonObjectInfoTable& table      = GetObjectInfoTable();
-        VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
-        format::HandleId       device     = queue_info->parent_id;
-        GFXRECON_ASSERT(device);
-        TrackFenceState(device, fence);
-    }
-
-    VulkanReplayConsumer::Process_vkQueueSubmit(call_info, returnValue, queue, submitCount, pSubmits, fence);
 }
 
 void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, format::HandleId fence)
@@ -325,14 +323,11 @@ void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, for
         VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
         GFXRECON_ASSERT(device_info != nullptr);
         VulkanFenceInfo* fence_info = GetObjectInfoTable().GetVkFenceInfo(fence);
-        // fence_info could be nullptr
-        if (fence_info == nullptr)
-        {
-            return;
-        }
+        GFXRECON_ASSERT(fence_info != nullptr);
         const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
         GFXRECON_ASSERT(device_table != nullptr);
-        VkResult res                   = device_table->GetFenceStatus(device_info->handle, fence_info->handle);
+        VkResult res = device_table->GetFenceStatus(device_info->handle, fence_info->handle);
+        GFXRECON_LOG_DEBUG("Fence %" PRIu64 " signaled == %s", res == VK_SUCCESS ? "true" : "false");
         t.initial_fence_states_[fence] = res == VK_SUCCESS;
     }
 }
@@ -370,12 +365,12 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     VkResult result;
 
     // Reset all fences
-    GFXRECON_LOG_DEBUG("Synthetically resetting all observed fences...");
+    GFXRECON_LOG_DEBUG("Synthetically resetting all %" PRIu64 " observed fences...", all_fences.size());
     result = device_table->ResetFences(vk_device, all_fences.size(), all_fences.data());
     CHECK_VK_RESULT(result, "vkResetFences");
 
     // Synthetically signal the ones that were originally signaled
-    GFXRECON_LOG_DEBUG("Synthetically signaling fences...");
+    GFXRECON_LOG_DEBUG("Synthetically signaling %" PRIu64 " fences...", fences_to_signal.size());
     for (VkFence fence : fences_to_signal)
     {
         VulkanQueueInfo* queue_info = table.GetVkQueueInfo(queue);
@@ -408,24 +403,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkMapMemory(const ApiCallInfo&      
     VulkanReplayConsumer::Process_vkMapMemory(call_info, returnValue, device, memory, offset, size, flags, ppData);
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
-                                                                  VkResult                  returnValue,
-                                                                  format::HandleId          device,
-                                                                  format::HandleId          swapchain,
-                                                                  uint64_t                  timeout,
-                                                                  format::HandleId          semaphore,
-                                                                  format::HandleId          fence,
-                                                                  PointerDecoder<uint32_t>* pImageIndex)
-{
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
-    {
-        TrackFenceState(device, fence);
-    }
-
-    VulkanReplayConsumer::Process_vkAcquireNextImageKHR(
-        call_info, returnValue, device, swapchain, timeout, semaphore, fence, pImageIndex);
-}
-
 void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     const ApiCallInfo&                              call_info,
     VkResult                                        returnValue,
@@ -434,20 +411,18 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
 {
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, returnValue, queue, pPresentInfo);
 
+    CommonObjectInfoTable& table      = GetObjectInfoTable();
+    VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
+    format::HandleId       device_id  = queue_info->parent_id;
+    VkDevice               device     = queue_info->parent;
+    GFXRECON_ASSERT(device != 0);
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+    GFXRECON_ASSERT(device_table != nullptr);
+
     if (frame_loop_info_.IsLooping())
     {
-        // Get device
-        CommonObjectInfoTable& table      = GetObjectInfoTable();
-        VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
-        VkDevice               device     = queue_info->parent;
-        GFXRECON_ASSERT(device);
-        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
-        GFXRECON_ASSERT(device_table);
-
-        VkResult result;
-
         GFXRECON_LOG_DEBUG("Waiting for device to idle...");
-        result = device_table->DeviceWaitIdle(device);
+        VkResult result = device_table->DeviceWaitIdle(device);
         CHECK_VK_RESULT(result, "vkDeviceWaitIdle");
 
         FixupDeviceFences(queue_info->parent_id, queue);

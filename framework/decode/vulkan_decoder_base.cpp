@@ -38,6 +38,14 @@ void VulkanDecoderBase::WaitIdle()
     }
 }
 
+void VulkanDecoderBase::OnLoopStart()
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->OnLoopStart();
+    }
+}
+
 void VulkanDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)

@@ -43,6 +43,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
+    virtual void ProcessStateEndMarker(uint64_t frame_number) override;
+
     void Process_vkCreateCommandPool(const ApiCallInfo&                                     call_info,
                                      VkResult                                               returnValue,
                                      format::HandleId                                       device,
@@ -81,35 +83,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                       uint32_t                               descriptorSetCount,
                                       HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    void Process_vkWaitForFences(const ApiCallInfo&             call_info,
-                                 VkResult                       returnValue,
-                                 format::HandleId               device,
-                                 uint32_t                       fenceCount,
-                                 HandlePointerDecoder<VkFence>* pFences,
-                                 VkBool32                       waitAll,
-                                 uint64_t                       timeout) override;
-
-    void Process_vkResetFences(const ApiCallInfo&             call_info,
-                               VkResult                       returnValue,
-                               format::HandleId               device,
-                               uint32_t                       fenceCount,
-                               HandlePointerDecoder<VkFence>* pFences) override;
-
-    void Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
-                               VkResult                                    returnValue,
-                               format::HandleId                            queue,
-                               uint32_t                                    submitCount,
-                               StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                               format::HandleId                            fence) override;
-
-    void Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
-                                       VkResult                  returnValue,
-                                       format::HandleId          device,
-                                       format::HandleId          swapchain,
-                                       uint64_t                  timeout,
-                                       format::HandleId          semaphore,
-                                       format::HandleId          fence,
-                                       PointerDecoder<uint32_t>* pImageIndex) override;
+    void Process_vkCreateFence(const ApiCallInfo&                                   call_info,
+                               VkResult                                             returnValue,
+                               format::HandleId                                     device,
+                               StructPointerDecoder<Decoded_VkFenceCreateInfo>*     pCreateInfo,
+                               StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                               HandlePointerDecoder<VkFence>*                       pFence) override;
 
     void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
                                    VkResult                                        returnValue,
@@ -133,6 +112,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                            StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo) override;
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, format::HandleId device) override;
+
+    virtual void OnLoopStart() override;
 
     // Private declarations
   private:

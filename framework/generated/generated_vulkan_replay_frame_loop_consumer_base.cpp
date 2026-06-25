@@ -268,34 +268,6 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkQueueBindSparse(
     VulkanReplayConsumer::Process_vkQueueBindSparse(call_info, returnValue, queue, bindInfoCount, pBindInfo, fence);
 }
 
-void VulkanReplayFrameLoopConsumerBase::Process_vkCreateFence(
-    const ApiCallInfo&                          call_info,
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkFenceCreateInfo>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkFence>*              pFence)
-{
-    // Check for null cases
-    if (pFence == nullptr || pFence->IsNull())
-    {
-        return;
-    }
-    format::HandleId handle = *pFence->GetPointer();
-
-    // Pass the call along if we are not looping or
-    // if we are looping and the handle is not in allocatedLoopResources
-    if (!getFrameLoopInfo().IsLooping() || !allocatedLoopResources.contains(handle))
-    {
-        VulkanReplayConsumer::Process_vkCreateFence(call_info, returnValue, device, pCreateInfo, pAllocator, pFence);
-        // If we are looping, save the handle in allocatedLoopResources
-        if (getFrameLoopInfo().IsLooping())
-        {
-            allocatedLoopResources.insert(handle);
-        }
-    }
-}
-
 void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
