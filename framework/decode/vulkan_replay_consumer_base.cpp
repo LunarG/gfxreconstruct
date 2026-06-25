@@ -1467,7 +1467,7 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 
 void VulkanReplayConsumerBase::InitializeLoader()
 {
-    loader_handle_ = graphics::InitializeLoader();
+    loader_handle_ = graphics::InitializeLoader(getenv("GFXRECON_VULKAN_LIBRARY_PATH"));
 
     // Only get get_instance_proc_addr_ from the loader if it wasn't already set via SetupForRecapture()
     if ((loader_handle_ != nullptr) && (get_instance_proc_addr_ == nullptr))
