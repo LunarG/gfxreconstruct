@@ -792,19 +792,19 @@ void VulkanReplayConsumer::Process_vkCreateCommandPool(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkCommandPool>*        pCommandPool)
 {
-    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
-    const VkCommandPoolCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
+    auto in_device = GetObjectInfoTable().GetVkDeviceInfo(device);
+
     MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pCommandPool->IsNull()) { pCommandPool->SetHandleLength(1); }
-    VkCommandPool* out_pCommandPool = pCommandPool->GetHandlePointer();
+    VulkanCommandPoolInfo handle_info;
+    pCommandPool->SetConsumerData(0, &handle_info);
 
     PushRecaptureHandleId(pCommandPool->GetPointer());
-    VkResult replay_result = GetDeviceTable(in_device)->CreateCommandPool(in_device, in_pCreateInfo, in_pAllocator, out_pCommandPool);
+    VkResult replay_result = OverrideCreateCommandPool(GetDeviceTable(in_device->handle)->CreateCommandPool, returnValue, in_device, pCreateInfo, pAllocator, pCommandPool);
     CheckResult("vkCreateCommandPool", returnValue, replay_result, call_info);
     ClearRecaptureHandleIds();
 
-    AddHandle<VulkanCommandPoolInfo>(device, pCommandPool->GetPointer(), out_pCommandPool, &CommonObjectInfoTable::AddVkCommandPoolInfo);
+    AddHandle<VulkanCommandPoolInfo>(device, pCommandPool->GetPointer(), pCommandPool->GetHandlePointer(), std::move(handle_info), &CommonObjectInfoTable::AddVkCommandPoolInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyCommandPool(

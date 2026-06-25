@@ -69,8 +69,10 @@ bool clean_gfxr_json(int depth, nlohmann::json::parse_event_t event, nlohmann::j
 
 #if defined(__linux__) || defined(__APPLE__)
 static char const* CONVERT_FILENAME = "gfxrecon-convert";
+static char const* REPLAY_FILENAME  = "gfxrecon-replay";
 #elif defined(_WIN32)
 static char const* CONVERT_FILENAME = "gfxrecon-convert.exe";
+static char const* REPLAY_FILENAME  = "gfxrecon-replay.exe";
 #endif
 
 struct Paths
@@ -80,6 +82,7 @@ struct Paths
     std::filesystem::path full_app_directory{ base_path };
     std::filesystem::path full_executable_path;
     std::filesystem::path convert_path{ base_path };
+    std::filesystem::path replay_path{ base_path };
     std::filesystem::path capture_path{ base_path };
     std::filesystem::path known_good_path{ base_path };
     std::filesystem::path app_json_path;
@@ -161,6 +164,7 @@ struct Paths
 #endif
 
         convert_path.append(CONVERT_FILENAME);
+        replay_path.append(REPLAY_FILENAME);
 
         std::string gfxr_file_name = test_name + std::string(".gfxr");
         capture_path.append(gfxr_file_name);
@@ -344,4 +348,40 @@ void verify_gfxr(const char* test_name, char const* trimming_frames, bool trigge
     {
         run_trimming_app(paths, test_name, trimming_frames, trigger_trimming);
     }
+}
+
+void capture_and_replay(const char* test_name, std::vector<std::string> extra_replay_args)
+{
+    EnvironmentVariables env_vars;
+
+    Paths paths{ test_name, nullptr, false };
+    int   result;
+
+    bool working_directory_exists = std::filesystem::exists(paths.working_directory);
+    ASSERT_TRUE(working_directory_exists) << "working directory does not exist: " << paths.working_directory;
+
+    // Run the app with capture enabled to produce the gfxr to replay.
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", paths.capture_path.string().c_str());
+    result = run_command(paths.working_directory, paths.full_executable_path, { test_name });
+    ASSERT_EQ(result, 0) << "capture command failed " << paths.full_executable_path << " " << test_name << " in path "
+                         << paths.working_directory;
+
+    ASSERT_TRUE(std::filesystem::exists(paths.capture_path)) << "capture file was not produced: " << paths.capture_path;
+
+    // The gfxreconstruct capture layer is still enabled in the environment, so point GFXRECON_CAPTURE_FILE at a
+    // throwaway path for the replay step. This keeps the layer (if it loads during replay) from re-capturing over the
+    // input gfxr we are about to read.
+    std::filesystem::path replay_capture_path{ paths.base_path };
+    replay_capture_path.append(test_name + std::string("_replay.gfxr"));
+    env_vars.SetEnv("GFXRECON_CAPTURE_FILE", replay_capture_path.string().c_str());
+
+    // Replay the capture headless (offscreen swapchain) against the mock ICD, forwarding any extra arguments.
+    // Asserts the replay tool exits successfully (no crash, assertion, or replay error).
+    std::vector<std::string> replay_args = { "--swapchain", "offscreen" };
+    replay_args.insert(replay_args.end(), extra_replay_args.begin(), extra_replay_args.end());
+    replay_args.push_back(paths.capture_path.string());
+
+    result = run_command(paths.base_path, paths.replay_path, replay_args);
+    ASSERT_EQ(result, 0) << "replay command failed " << paths.replay_path << " for capture " << paths.capture_path
+                         << " in path " << paths.base_path;
 }

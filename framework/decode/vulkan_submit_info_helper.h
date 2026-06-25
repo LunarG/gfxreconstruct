@@ -47,10 +47,11 @@ class VulkanInjectedSemaphore
     const graphics::VulkanDeviceTable* device_table_;
 
   public:
-    bool        HasReachedTargetValue() const;
-    VkSemaphore GetHandle() const { return semaphore_.semaphore; }
-    uint64_t    GetTargetValue() const { return semaphore_.timeline_value; }
-    void        IncreaseTargetValue() { semaphore_.timeline_value++; }
+    bool                      HasReachedTargetValue() const;
+    graphics::VulkanSemaphore GetSemaphore() const { return semaphore_; }
+    VkSemaphore               GetHandle() const { return semaphore_.semaphore; }
+    uint64_t                  GetTargetValue() const { return semaphore_.timeline_value; }
+    void                      IncreaseTargetValue() { semaphore_.timeline_value++; }
 
     VulkanInjectedSemaphore(const VulkanDeviceInfo* device_info, const graphics::VulkanDeviceTable* table);
     ~VulkanInjectedSemaphore();

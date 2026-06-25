@@ -45,6 +45,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     set(GFXRECON_TESTCASES
         test_cases/ahb.cpp
         test_cases/debug-utils.cpp
+        test_cases/isolate-render-passes.cpp
         test_cases/triangle.cpp
         test_cases/multisample-depth.cpp
         test_cases/shader-objects.cpp
@@ -62,7 +63,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
 
     add_executable(gfxrecon-testapp-runner ${GFXRECON_TESTCASES})
 
-    add_dependencies(gfxrecon-testapp-runner gfxrecon-test-launcher VkICD_mock_icd gfxrecon-convert VkLayer_gfxreconstruct)
+    add_dependencies(gfxrecon-testapp-runner gfxrecon-test-launcher VkICD_mock_icd gfxrecon-convert gfxrecon-replay VkLayer_gfxreconstruct)
     target_include_directories(gfxrecon-testapp-runner PRIVATE ${CMAKE_CURRENT_LIST_DIR})
     target_link_libraries(gfxrecon-testapp-runner
             gfxrecon_util
@@ -72,6 +73,7 @@ if (NOT DEFINED ENV{GFXRECON_NO_TEST_APPS})
     install(TARGETS gfxrecon-testapp-runner RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})
     install(DIRECTORY known_good DESTINATION ${GFXRECON_INSTALL_TESTDIR})
     install(TARGETS gfxrecon-convert RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})
+    install(TARGETS gfxrecon-replay RUNTIME DESTINATION ${GFXRECON_INSTALL_TESTDIR})
     if (APPLE)
         install(PROGRAMS run-tests_macos.sh DESTINATION ${GFXRECON_INSTALL_TESTDIR})
         install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${GFXRECON_INSTALL_LAYER_INSTALL_DIR})
