@@ -46,134 +46,139 @@ if (D3D12_SUPPORT)
     endif()
 endif()
 
-add_library(VkLayer_gfxreconstruct SHARED "")
+# VkLayer_gfxreconstruct is the Vulkan capture layer, so it is only built when Vulkan
+# support is enabled. The D3D12 capture subdirectories above are gated separately on
+# D3D12_SUPPORT and remain available when Vulkan is disabled.
+if (GFXRECON_ENABLE_VULKAN)
+    add_library(VkLayer_gfxreconstruct SHARED "")
 
-target_sources(VkLayer_gfxreconstruct
-               PRIVATE
-                   ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.h
-                   ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.cpp
-                   ${PROJECT_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
-                   ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
-              )
-
-target_include_directories(VkLayer_gfxreconstruct
-                           PUBLIC
-                               ${CMAKE_BINARY_DIR}
-                               ${PROJECT_SOURCE_DIR})
-
-target_link_libraries(VkLayer_gfxreconstruct
-                        gfxrecon_encode
-                        gfxrecon_graphics
-                        gfxrecon_format
-                        gfxrecon_util
-                        vulkan_registry
-                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR>
-                        platform_specific
-                        project_version)
-
-# Limit what symbols are exported
-if(MSVC)
     target_sources(VkLayer_gfxreconstruct
-                    PRIVATE
-                        ${PROJECT_SOURCE_DIR}/version.rc
+                   PRIVATE
+                       ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
+                       ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.h
+                       ${CMAKE_CURRENT_LIST_DIR}/layer_vulkan_entry.cpp
+                       ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_layer_func_table.h
+                       ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_layer_func_table.h
                   )
 
-    target_link_options(VkLayer_gfxreconstruct
+    target_include_directories(VkLayer_gfxreconstruct
+                               PUBLIC
+                                   ${CMAKE_BINARY_DIR}
+                                   ${PROJECT_SOURCE_DIR})
+
+    target_link_libraries(VkLayer_gfxreconstruct
+                            gfxrecon_encode
+                            gfxrecon_graphics
+                            gfxrecon_format
+                            gfxrecon_util
+                            vulkan_registry
+                            $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR>
+                            platform_specific
+                            project_version)
+
+    # Limit what symbols are exported
+    if(MSVC)
+        target_sources(VkLayer_gfxreconstruct
                         PRIVATE
-                            /DEF:${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.def
-                       )
-elseif(APPLE)
-    # Both Apple and IOS
-    target_link_options(VkLayer_gfxreconstruct
-                        PRIVATE
-                            -exported_symbols_list ${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.exp
-                       )
-else()
-    target_link_options(VkLayer_gfxreconstruct
-                        PRIVATE
-                            LINKER:--version-script=${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.map
-                       )
-endif()
+                            ${PROJECT_SOURCE_DIR}/version.rc
+                      )
 
-common_build_directives(VkLayer_gfxreconstruct)
+        target_link_options(VkLayer_gfxreconstruct
+                            PRIVATE
+                                /DEF:${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.def
+                           )
+    elseif(APPLE)
+        # Both Apple and IOS
+        target_link_options(VkLayer_gfxreconstruct
+                            PRIVATE
+                                -exported_symbols_list ${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.exp
+                           )
+    else()
+        target_link_options(VkLayer_gfxreconstruct
+                            PRIVATE
+                                LINKER:--version-script=${CMAKE_CURRENT_LIST_DIR}/VkLayer_gfxreconstruct.map
+                           )
+    endif()
 
-# The json output file needs Unix "/" separators or Windows "\" separators
-# On top of that, Windows separators actually need to be doubled because the json format uses backslash escapes
-file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
-string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
-include("GenerateLayerJson")
+    common_build_directives(VkLayer_gfxreconstruct)
 
-# Generate the Vulkan JSON file that will be generated into the build directory
-GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
-        "${RELATIVE_PATH_PREFIX}"
-        $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-        ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
-        $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
-        )
+    # The json output file needs Unix "/" separators or Windows "\" separators
+    # On top of that, Windows separators actually need to be doubled because the json format uses backslash escapes
+    file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
+    string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
+    include("GenerateLayerJson")
 
-if (OPENXR_SUPPORT_ENABLED)
-    # Generate the OpenXR JSON file that will be generated into the build directory
-    GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json
+    # Generate the Vulkan JSON file that will be generated into the build directory
+    GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
             "${RELATIVE_PATH_PREFIX}"
             $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-            ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
-            $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json
+            ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
+            $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
             )
-endif()
 
-if(UNIX)
-        # Generate a Vulkan JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
-        set(RELATIVE_PATH_PREFIX "")
-        GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json-staging
+    if (OPENXR_SUPPORT_ENABLED)
+        # Generate the OpenXR JSON file that will be generated into the build directory
+        GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json
                 "${RELATIVE_PATH_PREFIX}"
                 $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-                ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
-                $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json
+                ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
+                $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json
                 )
+    endif()
 
+    if(UNIX)
+            # Generate a Vulkan JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
+            set(RELATIVE_PATH_PREFIX "")
+            GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json-staging
+                    "${RELATIVE_PATH_PREFIX}"
+                    $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
+                    ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
+                    $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json
+                    )
+
+            if (OPENXR_SUPPORT_ENABLED)
+                    # Generate an OpenXR JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
+                    set(RELATIVE_PATH_PREFIX "")
+                    GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json-staging
+                            "${RELATIVE_PATH_PREFIX}"
+                            $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
+                            ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
+                            $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/XrLayer_gfxreconstruct.json
+                            )
+            endif()
+
+    endif()
+
+    install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    if (UNIX)
+        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d)
         if (OPENXR_SUPPORT_ENABLED)
-                # Generate an OpenXR JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
-                set(RELATIVE_PATH_PREFIX "")
-                GENERATE_LAYER_JSON_FILE(XrLayer_gfxreconstruct_json-staging
-                        "${RELATIVE_PATH_PREFIX}"
-                        $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-                        ${CMAKE_CURRENT_SOURCE_DIR}/json/XrLayer_gfxreconstruct.json.in
-                        $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/XrLayer_gfxreconstruct.json
-                        )
+            install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/XrLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/openxr/1/api_layers/explicit_layer.d)
         endif()
-
-endif()
-
-install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-if (UNIX)
-    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d)
-    if (OPENXR_SUPPORT_ENABLED)
-        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/XrLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/openxr/1/api_layers/explicit_layer.d)
-    endif()
-else()
-    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
-    if (OPENXR_SUPPORT_ENABLED)
-        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
-    endif()
-endif()
-
-if (${RUN_TESTS})
-    add_executable(VkLayer_gfxreconstruct_test "")
-
-    target_sources(VkLayer_gfxreconstruct_test PRIVATE
-            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/../tools/platform_debug_helper.cpp)
-    target_link_libraries(VkLayer_gfxreconstruct_test PRIVATE VkLayer_gfxreconstruct)
-    if (MSVC)
-        # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
-        # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
-        if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-            target_link_options(VkLayer_gfxreconstruct_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
-        else()
-            target_link_options(VkLayer_gfxreconstruct_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+    else()
+        install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
+        if (OPENXR_SUPPORT_ENABLED)
+            install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/XrLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
         endif()
     endif()
-    common_build_directives(VkLayer_gfxreconstruct_test)
-    common_test_directives(VkLayer_gfxreconstruct_test)
-endif()
+
+    if (${RUN_TESTS})
+        add_executable(VkLayer_gfxreconstruct_test "")
+
+        target_sources(VkLayer_gfxreconstruct_test PRIVATE
+                ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp
+                ${CMAKE_CURRENT_LIST_DIR}/../tools/platform_debug_helper.cpp)
+        target_link_libraries(VkLayer_gfxreconstruct_test PRIVATE VkLayer_gfxreconstruct)
+        if (MSVC)
+            # Force inclusion of "gfxrecon_disable_popup_result" variable in linking.
+            # On 32-bit windows, MSVC prefixes symbols with "_" but on 64-bit windows it doesn't.
+            if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+                target_link_options(VkLayer_gfxreconstruct_test PUBLIC "LINKER:/Include:_gfxrecon_disable_popup_result")
+            else()
+                target_link_options(VkLayer_gfxreconstruct_test PUBLIC "LINKER:/Include:gfxrecon_disable_popup_result")
+            endif()
+        endif()
+        common_build_directives(VkLayer_gfxreconstruct_test)
+        common_test_directives(VkLayer_gfxreconstruct_test)
+    endif()
+endif() # GFXRECON_ENABLE_VULKAN

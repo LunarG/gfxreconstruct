@@ -155,6 +155,7 @@ def CreateReplayParser():
     parser.add_argument('--serialize-queue-submissions', action='store_true', default=False, help='Serialize submit entries within one vkQueueSubmit or vkQueueSubmit2 call by adding semaphores between consecutive submits during replay. (forwarded to replay tool)')
     parser.add_argument('--replay-event-plugin-path', metavar='PATH', help='Path to a replay event plugin library. If specified, the plugin will be loaded and used to process replay events. (forwarded to replay tool)')
     parser.add_argument('--replay-event-plugin-params', metavar='PARAMS', help='Parameters to forward to the replay event plugin. The format of the parameters is determined by the plugin and is not interpreted by the replay tool. (forwarded to replay tool)')
+    parser.add_argument('--isolate-render-passes', action='store_true', default=False, help='Isolate render passes by splitting the command buffer into multiple submits. (forwarded to replay tool)')
 
     return parser
 
@@ -374,6 +375,9 @@ def MakeExtrasString(args):
     if args.replay_event_plugin_params:
         arg_list.append('--replay-event-plugin-params')
         arg_list.append('{}'.format(args.replay_event_plugin_params))
+
+    if args.isolate_render_passes:
+        arg_list.append('--isolate-render-passes')
 
     if args.file:
         arg_list.append(args.file)

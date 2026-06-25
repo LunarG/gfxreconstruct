@@ -32,13 +32,21 @@ target_sources(gfxrecon-replay
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/replay_settings.h
-                    ${CMAKE_CURRENT_LIST_DIR}/replay_pre_processing.h
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_main_common.h
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_main_common.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_d3d12_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_d3d12_feature.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_openxr_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_openxr_feature.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_vulkan_feature.h
+                    ${CMAKE_CURRENT_LIST_DIR}/replay_vulkan_feature.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/desktop_main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/parse_dump_resources_cli.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.h
-                    ${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.cpp>
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${CMAKE_CURRENT_LIST_DIR}/recapture_vulkan_entry.h>
+                    $<$<BOOL:${GFXRECON_ENABLE_VULKAN}>:${PROJECT_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h>
                     $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
                     $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
 )

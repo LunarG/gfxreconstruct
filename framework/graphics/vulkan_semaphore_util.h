@@ -34,8 +34,9 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 
 struct VulkanSemaphore
 {
-    VkSemaphore semaphore;
-    uint64_t    timeline_value; // Only used for timeline semaphores, ignored for binary semaphores
+    VkSemaphore semaphore = VK_NULL_HANDLE;
+    /// Only used for timeline semaphores, ignored for binary semaphores
+    uint64_t timeline_value = 0;
 };
 
 /**

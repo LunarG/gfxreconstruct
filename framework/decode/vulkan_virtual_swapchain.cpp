@@ -1298,7 +1298,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
         // create a copy-util, used for image-transitions and blits (leave out memory-properties, no allocation needed)
         ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
-            device, device_info->parent, *device_table, *instance_table);
+            device, device_info->parent, *device_table, *instance_table, device_info->property_feature_info);
     }
 
     // derive output-size and orientation from provided scale

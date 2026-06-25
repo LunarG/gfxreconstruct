@@ -49,6 +49,7 @@ class DX12TrackingConsumer : public Dx12Consumer
     virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                           HRESULT          original_result,
                                                           D3D12_FEATURE    feature,
+                                                          const void*      feature_meta_struct_data,
                                                           const void*      capture_feature_data,
                                                           void*            replay_feature_data,
                                                           UINT             feature_data_size);

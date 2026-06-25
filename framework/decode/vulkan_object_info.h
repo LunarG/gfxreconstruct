@@ -246,7 +246,6 @@ typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
-typedef VulkanPoolInfo<VkCommandPool>                          VulkanCommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>             VulkanSamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                     VulkanDisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>             VulkanDebugReportCallbackEXTInfo;
@@ -688,10 +687,18 @@ struct VulkanShaderEXTInfo : VulkanObjectInfoAsync<VkShaderEXT>
     std::vector<gfxrecon::util::SpirVParsingUtil::BufferReferenceInfo> buffer_reference_infos;
 };
 
+struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
+{
+    VkCommandPoolCreateFlags create_flags = 0;
+};
+
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
     bool                                                      is_frame_boundary{ false };
     std::vector<format::HandleId>                             frame_buffer_ids;
+    format::HandleId                                          active_render_pass_id{ format::kNullHandleId };
+    format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
+    std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
     std::unordered_map<format::HandleId, VkImageLayout>       image_layout_barriers;
     std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
     std::vector<uint8_t>                                      push_constant_data;

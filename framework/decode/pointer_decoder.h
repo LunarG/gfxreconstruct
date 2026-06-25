@@ -33,6 +33,7 @@
 
 #include <cassert>
 #include <memory>
+#include <span>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -46,7 +47,11 @@ class PointerDecoder : public PointerDecoderBase
 
     T* GetPointer() { return data_; }
 
+    std::span<T> GetSpan() { return std::span(GetPointer(), GetLength()); }
+
     const T* GetPointer() const { return data_; }
+
+    std::span<const T> GetSpan() const { return std::span(GetPointer(), GetLength()); }
 
     size_t GetOutputLength() const { return output_len_; }
 

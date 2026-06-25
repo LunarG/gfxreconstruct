@@ -263,7 +263,7 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     }
 
     VkSemaphoreCreateInfo semaphore_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-    result = device_table->CreateSemaphore(device_, &semaphore_info, nullptr, &semaphore_);
+    result = device_table->CreateSemaphore(device_, &semaphore_info, nullptr, &semaphore_.semaphore);
 
     if (result != VK_SUCCESS)
     {
@@ -298,9 +298,9 @@ VulkanFrameWarmUp::~VulkanFrameWarmUp()
 
     if (device_table_ != nullptr && device_ != VK_NULL_HANDLE)
     {
-        if (semaphore_ != VK_NULL_HANDLE)
+        if (semaphore_.semaphore != VK_NULL_HANDLE)
         {
-            device_table_->DestroySemaphore(device_, semaphore_, nullptr);
+            device_table_->DestroySemaphore(device_, semaphore_.semaphore, nullptr);
         }
         if (buffer_memory_ != VK_NULL_HANDLE)
         {
@@ -362,10 +362,10 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(VulkanFrameWarmUp&& other) noexcept :
     other.pipeline_              = VK_NULL_HANDLE;
     other.buffer_                = VK_NULL_HANDLE;
     other.buffer_memory_         = VK_NULL_HANDLE;
-    other.semaphore_             = VK_NULL_HANDLE;
+    other.semaphore_             = graphics::VulkanSemaphore(VK_NULL_HANDLE);
 }
 
-VkSemaphore VulkanFrameWarmUp::WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores)
+graphics::VulkanSemaphore VulkanFrameWarmUp::WarmUp(const std::span<graphics::VulkanSemaphore> wait_semaphores)
 {
     util::MarkInjectedCommandsHelper mark_injected_commands_helper;
 
@@ -394,7 +394,7 @@ VkSemaphore VulkanFrameWarmUp::WarmUp(const std::span<graphics::VulkanSemaphore>
     submit_info.pCommandBuffers    = &command_buffer_;
     // next_semaphore_index > 0 means we know how many of them we need from previous frame render
     submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores    = &semaphore_;
+    submit_info.pSignalSemaphores    = &semaphore_.semaphore;
 
     VkResult result = device_table_->QueueSubmit(queue_, 1, &submit_info, VK_NULL_HANDLE);
 

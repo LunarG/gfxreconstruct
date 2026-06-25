@@ -89,10 +89,10 @@ class VulkanAddressReplacer
      * @param   wait_semaphores      optional span of (timeline) wait-semaphores, along with their wait-values
      * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
-    VkSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
-                                      const std::span<VkDeviceAddress>           addresses_to_replace,
-                                      const decode::VulkanDeviceAddressTracker&  address_tracker,
-                                      const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
+    graphics::VulkanSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
+                                                    const std::span<VkDeviceAddress>           addresses_to_replace,
+                                                    const decode::VulkanDeviceAddressTracker&  address_tracker,
+                                                    const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
   private:
     /**
@@ -148,6 +148,18 @@ class VulkanAddressReplacer
                                  uint32_t                                  size,
                                  void*                                     data,
                                  const decode::VulkanDeviceAddressTracker& address_tracker);
+
+    /**
+     * @brief   ProcessCmdBindPipeline patches any previously recorded push-constant data that may contain
+     *          unresolved capture-time buffer-device-addresses.
+     *          this is necessary when vkCmdPushConstants was called before vkCmdBindPipeline and a no-op otherwise.
+     *          Patching is achieved by injected a corrective vkCmdPushConstants into the command buffer.
+     *
+     * @param   command_buffer_info a provided VulkanCommandBufferInfo*
+     * @param   address_tracker     const reference to a VulkanDeviceAddressTracker, used for mapping device-addresses
+     */
+    void ProcessCmdBindPipeline(VulkanCommandBufferInfo*                  command_buffer_info,
+                                const decode::VulkanDeviceAddressTracker& address_tracker);
 
     /**
      * @brief   ProcessCmdBindDescriptorSets will check the bound descriptor-sets for presence of buffer-references
@@ -439,7 +451,7 @@ class VulkanAddressReplacer
         // actual payload
         VkCommandBuffer command_buffer   = VK_NULL_HANDLE;
         VkFence         fence            = VK_NULL_HANDLE;
-        VkSemaphore     signal_semaphore = VK_NULL_HANDLE;
+        graphics::VulkanSemaphore signal_semaphore{ VK_NULL_HANDLE };
 
         PFN_vkDestroyFence       destroy_fence_fn        = nullptr;
         PFN_vkFreeCommandBuffers free_command_buffers_fn = nullptr;

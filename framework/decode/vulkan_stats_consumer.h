@@ -288,8 +288,11 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
         if ((pProperties != nullptr) && !pProperties->IsNull())
         {
-            auto properties2                            = pProperties->GetPointer();
-            physical_device_properties_[physicalDevice] = properties2->properties;
+            auto properties2 = pProperties->GetPointer();
+            if (PhysicalDevicePropertiesValid(properties2->properties))
+            {
+                physical_device_properties_[physicalDevice] = properties2->properties;
+            }
         }
     }
 
@@ -302,8 +305,11 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         GFXRECON_UNREFERENCED_PARAMETER(call_info);
         if ((pProperties != nullptr) && !pProperties->IsNull())
         {
-            auto properties2                            = pProperties->GetPointer();
-            physical_device_properties_[physicalDevice] = properties2->properties;
+            auto properties2 = pProperties->GetPointer();
+            if (PhysicalDevicePropertiesValid(properties2->properties))
+            {
+                physical_device_properties_[physicalDevice] = properties2->properties;
+            }
         }
     }
 
@@ -782,6 +788,12 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     }
 
   private:
+    static bool PhysicalDevicePropertiesValid(const VkPhysicalDeviceProperties& properties)
+    {
+        return (properties.apiVersion != 0) || (properties.driverVersion != 0) || (properties.vendorID != 0) ||
+               (properties.deviceID != 0) || (properties.deviceName[0] != '\0');
+    }
+
     uint32_t trimmed_frame_{ 0 };
 
     // Physical device info.

@@ -70,7 +70,8 @@ VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*        
     VkSemaphoreCreateInfo semaphore_create_info{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
     semaphore_create_info.pNext = &timeline_create_info;
 
-    VkResult result = device_table_->CreateSemaphore(device_info_->handle, &semaphore_create_info, nullptr, &handle_);
+    VkResult result =
+        device_table_->CreateSemaphore(device_info_->handle, &semaphore_create_info, nullptr, &semaphore_.semaphore);
     if (result != VK_SUCCESS) [[unlikely]]
     {
         GFXRECON_LOG_ERROR("Failed to create timeline semaphore for submit job execution: %s",
@@ -79,19 +80,16 @@ VulkanInjectedSemaphore::VulkanInjectedSemaphore(const VulkanDeviceInfo*        
 }
 
 VulkanInjectedSemaphore::VulkanInjectedSemaphore(VulkanInjectedSemaphore&& other) :
-    handle_{ other.handle_ }, target_value_{ other.target_value_ }, device_info_{ other.device_info_ }, device_table_{
-        other.device_table_
-    }
+    semaphore_{ other.semaphore_ }, device_info_{ other.device_info_ }, device_table_{ other.device_table_ }
 {
-    other.handle_ = VK_NULL_HANDLE;
+    other.semaphore_ = graphics::VulkanSemaphore(VK_NULL_HANDLE);
 }
 
 VulkanInjectedSemaphore& VulkanInjectedSemaphore::operator=(VulkanInjectedSemaphore&& other) noexcept
 {
     if (this != &other)
     {
-        std::swap(handle_, other.handle_);
-        std::swap(target_value_, other.target_value_);
+        std::swap(semaphore_, other.semaphore_);
         std::swap(device_info_, other.device_info_);
         std::swap(device_table_, other.device_table_);
     }
@@ -100,30 +98,30 @@ VulkanInjectedSemaphore& VulkanInjectedSemaphore::operator=(VulkanInjectedSemaph
 
 bool VulkanInjectedSemaphore::HasReachedTargetValue() const
 {
-    if (handle_ == VK_NULL_HANDLE)
+    if (semaphore_.semaphore == VK_NULL_HANDLE)
     {
         return false;
     }
 
     uint64_t read_value = 0;
-    VkResult result     = device_table_->GetSemaphoreCounterValue(device_info_->handle, handle_, &read_value);
+    VkResult result = device_table_->GetSemaphoreCounterValue(device_info_->handle, semaphore_.semaphore, &read_value);
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to get timeline semaphore value for submit job execution: %s",
                            util::ToString(result).c_str());
     }
-    return result == VK_SUCCESS && read_value >= target_value_;
+    return result == VK_SUCCESS && read_value >= semaphore_.timeline_value;
 }
 
 VulkanInjectedSemaphore::~VulkanInjectedSemaphore()
 {
-    if (handle_ != VK_NULL_HANDLE)
+    if (semaphore_.semaphore != VK_NULL_HANDLE)
     {
         if (!HasReachedTargetValue())
         {
             GFXRECON_LOG_ERROR("Injected timeline semaphore has not reached its target value at destruction time.");
         }
-        device_table_->DestroySemaphore(device_info_->handle, handle_, nullptr);
+        device_table_->DestroySemaphore(device_info_->handle, semaphore_.semaphore, nullptr);
     }
 }
 
@@ -136,15 +134,47 @@ VulkanInjectedSemaphoreInfo::VulkanInjectedSemaphoreInfo(const VulkanDeviceInfo*
     info.stageMask = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT;
 }
 
+VulkanSubmitInfoHelper& VulkanSubmitJobExecution::GetSubmitInfoHelper(VkSubmitInfo& submit_info)
+{
+    auto it = submit_info_helpers_.find(&submit_info);
+    if (it == submit_info_helpers_.end())
+    {
+        auto [new_it, inserted] =
+            submit_info_helpers_.emplace(&submit_info, std::make_unique<VulkanSubmitInfoHelper>(submit_info));
+        GFXRECON_ASSERT(inserted);
+        it = new_it;
+    }
+    return *(it->second);
+}
+
+VulkanSubmitInfo2Helper& VulkanSubmitJobExecution::GetSubmitInfo2Helper(VkSubmitInfo2& submit_info2)
+{
+    auto it = submit_info2_helpers_.find(&submit_info2);
+    if (it == submit_info2_helpers_.end())
+    {
+        auto [new_it, inserted] =
+            submit_info2_helpers_.emplace(&submit_info2, std::make_unique<VulkanSubmitInfo2Helper>(submit_info2));
+        GFXRECON_ASSERT(inserted);
+        it = new_it;
+    }
+    return *(it->second);
+}
+
 void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo> submit_infos)
 {
+    // Special case for empty submit array. Just submit the plan with no semaphores.
+    if (submit_infos.empty())
+    {
+        SubmitStandalone(std::move(plan));
+        return;
+    }
+
     // Ensure that InjectBefore is not called multiple times for the same submit infos.
     GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo& info) {
-        return !original_wait_semaphores_.contains(&info) && !injected_wait_semaphores_.contains(&info);
+        return !original_wait_semaphores_.contains(&info) && !submit_info_helpers_.contains(&info);
     }));
 
     // Gather original wait-semaphores for each submit and prepare storage for injected wait-semaphores.
-    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_infos.size(); ++submit_index)
     {
         // Only gather original wait-semaphores if there are jobs to execute for this submit.
@@ -156,6 +186,7 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
     }
 
     // Execute jobs for each submit and gather injected wait-semaphores
+    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_jobs.size(); ++submit_index)
     {
         auto& jobs = submit_jobs[submit_index].jobs;
@@ -165,32 +196,16 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
         {
             VkSubmitInfo& submit_info              = submit_infos[submit_index];
             auto&         original_wait_semaphores = original_wait_semaphores_[&submit_info].semaphores;
-            auto&         injected_wait_semaphores = injected_wait_semaphores_[&submit_info];
+            auto&         submit_helper            = GetSubmitInfoHelper(submit_info);
 
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)
             {
-                VkSemaphore submit_semaphore = job(original_wait_semaphores);
-                GFXRECON_ASSERT(submit_semaphore != VK_NULL_HANDLE);
-                injected_wait_semaphores.push_back(submit_semaphore);
-            }
-
-            // Replace the original waits with waits for the injected jobs.
-            submit_info.waitSemaphoreCount = static_cast<uint32_t>(injected_wait_semaphores.size());
-            submit_info.pWaitSemaphores    = injected_wait_semaphores.data();
-
-            // If waitSemaphoreCount was 0, pWaitDstStageMask might be nullptr.
-            // Make sure it points to valid data in all cases.
-            auto& wait_dst_stage_masks = GetWaitDstStageMasks(submit_info);
-            std::fill(wait_dst_stage_masks.begin(), wait_dst_stage_masks.end(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
-
-            submit_info.pWaitDstStageMask = wait_dst_stage_masks.data();
-
-            // The original waits were stripped, so any timeline wait values that described them must be removed too.
-            if (auto* timeline_info = graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&submit_info))
-            {
-                timeline_info->waitSemaphoreValueCount = 0;
-                timeline_info->pWaitSemaphoreValues    = nullptr;
+                graphics::VulkanSemaphore submit_semaphore = job(original_wait_semaphores);
+                if (submit_semaphore.semaphore != VK_NULL_HANDLE)
+                {
+                    submit_helper.AddWaitSemaphore(submit_semaphore);
+                }
             }
         }
     }
@@ -198,13 +213,19 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
 
 void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<VkSubmitInfo2> submit_infos)
 {
+    // Special case for empty submit array. Just submit the plan with no semaphores.
+    if (submit_infos.empty())
+    {
+        SubmitStandalone(std::move(plan));
+        return;
+    }
+
     // Ensure that InjectBefore is not called multiple times for the same submit infos.
     GFXRECON_ASSERT(std::all_of(submit_infos.begin(), submit_infos.end(), [this](VkSubmitInfo2& info) {
-        return !original_wait_semaphores_.contains(&info) && !injected_wait_semaphore_infos_.contains(&info);
+        return !original_wait_semaphores_.contains(&info) && !submit_info2_helpers_.contains(&info);
     }));
 
     // Gather original wait-semaphores for each submit and prepare storage for injected wait-semaphores.
-    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_infos.size(); ++submit_index)
     {
         VkSubmitInfo2& submit_info              = submit_infos[submit_index];
@@ -218,6 +239,7 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
     }
 
     // Execute jobs for each submit and gather injected wait-semaphores
+    auto& submit_jobs = plan.GetSubmitJobs();
     for (uint32_t submit_index = 0; submit_index < submit_jobs.size(); ++submit_index)
     {
         auto& jobs = submit_jobs[submit_index].jobs;
@@ -227,276 +249,25 @@ void VulkanSubmitJobExecution::InjectBefore(VulkanSubmitJobPlan plan, std::span<
         {
             VkSubmitInfo2& submit_info                   = submit_infos[submit_index];
             auto&          original_wait_semaphores      = original_wait_semaphores_[&submit_info].semaphores;
-            auto&          injected_wait_semaphore_infos = injected_wait_semaphore_infos_[&submit_info];
+            auto&          submit_helper                 = GetSubmitInfo2Helper(submit_info);
 
             // Execute each job function and gather injected wait-semaphores.
             for (const auto& job : jobs)
             {
-                VkSemaphore submit_semaphore = job(original_wait_semaphores);
-                GFXRECON_ASSERT(submit_semaphore != VK_NULL_HANDLE);
+                graphics::VulkanSemaphore submit_semaphore = job(original_wait_semaphores);
 
-                VkSemaphoreSubmitInfo semaphore_info = {};
-                semaphore_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-                semaphore_info.semaphore             = submit_semaphore;
-                semaphore_info.value                 = 1;
-                semaphore_info.stageMask             = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-                injected_wait_semaphore_infos.push_back(semaphore_info);
+                if (submit_semaphore.semaphore != VK_NULL_HANDLE)
+                {
+                    VkSemaphoreSubmitInfo semaphore_info = {};
+                    semaphore_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+                    semaphore_info.semaphore             = submit_semaphore.semaphore;
+                    semaphore_info.value                 = submit_semaphore.timeline_value;
+                    semaphore_info.stageMask             = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                    submit_helper.AddWaitSemaphore(semaphore_info);
+                }
             }
-
-            // Replace the original waits with waits for the injected jobs.
-            submit_info.waitSemaphoreInfoCount = static_cast<uint32_t>(injected_wait_semaphore_infos.size());
-            submit_info.pWaitSemaphoreInfos    = injected_wait_semaphore_infos.data();
         }
     }
-}
-
-std::vector<VkSemaphore>& VulkanSubmitJobExecution::GetWaitSemaphores(VkSubmitInfo& submit_info)
-{
-    if (!injected_wait_semaphores_.contains(&submit_info))
-    {
-        if (submit_info.pWaitSemaphores != nullptr && submit_info.waitSemaphoreCount > 0)
-        {
-
-            injected_wait_semaphores_[&submit_info] =
-                std::vector(submit_info.pWaitSemaphores, submit_info.pWaitSemaphores + submit_info.waitSemaphoreCount);
-        }
-        else
-        {
-            injected_wait_semaphores_[&submit_info] = std::vector<VkSemaphore>();
-        }
-
-        // Override wait semaphores pointer.
-        submit_info.pWaitSemaphores = injected_wait_semaphores_[&submit_info].data();
-    }
-    return injected_wait_semaphores_[&submit_info];
-}
-
-void VulkanSubmitJobExecution::AddWaitSemaphore(VkSubmitInfo& submit_info, const VulkanInjectedSemaphore& semaphore)
-{
-    std::vector<VkSemaphore>&          wait_semaphores                = GetWaitSemaphores(submit_info);
-    std::vector<VkPipelineStageFlags>& wait_dst_stage_masks           = GetWaitDstStageMasks(submit_info);
-    std::vector<uint64_t>&             wait_values                    = GetWaitValues(submit_info);
-    VkTimelineSemaphoreSubmitInfo&     timeline_semaphore_submit_info = GetTimelineSemaphoreSubmitInfo(submit_info);
-
-    wait_semaphores.push_back(semaphore.GetHandle());
-    submit_info.pWaitSemaphores    = wait_semaphores.data();
-    submit_info.waitSemaphoreCount = static_cast<uint32_t>(wait_semaphores.size());
-
-    wait_dst_stage_masks.push_back(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
-    submit_info.pWaitDstStageMask = wait_dst_stage_masks.data();
-
-    wait_values.push_back(semaphore.GetTargetValue());
-
-    timeline_semaphore_submit_info.pWaitSemaphoreValues    = wait_values.data();
-    timeline_semaphore_submit_info.waitSemaphoreValueCount = static_cast<uint32_t>(wait_values.size());
-
-    GFXRECON_ASSERT(wait_semaphores.size() == wait_values.size());
-}
-
-void VulkanSubmitJobExecution::AddSignalSemaphore(VkSubmitInfo& submit_info, const VulkanInjectedSemaphore& semaphore)
-{
-    std::vector<VkSemaphore>&      signal_semaphores              = GetSignalSemaphores(submit_info);
-    std::vector<uint64_t>&         signal_values                  = GetSignalValues(submit_info);
-    VkTimelineSemaphoreSubmitInfo& timeline_semaphore_submit_info = GetTimelineSemaphoreSubmitInfo(submit_info);
-
-    signal_semaphores.push_back(semaphore.GetHandle());
-    submit_info.pSignalSemaphores    = signal_semaphores.data();
-    submit_info.signalSemaphoreCount = static_cast<uint32_t>(signal_semaphores.size());
-
-    signal_values.push_back(semaphore.GetTargetValue());
-
-    timeline_semaphore_submit_info.pSignalSemaphoreValues    = signal_values.data();
-    timeline_semaphore_submit_info.signalSemaphoreValueCount = static_cast<uint32_t>(signal_values.size());
-
-    GFXRECON_ASSERT(signal_semaphores.size() == signal_values.size());
-}
-
-void VulkanSubmitJobExecution::AddWaitSemaphore(VkSubmitInfo2&                     submit_info,
-                                                const VulkanInjectedSemaphoreInfo& semaphore)
-{
-    std::vector<VkSemaphoreSubmitInfo>& wait_semaphores = GetWaitSemaphoreInfos(submit_info);
-    wait_semaphores.push_back(semaphore.info);
-    submit_info.pWaitSemaphoreInfos    = wait_semaphores.data();
-    submit_info.waitSemaphoreInfoCount = static_cast<uint32_t>(wait_semaphores.size());
-}
-
-void VulkanSubmitJobExecution::AddSignalSemaphore(VkSubmitInfo2&                     submit_info,
-                                                  const VulkanInjectedSemaphoreInfo& semaphore)
-{
-    std::vector<VkSemaphoreSubmitInfo>& signal_semaphores = GetSignalSemaphoreInfos(submit_info);
-    signal_semaphores.push_back(semaphore.info);
-    submit_info.pSignalSemaphoreInfos    = signal_semaphores.data();
-    submit_info.signalSemaphoreInfoCount = static_cast<uint32_t>(signal_semaphores.size());
-}
-
-std::vector<VkSemaphore>& VulkanSubmitJobExecution::GetSignalSemaphores(VkSubmitInfo& submit_info)
-{
-    if (!injected_signal_semaphores_.contains(&submit_info))
-    {
-        if (submit_info.pSignalSemaphores != nullptr && submit_info.signalSemaphoreCount > 0)
-        {
-            injected_signal_semaphores_[&submit_info] = std::vector(
-                submit_info.pSignalSemaphores, submit_info.pSignalSemaphores + submit_info.signalSemaphoreCount);
-        }
-        else
-        {
-            injected_signal_semaphores_[&submit_info] = std::vector<VkSemaphore>();
-        }
-
-        // Override signal semaphore pointer.
-        submit_info.pSignalSemaphores = injected_signal_semaphores_[&submit_info].data();
-    }
-    return injected_signal_semaphores_[&submit_info];
-}
-
-std::vector<uint64_t>& VulkanSubmitJobExecution::GetWaitValues(VkSubmitInfo& submit_info)
-{
-    if (!injected_wait_semaphore_values_.contains(&submit_info))
-    {
-        VkTimelineSemaphoreSubmitInfo& timeline_info = GetTimelineSemaphoreSubmitInfo(submit_info);
-        if (timeline_info.waitSemaphoreValueCount > 0 && timeline_info.pWaitSemaphoreValues != nullptr)
-        {
-            injected_wait_semaphore_values_[&submit_info] =
-                std::vector<uint64_t>(timeline_info.pWaitSemaphoreValues,
-                                      timeline_info.pWaitSemaphoreValues + timeline_info.waitSemaphoreValueCount);
-        }
-        else
-        {
-            injected_wait_semaphore_values_[&submit_info] = std::vector<uint64_t>(submit_info.waitSemaphoreCount, 0);
-        }
-
-        // Override any existing values pointer.
-        timeline_info.pWaitSemaphoreValues = injected_wait_semaphore_values_[&submit_info].data();
-    }
-    return injected_wait_semaphore_values_[&submit_info];
-}
-
-std::vector<uint64_t>& VulkanSubmitJobExecution::GetSignalValues(VkSubmitInfo& submit_info)
-{
-    if (!injected_signal_semaphore_values_.contains(&submit_info))
-    {
-        VkTimelineSemaphoreSubmitInfo& timeline_info = GetTimelineSemaphoreSubmitInfo(submit_info);
-        if (timeline_info.signalSemaphoreValueCount > 0 && timeline_info.pSignalSemaphoreValues != nullptr)
-        {
-            injected_signal_semaphore_values_[&submit_info] =
-                std::vector<uint64_t>(timeline_info.pSignalSemaphoreValues,
-                                      timeline_info.pSignalSemaphoreValues + timeline_info.signalSemaphoreValueCount);
-        }
-        else
-        {
-            injected_signal_semaphore_values_[&submit_info] =
-                std::vector<uint64_t>(submit_info.signalSemaphoreCount, 0);
-        }
-
-        // Override signal semaphore values.
-        timeline_info.pSignalSemaphoreValues = injected_signal_semaphore_values_[&submit_info].data();
-    }
-    return injected_signal_semaphore_values_[&submit_info];
-}
-
-std::vector<VkPipelineStageFlags>& VulkanSubmitJobExecution::GetWaitDstStageMasks(VkSubmitInfo& submit_info)
-{
-    // Make sure there is injected storage for wait dst stage masks for this submit info.
-    if (!injected_wait_dst_stage_masks_.contains(&submit_info))
-    {
-        if (submit_info.pWaitDstStageMask != nullptr && submit_info.waitSemaphoreCount > 0)
-        {
-            // Copy existing wait dst stage masks if they exist.
-            injected_wait_dst_stage_masks_[&submit_info] = std::vector<VkPipelineStageFlags>(
-                submit_info.pWaitDstStageMask, submit_info.pWaitDstStageMask + submit_info.waitSemaphoreCount);
-        }
-        else
-        {
-            // Otherwise, initialize wait dst stage masks with a valid default for each wait semaphore.
-            injected_wait_dst_stage_masks_[&submit_info] =
-                std::vector<VkPipelineStageFlags>(submit_info.waitSemaphoreCount, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
-        }
-
-        // Override wait dst stage mask pointer.
-        submit_info.pWaitDstStageMask = injected_wait_dst_stage_masks_[&submit_info].data();
-    }
-
-    return injected_wait_dst_stage_masks_[&submit_info];
-}
-
-std::vector<VkSemaphoreSubmitInfo>& VulkanSubmitJobExecution::GetWaitSemaphoreInfos(VkSubmitInfo2& submit_info2)
-{
-    if (!injected_wait_semaphore_infos_.contains(&submit_info2))
-    {
-        if (submit_info2.pWaitSemaphoreInfos != nullptr && submit_info2.waitSemaphoreInfoCount > 0)
-        {
-            injected_wait_semaphore_infos_[&submit_info2] =
-                std::vector(submit_info2.pWaitSemaphoreInfos,
-                            submit_info2.pWaitSemaphoreInfos + submit_info2.waitSemaphoreInfoCount);
-        }
-        else
-        {
-            injected_wait_semaphore_infos_[&submit_info2] = std::vector<VkSemaphoreSubmitInfo>();
-        }
-
-        // Override any existing wait semaphore pointer.
-        submit_info2.pWaitSemaphoreInfos = injected_wait_semaphore_infos_[&submit_info2].data();
-    }
-    return injected_wait_semaphore_infos_[&submit_info2];
-}
-
-std::vector<VkSemaphoreSubmitInfo>& VulkanSubmitJobExecution::GetSignalSemaphoreInfos(VkSubmitInfo2& submit_info)
-{
-    if (!injected_signal_semaphore_infos_.contains(&submit_info))
-    {
-        if (submit_info.pSignalSemaphoreInfos != nullptr && submit_info.signalSemaphoreInfoCount > 0)
-        {
-            injected_signal_semaphore_infos_[&submit_info] =
-                std::vector(submit_info.pSignalSemaphoreInfos,
-                            submit_info.pSignalSemaphoreInfos + submit_info.signalSemaphoreInfoCount);
-        }
-        else
-        {
-            injected_signal_semaphore_infos_[&submit_info] = std::vector<VkSemaphoreSubmitInfo>();
-        }
-
-        // Override any existing signal semaphore pointer.
-        submit_info.pSignalSemaphoreInfos = injected_signal_semaphore_infos_[&submit_info].data();
-    }
-    return injected_signal_semaphore_infos_[&submit_info];
-}
-
-VkTimelineSemaphoreSubmitInfo& VulkanSubmitJobExecution::GetTimelineSemaphoreSubmitInfo(VkSubmitInfo& submit_info)
-{
-    if (!injected_timeline_semaphore_infos_.contains(&submit_info))
-    {
-        if (auto* existing_info = graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&submit_info))
-        {
-            injected_timeline_semaphore_infos_[&submit_info] = *existing_info;
-        }
-        else
-        {
-            injected_timeline_semaphore_infos_[&submit_info] =
-                VkTimelineSemaphoreSubmitInfo{ VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
-        }
-
-        // Insert owned timeline submit info, replacing any existing VkTimelineSemaphoreSubmitInfo.
-        graphics::vulkan_struct_add_pnext(&submit_info, &injected_timeline_semaphore_infos_[&submit_info]);
-    }
-    return injected_timeline_semaphore_infos_[&submit_info];
-}
-
-void VulkanSubmitJobExecution::InjectSemaphore(VkSubmitInfo& submit_info, VulkanInjectedSemaphore& semaphore)
-{
-    // Wait on the current value, then signal the next value on the same injected timeline semaphore.
-    AddWaitSemaphore(submit_info, semaphore);
-    semaphore.IncreaseTargetValue();
-    AddSignalSemaphore(submit_info, semaphore);
-}
-
-void VulkanSubmitJobExecution::InjectSemaphore(VkSubmitInfo2& submit_info, VulkanInjectedSemaphoreInfo& semaphore_info)
-{
-    // Wait on the current value, then signal the next value on the same injected timeline semaphore.
-    AddWaitSemaphore(submit_info, semaphore_info);
-    semaphore_info.info.value++;
-    semaphore_info.info.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-    semaphore_info.semaphore.IncreaseTargetValue();
-    AddSignalSemaphore(submit_info, semaphore_info);
 }
 
 void VulkanSubmitJobExecution::SerializeExecution(std::span<VkSubmitInfo> submit_infos)
@@ -517,7 +288,8 @@ void VulkanSubmitJobExecution::SerializeExecution(std::span<VkSubmitInfo> submit
     // One timeline semaphore serializes the whole submit array by advancing its value once per submit.
     for (VkSubmitInfo& submit_info : submit_infos)
     {
-        InjectSemaphore(submit_info, *injected_semaphore);
+        auto& submit_helper = GetSubmitInfoHelper(submit_info);
+        submit_helper.InjectSemaphore(*injected_semaphore);
     }
 }
 
@@ -539,7 +311,20 @@ void VulkanSubmitJobExecution::SerializeExecution(std::span<VkSubmitInfo2> submi
     // One timeline semaphore serializes the whole submit array by advancing its value once per submit.
     for (VkSubmitInfo2& submit_info2 : submit_infos2)
     {
-        InjectSemaphore(submit_info2, *injected_semaphore_info);
+        auto& submit_helper = GetSubmitInfo2Helper(submit_info2);
+        submit_helper.InjectSemaphore(*injected_semaphore_info);
+    }
+}
+
+void VulkanSubmitJobExecution::SubmitStandalone(VulkanSubmitJobPlan plan) const
+{
+    for (const auto& jobs : plan.GetSubmitJobs())
+    {
+        for (const auto& job : jobs.jobs)
+        {
+            // Do not care about the returned semaphore.
+            job({});
+        }
     }
 }
 

@@ -166,7 +166,6 @@ static constexpr int kUnspecifiedColorAttachment = -1;
 
 struct VulkanReplayOptions : public ReplayOptions
 {
-    bool                    enable_vulkan{ true };
     bool                    capture{ false };
     bool                    omit_pipeline_cache_data{ false };
     bool                    use_colorspace_fallback{ false };
@@ -264,6 +263,9 @@ struct VulkanReplayOptions : public ReplayOptions
 
     /// Parameters to pass to the replay event plugin.
     std::string replay_event_plugin_params;
+
+    /// Isolate render passes by splitting the command buffer into multiple submits.
+    bool isolate_render_passes{ false };
 
     void MaybeWaitBeforeFirstSubmit() const;
     void MaybeWaitBeforeFrame() const;

@@ -276,6 +276,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
         wrapper                  = GetWrapper<PhysicalDeviceWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_physical_devices.push_back(wrapper);
+        wrapper->parent_info = parent_wrapper->util_info;
     }
 }
 

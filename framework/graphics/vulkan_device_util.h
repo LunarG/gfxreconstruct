@@ -26,7 +26,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
-#include "vulkan/vulkan.h"
+#include <unordered_set>
 
 namespace gfxrecon::decode
 {
@@ -36,6 +36,12 @@ struct VulkanReplayDeviceInfo;
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+static const std::unordered_set<std::string> kVulkanDepthStencilResolveExtensions = {
+    VK_KHR_MAINTENANCE_10_EXTENSION_NAME,
+    VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
+};
 
 struct VulkanInstanceUtilInfo;
 
@@ -60,6 +66,15 @@ struct VulkanDevicePropertyFeatureInfo
     VkBool32 feature_descriptorBufferCaptureReplay{ VK_FALSE };
 
     VkBool32 feature_samplerYcbcrConversion{ VK_FALSE };
+
+    VkBool32 feature_maintenance10{ VK_FALSE };
+
+    VkBool32 feature_dynamic_rendering{ VK_FALSE };
+
+    // This aggregates the support of the two required extensions (VK_KHR_dynamic_rendering and
+    // VK_KHR_depth_stencil_resolve) that are used in order to handle resolve of multisampled depth-stencil images
+    // through dynamic rendering.
+    bool dynamic_rendering_depth_stencil_resolve{ false };
 
     VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_properties;
 };
@@ -97,6 +112,12 @@ class VulkanDeviceUtil
                                                   const graphics::VulkanInstanceTable* instance_table,
                                                   const VkPhysicalDevice               physical_device,
                                                   T*                                   feature_struct);
+
+    template <typename T>
+    VkBool32 EnableDynamicRenderingFeatures(const VulkanInstanceUtilInfo&        instance_info,
+                                            const graphics::VulkanInstanceTable* instance_table,
+                                            const VkPhysicalDevice               physical_device,
+                                            T*                                   feature_struct);
 
     // VkPhysicalDeviceBufferDeviceAddressFeatures::bufferDeviceAddressCaptureReplay
     VkBool32* bufferDeviceAddressCaptureReplay_ptr{ nullptr };

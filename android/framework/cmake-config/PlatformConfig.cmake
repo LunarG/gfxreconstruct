@@ -67,6 +67,10 @@ configure_file("${GFXRECON_SOURCE_DIR}/project_version_string.h.in" "${CMAKE_BIN
 add_library(project_version "${GFXRECON_SOURCE_DIR}/project_version.cpp")
 target_include_directories(project_version PUBLIC "${CMAKE_BINARY_DIR}")
 
+# For now, Android requires Vulkan to be enabled
+set(GFXRECON_ENABLE_VULKAN ON)
+add_definitions(-DGFXRECON_ENABLE_VULKAN)
+
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE
                                 _FILE_OFFSET_BITS=64
@@ -96,3 +100,9 @@ include_directories("${GFXRECON_SOURCE_DIR}/external/SPIRV-Reflect")
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
+# No-op stub so shared framework CMakeLists.txt files can call this macro on
+# Android without error.  The desktop root CMakeLists.txt provides the real
+# implementation that wires up code-style checks, lint, and the test package.
+macro(common_build_directives TARGET)
+endmacro()

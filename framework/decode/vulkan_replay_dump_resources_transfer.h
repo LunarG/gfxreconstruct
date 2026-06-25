@@ -387,15 +387,7 @@ class TransferDumpingContext
             // Then we do the same copy regions to the new image
             CopiedImage copied_image;
 
-            struct CopyRegion
-            {
-                CopyRegion() = delete;
-
-                CopyRegion(const VkBufferImageCopy& r) : region(r) {}
-                VkBufferImageCopy region;
-            };
-
-            std::vector<CopyRegion> regions;
+            std::vector<VkBufferImageCopy> regions;
         };
 
         // CmdCopyImage
@@ -435,15 +427,7 @@ class TransferDumpingContext
             // Then we do the same copy regions to the new image
             CopiedImage copied_image;
 
-            struct CopyRegion
-            {
-                CopyRegion() = delete;
-
-                CopyRegion(const VkImageCopy& r) : region(r) {}
-                VkImageCopy region;
-            };
-
-            std::vector<CopyRegion> regions;
+            std::vector<VkImageCopy> regions;
         };
 
         // CmdCopyImageToBuffer
@@ -533,15 +517,7 @@ class TransferDumpingContext
             // Then we do the same copy regions to the new image
             CopiedImage copied_image;
 
-            struct CopyRegion
-            {
-                CopyRegion() = delete;
-
-                CopyRegion(const VkImageBlit& r) : region(r) {}
-                VkImageBlit region;
-            };
-
-            std::vector<CopyRegion> regions;
+            std::vector<VkImageBlit> regions;
         };
 
         struct CopiedAccelerationStructure
