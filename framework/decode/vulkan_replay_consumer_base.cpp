@@ -3543,6 +3543,50 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                                                      modified_create_info.pNext,
                                                      modified_create_info.pEnabledFeatures,
                                                      options_.remove_unsupported_features);
+
+    // the address-replacer's injected compute-shaders use Device-scope atomics, which require
+    // vulkanMemoryModelDeviceScope when the memory-model is enabled (VUID-RuntimeSpirv-vulkanMemoryModel-06265).
+    auto* memory_model_features =
+        graphics::vulkan_struct_get_pnext<VkPhysicalDeviceVulkanMemoryModelFeatures>(&modified_create_info);
+    auto* vulkan_1_2_features =
+        graphics::vulkan_struct_get_pnext<VkPhysicalDeviceVulkan12Features>(&modified_create_info);
+    const bool memory_model_enabled = (memory_model_features != nullptr && memory_model_features->vulkanMemoryModel) ||
+                                      (vulkan_1_2_features != nullptr && vulkan_1_2_features->vulkanMemoryModel);
+
+    if (memory_model_enabled)
+    {
+        // Mirror UseAddressReplacement(): address-replacement is active when the allocator uses non-opaque addresses.
+        std::unique_ptr<VulkanResourceAllocator> probe_allocator(options_.create_resource_allocator());
+        const bool use_address_replacement = probe_allocator && !probe_allocator->SupportsOpaqueDeviceAddresses();
+
+        if (use_address_replacement)
+        {
+            VkPhysicalDeviceVulkanMemoryModelFeatures supported_memory_model{
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES
+            };
+            VkPhysicalDeviceFeatures2 supported_features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+                                                          &supported_memory_model };
+            instance_table->GetPhysicalDeviceFeatures2(physical_device, &supported_features);
+
+            if (supported_memory_model.vulkanMemoryModelDeviceScope)
+            {
+                if (memory_model_features != nullptr)
+                {
+                    memory_model_features->vulkanMemoryModelDeviceScope = VK_TRUE;
+                }
+                if (vulkan_1_2_features != nullptr)
+                {
+                    vulkan_1_2_features->vulkanMemoryModelDeviceScope = VK_TRUE;
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Replay device does not support vulkanMemoryModelDeviceScope; the address-replacer "
+                    "compute-shaders may fail to create with -m rebind.");
+            }
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDeviceInfo* physical_device_info,

@@ -542,6 +542,39 @@ VulkanAddressReplacer::ResolveBufferAddresses(std::vector<VulkanCommandBufferInf
         }
     }
 
+    // drop heuristic false-positives: keep only host-visible candidates whose stored value resolves to a tracked
+    // capture-address (device-local candidates are hashmap-filtered by the dispatch).
+    std::unordered_map<const VulkanBufferInfo*, void*> mapped_buffers;
+    std::erase_if(addresses_to_replace, [&](VkDeviceAddress location) {
+        const auto* buffer_info = address_tracker.GetBufferByReplayDeviceAddress(location);
+        if (buffer_info == nullptr || !(buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
+        {
+            // cannot cheaply inspect -> keep
+            return false;
+        }
+
+        // map each candidate-buffer at most once
+        auto [it, inserted] = mapped_buffers.try_emplace(buffer_info, nullptr);
+        if (inserted)
+        {
+            resource_allocator_->MapResourceMemoryDirect(VK_WHOLE_SIZE, 0, &it->second, buffer_info->allocator_data);
+        }
+        if (it->second == nullptr)
+        {
+            return false;
+        }
+        const VkDeviceAddress stored = *reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(it->second) +
+                                                                           (location - buffer_info->replay_address));
+        return address_tracker.GetBufferByCaptureDeviceAddress(stored) == nullptr;
+    });
+    for (const auto& [buffer_info, ptr] : mapped_buffers)
+    {
+        if (ptr != nullptr)
+        {
+            resource_allocator_->UnmapResourceMemoryDirect(buffer_info->allocator_data);
+        }
+    }
+
     return { addresses_to_replace, cmd_buf_info };
 }
 
@@ -1727,7 +1760,11 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
     VkAccelerationStructureKHR                acceleration_structure,
     const decode::VulkanDeviceAddressTracker& address_tracker)
 {
-    if (init_queue_assets())
+    if (!init_queue_assets() || !init_as_compact_query_pool())
+    {
+        return;
+    }
+
     {
         // reset/submit/sync command-buffer
         QueueSubmitHelper queue_submit_helper(
@@ -1893,6 +1930,20 @@ bool VulkanAddressReplacer::init_queue_assets()
         return false;
     }
 
+    device_table_->GetDeviceQueue(device_, 0, 0, &queue_);
+    GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
+
+    bool submit_asset_created = create_submit_asset(submit_asset_);
+    return queue_ != VK_NULL_HANDLE && submit_asset_created;
+}
+
+bool VulkanAddressReplacer::init_as_compact_query_pool()
+{
+    if (query_pool_ != VK_NULL_HANDLE)
+    {
+        return true;
+    }
+
     VkQueryPoolCreateInfo pool_info;
     pool_info.sType              = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     pool_info.pNext              = nullptr;
@@ -1900,18 +1951,12 @@ bool VulkanAddressReplacer::init_queue_assets()
     pool_info.queryType          = VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR;
     pool_info.queryCount         = 1;
     pool_info.pipelineStatistics = 0;
-    result                       = device_table_->CreateQueryPool(device_, &pool_info, nullptr, &query_pool_);
-    if (result != VK_SUCCESS)
+    if (device_table_->CreateQueryPool(device_, &pool_info, nullptr, &query_pool_) != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal query-pool creation failed");
         return false;
     }
-
-    device_table_->GetDeviceQueue(device_, 0, 0, &queue_);
-    GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
-
-    bool submit_asset_created = create_submit_asset(submit_asset_);
-    return queue_ != VK_NULL_HANDLE && submit_asset_created;
+    return true;
 }
 
 bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_t& buffer_context,
