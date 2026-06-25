@@ -27,11 +27,12 @@
 #include "decode/vulkan_replay_consumer_base.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
+#include "decode/api_decoder.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
+class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, public LoopStartListener
 {
   public:
     VulkanReplayFrameLoopConsumer(std::shared_ptr<application::Application> application,
@@ -42,6 +43,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     {}
 
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
+
+    virtual void OnLoopStart() override;
+
+    virtual void ProcessStateEndMarker(uint64_t frame_number) override;
 
     void Process_vkCreateCommandPool(const ApiCallInfo&                                     call_info,
                                      VkResult                                               returnValue,
@@ -81,34 +86,16 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                       uint32_t                               descriptorSetCount,
                                       HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    void Process_vkWaitForFences(const ApiCallInfo&             call_info,
-                                 VkResult                       returnValue,
-                                 format::HandleId               device,
-                                 uint32_t                       fenceCount,
-                                 HandlePointerDecoder<VkFence>* pFences,
-                                 VkBool32                       waitAll,
-                                 uint64_t                       timeout) override;
-
-    void Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
-                               VkResult                                    returnValue,
-                               format::HandleId                            queue,
-                               uint32_t                                    submitCount,
-                               StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                               format::HandleId                            fence) override;
-
-    void Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
-                                       VkResult                  returnValue,
-                                       format::HandleId          device,
-                                       format::HandleId          swapchain,
-                                       uint64_t                  timeout,
-                                       format::HandleId          semaphore,
-                                       format::HandleId          fence,
-                                       PointerDecoder<uint32_t>* pImageIndex) override;
-
     void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
                                    VkResult                                        returnValue,
                                    format::HandleId                                queue,
                                    StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo) override;
+
+    void Process_vkCmdWriteTimestamp(const ApiCallInfo&      call_info,
+                                     format::HandleId        commandBuffer,
+                                     VkPipelineStageFlagBits pipelineStage,
+                                     format::HandleId        queryPool,
+                                     uint32_t                query) override;
 
     void Process_vkMapMemory(const ApiCallInfo&               call_info,
                              VkResult                         returnValue,
@@ -131,12 +118,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     // Private declarations
   private:
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
-    struct FenceTracking
-    {
-        std::unordered_map<format::HandleId, uint32_t> signaled_fences_;
-        std::unordered_map<format::HandleId, uint32_t> waited_upon_fences_;
-    };
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
+    void CaptureInitialFenceStates();
 
     // Private data
   private:
@@ -150,7 +133,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_pools_;
     std::unordered_set<format::HandleId> dangling_destroy_descriptor_sets_;
 
-    std::unordered_map<format::HandleId, FenceTracking> per_device_fence_tracking_;
+    std::unordered_map<format::HandleId, VkResult> initial_fence_states_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;

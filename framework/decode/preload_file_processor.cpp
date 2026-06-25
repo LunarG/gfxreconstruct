@@ -25,6 +25,7 @@
 #include "decode/preload_file_processor.h"
 #include "decode/file_processor_visitors.h"
 #include "util/logging.h"
+#include "decode/api_decoder.h"
 
 #include <memory>
 
@@ -37,8 +38,23 @@ void PreloadFileProcessor::PreloadLoopFrame()
 {
     PreloadNextFrames(1);
     loop_replay_ = true;
-    loop_bookmark_ =
-        SkipStateBlocks(dispatch_frame_number_, preload_batch_iterator_.MakeBookmark(preload_block_iterator_));
+
+    if (GetCurrentFrameNumber() == 0)
+    {
+        loop_bookmark_ =
+            SkipStateBlocks(dispatch_frame_number_, preload_batch_iterator_.MakeBookmark(preload_block_iterator_));
+    }
+    else
+    {
+        loop_bookmark_ = preload_batch_iterator_.MakeBookmark(preload_block_iterator_);
+
+        // For N > 1, the state is already booted up, so we capture immediately!
+        WaitDecodersIdle();
+        for (auto decoder : decoders_)
+        {
+            decoder->OnLoopStart();
+        }
+    }
 }
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {
