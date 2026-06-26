@@ -124,18 +124,19 @@ LayoutInfo compute_type_layout(const SpvReflectTypeDescription* type_description
     return { alignment, num_bytes };
 }
 
-static bool check_type_potential_ref(const SpvReflectTypeDescription* td)
+static bool check_type_potential_ref(const SpvReflectTypeDescription* td, bool allow_uvec2)
 {
-    return td->storage_class == spv::StorageClassPhysicalStorageBuffer ||
-           // uint64_t
-           (td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64 && !td->traits.numeric.scalar.signedness) ||
-           // uvec2
-           (td->op == SpvOpTypeVector && td->traits.numeric.vector.component_count == 2 &&
-            td->traits.numeric.scalar.width == 32 && !td->traits.numeric.scalar.signedness) ||
-           // uvec2 array
-           ((td->op == SpvOpTypeRuntimeArray || td->op == SpvOpTypeArray) &&
-            td->traits.numeric.vector.component_count == 2 && td->traits.numeric.scalar.width == 32 &&
-            !td->traits.numeric.scalar.signedness);
+    if (td->storage_class == spv::StorageClassPhysicalStorageBuffer ||
+        // uint64_t
+        (td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64 && !td->traits.numeric.scalar.signedness))
+    {
+        return true;
+    }
+
+    const bool is_uvec2 = td->traits.numeric.vector.component_count == 2 && td->traits.numeric.scalar.width == 32 &&
+                          !td->traits.numeric.scalar.signedness;
+    return allow_uvec2 && is_uvec2 &&
+           (td->op == SpvOpTypeVector || td->op == SpvOpTypeRuntimeArray || td->op == SpvOpTypeArray);
 }
 
 // Instruction represents a single Spv::Op instruction.
@@ -331,11 +332,60 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     }
     instructions.shrink_to_fit();
 
+    // build the result-id -> instruction lookup once
+    for (const Instruction& insn : instructions)
+    {
+        if (insn.resultId() != 0)
+        {
+            definitions_[insn.resultId()] = &insn;
+        }
+    }
+
     if (spv_shader_module == std::nullopt)
     {
         // spirv-reflect parsing only on-demand
         spv_shader_module = SpvReflectShaderModule();
         spvReflectCreateShaderModule(spirv_num_bytes, spirv_code, &spv_shader_module.value());
+    }
+
+    // only consider uvec2 as potential BDAs when the module actually casts uvec2 into a buffer-pointers
+    bool allow_uvec2_ref = false;
+    {
+        auto is_uvec2_value = [this](uint32_t id) {
+            const Instruction* value = FindDef(id);
+            const Instruction* vec   = value != nullptr ? FindDef(value->typeId()) : nullptr;
+            if (vec == nullptr || vec->opcode() != spv::OpTypeVector || vec->operand(1) != 2)
+            {
+                return false;
+            }
+            const Instruction* comp = FindDef(vec->operand(0));
+            return comp != nullptr && comp->opcode() == spv::OpTypeInt && comp->operand(0) == 32;
+        };
+        auto is_physical_storage_pointer = [this](uint32_t type_id) {
+            const Instruction* type = FindDef(type_id);
+            return type != nullptr && type->opcode() == spv::OpTypePointer &&
+                   type->operand(0) == spv::StorageClassPhysicalStorageBuffer;
+        };
+        for (const Instruction& insn : instructions)
+        {
+            // direct uvec2 -> physical-storage-buffer pointer bitcast
+            if (insn.opcode() == spv::OpBitcast && is_physical_storage_pointer(insn.typeId()) &&
+                is_uvec2_value(insn.operand(0)))
+            {
+                allow_uvec2_ref = true;
+                break;
+            }
+            // uvec2 -> uint64 (bitcast) -> pointer (OpConvertUToPtr)
+            if (insn.opcode() == spv::OpConvertUToPtr)
+            {
+                const Instruction* src = FindDef(insn.operand(0));
+                if (src != nullptr && src->opcode() == spv::OpBitcast && is_uvec2_value(src->operand(0)))
+                {
+                    allow_uvec2_ref = true;
+                    break;
+                }
+            }
+        }
     }
 
     // forward spirv-reflect-pass
@@ -344,10 +394,10 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     if constexpr (use_forward_spirv_reflect_pass)
     {
         // define a function to walk blocks breadth-first and check for buffer-references
-        auto check_buffer_references = [this](const SpvReflectTypeDescription* type,
-                                              BufferReferenceLocation          source,
-                                              uint32_t                         set,
-                                              uint32_t                         binding) {
+        auto check_buffer_references = [this, allow_uvec2_ref](const SpvReflectTypeDescription* type,
+                                                               BufferReferenceLocation          source,
+                                                               uint32_t                         set,
+                                                               uint32_t                         binding) {
             struct queue_item_t
             {
                 const SpvReflectTypeDescription* type_description = nullptr;
@@ -372,7 +422,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                     member_names.emplace_back(td->struct_member_name ? td->struct_member_name : "unknown");
 
                     // we pick up potential buffer-references here and confirm later.
-                    bool is_potential_ref = check_type_potential_ref(td);
+                    bool is_potential_ref = check_type_potential_ref(td, allow_uvec2_ref);
 
                     if (td->op == SpvOpTypeArray || td->op == SpvOpTypeRuntimeArray)
                     {
@@ -627,17 +677,10 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
         }
     };
 
-    // now we walk the SPIR-V one more time to find remaining occurances of buffer-references.
+    // now we walk the SPIR-V one more time to find remaining occurrences of buffer-references.
     // that's e.g. cases when a uint64_t is casted. we can only tell by following back the dereferencing spv::OpLoad
     for (const Instruction& insn : instructions)
     {
-        // because it is SSA, we can build this up as we are looping in this pass
-        const uint32_t result_id = insn.resultId();
-        if (result_id != 0)
-        {
-            definitions_[result_id] = &insn;
-        }
-
         const uint32_t opcode = insn.opcode();
 
         if (opcode == spv::OpStore)

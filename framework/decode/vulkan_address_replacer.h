@@ -469,6 +469,9 @@ class VulkanAddressReplacer
 
     [[nodiscard]] bool init_queue_assets();
 
+    //! lazily create the acceleration-structure compacted-size query-pool (only used by AS-compaction).
+    [[nodiscard]] bool init_as_compact_query_pool();
+
     void update_global_hashmap(VkCommandBuffer command_buffer);
 
     void run_compute_replace(const VulkanCommandBufferInfo*    command_buffer_info,
