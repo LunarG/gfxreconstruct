@@ -38,11 +38,11 @@ void VulkanDecoderBase::WaitIdle()
     }
 }
 
-void VulkanDecoderBase::OnLoopStart()
+void VulkanDecoderBase::StartLooping()
 {
     for (auto consumer : consumers_)
     {
-        consumer->OnLoopStart();
+        consumer->StartLooping();
     }
 }
 

@@ -57,7 +57,7 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void WaitIdle() override;
 
-    virtual void OnLoopStart() override;
+    virtual void StartLooping() override;
 
     virtual bool IsComplete(uint64_t block_index) override
     {

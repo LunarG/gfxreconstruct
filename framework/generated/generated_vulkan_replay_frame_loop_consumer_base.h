@@ -117,6 +117,14 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
         format::HandleId                            fence) override;
 
+    void Process_vkCreateFence(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkFenceCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkFence>*              pFence) override;
+
     void Process_vkDestroyFence(
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,

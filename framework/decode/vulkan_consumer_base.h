@@ -51,7 +51,7 @@ class VulkanConsumerBase : public CommonConsumerBase
 
     virtual ~VulkanConsumerBase() {}
 
-    virtual void OnLoopStart() {}
+    virtual void StartLooping() {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
                                                            format::HandleId                 device,

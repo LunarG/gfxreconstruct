@@ -90,6 +90,11 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                HandlePointerDecoder<VkFence>*                       pFence) override;
 
+    void Process_vkDestroyFence(const ApiCallInfo&                                   call_info,
+                                format::HandleId                                     device,
+                                format::HandleId                                     fence,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
     void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
                                    VkResult                                        returnValue,
                                    format::HandleId                                queue,
@@ -113,7 +118,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, format::HandleId device) override;
 
-    virtual void OnLoopStart() override;
+    virtual void StartLooping() override;
 
     // Private declarations
   private:

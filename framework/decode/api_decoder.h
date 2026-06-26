@@ -57,7 +57,7 @@ class ApiDecoder
 
     virtual void WaitIdle() = 0;
 
-    virtual void OnLoopStart() {}
+    virtual void StartLooping() {}
 
     virtual bool IsComplete(uint64_t block_index) = 0;
 

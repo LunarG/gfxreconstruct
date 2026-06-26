@@ -42,7 +42,7 @@ void PreloadFileProcessor::PreloadLoopFrame()
 
     for (auto decoder : decoders_)
     {
-        decoder->OnLoopStart();
+        decoder->StartLooping();
     }
 }
 void PreloadFileProcessor::PreloadNextFrames(size_t count)

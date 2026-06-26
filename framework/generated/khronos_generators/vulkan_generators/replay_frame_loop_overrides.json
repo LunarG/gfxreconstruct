@@ -19,6 +19,7 @@
     "vkCreateDescriptorUpdateTemplateKHR",
     "vkCreateDevice",
     "vkCreateEvent",
+    "vkCreateFence",
     "vkCreateFramebuffer",
     "vkCreateImage",
     "vkCreateImageView",
