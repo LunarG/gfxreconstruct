@@ -332,6 +332,15 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     }
     instructions.shrink_to_fit();
 
+    // build the result-id -> instruction lookup once
+    for (const Instruction& insn : instructions)
+    {
+        if (insn.resultId() != 0)
+        {
+            definitions_[insn.resultId()] = &insn;
+        }
+    }
+
     if (spv_shader_module == std::nullopt)
     {
         // spirv-reflect parsing only on-demand
@@ -342,30 +351,18 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     // only consider uvec2 as potential BDAs when the module actually casts uvec2 into a buffer-pointers
     bool allow_uvec2_ref = false;
     {
-        std::unordered_map<uint32_t, const Instruction*> defs;
-        for (const Instruction& insn : instructions)
-        {
-            if (insn.resultId() != 0)
-            {
-                defs[insn.resultId()] = &insn;
-            }
-        }
-        auto find = [&defs](uint32_t id) -> const Instruction* {
-            auto it = defs.find(id);
-            return it != defs.end() ? it->second : nullptr;
-        };
-        auto is_uvec2_value = [&find](uint32_t id) {
-            const Instruction* value = find(id);
-            const Instruction* vec   = value != nullptr ? find(value->typeId()) : nullptr;
+        auto is_uvec2_value = [this](uint32_t id) {
+            const Instruction* value = FindDef(id);
+            const Instruction* vec   = value != nullptr ? FindDef(value->typeId()) : nullptr;
             if (vec == nullptr || vec->opcode() != spv::OpTypeVector || vec->operand(1) != 2)
             {
                 return false;
             }
-            const Instruction* comp = find(vec->operand(0));
+            const Instruction* comp = FindDef(vec->operand(0));
             return comp != nullptr && comp->opcode() == spv::OpTypeInt && comp->operand(0) == 32;
         };
-        auto is_physical_storage_pointer = [&find](uint32_t type_id) {
-            const Instruction* type = find(type_id);
+        auto is_physical_storage_pointer = [this](uint32_t type_id) {
+            const Instruction* type = FindDef(type_id);
             return type != nullptr && type->opcode() == spv::OpTypePointer &&
                    type->operand(0) == spv::StorageClassPhysicalStorageBuffer;
         };
@@ -381,7 +378,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
             // uvec2 -> uint64 (bitcast) -> pointer (OpConvertUToPtr)
             if (insn.opcode() == spv::OpConvertUToPtr)
             {
-                const Instruction* src = find(insn.operand(0));
+                const Instruction* src = FindDef(insn.operand(0));
                 if (src != nullptr && src->opcode() == spv::OpBitcast && is_uvec2_value(src->operand(0)))
                 {
                     allow_uvec2_ref = true;
@@ -680,17 +677,10 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
         }
     };
 
-    // now we walk the SPIR-V one more time to find remaining occurances of buffer-references.
+    // now we walk the SPIR-V one more time to find remaining occurrences of buffer-references.
     // that's e.g. cases when a uint64_t is casted. we can only tell by following back the dereferencing spv::OpLoad
     for (const Instruction& insn : instructions)
     {
-        // because it is SSA, we can build this up as we are looping in this pass
-        const uint32_t result_id = insn.resultId();
-        if (result_id != 0)
-        {
-            definitions_[result_id] = &insn;
-        }
-
         const uint32_t opcode = insn.opcode();
 
         if (opcode == spv::OpStore)

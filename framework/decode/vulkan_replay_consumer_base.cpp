@@ -3555,11 +3555,8 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 
     if (memory_model_enabled)
     {
-        // Mirror UseAddressReplacement(): address-replacement is active when the allocator uses non-opaque addresses.
-        std::unique_ptr<VulkanResourceAllocator> probe_allocator(options_.create_resource_allocator());
-        const bool use_address_replacement = probe_allocator && !probe_allocator->SupportsOpaqueDeviceAddresses();
-
-        if (use_address_replacement)
+        // no device exists yet -> UseAddressReplacement(nullptr) probes a throwaway allocator.
+        if (UseAddressReplacement(nullptr))
         {
             VkPhysicalDeviceVulkanMemoryModelFeatures supported_memory_model{
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES
@@ -11831,6 +11828,12 @@ bool VulkanReplayConsumerBase::UseExtraDescriptorInfo(const VulkanDeviceInfo* de
 
 bool VulkanReplayConsumerBase::UseAddressReplacement(const VulkanDeviceInfo* device_info) const
 {
+    // Before the device exists (e.g. during device-creation) probe a throwaway allocator instead.
+    if (device_info == nullptr)
+    {
+        std::unique_ptr<VulkanResourceAllocator> probe_allocator(options_.create_resource_allocator());
+        return probe_allocator && !probe_allocator->SupportsOpaqueDeviceAddresses();
+    }
     return !device_info->allocator->SupportsOpaqueDeviceAddresses();
 }
 
