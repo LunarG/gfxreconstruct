@@ -365,11 +365,11 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
             // Create one command buffer per queue per swapchain image so that we don't reset a command buffer that
             // may be in active use.
             uint32_t command_buffer_count = static_cast<uint32_t>(copy_cmd_data.command_buffers.size());
-            if (command_buffer_count < capture_image_count)
+            if (command_buffer_count < *replay_image_count)
             {
-                copy_cmd_data.command_buffers.resize(capture_image_count);
+                copy_cmd_data.command_buffers.resize(*replay_image_count);
 
-                uint32_t                    new_count     = capture_image_count - command_buffer_count;
+                uint32_t                    new_count     = *replay_image_count - command_buffer_count;
                 VkCommandBufferAllocateInfo allocate_info = {
                     VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, // sType
                     nullptr,                                        // pNext
@@ -417,11 +417,11 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const VulkanDeviceI
                 }
             }
             uint32_t fence_count = static_cast<uint32_t>(copy_cmd_data.fences.size());
-            if (fence_count < capture_image_count)
+            if (fence_count < *replay_image_count)
             {
-                copy_cmd_data.fences.resize(capture_image_count);
+                copy_cmd_data.fences.resize(*replay_image_count);
 
-                for (uint32_t ii = fence_count; ii < capture_image_count; ++ii)
+                for (uint32_t ii = fence_count; ii < *replay_image_count; ++ii)
                 {
                     VkFenceCreateInfo fence_create_info = {
                         VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, // sType
@@ -958,12 +958,12 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         const auto& virtual_image = swapchain_resources->virtual_swapchain_images[capture_image_index];
         const auto& replay_image  = swapchain_resources->replay_swapchain_images[replay_image_index];
 
-        // Use a command buffer and fence from the same queue index
-        auto& copy_cmd_data  = swapchain_resources->copy_cmd_data[queue_family_index];
-        auto  command_buffer = copy_cmd_data.command_buffers[capture_image_index];
-        auto  copy_fence     = copy_cmd_data.fences[capture_image_index];
-        // The semaphore will be waited by the present which should be coordinated by hardware image indices
+        // Use copy resources from the same queue index
+        auto& copy_cmd_data = swapchain_resources->copy_cmd_data[queue_family_index];
+        // Copy resources should be associated to the frames in flight, which is our real images
+        auto command_buffer = copy_cmd_data.command_buffers[replay_image_index];
         auto copy_semaphore = copy_cmd_data.semaphores[replay_image_index];
+        auto copy_fence     = copy_cmd_data.fences[replay_image_index];
 
         std::vector<VkSemaphore> wait_semaphores;
         std::vector<VkSemaphore> signal_semaphores;
