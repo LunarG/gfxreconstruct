@@ -306,10 +306,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
         // Record this fence as having an initial state of unsignaled
-        if (!per_device_fence_tracking_.contains(device))
-        {
-            per_device_fence_tracking_[device] = {};
-        }
         FenceTracking& t = per_device_fence_tracking_[device];
         bool           signaled =
             (pCreateInfo->GetPointer()->flags & VK_FENCE_CREATE_SIGNALED_BIT) == VK_FENCE_CREATE_SIGNALED_BIT;
@@ -340,10 +336,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(
 void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, format::HandleId fence)
 {
     // If fence hasn't been seen yet, check and store the state it is in.
-    if (!per_device_fence_tracking_.contains(device))
-    {
-        per_device_fence_tracking_[device] = {};
-    }
     FenceTracking& t = per_device_fence_tracking_[device];
     if (!t.initial_fence_states_.contains(fence))
     {
