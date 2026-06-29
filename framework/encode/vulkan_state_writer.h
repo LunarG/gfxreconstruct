@@ -456,6 +456,8 @@ class VulkanStateWriter
     // Keeps track of buffer- and acceleration-structure device addresses
     const std::unordered_map<VkDevice, encode::VulkanDeviceAddressTracker>& device_address_trackers_;
 
+    std::unordered_map<format::HandleId, VkPhysicalDeviceProperties> physical_device_properties_;
+
     util::FileOutputStream* asset_file_stream_;
     std::string             asset_file_name_;
     AssetFileOffsetsInfo*   asset_file_offsets_;

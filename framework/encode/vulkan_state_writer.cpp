@@ -2187,6 +2187,12 @@ void VulkanStateWriter::WritePhysicalDeviceExtensionPropertiesState(const Vulkan
 
         if (properties2.pNext != nullptr)
         {
+            const auto entry = physical_device_properties_.find(wrapper->handle_id);
+            if (entry != physical_device_properties_.end())
+            {
+                properties2.properties = entry->second;
+            }
+
             parameter_stream_.Clear();
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
             EncodeStructPtr(&encoder_, &properties2);
@@ -3544,6 +3550,8 @@ void VulkanStateWriter::WritePhysicalDevicePropertiesMetaData(
     VkPhysicalDeviceProperties properties;
 
     instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);
+
+    physical_device_properties_[physical_device_id] = properties;
 
     WriteSetDevicePropertiesCommand(physical_device_id, properties);
     WriteSetDeviceMemoryPropertiesCommand(physical_device_id, physical_device_wrapper->memory_properties);
