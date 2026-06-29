@@ -281,9 +281,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_KHR", kPresentModeFifo);
     GFXRECON_WRITE_CONSOLE("          \t\t\t%s: VK_PRESENT_MODE_FIFO_RELAXED_KHR", kPresentModeFifoRelaxed);
     GFXRECON_WRITE_CONSOLE("  --present-override <debug-name>");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tPresent an image identified by its debug-utils name.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tUseful for capturing specific render targets.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tThe specified image will be presented and used for screenshot operations");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tAdditionally present an image identified by a substring match against its");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tVK_EXT_debug_utils object name (depth/stencil images are ignored). The");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tmatched image is presented in a dedicated swapchain on every present and");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tused for screenshot operations. Multi-layer images are presented in a");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tseparate window per array layer. If multiple images match, the most");
+    GFXRECON_WRITE_CONSOLE("       \t\t\trecently named one is used.");
     GFXRECON_WRITE_CONSOLE("  --vssb");
     GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");

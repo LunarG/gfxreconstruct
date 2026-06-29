@@ -622,6 +622,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--swapchain MODE] [--use-captured-swapchain-indices]
                         [--present-mode <mode>]
+                        [--present-override <debug-name>]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
@@ -793,6 +794,14 @@ Optional arguments:
                             mailbox: VK_PRESENT_MODE_MAILBOX_KHR
                             fifo: VK_PRESENT_MODE_FIFO_KHR
                             fifo_relaxed: VK_PRESENT_MODE_FIFO_RELAXED_KHR
+  --present-override <debug-name>
+                        Additionally present an image identified by a substring
+                        match against its VK_EXT_debug_utils object name
+                        (depth/stencil images are ignored). The matched image is
+                        presented in a dedicated swapchain on every present and
+                        used for screenshot operations. Multi-layer images are
+                        presented in a separate window per array layer. If multiple
+                        images match, the most recently named one is used.
   --vssb
                         Skip blit to real swapchain to gain performance during replay.
   --use-captured-swapchain-indices
