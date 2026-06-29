@@ -2112,26 +2112,89 @@ VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
     // waits.
     std::vector<VkSemaphore>          wait_semaphores(submit_info_2.waitSemaphoreInfoCount);
     std::vector<VkPipelineStageFlags> wait_stage_masks(submit_info_2.waitSemaphoreInfoCount);
+    std::vector<uint64_t>             wait_values(submit_info_2.waitSemaphoreInfoCount);
+    std::vector<uint32_t>             wait_device_indices(submit_info_2.waitSemaphoreInfoCount);
+    bool                              has_device_group = false;
     for (uint32_t i = 0; i < submit_info_2.waitSemaphoreInfoCount; ++i)
     {
-        wait_semaphores[i]  = submit_info_2.pWaitSemaphoreInfos[i].semaphore;
-        wait_stage_masks[i] = static_cast<VkPipelineStageFlags>(submit_info_2.pWaitSemaphoreInfos[i].stageMask);
+        wait_semaphores[i]     = submit_info_2.pWaitSemaphoreInfos[i].semaphore;
+        wait_stage_masks[i]    = static_cast<VkPipelineStageFlags>(submit_info_2.pWaitSemaphoreInfos[i].stageMask);
+        wait_values[i]         = submit_info_2.pWaitSemaphoreInfos[i].value;
+        wait_device_indices[i] = submit_info_2.pWaitSemaphoreInfos[i].deviceIndex;
+        has_device_group |= wait_device_indices[i] != 0;
     }
 
     std::vector<VkCommandBuffer> command_buffers(submit_info_2.commandBufferInfoCount);
+    std::vector<uint32_t>        command_buffer_device_masks(submit_info_2.commandBufferInfoCount);
     for (uint32_t i = 0; i < submit_info_2.commandBufferInfoCount; ++i)
     {
-        command_buffers[i] = submit_info_2.pCommandBufferInfos[i].commandBuffer;
+        command_buffers[i]             = submit_info_2.pCommandBufferInfos[i].commandBuffer;
+        command_buffer_device_masks[i] = submit_info_2.pCommandBufferInfos[i].deviceMask;
+        has_device_group |= command_buffer_device_masks[i] != 0;
     }
 
     std::vector<VkSemaphore> signal_semaphores(submit_info_2.signalSemaphoreInfoCount);
+    std::vector<uint64_t>    signal_values(submit_info_2.signalSemaphoreInfoCount);
+    std::vector<uint32_t>    signal_device_indices(submit_info_2.signalSemaphoreInfoCount);
     for (uint32_t i = 0; i < submit_info_2.signalSemaphoreInfoCount; ++i)
     {
-        signal_semaphores[i] = submit_info_2.pSignalSemaphoreInfos[i].semaphore;
+        signal_semaphores[i]     = submit_info_2.pSignalSemaphoreInfos[i].semaphore;
+        signal_values[i]         = submit_info_2.pSignalSemaphoreInfos[i].value;
+        signal_device_indices[i] = submit_info_2.pSignalSemaphoreInfos[i].deviceIndex;
+        has_device_group |= signal_device_indices[i] != 0;
+    }
+
+    // VkSubmitInfo2 carries timeline values and device-group indices/masks inline in its sub-structures, whereas
+    // VkSubmitInfo conveys them through pNext structures. Reconstruct those structures and chain them ahead of the
+    // original pNext-chain.
+    const void* pnext = submit_info_2.pNext;
+
+    // Timeline semaphore values. Values for binary semaphores are ignored, so this can be attached unconditionally.
+    const VkTimelineSemaphoreSubmitInfo timeline_submit_info{
+        VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
+        pnext,
+        submit_info_2.waitSemaphoreInfoCount,
+        submit_info_2.waitSemaphoreInfoCount ? wait_values.data() : nullptr,
+        submit_info_2.signalSemaphoreInfoCount,
+        submit_info_2.signalSemaphoreInfoCount ? signal_values.data() : nullptr
+    };
+
+    if (submit_info_2.waitSemaphoreInfoCount || submit_info_2.signalSemaphoreInfoCount)
+    {
+        pnext = &timeline_submit_info;
+    }
+
+    // Device-group indices/masks. Only reconstruct when at least one index/mask is non-zero: an absent
+    // VkDeviceGroupSubmitInfo already yields the default single-device behavior, and an all-zero device mask is not a
+    // valid mask value.
+    const VkDeviceGroupSubmitInfo device_group_submit_info{
+        VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO,
+        pnext,
+        submit_info_2.waitSemaphoreInfoCount,
+        submit_info_2.waitSemaphoreInfoCount ? wait_device_indices.data() : nullptr,
+        submit_info_2.commandBufferInfoCount,
+        submit_info_2.commandBufferInfoCount ? command_buffer_device_masks.data() : nullptr,
+        submit_info_2.signalSemaphoreInfoCount,
+        submit_info_2.signalSemaphoreInfoCount ? signal_device_indices.data() : nullptr
+    };
+
+    if (has_device_group)
+    {
+        pnext = &device_group_submit_info;
+    }
+
+    // Handle protected queue submissions
+    const bool is_protected_submission = (submit_info_2.flags & VK_SUBMIT_PROTECTED_BIT) == VK_SUBMIT_PROTECTED_BIT;
+    const VkProtectedSubmitInfo protected_submit_info{ VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO,
+                                                       pnext,
+                                                       is_protected_submission ? VK_TRUE : VK_FALSE };
+    if (is_protected_submission)
+    {
+        pnext = &protected_submit_info;
     }
 
     const VkSubmitInfo submit_info{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                                    submit_info_2.pNext,
+                                    pnext,
                                     submit_info_2.waitSemaphoreInfoCount,
                                     submit_info_2.waitSemaphoreInfoCount ? wait_semaphores.data() : nullptr,
                                     submit_info_2.waitSemaphoreInfoCount ? wait_stage_masks.data() : nullptr,
