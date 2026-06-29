@@ -428,7 +428,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_A
             // These cases have no additional values to encode.
             break;
         default:
-            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_BEGINNING_ACCESS union type %u", value.Type);
+            GFXRECON_LOG_ERROR_ONCE("Unrecognized D3D12_RENDER_PASS_BEGINNING_ACCESS union type %u", value.Type);
             break;
     }
 }
@@ -453,7 +453,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCE
             // These cases have no additional values to encode.
             break;
         default:
-            GFXRECON_LOG_FATAL_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value.Type);
+            GFXRECON_LOG_ERROR_ONCE("Unrecognized D3D12_RENDER_PASS_ENDING_ACCESS union type %u", value.Type);
             break;
     }
 }
@@ -475,7 +475,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_SERIALIZED_RAYTRACING_A
             encoder->EncodeUInt32Value(value.NumBlocks);
             break;
         default:
-            GFXRECON_LOG_FATAL_ONCE(
+            GFXRECON_LOG_ERROR_ONCE(
                 "Unrecognized D3D12_SERIALIZED_RAYTRACING_ACCELERATION_STRUCTURE_HEADER1 union type %u",
                 value.HeaderPostambleType);
             break;
@@ -914,7 +914,7 @@ void EncodeDXGIFeatureStruct(ParameterEncoder* encoder, void* feature_data, DXGI
             encoder->EncodeInt32Value(*reinterpret_cast<int32_t*>(feature_data));
             break;
         default:
-            GFXRECON_LOG_FATAL("Failed to encode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
+            GFXRECON_LOG_ERROR("Failed to encode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
                                "unrecognized DXGI_FEATURE type %d",
                                feature);
             break;

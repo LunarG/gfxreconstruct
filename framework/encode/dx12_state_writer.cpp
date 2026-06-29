@@ -1734,7 +1734,7 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
         }
         else
         {
-            GFXRECON_LOG_FATAL("Failed to map inputs data resource for writing trimmed state for acceleration "
+            GFXRECON_LOG_ERROR("Failed to map inputs data resource for writing trimmed state for acceleration "
                                "structures. The capture file will be invalid.");
             continue;
         }

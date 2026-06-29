@@ -27,6 +27,8 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
+#include <stdexcept>
+
 #include "util/to_string.h"
 #include "util/strings.h"
 #include "util/date_time.h"
@@ -447,4 +449,29 @@ TEST_CASE("ExpandPathVariables", "[strings]")
 #endif
 
     Log::Release();
+}
+
+TEST_CASE("FatalCallback invoked on LOG_FATAL", "[logging]")
+{
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kFatal);
+
+    bool called = false;
+    gfxrecon::util::Log::SetFatalCallback([&called](const char*) {
+        called = true;
+        throw std::runtime_error("abort intercepted");
+    });
+    REQUIRE_THROWS_AS(([] { GFXRECON_LOG_FATAL("test fatal"); }()), std::runtime_error);
+    REQUIRE(called);
+
+    gfxrecon::util::Log::Release();
+}
+
+TEST_CASE("FatalCallback throw propagates", "[logging]")
+{
+    gfxrecon::util::Log::Init(gfxrecon::util::LoggingSeverity::kFatal);
+    gfxrecon::util::Log::SetFatalCallback([](const char* msg) { throw std::runtime_error(msg); });
+
+    REQUIRE_THROWS_AS(([] { GFXRECON_LOG_FATAL("test fatal throw"); }()), std::runtime_error);
+
+    gfxrecon::util::Log::Release();
 }

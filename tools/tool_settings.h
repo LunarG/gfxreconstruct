@@ -807,7 +807,6 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
     {
         GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\". Must have format: <start_frame>-<end_frame>",
                            value.c_str());
-        std::abort();
     }
 
     for (std::string& num : values)
@@ -820,7 +819,6 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
         {
             GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", which contains non-numeric values",
                                value.c_str());
-            std::abort();
         }
     }
 
@@ -832,7 +830,6 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
         GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is greater than or equal "
                            "to the last frame",
                            value.c_str());
-        std::abort();
     }
 
     if (start_frame_arg == 0)
@@ -840,7 +837,6 @@ GetMeasurementFrameRange(const gfxrecon::util::ArgumentParser& arg_parser, uint3
         GFXRECON_LOG_FATAL("Invalid measurement frame range \"%s\", where first frame is 0 which is invalid in "
                            "GFXReconstruct (frame count starts at 1)",
                            value.c_str());
-        std::abort();
     }
 
     start_frame = start_frame_arg;
@@ -1333,9 +1329,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         }
         else
         {
-            GFXRECON_LOG_FATAL("Unexpected value after '--skip-get-fence-status' : '%s'. Closing the program.",
-                               skip_get_fence_status.c_str());
-            abort();
+            GFXRECON_LOG_FATAL("Unexpected value after '--skip-get-fence-status': '%s'", skip_get_fence_status.c_str());
         }
     }
 

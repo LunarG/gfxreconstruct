@@ -2370,18 +2370,6 @@ void VulkanReplayDumpResourcesBase::OverrideCmdExecuteCommands(const ApiCallInfo
     }
 }
 
-void VulkanReplayDumpResourcesBase::DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler)
-{
-    fatal_error_handler_ = handler;
-}
-
-void VulkanReplayDumpResourcesBase::RaiseFatalError(const char* message) const
-{
-    if (fatal_error_handler_ != nullptr)
-    {
-        fatal_error_handler_(message);
-    }
-}
 
 void VulkanReplayDumpResourcesBase::OverrideCmdBuildAccelerationStructuresKHR(
     const VulkanCommandBufferInfo*                                             original_command_buffer,
@@ -3307,9 +3295,8 @@ void VulkanReplayDumpResourcesBase::ProcessStateEndMarker()
         if (res != VK_SUCCESS)
         {
             Release();
-            RaiseFatalError(("Dumping transfer commands from state setup section failed failed (" +
-                             util::ToString<VkResult>(res) + ")")
-                                .c_str());
+            GFXRECON_LOG_FATAL("Dumping transfer commands from state setup section failed (%s)",
+                               util::ToString<VkResult>(res).c_str());
         }
 
         // ProcessStateEndMarker marks the end of the state setup section. If a TransferDumpingContext was assigned to

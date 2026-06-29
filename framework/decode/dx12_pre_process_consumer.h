@@ -262,12 +262,12 @@ class Dx12PreProcessConsumer : public Dx12Consumer
     {
         if (track_submit_index_ <= dump_resources_target_.submit_index)
         {
-            GFXRECON_LOG_FATAL("The target submit index(%d) of dump resources is out of range(%d).",
+            GFXRECON_LOG_ERROR("The target submit index(%d) of dump resources is out of range(%d).",
                                dump_resources_target_.submit_index,
                                track_submit_index_);
             if (TEST_AVAILABLE_ARGS > 0)
             {
-                GFXRECON_LOG_FATAL("Although TEST_AVAILABLE_ARGS is enabled, it cann't find the available args that "
+                GFXRECON_LOG_ERROR("Although TEST_AVAILABLE_ARGS is enabled, it cann't find the available args that "
                                    "follow the original args.");
             }
             GFXRECON_ASSERT(track_submit_index_ > dump_resources_target_.submit_index);
@@ -796,7 +796,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                     }
                     else
                     {
-                        GFXRECON_LOG_FATAL("The target command index(%d) of dump resources is out of range(%d).",
+                        GFXRECON_LOG_ERROR("The target command index(%d) of dump resources is out of range(%d).",
                                            dump_resources_target_.command_index,
                                            NumCommandLists);
                         GFXRECON_ASSERT(NumCommandLists > dump_resources_target_.command_index);
@@ -894,7 +894,7 @@ class Dx12PreProcessConsumer : public Dx12Consumer
                         }
                         else
                         {
-                            GFXRECON_LOG_FATAL("The target draw call index(%d) of dump resources is out of range(%d).",
+                            GFXRECON_LOG_ERROR("The target draw call index(%d) of dump resources is out of range(%d).",
                                                dump_resources_target_.draw_call_index,
                                                all_draw_call_count);
                             GFXRECON_ASSERT(all_draw_call_count > dump_resources_target_.draw_call_index);

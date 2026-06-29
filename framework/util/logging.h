@@ -29,6 +29,7 @@
 #include "util/platform.h"
 
 #include <array>
+#include <functional>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -97,11 +98,16 @@ class Log
         bool output_to_os_debug_string{ false }; // Windows-specific output messages to OutputDebugString
     };
 
+    using FatalCallback = std::function<void(const char*)>;
+
     static void Init(LoggingSeverity min_severity = LoggingSeverity::kInfo);
 
     static void UpdateWithSettings(const Settings& settings);
 
-    static void Release() {}
+    // NOTE: not thread-safe. must be called before any concurrent logging.
+    static void SetFatalCallback(FatalCallback callback);
+
+    static void Release() { fatal_callback_ = {}; }
 
     static void LogMessage(
         LoggingSeverity severity, const char* file, const char* function, const char* line, const char* message, ...);
@@ -206,7 +212,8 @@ class Log
     static void        UpdateLogManagerComponents(gfxrecon::util::logging::LoggingManager& log_mgr);
     static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args);
 
-    static Settings settings_;
+    static Settings      settings_;
+    static FatalCallback fatal_callback_;
 };
 
 #ifdef GFXRECON_ENABLE_COMMAND_TRACE
@@ -314,7 +321,6 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 // clang-format off
 #define GFXRECON_WRITE_CONSOLE_ONCE(message, ...) GFXRECON_LOG_ONCE(GFXRECON_WRITE_CONSOLE(message, ##__VA_ARGS__))
-#define GFXRECON_LOG_FATAL_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_FATAL(message, ##__VA_ARGS__))
 #define GFXRECON_LOG_ERROR_ONCE(message, ...)     GFXRECON_LOG_ONCE(GFXRECON_LOG_ERROR(message, ##__VA_ARGS__))
 #define GFXRECON_LOG_WARNING_ONCE(message, ...)   GFXRECON_LOG_ONCE(GFXRECON_LOG_WARNING(message, ##__VA_ARGS__))
 #define GFXRECON_LOG_INFO_ONCE(message, ...)      GFXRECON_LOG_ONCE(GFXRECON_LOG_INFO(message, ##__VA_ARGS__))

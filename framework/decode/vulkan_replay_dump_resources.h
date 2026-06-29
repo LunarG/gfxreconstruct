@@ -616,8 +616,6 @@ class VulkanReplayDumpResourcesBase
         }
     }
 
-    void DumpResourcesSetFatalErrorHandler(std::function<void(const char*)> handler);
-
     // Handles population of acceleration_structures_context_ map. For each AS that is build an entry in that map is
     // created and the input buffers are cloned
     void OverrideCmdBuildAccelerationStructuresKHR(
@@ -918,8 +916,6 @@ class VulkanReplayDumpResourcesBase
     DumpResourcesAccelerationStructuresContext acceleration_structures_context_;
     bool                                       dump_as_build_input_buffers_;
 
-    std::function<void(const char*)> fatal_error_handler_;
-    void                             RaiseFatalError(const char* message) const;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

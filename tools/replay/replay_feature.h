@@ -128,10 +128,7 @@ class ReplayFeature : public ReplayFeatureBase
         application_    = application;
     }
 
-    void FinalizeConsumer()
-    {
-        replay_consumer_->SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-    }
+    void FinalizeConsumer() {}
 
     void RegisterConsumerAndDecoder(graphics::FpsInfo* fps_info)
     {

@@ -571,7 +571,7 @@ size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId
             // D3D12_FEATURE_SHADER_CACHE_ABI_SUPPORT has no corresponding structure.
             break;
         default:
-            GFXRECON_LOG_FATAL("Failed to decode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
+            GFXRECON_LOG_ERROR("Failed to decode ID3D12Device::CheckFeatureSupport pFeatureData parameter with "
                                "unrecognized D3D12_FEATURE type %d",
                                feature);
             break;
@@ -615,7 +615,7 @@ size_t Dx12DecoderBase::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleI
         }
         break;
         default:
-            GFXRECON_LOG_FATAL("Failed to decode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
+            GFXRECON_LOG_ERROR("Failed to decode IDXGIFactory5::CheckFeatureSupport pFeatureData parameter with "
                                "unrecognized DXGI_FEATURE type %d",
                                feature);
             break;

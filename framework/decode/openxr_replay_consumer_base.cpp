@@ -1453,7 +1453,6 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
                            call_info.index,
                            call_info.thread_id,
                            util::ToString<XrResult>(result).c_str());
-        RaiseFatalError(enumutil::GetResultDescription(result));
     }
 }
 
@@ -1842,7 +1841,6 @@ void OpenXrReplayConsumerBase::CheckResult(const char*                func_name,
                                    util::ToString<XrResult>(replay).c_str(),
                                    util::ToString<XrResult>(original).c_str());
 
-                RaiseFatalError(enumutil::GetResultDescription(replay));
             }
             else
             {
@@ -1871,14 +1869,6 @@ void OpenXrReplayConsumerBase::CheckResult(const char*                func_name,
     }
 }
 
-void OpenXrReplayConsumerBase::RaiseFatalError(const char* message) const
-{
-    // TODO: Should there be a default action if no error handler has been provided?
-    if (fatal_error_handler_ != nullptr)
-    {
-        fatal_error_handler_(message);
-    }
-}
 
 openxr::GraphicsBinding OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_XrSessionCreateInfo* create_info)
 {

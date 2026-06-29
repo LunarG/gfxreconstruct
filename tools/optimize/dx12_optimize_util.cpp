@@ -24,6 +24,7 @@
 #include "dx12_optimize_util.h"
 #include "block_skipping_file_processor.h"
 #include "dx12_resource_value_tracking_consumer.h"
+#include "util/logging.h"
 
 #include "dx12_file_optimizer.h"
 #include "decode/dx12_object_info.h"
@@ -81,8 +82,6 @@ void CreateResourceValueTrackingConsumer(
     // Create the replay consumer.
     dx12_replay_consumer = std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(
         application, dx_replay_options, options.optimize_resource_values_experimental);
-    dx12_replay_consumer->SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-
     if (options.optimize_resource_values_experimental)
     {
         dx12_replay_consumer->EnableReplayOfResourceValueCalls(false);

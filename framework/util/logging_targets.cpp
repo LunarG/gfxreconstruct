@@ -223,7 +223,7 @@ bool LoggingTargetFile::OpenFile()
     }
     else
     {
-        GFXRECON_LOG_FATAL("Failed opening log file %s with returned result %d", log_file_name_.c_str(), errno);
+        GFXRECON_LOG_ERROR("Failed opening log file %s with returned result %d", log_file_name_.c_str(), errno);
     }
 
     return success;

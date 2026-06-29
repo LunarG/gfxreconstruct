@@ -343,7 +343,7 @@ dx12::ID3D12ResourceComPtr Dx12ResourceDataUtil::GetStagingBuffer(CopyType type,
 
     if (FAILED(result))
     {
-        GFXRECON_LOG_FATAL("Failed to create a staging buffer of size %" PRIu64 " for copying resource data.",
+        GFXRECON_LOG_ERROR("Failed to create a staging buffer of size %" PRIu64 " for copying resource data.",
                            buffer_size);
 
         staging_buffers_[type]      = nullptr;
