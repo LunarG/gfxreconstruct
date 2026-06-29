@@ -37,9 +37,10 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 //  SubmitInfo2Translator losslessly widens an array of VkSubmitInfo structures into the equivalent array of
 //  VkSubmitInfo2 structures, so that callers can forward to vkQueueSubmit2.
 //
-//  Currently VkTimelineSemaphoreSubmitInfo and VkProtectedSubmitInfo are handled by translation. Their information is
-//  copied into the VkSubmitInfo2 and the structures themselves are removed from the pNext chain. All other pNext
-//  structures are preserved.
+//  VkTimelineSemaphoreSubmitInfo, VkProtectedSubmitInfo and VkDeviceGroupSubmitInfo are handled by translation: their
+//  information is copied into the VkSubmitInfo2 / VkSemaphoreSubmitInfo / VkCommandBufferSubmitInfo fields and the
+//  structures themselves are removed from the pNext chain. All other pNext structures that are valid on VkSubmitInfo2
+//  are preserved; the remaining VkSubmitInfo-only structures (e.g. VkD3D12FenceSubmitInfoKHR) are not translated.
 class SubmitInfo2Translator
 {
   public:
