@@ -704,10 +704,10 @@ void Process_vkCmdPushDescriptorSet(
     PFN_vkCmdPushDescriptorSet                  func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
-    VkPipelineLayout                            layout,
+    const VulkanPipelineLayoutInfo*             layout,
     uint32_t                                    set,
     uint32_t                                    descriptorWriteCount,
-    const VkWriteDescriptorSet*                 pDescriptorWrites);
+    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites);
 
 void Process_vkCmdPushDescriptorSetWithTemplate(
     const ApiCallInfo&                          call_info,
@@ -734,7 +734,7 @@ void Process_vkCmdPushDescriptorSet2(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet2                 func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo);
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
 
 void Process_vkCmdPushDescriptorSetWithTemplate2(
     const ApiCallInfo&                          call_info,
@@ -827,10 +827,10 @@ void Process_vkCmdPushDescriptorSetKHR(
     PFN_vkCmdPushDescriptorSetKHR               func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
-    VkPipelineLayout                            layout,
+    const VulkanPipelineLayoutInfo*             layout,
     uint32_t                                    set,
     uint32_t                                    descriptorWriteCount,
-    const VkWriteDescriptorSet*                 pDescriptorWrites);
+    StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites);
 
 void Process_vkCmdPushDescriptorSetWithTemplateKHR(
     const ApiCallInfo&                          call_info,
@@ -1171,7 +1171,7 @@ void Process_vkCmdPushDescriptorSet2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdPushDescriptorSet2KHR              func,
     VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetInfo*              pPushDescriptorSetInfo);
+    StructPointerDecoder<Decoded_VkPushDescriptorSetInfo>* pPushDescriptorSetInfo);
 
 void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     const ApiCallInfo&                          call_info,

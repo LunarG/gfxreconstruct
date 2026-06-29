@@ -144,6 +144,11 @@ class DrawCallsDumpingContext
                             uint32_t                                           dynamicOffsetCount,
                             const uint32_t*                                    pDynamicOffsets);
 
+    void PushDescriptorSet(VkShaderStageFlags                                        stage_flags,
+                           uint32_t                                                  set,
+                           uint32_t                                                  descriptor_write_count,
+                           const StructPointerDecoder<Decoded_VkWriteDescriptorSet>* p_descriptor_writes);
+
     void BindPipeline(VkPipelineBindPoint bind_point, const VulkanPipelineInfo* pipeline);
 
     VkResult BeginCommandBuffer(VulkanCommandBufferInfo*             orig_cmd_buf_info,
