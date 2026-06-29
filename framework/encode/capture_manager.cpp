@@ -328,9 +328,8 @@ bool CommonCaptureManager::ProcessMatchesCaptureName(const std::string& desired_
 
         // Now get the string before the first space
         application_name = cmd_line_string.substr(0, cmd_line_string.find(' '));
-
 #else
-        GFXRECON_ERROR_FATAL_ONCE("Unable to determine process name for this platform");
+        GFXRECON_LOG_WARNING_ONCE("Unable to determine process name for this platform");
 
         // Force to true so we capture everything
         matches = true;

@@ -89,10 +89,10 @@ class VulkanAddressReplacer
      * @param   wait_semaphores      optional span of (timeline) wait-semaphores, along with their wait-values
      * @return  an optional Semaphore that will be signaled or VK_NULL_HANDLE
      */
-    VkSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
-                                      const std::span<VkDeviceAddress>           addresses_to_replace,
-                                      const decode::VulkanDeviceAddressTracker&  address_tracker,
-                                      const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
+    graphics::VulkanSemaphore UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
+                                                    const std::span<VkDeviceAddress>           addresses_to_replace,
+                                                    const decode::VulkanDeviceAddressTracker&  address_tracker,
+                                                    const std::span<graphics::VulkanSemaphore> wait_semaphores = {});
 
   private:
     /**
@@ -451,7 +451,7 @@ class VulkanAddressReplacer
         // actual payload
         VkCommandBuffer command_buffer   = VK_NULL_HANDLE;
         VkFence         fence            = VK_NULL_HANDLE;
-        VkSemaphore     signal_semaphore = VK_NULL_HANDLE;
+        graphics::VulkanSemaphore signal_semaphore{ VK_NULL_HANDLE };
 
         PFN_vkDestroyFence       destroy_fence_fn        = nullptr;
         PFN_vkFreeCommandBuffers free_command_buffers_fn = nullptr;
@@ -468,6 +468,9 @@ class VulkanAddressReplacer
     [[nodiscard]] bool init_pipeline();
 
     [[nodiscard]] bool init_queue_assets();
+
+    //! lazily create the acceleration-structure compacted-size query-pool (only used by AS-compaction).
+    [[nodiscard]] bool init_as_compact_query_pool();
 
     void update_global_hashmap(VkCommandBuffer command_buffer);
 

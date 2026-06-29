@@ -1411,8 +1411,10 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(const DumpedResou
                 const auto& cloned_image =
                     static_cast<const MutableResourcesBackupContext::ClonedImageDescriptor&>(*cloned_desc);
 
-                const ImageDumpResult can_dump_image =
-                    CanDumpImage(instance_table_, device_info->parent, &cloned_image.new_image_info);
+                const ImageDumpResult can_dump_image = CanDumpImage(instance_table_,
+                                                                    device_info->parent,
+                                                                    &cloned_image.new_image_info,
+                                                                    device_info->property_feature_info);
 
                 auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                     dumped_resource_base,
@@ -1684,7 +1686,8 @@ VkResult DispatchTraceRaysDumpingContext::DumpDescriptors(const DumpedResourceBa
                         continue;
                     }
 
-                    const ImageDumpResult can_dump_image = CanDumpImage(instance_table_, device_info->parent, img_info);
+                    const ImageDumpResult can_dump_image = CanDumpImage(
+                        instance_table_, device_info->parent, img_info, device_info->property_feature_info);
 
                     auto& new_dumped_desc = dumped_resources.dumped_descriptors.emplace_back(
                         dumped_resource_base,
@@ -2171,6 +2174,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
                                                 device_info->parent,
                                                 *device_table_,
                                                 *instance_table_,
+                                                device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     for (auto& params : dispatch_params_)

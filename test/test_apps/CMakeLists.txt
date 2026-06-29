@@ -33,6 +33,7 @@ endif()
 
 add_subdirectory(common)
 add_subdirectory(debug-utils)
+add_subdirectory(isolate-render-passes)
 add_subdirectory(triangle)
 add_subdirectory(triangle-extra-device)
 add_subdirectory(multisample-depth)

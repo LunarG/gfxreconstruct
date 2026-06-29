@@ -237,9 +237,9 @@ decode::VulkanAddressReplacer::submit_asset_t::~submit_asset_t()
         {
             free_command_buffers_fn(device, command_pool, 1, &command_buffer);
         }
-        if (destroy_semaphore_fn != nullptr && signal_semaphore != VK_NULL_HANDLE)
+        if (destroy_semaphore_fn != nullptr && signal_semaphore.semaphore != VK_NULL_HANDLE)
         {
-            destroy_semaphore_fn(device, signal_semaphore, nullptr);
+            destroy_semaphore_fn(device, signal_semaphore.semaphore, nullptr);
         }
     }
 }
@@ -339,15 +339,16 @@ VulkanAddressReplacer::~VulkanAddressReplacer()
     }
 }
 
-VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*            command_buffer_info,
-                                                         const std::span<VkDeviceAddress>          addresses_to_replace,
-                                                         const decode::VulkanDeviceAddressTracker& address_tracker,
-                                                         const std::span<graphics::VulkanSemaphore> wait_semaphores)
+graphics::VulkanSemaphore
+VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBufferInfo*             command_buffer_info,
+                                             const std::span<VkDeviceAddress>           addresses_to_replace,
+                                             const decode::VulkanDeviceAddressTracker&  address_tracker,
+                                             const std::span<graphics::VulkanSemaphore> wait_semaphores)
 {
     if (addresses_to_replace.empty())
     {
         // nothing to replace
-        return VK_NULL_HANDLE;
+        return graphics::VulkanSemaphore{ VK_NULL_HANDLE };
     }
 
     GFXRECON_LOG_INFO_ONCE("VulkanAddressReplacer::UpdateBufferAddresses(): Replay is adjusting "
@@ -377,7 +378,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBuff
             {
                 GFXRECON_LOG_WARNING_ONCE(
                     "VulkanAddressReplacer::UpdateBufferAddresses: could not create required submit-assets");
-                return VK_NULL_HANDLE;
+                return graphics::VulkanSemaphore{ VK_NULL_HANDLE };
             }
 
             device_table_->ResetFences(device_, 1, &submit_asset.fence);
@@ -419,7 +420,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBuff
             submit_info.commandBufferCount   = 1;
             submit_info.pCommandBuffers      = &submit_asset.command_buffer;
             submit_info.signalSemaphoreCount = 1;
-            submit_info.pSignalSemaphores    = &submit_asset.signal_semaphore;
+            submit_info.pSignalSemaphores    = &submit_asset.signal_semaphore.semaphore;
 
             // submit
             device_table_->QueueSubmit(queue_, 1, &submit_info, submit_asset.fence);
@@ -439,7 +440,7 @@ VkSemaphore VulkanAddressReplacer::UpdateBufferAddresses(const VulkanCommandBuff
         run_compute_replace(&fake_info, addresses_to_replace, address_tracker, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
     }
 
-    return VK_NULL_HANDLE;
+    return graphics::VulkanSemaphore{ VK_NULL_HANDLE };
 }
 
 void VulkanAddressReplacer::ResolveBufferAddresses(VulkanCommandBufferInfo*                  command_buffer_info,
@@ -538,6 +539,39 @@ VulkanAddressReplacer::ResolveBufferAddresses(std::vector<VulkanCommandBufferInf
         if (cmd_buf_info == nullptr)
         {
             cmd_buf_info = command_buffer_info;
+        }
+    }
+
+    // drop heuristic false-positives: keep only host-visible candidates whose stored value resolves to a tracked
+    // capture-address (device-local candidates are hashmap-filtered by the dispatch).
+    std::unordered_map<const VulkanBufferInfo*, void*> mapped_buffers;
+    std::erase_if(addresses_to_replace, [&](VkDeviceAddress location) {
+        const auto* buffer_info = address_tracker.GetBufferByReplayDeviceAddress(location);
+        if (buffer_info == nullptr || !(buffer_info->memory_property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT))
+        {
+            // cannot cheaply inspect -> keep
+            return false;
+        }
+
+        // map each candidate-buffer at most once
+        auto [it, inserted] = mapped_buffers.try_emplace(buffer_info, nullptr);
+        if (inserted)
+        {
+            resource_allocator_->MapResourceMemoryDirect(VK_WHOLE_SIZE, 0, &it->second, buffer_info->allocator_data);
+        }
+        if (it->second == nullptr)
+        {
+            return false;
+        }
+        const VkDeviceAddress stored = *reinterpret_cast<VkDeviceAddress*>(static_cast<uint8_t*>(it->second) +
+                                                                           (location - buffer_info->replay_address));
+        return address_tracker.GetBufferByCaptureDeviceAddress(stored) == nullptr;
+    });
+    for (const auto& [buffer_info, ptr] : mapped_buffers)
+    {
+        if (ptr != nullptr)
+        {
+            resource_allocator_->UnmapResourceMemoryDirect(buffer_info->allocator_data);
         }
     }
 
@@ -1726,7 +1760,11 @@ void VulkanAddressReplacer::ProcessVulkanAccelerationStructuresWritePropertiesMe
     VkAccelerationStructureKHR                acceleration_structure,
     const decode::VulkanDeviceAddressTracker& address_tracker)
 {
-    if (init_queue_assets())
+    if (!init_queue_assets() || !init_as_compact_query_pool())
+    {
+        return;
+    }
+
     {
         // reset/submit/sync command-buffer
         QueueSubmitHelper queue_submit_helper(
@@ -1892,6 +1930,20 @@ bool VulkanAddressReplacer::init_queue_assets()
         return false;
     }
 
+    device_table_->GetDeviceQueue(device_, 0, 0, &queue_);
+    GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
+
+    bool submit_asset_created = create_submit_asset(submit_asset_);
+    return queue_ != VK_NULL_HANDLE && submit_asset_created;
+}
+
+bool VulkanAddressReplacer::init_as_compact_query_pool()
+{
+    if (query_pool_ != VK_NULL_HANDLE)
+    {
+        return true;
+    }
+
     VkQueryPoolCreateInfo pool_info;
     pool_info.sType              = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     pool_info.pNext              = nullptr;
@@ -1899,18 +1951,12 @@ bool VulkanAddressReplacer::init_queue_assets()
     pool_info.queryType          = VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR;
     pool_info.queryCount         = 1;
     pool_info.pipelineStatistics = 0;
-    result                       = device_table_->CreateQueryPool(device_, &pool_info, nullptr, &query_pool_);
-    if (result != VK_SUCCESS)
+    if (device_table_->CreateQueryPool(device_, &pool_info, nullptr, &query_pool_) != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal query-pool creation failed");
         return false;
     }
-
-    device_table_->GetDeviceQueue(device_, 0, 0, &queue_);
-    GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
-
-    bool submit_asset_created = create_submit_asset(submit_asset_);
-    return queue_ != VK_NULL_HANDLE && submit_asset_created;
+    return true;
 }
 
 bool VulkanAddressReplacer::create_buffer(VulkanAddressReplacer::buffer_context_t& buffer_context,
@@ -2221,12 +2267,12 @@ bool VulkanAddressReplacer::create_submit_asset(submit_asset_t& submit_asset)
     }
 
     // create a signal-semaphore
-    if (submit_asset.signal_semaphore == VK_NULL_HANDLE)
+    if (submit_asset.signal_semaphore.semaphore == VK_NULL_HANDLE)
     {
         VkSemaphoreCreateInfo semaphore_create_info = {};
         semaphore_create_info.sType                 = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        VkResult result =
-            device_table_->CreateSemaphore(device_, &semaphore_create_info, nullptr, &submit_asset.signal_semaphore);
+        VkResult result                             = device_table_->CreateSemaphore(
+            device_, &semaphore_create_info, nullptr, &submit_asset.signal_semaphore.semaphore);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("VulkanAddressReplacer: internal semaphore creation failed");

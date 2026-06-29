@@ -391,12 +391,14 @@ inline uint64_t GetCurrentThreadId()
     uint64_t thread_id;
     pthread_threadid_np(pthread_self(), &thread_id);
     return thread_id;
-#else
+#elif defined(GFXRECON_PLATFORM_SUPPORTS_GETTID)
     return static_cast<uint64_t>(syscall(SYS_gettid));
+#else
+    return static_cast<uint64_t>(pthread_self());
 #endif
 }
 
-#if !defined(__APPLE__)
+#if defined(GFXRECON_PLATFORM_SUPPORTS_TGKILL)
 inline int SendSignalToThread(uint64_t tid, int signal)
 {
     return static_cast<int>(syscall(SYS_tgkill, getpid(), tid, signal));

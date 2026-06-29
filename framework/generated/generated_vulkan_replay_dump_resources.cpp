@@ -252,32 +252,13 @@ void VulkanReplayDumpResources::Process_vkCmdResetQueryPool(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdResetQueryPool                     func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, queryPool, firstQuery, queryCount);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, queryPool, firstQuery, queryCount);
-            }
-        }
+        OverrideCmdResetQueryPool(call_info, func, commandBuffer, queryPool, firstQuery, queryCount);
     }
 }
 
@@ -286,31 +267,12 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp(
     PFN_vkCmdWriteTimestamp                     func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlagBits                     pipelineStage,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, pipelineStage, queryPool, query);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, pipelineStage, queryPool, query);
-            }
-        }
+        OverrideCmdWriteTimestamp(call_info, func, commandBuffer, pipelineStage, queryPool, query);
     }
 }
 
@@ -318,36 +280,17 @@ void VulkanReplayDumpResources::Process_vkCmdCopyQueryPoolResults(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyQueryPoolResults               func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount,
-    VkBuffer                                    dstBuffer,
+    const VulkanBufferInfo*                     dstBuffer,
     VkDeviceSize                                dstOffset,
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
-            }
-        }
+        OverrideCmdCopyQueryPoolResults(call_info, func, commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
     }
 }
 
@@ -1310,31 +1253,12 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2(
     PFN_vkCmdWriteTimestamp2                    func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags2                       stage,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, stage, queryPool, query);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, stage, queryPool, query);
-            }
-        }
+        OverrideCmdWriteTimestamp2(call_info, func, commandBuffer, stage, queryPool, query);
     }
 }
 
@@ -2926,31 +2850,12 @@ void VulkanReplayDumpResources::Process_vkCmdWriteTimestamp2KHR(
     PFN_vkCmdWriteTimestamp2KHR                 func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineStageFlags2                       stage,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, stage, queryPool, query);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, stage, queryPool, query);
-            }
-        }
+        OverrideCmdWriteTimestamp2KHR(call_info, func, commandBuffer, stage, queryPool, query);
     }
 }
 
@@ -3275,35 +3180,16 @@ void VulkanReplayDumpResources::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdCopyQueryPoolResultsToMemoryKHR    func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery,
     uint32_t                                    queryCount,
-    const VkStridedDeviceAddressRangeKHR*       pDstRange,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
     VkAddressCommandFlagsKHR                    dstFlags,
     VkQueryResultFlags                          queryResultFlags)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
-            }
-        }
+        OverrideCmdCopyQueryPoolResultsToMemoryKHR(call_info, func, commandBuffer, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
     }
 }
 
@@ -4241,33 +4127,14 @@ void VulkanReplayDumpResources::Process_vkCmdBeginQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginQueryIndexedEXT               func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
     VkQueryControlFlags                         flags,
     uint32_t                                    index)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, queryPool, query, flags, index);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, queryPool, query, flags, index);
-            }
-        }
+        OverrideCmdBeginQueryIndexedEXT(call_info, func, commandBuffer, queryPool, query, flags, index);
     }
 }
 
@@ -4275,32 +4142,13 @@ void VulkanReplayDumpResources::Process_vkCmdEndQueryIndexedEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdEndQueryIndexedEXT                 func,
     VkCommandBuffer                             commandBuffer,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    query,
     uint32_t                                    index)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, queryPool, query, index);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, queryPool, query, index);
-            }
-        }
+        OverrideCmdEndQueryIndexedEXT(call_info, func, commandBuffer, queryPool, query, index);
     }
 }
 
@@ -4904,33 +4752,14 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
     PFN_vkCmdWriteAccelerationStructuresPropertiesNV func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    const VkAccelerationStructureNV*            pAccelerationStructures,
+    HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
     VkQueryType                                 queryType,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
-            }
-        }
+        OverrideCmdWriteAccelerationStructuresPropertiesNV(call_info, func, commandBuffer, accelerationStructureCount, pAccelerationStructures->GetPointer(), queryType, queryPool, firstQuery);
     }
 }
 
@@ -6481,33 +6310,14 @@ void VulkanReplayDumpResources::Process_vkCmdWriteMicromapsPropertiesEXT(
     PFN_vkCmdWriteMicromapsPropertiesEXT        func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    micromapCount,
-    const VkMicromapEXT*                        pMicromaps,
+    HandlePointerDecoder<VkMicromapEXT>*        pMicromaps,
     VkQueryType                                 queryType,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, micromapCount, pMicromaps, queryType, queryPool, firstQuery);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, micromapCount, pMicromaps, queryType, queryPool, firstQuery);
-            }
-        }
+        OverrideCmdWriteMicromapsPropertiesEXT(call_info, func, commandBuffer, micromapCount, pMicromaps->GetPointer(), queryType, queryPool, firstQuery);
     }
 }
 
@@ -8250,33 +8060,14 @@ void VulkanReplayDumpResources::Process_vkCmdWriteAccelerationStructuresProperti
     PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    const VkAccelerationStructureKHR*           pAccelerationStructures,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
     VkQueryType                                 queryType,
-    VkQueryPool                                 queryPool,
+    const VulkanQueryPoolInfo*                  queryPool,
     uint32_t                                    firstQuery)
 {
     if (IsRecording())
     {
-        const std::vector<std::shared_ptr<DrawCallsDumpingContext>> dc_contexts = FindDrawCallDumpingContexts(commandBuffer);
-        for (auto dc_context : dc_contexts)
-        {
-            CommandBufferIterator first, last;
-            dc_context->GetDrawCallActiveCommandBuffers(first, last);
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                func(*it, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
-            }
-        }
-
-        const std::vector<std::shared_ptr<DispatchTraceRaysDumpingContext>> dr_contexts = FindDispatchTraceRaysContexts(commandBuffer);
-        for (auto dr_context : dr_contexts)
-        {
-            VkCommandBuffer dispatch_rays_command_buffer = dr_context->GetDispatchRaysCommandBuffer();
-            if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-            {
-                func(dispatch_rays_command_buffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
-            }
-        }
+        OverrideCmdWriteAccelerationStructuresPropertiesKHR(call_info, func, commandBuffer, accelerationStructureCount, pAccelerationStructures->GetPointer(), queryType, queryPool, firstQuery);
     }
 }
 

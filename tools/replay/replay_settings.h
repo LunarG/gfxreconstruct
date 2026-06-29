@@ -34,7 +34,8 @@ const char kOptions[] =
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
     "dx12-ags-inject-markers,--offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
-    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--async-processing";
+    "screenshot-ignore-FrameBoundaryANDROID,--deduplicate-device,--log-timestamps,--capture,--idle-before-submit,--"
+    "serialize-render-passes,--serialize-queue-submissions,--async-processing,--isolate-render-passes";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
@@ -42,8 +43,8 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--skip-get-fence-ranges,--dump-resources,--dump-resources-dir,--dump-resources-image-"
     "format,pbis,--pcj|--pipeline-creation-jobs,--save-pipeline-cache,--load-pipeline-cache,--quit-after-frame,--"
-    "present-mode,--wait-before-first-submit,--idle-before-submit,--present-override,--serialize-render-passes,--frame-"
-    "warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,--loop-count,--serialize-queue-submissions,--"
+    "present-mode,--wait-before-first-submit,--present-override,--frame-"
+    "warm-up-spirv,--frame-warm-up-load,--wait-before-frame,--loop-frame,--loop-count,--"
     "replay-event-plugin-path,--replay-event-plugin-params";
 
 static void PrintUsage(const char* exe_name)
@@ -401,6 +402,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tParameters to forward to the replay event plugin. The format");
     GFXRECON_WRITE_CONSOLE("          \t\tof the parameters is determined by the plugin and is not");
     GFXRECON_WRITE_CONSOLE("          \t\tinterpreted by the replay tool. (forwarded to replay tool)");
+    GFXRECON_WRITE_CONSOLE("  --isolate-render-passes");
+    GFXRECON_WRITE_CONSOLE(
+        "          \t\tIsolate render passes by splitting the command buffer into multiple submits.");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")

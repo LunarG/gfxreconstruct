@@ -35,7 +35,7 @@ project(gfxrecon-test-launcher)
 set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set(COMMON_DIR ${GFXRECON_ANDROID_TEST_APPS_DIR}/common)
-add_subdirectory(${COMMON_DIR} ${COMMON_DIR}/build/${ANDROID_ABI})
+add_subdirectory(${COMMON_DIR} common)
 
 
 add_library(${PROJECT_NAME}
@@ -52,6 +52,7 @@ set(GFXRECON_TEST_LAUNCHER_LINK_LIBRARIES
     gfxrecon-testapp-acquired-image
     gfxrecon-testapp-debug-utils
     gfxrecon-testapp-host-image-copy
+    gfxrecon-testapp-isolate-render-passes
     gfxrecon-testapp-multisample-depth
     gfxrecon-testapp-pipeline-binaries
     gfxrecon-testapp-shader-objects

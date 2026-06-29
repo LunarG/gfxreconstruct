@@ -21,12 +21,13 @@
 */
 
 #include "decode/vulkan_virtual_swapchain.h"
-
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/decoder_util.h"
 #include "util/callbacks.h"
 #include "graphics/vulkan_resources_util.h"
+#include "decode/vulkan_swapchain_format.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan/vulkan_core.h"
 #include <sstream>
 
@@ -1298,7 +1299,7 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
 
         // create a copy-util, used for image-transitions and blits (leave out memory-properties, no allocation needed)
         ofb_data.copy_util = std::make_unique<graphics::VulkanResourcesUtil>(
-            device, device_info->parent, *device_table, *instance_table);
+            device, device_info->parent, *device_table, *instance_table, device_info->property_feature_info);
     }
 
     // derive output-size and orientation from provided scale
@@ -1392,13 +1393,15 @@ void VulkanVirtualSwapchain::PresentImageAdHoc(const VulkanDeviceInfo*          
             current_window_size = swapchain.surface_info.window->GetSize();
 
             VkFormat surface_format = image_info->format;
+
             if (!swapchain.surface_formats.contains(image_info->format))
             {
-                GFXRECON_LOG_WARNING("%s: surface-format not available: %d", __func__, image_info->format);
+                GFXRECON_LOG_WARNING("%s: surface-format not available: %s",
+                                     __func__,
+                                     util::ToString<VkFormat>(image_info->format).c_str());
 
-                // fallback surface-format
                 surface_format =
-                    vkuFormatIsSRGB(image_info->format) ? VK_FORMAT_B8G8R8A8_SRGB : VK_FORMAT_B8G8R8A8_UNORM;
+                    SelectFallbackSurfaceFormat(swapchain.surface_formats, vkuFormatIsSRGB(image_info->format));
             }
 
             VkSwapchainCreateInfoKHR swapchain_create_info;

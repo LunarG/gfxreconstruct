@@ -174,6 +174,7 @@ const char kFrameWarmUpLoad[]           = "--frame-warm-up-load";
 const char kSerializeQueueSubmissions[] = "--serialize-queue-submissions";
 const char kReplayEventPluginPath[]     = "--replay-event-plugin-path";
 const char kReplayEventPluginParams[]   = "--replay-event-plugin-params";
+const char kIsolateRenderPasses[]       = "--isolate-render-passes";
 
 enum class WsiPlatform
 {
@@ -1130,6 +1131,21 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
 
     IsForceWindowed(options, arg_parser);
     SetWindowOrigin(options, arg_parser);
+
+    // API-independent screenshot options
+    options.screenshot_ranges = GetScreenshotRanges(arg_parser);
+    if (arg_parser.IsArgumentSet(kScreenshotIntervalArgument))
+    {
+        options.screenshot_interval = std::stoi(arg_parser.GetArgumentValue(kScreenshotIntervalArgument));
+        if (options.screenshot_interval == 0)
+        {
+            GFXRECON_LOG_WARNING("A screenshot interval of 0 is invalid. Using default value of 1.");
+            options.screenshot_interval = 1;
+        }
+    }
+    options.screenshot_format      = GetScreenshotFormat(arg_parser);
+    options.screenshot_dir         = GetScreenshotDir(arg_parser);
+    options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
 }
 
 static gfxrecon::decode::VulkanReplayOptions
@@ -1277,19 +1293,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
 
-    replay_options.screenshot_ranges = GetScreenshotRanges(arg_parser);
-    if (arg_parser.IsArgumentSet(kScreenshotIntervalArgument))
-    {
-        replay_options.screenshot_interval = std::stoi(arg_parser.GetArgumentValue(kScreenshotIntervalArgument));
-        if (replay_options.screenshot_interval == 0)
-        {
-            GFXRECON_LOG_WARNING("A screenshot interval of 0 is invalid. Using default value of 1.");
-            replay_options.screenshot_interval = 1;
-        }
-    }
-    replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
-    replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
-    replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     GetScreenshotSize(arg_parser, replay_options.screenshot_width, replay_options.screenshot_height);
     replay_options.screenshot_scale = GetScreenshotScale(arg_parser);
 
@@ -1396,6 +1399,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 
     replay_options.replay_event_plugin_path   = arg_parser.GetArgumentValue(kReplayEventPluginPath);
     replay_options.replay_event_plugin_params = arg_parser.GetArgumentValue(kReplayEventPluginParams);
+    replay_options.isolate_render_passes      = arg_parser.IsOptionSet(kIsolateRenderPasses);
 
     return replay_options;
 }
@@ -1472,24 +1476,12 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
                 "The parameter to --batching-memory-usage is out of range [0, 100], will use 80 as default value.");
         }
     }
-
-    replay_options.screenshot_ranges = GetScreenshotRanges(arg_parser);
-    if (arg_parser.IsArgumentSet(kScreenshotIntervalArgument))
-    {
-        replay_options.screenshot_interval = std::stoi(arg_parser.GetArgumentValue(kScreenshotIntervalArgument));
-        if (replay_options.screenshot_interval == 0)
-        {
-            GFXRECON_LOG_WARNING("A screenshot interval of 0 is invalid. Using default value of 1.");
-            replay_options.screenshot_interval = 1;
-        }
-    }
-    replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
-    replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
-    replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
     return replay_options;
 }
 #endif
 
+// Only provide the usage functions if a define is not present
+#if !defined(GFXR_TOOL_SETTINGS_NO_USAGE)
 static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
@@ -1534,5 +1526,6 @@ static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::Ar
 
     return false;
 }
+#endif // GFXR_TOOL_SETTINGS_NO_USAGE
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H

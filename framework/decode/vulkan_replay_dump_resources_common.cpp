@@ -42,9 +42,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table,
-                             VkPhysicalDevice                     phys_dev,
-                             const VulkanImageInfo*               image_info)
+ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable*             instance_table,
+                             VkPhysicalDevice                                 phys_dev,
+                             const VulkanImageInfo*                           image_info,
+                             const graphics::VulkanDevicePropertyFeatureInfo& physical_device_features_info)
 {
     GFXRECON_ASSERT(instance_table != nullptr);
     GFXRECON_ASSERT(phys_dev != VK_NULL_HANDLE);
@@ -67,15 +68,11 @@ ImageDumpResult CanDumpImage(const graphics::VulkanInstanceTable* instance_table
     // Check for multisampled images that cannot be resolved
     if (image_info->sample_count != VK_SAMPLE_COUNT_1_BIT)
     {
-        if ((image_info->tiling == VK_IMAGE_TILING_OPTIMAL &&
-             (format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
-            (image_info->tiling == VK_IMAGE_TILING_LINEAR &&
-             (format_properties.linearTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
-                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT))
+        if (graphics::VulkanResourcesUtil::SelectResolveMethod(
+                *instance_table, phys_dev, image_info->format, image_info->tiling, physical_device_features_info) ==
+            graphics::VulkanResourcesUtil::MultisampleResolveMethod::kUnsupported)
         {
-            GFXRECON_LOG_WARNING("Multisampled image with format %s does not support "
-                                 "\"VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT\" will not be dumped.",
+            GFXRECON_LOG_WARNING("Multisampled image with format %s cannot be resolved and will not be dumped.",
                                  util::ToString<VkFormat>(image_info->format).c_str());
             return ImageDumpResult::kCanNotResolve;
         }
@@ -354,6 +351,7 @@ VkResult DumpImage(DumpedImage&                         dumped_image,
                                                 device_info->parent,
                                                 *device_table,
                                                 *instance_table,
+                                                device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     // Choose the format in which the image will be dumped from the gpu into the host memory
@@ -546,6 +544,7 @@ VkResult DumpBuffer(const DumpedBuffer&                  dumped_buffer,
                                                 device_info->parent,
                                                 *device_table,
                                                 *instance_table,
+                                                device_info->property_feature_info,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
     GFXRECON_ASSERT(dumped_buffer.size);
@@ -995,35 +994,6 @@ void ShaderStageFlagsToStageNames(VkShaderStageFlags flags, std::vector<std::str
     {
         stage_names.push_back("mesh");
     }
-}
-
-std::vector<VkPipelineBindPoint> ShaderStageFlagsToPipelineBindPoints(VkShaderStageFlags flags)
-{
-    std::vector<VkPipelineBindPoint> bind_points;
-
-    constexpr VkShaderStageFlags gr_flags =
-        VK_SHADER_STAGE_ALL_GRAPHICS | VK_SHADER_STAGE_TASK_BIT_EXT | VK_SHADER_STAGE_MESH_BIT_EXT;
-    constexpr VkShaderStageFlags com_flags = VK_SHADER_STAGE_COMPUTE_BIT;
-    constexpr VkShaderStageFlags rt_flags  = VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR |
-                                            VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR |
-                                            VK_SHADER_STAGE_INTERSECTION_BIT_KHR | VK_SHADER_STAGE_CALLABLE_BIT_KHR;
-
-    if (flags & gr_flags)
-    {
-        bind_points.push_back(VK_PIPELINE_BIND_POINT_GRAPHICS);
-    }
-
-    if (flags & com_flags)
-    {
-        bind_points.push_back(VK_PIPELINE_BIND_POINT_COMPUTE);
-    }
-
-    if (flags & rt_flags)
-    {
-        bind_points.push_back(VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
-    }
-
-    return bind_points;
 }
 
 bool ValidateImageSubresourceRange(const ImageSubresourceRanges& requested_subresource_range,
@@ -2119,6 +2089,58 @@ void CopyBufferAndBarrier(VkCommandBuffer                    command_buffer,
                                     &buffer_barrier,
                                     0,
                                     nullptr);
+}
+
+VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
+                            VkQueue                            queue,
+                            const VkSubmitInfo2&               submit_info_2,
+                            VkFence                            fence)
+{
+    // Check if the implementation supports either vkQueueSubmit2 (Vulkan 1.3) or vkQueueSubmit2KHR
+    // (VK_KHR_synchronization2). In either case submit directly without converting
+    if (device_table.QueueSubmit2 != graphics::noop::vkQueueSubmit2)
+    {
+        return device_table.QueueSubmit2(queue, 1, &submit_info_2, fence);
+    }
+    else if (device_table.QueueSubmit2KHR != graphics::noop::vkQueueSubmit2KHR)
+    {
+        return device_table.QueueSubmit2KHR(queue, 1, &submit_info_2, fence);
+    }
+
+    // Otherwise fall back to vkQueueSubmit. The per-semaphore stage masks are only meaningful for queue-side
+    // synchronization, which is irrelevant here because the dump-resources submits are serialized with host fence
+    // waits.
+    std::vector<VkSemaphore>          wait_semaphores(submit_info_2.waitSemaphoreInfoCount);
+    std::vector<VkPipelineStageFlags> wait_stage_masks(submit_info_2.waitSemaphoreInfoCount);
+    for (uint32_t i = 0; i < submit_info_2.waitSemaphoreInfoCount; ++i)
+    {
+        wait_semaphores[i]  = submit_info_2.pWaitSemaphoreInfos[i].semaphore;
+        wait_stage_masks[i] = static_cast<VkPipelineStageFlags>(submit_info_2.pWaitSemaphoreInfos[i].stageMask);
+    }
+
+    std::vector<VkCommandBuffer> command_buffers(submit_info_2.commandBufferInfoCount);
+    for (uint32_t i = 0; i < submit_info_2.commandBufferInfoCount; ++i)
+    {
+        command_buffers[i] = submit_info_2.pCommandBufferInfos[i].commandBuffer;
+    }
+
+    std::vector<VkSemaphore> signal_semaphores(submit_info_2.signalSemaphoreInfoCount);
+    for (uint32_t i = 0; i < submit_info_2.signalSemaphoreInfoCount; ++i)
+    {
+        signal_semaphores[i] = submit_info_2.pSignalSemaphoreInfos[i].semaphore;
+    }
+
+    const VkSubmitInfo submit_info{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                                    submit_info_2.pNext,
+                                    submit_info_2.waitSemaphoreInfoCount,
+                                    submit_info_2.waitSemaphoreInfoCount ? wait_semaphores.data() : nullptr,
+                                    submit_info_2.waitSemaphoreInfoCount ? wait_stage_masks.data() : nullptr,
+                                    submit_info_2.commandBufferInfoCount,
+                                    submit_info_2.commandBufferInfoCount ? command_buffers.data() : nullptr,
+                                    submit_info_2.signalSemaphoreInfoCount,
+                                    submit_info_2.signalSemaphoreInfoCount ? signal_semaphores.data() : nullptr };
+
+    return device_table.QueueSubmit(queue, 1, &submit_info, fence);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)

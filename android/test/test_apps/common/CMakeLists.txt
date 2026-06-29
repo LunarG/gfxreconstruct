@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2025 LunarG, Inc.
+# Copyright (c) 2025-2026 LunarG, Inc.
 # All rights reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,14 +33,13 @@ target_include_directories(gfxrecon-testapp-base
                                ${GFXRECON_SOURCE_DIR}/test/test_apps/common
                                ${GFXRECON_SOURCE_DIR}/test/icd)
 
-set(FRAMEWORK_DIR ${GFXRECON_ANDROID_DIR}/framework)
 set(GFXRECON_ANDROID_TEST_APPS_DIR ${CMAKE_SOURCE_DIR}/..)
-add_subdirectory(${FRAMEWORK_DIR}/util ${FRAMEWORK_DIR}/util/build/${ANDROID_ABI})
-add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin ${FRAMEWORK_DIR}/plugin/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/decode ${FRAMEWORK_DIR}/decode/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/graphics ${FRAMEWORK_DIR}/graphics/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/format ${FRAMEWORK_DIR}/format/build/${ANDROID_ABI})
-add_subdirectory(${FRAMEWORK_DIR}/application ${FRAMEWORK_DIR}/application/build/${ANDROID_ABI})
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/util util)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/plugin plugin)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode decode)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/graphics graphics)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format format)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application application)
 
 target_link_libraries(gfxrecon-testapp-base
     PUBLIC
@@ -52,8 +51,7 @@ macro(common_build_directives TARGET)
 endmacro()
 
 macro(add_test_app TEST_NAME)
-    add_subdirectory(${GFXRECON_SOURCE_DIR}/test/test_apps/${TEST_NAME}
-                     ${GFXRECON_ANDROID_TEST_APPS_DIR}/${TEST_NAME}/build/${ANDROID_ABI})
+    add_subdirectory(${GFXRECON_SOURCE_DIR}/test/test_apps/${TEST_NAME} ${TEST_NAME})
 endmacro()
 
 add_test_app(acquired-image)
@@ -61,6 +59,7 @@ add_test_app(debug-utils)
 add_test_app(external-memory-fd-export)
 add_test_app(external-memory-fd-import)
 add_test_app(host-image-copy)
+add_test_app(isolate-render-passes)
 add_test_app(multisample-depth)
 add_test_app(pipeline-binaries)
 add_test_app(triangle)

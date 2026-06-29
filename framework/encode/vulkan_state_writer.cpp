@@ -477,7 +477,7 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
             // Query current semaphore value
             uint64_t          semaphore_value;
             format::ApiCallId signal_call_id;
-            if (device_wrapper->physical_device->instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
+            if (device_wrapper->physical_device->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
                 device_wrapper->layer_table.GetSemaphoreCounterValue(
                     device_wrapper->handle, wrapper->handle, &semaphore_value);
@@ -1450,9 +1450,9 @@ void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& st
         if (wrapper->device != VK_NULL_HANDLE && wrapper->address != 0)
         {
             auto physical_device_wrapper = wrapper->bind_device->physical_device;
-            auto call_id = physical_device_wrapper->instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0)
-                               ? format::ApiCall_vkGetBufferDeviceAddress
-                               : format::ApiCall_vkGetBufferDeviceAddressKHR;
+            auto call_id                 = physical_device_wrapper->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0)
+                                               ? format::ApiCall_vkGetBufferDeviceAddress
+                                               : format::ApiCall_vkGetBufferDeviceAddressKHR;
 
             parameter_stream_.Clear();
             encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
@@ -1678,7 +1678,7 @@ void VulkanStateWriter::WriteASInputMemoryState(encode::AccelerationStructureInp
     };
 
     uint64_t address = 0;
-    if (device_wrapper->physical_device->instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
+    if (device_wrapper->physical_device->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0))
     {
         buffer.actual_address =
             device_wrapper->layer_table.GetBufferDeviceAddress(device_wrapper->handle, &buffer_address_info);
@@ -1719,7 +1719,7 @@ void VulkanStateWriter::WriteASInputMemoryState(encode::AccelerationStructureInp
     EncodePNextStruct(&encoder_, buffer_address_info.pNext);
     encoder_.EncodeHandleIdValue(buffer.handle_id);
     encoder_.EncodeVkDeviceAddressValue(buffer.actual_address);
-    auto call_id = device_wrapper->physical_device->instance_info.api_version >= VK_MAKE_VERSION(1, 2, 0)
+    auto call_id = device_wrapper->physical_device->parent_info.api_version >= VK_MAKE_VERSION(1, 2, 0)
                        ? format::ApiCall_vkGetBufferDeviceAddress
                        : format::ApiCall_vkGetBufferDeviceAddressKHR;
     WriteFunctionCall(call_id, &parameter_stream_);
@@ -3204,6 +3204,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                                                             device_wrapper->physical_device->handle,
                                                             device_wrapper->layer_table,
                                                             *device_wrapper->physical_device->layer_table_ref,
+                                                            device_wrapper->property_feature_info,
                                                             device_wrapper->physical_device->memory_properties);
 
                 // Sparse images require staging copy for the following process because dumping image data with mapping
@@ -3345,6 +3346,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
                                                     device_wrapper->physical_device->handle,
                                                     device_wrapper->layer_table,
                                                     *device_wrapper->physical_device->layer_table_ref,
+                                                    device_wrapper->property_feature_info,
                                                     device_wrapper->physical_device->memory_properties);
 
         if (max_staging_copy_size > 0)

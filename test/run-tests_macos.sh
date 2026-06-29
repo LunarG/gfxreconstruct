@@ -11,6 +11,7 @@ export VK_LOADER_LAYERS_ENABLE=VK_LAYER_LUNARG_gfxreconstruct
 export DISPLAY=:0
 export GFXRECON_TESTAPP_HEADLESS=true
 export GFXRECON_TESTAPP_MOCK_ICD="$PWD/test_apps/libVkICD_mock_icd.dylib"
+export GFXRECON_VULKAN_LIBRARY_PATH="$VULKAN_LIBRARY_PATH"
 #export GFXRECON_LOG_LEVEL="info"
 #export VK_LOADER_DEBUG="layer"
 

@@ -108,6 +108,7 @@
     "vkGetPhysicalDeviceToolProperties": "OverrideGetPhysicalDeviceToolProperties",
     "vkGetPhysicalDeviceToolPropertiesEXT": "OverrideGetPhysicalDeviceToolProperties",
     "vkBeginCommandBuffer": "OverrideBeginCommandBuffer",
+    "vkCreateCommandPool": "OverrideCreateCommandPool",
     "vkResetCommandPool": "OverrideResetCommandPool",
     "vkResetCommandBuffer": "OverrideResetCommandBuffer",
     "vkCmdDebugMarkerInsertEXT": "OverrideCmdDebugMarkerInsertEXT",
