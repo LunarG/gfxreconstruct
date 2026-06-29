@@ -34,6 +34,7 @@
 #include "format/format_util.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "graphics/vulkan_submit_info_util.h"
 #include "vulkan_replay_dump_resources.h"
 #include "decode/vulkan_pnext_node.h"
 #include "graphics/vulkan_struct_get_pnext.h"
@@ -1968,89 +1969,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(std::span<const VkSubmitInfo
                                                     uint64_t                           index)
 {
     // Losslessly widen each VkSubmitInfo into a VkSubmitInfo2 and forward to the canonical QueueSubmit2 implementation.
-    std::vector<VkSubmitInfo2>                          submit_infos_2(submit_infos.size());
-    std::vector<std::vector<VkSemaphoreSubmitInfo>>     wait_semaphores(submit_infos.size());
-    std::vector<std::vector<VkCommandBufferSubmitInfo>> command_buffers(submit_infos.size());
-    std::vector<std::vector<VkSemaphoreSubmitInfo>>     signal_semaphores(submit_infos.size());
-    std::vector<std::vector<uint8_t>>                   submit_infos_deep_copy_raw(submit_infos.size());
+    // The translator owns the storage referenced by the produced VkSubmitInfo2 array and must outlive the submit call.
+    graphics::SubmitInfo2Translator translated(submit_infos);
 
-    for (size_t i = 0; i < submit_infos.size(); ++i)
-    {
-        // If VkTimelineSemaphoreSubmitInfo is detected in the submit info's pNext chain then we translate the struct's
-        // information into the VkSubmitInfo2's structure and we remove it from the chain. Because we interfere with the
-        // pNext chain we create a deep copy
-        const size_t num_bytes = graphics::vulkan_struct_deep_copy(&submit_infos[i], 1, nullptr);
-        submit_infos_deep_copy_raw[i].resize(num_bytes);
-        graphics::vulkan_struct_deep_copy(&submit_infos[i], 1, submit_infos_deep_copy_raw[i].data());
-        auto* modified_submit_info = reinterpret_cast<VkSubmitInfo*>(submit_infos_deep_copy_raw[i].data());
-
-        std::vector<uint64_t> timeline_semaphore_wait_values(modified_submit_info->waitSemaphoreCount);
-        std::vector<uint64_t> timeline_semaphore_signal_values(modified_submit_info->signalSemaphoreCount);
-        if (const auto* timeline_semaphore_submit_info =
-                graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(modified_submit_info))
-        {
-            for (uint32_t s = 0; s < std::min(modified_submit_info->waitSemaphoreCount,
-                                              timeline_semaphore_submit_info->waitSemaphoreValueCount);
-                 ++s)
-            {
-                timeline_semaphore_wait_values[s] = timeline_semaphore_submit_info->pWaitSemaphoreValues[s];
-            }
-
-            for (uint32_t s = 0; s < std::min(modified_submit_info->signalSemaphoreCount,
-                                              timeline_semaphore_submit_info->signalSemaphoreValueCount);
-                 ++s)
-            {
-                timeline_semaphore_signal_values[s] = timeline_semaphore_submit_info->pSignalSemaphoreValues[s];
-            }
-            graphics::vulkan_struct_remove_pnext<VkTimelineSemaphoreSubmitInfo>(modified_submit_info);
-        }
-
-        // Wait semaphores. The per-semaphore wait stage moves from pWaitDstStageMask into VkSemaphoreSubmitInfo.
-        wait_semaphores[i].resize(modified_submit_info->waitSemaphoreCount);
-        for (uint32_t j = 0; j < modified_submit_info->waitSemaphoreCount; ++j)
-        {
-            wait_semaphores[i][j] = VkSemaphoreSubmitInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-                                                           nullptr,
-                                                           modified_submit_info->pWaitSemaphores[j],
-                                                           timeline_semaphore_wait_values[j],
-                                                           modified_submit_info->pWaitDstStageMask
-                                                               ? static_cast<VkPipelineStageFlags2>(
-                                                                     modified_submit_info->pWaitDstStageMask[j])
-                                                               : VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
-                                                           0 };
-        }
-
-        // Command buffers
-        command_buffers[i].resize(modified_submit_info->commandBufferCount);
-        for (uint32_t j = 0; j < modified_submit_info->commandBufferCount; ++j)
-        {
-            command_buffers[i][j] = VkCommandBufferSubmitInfo{
-                VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO, nullptr, modified_submit_info->pCommandBuffers[j], 0
-            };
-        }
-
-        // Signal semaphores. A VkSubmitInfo signals once all submitted work completes, i.e. at ALL_COMMANDS.
-        signal_semaphores[i].resize(modified_submit_info->signalSemaphoreCount);
-        for (uint32_t j = 0; j < modified_submit_info->signalSemaphoreCount; ++j)
-        {
-            signal_semaphores[i][j] =
-                VkSemaphoreSubmitInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,    nullptr,
-                                       modified_submit_info->pSignalSemaphores[j], timeline_semaphore_signal_values[j],
-                                       VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,       0 };
-        }
-
-        submit_infos_2[i] = VkSubmitInfo2{ VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-                                           modified_submit_info->pNext,
-                                           0,
-                                           static_cast<uint32_t>(wait_semaphores[i].size()),
-                                           wait_semaphores[i].size() ? wait_semaphores[i].data() : nullptr,
-                                           static_cast<uint32_t>(command_buffers[i].size()),
-                                           command_buffers[i].size() ? command_buffers[i].data() : nullptr,
-                                           static_cast<uint32_t>(signal_semaphores[i].size()),
-                                           signal_semaphores[i].size() ? signal_semaphores[i].data() : nullptr };
-    }
-
-    return QueueSubmit2(submit_infos_2, device_table, queue, fence, index);
+    return QueueSubmit2(translated.GetSubmitInfos2(), device_table, queue, fence, index);
 }
 
 VkResult VulkanReplayDumpResourcesBase::QueueSubmit2(std::span<const VkSubmitInfo2>     submit_infos,
