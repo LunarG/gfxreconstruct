@@ -13856,5 +13856,76 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteGeneratedCommandsEXT(
     func(command_buffer_info->handle, isPreprocessed, in_pGeneratedCommandsInfo);
 }
 
+void VulkanReplayConsumerBase::MaybeInjectComputeTransferBarrier(
+    const VulkanCommandBufferInfo* command_buffer_info) const
+{
+    if (!options_.serialize_compute_and_transfer)
+    {
+        return;
+    }
+
+    util::BeginInjectedCommands();
+
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    const VulkanDeviceInfo* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);
+    GFXRECON_ASSERT(device_info != nullptr);
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+    GFXRECON_ASSERT(device_table != nullptr);
+
+    VkMemoryBarrier memory_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER };
+    memory_barrier.srcAccessMask   = VK_ACCESS_MEMORY_WRITE_BIT;
+    memory_barrier.dstAccessMask =
+        VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT | VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
+
+    const VkPipelineStageFlags stages =
+        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
+
+    // Make sure compute and transfer write operations before this barrier are completed
+    // before doing other compute and transfer read/write operations.
+    device_table->CmdPipelineBarrier(
+        command_buffer_info->handle, stages, stages, 0, 1, &memory_barrier, 0, nullptr, 0, nullptr);
+
+    util::EndInjectedCommands();
+}
+
+void VulkanReplayConsumerBase::OverrideCmdDispatch(PFN_vkCmdDispatch              func,
+                                                   const VulkanCommandBufferInfo* command_buffer_info,
+                                                   uint32_t                       groupCountX,
+                                                   uint32_t                       groupCountY,
+                                                   uint32_t                       groupCountZ)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    MaybeInjectComputeTransferBarrier(command_buffer_info);
+    func(command_buffer_info->handle, groupCountX, groupCountY, groupCountZ);
+    MaybeInjectComputeTransferBarrier(command_buffer_info);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdDispatchIndirect(PFN_vkCmdDispatchIndirect      func,
+                                                           const VulkanCommandBufferInfo* command_buffer_info,
+                                                           const VulkanBufferInfo*        buffer_info,
+                                                           VkDeviceSize                   offset)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    GFXRECON_ASSERT(buffer_info != nullptr);
+    MaybeInjectComputeTransferBarrier(command_buffer_info);
+    func(command_buffer_info->handle, buffer_info->handle, offset);
+    MaybeInjectComputeTransferBarrier(command_buffer_info);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdDispatchBase(PFN_vkCmdDispatchBase          func,
+                                                       const VulkanCommandBufferInfo* command_buffer_info,
+                                                       uint32_t                       baseGroupX,
+                                                       uint32_t                       baseGroupY,
+                                                       uint32_t                       baseGroupZ,
+                                                       uint32_t                       groupCountX,
+                                                       uint32_t                       groupCountY,
+                                                       uint32_t                       groupCountZ)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+    MaybeInjectComputeTransferBarrier(command_buffer_info);
+    func(command_buffer_info->handle, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+    MaybeInjectComputeTransferBarrier(command_buffer_info);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

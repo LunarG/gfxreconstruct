@@ -156,6 +156,7 @@ def CreateReplayParser():
     parser.add_argument('--replay-event-plugin-path', metavar='PATH', help='Path to a replay event plugin library. If specified, the plugin will be loaded and used to process replay events. (forwarded to replay tool)')
     parser.add_argument('--replay-event-plugin-params', metavar='PARAMS', help='Parameters to forward to the replay event plugin. The format of the parameters is determined by the plugin and is not interpreted by the replay tool. (forwarded to replay tool)')
     parser.add_argument('--isolate-render-passes', action='store_true', default=False, help='Isolate render passes by splitting the command buffer into multiple submits. (forwarded to replay tool)')
+    parser.add_argument('--serialize-compute-and-transfer', action='store_true', default=False, help='Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before and after each dispatch. (forwarded to replay tool)')
 
     return parser
 
@@ -378,6 +379,9 @@ def MakeExtrasString(args):
 
     if args.isolate_render_passes:
         arg_list.append('--isolate-render-passes')
+
+    if args.serialize_compute_and_transfer:
+        arg_list.append('--serialize-compute-and-transfer')
 
     if args.file:
         arg_list.append(args.file)

@@ -801,6 +801,7 @@ usage: gfxrecon.py replay [-h] [-p LOCAL_FILE] [--version] [--log-level LEVEL]
                           [--replay-event-plugin-path PATH]
                           [--replay-event-plugin-params PARAMS]
                           [--isolate-render-passes]
+                          [--serialize-compute-and-transfer]
                           [file]
 
 Launch the replay tool.
@@ -1046,6 +1047,9 @@ options:
                         interpreted by the replay tool. (forwarded to replay tool)
   --isolate-render-passes
                         Isolate render passes by splitting the command buffer into multiple submits.
+  --serialize-compute-and-transfer
+                        Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before
+                        and after each dispatch. (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay
