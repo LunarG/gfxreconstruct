@@ -90,12 +90,6 @@ void ReplayOpenXrFeature::LinkCompositionFeatures(const std::vector<std::unique_
                 replay_consumer_->SetVulkanReplayConsumer(vulkan_consumer);
             }
         }
-        else if (feature->GetConsumer() != nullptr)
-        {
-            // Warn only for other active (enabled) features we don't know how to compose with
-            GFXRECON_LOG_WARNING("GFXR does not currently support OpenXR composition with %s",
-                                 feature->Label().c_str());
-        }
     }
 }
 
