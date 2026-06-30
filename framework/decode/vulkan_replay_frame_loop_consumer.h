@@ -159,19 +159,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                            StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo) override;
 
     void
-    Process_vkCmdPipelineBarrier(const ApiCallInfo&                                   call_info,
-                                 format::HandleId                                     commandBuffer,
-                                 VkPipelineStageFlags                                 srcStageMask,
-                                 VkPipelineStageFlags                                 dstStageMask,
-                                 VkDependencyFlags                                    dependencyFlags,
-                                 uint32_t                                             memoryBarrierCount,
-                                 StructPointerDecoder<Decoded_VkMemoryBarrier>*       pMemoryBarriers,
-                                 uint32_t                                             bufferMemoryBarrierCount,
-                                 StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
-                                 uint32_t                                             imageMemoryBarrierCount,
-                                 StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers) override;
-
-    void
     Process_vkCmdPushDescriptorSetKHR(const ApiCallInfo&                                  call_info,
                                       format::HandleId                                    commandBuffer,
                                       VkPipelineBindPoint                                 pipelineBindPoint,
@@ -179,16 +166,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                       uint32_t                                            set,
                                       uint32_t                                            descriptorWriteCount,
                                       StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites) override;
-
-    virtual void
-    Process_vkCmdPipelineBarrier2(const ApiCallInfo&                              call_info,
-                                  format::HandleId                                commandBuffer,
-                                  StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
-
-    virtual void
-    Process_vkCmdPipelineBarrier2KHR(const ApiCallInfo&                              call_info,
-                                     format::HandleId                                commandBuffer,
-                                     StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, format::HandleId device) override;
 
@@ -204,6 +181,45 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     virtual void Process_vkCmdEndRenderPass2(const ApiCallInfo&                              call_info,
                                              format::HandleId                                commandBuffer,
                                              StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
+
+    void Process_vkCreateRenderPass(const ApiCallInfo&                                    call_info,
+                                    VkResult                                              returnValue,
+                                    format::HandleId                                      device,
+                                    StructPointerDecoder<Decoded_VkRenderPassCreateInfo>* pCreateInfo,
+                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
+                                    HandlePointerDecoder<VkRenderPass>*                   pRenderPass) override;
+
+    void Process_vkCreateRenderPass2(const ApiCallInfo&                                     call_info,
+                                     VkResult                                               returnValue,
+                                     format::HandleId                                       device,
+                                     StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
+                                     StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                     HandlePointerDecoder<VkRenderPass>*                    pRenderPass) override;
+
+    void Process_vkCreateRenderPass2KHR(const ApiCallInfo&                                     call_info,
+                                        VkResult                                               returnValue,
+                                        format::HandleId                                       device,
+                                        StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                        HandlePointerDecoder<VkRenderPass>*                    pRenderPass) override;
+
+    void Process_vkCmdBeginRenderPass(const ApiCallInfo&                                   call_info,
+                                      format::HandleId                                     commandBuffer,
+                                      StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
+                                      VkSubpassContents                                    contents) override;
+
+    void Process_vkCmdBeginRenderPass2(const ApiCallInfo&                                   call_info,
+                                       format::HandleId                                     commandBuffer,
+                                       StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
+                                       StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    pSubpassBeginInfo) override;
+
+    void Process_vkCmdBeginRendering(const ApiCallInfo&                             call_info,
+                                     format::HandleId                               commandBuffer,
+                                     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
+
+    void Process_vkCmdBeginRenderingKHR(const ApiCallInfo&                             call_info,
+                                        format::HandleId                               commandBuffer,
+                                        StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo) override;
 
     virtual void
     Process_vkUpdateDescriptorSets(const ApiCallInfo&                                  call_info,
@@ -254,6 +270,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     void        RecreateAndRebeginCommandBuffer(format::HandleId cb_id, bool rebegin);
     void        ResetLoopBoundary();
     void        PropagateRenderPassFinalLayouts(format::HandleId commandBuffer);
+    void        PropagateRenderPassInitialLayouts(format::HandleId commandBuffer);
+    void        ExtractSubpass0Layouts(const VkRenderPassCreateInfo* create_info, format::HandleId render_pass_id);
+    void        ExtractSubpass0Layouts2(const VkRenderPassCreateInfo2* create_info, format::HandleId render_pass_id);
 
     // Image layout restoration helpers
     void RecordInitialLayouts();
@@ -265,6 +284,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
   private:
     graphics::FrameLoopInfo& frame_loop_info_;
     bool                     uses_frame_markers_{ false };
+
+    std::unordered_map<format::HandleId, std::vector<VkImageLayout>> render_pass_subpass_0_layouts_;
 
     /// A "dangling" resource is one that was either
     /// - created during the loop range but destroyed after it
@@ -334,9 +355,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
 
     void PropagateImageLayouts(const Decoded_VkSubmitInfo& submit);
     void PropagateImageLayouts(const Decoded_VkSubmitInfo2& submit);
-
-    void FixAndLogPipelineBarrier2(format::HandleId                                commandBuffer,
-                                   StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo);
 
     /**
      * @brief Checks if the replayer is in the setup (state restoration) phase before the loop starts.
