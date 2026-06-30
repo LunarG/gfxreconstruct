@@ -290,13 +290,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(
 {
     if (frame_loop_info_.IsRepetition())
     {
-        // Reset the fence on loop repetitions instead of creating it
-        VkDevice device_handle = GetObjectInfoTable().GetVkDeviceInfo(device)->handle;
-        GFXRECON_ASSERT(device_handle != 0);
-        const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_handle);
-        VkFence  fence_handle = GetObjectInfoTable().GetVkFenceInfo(*pFence->GetPointer())->handle;
-        VkResult res          = device_table->ResetFences(device_handle, 1, &fence_handle);
-        CHECK_VK_RESULT(res, "vkResetFences");
+        // Skip creating the fence on loop repetitions
         return;
     }
 
@@ -305,7 +299,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateFence(
 
     if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
     {
-        // Record this fence as having an initial state of unsignaled
+        // Record the initial state of the new fence
         FenceTracking& t = per_device_fence_tracking_[device];
         bool           signaled =
             (pCreateInfo->GetPointer()->flags & VK_FENCE_CREATE_SIGNALED_BIT) == VK_FENCE_CREATE_SIGNALED_BIT;
@@ -319,18 +313,15 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(
     format::HandleId                                     fence,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    if (frame_loop_info_.IsLooping() && !frame_loop_info_.IsRepetition())
+    if (frame_loop_info_.IsFinalIteration())
     {
         if (per_device_fence_tracking_.contains(device))
         {
             FenceTracking& t = per_device_fence_tracking_[device];
-            if (t.initial_fence_states_.contains(fence))
-            {
-                t.initial_fence_states_.erase(fence);
-            }
+            t.initial_fence_states_.erase(fence);
         }
+        VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, device, fence, pAllocator);
     }
-    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, device, fence, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, format::HandleId fence)
@@ -384,9 +375,12 @@ void VulkanReplayFrameLoopConsumer::FixupDeviceFences(format::HandleId device, f
     VkResult result;
 
     // Reset all fences
-    GFXRECON_LOG_DEBUG("Synthetically resetting all %" PRIu64 " observed fences...", all_fences.size());
-    result = device_table->ResetFences(vk_device, all_fences.size(), all_fences.data());
-    CHECK_VK_RESULT(result, "vkResetFences");
+    if (all_fences.size() > 0)
+    {
+        GFXRECON_LOG_DEBUG("Synthetically resetting all %" PRIu64 " observed fences...", all_fences.size());
+        result = device_table->ResetFences(vk_device, all_fences.size(), all_fences.data());
+        CHECK_VK_RESULT(result, "vkResetFences");
+    }
 
     // Synthetically signal the ones that were originally signaled
     GFXRECON_LOG_DEBUG("Synthetically signaling %" PRIu64 " fences...", fences_to_signal.size());
@@ -432,7 +426,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
 
     CommonObjectInfoTable& table      = GetObjectInfoTable();
     VulkanQueueInfo*       queue_info = table.GetVkQueueInfo(queue);
-    format::HandleId       device_id  = queue_info->parent_id;
     VkDevice               device     = queue_info->parent;
     GFXRECON_ASSERT(device != 0);
     const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
