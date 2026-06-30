@@ -41,6 +41,7 @@ class PreloadFileProcessor : public FileProcessor
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has occured
     bool ProcessNextFrame() override;
+    bool IsLoopReplay() const override { return loop_replay_; }
 
     // Preload one frame, set looping state
     void PreloadLoopFrame();

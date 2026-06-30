@@ -44,7 +44,7 @@ class FrameLoopInfo
     bool AtLoopFrame(uint64_t frame_number) const { return frame_number == loop_frame_idx_; }
 
     /// Returns true if frame looping should be initialized.
-    bool ShouldStartFrameLooping(uint64_t frame_number) const { return AtLoopFrame(frame_number) && !IsLooping(); }
+    bool IsEnteringLoopFrame(uint64_t frame_number) const { return AtLoopFrame(frame_number) && !IsLooping(); }
 
     /// Returns true (for application use) if looping has started
     bool IsLooping() const { return is_looping_; }
@@ -60,6 +60,9 @@ class FrameLoopInfo
     uint32_t GetLoopFrame() const { return loop_frame_idx_; }
     uint32_t GetLoopIterations() const { return loop_iterations_; }
 
+    bool UsesFrameMarkers() const { return uses_frame_markers_; }
+    void SetUsesFrameMarkers(bool val) { uses_frame_markers_ = val; }
+
     /// Decrements the number of loop iterations remaining.
     /// If the number of iterations is infinite, this has no effect.
     void DecrementLoopIterations()
@@ -74,6 +77,7 @@ class FrameLoopInfo
   private:
     bool     is_looping_{ false };
     bool     is_repetition_{ false };
+    bool     uses_frame_markers_{ false };
     uint32_t loop_frame_idx_{ 0 };
     uint32_t loop_iterations_{ INFINITE_ITERATIONS };
 };
