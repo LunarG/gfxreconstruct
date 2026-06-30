@@ -1075,46 +1075,6 @@ void VulkanReplayFrameLoopConsumer::FixAndLogPipelineBarrier2(
     }
 }
 
-void VulkanReplayFrameLoopConsumer::Process_vkCmdWriteTimestamp(const ApiCallInfo&      call_info,
-                                                                format::HandleId        commandBuffer,
-                                                                VkPipelineStageFlagBits pipelineStage,
-                                                                format::HandleId        queryPool,
-                                                                uint32_t                query)
-{
-    // Unconditionally skip query commands during looping to avoid any "query not reset" validation errors,
-    // especially for static command buffers recorded outside the loop but submitted inside it.
-    return;
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginQuery(const ApiCallInfo&  call_info,
-                                                            format::HandleId    commandBuffer,
-                                                            format::HandleId    queryPool,
-                                                            uint32_t            query,
-                                                            VkQueryControlFlags flags)
-{
-    // Unconditionally skip query commands during looping to avoid any "query not reset" validation errors
-    return;
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdEndQuery(const ApiCallInfo& call_info,
-                                                          format::HandleId   commandBuffer,
-                                                          format::HandleId   queryPool,
-                                                          uint32_t           query)
-{
-    // Unconditionally skip query commands during looping to avoid any "query not reset" validation errors
-    return;
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdResetQueryPool(const ApiCallInfo& call_info,
-                                                                format::HandleId   commandBuffer,
-                                                                format::HandleId   queryPool,
-                                                                uint32_t           firstQuery,
-                                                                uint32_t           queryCount)
-{
-    // Unconditionally skip query commands during looping to avoid any "query not reset" validation errors
-    return;
-}
-
 void VulkanReplayFrameLoopConsumer::Process_vkUnmapMemory(const ApiCallInfo& call_info,
                                                           format::HandleId   device,
                                                           format::HandleId   memory)

@@ -716,6 +716,8 @@ class KhronosBaseGenerator(OutputGenerator):
                 'resourceAllocateNotFullyImplemented']
             self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED = frame_loop_overrides[
                 'resourceFreeNotFullyImplemented']
+            self.REPLAY_FRAME_LOOP_SKIP_DURING_LOOPING = frame_loop_overrides.get(
+                'skipDuringLooping', [])
         if dump_resources_overrides_filename is not None:
             dump_resources_overrides = json.loads(
                 open(dump_resources_overrides_filename, 'r').read()

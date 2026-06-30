@@ -159,6 +159,18 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            queryPool,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    void Process_vkGetQueryPoolResults(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount,
+        size_t                                      dataSize,
+        PointerDecoder<uint8_t>*                    pData,
+        VkDeviceSize                                stride,
+        VkQueryResultFlags                          flags) override;
+
     void Process_vkCreateBuffer(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -228,6 +240,44 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            commandPool,
         uint32_t                                    commandBufferCount,
         HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers) override;
+
+    void Process_vkCmdBeginQuery(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    query,
+        VkQueryControlFlags                         flags) override;
+
+    void Process_vkCmdEndQuery(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    query) override;
+
+    void Process_vkCmdResetQueryPool(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount) override;
+
+    void Process_vkCmdWriteTimestamp(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlagBits                     pipelineStage,
+        format::HandleId                            queryPool,
+        uint32_t                                    query) override;
+
+    void Process_vkCmdCopyQueryPoolResults(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount,
+        format::HandleId                            dstBuffer,
+        VkDeviceSize                                dstOffset,
+        VkDeviceSize                                stride,
+        VkQueryResultFlags                          flags) override;
 
     void Process_vkCreateEvent(
         const ApiCallInfo&                          call_info,
@@ -431,6 +481,13 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            ycbcrConversion,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    void Process_vkResetQueryPool(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount) override;
+
     void Process_vkCreateRenderPass2(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -452,6 +509,13 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            device,
         format::HandleId                            privateDataSlot,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    void Process_vkCmdWriteTimestamp2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlags2                       stage,
+        format::HandleId                            queryPool,
+        uint32_t                                    query) override;
 
     void Process_vkMapMemory2(
         const ApiCallInfo&                          call_info,
@@ -683,6 +747,23 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo) override;
 
+    void Process_vkCmdWriteTimestamp2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlags2                       stage,
+        format::HandleId                            queryPool,
+        uint32_t                                    query) override;
+
+    void Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
+        VkAddressCommandFlagsKHR                    dstFlags,
+        VkQueryResultFlags                          queryResultFlags) override;
+
     void Process_vkCreatePipelineBinariesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -723,6 +804,21 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            instance,
         format::HandleId                            callback,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    void Process_vkCmdBeginQueryIndexedEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    query,
+        VkQueryControlFlags                         flags,
+        uint32_t                                    index) override;
+
+    void Process_vkCmdEndQueryIndexedEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    query,
+        uint32_t                                    index) override;
 
     void Process_vkCreateStreamDescriptorSurfaceGGP(
         const ApiCallInfo&                          call_info,
@@ -873,6 +969,13 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
+
+    void Process_vkResetQueryPoolEXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount) override;
 
     void Process_vkReleaseSwapchainImagesEXT(
         const ApiCallInfo&                          call_info,

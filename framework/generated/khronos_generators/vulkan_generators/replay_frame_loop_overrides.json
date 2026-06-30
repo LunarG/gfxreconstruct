@@ -186,5 +186,24 @@
     "vkReleasePerformanceConfigurationINTEL",
     "vkReleaseSwapchainImagesEXT",
     "vkReleaseSwapchainImagesKHR"
+  ],
+
+  "comment" : "These entry points are unconditionally skipped during frame looping",
+  "comment" : "to avoid validation errors or CPU waits.",
+  "skipDuringLooping":
+  [
+    "vkCmdWriteTimestamp",
+    "vkCmdWriteTimestamp2",
+    "vkCmdWriteTimestamp2KHR",
+    "vkCmdBeginQuery",
+    "vkCmdBeginQueryIndexedEXT",
+    "vkCmdEndQuery",
+    "vkCmdEndQueryIndexedEXT",
+    "vkCmdResetQueryPool",
+    "vkGetQueryPoolResults",
+    "vkCmdCopyQueryPoolResults",
+    "vkCmdCopyQueryPoolResultsToMemoryKHR",
+    "vkResetQueryPool",
+    "vkResetQueryPoolEXT"
   ]
 }

@@ -142,29 +142,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                     VkResult           returnValue,
                                     format::HandleId   commandBuffer) override;
 
-    void Process_vkCmdWriteTimestamp(const ApiCallInfo&      call_info,
-                                     format::HandleId        commandBuffer,
-                                     VkPipelineStageFlagBits pipelineStage,
-                                     format::HandleId        queryPool,
-                                     uint32_t                query) override;
-
-    void Process_vkCmdBeginQuery(const ApiCallInfo&  call_info,
-                                 format::HandleId    commandBuffer,
-                                 format::HandleId    queryPool,
-                                 uint32_t            query,
-                                 VkQueryControlFlags flags) override;
-
-    void Process_vkCmdEndQuery(const ApiCallInfo& call_info,
-                               format::HandleId   commandBuffer,
-                               format::HandleId   queryPool,
-                               uint32_t           query) override;
-
-    void Process_vkCmdResetQueryPool(const ApiCallInfo& call_info,
-                                     format::HandleId   commandBuffer,
-                                     format::HandleId   queryPool,
-                                     uint32_t           firstQuery,
-                                     uint32_t           queryCount) override;
-
     void Process_vkMapMemory(const ApiCallInfo&               call_info,
                              VkResult                         returnValue,
                              format::HandleId                 device,

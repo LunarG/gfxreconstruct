@@ -457,6 +457,25 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyQueryPool(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkGetQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    size_t                                      dataSize,
+    PointerDecoder<uint8_t>*                    pData,
+    VkDeviceSize                                stride,
+    VkQueryResultFlags                          flags)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkGetQueryPoolResults(call_info, returnValue, device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -736,6 +755,79 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
         return;
     }
     VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, device, commandPool, commandBufferCount, pCommandBuffers);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBeginQuery(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    query,
+    VkQueryControlFlags                         flags)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBeginQuery(call_info, commandBuffer, queryPool, query, flags);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEndQuery(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    query)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdEndQuery(call_info, commandBuffer, queryPool, query);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdResetQueryPool(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdResetQueryPool(call_info, commandBuffer, queryPool, firstQuery, queryCount);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlagBits                     pipelineStage,
+    format::HandleId                            queryPool,
+    uint32_t                                    query)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp(call_info, commandBuffer, pipelineStage, queryPool, query);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResults(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    format::HandleId                            dstBuffer,
+    VkDeviceSize                                dstOffset,
+    VkDeviceSize                                stride,
+    VkQueryResultFlags                          flags)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResults(call_info, commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateEvent(
@@ -1598,6 +1690,20 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroySamplerYcbcrConversion(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkResetQueryPool(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkResetQueryPool(call_info, device, queryPool, firstQuery, queryCount);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateRenderPass2(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -1687,6 +1793,20 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyPrivateDataSlot(call_info, device, privateDataSlot, pAllocator);
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlags2                       stage,
+    format::HandleId                            queryPool,
+    uint32_t                                    query)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp2(call_info, commandBuffer, stage, queryPool, query);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
@@ -2513,6 +2633,37 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     VulkanReplayConsumer::Process_vkUnmapMemory2KHR(call_info, returnValue, device, pMemoryUnmapInfo);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlags2                       stage,
+    format::HandleId                            queryPool,
+    uint32_t                                    query)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdWriteTimestamp2KHR(call_info, commandBuffer, stage, queryPool, query);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRangeKHR>* pDstRange,
+    VkAddressCommandFlagsKHR                    dstFlags,
+    VkQueryResultFlags                          queryResultFlags)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdCopyQueryPoolResultsToMemoryKHR(call_info, commandBuffer, queryPool, firstQuery, queryCount, pDstRange, dstFlags, queryResultFlags);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreatePipelineBinariesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -2652,6 +2803,35 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDebugReportCallbackEXT(
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(call_info, instance, callback, pAllocator);
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBeginQueryIndexedEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    query,
+    VkQueryControlFlags                         flags,
+    uint32_t                                    index)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBeginQueryIndexedEXT(call_info, commandBuffer, queryPool, query, flags, index);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdEndQueryIndexedEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            queryPool,
+    uint32_t                                    query,
+    uint32_t                                    index)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdEndQueryIndexedEXT(call_info, commandBuffer, queryPool, query, index);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateStreamDescriptorSurfaceGGP(
@@ -3145,6 +3325,20 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCreateHeadlessSurfaceEXT(
             allocatedLoopResources.insert(handle);
         }
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkResetQueryPoolEXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    if (getFrameLoopInfo().IsLooping())
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkResetQueryPoolEXT(call_info, device, queryPool, firstQuery, queryCount);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesEXT(
