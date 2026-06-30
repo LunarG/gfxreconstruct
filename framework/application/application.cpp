@@ -65,10 +65,9 @@ Application::Application(const std::string&     name,
                          decode::FileProcessor* file_processor,
                          const std::string&     cli_wsi_extension,
                          void*                  platform_specific_wsi_data) :
-    name_(name),
-    file_processor_(file_processor), async_processing_(false), running_(false), paused_(false),
-    pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension),
-    fps_info_(nullptr), frame_loop_info_{ nullptr }
+    name_(name), file_processor_(file_processor), async_processing_(false), running_(false), paused_(false),
+    pause_frame_(std::numeric_limits<uint32_t>::max()), cli_wsi_extension_(cli_wsi_extension), fps_info_(nullptr),
+    frame_loop_info_{ nullptr }
 {
 #if defined(__ANDROID__)
     android_app_           = reinterpret_cast<struct android_app*>(platform_specific_wsi_data);
@@ -174,11 +173,12 @@ void Application::Run()
             // Add one to match "trim frame range semantic"
             uint64_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 
-            if ((frame_loop_info_ != nullptr) && (frame_loop_info_->ShouldStartFrameLooping(frame_number)))
+            if ((frame_loop_info_ != nullptr) && (frame_loop_info_->IsEnteringLoopFrame(frame_number)))
             {
                 // Preload the next frame and make sure we don't advance to the next one.
                 GetPreloadFileProcessor()->PreloadLoopFrame();
                 frame_loop_info_->SetLooping(true);
+                frame_loop_info_->SetUsesFrameMarkers(file_processor_->UsesFrameMarkers());
             }
 
             if (fps_info_ != nullptr)
