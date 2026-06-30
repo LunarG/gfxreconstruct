@@ -712,29 +712,19 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
 
     UpdateActiveQueueInfo(queue);
 
-    if (IsLoopAnyIteration() && active_queue_info_ != nullptr)
+    if (IsLoopAnyIteration() && !ShouldUseFrameMarkers())
     {
-        if (!ShouldUseFrameMarkers())
-        {
-            ResetLoopBoundary();
-        }
+        ResetLoopBoundary();
     }
-
-    frame_number_++;
 }
 
 void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
 {
     VulkanReplayConsumer::ProcessFrameEndMarker(frame_number);
 
-    if (IsLoopAnyIteration())
+    if (IsLoopAnyIteration() && ShouldUseFrameMarkers())
     {
-        GFXRECON_LOG_DEBUG("ProcessFrameEndMarker: FrameEndMarker received for frame %" PRIu64, frame_number);
-
-        if (ShouldUseFrameMarkers())
-        {
-            ResetLoopBoundary();
-        }
+        ResetLoopBoundary();
     }
 }
 
@@ -1171,12 +1161,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkAcquireProfilingLockKHR(
         VulkanReplayConsumer::Process_vkAcquireProfilingLockKHR(call_info, returnValue, device, pInfo);
         // We're assuming call was successful. We don't have a way to check result.
         profilingLockState[device] = true;
-    }
-
-    frame_number_++;
-    if (frame_loop_info_.IsEnteringLoopFrame(frame_number_))
-    {
-        RecordInitialLayouts();
     }
 }
 

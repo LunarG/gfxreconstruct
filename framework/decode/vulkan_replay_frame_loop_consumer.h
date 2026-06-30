@@ -328,7 +328,6 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     VkCommandPool                                       restoration_command_pool_{ VK_NULL_HANDLE };
     VkCommandBuffer                                     restoration_command_buffer_{ VK_NULL_HANDLE };
     VkDevice                                            restoration_device_{ VK_NULL_HANDLE };
-    uint64_t                                            frame_number_{ 1 };
 
     // Support for loop boundary resetting across present or non-present submissions
     VkDevice                           active_device_{ VK_NULL_HANDLE };
