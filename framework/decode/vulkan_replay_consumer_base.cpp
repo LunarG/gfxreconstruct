@@ -82,6 +82,10 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 constexpr char kUnknownDeviceLabel[]  = "<Unknown>";
 constexpr char kValidationLayerName[] = "VK_LAYER_KHRONOS_validation";
 
+// vkGetEventStatus 'can' be used for synchronization, but cannot be (host-)waited on.
+// we poll until receiving VK_EVENT_SET, when the capture returned it.
+constexpr auto kGetEventStatusPollInterval = std::chrono::microseconds(100);
+
 const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,  VK_MVK_IOS_SURFACE_EXTENSION_NAME,
     VK_MVK_MACOS_SURFACE_EXTENSION_NAME,    VK_KHR_MIR_SURFACE_EXTENSION_NAME,
@@ -4311,17 +4315,18 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
 
     VkResult result = func(device, event);
 
-    util::BeginInjectedCommands();
-
-    // If the query was successful at capture time, it MUST be successful at replay time, to avoid sync issues
-    while (original_result == VK_EVENT_SET && result == VK_EVENT_RESET)
+    // If the query was successful at capture time, it MUST be successful at replay time, to avoid sync issues.
+    // There is no host wait-primitive for events, so poll.
+    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET)
     {
-        std::this_thread::sleep_for(std::chrono::microseconds(100)); // Avoid true busy waiting
-        result = func(device, event);
+        util::BeginInjectedCommands();
+        while (result == VK_EVENT_RESET)
+        {
+            std::this_thread::sleep_for(kGetEventStatusPollInterval);
+            result = func(device, event);
+        }
+        util::EndInjectedCommands();
     }
-
-    util::EndInjectedCommands();
-
     return result;
 }
 
