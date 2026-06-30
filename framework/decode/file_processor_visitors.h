@@ -99,8 +99,7 @@ class DispatchVisitor
     ProcessBlockState operator()(const FrameEndMarkerArgs* end_frame)
     {
         DispatchArgs(end_frame);
-        if (file_processor_.IsLoopReplay() &&
-            file_processor_.IsFrameDelimiter(format::BlockType::kFrameMarkerBlock, format::MarkerType::kEndMarker))
+        if (file_processor_.IsLoopReplay())
         {
             SetReplayResult({ file_processor_.GetCurrentFrameNumber(),
                               BlockIOError::kErrorNone,

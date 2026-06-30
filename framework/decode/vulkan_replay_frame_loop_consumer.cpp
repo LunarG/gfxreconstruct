@@ -1222,6 +1222,7 @@ bool VulkanReplayFrameLoopConsumer::InitializeRestorationResources(VkDevice devi
     if (result != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Failed to create restoration command pool, result=%d", result);
+        restoration_command_pool_ = VK_NULL_HANDLE;
         return false;
     }
 
@@ -1238,8 +1239,9 @@ bool VulkanReplayFrameLoopConsumer::InitializeRestorationResources(VkDevice devi
     {
         GFXRECON_LOG_ERROR("Failed to allocate restoration command buffer, result=%d", result);
         device_table->DestroyCommandPool(device, restoration_command_pool_, nullptr);
-        restoration_command_pool_ = VK_NULL_HANDLE;
-        restoration_device_       = VK_NULL_HANDLE;
+        restoration_command_pool_   = VK_NULL_HANDLE;
+        restoration_command_buffer_ = VK_NULL_HANDLE;
+        restoration_device_         = VK_NULL_HANDLE;
         return false;
     }
 
