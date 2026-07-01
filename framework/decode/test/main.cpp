@@ -165,7 +165,7 @@ TEST_CASE("BlockParser basic usage", "[wrapper]")
     REQUIRE(err_triggered);
 }
 
-TEST_CASE("SubmitInfo2Translator widens VkSubmitInfo into VkSubmitInfo2", "[]")
+TEST_CASE("Test a roundtrip between SubmitInfo2Translator and SubmitInfoTranslator", "[]")
 {
     // Handles are opaque here; fabricate distinct non-null values. They only need to compare equal.
     const VkSemaphore     wait_semaphores[2]   = { gfxrecon::format::FromHandleId<VkSemaphore>(0x11),
@@ -246,4 +246,72 @@ TEST_CASE("SubmitInfo2Translator widens VkSubmitInfo into VkSubmitInfo2", "[]")
     REQUIRE(gfxrecon::graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&s) == nullptr);
     REQUIRE(gfxrecon::graphics::vulkan_struct_get_pnext<VkProtectedSubmitInfo>(&s) == nullptr);
     REQUIRE(gfxrecon::graphics::vulkan_struct_get_pnext<VkDeviceGroupSubmitInfo>(&s) == nullptr);
+
+    // Round-trip: narrow the VkSubmitInfo2 back into a VkSubmitInfo. The result must be equivalent to the original
+    // VkSubmitInfo, with the timeline/device-group/protected information reconstructed into pNext structures.
+    gfxrecon::graphics::SubmitInfoTranslator reverse_translator(infos_v2);
+    const auto&                              infos_v1_roundtrip = reverse_translator.GetSubmitInfos();
+
+    REQUIRE(infos_v1_roundtrip.size() == infos_v2.size());
+
+    const VkSubmitInfo& r = infos_v1_roundtrip[0];
+    REQUIRE(r.sType == VK_STRUCTURE_TYPE_SUBMIT_INFO);
+
+    // Wait semaphores, the (narrowed) wait-stage masks, command buffers and signal semaphores must match the original.
+    REQUIRE(r.waitSemaphoreCount == info.waitSemaphoreCount);
+    for (uint32_t i = 0; i < info.waitSemaphoreCount; ++i)
+    {
+        REQUIRE(r.pWaitSemaphores[i] == info.pWaitSemaphores[i]);
+        REQUIRE(r.pWaitDstStageMask[i] == info.pWaitDstStageMask[i]);
+    }
+
+    REQUIRE(r.commandBufferCount == info.commandBufferCount);
+    for (uint32_t i = 0; i < info.commandBufferCount; ++i)
+    {
+        REQUIRE(r.pCommandBuffers[i] == info.pCommandBuffers[i]);
+    }
+
+    REQUIRE(r.signalSemaphoreCount == info.signalSemaphoreCount);
+    for (uint32_t i = 0; i < info.signalSemaphoreCount; ++i)
+    {
+        REQUIRE(r.pSignalSemaphores[i] == info.pSignalSemaphores[i]);
+    }
+
+    // The protected flag must be reconstructed into a VkProtectedSubmitInfo.
+    const auto* r_protected = gfxrecon::graphics::vulkan_struct_get_pnext<VkProtectedSubmitInfo>(&r);
+    REQUIRE(r_protected != nullptr);
+    REQUIRE(r_protected->protectedSubmit == protected_info.protectedSubmit);
+
+    // The timeline values must be reconstructed into a VkTimelineSemaphoreSubmitInfo.
+    const auto* r_timeline = gfxrecon::graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&r);
+    REQUIRE(r_timeline != nullptr);
+    REQUIRE(r_timeline->waitSemaphoreValueCount == info.waitSemaphoreCount);
+    for (uint32_t i = 0; i < info.waitSemaphoreCount; ++i)
+    {
+        REQUIRE(r_timeline->pWaitSemaphoreValues[i] == wait_values[i]);
+    }
+    REQUIRE(r_timeline->signalSemaphoreValueCount == info.signalSemaphoreCount);
+    for (uint32_t i = 0; i < info.signalSemaphoreCount; ++i)
+    {
+        REQUIRE(r_timeline->pSignalSemaphoreValues[i] == signal_values[i]);
+    }
+
+    // The device-group indices/masks must be reconstructed into a VkDeviceGroupSubmitInfo.
+    const auto* r_device_group = gfxrecon::graphics::vulkan_struct_get_pnext<VkDeviceGroupSubmitInfo>(&r);
+    REQUIRE(r_device_group != nullptr);
+    REQUIRE(r_device_group->waitSemaphoreCount == info.waitSemaphoreCount);
+    for (uint32_t i = 0; i < info.waitSemaphoreCount; ++i)
+    {
+        REQUIRE(r_device_group->pWaitSemaphoreDeviceIndices[i] == wait_device_indices[i]);
+    }
+    REQUIRE(r_device_group->commandBufferCount == info.commandBufferCount);
+    for (uint32_t i = 0; i < info.commandBufferCount; ++i)
+    {
+        REQUIRE(r_device_group->pCommandBufferDeviceMasks[i] == command_buffer_masks[i]);
+    }
+    REQUIRE(r_device_group->signalSemaphoreCount == info.signalSemaphoreCount);
+    for (uint32_t i = 0; i < info.signalSemaphoreCount; ++i)
+    {
+        REQUIRE(r_device_group->pSignalSemaphoreDeviceIndices[i] == signal_device_indices[i]);
+    }
 }
