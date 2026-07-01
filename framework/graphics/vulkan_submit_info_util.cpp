@@ -36,16 +36,17 @@ SubmitInfo2Translator::SubmitInfo2Translator(std::span<const VkSubmitInfo> submi
 {
     for (size_t i = 0; i < submit_infos.size(); ++i)
     {
+        const auto& submit_info = submit_infos[i];
+
         const auto* timeline_semaphore_submit_info =
-            graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&submit_infos[i]);
-        const auto* protected_submit_info = graphics::vulkan_struct_get_pnext<VkProtectedSubmitInfo>(&submit_infos[i]);
-        const auto* device_group_submit_info =
-            graphics::vulkan_struct_get_pnext<VkDeviceGroupSubmitInfo>(&submit_infos[i]);
+            graphics::vulkan_struct_get_pnext<VkTimelineSemaphoreSubmitInfo>(&submit_info);
+        const auto* protected_submit_info    = graphics::vulkan_struct_get_pnext<VkProtectedSubmitInfo>(&submit_info);
+        const auto* device_group_submit_info = graphics::vulkan_struct_get_pnext<VkDeviceGroupSubmitInfo>(&submit_info);
 
         // These pNext structures are valid on VkSubmitInfo but not on VkSubmitInfo2, and there is no field in
         // VkSubmitInfo2 to carry their information. Warn so that an unexpectedly forwarded (and invalid) struct is at
         // least diagnosable rather than silently passed to vkQueueSubmit2.
-        if (graphics::vulkan_struct_get_pnext<VkD3D12FenceSubmitInfoKHR>(&submit_infos[i]) != nullptr)
+        if (graphics::vulkan_struct_get_pnext<VkD3D12FenceSubmitInfoKHR>(&submit_info) != nullptr)
         {
             GFXRECON_LOG_WARNING("VkD3D12FenceSubmitInfoKHR is not supported in the VkSubmitInfo->VkSubmitInfo2 "
                                  "translation and will be ignored.");
@@ -58,26 +59,26 @@ SubmitInfo2Translator::SubmitInfo2Translator(std::span<const VkSubmitInfo> submi
         if (timeline_semaphore_submit_info != nullptr || protected_submit_info != nullptr ||
             device_group_submit_info != nullptr)
         {
-            const size_t num_bytes = graphics::vulkan_struct_deep_copy(&submit_infos[i], 1, nullptr);
+            const size_t num_bytes = graphics::vulkan_struct_deep_copy(&submit_info, 1, nullptr);
             pnext_deep_copies_[i].resize(num_bytes);
-            graphics::vulkan_struct_deep_copy(&submit_infos[i], 1, pnext_deep_copies_[i].data());
+            graphics::vulkan_struct_deep_copy(&submit_info, 1, pnext_deep_copies_[i].data());
 
             modified_pnext_chain = reinterpret_cast<VkSubmitInfo*>(pnext_deep_copies_[i].data());
         }
 
         // Extract timeline semaphore values and remove them from pNext chain
-        std::vector<uint64_t> timeline_semaphore_wait_values(submit_infos[i].waitSemaphoreCount);
-        std::vector<uint64_t> timeline_semaphore_signal_values(submit_infos[i].signalSemaphoreCount);
+        std::vector<uint64_t> timeline_semaphore_wait_values(submit_info.waitSemaphoreCount);
+        std::vector<uint64_t> timeline_semaphore_signal_values(submit_info.signalSemaphoreCount);
         if (timeline_semaphore_submit_info != nullptr)
         {
-            for (uint32_t s = 0; s < std::min(submit_infos[i].waitSemaphoreCount,
-                                              timeline_semaphore_submit_info->waitSemaphoreValueCount);
+            for (uint32_t s = 0;
+                 s < std::min(submit_info.waitSemaphoreCount, timeline_semaphore_submit_info->waitSemaphoreValueCount);
                  ++s)
             {
                 timeline_semaphore_wait_values[s] = timeline_semaphore_submit_info->pWaitSemaphoreValues[s];
             }
 
-            for (uint32_t s = 0; s < std::min(submit_infos[i].signalSemaphoreCount,
+            for (uint32_t s = 0; s < std::min(submit_info.signalSemaphoreCount,
                                               timeline_semaphore_submit_info->signalSemaphoreValueCount);
                  ++s)
             {
@@ -103,27 +104,27 @@ SubmitInfo2Translator::SubmitInfo2Translator(std::span<const VkSubmitInfo> submi
 
         // Extract device group indices/masks and remove the struct from the pNext chain. In VkSubmitInfo2 the
         // per-semaphore device index and per-command-buffer device mask move into the respective sub-structures.
-        std::vector<uint32_t> wait_device_indices(submit_infos[i].waitSemaphoreCount);
-        std::vector<uint32_t> signal_device_indices(submit_infos[i].signalSemaphoreCount);
-        std::vector<uint32_t> command_buffer_device_masks(submit_infos[i].commandBufferCount);
+        std::vector<uint32_t> wait_device_indices(submit_info.waitSemaphoreCount);
+        std::vector<uint32_t> signal_device_indices(submit_info.signalSemaphoreCount);
+        std::vector<uint32_t> command_buffer_device_masks(submit_info.commandBufferCount);
         if (device_group_submit_info != nullptr)
         {
             for (uint32_t s = 0;
-                 s < std::min(submit_infos[i].waitSemaphoreCount, device_group_submit_info->waitSemaphoreCount);
+                 s < std::min(submit_info.waitSemaphoreCount, device_group_submit_info->waitSemaphoreCount);
                  ++s)
             {
                 wait_device_indices[s] = device_group_submit_info->pWaitSemaphoreDeviceIndices[s];
             }
 
             for (uint32_t s = 0;
-                 s < std::min(submit_infos[i].signalSemaphoreCount, device_group_submit_info->signalSemaphoreCount);
+                 s < std::min(submit_info.signalSemaphoreCount, device_group_submit_info->signalSemaphoreCount);
                  ++s)
             {
                 signal_device_indices[s] = device_group_submit_info->pSignalSemaphoreDeviceIndices[s];
             }
 
             for (uint32_t s = 0;
-                 s < std::min(submit_infos[i].commandBufferCount, device_group_submit_info->commandBufferCount);
+                 s < std::min(submit_info.commandBufferCount, device_group_submit_info->commandBufferCount);
                  ++s)
             {
                 command_buffer_device_masks[s] = device_group_submit_info->pCommandBufferDeviceMasks[s];
@@ -134,43 +135,43 @@ SubmitInfo2Translator::SubmitInfo2Translator(std::span<const VkSubmitInfo> submi
         }
 
         // Wait semaphores. The per-semaphore wait stage moves from pWaitDstStageMask into VkSemaphoreSubmitInfo.
-        wait_semaphores_[i].resize(submit_infos[i].waitSemaphoreCount);
-        for (uint32_t j = 0; j < submit_infos[i].waitSemaphoreCount; ++j)
+        wait_semaphores_[i].resize(submit_info.waitSemaphoreCount);
+        for (uint32_t j = 0; j < submit_info.waitSemaphoreCount; ++j)
         {
             wait_semaphores_[i][j] =
                 VkSemaphoreSubmitInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
                                        nullptr,
-                                       submit_infos[i].pWaitSemaphores[j],
+                                       submit_info.pWaitSemaphores[j],
                                        timeline_semaphore_wait_values[j],
-                                       submit_infos[i].pWaitDstStageMask
-                                           ? static_cast<VkPipelineStageFlags2>(submit_infos[i].pWaitDstStageMask[j])
+                                       (submit_info.pWaitDstStageMask != nullptr)
+                                           ? static_cast<VkPipelineStageFlags2>(submit_info.pWaitDstStageMask[j])
                                            : VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
                                        wait_device_indices[j] };
         }
 
         // Command buffers
-        command_buffers_[i].resize(submit_infos[i].commandBufferCount);
-        for (uint32_t j = 0; j < submit_infos[i].commandBufferCount; ++j)
+        command_buffers_[i].resize(submit_info.commandBufferCount);
+        for (uint32_t j = 0; j < submit_info.commandBufferCount; ++j)
         {
             command_buffers_[i][j] = VkCommandBufferSubmitInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
                                                                 nullptr,
-                                                                submit_infos[i].pCommandBuffers[j],
+                                                                submit_info.pCommandBuffers[j],
                                                                 command_buffer_device_masks[j] };
         }
 
         // Signal semaphores. A VkSubmitInfo signals once all submitted work completes, i.e. at ALL_COMMANDS.
-        signal_semaphores_[i].resize(submit_infos[i].signalSemaphoreCount);
-        for (uint32_t j = 0; j < submit_infos[i].signalSemaphoreCount; ++j)
+        signal_semaphores_[i].resize(submit_info.signalSemaphoreCount);
+        for (uint32_t j = 0; j < submit_info.signalSemaphoreCount; ++j)
         {
             signal_semaphores_[i][j] =
                 VkSemaphoreSubmitInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO, nullptr,
-                                       submit_infos[i].pSignalSemaphores[j],    timeline_semaphore_signal_values[j],
+                                       submit_info.pSignalSemaphores[j],        timeline_semaphore_signal_values[j],
                                        VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,    signal_device_indices[j] };
         }
 
         submit_infos_2_[i] =
             VkSubmitInfo2{ VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-                           modified_pnext_chain != nullptr ? modified_pnext_chain->pNext : submit_infos[i].pNext,
+                           modified_pnext_chain != nullptr ? modified_pnext_chain->pNext : submit_info.pNext,
                            flags,
                            static_cast<uint32_t>(wait_semaphores_[i].size()),
                            wait_semaphores_[i].size() ? wait_semaphores_[i].data() : nullptr,

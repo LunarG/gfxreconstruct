@@ -90,14 +90,16 @@ class SubmitInfoTranslator
     std::vector<std::vector<VkCommandBuffer>>      command_buffers_;
     std::vector<std::vector<VkSemaphore>>          signal_semaphores_;
 
-    // Backing storage for the reconstructed pNext structures and the arrays they reference. Indexed per source
-    // VkSubmitInfo2; sized once so that the addresses stored in the pNext chains remain stable.
+    // Backing storage for the reconstructed pNext structures and the arrays they reference.
+    // Indexed per source VkSubmitInfo2.
     std::vector<std::vector<uint64_t>> wait_values_;
     std::vector<std::vector<uint64_t>> signal_values_;
     std::vector<std::vector<uint32_t>> wait_device_indices_;
     std::vector<std::vector<uint32_t>> signal_device_indices_;
     std::vector<std::vector<uint32_t>> command_buffer_device_masks_;
 
+    // The structs that will be injected in the pNext chain if necessary.
+    // Indexed per source VkSubmitInfo2.
     std::vector<VkTimelineSemaphoreSubmitInfo> timeline_submit_infos_;
     std::vector<VkDeviceGroupSubmitInfo>       device_group_submit_infos_;
     std::vector<VkProtectedSubmitInfo>         protected_submit_infos_;
