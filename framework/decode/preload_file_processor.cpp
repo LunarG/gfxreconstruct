@@ -39,6 +39,11 @@ void PreloadFileProcessor::PreloadLoopFrame()
     loop_replay_ = true;
     loop_bookmark_ =
         SkipStateBlocks(dispatch_frame_number_, preload_batch_iterator_.MakeBookmark(preload_block_iterator_));
+
+    for (auto decoder : decoders_)
+    {
+        decoder->StartLooping();
+    }
 }
 void PreloadFileProcessor::PreloadNextFrames(size_t count)
 {

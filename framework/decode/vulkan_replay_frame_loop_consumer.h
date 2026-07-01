@@ -43,6 +43,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
+    virtual void ProcessStateEndMarker(uint64_t frame_number) override;
+
     void Process_vkCreateCommandPool(const ApiCallInfo&                                     call_info,
                                      VkResult                                               returnValue,
                                      format::HandleId                                       device,
@@ -81,29 +83,17 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
                                       uint32_t                               descriptorSetCount,
                                       HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets) override;
 
-    void Process_vkWaitForFences(const ApiCallInfo&             call_info,
-                                 VkResult                       returnValue,
-                                 format::HandleId               device,
-                                 uint32_t                       fenceCount,
-                                 HandlePointerDecoder<VkFence>* pFences,
-                                 VkBool32                       waitAll,
-                                 uint64_t                       timeout) override;
+    void Process_vkCreateFence(const ApiCallInfo&                                   call_info,
+                               VkResult                                             returnValue,
+                               format::HandleId                                     device,
+                               StructPointerDecoder<Decoded_VkFenceCreateInfo>*     pCreateInfo,
+                               StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                               HandlePointerDecoder<VkFence>*                       pFence) override;
 
-    void Process_vkQueueSubmit(const ApiCallInfo&                          call_info,
-                               VkResult                                    returnValue,
-                               format::HandleId                            queue,
-                               uint32_t                                    submitCount,
-                               StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
-                               format::HandleId                            fence) override;
-
-    void Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
-                                       VkResult                  returnValue,
-                                       format::HandleId          device,
-                                       format::HandleId          swapchain,
-                                       uint64_t                  timeout,
-                                       format::HandleId          semaphore,
-                                       format::HandleId          fence,
-                                       PointerDecoder<uint32_t>* pImageIndex) override;
+    void Process_vkDestroyFence(const ApiCallInfo&                                   call_info,
+                                format::HandleId                                     device,
+                                format::HandleId                                     fence,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
     void Process_vkQueuePresentKHR(const ApiCallInfo&                              call_info,
                                    VkResult                                        returnValue,
@@ -128,14 +118,16 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, format::HandleId device) override;
 
+    virtual void StartLooping() override;
+
     // Private declarations
   private:
     void RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
     struct FenceTracking
     {
-        std::unordered_map<format::HandleId, uint32_t> signaled_fences_;
-        std::unordered_map<format::HandleId, uint32_t> waited_upon_fences_;
+        std::unordered_map<format::HandleId, bool> initial_fence_states_;
     };
+    void TrackFenceState(format::HandleId device, format::HandleId fence);
     void FixupDeviceFences(format::HandleId device, format::HandleId queue);
 
     // Private data
