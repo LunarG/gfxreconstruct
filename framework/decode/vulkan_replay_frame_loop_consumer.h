@@ -83,6 +83,11 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                          format::HandleId                                     descriptorPool,
                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    void Process_vkDestroyEvent(const ApiCallInfo&                                   call_info,
+                                format::HandleId                                     device,
+                                format::HandleId                                     event,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
     void Process_vkResetDescriptorPool(const ApiCallInfo&         call_info,
                                        VkResult                   returnValue,
                                        format::HandleId           device,

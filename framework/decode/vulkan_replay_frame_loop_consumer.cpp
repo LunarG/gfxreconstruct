@@ -283,6 +283,24 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyDescriptorPool(
     VulkanReplayConsumer::Process_vkDestroyDescriptorPool(call_info, device, descriptorPool, pAllocator);
 }
 
+void VulkanReplayFrameLoopConsumer::Process_vkDestroyEvent(
+    const ApiCallInfo&                                   call_info,
+    format::HandleId                                     device,
+    format::HandleId                                     event,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    if (!IsLoopAnyIteration())
+    {
+        GFXRECON_ASSERT(!allocatedLoopResources.contains(event));
+        VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
+    }
+    else if (IsLoopLastIteration())
+    {
+        VulkanReplayConsumer::Process_vkDestroyEvent(call_info, device, event, pAllocator);
+        allocatedLoopResources.erase(event);
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool)
 {
     std::vector<format::HandleId> handles_to_delete;
@@ -425,10 +443,20 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
         });
     }
 
-    if (active_device_ != VK_NULL_HANDLE && active_device_table_ != nullptr && active_queue_info_ != nullptr)
-    {
-        RecordInitialBufferStates(active_device_, active_device_table_, active_queue_info_);
-    }
+    std::unordered_set<VkDevice> visited_devices;
+    GetObjectInfoTable().VisitVkQueueInfo([this, &visited_devices](const VulkanQueueInfo* q_info) {
+        if (q_info != nullptr && q_info->handle != VK_NULL_HANDLE && q_info->parent != VK_NULL_HANDLE)
+        {
+            if (visited_devices.insert(q_info->parent).second)
+            {
+                const graphics::VulkanDeviceTable* dev_table = GetDeviceTable(q_info->parent);
+                if (dev_table != nullptr)
+                {
+                    RecordInitialBufferStates(q_info->parent, dev_table, const_cast<VulkanQueueInfo*>(q_info));
+                }
+            }
+        }
+    });
 
     // Only preserve command buffers across loop boundaries if they are actively recording
     // inside an open render pass when the loop starts (e.g., vkCmdBeginRenderPass was called
@@ -1185,14 +1213,23 @@ void VulkanReplayFrameLoopConsumer::ResetLoopBoundary()
         GFXRECON_ASSERT(active_device_);
         GFXRECON_ASSERT(active_device_table_);
 
-        VkResult wait_result = active_device_table_->DeviceWaitIdle(active_device_);
-        CHECK_VK_RESULT(wait_result, "vkDeviceWaitIdle");
+        WaitDevicesIdle();
 
-        // Restore image layouts at the loop boundary
-        RestoreImageLayouts(active_device_, active_device_table_, active_queue_info_);
-
-        // Restore buffer states at the loop boundary
-        RestoreBufferStates(active_device_, active_device_table_, active_queue_info_);
+        std::unordered_set<VkDevice> visited_devices;
+        GetObjectInfoTable().VisitVkQueueInfo([this, &visited_devices](const VulkanQueueInfo* q_info) {
+            if (q_info != nullptr && q_info->handle != VK_NULL_HANDLE && q_info->parent != VK_NULL_HANDLE)
+            {
+                if (visited_devices.insert(q_info->parent).second)
+                {
+                    const graphics::VulkanDeviceTable* dev_table = GetDeviceTable(q_info->parent);
+                    if (dev_table != nullptr)
+                    {
+                        RestoreImageLayouts(q_info->parent, dev_table, const_cast<VulkanQueueInfo*>(q_info));
+                        RestoreBufferStates(q_info->parent, dev_table, const_cast<VulkanQueueInfo*>(q_info));
+                    }
+                }
+            }
+        });
 
         // Classify command pools once at the end of the first iteration
         ClassifyActiveCommandPools();
@@ -1357,7 +1394,7 @@ void VulkanReplayFrameLoopConsumer::RecordInitialBufferStates(VkDevice          
 
     uint32_t copy_count = 0;
     GetObjectInfoTable().VisitVkBufferInfo([this, device, device_table, &copy_count](const VulkanBufferInfo* info) {
-        if (info == nullptr || info->handle == VK_NULL_HANDLE || info->size == 0 || info->size > 32 * 1024 * 1024)
+        if (info == nullptr || info->handle == VK_NULL_HANDLE || info->size == 0)
         {
             return;
         }
@@ -1462,6 +1499,7 @@ void VulkanReplayFrameLoopConsumer::RecordInitialBufferStates(VkDevice          
         if (submit_res == VK_SUCCESS)
         {
             device_table->QueueWaitIdle(queue_info->handle);
+            GFXRECON_LOG_INFO("RecordInitialBufferStates: Snapshotted %u buffers into shadow memory.", copy_count);
         }
     }
 }
