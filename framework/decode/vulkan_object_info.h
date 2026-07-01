@@ -713,7 +713,8 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     std::unordered_map<const VulkanBufferInfo*, std::vector<std::pair<size_t, uint32_t>>> addresses_to_resolve;
 
     // flag indicating if the command-buffer is currently recording a VkRenderpass or VK_KHR_dynamic_rendering scope
-    bool in_rendering_scope = false;
+    bool                 in_rendering_scope = false;
+    VkCommandBufferLevel level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>

@@ -96,6 +96,45 @@ class DispatchVisitor
         return DispatchArgs(state_end);
     }
 
+    ProcessBlockState operator()(const FrameEndMarkerArgs* end_frame)
+    {
+        DispatchArgs(end_frame);
+        if (file_processor_.IsLoopReplay())
+        {
+            SetReplayResult({ file_processor_.GetCurrentFrameNumber(),
+                              BlockIOError::kErrorNone,
+                              ProcessBlockState::kFrameBoundary });
+            return ProcessBlockState::kFrameBoundary;
+        }
+        return ProcessBlockState::kContinue;
+    }
+
+    ProcessBlockState operator()(const FunctionCallArgs* function_call)
+    {
+        DispatchArgs(function_call);
+        if (file_processor_.IsLoopReplay() && file_processor_.IsFrameDelimiter(function_call->call_id))
+        {
+            SetReplayResult({ file_processor_.GetCurrentFrameNumber(),
+                              BlockIOError::kErrorNone,
+                              ProcessBlockState::kFrameBoundary });
+            return ProcessBlockState::kFrameBoundary;
+        }
+        return ProcessBlockState::kContinue;
+    }
+
+    ProcessBlockState operator()(const MethodCallArgs* method_call)
+    {
+        DispatchArgs(method_call);
+        if (file_processor_.IsLoopReplay() && file_processor_.IsFrameDelimiter(method_call->call_id))
+        {
+            SetReplayResult({ file_processor_.GetCurrentFrameNumber(),
+                              BlockIOError::kErrorNone,
+                              ProcessBlockState::kFrameBoundary });
+            return ProcessBlockState::kFrameBoundary;
+        }
+        return ProcessBlockState::kContinue;
+    }
+
     ProcessBlockState operator()(const AnnotationArgs* annotation)
     {
         if (annotation_handler_)

@@ -174,11 +174,12 @@ void Application::Run()
             // Add one to match "trim frame range semantic"
             uint64_t frame_number = file_processor_->GetCurrentFrameNumber() + 1;
 
-            if ((frame_loop_info_ != nullptr) && (frame_loop_info_->ShouldStartFrameLooping(frame_number)))
+            if ((frame_loop_info_ != nullptr) && (frame_loop_info_->IsEnteringLoopFrame(frame_number)))
             {
                 // Preload the next frame and make sure we don't advance to the next one.
                 GetPreloadFileProcessor()->PreloadLoopFrame();
                 frame_loop_info_->SetLooping(true);
+                frame_loop_info_->SetUsesFrameMarkers(file_processor_->UsesFrameMarkers());
             }
 
             if (fps_info_ != nullptr)

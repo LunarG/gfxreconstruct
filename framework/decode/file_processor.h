@@ -102,6 +102,9 @@ class FileProcessor
     // occurred.  Use GetErrorState() to determine error condition.
     virtual bool ProcessNextFrame();
 
+    // Returns true if the file processor is replaying a preloaded loop frame.
+    virtual bool IsLoopReplay() const { return false; }
+
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
