@@ -7997,6 +7997,35 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
                 supported_extension_iterator == instance_info->util_info.enabled_extensions.end();
         }
 
+        // If supported surface formats were not queried before, query them now
+        if (!physical_device_info->surface_formats && options_.swapchain_option != util::SwapchainOption::kOffscreen)
+        {
+            const auto instance_table = GetInstanceTable(physical_device_info->handle);
+            util::BeginInjectedCommands();
+            uint32_t surface_format_count = 0;
+            auto     result               = instance_table->GetPhysicalDeviceSurfaceFormatsKHR(
+                physical_device_info->handle, modified_create_info.surface, &surface_format_count, nullptr);
+            if (result == VK_SUCCESS && surface_format_count > 0)
+            {
+                physical_device_info->surface_formats =
+                    std::make_optional<std::vector<VkSurfaceFormatKHR>>(surface_format_count);
+                result =
+                    instance_table->GetPhysicalDeviceSurfaceFormatsKHR(physical_device_info->handle,
+                                                                       modified_create_info.surface,
+                                                                       &surface_format_count,
+                                                                       physical_device_info->surface_formats->data());
+                if (result == VK_SUCCESS || result == VK_INCOMPLETE)
+                {
+                    physical_device_info->surface_formats->resize(surface_format_count);
+                }
+                else
+                {
+                    physical_device_info->surface_formats.reset();
+                }
+            }
+            util::EndInjectedCommands();
+        }
+
         // check if 'replay_create_info->imageFormat' is supported,
         // do nothing if we got no information about available surfaces
         bool surface_format_supported = !physical_device_info->surface_formats;
