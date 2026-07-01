@@ -320,8 +320,8 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyFence(
             FenceTracking& t = per_device_fence_tracking_[device];
             t.initial_fence_states_.erase(fence);
         }
-        VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, device, fence, pAllocator);
     }
+    VulkanReplayFrameLoopConsumerBase::Process_vkDestroyFence(call_info, device, fence, pAllocator);
 }
 
 void VulkanReplayFrameLoopConsumer::TrackFenceState(format::HandleId device, format::HandleId fence)
