@@ -110,18 +110,18 @@ class KhronosExportJsonConsumerBodyGenerator():
 
         # Handle function return value
         if return_type in self.formatAsHex:
-            body += '    FieldToJsonAsHex(jdata[NameReturn()], returnValue);\n'
+            body += '    FieldToJsonAsHex(jdata[format::kNameReturn], returnValue);\n'
         elif self.is_boolean_type(return_type):
             # Output as JSON boolean type true/false without quotes:
-            body += '    Bool32ToJson(jdata[NameReturn()], returnValue);\n'
+            body += '    Bool32ToJson(jdata[format::kNameReturn], returnValue);\n'
         elif self.is_handle_like(return_type):
-            body += '    HandleToJson(jdata[NameReturn()], returnValue);\n'
+            body += '    HandleToJson(jdata[format::kNameReturn], returnValue);\n'
         # Enums, ints, etc. handled by default and static dispatch based on C++ type:
         elif not 'void' in return_type:
-            body += '    jdata[NameReturn()] = returnValue;\n'
+            body += '    jdata[format::kNameReturn] = returnValue;\n'
 
         if len(values) > 0:
-            body += '    auto& args = jdata[NameArgs()];\n'
+            body += '    auto& args = jdata[format::kNameArgs];\n'
             # Handle function arguments
             for value in values:
                 flagsEnumType = value.base_type

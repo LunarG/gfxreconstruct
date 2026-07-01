@@ -77,8 +77,8 @@ void OpenXrExportJsonConsumerBase::Process_xrInitializeLoaderKHR(
     StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrInitializeLoaderKHR");
-    jdata[NameReturn()]           = returnValue;
-    auto& args                    = jdata[NameArgs()];
+    jdata[format::kNameReturn]    = returnValue;
+    auto& args                    = jdata[format::kNameArgs];
     switch (loaderInitInfo->GetPointer()->type)
     {
         default:
@@ -100,8 +100,8 @@ void OpenXrExportJsonConsumerBase::Process_xrCreateApiLayerInstance(
     HandlePointerDecoder<XrInstance>*                   instance)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateApiLayerInstance");
-    jdata[NameReturn()]           = returnValue;
-    auto& args                    = jdata[NameArgs()];
+    jdata[format::kNameReturn]    = returnValue;
+    auto& args                    = jdata[format::kNameArgs];
     FieldToJson(args["info"], info);
     FieldToJson(args["layerInfo"], layerInfo);
     HandleToJson(args["instance"], instance);
@@ -118,8 +118,8 @@ void OpenXrExportJsonConsumerBase::Process_xrEnumerateSwapchainImages(
     StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateSwapchainImages");
-    jdata[NameReturn()]           = returnValue;
-    auto& args                    = jdata[NameArgs()];
+    jdata[format::kNameReturn]    = returnValue;
+    auto& args                    = jdata[format::kNameArgs];
     HandleToJson(args["swapchain"], swapchain);
     args["imageCapacityInput"] = imageCapacityInput;
     FieldToJson(args["imageCountOutput"], imageCountOutput);
@@ -172,10 +172,10 @@ void OpenXrExportJsonConsumerBase::Process_xrPollEvent(const ApiCallInfo&       
                                                        StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPollEvent");
-    jdata[NameReturn()]           = returnValue;
+    jdata[format::kNameReturn]    = returnValue;
     if (returnValue != XR_EVENT_UNAVAILABLE)
     {
-        auto& args = jdata[NameArgs()];
+        auto& args = jdata[format::kNameArgs];
         HandleToJson(args["instance"], instance);
         switch (eventData->GetPointer()->type)
         {

@@ -141,30 +141,6 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
     /// Output the current in-memory json tree to the destination file.
     void WriteBlockEnd() { writer_->WriteBlockEnd(); }
 
-    // Wrappers for json field names allowing change without code gen and
-    // leaving door open for switching output based on internal state.
-    /// @todo Just use the constants directly: the requirement to be able to have
-    /// different versions of field names switchable at runtime that I added these
-    /// as a first step towards during Export PR integration has gone away.
-    constexpr const char* NameFunction() const { return format::kNameFunction; }
-    constexpr const char* NameMeta() const { return format::kNameMeta; }
-    constexpr const char* NameState() const { return format::kNameState; }
-    constexpr const char* NameFrame() const { return format::kNameFrame; }
-    constexpr const char* NameName() const { return format::kNameName; }
-    constexpr const char* NameIndex() const { return format::kNameIndex; }
-    constexpr const char* NameThread() const { return format::kNameThread; }
-    constexpr const char* NameReturn() const { return format::kNameReturn; }
-    constexpr const char* NameArgs() const { return format::kNameArgs; }
-    /// A field not present in binary format which identifies the index of each
-    /// command within its command buffer.
-    /// @todo Make this field optional.
-    constexpr const char* NameCommandIndex() const { return "cmd_index"; }
-    /// A field not present in binary format which identifies the index of each
-    /// submit in the global order of all submits to all queues as recorded in
-    /// the binary trace file.
-    /// @todo Make this field optional.
-    constexpr const char* NameSubmitIndex() const { return "sub_index"; }
-
     nlohmann::ordered_json& WriteApiCallStart(const ApiCallInfo& call_info, const std::string& command_name)
     {
         return writer_->WriteApiCallStart(call_info, command_name);

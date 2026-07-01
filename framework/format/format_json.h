@@ -47,6 +47,8 @@ constexpr const char* kNameThread{ "thread" };
 constexpr const char* kNameReturn{ "return" };
 constexpr const char* kNameArgs{ "args" };
 constexpr const char* kNameData{ "data" };
+constexpr const char* kNameCommandIndex{ "cmd_index" };
+constexpr const char* kNameSubmitIndex{ "sub_index" };
 /// @}
 
 constexpr const char* kValBinary{ "[Binary data]" };

@@ -130,9 +130,9 @@ class VulkanExportJsonConsumerBodyGenerator(VulkanBaseGenerator, KhronosExportJs
         body = ''
 
         if name in self.queueSubmit:
-            body += '    jdata[NameSubmitIndex()] = ++submit_index_;\n'
+            body += '    jdata[format::kNameSubmitIndex] = ++submit_index_;\n'
         elif self.is_command_buffer_cmd(name):
-            body += '    jdata[NameCommandIndex()] = GetCommandBufferRecordIndex(commandBuffer);\n'
+            body += '    jdata[format::kNameCommandIndex] = GetCommandBufferRecordIndex(commandBuffer);\n'
 
         body += KhronosExportJsonConsumerBodyGenerator.make_consumer_func_body(self, return_type, name, values)
         return body
