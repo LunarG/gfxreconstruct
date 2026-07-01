@@ -4589,9 +4589,10 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
 
     VkResult result = func(device, event);
 
-    // If the query was successful at capture time, it MUST be successful at replay time, to avoid sync issues.
-    // There is no host wait-primitive for events, so poll.
-    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET)
+    // A captured VK_EVENT_SET must be reproduced at replay to preserve synchronization.
+    // there is no host wait-primitive for events, so we have to poll, but:
+    // wait only when VK_EVENT_SET is the event's terminal state -> avoid looping forever.
+    if (original_result == VK_EVENT_SET && result == VK_EVENT_RESET && event_info->latched_state == VK_EVENT_SET)
     {
         util::BeginInjectedCommands();
         while (result == VK_EVENT_RESET)
@@ -4602,6 +4603,91 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus  
         util::EndInjectedCommands();
     }
     return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideSetEvent(PFN_vkSetEvent          func,
+                                                    VkResult                original_result,
+                                                    const VulkanDeviceInfo* device_info,
+                                                    VulkanEventInfo*        event_info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    event_info->latched_state = VK_EVENT_SET;
+    return func(device_info->handle, event_info->handle);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideResetEvent(PFN_vkResetEvent        func,
+                                                      VkResult                original_result,
+                                                      const VulkanDeviceInfo* device_info,
+                                                      VulkanEventInfo*        event_info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT(device_info != nullptr && event_info != nullptr);
+
+    event_info->latched_state = VK_EVENT_RESET;
+    return func(device_info->handle, event_info->handle);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdSetEvent(PFN_vkCmdSetEvent        func,
+                                                   VulkanCommandBufferInfo* command_buffer_info,
+                                                   VulkanEventInfo*         event_info,
+                                                   VkPipelineStageFlags     stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, true);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetEvent(PFN_vkCmdResetEvent      func,
+                                                     VulkanCommandBufferInfo* command_buffer_info,
+                                                     VulkanEventInfo*         event_info,
+                                                     VkPipelineStageFlags     stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, false);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::OverrideCmdSetEvent2(PFN_vkCmdSetEvent2                              func,
+                                                    VulkanCommandBufferInfo*                        command_buffer_info,
+                                                    VulkanEventInfo*                                event_info,
+                                                    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr && pDependencyInfo != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, true);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, pDependencyInfo->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdResetEvent2(PFN_vkCmdResetEvent2     func,
+                                                      VulkanCommandBufferInfo* command_buffer_info,
+                                                      VulkanEventInfo*         event_info,
+                                                      VkPipelineStageFlags2    stageMask)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr && event_info != nullptr);
+
+    command_buffer_info->recorded_event_ops.emplace_back(event_info->capture_id, false);
+    track_event_state_ = true;
+    func(command_buffer_info->handle, event_info->handle, stageMask);
+}
+
+void VulkanReplayConsumerBase::ApplyRecordedEventOps(const VulkanCommandBufferInfo* command_buffer_info)
+{
+    GFXRECON_ASSERT(command_buffer_info != nullptr);
+
+    for (const auto& [event_id, is_set] : command_buffer_info->recorded_event_ops)
+    {
+        if (auto* event_info = GetObjectInfoTable().GetVkEventInfo(event_id))
+        {
+            event_info->latched_state = is_set ? VK_EVENT_SET : VK_EVENT_RESET;
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults  func,
@@ -4840,6 +4926,22 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     {
         result = func(
             queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
+
+    // update terminal event-state for events set/reset by the submitted command-buffers
+    if (track_event_state_ && submit_info_data != nullptr)
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            const auto command_buffer_ids = submit_info_data[i].pCommandBuffers.GetPointer();
+            for (size_t j = 0; j < submit_info_data[i].pCommandBuffers.GetLength(); ++j)
+            {
+                if (auto* cmd_buffer_info = GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_ids[j]))
+                {
+                    ApplyRecordedEventOps(cmd_buffer_info);
+                }
+            }
+        }
     }
 
     // The result to report to the event sink might be different from the
@@ -5109,6 +5211,23 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     {
         result = func(
             queue_info->handle, static_cast<uint32_t>(current_submits_span.size()), current_submits_span.data(), fence);
+    }
+
+    // update terminal event-state for events set/reset by the submitted command-buffers
+    if (track_event_state_ && submit_info_data != nullptr)
+    {
+        for (uint32_t i = 0; i < submitCount; ++i)
+        {
+            const auto command_buffer_infos = submit_info_data[i].pCommandBufferInfos->GetMetaStructPointer();
+            for (size_t j = 0; j < submit_info_data[i].pCommandBufferInfos->GetLength(); ++j)
+            {
+                if (auto* cmd_buffer_info =
+                        GetObjectInfoTable().GetVkCommandBufferInfo(command_buffer_infos[j].commandBuffer))
+                {
+                    ApplyRecordedEventOps(cmd_buffer_info);
+                }
+            }
+        }
     }
 
     // The result to report to the event sink might be different from the
@@ -5866,6 +5985,11 @@ void VulkanReplayConsumerBase::OverrideCmdExecuteCommands(PFN_vkCmdExecuteComman
             in_commandBuffer->addresses_to_replace.insert(secondary_cmd_buffer_info->addresses_to_replace.begin(),
                                                           secondary_cmd_buffer_info->addresses_to_replace.end());
         }
+
+        // preserve set/reset event ordering from executed secondaries for submit-time state tracking
+        in_commandBuffer->recorded_event_ops.insert(in_commandBuffer->recorded_event_ops.end(),
+                                                    secondary_cmd_buffer_info->recorded_event_ops.begin(),
+                                                    secondary_cmd_buffer_info->recorded_event_ops.end());
     }
     func(command_buffer, commandBufferCount, command_buffers);
 }
@@ -10762,6 +10886,7 @@ void VulkanReplayConsumerBase::ClearCommandBufferInfo(VulkanCommandBufferInfo* c
     command_buffer_info->addresses_to_replace.clear();
     command_buffer_info->addresses_to_resolve.clear();
     command_buffer_info->in_rendering_scope = false;
+    command_buffer_info->recorded_event_ops.clear();
 
     // free potential shadow-resources associated with this command-buffer
     auto* device_info = GetObjectInfoTable().GetVkDeviceInfo(command_buffer_info->parent_id);

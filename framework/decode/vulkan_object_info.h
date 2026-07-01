@@ -259,11 +259,17 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
     format::HandleId pool_id{ format::kNullHandleId }; // ID of the pool that the object was allocated from.
 };
 
+struct VulkanEventInfo : public VulkanObjectInfo<VkEvent>
+{
+    // Terminal event-state in stream order: host set/reset apply immediately, device cmd set/reset at
+    // submit-time. Bounds the vkGetEventStatus poll to only wait when VK_EVENT_SET is the terminal state.
+    VkResult latched_state{ VK_EVENT_RESET };
+};
+
 //
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
@@ -758,6 +764,10 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 
     // flag indicating if the command-buffer is currently recording a VkRenderpass or VK_KHR_dynamic_rendering scope
     bool in_rendering_scope = false;
+
+    // ordered vkCmdSetEvent/vkCmdResetEvent recorded here (event capture-id, is-set);
+    // applied to VulkanEventInfo::latched_state at submit-time.
+    std::vector<std::pair<format::HandleId, bool>> recorded_event_ops;
 };
 
 struct VulkanRenderPassInfo : public VulkanObjectInfo<VkRenderPass>
