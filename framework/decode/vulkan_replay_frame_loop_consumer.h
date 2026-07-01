@@ -52,6 +52,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
 
     void ProcessFrameEndMarker(uint64_t frame_number) override;
 
+    void Process_vkCreateBuffer(const ApiCallInfo&                                     call_info,
+                                VkResult                                               returnValue,
+                                format::HandleId                                       device,
+                                StructPointerDecoder<Decoded_VkBufferCreateInfo>*      pCreateInfo,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                HandlePointerDecoder<VkBuffer>*                        pBuffer) override;
+
     void Process_vkCreateCommandPool(const ApiCallInfo&                                     call_info,
                                      VkResult                                               returnValue,
                                      format::HandleId                                       device,
@@ -326,6 +333,25 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     VkCommandPool                                       restoration_command_pool_{ VK_NULL_HANDLE };
     VkCommandBuffer                                     restoration_command_buffer_{ VK_NULL_HANDLE };
     VkDevice                                            restoration_device_{ VK_NULL_HANDLE };
+
+    // Buffer restoration data
+    struct ShadowBufferInfo
+    {
+        VkBuffer                              shadow_buffer{ VK_NULL_HANDLE };
+        VkDeviceMemory                        shadow_memory{ VK_NULL_HANDLE };
+        VkDeviceSize                          size{ 0 };
+        VulkanResourceAllocator::ResourceData alloc_data{ 0 };
+        VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+    };
+    std::unordered_map<format::HandleId, ShadowBufferInfo> shadow_buffers_;
+
+    void RecordInitialBufferStates(VkDevice                           device,
+                                   const graphics::VulkanDeviceTable* device_table,
+                                   VulkanQueueInfo*                   queue_info);
+    void RestoreBufferStates(VkDevice                           device,
+                             const graphics::VulkanDeviceTable* device_table,
+                             VulkanQueueInfo*                   queue_info);
+    void DestroyShadowBuffers();
 
     // Support for loop boundary resetting across present or non-present submissions
     VkDevice                           active_device_{ VK_NULL_HANDLE };

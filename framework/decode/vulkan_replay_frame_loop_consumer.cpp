@@ -86,16 +86,62 @@ VkAccessFlags GetAccessFlags(VkImageLayout layout)
 }
 } // namespace
 
-VulkanReplayFrameLoopConsumer::~VulkanReplayFrameLoopConsumer()
+void VulkanReplayFrameLoopConsumer::DestroyShadowBuffers()
 {
-    if (restoration_command_pool_ != VK_NULL_HANDLE && restoration_device_ != VK_NULL_HANDLE)
+    for (const auto& [buf_id, shadow] : shadow_buffers_)
     {
-        const graphics::VulkanDeviceTable* dev_table = GetDeviceTable(restoration_device_);
-        if (dev_table)
+        auto buf_info = GetObjectInfoTable().GetVkBufferInfo(buf_id);
+        if (buf_info != nullptr)
         {
-            dev_table->DestroyCommandPool(restoration_device_, restoration_command_pool_, nullptr);
+            auto dev_info = GetObjectInfoTable().GetVkDeviceInfo(buf_info->parent_id);
+            if (dev_info != nullptr && dev_info->allocator != nullptr)
+            {
+                if (shadow.shadow_buffer != VK_NULL_HANDLE)
+                {
+                    dev_info->allocator->DestroyBufferDirect(shadow.shadow_buffer, nullptr, shadow.alloc_data);
+                }
+                if (shadow.shadow_memory != VK_NULL_HANDLE)
+                {
+                    dev_info->allocator->FreeMemoryDirect(shadow.shadow_memory, nullptr, shadow.mem_data);
+                }
+            }
         }
     }
+    shadow_buffers_.clear();
+}
+
+VulkanReplayFrameLoopConsumer::~VulkanReplayFrameLoopConsumer()
+{
+    DestroyShadowBuffers();
+
+    if (restoration_device_ != VK_NULL_HANDLE)
+    {
+
+        if (restoration_command_pool_ != VK_NULL_HANDLE)
+        {
+            const graphics::VulkanDeviceTable* dev_table = GetDeviceTable(restoration_device_);
+            if (dev_table)
+            {
+                dev_table->DestroyCommandPool(restoration_device_, restoration_command_pool_, nullptr);
+            }
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(
+    const ApiCallInfo&                                   call_info,
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkBuffer>*                      pBuffer)
+{
+    if (pCreateInfo != nullptr && !pCreateInfo->IsNull() && pCreateInfo->GetPointer() != nullptr)
+    {
+        pCreateInfo->GetPointer()->usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    }
+    VulkanReplayFrameLoopConsumerBase::Process_vkCreateBuffer(
+        call_info, returnValue, device, pCreateInfo, pAllocator, pBuffer);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
@@ -367,12 +413,30 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
     CaptureInitialFenceStates();
     RecordInitialLayouts();
 
+    if (active_queue_info_ == nullptr)
+    {
+        GetObjectInfoTable().VisitVkQueueInfo([this](const VulkanQueueInfo* q_info) {
+            if (q_info != nullptr && q_info->handle != VK_NULL_HANDLE && active_queue_info_ == nullptr)
+            {
+                active_queue_info_   = const_cast<VulkanQueueInfo*>(q_info);
+                active_device_       = q_info->parent;
+                active_device_table_ = GetDeviceTable(active_device_);
+            }
+        });
+    }
+
+    if (active_device_ != VK_NULL_HANDLE && active_device_table_ != nullptr && active_queue_info_ != nullptr)
+    {
+        RecordInitialBufferStates(active_device_, active_device_table_, active_queue_info_);
+    }
+
     // Only preserve command buffers across loop boundaries if they are actively recording
     // inside an open render pass when the loop starts (e.g., vkCmdBeginRenderPass was called
     // before the loop start and ends inside the loop). Wiping such command buffers at loop
     // repeats would destroy their render pass state and trigger validation errors or crashes.
     // Conversely, command buffers that began recording setup commands outside a render pass
     // should not be preserved across repeats to avoid re-executing one-time staging copies.
+    initial_loop_recording_cbs_ = recording_cbs_;
     loop_start_recording_cbs_.clear();
     for (auto cb_id : recording_cbs_)
     {
@@ -413,7 +477,6 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
 
 void VulkanReplayFrameLoopConsumer::CaptureInitialFenceStates()
 {
-    GFXRECON_LOG_DEBUG("VulkanReplayFrameLoopConsumer::CaptureInitialFenceStates: Capturing initial fence states...");
     initial_fence_states_.clear();
 
     VulkanObjectInfoTable& table = GetObjectInfoTable();
@@ -429,11 +492,6 @@ void VulkanReplayFrameLoopConsumer::CaptureInitialFenceStates()
                 {
                     VkResult status = device_table->GetFenceStatus(device, fence_info->handle);
                     initial_fence_states_[fence_info->capture_id] = status;
-                    GFXRECON_LOG_DEBUG("  Fence %" PRIu64 " (handle %" PRIu64 ") initial state: %s",
-                                       fence_info->capture_id,
-                                       (uint64_t)fence_info->handle,
-                                       status == VK_SUCCESS ? "SIGNALED"
-                                                            : (status == VK_NOT_READY ? "UNSIGNALED" : "ERROR"));
                 }
             }
         }
@@ -1133,6 +1191,9 @@ void VulkanReplayFrameLoopConsumer::ResetLoopBoundary()
         // Restore image layouts at the loop boundary
         RestoreImageLayouts(active_device_, active_device_table_, active_queue_info_);
 
+        // Restore buffer states at the loop boundary
+        RestoreBufferStates(active_device_, active_device_table_, active_queue_info_);
+
         // Classify command pools once at the end of the first iteration
         ClassifyActiveCommandPools();
 
@@ -1153,8 +1214,14 @@ void VulkanReplayFrameLoopConsumer::RestoreImageLayouts(VkDevice                
 {
     std::vector<VkImageMemoryBarrier> barriers;
 
-    GetObjectInfoTable().VisitVkImageInfo([this, &barriers](const VulkanImageInfo* info) {
+    GetObjectInfoTable().VisitVkImageInfo([this, device, &barriers](const VulkanImageInfo* info) {
         if (info == nullptr || info->handle == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        auto dev_info = GetObjectInfoTable().GetVkDeviceInfo(info->parent_id);
+        if (dev_info == nullptr || dev_info->handle != device)
         {
             return;
         }
@@ -1252,6 +1319,226 @@ void VulkanReplayFrameLoopConsumer::RestoreImageLayouts(VkDevice                
     else
     {
         device_table->QueueWaitIdle(replayed_queue);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::RecordInitialBufferStates(VkDevice                           device,
+                                                              const graphics::VulkanDeviceTable* device_table,
+                                                              VulkanQueueInfo*                   queue_info)
+{
+    if (queue_info == nullptr || !InitializeRestorationResources(device, queue_info->family_index))
+    {
+        GFXRECON_LOG_ERROR("RecordInitialBufferStates: Failed to initialize restoration resources.");
+        return;
+    }
+
+    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    VkResult res                        = device_table->BeginCommandBuffer(restoration_command_buffer_, &begin_info);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("RecordInitialBufferStates: BeginCommandBuffer failed with %d", res);
+        return;
+    }
+
+    VkMemoryBarrier memory_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER };
+    memory_barrier.srcAccessMask   = VK_ACCESS_MEMORY_WRITE_BIT;
+    memory_barrier.dstAccessMask   = VK_ACCESS_TRANSFER_READ_BIT;
+    device_table->CmdPipelineBarrier(restoration_command_buffer_,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     0,
+                                     1,
+                                     &memory_barrier,
+                                     0,
+                                     nullptr,
+                                     0,
+                                     nullptr);
+
+    uint32_t copy_count = 0;
+    GetObjectInfoTable().VisitVkBufferInfo([this, device, device_table, &copy_count](const VulkanBufferInfo* info) {
+        if (info == nullptr || info->handle == VK_NULL_HANDLE || info->size == 0 || info->size > 32 * 1024 * 1024)
+        {
+            return;
+        }
+
+        auto dev_info = GetObjectInfoTable().GetVkDeviceInfo(info->parent_id);
+        if (dev_info == nullptr || dev_info->handle != device || dev_info->allocator == nullptr)
+        {
+            return;
+        }
+
+        auto phys_info = GetObjectInfoTable().GetVkPhysicalDeviceInfo(dev_info->parent_id);
+        if (phys_info == nullptr)
+        {
+            return;
+        }
+
+        const VkPhysicalDeviceMemoryProperties* mem_props = &phys_info->capture_memory_properties;
+        if (phys_info->replay_device_info != nullptr && phys_info->replay_device_info->memory_properties.has_value())
+        {
+            mem_props = &phys_info->replay_device_info->memory_properties.value();
+        }
+
+        if (shadow_buffers_.find(info->capture_id) != shadow_buffers_.end())
+        {
+            return;
+        }
+
+        VkBufferCreateInfo create_info = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+        create_info.size               = info->size;
+        create_info.usage              = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        create_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+
+        VkBuffer                              shadow_buf  = VK_NULL_HANDLE;
+        VulkanResourceAllocator::ResourceData alloc_data  = 0;
+        VkResult                              create_res  = dev_info->allocator->CreateBufferDirect(&create_info, nullptr, &shadow_buf, &alloc_data);
+        if (create_res != VK_SUCCESS || shadow_buf == VK_NULL_HANDLE)
+        {
+            return;
+        }
+
+        VkMemoryRequirements mem_reqs;
+        device_table->GetBufferMemoryRequirements(device, shadow_buf, &mem_reqs);
+
+        uint32_t mem_idx = graphics::GetMemoryTypeIndex(
+            *mem_props, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        if (mem_idx == std::numeric_limits<uint32_t>::max())
+        {
+            mem_idx = graphics::GetMemoryTypeIndex(*mem_props, mem_reqs.memoryTypeBits, 0);
+        }
+        if (mem_idx == std::numeric_limits<uint32_t>::max())
+        {
+            dev_info->allocator->DestroyBufferDirect(shadow_buf, nullptr, alloc_data);
+            return;
+        }
+
+        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        alloc_info.allocationSize       = mem_reqs.size;
+        alloc_info.memoryTypeIndex      = mem_idx;
+
+        VkDeviceMemory                          shadow_mem = VK_NULL_HANDLE;
+        VulkanResourceAllocator::MemoryData     mem_data   = 0;
+        VkResult                                alloc_res  = dev_info->allocator->AllocateMemoryDirect(&alloc_info, nullptr, &shadow_mem, &mem_data);
+        if (alloc_res != VK_SUCCESS || shadow_mem == VK_NULL_HANDLE)
+        {
+            dev_info->allocator->DestroyBufferDirect(shadow_buf, nullptr, alloc_data);
+            return;
+        }
+
+        VkMemoryPropertyFlags bind_props = 0;
+        VkResult bind_res = dev_info->allocator->BindBufferMemoryDirect(shadow_buf, shadow_mem, 0, alloc_data, mem_data, &bind_props);
+        if (bind_res != VK_SUCCESS)
+        {
+            dev_info->allocator->FreeMemoryDirect(shadow_mem, nullptr, mem_data);
+            dev_info->allocator->DestroyBufferDirect(shadow_buf, nullptr, alloc_data);
+            return;
+        }
+
+        ShadowBufferInfo shadow;
+        shadow.shadow_buffer = shadow_buf;
+        shadow.shadow_memory = shadow_mem;
+        shadow.size          = info->size;
+        shadow.alloc_data    = alloc_data;
+        shadow.mem_data      = mem_data;
+        shadow_buffers_[info->capture_id] = shadow;
+
+        VkBufferCopy region = {};
+        region.srcOffset    = 0;
+        region.dstOffset    = 0;
+        region.size         = info->size;
+        device_table->CmdCopyBuffer(restoration_command_buffer_, info->handle, shadow_buf, 1, &region);
+        copy_count++;
+    });
+
+    res = device_table->EndCommandBuffer(restoration_command_buffer_);
+    if (res == VK_SUCCESS && copy_count > 0 && queue_info != nullptr)
+    {
+        VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers    = &restoration_command_buffer_;
+
+        VkResult submit_res = device_table->QueueSubmit(queue_info->handle, 1, &submit_info, VK_NULL_HANDLE);
+        if (submit_res == VK_SUCCESS)
+        {
+            device_table->QueueWaitIdle(queue_info->handle);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::RestoreBufferStates(VkDevice                           device,
+                                                        const graphics::VulkanDeviceTable* device_table,
+                                                        VulkanQueueInfo*                   queue_info)
+{
+    if (shadow_buffers_.empty() || queue_info == nullptr)
+    {
+        return;
+    }
+
+    if (!InitializeRestorationResources(device, queue_info->family_index))
+    {
+        return;
+    }
+
+    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    VkResult res                        = device_table->BeginCommandBuffer(restoration_command_buffer_, &begin_info);
+    if (res != VK_SUCCESS)
+    {
+        return;
+    }
+
+    uint32_t restore_count = 0;
+    for (const auto& [buf_id, shadow] : shadow_buffers_)
+    {
+        auto buf_info = GetObjectInfoTable().GetVkBufferInfo(buf_id);
+        if (buf_info != nullptr && buf_info->handle != VK_NULL_HANDLE && shadow.shadow_buffer != VK_NULL_HANDLE)
+        {
+            auto dev_info = GetObjectInfoTable().GetVkDeviceInfo(buf_info->parent_id);
+            if (dev_info == nullptr || dev_info->handle != device)
+            {
+                continue;
+            }
+
+            VkBufferCopy region = {};
+            region.srcOffset    = 0;
+            region.dstOffset    = 0;
+            region.size         = shadow.size;
+            device_table->CmdCopyBuffer(restoration_command_buffer_, shadow.shadow_buffer, buf_info->handle, 1, &region);
+            restore_count++;
+        }
+    }
+
+    if (restore_count > 0)
+    {
+        VkMemoryBarrier memory_barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER };
+        memory_barrier.srcAccessMask   = VK_ACCESS_TRANSFER_WRITE_BIT;
+        memory_barrier.dstAccessMask   = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+
+        device_table->CmdPipelineBarrier(restoration_command_buffer_,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                         0,
+                                         1,
+                                         &memory_barrier,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         nullptr);
+    }
+
+    res = device_table->EndCommandBuffer(restoration_command_buffer_);
+    if (res == VK_SUCCESS && restore_count > 0)
+    {
+        VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers    = &restoration_command_buffer_;
+
+        VkResult submit_res = device_table->QueueSubmit(queue_info->handle, 1, &submit_info, VK_NULL_HANDLE);
+        if (submit_res == VK_SUCCESS)
+        {
+            device_table->QueueWaitIdle(queue_info->handle);
+        }
     }
 }
 
