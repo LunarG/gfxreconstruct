@@ -181,5 +181,115 @@ SubmitInfo2Translator::SubmitInfo2Translator(std::span<const VkSubmitInfo> submi
     }
 }
 
+SubmitInfoTranslator::SubmitInfoTranslator(std::span<const VkSubmitInfo2> submit_infos_2) :
+    submit_infos_(submit_infos_2.size()), wait_semaphores_(submit_infos_2.size()),
+    wait_stage_masks_(submit_infos_2.size()), command_buffers_(submit_infos_2.size()),
+    signal_semaphores_(submit_infos_2.size()), wait_values_(submit_infos_2.size()),
+    signal_values_(submit_infos_2.size()), wait_device_indices_(submit_infos_2.size()),
+    signal_device_indices_(submit_infos_2.size()), command_buffer_device_masks_(submit_infos_2.size()),
+    timeline_submit_infos_(submit_infos_2.size()), device_group_submit_infos_(submit_infos_2.size()),
+    protected_submit_infos_(submit_infos_2.size())
+{
+    for (size_t i = 0; i < submit_infos_2.size(); ++i)
+    {
+        const VkSubmitInfo2& submit_info_2 = submit_infos_2[i];
+
+        wait_semaphores_[i].resize(submit_info_2.waitSemaphoreInfoCount);
+        wait_stage_masks_[i].resize(submit_info_2.waitSemaphoreInfoCount);
+        wait_values_[i].resize(submit_info_2.waitSemaphoreInfoCount);
+        wait_device_indices_[i].resize(submit_info_2.waitSemaphoreInfoCount);
+        bool has_device_group = false;
+        for (uint32_t j = 0; j < submit_info_2.waitSemaphoreInfoCount; ++j)
+        {
+            wait_semaphores_[i][j]  = submit_info_2.pWaitSemaphoreInfos[j].semaphore;
+            wait_stage_masks_[i][j] = static_cast<VkPipelineStageFlags>(submit_info_2.pWaitSemaphoreInfos[j].stageMask);
+            wait_values_[i][j]      = submit_info_2.pWaitSemaphoreInfos[j].value;
+            wait_device_indices_[i][j] = submit_info_2.pWaitSemaphoreInfos[j].deviceIndex;
+            has_device_group |= wait_device_indices_[i][j] != 0;
+        }
+
+        command_buffers_[i].resize(submit_info_2.commandBufferInfoCount);
+        command_buffer_device_masks_[i].resize(submit_info_2.commandBufferInfoCount);
+        for (uint32_t j = 0; j < submit_info_2.commandBufferInfoCount; ++j)
+        {
+            command_buffers_[i][j]             = submit_info_2.pCommandBufferInfos[j].commandBuffer;
+            command_buffer_device_masks_[i][j] = submit_info_2.pCommandBufferInfos[j].deviceMask;
+            has_device_group |= command_buffer_device_masks_[i][j] != 0;
+        }
+
+        signal_semaphores_[i].resize(submit_info_2.signalSemaphoreInfoCount);
+        signal_values_[i].resize(submit_info_2.signalSemaphoreInfoCount);
+        signal_device_indices_[i].resize(submit_info_2.signalSemaphoreInfoCount);
+        for (uint32_t j = 0; j < submit_info_2.signalSemaphoreInfoCount; ++j)
+        {
+            signal_semaphores_[i][j]     = submit_info_2.pSignalSemaphoreInfos[j].semaphore;
+            signal_values_[i][j]         = submit_info_2.pSignalSemaphoreInfos[j].value;
+            signal_device_indices_[i][j] = submit_info_2.pSignalSemaphoreInfos[j].deviceIndex;
+            has_device_group |= signal_device_indices_[i][j] != 0;
+        }
+
+        // VkSubmitInfo2 carries timeline values and device-group indices/masks inline in its sub-structures, whereas
+        // VkSubmitInfo conveys them through pNext structures. Reconstruct those structures and chain them ahead of the
+        // original pNext-chain.
+        const void* pnext = submit_info_2.pNext;
+
+        // Timeline semaphore values. Values for binary semaphores are ignored, so this can be attached
+        // unconditionally.
+        timeline_submit_infos_[i] =
+            VkTimelineSemaphoreSubmitInfo{ VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO,
+                                           pnext,
+                                           submit_info_2.waitSemaphoreInfoCount,
+                                           submit_info_2.waitSemaphoreInfoCount ? wait_values_[i].data() : nullptr,
+                                           submit_info_2.signalSemaphoreInfoCount,
+                                           submit_info_2.signalSemaphoreInfoCount ? signal_values_[i].data()
+                                                                                  : nullptr };
+
+        if (submit_info_2.waitSemaphoreInfoCount || submit_info_2.signalSemaphoreInfoCount)
+        {
+            pnext = &timeline_submit_infos_[i];
+        }
+
+        // Device-group indices/masks. Only reconstruct when at least one index/mask is non-zero: an absent
+        // VkDeviceGroupSubmitInfo already yields the default single-device behavior, and an all-zero device mask is
+        // not a valid mask value.
+        device_group_submit_infos_[i] = VkDeviceGroupSubmitInfo{
+            VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO,
+            pnext,
+            submit_info_2.waitSemaphoreInfoCount,
+            submit_info_2.waitSemaphoreInfoCount ? wait_device_indices_[i].data() : nullptr,
+            submit_info_2.commandBufferInfoCount,
+            submit_info_2.commandBufferInfoCount ? command_buffer_device_masks_[i].data() : nullptr,
+            submit_info_2.signalSemaphoreInfoCount,
+            submit_info_2.signalSemaphoreInfoCount ? signal_device_indices_[i].data() : nullptr
+        };
+
+        if (has_device_group)
+        {
+            pnext = &device_group_submit_infos_[i];
+        }
+
+        // Handle protected queue submissions
+        const bool is_protected_submission = (submit_info_2.flags & VK_SUBMIT_PROTECTED_BIT) == VK_SUBMIT_PROTECTED_BIT;
+        protected_submit_infos_[i]         = VkProtectedSubmitInfo{ VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO,
+                                                            pnext,
+                                                            is_protected_submission ? VK_TRUE : VK_FALSE };
+        if (is_protected_submission)
+        {
+            pnext = &protected_submit_infos_[i];
+        }
+
+        submit_infos_[i] =
+            VkSubmitInfo{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
+                          pnext,
+                          submit_info_2.waitSemaphoreInfoCount,
+                          submit_info_2.waitSemaphoreInfoCount ? wait_semaphores_[i].data() : nullptr,
+                          submit_info_2.waitSemaphoreInfoCount ? wait_stage_masks_[i].data() : nullptr,
+                          submit_info_2.commandBufferInfoCount,
+                          submit_info_2.commandBufferInfoCount ? command_buffers_[i].data() : nullptr,
+                          submit_info_2.signalSemaphoreInfoCount,
+                          submit_info_2.signalSemaphoreInfoCount ? signal_semaphores_[i].data() : nullptr };
+    }
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
