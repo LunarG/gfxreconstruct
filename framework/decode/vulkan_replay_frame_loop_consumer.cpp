@@ -367,7 +367,21 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
     CaptureInitialFenceStates();
     RecordInitialLayouts();
 
-    loop_start_recording_cbs_ = recording_cbs_;
+    // Only preserve command buffers across loop boundaries if they are actively recording
+    // inside an open render pass when the loop starts (e.g., vkCmdBeginRenderPass was called
+    // before the loop start and ends inside the loop). Wiping such command buffers at loop
+    // repeats would destroy their render pass state and trigger validation errors or crashes.
+    // Conversely, command buffers that began recording setup commands outside a render pass
+    // should not be preserved across repeats to avoid re-executing one-time staging copies.
+    loop_start_recording_cbs_.clear();
+    for (auto cb_id : recording_cbs_)
+    {
+        auto cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(cb_id);
+        if (cb_info != nullptr && cb_info->active_render_pass_id != format::kNullHandleId)
+        {
+            loop_start_recording_cbs_.insert(cb_id);
+        }
+    }
     GFXRECON_LOG_INFO("OnLoopStart: Captured %zu recording command buffers at loop start.",
                       loop_start_recording_cbs_.size());
 
@@ -827,6 +841,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(
     format::HandleId                                        commandBuffer,
     StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>* pBeginInfo)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     if (pBeginInfo != nullptr && pBeginInfo->GetPointer() != nullptr)
     {
         auto* begin_info = const_cast<VkCommandBufferBeginInfo*>(pBeginInfo->GetPointer());
@@ -884,6 +902,11 @@ void VulkanReplayFrameLoopConsumer::Process_vkEndCommandBuffer(const ApiCallInfo
                                                                VkResult           returnValue,
                                                                format::HandleId   commandBuffer)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+
     VulkanReplayConsumer::Process_vkEndCommandBuffer(call_info, returnValue, commandBuffer);
 
     recording_cbs_.erase(commandBuffer);
@@ -1012,6 +1035,29 @@ void VulkanReplayFrameLoopConsumer::RecordInitialLayouts()
             initial_image_layouts_[info->capture_id] = info->current_layout;
         }
     });
+
+    for (auto cb_id : recording_cbs_)
+    {
+        auto cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(cb_id);
+        if (cb_info != nullptr)
+        {
+            for (const auto& [image_id, layout] : cb_info->image_layout_barriers)
+            {
+                if (layout != VK_IMAGE_LAYOUT_UNDEFINED && layout != VK_IMAGE_LAYOUT_PREINITIALIZED)
+                {
+                    auto it = initial_image_layouts_.find(image_id);
+                    if (it != initial_image_layouts_.end() && it->second == VK_IMAGE_LAYOUT_UNDEFINED)
+                    {
+                        auto img_info = GetObjectInfoTable().GetVkImageInfo(image_id);
+                        if (img_info != nullptr && img_info->level_count == 1)
+                        {
+                            it->second = layout;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool VulkanReplayFrameLoopConsumer::InitializeRestorationResources(VkDevice device, uint32_t queue_family_index)
@@ -1148,6 +1194,12 @@ void VulkanReplayFrameLoopConsumer::RestoreImageLayouts(VkDevice                
             barrier.srcAccessMask = GetAccessFlags(info->current_layout);
             barrier.dstAccessMask = GetAccessFlags(target_layout);
 
+            if (info->level_count > 1)
+            {
+                barrier.oldLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
+                barrier.srcAccessMask = 0;
+            }
+
             barriers.push_back(barrier);
 
             auto mutable_info            = const_cast<VulkanImageInfo*>(info);
@@ -1231,13 +1283,16 @@ void VulkanReplayFrameLoopConsumer::ClassifyActiveCommandPools()
                         bool is_restorable       = loop_start_recording_cbs_.contains(cb_info->capture_id);
                         bool is_recorded_in_loop = loop_recorded_cbs_.contains(cb_info->capture_id);
 
-                        if (is_restorable)
+                        if (!is_restorable)
                         {
-                            cbs_to_recreate_with_rebegin_.push_back(cb_info->capture_id);
-                        }
-                        else if (is_recorded_in_loop)
-                        {
-                            cbs_to_recreate_without_rebegin_.push_back(cb_info->capture_id);
+                            if (initial_loop_recording_cbs_.contains(cb_info->capture_id))
+                            {
+                                cbs_to_recreate_with_rebegin_.push_back(cb_info->capture_id);
+                            }
+                            else if (is_recorded_in_loop)
+                            {
+                                cbs_to_recreate_without_rebegin_.push_back(cb_info->capture_id);
+                            }
                         }
                     }
                 });
@@ -1428,6 +1483,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallIn
                                                                  uint32_t           commandBufferCount,
                                                                  HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     VulkanReplayConsumer::Process_vkCmdExecuteCommands(call_info, commandBuffer, commandBufferCount, pCommandBuffers);
 
     auto primary_cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
@@ -1437,6 +1496,13 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallIn
         const auto secondary_ids     = pCommandBuffers->GetPointer();
         if (secondary_handles != nullptr && secondary_ids != nullptr)
         {
+            if (loop_start_recording_cbs_.contains(commandBuffer))
+            {
+                for (uint32_t i = 0; i < commandBufferCount; ++i)
+                {
+                    loop_start_recording_cbs_.insert(secondary_ids[i]);
+                }
+            }
             for (uint32_t i = 0; i < commandBufferCount; ++i)
             {
                 auto secondary_cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(secondary_ids[i]);
@@ -1479,6 +1545,10 @@ void VulkanReplayFrameLoopConsumer::PropagateRenderPassFinalLayouts(format::Hand
 void VulkanReplayFrameLoopConsumer::Process_vkCmdEndRenderPass(const ApiCallInfo& call_info,
                                                                format::HandleId   commandBuffer)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     PropagateRenderPassFinalLayouts(commandBuffer);
     VulkanReplayConsumer::Process_vkCmdEndRenderPass(call_info, commandBuffer);
 }
@@ -1488,6 +1558,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdEndRenderPass2(
     format::HandleId                                commandBuffer,
     StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     PropagateRenderPassFinalLayouts(commandBuffer);
     VulkanReplayConsumer::Process_vkCmdEndRenderPass2(call_info, commandBuffer, pSubpassEndInfo);
 }
@@ -1640,6 +1714,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderPass(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     VkSubpassContents                                    contents)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     VulkanReplayConsumer::Process_vkCmdBeginRenderPass(call_info, commandBuffer, pRenderPassBegin, contents);
     PropagateRenderPassInitialLayouts(commandBuffer);
 }
@@ -1650,6 +1728,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderPass2(
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
     StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    pSubpassBeginInfo)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     VulkanReplayConsumer::Process_vkCmdBeginRenderPass2(call_info, commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
     PropagateRenderPassInitialLayouts(commandBuffer);
 }
@@ -1659,6 +1741,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRendering(
     format::HandleId                               commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     if (IsLoopFirstIteration())
     {
         loop_recorded_cbs_.insert(commandBuffer);
@@ -1712,6 +1798,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderingKHR(
     format::HandleId                               commandBuffer,
     StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
     if (IsLoopFirstIteration())
     {
         loop_recorded_cbs_.insert(commandBuffer);

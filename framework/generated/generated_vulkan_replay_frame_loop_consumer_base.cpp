@@ -757,6 +757,26 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
     VulkanReplayConsumer::Process_vkFreeCommandBuffers(call_info, device, commandPool, commandBufferCount, pCommandBuffers);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdPipelineBarrier(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineStageFlags                        srcStageMask,
+    VkPipelineStageFlags                        dstStageMask,
+    VkDependencyFlags                           dependencyFlags,
+    uint32_t                                    memoryBarrierCount,
+    StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
+    uint32_t                                    bufferMemoryBarrierCount,
+    StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+    uint32_t                                    imageMemoryBarrierCount,
+    StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdPipelineBarrier(call_info, commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBeginQuery(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -1365,6 +1385,37 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyDescriptorSetLayout(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindPipeline(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBindPipeline(call_info, commandBuffer, pipelineBindPoint, pipeline);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindDescriptorSets(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            layout,
+    uint32_t                                    firstSet,
+    uint32_t                                    descriptorSetCount,
+    HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
+    uint32_t                                    dynamicOffsetCount,
+    PointerDecoder<uint32_t>*                   pDynamicOffsets)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(call_info, commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCreateGraphicsPipelines(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -1532,6 +1583,107 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyRenderPass(
         // Since it might still be in use during the loop range, ONLY free it in the last iteration.
         VulkanReplayConsumer::Process_vkDestroyRenderPass(call_info, device, renderPass, pAllocator);
     }
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdSetViewport(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstViewport,
+    uint32_t                                    viewportCount,
+    StructPointerDecoder<Decoded_VkViewport>*   pViewports)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdSetViewport(call_info, commandBuffer, firstViewport, viewportCount, pViewports);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdSetScissor(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstScissor,
+    uint32_t                                    scissorCount,
+    StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdSetScissor(call_info, commandBuffer, firstScissor, scissorCount, pScissors);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdSetStencilReference(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    VkStencilFaceFlags                          faceMask,
+    uint32_t                                    reference)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdSetStencilReference(call_info, commandBuffer, faceMask, reference);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindIndexBuffer(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    VkIndexType                                 indexType)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBindIndexBuffer(call_info, commandBuffer, buffer, offset, indexType);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindVertexBuffers(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    HandlePointerDecoder<VkBuffer>*             pBuffers,
+    PointerDecoder<VkDeviceSize>*               pOffsets)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBindVertexBuffers(call_info, commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdDraw(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    vertexCount,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstVertex,
+    uint32_t                                    firstInstance)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdDraw(call_info, commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdDrawIndexed(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    indexCount,
+    uint32_t                                    instanceCount,
+    uint32_t                                    firstIndex,
+    int32_t                                     vertexOffset,
+    uint32_t                                    firstInstance)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdDrawIndexed(call_info, commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkBindBufferMemory2(
@@ -1795,6 +1947,18 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkDestroyPrivateDataSlot(
     }
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdPipelineBarrier2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdPipelineBarrier2(call_info, commandBuffer, pDependencyInfo);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp2(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -1807,6 +1971,23 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp2(
         return;
     }
     VulkanReplayConsumer::Process_vkCmdWriteTimestamp2(call_info, commandBuffer, stage, queryPool, query);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindVertexBuffers2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    HandlePointerDecoder<VkBuffer>*             pBuffers,
+    PointerDecoder<VkDeviceSize>*               pOffsets,
+    PointerDecoder<VkDeviceSize>*               pSizes,
+    PointerDecoder<VkDeviceSize>*               pStrides)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBindVertexBuffers2(call_info, commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkMapMemory2(
@@ -2633,6 +2814,18 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkUnmapMemory2KHR(
     VulkanReplayConsumer::Process_vkUnmapMemory2KHR(call_info, returnValue, device, pMemoryUnmapInfo);
 }
 
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdPipelineBarrier2KHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdPipelineBarrier2KHR(call_info, commandBuffer, pDependencyInfo);
+}
+
 void VulkanReplayFrameLoopConsumerBase::Process_vkCmdWriteTimestamp2KHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -3339,6 +3532,23 @@ void VulkanReplayFrameLoopConsumerBase::Process_vkResetQueryPoolEXT(
         return;
     }
     VulkanReplayConsumer::Process_vkResetQueryPoolEXT(call_info, device, queryPool, firstQuery, queryCount);
+}
+
+void VulkanReplayFrameLoopConsumerBase::Process_vkCmdBindVertexBuffers2EXT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    HandlePointerDecoder<VkBuffer>*             pBuffers,
+    PointerDecoder<VkDeviceSize>*               pOffsets,
+    PointerDecoder<VkDeviceSize>*               pSizes,
+    PointerDecoder<VkDeviceSize>*               pStrides)
+{
+    if (ShouldIgnoreRecordingCommand(commandBuffer))
+    {
+        return;
+    }
+    VulkanReplayConsumer::Process_vkCmdBindVertexBuffers2EXT(call_info, commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes, pStrides);
 }
 
 void VulkanReplayFrameLoopConsumerBase::Process_vkReleaseSwapchainImagesEXT(

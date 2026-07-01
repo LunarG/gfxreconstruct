@@ -205,5 +205,24 @@
     "vkCmdCopyQueryPoolResultsToMemoryKHR",
     "vkResetQueryPool",
     "vkResetQueryPoolEXT"
+  ],
+
+  "comment" : "These command recording methods check ShouldIgnoreRecordingCommand(commandBuffer) during looping repeats.",
+  "ignoreForPreservedCommandBuffers":
+  [
+    "vkCmdBindPipeline",
+    "vkCmdBindDescriptorSets",
+    "vkCmdBindIndexBuffer",
+    "vkCmdBindVertexBuffers",
+    "vkCmdBindVertexBuffers2",
+    "vkCmdBindVertexBuffers2EXT",
+    "vkCmdSetViewport",
+    "vkCmdSetScissor",
+    "vkCmdSetStencilReference",
+    "vkCmdDraw",
+    "vkCmdDrawIndexed",
+    "vkCmdPipelineBarrier",
+    "vkCmdPipelineBarrier2",
+    "vkCmdPipelineBarrier2KHR"
   ]
 }

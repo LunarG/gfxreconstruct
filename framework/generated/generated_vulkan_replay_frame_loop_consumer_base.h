@@ -53,6 +53,7 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
 
     virtual ~VulkanReplayFrameLoopConsumerBase() override { }
     virtual graphics::FrameLoopInfo& getFrameLoopInfo() = 0;
+    virtual bool ShouldIgnoreRecordingCommand(format::HandleId commandBuffer) const { return false; }
 
     void Process_vkCreateInstance(
         const ApiCallInfo&                          call_info,
@@ -241,6 +242,19 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         uint32_t                                    commandBufferCount,
         HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers) override;
 
+    void Process_vkCmdPipelineBarrier(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineStageFlags                        srcStageMask,
+        VkPipelineStageFlags                        dstStageMask,
+        VkDependencyFlags                           dependencyFlags,
+        uint32_t                                    memoryBarrierCount,
+        StructPointerDecoder<Decoded_VkMemoryBarrier>* pMemoryBarriers,
+        uint32_t                                    bufferMemoryBarrierCount,
+        StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+        uint32_t                                    imageMemoryBarrierCount,
+        StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers) override;
+
     void Process_vkCmdBeginQuery(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -401,6 +415,23 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            descriptorSetLayout,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    void Process_vkCmdBindPipeline(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            pipeline) override;
+
+    void Process_vkCmdBindDescriptorSets(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkPipelineBindPoint                         pipelineBindPoint,
+        format::HandleId                            layout,
+        uint32_t                                    firstSet,
+        uint32_t                                    descriptorSetCount,
+        HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
+        uint32_t                                    dynamicOffsetCount,
+        PointerDecoder<uint32_t>*                   pDynamicOffsets) override;
+
     void Process_vkCreateGraphicsPipelines(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -438,6 +469,58 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            device,
         format::HandleId                            renderPass,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    void Process_vkCmdSetViewport(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstViewport,
+        uint32_t                                    viewportCount,
+        StructPointerDecoder<Decoded_VkViewport>*   pViewports) override;
+
+    void Process_vkCmdSetScissor(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstScissor,
+        uint32_t                                    scissorCount,
+        StructPointerDecoder<Decoded_VkRect2D>*     pScissors) override;
+
+    void Process_vkCmdSetStencilReference(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        VkStencilFaceFlags                          faceMask,
+        uint32_t                                    reference) override;
+
+    void Process_vkCmdBindIndexBuffer(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        VkIndexType                                 indexType) override;
+
+    void Process_vkCmdBindVertexBuffers(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstBinding,
+        uint32_t                                    bindingCount,
+        HandlePointerDecoder<VkBuffer>*             pBuffers,
+        PointerDecoder<VkDeviceSize>*               pOffsets) override;
+
+    void Process_vkCmdDraw(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    vertexCount,
+        uint32_t                                    instanceCount,
+        uint32_t                                    firstVertex,
+        uint32_t                                    firstInstance) override;
+
+    void Process_vkCmdDrawIndexed(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    indexCount,
+        uint32_t                                    instanceCount,
+        uint32_t                                    firstIndex,
+        int32_t                                     vertexOffset,
+        uint32_t                                    firstInstance) override;
 
     void Process_vkBindBufferMemory2(
         const ApiCallInfo&                          call_info,
@@ -510,12 +593,27 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            privateDataSlot,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    void Process_vkCmdPipelineBarrier2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+
     void Process_vkCmdWriteTimestamp2(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
         VkPipelineStageFlags2                       stage,
         format::HandleId                            queryPool,
         uint32_t                                    query) override;
+
+    void Process_vkCmdBindVertexBuffers2(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstBinding,
+        uint32_t                                    bindingCount,
+        HandlePointerDecoder<VkBuffer>*             pBuffers,
+        PointerDecoder<VkDeviceSize>*               pOffsets,
+        PointerDecoder<VkDeviceSize>*               pSizes,
+        PointerDecoder<VkDeviceSize>*               pStrides) override;
 
     void Process_vkMapMemory2(
         const ApiCallInfo&                          call_info,
@@ -747,6 +845,11 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkMemoryUnmapInfo>* pMemoryUnmapInfo) override;
 
+    void Process_vkCmdPipelineBarrier2KHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkDependencyInfo>* pDependencyInfo) override;
+
     void Process_vkCmdWriteTimestamp2KHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
@@ -976,6 +1079,16 @@ class VulkanReplayFrameLoopConsumerBase : public VulkanReplayConsumer
         format::HandleId                            queryPool,
         uint32_t                                    firstQuery,
         uint32_t                                    queryCount) override;
+
+    void Process_vkCmdBindVertexBuffers2EXT(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstBinding,
+        uint32_t                                    bindingCount,
+        HandlePointerDecoder<VkBuffer>*             pBuffers,
+        PointerDecoder<VkDeviceSize>*               pOffsets,
+        PointerDecoder<VkDeviceSize>*               pSizes,
+        PointerDecoder<VkDeviceSize>*               pStrides) override;
 
     void Process_vkReleaseSwapchainImagesEXT(
         const ApiCallInfo&                          call_info,

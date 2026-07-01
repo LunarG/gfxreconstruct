@@ -36,7 +36,8 @@ class KhronosFrameLoopConsumerBaseHeaderGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED +
-                 self.REPLAY_FRAME_LOOP_SKIP_DURING_LOOPING))
+                 self.REPLAY_FRAME_LOOP_SKIP_DURING_LOOPING +
+                 self.REPLAY_FRAME_LOOP_IGNORE_FOR_PRESERVED_COMMAND_BUFFERS))
 
     def write_class_setup(self, class_name, constructor_args):
         write(
@@ -62,6 +63,7 @@ class KhronosFrameLoopConsumerBaseHeaderGenerator():
             write('    {}() {{ }}\n'.format(class_name), file=self.outFile)
         write('    virtual ~{}() override {{ }}'.format(class_name), file=self.outFile)
         write('    virtual graphics::FrameLoopInfo& getFrameLoopInfo() = 0;', file=self.outFile)
+        write('    virtual bool ShouldIgnoreRecordingCommand(format::HandleId commandBuffer) const { return false; }', file=self.outFile)
 
     def write_class_completion(self):
         write('', file=self.outFile)

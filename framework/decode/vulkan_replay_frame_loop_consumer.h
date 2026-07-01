@@ -395,7 +395,13 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
      */
     bool ShouldUseFrameMarkers() const { return frame_loop_info_.UsesFrameMarkers(); }
 
+    bool ShouldIgnoreRecordingCommand(format::HandleId commandBuffer) const override
+    {
+        return IsLoopNotFirstIteration() && loop_start_recording_cbs_.contains(commandBuffer);
+    }
+
     std::unordered_set<format::HandleId>                              recording_cbs_;
+    std::unordered_set<format::HandleId>                              initial_loop_recording_cbs_;
     std::unordered_set<format::HandleId>                              loop_start_recording_cbs_;
     std::unordered_map<format::HandleId, SavedCommandBufferBeginInfo> cb_begin_infos_;
 };
