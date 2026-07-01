@@ -1655,6 +1655,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         VkBool32                                                  isPreprocessed,
         StructPointerDecoder<Decoded_VkGeneratedCommandsInfoEXT>* pGeneratedCommandsInfo);
 
+    void OverrideCmdDispatch(PFN_vkCmdDispatch              func,
+                             const VulkanCommandBufferInfo* command_buffer_info,
+                             uint32_t                       groupCountX,
+                             uint32_t                       groupCountY,
+                             uint32_t                       groupCountZ);
+
+    void OverrideCmdDispatchIndirect(PFN_vkCmdDispatchIndirect      func,
+                                     const VulkanCommandBufferInfo* command_buffer_info,
+                                     const VulkanBufferInfo*        buffer_info,
+                                     VkDeviceSize                   offset);
+
+    void OverrideCmdDispatchBase(PFN_vkCmdDispatchBase          func,
+                                 const VulkanCommandBufferInfo* command_buffer_info,
+                                 uint32_t                       baseGroupX,
+                                 uint32_t                       baseGroupY,
+                                 uint32_t                       baseGroupZ,
+                                 uint32_t                       groupCountX,
+                                 uint32_t                       groupCountY,
+                                 uint32_t                       groupCountZ);
+
     std::function<handle_create_result_t<VkPipeline>()>
     AsyncCreateGraphicsPipelines(PFN_vkCreateGraphicsPipelines                               func,
                                  VkResult                                                    returnValue,
@@ -1899,6 +1919,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
      * render pass begin to ensure render passes execute in the same order as they were captured.
      */
     void MaybeInjectExecutionBarrier(const VulkanCommandBufferInfo* command_buffer_info) const;
+
+    /**
+     * @brief If the option to serialize compute and transfer operations is enabled, inject a memory barrier
+     * before and after each compute dispatch to ensure compute and transfer operations do not overlap.
+     */
+    void MaybeInjectComputeTransferBarrier(const VulkanCommandBufferInfo* command_buffer_info) const;
 
   private:
     struct HardwareBufferInfo

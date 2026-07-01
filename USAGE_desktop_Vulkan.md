@@ -641,6 +641,7 @@ gfxrecon-replay         [-h | --help] [--version] [--cpu-mask <binary-mask>] [--
                         [--serialize-queue-submissions]
                         [--replay-event-plugin-path <path>] [--replay-event-plugin-params <params>]
                         [--isolate-render-passes]
+                        [--serialize-compute-and-transfer]
 
 
 Required arguments:
@@ -916,6 +917,9 @@ Optional arguments:
               interpreted by the replay tool. (forwarded to replay tool)
   --isolate-render-passes
               Isolate render passes by splitting the command buffer into multiple submits.
+  --serialize-compute-and-transfer
+              Prevent compute dispatches from overlapping adjacent transfer work by injecting a barrier before and after
+              each dispatch.
 ```
 
 ### Frame Warm-Up

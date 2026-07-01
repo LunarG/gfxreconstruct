@@ -1755,13 +1755,13 @@ void VulkanReplayConsumer::Process_vkCmdDispatch(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdDispatch(in_commandBuffer, groupCountX, groupCountY, groupCountZ);
+    OverrideCmdDispatch(GetDeviceTable(in_commandBuffer->handle)->CmdDispatch, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdDispatch(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatch, in_commandBuffer, groupCountX, groupCountY, groupCountZ);
+        resource_dumper_->Process_vkCmdDispatch(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdDispatch, in_commandBuffer->handle, groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -1771,14 +1771,14 @@ void VulkanReplayConsumer::Process_vkCmdDispatchIndirect(
     format::HandleId                            buffer,
     VkDeviceSize                                offset)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
-    VkBuffer in_buffer = MapHandle<VulkanBufferInfo>(buffer, &CommonObjectInfoTable::GetVkBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
+    auto in_buffer = GetObjectInfoTable().GetVkBufferInfo(buffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdDispatchIndirect(in_commandBuffer, in_buffer, offset);
+    OverrideCmdDispatchIndirect(GetDeviceTable(in_commandBuffer->handle)->CmdDispatchIndirect, in_commandBuffer, in_buffer, offset);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdDispatchIndirect(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchIndirect, in_commandBuffer, GetObjectInfoTable().GetVkBufferInfo(buffer), offset);
+        resource_dumper_->Process_vkCmdDispatchIndirect(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdDispatchIndirect, in_commandBuffer->handle, in_buffer, offset);
     }
 }
 
@@ -2705,13 +2705,13 @@ void VulkanReplayConsumer::Process_vkCmdDispatchBase(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdDispatchBase(in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+    OverrideCmdDispatchBase(GetDeviceTable(in_commandBuffer->handle)->CmdDispatchBase, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdDispatchBase(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchBase, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+        resource_dumper_->Process_vkCmdDispatchBase(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdDispatchBase, in_commandBuffer->handle, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
     }
 }
 
@@ -4963,13 +4963,13 @@ void VulkanReplayConsumer::Process_vkCmdDispatchBaseKHR(
     uint32_t                                    groupCountY,
     uint32_t                                    groupCountZ)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    auto in_commandBuffer = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdDispatchBaseKHR(in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+    OverrideCmdDispatchBase(GetDeviceTable(in_commandBuffer->handle)->CmdDispatchBaseKHR, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 
     if (options_.dumping_resources)
     {
-        resource_dumper_->Process_vkCmdDispatchBaseKHR(call_info, GetDeviceTable(in_commandBuffer)->CmdDispatchBaseKHR, in_commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+        resource_dumper_->Process_vkCmdDispatchBaseKHR(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdDispatchBaseKHR, in_commandBuffer->handle, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
     }
 }
 

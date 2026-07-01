@@ -167,14 +167,15 @@ const char kDumpResourcesModifiableStateOnly[] = "--dump-resources-modifiable-st
 const char kDumpResourcesBeforeDrawOption[]    = "--dump-resources-before-draw";
 #endif
 
-const char kDumpResourcesArgument[]     = "--dump-resources";
-const char kDumpResourcesDirArgument[]  = "--dump-resources-dir";
-const char kFrameWarmUpSpirv[]          = "--frame-warm-up-spirv";
-const char kFrameWarmUpLoad[]           = "--frame-warm-up-load";
-const char kSerializeQueueSubmissions[] = "--serialize-queue-submissions";
-const char kReplayEventPluginPath[]     = "--replay-event-plugin-path";
-const char kReplayEventPluginParams[]   = "--replay-event-plugin-params";
-const char kIsolateRenderPasses[]       = "--isolate-render-passes";
+const char kDumpResourcesArgument[]       = "--dump-resources";
+const char kDumpResourcesDirArgument[]    = "--dump-resources-dir";
+const char kFrameWarmUpSpirv[]            = "--frame-warm-up-spirv";
+const char kFrameWarmUpLoad[]             = "--frame-warm-up-load";
+const char kSerializeQueueSubmissions[]   = "--serialize-queue-submissions";
+const char kReplayEventPluginPath[]       = "--replay-event-plugin-path";
+const char kReplayEventPluginParams[]     = "--replay-event-plugin-params";
+const char kIsolateRenderPasses[]         = "--isolate-render-passes";
+const char kSerializeComputeAndTransfer[] = "--serialize-compute-and-transfer";
 
 enum class WsiPlatform
 {
@@ -1394,6 +1395,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     replay_options.replay_event_plugin_path   = arg_parser.GetArgumentValue(kReplayEventPluginPath);
     replay_options.replay_event_plugin_params = arg_parser.GetArgumentValue(kReplayEventPluginParams);
     replay_options.isolate_render_passes      = arg_parser.IsOptionSet(kIsolateRenderPasses);
+    replay_options.serialize_compute_and_transfer = arg_parser.IsOptionSet(kSerializeComputeAndTransfer);
 
     return replay_options;
 }

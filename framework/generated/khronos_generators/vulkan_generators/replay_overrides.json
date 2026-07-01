@@ -184,6 +184,10 @@
     "vkCmdEndRenderingKHR": "OverrideCmdEndRendering",
     "vkCreateIndirectExecutionSetEXT": "OverrideCreateIndirectExecutionSetEXT",
     "vkCmdPreprocessGeneratedCommandsEXT": "OverrideCmdPreprocessGeneratedCommandsEXT",
-    "vkCmdExecuteGeneratedCommandsEXT": "OverrideCmdExecuteGeneratedCommandsEXT"
+    "vkCmdExecuteGeneratedCommandsEXT": "OverrideCmdExecuteGeneratedCommandsEXT",
+    "vkCmdDispatch": "OverrideCmdDispatch",
+    "vkCmdDispatchIndirect": "OverrideCmdDispatchIndirect",
+    "vkCmdDispatchBase": "OverrideCmdDispatchBase",
+    "vkCmdDispatchBaseKHR": "OverrideCmdDispatchBase"
   }
 }
