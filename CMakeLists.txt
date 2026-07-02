@@ -255,7 +255,10 @@ if (MSVC)
 
         find_package(DXC)
         if (DXC_FOUND)
-            set(D3D12_INCLUDE_DIRECTORIES ${D3D12_INCLUDE_DIRECTORIES} ${DXC_INCLUDE_DIR})
+            # The DXC redist doesn't have an RDAT reader. Add the external, header-only reader (external/dxc-rdat) so
+            # the in-DXIL local root signature parsing can include "dxc/DxilContainer/DxilRuntimeReflection.inl".
+            set(D3D12_INCLUDE_DIRECTORIES ${D3D12_INCLUDE_DIRECTORIES} ${DXC_INCLUDE_DIR}
+                                          "${PROJECT_SOURCE_DIR}/external/dxc-rdat")
             add_definitions(-DGFXRECON_DXC_SUPPORT)
         endif ()
 

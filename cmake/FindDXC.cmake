@@ -43,8 +43,12 @@ if (${D3D12_SUPPORT})
 
     if(DXC_ARCH)
         message(STATUS "Selected DXC_ARCH: ${DXC_ARCH}")
+        # DXC_VERSION is the release version of the DXC redist binaries and the vendored RDAT reader
+        # (external/dxc-rdat). When changing DXC_VERSION, update the redist archive URL below and re-vendor
+        # external/dxc-rdat from the matching DXC source tag.
+        set(DXC_VERSION "v1.8.2407")
         set(DXC_SDK_DIR "${CMAKE_BINARY_DIR}/external/DXC")
-        set(DXC_SDK_URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2407/dxc_2024_07_31.zip")
+        set(DXC_SDK_URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/${DXC_VERSION}/dxc_2024_07_31.zip")
         
         # Suppress warning on newer versions of CMake related to FetchContent file timestamp behavior.
         if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.24")
