@@ -253,6 +253,14 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
+    virtual void Process_vkCreateEvent(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkEventCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkEvent>*              pEvent) override;
+
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                                format::HandleId   commandBuffer,
                                                                format::HandleId   descriptorUpdateTemplate,
@@ -276,6 +284,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     void        RemovePoolDanglingCreateDescriptors(format::HandleId descriptorPool);
     void        FixupDeviceFences(format::HandleId device, format::HandleId queue);
     void        CaptureInitialFenceStates();
+    void        CaptureInitialEventStates();
+    void        RestoreInitialEventStates();
     void        ClassifyActiveCommandPools();
     void        ResetActiveCommandPools();
     void        RebeginCommandBuffer(format::HandleId cb_id);
@@ -312,6 +322,8 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     std::unordered_set<format::HandleId> dangling_free_command_buffers_;
 
     std::unordered_map<format::HandleId, VkResult> initial_fence_states_;
+    std::unordered_map<format::HandleId, bool> initial_event_states_;
+    std::unordered_set<format::HandleId> device_only_events_;
 
     // Support for vkMapMemory/vkUnMapMemory
     std::set<format::HandleId> mapped_loop_memory;

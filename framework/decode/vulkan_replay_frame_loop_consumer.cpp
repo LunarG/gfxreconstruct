@@ -429,6 +429,7 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
 {
     WaitDevicesIdle();
     CaptureInitialFenceStates();
+    CaptureInitialEventStates();
     RecordInitialLayouts();
 
     if (active_queue_info_ == nullptr)
@@ -520,6 +521,35 @@ void VulkanReplayFrameLoopConsumer::CaptureInitialFenceStates()
                 {
                     VkResult status = device_table->GetFenceStatus(device, fence_info->handle);
                     initial_fence_states_[fence_info->capture_id] = status;
+                }
+            }
+        }
+    });
+}
+
+void VulkanReplayFrameLoopConsumer::CaptureInitialEventStates()
+{
+    initial_event_states_.clear();
+
+    VulkanObjectInfoTable& table = GetObjectInfoTable();
+    table.VisitVkEventInfo([this, &table](const VulkanEventInfo* event_info) {
+        if (event_info->handle != VK_NULL_HANDLE)
+        {
+            // Do not attempt to query host status of device-only events
+            if (device_only_events_.find(event_info->capture_id) != device_only_events_.end())
+            {
+                return;
+            }
+
+            auto device_info = table.GetVkDeviceInfo(event_info->parent_id);
+            if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
+            {
+                VkDevice                           device       = device_info->handle;
+                const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device);
+                if (device_table != nullptr)
+                {
+                    VkResult status = device_table->GetEventStatus(device, event_info->handle);
+                    initial_event_states_[event_info->capture_id] = (status == VK_EVENT_SET);
                 }
             }
         }
@@ -1238,10 +1268,44 @@ void VulkanReplayFrameLoopConsumer::ResetLoopBoundary()
         ResetActiveCommandPools();
 
         FixupDeviceFences(active_queue_info_->parent_id, active_queue_id_);
+        RestoreInitialEventStates();
     }
     else
     {
         GFXRECON_LOG_WARNING("ResetLoopBoundary: Missing active queue info, cannot reset loop boundary!");
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::RestoreInitialEventStates()
+{
+    // Restore initial event states
+    for (const auto& [event_id, is_set] : initial_event_states_)
+    {
+        if (device_only_events_.find(event_id) != device_only_events_.end())
+        {
+            continue;
+        }
+
+        auto event_info = GetObjectInfoTable().GetVkEventInfo(event_id);
+        if (event_info != nullptr && event_info->handle != VK_NULL_HANDLE)
+        {
+            auto device_info = GetObjectInfoTable().GetVkDeviceInfo(event_info->parent_id);
+            if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
+            {
+                const graphics::VulkanDeviceTable* device_table = GetDeviceTable(device_info->handle);
+                if (device_table != nullptr)
+                {
+                    if (is_set)
+                    {
+                        device_table->SetEvent(device_info->handle, event_info->handle);
+                    }
+                    else
+                    {
+                        device_table->ResetEvent(device_info->handle, event_info->handle);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -2346,6 +2410,48 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdPushDescriptorSetWithTemplate2K
 
     VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
         call_info, commandBuffer, pPushDescriptorSetWithTemplateInfo);
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCreateEvent(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkEventCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkEvent>*              pEvent)
+{
+    if (setup_complete_ && pEvent != nullptr && pEvent->GetPointer() != nullptr)
+    {
+        auto capture_id = pEvent->GetPointer()[0];
+        auto event_info = GetObjectInfoTable().GetVkEventInfo(capture_id);
+        if (event_info != nullptr && event_info->handle != VK_NULL_HANDLE)
+        {
+            auto device_info = GetObjectInfoTable().GetVkDeviceInfo(event_info->parent_id);
+            if (device_info != nullptr)
+            {
+                const auto* device_table = GetDeviceTable(device_info->handle);
+                if (device_table != nullptr)
+                {
+                    device_table->DestroyEvent(device_info->handle, event_info->handle, nullptr);
+                }
+            }
+            GetObjectInfoTable().RemoveVkEventInfo(capture_id);
+        }
+    }
+
+    VulkanReplayConsumer::Process_vkCreateEvent(call_info, returnValue, device, pCreateInfo, pAllocator, pEvent);
+
+    if (returnValue == VK_SUCCESS && pCreateInfo != nullptr && pEvent != nullptr)
+    {
+        auto* create_info = pCreateInfo->GetPointer();
+        if (create_info != nullptr && pEvent->GetPointer() != nullptr)
+        {
+            if (create_info->flags & VK_EVENT_CREATE_DEVICE_ONLY_BIT)
+            {
+                device_only_events_.insert(pEvent->GetPointer()[0]);
+            }
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
