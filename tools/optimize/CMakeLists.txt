@@ -31,8 +31,13 @@ add_executable(gfxrecon-optimize "")
 target_sources(gfxrecon-optimize
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/optimize_feature.h
+                   ${CMAKE_CURRENT_LIST_DIR}/optimize_vulkan_feature.h
+                   ${CMAKE_CURRENT_LIST_DIR}/optimize_vulkan_feature.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.h
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.cpp
+                   $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/optimize_dx12_feature.h>
+                   $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/optimize_dx12_feature.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.h>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_util.h>
@@ -56,7 +61,7 @@ if (MSVC)
     endif()
 endif()
 
-target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR})
+target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/..)
 
 target_link_libraries(gfxrecon-optimize
                           gfxrecon_application
