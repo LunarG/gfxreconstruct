@@ -28,6 +28,7 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
+#include "graphics/vulkan_submit_info_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/logging.h"
 #include "util/platform.h"
@@ -35,6 +36,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <span>
 #include <sstream>
 #include <tuple>
 #include <utility>
@@ -2107,40 +2109,12 @@ VkResult SubmitInfo2OnQueue(const graphics::VulkanDeviceTable& device_table,
         return device_table.QueueSubmit2KHR(queue, 1, &submit_info_2, fence);
     }
 
-    // Otherwise fall back to vkQueueSubmit. The per-semaphore stage masks are only meaningful for queue-side
-    // synchronization, which is irrelevant here because the dump-resources submits are serialized with host fence
-    // waits.
-    std::vector<VkSemaphore>          wait_semaphores(submit_info_2.waitSemaphoreInfoCount);
-    std::vector<VkPipelineStageFlags> wait_stage_masks(submit_info_2.waitSemaphoreInfoCount);
-    for (uint32_t i = 0; i < submit_info_2.waitSemaphoreInfoCount; ++i)
-    {
-        wait_semaphores[i]  = submit_info_2.pWaitSemaphoreInfos[i].semaphore;
-        wait_stage_masks[i] = static_cast<VkPipelineStageFlags>(submit_info_2.pWaitSemaphoreInfos[i].stageMask);
-    }
-
-    std::vector<VkCommandBuffer> command_buffers(submit_info_2.commandBufferInfoCount);
-    for (uint32_t i = 0; i < submit_info_2.commandBufferInfoCount; ++i)
-    {
-        command_buffers[i] = submit_info_2.pCommandBufferInfos[i].commandBuffer;
-    }
-
-    std::vector<VkSemaphore> signal_semaphores(submit_info_2.signalSemaphoreInfoCount);
-    for (uint32_t i = 0; i < submit_info_2.signalSemaphoreInfoCount; ++i)
-    {
-        signal_semaphores[i] = submit_info_2.pSignalSemaphoreInfos[i].semaphore;
-    }
-
-    const VkSubmitInfo submit_info{ VK_STRUCTURE_TYPE_SUBMIT_INFO,
-                                    submit_info_2.pNext,
-                                    submit_info_2.waitSemaphoreInfoCount,
-                                    submit_info_2.waitSemaphoreInfoCount ? wait_semaphores.data() : nullptr,
-                                    submit_info_2.waitSemaphoreInfoCount ? wait_stage_masks.data() : nullptr,
-                                    submit_info_2.commandBufferInfoCount,
-                                    submit_info_2.commandBufferInfoCount ? command_buffers.data() : nullptr,
-                                    submit_info_2.signalSemaphoreInfoCount,
-                                    submit_info_2.signalSemaphoreInfoCount ? signal_semaphores.data() : nullptr };
-
-    return device_table.QueueSubmit(queue, 1, &submit_info, fence);
+    // Otherwise fall back to vkQueueSubmit. SubmitInfoTranslator narrows the VkSubmitInfo2 back into a VkSubmitInfo,
+    // reconstructing the timeline/device-group/protected pNext structures. The per-semaphore stage masks it drops are
+    // only meaningful for queue-side synchronization, which is irrelevant here because the dump-resources submits are
+    // serialized with host fence waits.
+    graphics::SubmitInfoTranslator translator(std::span<const VkSubmitInfo2>(&submit_info_2, 1));
+    return device_table.QueueSubmit(queue, 1, translator.GetSubmitInfos().data(), fence);
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
