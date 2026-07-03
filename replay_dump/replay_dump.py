@@ -631,6 +631,7 @@ def configure_api_dump_layer_path(env):
 def build_replay_environment(output_path):
     env = os.environ.copy()
     env["VK_INSTANCE_LAYERS"] = API_DUMP_LAYER
+    env["VK_LOADER_LAYERS_DISABLE"] = "~implicit~"
     env["VK_LOADER_DISABLE_SELECT"] = "1"
     target_driver = env.get(TARGET_DRIVER_ENV_VAR)
     if target_driver:
