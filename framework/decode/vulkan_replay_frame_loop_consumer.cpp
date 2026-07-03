@@ -113,6 +113,7 @@ void VulkanReplayFrameLoopConsumer::DestroyShadowBuffers()
 VulkanReplayFrameLoopConsumer::~VulkanReplayFrameLoopConsumer()
 {
     DestroyShadowBuffers();
+    DestroyShadowPools();
 
     if (restoration_device_ != VK_NULL_HANDLE)
     {
@@ -126,6 +127,34 @@ VulkanReplayFrameLoopConsumer::~VulkanReplayFrameLoopConsumer()
             }
         }
     }
+}
+
+void VulkanReplayFrameLoopConsumer::DestroyShadowPools()
+{
+    VulkanObjectInfoTable& table = GetObjectInfoTable();
+    for (auto& [original_pool, shadow_pool] : shadow_pools_)
+    {
+        VulkanCommandPoolInfo* pool_info = nullptr;
+        table.VisitVkCommandPoolInfo([original_pool, &pool_info](const VulkanCommandPoolInfo* info) {
+            if (info->handle == original_pool)
+            {
+                pool_info = const_cast<VulkanCommandPoolInfo*>(info);
+            }
+        });
+        if (pool_info != nullptr && pool_info->parent_id != format::kNullHandleId)
+        {
+            auto device_info = table.GetVkDeviceInfo(pool_info->parent_id);
+            if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
+            {
+                auto device_table = GetDeviceTable(device_info->handle);
+                if (device_table != nullptr)
+                {
+                    device_table->DestroyCommandPool(device_info->handle, shadow_pool, nullptr);
+                }
+            }
+        }
+    }
+    shadow_pools_.clear();
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateBuffer(
@@ -171,6 +200,16 @@ void VulkanReplayFrameLoopConsumer::Process_vkCreateCommandPool(
     VulkanReplayFrameLoopConsumerBase::Process_vkCreateCommandPool(
         call_info, returnValue, device, pCreateInfo, pAllocator, pCommandPool);
 
+    if (returnValue == VK_SUCCESS && pCommandPool != nullptr && pCommandPool->GetPointer() != nullptr)
+    {
+        auto pool_info = GetObjectInfoTable().GetVkCommandPoolInfo(*pCommandPool->GetPointer());
+        if (pool_info != nullptr && pCreateInfo != nullptr && pCreateInfo->GetPointer() != nullptr)
+        {
+            pool_info->flags              = pCreateInfo->GetPointer()->flags;
+            pool_info->queue_family_index = pCreateInfo->GetPointer()->queueFamilyIndex;
+        }
+    }
+
     if (IsLoopFirstIteration() && pCommandPool != nullptr && pCommandPool->GetPointer() != nullptr)
     {
         dangling_create_command_pools_.insert(*pCommandPool->GetPointer());
@@ -212,6 +251,26 @@ void VulkanReplayFrameLoopConsumer::Process_vkDestroyCommandPool(
         {
             pools.erase(vk_pool);
         }
+
+        auto shadow_it = shadow_pools_.find(vk_pool);
+        if (shadow_it != shadow_pools_.end())
+        {
+            VkCommandPool           shadow_pool = shadow_it->second;
+            auto                    device_info = GetObjectInfoTable().GetVkDeviceInfo(device);
+            if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
+            {
+                auto device_table = GetDeviceTable(device_info->handle);
+                if (device_table != nullptr)
+                {
+                    device_table->DestroyCommandPool(device_info->handle, shadow_pool, nullptr);
+                    GFXRECON_LOG_INFO("Process_vkDestroyCommandPool: Destroyed shadow command pool %p for original pool %p",
+                                      shadow_pool,
+                                      vk_pool);
+                }
+            }
+            shadow_pools_.erase(shadow_it);
+        }
+        pools_requiring_shadows_.erase(vk_pool);
     }
 
     VulkanReplayFrameLoopConsumerBase::Process_vkDestroyCommandPool(call_info, device, commandPool, pAllocator);
@@ -459,22 +518,11 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
         }
     });
 
-    // Only preserve command buffers across loop boundaries if they are actively recording
-    // inside an open render pass when the loop starts (e.g., vkCmdBeginRenderPass was called
-    // before the loop start and ends inside the loop). Wiping such command buffers at loop
-    // repeats would destroy their render pass state and trigger validation errors or crashes.
-    // Conversely, command buffers that began recording setup commands outside a render pass
-    // should not be preserved across repeats to avoid re-executing one-time staging copies.
+    // Wiping command buffers at loop repeats that span the boundary would destroy their state
+    // (pipeline binds, render passes, dynamic rendering, etc.) and trigger validation errors or crashes.
     initial_loop_recording_cbs_ = recording_cbs_;
-    loop_start_recording_cbs_.clear();
-    for (auto cb_id : recording_cbs_)
-    {
-        auto cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(cb_id);
-        if (cb_info != nullptr && cb_info->active_render_pass_id != format::kNullHandleId)
-        {
-            loop_start_recording_cbs_.insert(cb_id);
-        }
-    }
+    loop_start_recording_cbs_   = recording_cbs_;
+
     GFXRECON_LOG_INFO("OnLoopStart: Captured %zu recording command buffers at loop start.",
                       loop_start_recording_cbs_.size());
 
@@ -492,6 +540,7 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
                 if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
                 {
                     active_command_pools_[device_info->handle].insert(pool_info->handle);
+                    pools_requiring_shadows_.insert(pool_info->handle);
                     GFXRECON_LOG_INFO("OnLoopStart: Tracked pool %" PRIu64
                                       " (handle %p) as active for loop-start recording CB %" PRIu64,
                                       pool_id,
@@ -884,8 +933,79 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateCommandBuffers(
         }
     }
 
+    VkCommandPool original_pool_handle = VK_NULL_HANDLE;
+    bool          redirected           = false;
+
+    if (setup_complete_ && pAllocateInfo != nullptr && pAllocateInfo->GetPointer() != nullptr)
+    {
+        VkCommandPool pool_handle = pAllocateInfo->GetPointer()->commandPool;
+        if (pools_requiring_shadows_.contains(pool_handle))
+        {
+            VkCommandPool shadow_pool = VK_NULL_HANDLE;
+            auto          shadow_it   = shadow_pools_.find(pool_handle);
+            if (shadow_it == shadow_pools_.end())
+            {
+                // Find pool ID to retrieve creation info
+                format::HandleId pool_id = format::kNullHandleId;
+                GetObjectInfoTable().VisitVkCommandPoolInfo([pool_handle, &pool_id](const VulkanCommandPoolInfo* info) {
+                    if (info->handle == pool_handle)
+                    {
+                        pool_id = info->capture_id;
+                    }
+                });
+                auto pool_info = GetObjectInfoTable().GetVkCommandPoolInfo(pool_id);
+                if (pool_info != nullptr && pool_info->parent_id != format::kNullHandleId)
+                {
+                    auto device_info = GetObjectInfoTable().GetVkDeviceInfo(pool_info->parent_id);
+                    if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
+                    {
+                        VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+                        create_info.flags              = pool_info->flags | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+                        create_info.queueFamilyIndex   = pool_info->queue_family_index;
+
+                        auto dev_table = GetDeviceTable(device_info->handle);
+                        if (dev_table != nullptr)
+                        {
+                            VkResult res = dev_table->CreateCommandPool(device_info->handle, &create_info, nullptr, &shadow_pool);
+                            if (res == VK_SUCCESS)
+                            {
+                                shadow_pools_[pool_handle] = shadow_pool;
+                                GFXRECON_LOG_INFO("Process_vkAllocateCommandBuffers: Lazily created shadow command pool %p for original pool %p on device %p",
+                                                  shadow_pool,
+                                                  pool_handle,
+                                                  device_info->handle);
+                            }
+                            else
+                            {
+                                GFXRECON_LOG_ERROR("Process_vkAllocateCommandBuffers: Failed to lazily create shadow command pool for pool %p, error %d",
+                                                   pool_handle,
+                                                   res);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                shadow_pool = shadow_it->second;
+            }
+
+            if (shadow_pool != VK_NULL_HANDLE)
+            {
+                original_pool_handle                    = pool_handle;
+                pAllocateInfo->GetPointer()->commandPool = shadow_pool;
+                redirected                              = true;
+            }
+        }
+    }
+
     VulkanReplayFrameLoopConsumerBase::Process_vkAllocateCommandBuffers(
         call_info, returnValue, device, pAllocateInfo, pCommandBuffers);
+
+    if (redirected && pAllocateInfo != nullptr && pAllocateInfo->GetPointer() != nullptr)
+    {
+        pAllocateInfo->GetPointer()->commandPool = original_pool_handle;
+    }
 
     if (returnValue == VK_SUCCESS && pAllocateInfo->GetPointer() != nullptr && pCommandBuffers->GetPointer() != nullptr)
     {
@@ -901,6 +1021,10 @@ void VulkanReplayFrameLoopConsumer::Process_vkAllocateCommandBuffers(
             if (IsLoopFirstIteration())
             {
                 dangling_allocate_command_buffers_.insert(cb_id);
+            }
+            if (redirected && pCommandBuffers->GetHandlePointer() != nullptr)
+            {
+                redirected_cbs_.insert(pCommandBuffers->GetHandlePointer()[i]);
             }
         }
     }
@@ -948,8 +1072,39 @@ void VulkanReplayFrameLoopConsumer::Process_vkFreeCommandBuffers(const ApiCallIn
         }
     }
 
+    VkCommandPool          original_pool_handle = VK_NULL_HANDLE;
+    VulkanCommandPoolInfo* pool_info            = GetObjectInfoTable().GetVkCommandPoolInfo(commandPool);
+    bool                   redirected           = false;
+
+    if (pool_info != nullptr && pCommandBuffers->GetHandlePointer() != nullptr && commandBufferCount > 0)
+    {
+        VkCommandBuffer first_cb = pCommandBuffers->GetHandlePointer()[0];
+        if (redirected_cbs_.contains(first_cb))
+        {
+            auto shadow_it = shadow_pools_.find(pool_info->handle);
+            if (shadow_it != shadow_pools_.end())
+            {
+                original_pool_handle = pool_info->handle;
+                pool_info->handle    = shadow_it->second;
+                redirected           = true;
+            }
+        }
+    }
+
     VulkanReplayFrameLoopConsumerBase::Process_vkFreeCommandBuffers(
         call_info, device, commandPool, commandBufferCount, pCommandBuffers);
+
+    if (redirected)
+    {
+        pool_info->handle = original_pool_handle;
+        if (pCommandBuffers->GetHandlePointer() != nullptr)
+        {
+            for (uint32_t i = 0; i < commandBufferCount; ++i)
+            {
+                redirected_cbs_.erase(pCommandBuffers->GetHandlePointer()[i]);
+            }
+        }
+    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(
@@ -1248,7 +1403,7 @@ void VulkanReplayFrameLoopConsumer::RestoreImageLayouts(VkDevice                
         }
 
         ImageSubresourceLayoutTracker initial_tracker;
-        auto          it            = initial_image_layouts_.find(info->capture_id);
+        auto                          it = initial_image_layouts_.find(info->capture_id);
         if (it != initial_image_layouts_.end())
         {
             initial_tracker = it->second;
@@ -1627,6 +1782,40 @@ void VulkanReplayFrameLoopConsumer::ClassifyActiveCommandPools()
 
 void VulkanReplayFrameLoopConsumer::ResetActiveCommandPools()
 {
+    // Reset all shadow pools
+    for (auto& [original_pool, shadow_pool] : shadow_pools_)
+    {
+        VulkanCommandPoolInfo* pool_info = nullptr;
+        GetObjectInfoTable().VisitVkCommandPoolInfo([original_pool, &pool_info](const VulkanCommandPoolInfo* info) {
+            if (info->handle == original_pool)
+            {
+                pool_info = const_cast<VulkanCommandPoolInfo*>(info);
+            }
+        });
+        if (pool_info != nullptr && pool_info->parent_id != format::kNullHandleId)
+        {
+            auto device_info = GetObjectInfoTable().GetVkDeviceInfo(pool_info->parent_id);
+            if (device_info != nullptr && device_info->handle != VK_NULL_HANDLE)
+            {
+                auto device_table = GetDeviceTable(device_info->handle);
+                if (device_table != nullptr)
+                {
+                    VkResult res = device_table->ResetCommandPool(device_info->handle, shadow_pool, 0);
+                    if (res == VK_SUCCESS)
+                    {
+                        GFXRECON_LOG_INFO("ResetActiveCommandPools: Reset shadow command pool %p", shadow_pool);
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("ResetActiveCommandPools: Failed to reset shadow command pool %p, error %d",
+                                           shadow_pool,
+                                           res);
+                    }
+                }
+            }
+        }
+    }
+
     // 2. Execute resetting/recreation (runs EVERY iteration!)
     if (loop_state_classified_)
     {
@@ -1639,6 +1828,11 @@ void VulkanReplayFrameLoopConsumer::ResetActiveCommandPools()
         // B. Recreate CBs (begun in loop, reset to INITIAL)
         for (auto cb_id : cbs_to_recreate_without_rebegin_)
         {
+            auto cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(cb_id);
+            if (cb_info != nullptr && redirected_cbs_.contains(cb_info->handle))
+            {
+                continue;
+            }
             RecreateAndRebeginCommandBuffer(cb_id, false);
         }
     }
@@ -1836,80 +2030,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkCmdExecuteCommands(const ApiCallIn
             }
         }
     }
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdEndRenderPass(const ApiCallInfo& call_info,
-                                                               format::HandleId   commandBuffer)
-{
-    if (ShouldIgnoreRecordingCommand(commandBuffer))
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkCmdEndRenderPass(call_info, commandBuffer);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdEndRenderPass2(
-    const ApiCallInfo&                              call_info,
-    format::HandleId                                commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
-{
-    if (ShouldIgnoreRecordingCommand(commandBuffer))
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkCmdEndRenderPass2(call_info, commandBuffer, pSubpassEndInfo);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdEndRenderPass2KHR(
-    const ApiCallInfo&                              call_info,
-    format::HandleId                                commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
-{
-    if (ShouldIgnoreRecordingCommand(commandBuffer))
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkCmdEndRenderPass2KHR(call_info, commandBuffer, pSubpassEndInfo);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderPass(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-    VkSubpassContents                                    contents)
-{
-    if (ShouldIgnoreRecordingCommand(commandBuffer))
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkCmdBeginRenderPass(call_info, commandBuffer, pRenderPassBegin, contents);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderPass2(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    pSubpassBeginInfo)
-{
-    if (ShouldIgnoreRecordingCommand(commandBuffer))
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkCmdBeginRenderPass2(call_info, commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
-}
-
-void VulkanReplayFrameLoopConsumer::Process_vkCmdBeginRenderPass2KHR(
-    const ApiCallInfo&                                   call_info,
-    format::HandleId                                     commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    pSubpassBeginInfo)
-{
-    if (ShouldIgnoreRecordingCommand(commandBuffer))
-    {
-        return;
-    }
-    VulkanReplayConsumer::Process_vkCmdBeginRenderPass2KHR(
-        call_info, commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkCreateEvent(

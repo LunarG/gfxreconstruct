@@ -173,40 +173,10 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
 
     void Process_vkReleaseProfilingLockKHR(const ApiCallInfo& call_info, format::HandleId device) override;
 
-    // Added overrides for clean base class separation
-
     virtual void Process_vkCmdExecuteCommands(const ApiCallInfo&                     call_info,
                                               format::HandleId                       commandBuffer,
                                               uint32_t                               commandBufferCount,
                                               HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers) override;
-
-    virtual void Process_vkCmdEndRenderPass(const ApiCallInfo& call_info, format::HandleId commandBuffer) override;
-
-    virtual void Process_vkCmdEndRenderPass2(const ApiCallInfo&                              call_info,
-                                             format::HandleId                                commandBuffer,
-                                             StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
-
-    virtual void Process_vkCmdEndRenderPass2KHR(
-        const ApiCallInfo&                              call_info,
-        format::HandleId                                commandBuffer,
-        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
-
-    void Process_vkCmdBeginRenderPass(const ApiCallInfo&                                   call_info,
-                                      format::HandleId                                     commandBuffer,
-                                      StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-                                      VkSubpassContents                                    contents) override;
-
-    void Process_vkCmdBeginRenderPass2(const ApiCallInfo&                                   call_info,
-                                       format::HandleId                                     commandBuffer,
-                                       StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-                                       StructPointerDecoder<Decoded_VkSubpassBeginInfo>*    pSubpassBeginInfo) override;
-
-    void Process_vkCmdBeginRenderPass2KHR(const ApiCallInfo&                                   call_info,
-                                          format::HandleId                                     commandBuffer,
-                                          StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-                                          StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
-
-    // Removed Process_vkCmd* overrides used for old layout tracking.
 
     virtual void Process_vkCreateEvent(const ApiCallInfo&                                   call_info,
                                        VkResult                                             returnValue,
@@ -224,6 +194,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     void RestoreInitialEventStates();
     void ClassifyActiveCommandPools();
     void ResetActiveCommandPools();
+    void DestroyShadowPools();
     void RebeginCommandBuffer(format::HandleId cb_id);
     void RecreateAndRebeginCommandBuffer(format::HandleId cb_id, bool rebegin);
     void ResetLoopBoundary();
@@ -278,6 +249,9 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     std::vector<format::HandleId>                                   cbs_to_rebegin_;
     std::vector<format::HandleId>                                   cbs_to_recreate_with_rebegin_;
     std::vector<format::HandleId>                                   cbs_to_recreate_without_rebegin_;
+    std::unordered_map<VkCommandPool, VkCommandPool>                shadow_pools_;
+    std::unordered_set<VkCommandPool>                               pools_requiring_shadows_;
+    std::unordered_set<VkCommandBuffer>                             redirected_cbs_;
     bool                                                            setup_complete_{ false };
 
     // Image layout restoration data

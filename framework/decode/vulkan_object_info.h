@@ -246,7 +246,11 @@ typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
 typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
-typedef VulkanPoolInfo<VkCommandPool>                          VulkanCommandPoolInfo;
+struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
+{
+    VkCommandPoolCreateFlags flags = 0;
+    uint32_t                 queue_family_index = 0;
+};
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>             VulkanSamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                     VulkanDisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>             VulkanDebugReportCallbackEXTInfo;
