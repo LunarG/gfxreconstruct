@@ -48,6 +48,8 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual void WaitDevicesIdle() {}
 
+    virtual void OnFrameBegin() {}
+
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }

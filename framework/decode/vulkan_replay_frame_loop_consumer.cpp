@@ -733,6 +733,14 @@ void VulkanReplayFrameLoopConsumer::OnLoopStart()
     setup_complete_ = true;
 }
 
+void VulkanReplayFrameLoopConsumer::OnFrameBegin()
+{
+    if (IsLoopNotFirstIteration())
+    {
+        ResetLoopBoundary();
+    }
+}
+
 void VulkanReplayFrameLoopConsumer::CaptureInitialFenceStates()
 {
     initial_fence_states_.clear();
@@ -1118,21 +1126,6 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, returnValue, queue, pPresentInfo);
 
     UpdateActiveQueueInfo(queue);
-
-    if (IsLoopAnyIteration() && !ShouldUseFrameMarkers())
-    {
-        ResetLoopBoundary();
-    }
-}
-
-void VulkanReplayFrameLoopConsumer::ProcessFrameEndMarker(uint64_t frame_number)
-{
-    VulkanReplayConsumer::ProcessFrameEndMarker(frame_number);
-
-    if (IsLoopAnyIteration() && ShouldUseFrameMarkers())
-    {
-        ResetLoopBoundary();
-    }
 }
 
 void VulkanReplayFrameLoopConsumer::Process_vkAllocateCommandBuffers(
@@ -1966,7 +1959,7 @@ void VulkanReplayFrameLoopConsumer::RestoreBufferStates(VkDevice                
 void VulkanReplayFrameLoopConsumer::ClassifyActiveCommandPools()
 {
     // 1. Classify loop state once at the boundary of the 1st play
-    if (IsLoopFirstIteration() && !loop_state_classified_)
+    if (!loop_state_classified_)
     {
         VulkanObjectInfoTable& pool_info_table = GetObjectInfoTable();
 
