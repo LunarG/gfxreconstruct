@@ -70,6 +70,7 @@ IGNORED_COMPARE_KEYS = {
     "fd",
     "app_name",
 }
+IGNORED_NON_DEVICE_LOCAL_HEAP_SIZE = "<ignored non-device-local heap size>"
 
 
 class ReplayDumpError(Exception):
@@ -282,6 +283,73 @@ def normalize_dump_for_compare(value, path="$", depth=0, key=None):
         return True
 
     return True
+
+
+def get_named_member(members, name):
+    if not isinstance(members, list):
+        return None
+    for member in members:
+        if isinstance(member, dict) and member.get("name") == name:
+            return member
+    return None
+
+
+def normalize_non_device_local_memory_heap_sizes(value):
+    """Normalize host-memory heap sizes reported by vkGetPhysicalDeviceMemoryProperties.
+
+    NVIDIA reports one VkMemoryHeap with flags == 0 for host/system memory.  That
+    size is derived from the replay host's system-memory accounting, not from the
+    captured GPU workload, and it has been observed to differ between otherwise
+    equivalent CI machines with the same GPU, Vulkan loader, ICD manifest, and
+    NVIDIA user-space driver.  Keeping the value makes replay-dump references
+    machine-specific, while ignoring only this field preserves the useful signal:
+    memory heap count/order, heap flags, memory type layout, and device-local heap
+    sizes are still compared exactly.
+    """
+    if not isinstance(value, list):
+        return
+
+    for frame in value:
+        if not isinstance(frame, dict):
+            continue
+        api_calls = frame.get("apiCalls")
+        if not isinstance(api_calls, list):
+            continue
+
+        for api_call in api_calls:
+            if not isinstance(api_call, dict):
+                continue
+            if api_call.get("name") != "vkGetPhysicalDeviceMemoryProperties":
+                continue
+
+            args = api_call.get("args")
+            if not isinstance(args, list):
+                continue
+
+            memory_properties_arg = get_named_member(args, "pMemoryProperties")
+            if memory_properties_arg is None:
+                continue
+
+            memory_heaps = get_named_member(
+                memory_properties_arg.get("members"), "memoryHeaps"
+            )
+            if memory_heaps is None:
+                continue
+
+            elements = memory_heaps.get("elements")
+            if not isinstance(elements, list):
+                continue
+
+            for heap in elements:
+                if not isinstance(heap, dict):
+                    continue
+                heap_members = heap.get("members")
+                flags = get_named_member(heap_members, "flags")
+                size = get_named_member(heap_members, "size")
+                if flags is None or size is None:
+                    continue
+                if flags.get("value") == "0":
+                    size["value"] = IGNORED_NON_DEVICE_LOCAL_HEAP_SIZE
 
 
 def warn(message):
@@ -883,6 +951,8 @@ def run_single_capture_test(
     if reference_dump is not None:
         normalize_dump_for_compare(reference_dump)
         normalize_dump_for_compare(generated_dump)
+        normalize_non_device_local_memory_heap_sizes(reference_dump)
+        normalize_non_device_local_memory_heap_sizes(generated_dump)
         compare_dumps(reference_dump, generated_dump)
 
     return SingleTestResult(name=name, passed=True, output_path=output_path)
@@ -1079,6 +1149,8 @@ def run_suite_entry(entry, suite_base_dir, trace_base_dir, output_dir, headless,
                 generated_dump = load_json_dump(output_path, "Generated")
                 normalize_dump_for_compare(reference_dump)
                 normalize_dump_for_compare(generated_dump)
+                normalize_non_device_local_memory_heap_sizes(reference_dump)
+                normalize_non_device_local_memory_heap_sizes(generated_dump)
                 message = get_compare_failure_text(reference_dump, generated_dump)
             except ReplayDumpError:
                 message = "{}\n".format(err)
