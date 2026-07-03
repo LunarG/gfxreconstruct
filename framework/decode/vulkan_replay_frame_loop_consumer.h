@@ -84,6 +84,16 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                          format::HandleId                                     descriptorPool,
                                          StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
 
+    void Process_vkDestroyBuffer(const ApiCallInfo&                                   call_info,
+                                 format::HandleId                                     device,
+                                 format::HandleId                                     buffer,
+                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    void Process_vkDestroyImage(const ApiCallInfo&                                   call_info,
+                                format::HandleId                                     device,
+                                format::HandleId                                     image,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
     void Process_vkDestroyEvent(const ApiCallInfo&                                   call_info,
                                 format::HandleId                                     device,
                                 format::HandleId                                     event,
@@ -264,6 +274,7 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     // Buffer restoration data
     struct ShadowBufferInfo
     {
+        format::HandleId                      parent_id{ format::kNullHandleId };
         VkBuffer                              shadow_buffer{ VK_NULL_HANDLE };
         VkDeviceMemory                        shadow_memory{ VK_NULL_HANDLE };
         VkDeviceSize                          size{ 0 };
@@ -271,6 +282,35 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
         VulkanResourceAllocator::MemoryData   mem_data{ 0 };
     };
     std::unordered_map<format::HandleId, ShadowBufferInfo> shadow_buffers_;
+
+    // Image restoration data
+    struct ShadowImageInfo
+    {
+        format::HandleId                      parent_id{ format::kNullHandleId };
+        VkImage                               shadow_image{ VK_NULL_HANDLE };
+        VkDeviceMemory                        shadow_memory{ VK_NULL_HANDLE };
+        VulkanResourceAllocator::ResourceData alloc_data{ 0 };
+        VulkanResourceAllocator::MemoryData   mem_data{ 0 };
+        VkFormat                              format;
+        VkExtent3D                            extent;
+        uint32_t                              mip_levels;
+        uint32_t                              array_layers;
+        VkSampleCountFlagBits                 samples;
+        VkImageLayout                         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    };
+    std::unordered_map<format::HandleId, ShadowImageInfo> shadow_images_;
+
+    void     LazyBackupImagesForSubmit(VkQueue queue, uint32_t cb_count, const format::HandleId* cb_ids);
+    void     RestoreImageContents(VkDevice                           device,
+                                  const graphics::VulkanDeviceTable* device_table,
+                                  VulkanQueueInfo*                   queue_info);
+    void     DestroyShadowImages();
+    VkResult CreateShadowImage(VkDevice                               device,
+                               const VulkanImageInfo*                 orig_info,
+                               VkImage*                               shadow_image,
+                               VkDeviceMemory*                        shadow_memory,
+                               VulkanResourceAllocator::ResourceData* alloc_data,
+                               VulkanResourceAllocator::MemoryData*   mem_data);
 
     void RecordInitialBufferStates(VkDevice                           device,
                                    const graphics::VulkanDeviceTable* device_table,
@@ -302,6 +342,12 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
 
     void ExtractAndTrackCommandBuffers(const Decoded_VkSubmitInfo& submit);
     void ExtractAndTrackCommandBuffers(const Decoded_VkSubmitInfo2& submit);
+
+    template <typename T>
+    void BackupImagesForSubmit(format::HandleId queue, StructPointerDecoder<T>* pSubmits);
+
+    void ExtractCommandBuffersForBackup(const Decoded_VkSubmitInfo& submit, std::vector<format::HandleId>& cb_ids);
+    void ExtractCommandBuffersForBackup(const Decoded_VkSubmitInfo2& submit, std::vector<format::HandleId>& cb_ids);
 
     template <typename T>
     void ObserveAndTransitionSubmitDescriptorSets(StructPointerDecoder<T>* pSubmits);
