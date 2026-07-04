@@ -1706,6 +1706,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                           StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                           HandlePointerDecoder<VkShaderEXT>*                   pShaders);
 
+    bool IsShadowSemaphore(VkSemaphore handle) const { return shadow_semaphores_.contains(handle); }
+
     const VulkanReplayOptions& options_;
 
     std::unique_ptr<VulkanReplayDumpResources> resource_dumper_;

@@ -897,6 +897,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit(const ApiCallInfo&    
                                                           format::HandleId                            fence)
 {
     TrackSubmittedCommandBuffers(pSubmits);
+    TrackAndAdjustSubmitSemaphores(queue, pSubmits);
     BackupImagesForSubmit(queue, pSubmits);
 
     VulkanReplayConsumer::Process_vkQueueSubmit(call_info, returnValue, queue, submitCount, pSubmits, fence);
@@ -912,6 +913,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2(const ApiCallInfo&   
                                                            format::HandleId                             fence)
 {
     TrackSubmittedCommandBuffers(pSubmits);
+    TrackAndAdjustSubmitSemaphores(queue, pSubmits);
     BackupImagesForSubmit(queue, pSubmits);
 
     VulkanReplayConsumer::Process_vkQueueSubmit2(call_info, returnValue, queue, submitCount, pSubmits, fence);
@@ -927,6 +929,7 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueueSubmit2KHR(const ApiCallInfo&
                                                               format::HandleId                             fence)
 {
     TrackSubmittedCommandBuffers(pSubmits);
+    TrackAndAdjustSubmitSemaphores(queue, pSubmits);
     BackupImagesForSubmit(queue, pSubmits);
 
     VulkanReplayConsumer::Process_vkQueueSubmit2KHR(call_info, returnValue, queue, submitCount, pSubmits, fence);
@@ -1124,6 +1127,20 @@ void VulkanReplayFrameLoopConsumer::Process_vkQueuePresentKHR(
     StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
 {
     VulkanReplayConsumer::Process_vkQueuePresentKHR(call_info, returnValue, queue, pPresentInfo);
+
+    if (IsLoopFirstIteration() && pPresentInfo != nullptr && pPresentInfo->GetMetaStructPointer() != nullptr)
+    {
+        auto present_info = pPresentInfo->GetMetaStructPointer();
+        if (present_info->pWaitSemaphores.GetPointer() != nullptr)
+        {
+            uint32_t count = present_info->pWaitSemaphores.GetLength();
+            auto     sems  = present_info->pWaitSemaphores.GetPointer();
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                loop_pending_signaled_semaphores_.erase(sems[i]);
+            }
+        }
+    }
 
     UpdateActiveQueueInfo(queue);
 }
@@ -1565,6 +1582,7 @@ void VulkanReplayFrameLoopConsumer::ResetLoopBoundary()
         ResetActiveCommandPools();
 
         FixupDeviceFences(active_queue_info_->parent_id, active_queue_id_);
+        FixupLoopBoundarySemaphores();
         RestoreInitialEventStates();
     }
     else
@@ -2798,6 +2816,385 @@ void VulkanReplayFrameLoopConsumer::RestoreImageContents(VkDevice               
     VkQueue active_queue = active_queue_info_->handle;
     device_table->QueueSubmit(active_queue, 1, &submit_info, VK_NULL_HANDLE);
     device_table->QueueWaitIdle(active_queue);
+}
+
+template <typename T>
+void VulkanReplayFrameLoopConsumer::TrackAndAdjustSubmitSemaphores(format::HandleId         queue,
+                                                                   StructPointerDecoder<T>* pSubmits)
+{
+    if (pSubmits == nullptr || pSubmits->GetMetaStructPointer() == nullptr)
+    {
+        return;
+    }
+    uint32_t count   = pSubmits->GetLength();
+    auto     submits = pSubmits->GetMetaStructPointer();
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        ProcessSemaphoreUsage(queue, submits[i]);
+    }
+}
+
+template void VulkanReplayFrameLoopConsumer::TrackAndAdjustSubmitSemaphores<Decoded_VkSubmitInfo>(
+    format::HandleId queue, StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits);
+template void VulkanReplayFrameLoopConsumer::TrackAndAdjustSubmitSemaphores<Decoded_VkSubmitInfo2>(
+    format::HandleId queue, StructPointerDecoder<Decoded_VkSubmitInfo2>* pSubmits);
+
+void VulkanReplayFrameLoopConsumer::ProcessSemaphoreUsage(format::HandleId queue, const Decoded_VkSubmitInfo& submit)
+{
+    Decoded_VkTimelineSemaphoreSubmitInfo* timeline_info = const_cast<Decoded_VkTimelineSemaphoreSubmitInfo*>(
+        GetPNextMetaStruct<Decoded_VkTimelineSemaphoreSubmitInfo>(submit.pNext));
+
+    uint32_t  wait_count  = submit.pWaitSemaphores.GetLength();
+    auto      wait_sems   = submit.pWaitSemaphores.GetPointer();
+    uint64_t* wait_values = (timeline_info != nullptr && timeline_info->pWaitSemaphoreValues.GetPointer() != nullptr)
+                                ? timeline_info->pWaitSemaphoreValues.GetPointer()
+                                : nullptr;
+
+    for (uint32_t j = 0; j < wait_count; ++j)
+    {
+        format::HandleId sem_id = wait_sems[j];
+        bool is_timeline = timeline_semaphores_.contains(sem_id) || (wait_values != nullptr && wait_values[j] != 0);
+        if (is_timeline && wait_values != nullptr)
+        {
+            timeline_semaphores_.insert(sem_id);
+            if (IsLoopFirstIteration())
+            {
+                timeline_trackers_[sem_id].min_value = std::min(timeline_trackers_[sem_id].min_value, wait_values[j]);
+                timeline_trackers_[sem_id].max_value = std::max(timeline_trackers_[sem_id].max_value, wait_values[j]);
+            }
+            else
+            {
+                wait_values[j] += timeline_trackers_[sem_id].current_offset;
+            }
+        }
+        else if (IsLoopFirstIteration())
+        {
+            if (loop_pending_signaled_semaphores_.contains(sem_id))
+            {
+                loop_pending_signaled_semaphores_.erase(sem_id);
+            }
+            else
+            {
+                loop_external_waited_semaphores_.insert(sem_id);
+            }
+        }
+    }
+
+    uint32_t  signal_count = submit.pSignalSemaphores.GetLength();
+    auto      signal_sems  = submit.pSignalSemaphores.GetPointer();
+    uint64_t* signal_values =
+        (timeline_info != nullptr && timeline_info->pSignalSemaphoreValues.GetPointer() != nullptr)
+            ? timeline_info->pSignalSemaphoreValues.GetPointer()
+            : nullptr;
+
+    for (uint32_t j = 0; j < signal_count; ++j)
+    {
+        format::HandleId sem_id = signal_sems[j];
+        bool is_timeline = timeline_semaphores_.contains(sem_id) || (signal_values != nullptr && signal_values[j] != 0);
+        if (is_timeline && signal_values != nullptr)
+        {
+            timeline_semaphores_.insert(sem_id);
+            if (IsLoopFirstIteration())
+            {
+                timeline_trackers_[sem_id].min_value = std::min(timeline_trackers_[sem_id].min_value, signal_values[j]);
+                timeline_trackers_[sem_id].max_value = std::max(timeline_trackers_[sem_id].max_value, signal_values[j]);
+            }
+            else
+            {
+                signal_values[j] += timeline_trackers_[sem_id].current_offset;
+            }
+        }
+        else if (IsLoopFirstIteration())
+        {
+            loop_pending_signaled_semaphores_.insert(sem_id);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::ProcessSemaphoreUsage(format::HandleId queue, const Decoded_VkSubmitInfo2& submit)
+{
+    if (submit.pWaitSemaphoreInfos != nullptr && submit.pWaitSemaphoreInfos->GetMetaStructPointer() != nullptr)
+    {
+        uint32_t count      = submit.pWaitSemaphoreInfos->GetLength();
+        auto     wait_infos = submit.pWaitSemaphoreInfos->GetMetaStructPointer();
+        for (uint32_t j = 0; j < count; ++j)
+        {
+            format::HandleId sem_id = wait_infos[j].semaphore;
+            uint64_t         val    = (wait_infos[j].decoded_value != nullptr) ? wait_infos[j].decoded_value->value : 0;
+            bool             is_timeline = timeline_semaphores_.contains(sem_id) || val != 0;
+            if (is_timeline)
+            {
+                timeline_semaphores_.insert(sem_id);
+                if (IsLoopFirstIteration())
+                {
+                    timeline_trackers_[sem_id].min_value = std::min(timeline_trackers_[sem_id].min_value, val);
+                    timeline_trackers_[sem_id].max_value = std::max(timeline_trackers_[sem_id].max_value, val);
+                }
+                else if (wait_infos[j].decoded_value != nullptr)
+                {
+                    wait_infos[j].decoded_value->value += timeline_trackers_[sem_id].current_offset;
+                }
+            }
+            else if (IsLoopFirstIteration())
+            {
+                if (loop_pending_signaled_semaphores_.contains(sem_id))
+                {
+                    loop_pending_signaled_semaphores_.erase(sem_id);
+                }
+                else
+                {
+                    loop_external_waited_semaphores_.insert(sem_id);
+                }
+            }
+        }
+    }
+
+    if (submit.pSignalSemaphoreInfos != nullptr && submit.pSignalSemaphoreInfos->GetMetaStructPointer() != nullptr)
+    {
+        uint32_t count        = submit.pSignalSemaphoreInfos->GetLength();
+        auto     signal_infos = submit.pSignalSemaphoreInfos->GetMetaStructPointer();
+        for (uint32_t j = 0; j < count; ++j)
+        {
+            format::HandleId sem_id = signal_infos[j].semaphore;
+            uint64_t val = (signal_infos[j].decoded_value != nullptr) ? signal_infos[j].decoded_value->value : 0;
+            bool     is_timeline = timeline_semaphores_.contains(sem_id) || val != 0;
+            if (is_timeline)
+            {
+                timeline_semaphores_.insert(sem_id);
+                if (IsLoopFirstIteration())
+                {
+                    timeline_trackers_[sem_id].min_value = std::min(timeline_trackers_[sem_id].min_value, val);
+                    timeline_trackers_[sem_id].max_value = std::max(timeline_trackers_[sem_id].max_value, val);
+                }
+                else if (signal_infos[j].decoded_value != nullptr)
+                {
+                    signal_infos[j].decoded_value->value += timeline_trackers_[sem_id].current_offset;
+                }
+            }
+            else if (IsLoopFirstIteration())
+            {
+                loop_pending_signaled_semaphores_.insert(sem_id);
+            }
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::FixupLoopBoundarySemaphores()
+{
+    if (active_device_ == VK_NULL_HANDLE || active_queue_info_ == nullptr)
+    {
+        return;
+    }
+
+    VulkanObjectInfoTable&             table        = GetObjectInfoTable();
+    const graphics::VulkanDeviceTable* device_table = GetDeviceTable(active_device_);
+    if (device_table == nullptr)
+    {
+        return;
+    }
+
+    std::vector<VkSemaphore> timeline_signal_sems;
+    std::vector<uint64_t>    timeline_signal_values;
+
+    for (auto& [sem_id, tracker] : timeline_trackers_)
+    {
+        if (tracker.min_value <= tracker.max_value)
+        {
+            uint64_t delta = tracker.max_value - tracker.min_value + 1;
+            tracker.current_offset += delta;
+
+            const VulkanSemaphoreInfo* sem_info = table.GetVkSemaphoreInfo(sem_id);
+            if (sem_info != nullptr && sem_info->handle != VK_NULL_HANDLE)
+            {
+                timeline_signal_sems.push_back(sem_info->handle);
+                timeline_signal_values.push_back(tracker.min_value + tracker.current_offset);
+                GFXRECON_LOG_INFO("Loop boundary dummy signal for timeline semaphore %llu to value %llu",
+                                  (unsigned long long)sem_id,
+                                  (unsigned long long)(tracker.min_value + tracker.current_offset));
+            }
+        }
+    }
+
+    if (!timeline_signal_sems.empty())
+    {
+        VkTimelineSemaphoreSubmitInfo timeline_info = { VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO };
+        timeline_info.signalSemaphoreValueCount     = static_cast<uint32_t>(timeline_signal_values.size());
+        timeline_info.pSignalSemaphoreValues        = timeline_signal_values.data();
+
+        VkSubmitInfo submit         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit.pNext                = &timeline_info;
+        submit.signalSemaphoreCount = static_cast<uint32_t>(timeline_signal_sems.size());
+        submit.pSignalSemaphores    = timeline_signal_sems.data();
+
+        device_table->QueueSubmit(active_queue_info_->handle, 1, &submit, VK_NULL_HANDLE);
+        device_table->QueueWaitIdle(active_queue_info_->handle);
+    }
+
+    VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+    alloc_info.commandPool                 = restoration_command_pool_;
+    alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount          = 1;
+    VkCommandBuffer boundary_cb            = VK_NULL_HANDLE;
+    if (restoration_command_pool_ != VK_NULL_HANDLE)
+    {
+        device_table->AllocateCommandBuffers(active_device_, &alloc_info, &boundary_cb);
+        if (boundary_cb != VK_NULL_HANDLE)
+        {
+            VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+            begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+            device_table->BeginCommandBuffer(boundary_cb, &begin_info);
+            VkMemoryBarrier barrier = { VK_STRUCTURE_TYPE_MEMORY_BARRIER };
+            barrier.srcAccessMask   = 0;
+            barrier.dstAccessMask   = 0;
+            device_table->CmdPipelineBarrier(boundary_cb,
+                                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                             0,
+                                             1,
+                                             &barrier,
+                                             0,
+                                             nullptr,
+                                             0,
+                                             nullptr);
+            device_table->EndCommandBuffer(boundary_cb);
+        }
+    }
+
+    std::unordered_set<VkSemaphore>   seen_waits;
+    std::vector<VkSemaphore>          wait_sems;
+    std::vector<VkPipelineStageFlags> wait_stages;
+    for (format::HandleId sem_id : loop_pending_signaled_semaphores_)
+    {
+        const VulkanSemaphoreInfo* sem_info = table.GetVkSemaphoreInfo(sem_id);
+        if (sem_info != nullptr && sem_info->handle != VK_NULL_HANDLE)
+        {
+            if (IsShadowSemaphore(sem_info->handle) || !sem_info->forward_progress)
+            {
+                continue;
+            }
+            if (seen_waits.insert(sem_info->handle).second)
+            {
+                wait_sems.push_back(sem_info->handle);
+                wait_stages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+                GFXRECON_LOG_INFO("Loop boundary dummy wait for binary semaphore %llu", (unsigned long long)sem_id);
+            }
+        }
+    }
+
+    std::unordered_set<VkSemaphore> seen_signals;
+    std::vector<VkSemaphore>        signal_sems;
+    for (format::HandleId sem_id : loop_external_waited_semaphores_)
+    {
+        if (loop_pending_signaled_semaphores_.contains(sem_id))
+        {
+            continue;
+        }
+        const VulkanSemaphoreInfo* sem_info = table.GetVkSemaphoreInfo(sem_id);
+        if (sem_info != nullptr && sem_info->handle != VK_NULL_HANDLE)
+        {
+            if (IsShadowSemaphore(sem_info->handle) || !sem_info->forward_progress)
+            {
+                continue;
+            }
+            if (!seen_waits.contains(sem_info->handle) && seen_signals.insert(sem_info->handle).second)
+            {
+                signal_sems.push_back(sem_info->handle);
+                GFXRECON_LOG_INFO("Loop boundary dummy signal for binary semaphore %llu", (unsigned long long)sem_id);
+            }
+        }
+    }
+
+    if (!wait_sems.empty() || !signal_sems.empty())
+    {
+        VkSubmitInfo submit       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit.waitSemaphoreCount = static_cast<uint32_t>(wait_sems.size());
+        submit.pWaitSemaphores    = wait_sems.data();
+        submit.pWaitDstStageMask  = wait_stages.data();
+        if (boundary_cb != VK_NULL_HANDLE)
+        {
+            submit.commandBufferCount = 1;
+            submit.pCommandBuffers    = &boundary_cb;
+        }
+        submit.signalSemaphoreCount = static_cast<uint32_t>(signal_sems.size());
+        submit.pSignalSemaphores    = signal_sems.data();
+
+        device_table->QueueSubmit(active_queue_info_->handle, 1, &submit, VK_NULL_HANDLE);
+        device_table->QueueWaitIdle(active_queue_info_->handle);
+    }
+
+    if (boundary_cb != VK_NULL_HANDLE)
+    {
+        device_table->FreeCommandBuffers(active_device_, restoration_command_pool_, 1, &boundary_cb);
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkCreateSemaphore(
+    const ApiCallInfo&                                   call_info,
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkSemaphore>*                   pSemaphore)
+{
+    VulkanReplayConsumer::Process_vkCreateSemaphore(
+        call_info, returnValue, device, pCreateInfo, pAllocator, pSemaphore);
+
+    if (pSemaphore != nullptr && !pSemaphore->IsNull() && pCreateInfo != nullptr &&
+        pCreateInfo->GetMetaStructPointer() != nullptr)
+    {
+        format::HandleId handle      = *pSemaphore->GetPointer();
+        auto             create_info = pCreateInfo->GetMetaStructPointer();
+        auto             type_info   = const_cast<Decoded_VkSemaphoreTypeCreateInfo*>(
+            GetPNextMetaStruct<Decoded_VkSemaphoreTypeCreateInfo>(create_info->pNext));
+        if (type_info != nullptr && type_info->decoded_value != nullptr &&
+            type_info->decoded_value->semaphoreType == VK_SEMAPHORE_TYPE_TIMELINE)
+        {
+            timeline_semaphores_.insert(handle);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
+                                                                  VkResult                  returnValue,
+                                                                  format::HandleId          device,
+                                                                  format::HandleId          swapchain,
+                                                                  uint64_t                  timeout,
+                                                                  format::HandleId          semaphore,
+                                                                  format::HandleId          fence,
+                                                                  PointerDecoder<uint32_t>* pImageIndex)
+{
+    VulkanReplayConsumer::Process_vkAcquireNextImageKHR(
+        call_info, returnValue, device, swapchain, timeout, semaphore, fence, pImageIndex);
+    if (semaphore != format::kNullHandleId)
+    {
+        loop_acquire_semaphores_.insert(semaphore);
+        if (IsLoopFirstIteration())
+        {
+            loop_pending_signaled_semaphores_.insert(semaphore);
+        }
+    }
+}
+
+void VulkanReplayFrameLoopConsumer::Process_vkAcquireNextImage2KHR(
+    const ApiCallInfo&                                       call_info,
+    VkResult                                                 returnValue,
+    format::HandleId                                         device,
+    StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
+    PointerDecoder<uint32_t>*                                pImageIndex)
+{
+    VulkanReplayConsumer::Process_vkAcquireNextImage2KHR(call_info, returnValue, device, pAcquireInfo, pImageIndex);
+    if (pAcquireInfo != nullptr && pAcquireInfo->GetMetaStructPointer() != nullptr)
+    {
+        format::HandleId semaphore = pAcquireInfo->GetMetaStructPointer()->semaphore;
+        if (semaphore != format::kNullHandleId)
+        {
+            loop_acquire_semaphores_.insert(semaphore);
+            if (IsLoopFirstIteration())
+            {
+                loop_pending_signaled_semaphores_.insert(semaphore);
+            }
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

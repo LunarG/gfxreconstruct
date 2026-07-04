@@ -4400,7 +4400,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
-    if (have_imported_semaphores_ || options_.surface_index != -1)
+    if (have_imported_semaphores_ || !shadow_semaphores_.empty() || options_.surface_index != -1)
     {
         if (submit_info_data != nullptr)
         {
@@ -4443,35 +4443,40 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit        
         {
             // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
             VkSubmitInfo& modified_submit_info = modified_submit_infos[submit_iter.first];
-            auto          semaphore_iter       = submit_iter.second.begin();
 
             for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreCount; ++i)
             {
-                VkSemaphore semaphore = modified_submit_info.pWaitSemaphores[i];
-
-                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                VkSemaphore semaphore  = modified_submit_info.pWaitSemaphores[i];
+                bool        is_removed = false;
+                for (const VulkanSemaphoreInfo* rem : submit_iter.second)
+                {
+                    if (rem != nullptr && rem->handle == semaphore)
+                    {
+                        is_removed = true;
+                        break;
+                    }
+                }
+                if (!is_removed)
                 {
                     wait_semaphores.push_back(semaphore);
-                }
-                else
-                {
-                    // Omit the ignored semaphore from the current submission.
-                    ++semaphore_iter;
                 }
             }
 
             for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreCount; ++i)
             {
-                VkSemaphore semaphore = modified_submit_info.pSignalSemaphores[i];
-
-                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                VkSemaphore semaphore  = modified_submit_info.pSignalSemaphores[i];
+                bool        is_removed = false;
+                for (const VulkanSemaphoreInfo* rem : submit_iter.second)
+                {
+                    if (rem != nullptr && rem->handle == semaphore)
+                    {
+                        is_removed = true;
+                        break;
+                    }
+                }
+                if (!is_removed)
                 {
                     signal_semaphores.push_back(semaphore);
-                }
-                else
-                {
-                    // Omit the ignored semaphore from the current submission.
-                    ++semaphore_iter;
                 }
             }
 
@@ -4669,7 +4674,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
-    if (have_imported_semaphores_ || options_.surface_index != -1)
+    if (have_imported_semaphores_ || !shadow_semaphores_.empty() || options_.surface_index != -1)
     {
         if (submit_info_data != nullptr)
         {
@@ -4683,7 +4688,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
                 TrackSemaphoreForwardProgress(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
 
                 // Remove non-forward progress of signal semaphores.
-                GetNonForwardProgress(submit_info_data[i].pWaitSemaphoreInfos, &removed_semaphores);
+                GetNonForwardProgress(submit_info_data[i].pSignalSemaphoreInfos, &removed_semaphores);
 
                 if (!removed_semaphores.empty())
                 {
@@ -4712,13 +4717,20 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
         {
             // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
             VkSubmitInfo2& modified_submit_info = modified_submit_infos[submit_iter.first];
-            auto           semaphore_iter       = submit_iter.second.begin();
 
             for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreInfoCount; ++i)
             {
-                VkSemaphore semaphore = modified_submit_info.pWaitSemaphoreInfos[i].semaphore;
-
-                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                VkSemaphore semaphore  = modified_submit_info.pWaitSemaphoreInfos[i].semaphore;
+                bool        is_removed = false;
+                for (const VulkanSemaphoreInfo* rem : submit_iter.second)
+                {
+                    if (rem != nullptr && rem->handle == semaphore)
+                    {
+                        is_removed = true;
+                        break;
+                    }
+                }
+                if (!is_removed)
                 {
                     VkSemaphoreSubmitInfo info{};
                     info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
@@ -4726,29 +4738,27 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit2(PFN_vkQueueSubmit2      
 
                     wait_semaphore_infos.emplace_back(info);
                 }
-                else
-                {
-                    // Omit the ignored semaphore from the current submission.
-                    ++semaphore_iter;
-                }
             }
 
             for (uint32_t i = 0; i < modified_submit_info.signalSemaphoreInfoCount; ++i)
             {
-                VkSemaphore semaphore = modified_submit_info.pSignalSemaphoreInfos[i].semaphore;
-
-                if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                VkSemaphore semaphore  = modified_submit_info.pSignalSemaphoreInfos[i].semaphore;
+                bool        is_removed = false;
+                for (const VulkanSemaphoreInfo* rem : submit_iter.second)
+                {
+                    if (rem != nullptr && rem->handle == semaphore)
+                    {
+                        is_removed = true;
+                        break;
+                    }
+                }
+                if (!is_removed)
                 {
                     VkSemaphoreSubmitInfo info{};
                     info.sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
                     info.semaphore = semaphore;
 
                     signal_semaphore_infos.emplace_back(info);
-                }
-                else
-                {
-                    // Omit the ignored semaphore from the current submission.
-                    ++semaphore_iter;
                 }
             }
 
@@ -5018,7 +5028,7 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     // Only attempt to filter imported semaphores if we know at least one has been imported.
     // If rendering is restricted to a specific surface, shadow semaphore and forward progress state will need to be
     // tracked.
-    if ((!have_imported_semaphores_) && (options_.surface_index == -1))
+    if ((!have_imported_semaphores_) && shadow_semaphores_.empty() && (options_.surface_index == -1))
     {
         result = allocator->QueueBindSparse(queue_info->handle,
                                             static_cast<uint32_t>(modified_bind_infos.size()),
@@ -11425,12 +11435,11 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(
 void VulkanReplayConsumerBase::SignalShadowSemaphore(VulkanSemaphoreInfo*                     semaphore_info,
                                                      std::vector<const VulkanSemaphoreInfo*>* shadow_semaphores)
 {
-    if (semaphore_info->shadow_signaled)
+    if (semaphore_info->shadow_signaled || shadow_semaphores_.contains(semaphore_info->handle))
     {
         // If found, unsignal the semaphore to represent it being used.
         shadow_semaphores->push_back(semaphore_info);
         semaphore_info->shadow_signaled = false;
-        shadow_semaphores_.erase(semaphore_info->handle);
     }
     else if (semaphore_info->signaled)
     {

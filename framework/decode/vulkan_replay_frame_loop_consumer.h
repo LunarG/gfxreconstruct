@@ -28,6 +28,7 @@
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_replay_frame_loop_consumer_base.h"
 #include "decode/api_decoder.h"
+#include "decode/vulkan_pnext_node.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -191,6 +192,28 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
                                        StructPointerDecoder<Decoded_VkEventCreateInfo>*     pCreateInfo,
                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                        HandlePointerDecoder<VkEvent>*                       pEvent) override;
+
+    virtual void Process_vkCreateSemaphore(const ApiCallInfo&                                   call_info,
+                                           VkResult                                             returnValue,
+                                           format::HandleId                                     device,
+                                           StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>* pCreateInfo,
+                                           StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                           HandlePointerDecoder<VkSemaphore>*                   pSemaphore) override;
+
+    virtual void Process_vkAcquireNextImageKHR(const ApiCallInfo&        call_info,
+                                               VkResult                  returnValue,
+                                               format::HandleId          device,
+                                               format::HandleId          swapchain,
+                                               uint64_t                  timeout,
+                                               format::HandleId          semaphore,
+                                               format::HandleId          fence,
+                                               PointerDecoder<uint32_t>* pImageIndex) override;
+
+    virtual void Process_vkAcquireNextImage2KHR(const ApiCallInfo&                                       call_info,
+                                                VkResult                                                 returnValue,
+                                                format::HandleId                                         device,
+                                                StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
+                                                PointerDecoder<uint32_t>* pImageIndex) override;
 
     // Private declarations
   private:
@@ -398,6 +421,26 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     std::unordered_set<format::HandleId>                              loop_start_recording_cbs_;
     std::unordered_set<format::HandleId>                              loop_touched_images_;
     std::unordered_map<format::HandleId, SavedCommandBufferBeginInfo> cb_begin_infos_;
+
+    struct TimelineSemaphoreTracker
+    {
+        uint64_t min_value{ std::numeric_limits<uint64_t>::max() };
+        uint64_t max_value{ 0 };
+        uint64_t current_offset{ 0 };
+    };
+
+    template <typename T>
+    void TrackAndAdjustSubmitSemaphores(format::HandleId queue, StructPointerDecoder<T>* pSubmits);
+
+    void ProcessSemaphoreUsage(format::HandleId queue, const Decoded_VkSubmitInfo& submit);
+    void ProcessSemaphoreUsage(format::HandleId queue, const Decoded_VkSubmitInfo2& submit);
+    void FixupLoopBoundarySemaphores();
+
+    std::unordered_set<format::HandleId>                           timeline_semaphores_;
+    std::unordered_map<format::HandleId, TimelineSemaphoreTracker> timeline_trackers_;
+    std::unordered_set<format::HandleId>                           loop_external_waited_semaphores_;
+    std::unordered_set<format::HandleId>                           loop_pending_signaled_semaphores_;
+    std::unordered_set<format::HandleId>                           loop_acquire_semaphores_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
