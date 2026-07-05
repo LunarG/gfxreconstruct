@@ -94,9 +94,11 @@ std::vector<ImageSubresourceLayoutTracker::SubresourceLayout> GetNormalizedSubre
         return normalized;
     }
 
-    VkImageAspectFlags full_aspect      = GetAspectMask(info->format);
-    bool               is_depth_stencil = (full_aspect & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) ==
-                                          (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+    VkImageAspectFlags full_aspect = GetAspectMask(info->format);
+
+    // Check for both depth and stencil aspects
+    bool is_depth_stencil = (full_aspect & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) ==
+                            (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 
     auto current_layouts = info->subresource_layouts.GetSubresourceLayouts();
     for (auto layout_entry : current_layouts)
@@ -2602,8 +2604,10 @@ void VulkanReplayFrameLoopConsumer::LazyBackupImagesForSubmit(VkQueue           
         barrier_restore.oldLayout            = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         barrier_restore.newLayout            = current_layout;
         barrier_restore.srcAccessMask        = VK_ACCESS_TRANSFER_READ_BIT;
-        barrier_restore.dstAccessMask        = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                                               VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        // Set destination access flags for layout restoration
+        barrier_restore.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                                        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
         device_table->CmdPipelineBarrier(restoration_command_buffer_,
                                          VK_PIPELINE_STAGE_TRANSFER_BIT,

@@ -47,16 +47,16 @@ class VulkanReplayFrameLoopConsumer : public VulkanReplayFrameLoopConsumerBase, 
     graphics::FrameLoopInfo& getFrameLoopInfo() override { return frame_loop_info_; }
 
     void OnLoopStart() override;
-    void         OnFrameBegin() override;
+    void OnFrameBegin() override;
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
 
-    void Process_vkCreateBuffer(const ApiCallInfo&                                     call_info,
-                                VkResult                                               returnValue,
-                                format::HandleId                                       device,
-                                StructPointerDecoder<Decoded_VkBufferCreateInfo>*      pCreateInfo,
-                                StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
-                                HandlePointerDecoder<VkBuffer>*                        pBuffer) override;
+    void Process_vkCreateBuffer(const ApiCallInfo&                                   call_info,
+                                VkResult                                             returnValue,
+                                format::HandleId                                     device,
+                                StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                HandlePointerDecoder<VkBuffer>*                      pBuffer) override;
 
     void Process_vkCreateCommandPool(const ApiCallInfo&                                     call_info,
                                      VkResult                                               returnValue,

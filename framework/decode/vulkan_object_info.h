@@ -242,13 +242,13 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
-typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
-typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
-typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
+typedef VulkanObjectInfo<VkEvent>           VulkanEventInfo;
+typedef VulkanObjectInfo<VkQueryPool>       VulkanQueryPoolInfo;
+typedef VulkanObjectInfo<VkPrivateDataSlot> VulkanPrivateDataSlotInfo;
+typedef VulkanObjectInfo<VkSampler>         VulkanSamplerInfo;
 struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
 {
-    VkCommandPoolCreateFlags flags = 0;
+    VkCommandPoolCreateFlags flags              = 0;
     uint32_t                 queue_family_index = 0;
 };
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>             VulkanSamplerYcbcrConversionInfo;
@@ -683,7 +683,7 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t              queue_family_index{ 0 };
 
     ImageSubresourceLayoutTracker subresource_layouts;
-    VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    VkImageLayout                 intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 
     VkDeviceSize size{ 0 };
 
@@ -903,12 +903,12 @@ struct VulkanShaderEXTInfo : VulkanObjectInfoAsync<VkShaderEXT>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                                                      is_frame_boundary{ false };
-    std::vector<format::HandleId>                             frame_buffer_ids;
-    format::HandleId                                          active_render_pass_id{ format::kNullHandleId };
-    format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
-    std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
-    std::vector<format::HandleId>                             dynamic_rendering_image_view_ids;
+    bool                          is_frame_boundary{ false };
+    std::vector<format::HandleId> frame_buffer_ids;
+    format::HandleId              active_render_pass_id{ format::kNullHandleId };
+    format::HandleId              active_framebuffer_id{ format::kNullHandleId };
+    std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
+    std::vector<format::HandleId> dynamic_rendering_image_view_ids;
     struct ImageLayoutTransition
     {
         VkImageSubresourceRange range;
@@ -917,10 +917,10 @@ struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
     std::unordered_map<format::HandleId, std::vector<ImageLayoutTransition>> image_layout_barriers;
     std::vector<format::HandleId>                                            bound_descriptor_sets;
     std::vector<format::HandleId>                                            executed_secondary_command_buffers;
-    std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
-    std::vector<uint8_t>                                      push_constant_data;
-    VkShaderStageFlags                                        push_constant_stage_flags     = 0;
-    VkPipelineLayout                                          push_constant_pipeline_layout = VK_NULL_HANDLE;
+    std::unordered_map<VkPipelineBindPoint, format::HandleId>                bound_pipelines;
+    std::vector<uint8_t>                                                     push_constant_data;
+    VkShaderStageFlags                                                       push_constant_stage_flags = 0;
+    VkPipelineLayout push_constant_pipeline_layout                                                     = VK_NULL_HANDLE;
 
     // collect buffer-device-addresses of locations to replace before submit
     std::unordered_set<VkDeviceAddress> addresses_to_replace;
