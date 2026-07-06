@@ -154,7 +154,6 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
     struct SwapchainResourceData
     {
         bool              forced_offscreen{ false };
-        bool              deferred_alloc{ false };
         std::vector<bool> image_index_transitioned;
 
         // Create a map that correlates copy command data with a queue family index.
@@ -187,7 +186,9 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                                       const VulkanSwapchainKHRInfo*           swapchain_info,
                                       std::unique_ptr<SwapchainResourceData>& swapchain_resources,
                                       uint32_t                                image_index,
-                                      uint32_t                                image_count);
+                                      uint32_t                                image_count,
+                                      VkSemaphore                             acquire_semaphore,
+                                      VkFence                                 acquire_fence);
 
     // Create an unordered map to associate the swapchain resource data with a particular Vulkan swapchain
     std::unordered_map<VkSwapchainKHR, std::unique_ptr<SwapchainResourceData>> swapchain_resources_;
