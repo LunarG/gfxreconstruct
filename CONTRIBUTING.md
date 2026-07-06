@@ -20,6 +20,7 @@ Copyright &copy; 2018-2024 LunarG, Inc.
     1. [Issue Fix](#issue-fix)
     1. [New Feature or Improvement](#new-feature-or-improvement)
     1. [Shared Forks](#shared-forks)
+    1. [Keep PRs small](#keep-prs-small)
 1. [Coding Guidelines](#coding-guidelines)
     1. [GFXR Do's](#gfxr-dos)
     1. [GFXR Don'ts](#gfxr-donts)
@@ -153,15 +154,15 @@ Because of this, we suggest naming in the following fashion:
 
 #### Issue Fix
 
-If fixing an issue, create a branch based on the issue number, like `fix-1234`
-where `1234` is the issue number in Github.
+If fixing an issue, create a branch based on the fix, like `fix-createinstance-crash`.
+In the description, write "Fixes #1234".  When the PR is merged, issue #1234 will automatically be closed.
 
 #### New Feature or Improvement
 
 If adding a new feature or cleaning up existing changes, provide a descriptive
 branch name.
 
-If the change fixes a race condition in pipeline submit, it could be named
+As an example, If the change fixes a race condition in pipeline submit, it could be named
 `fix-pipeline-submit-race-condition`.
 Even if the name conflicts with another developer's branch, the branch
 resides on your fork and appears to the main Github repo as
@@ -172,10 +173,20 @@ resides on your fork and appears to the main Github repo as
 If sharing a fork with multiple people (for example all from the same company),
 it might be useful to prepend the branch with your user nam.
 
-For example, instead of `fix-1234` one might create a branch `bob-fix-1234`
+For example, instead of `fix-createinstance-crash` one might create a branch `alice-createinstance-crash`
 to differentiate the work from other people working in the repo.
 
 <br/>
+
+#### Keep PRs small
+
+Submitting multiple unrelated changes in a PR makes reviewing the PR difficult.  Create PRs for which the a reviewer can hold the entire change in their head and answer "is this correct and complete?" in a single sitting.
+
+Some suggestions to help this process:
+* Fix one bug per PR
+* Don't change in a PR the style of code that isn't related to the new functionality or bugfix in the PR.
+* Separate a refactor from a bugfix in which you discovered the refactor was helpful.  It is okay to have two PRs reference each other in the description.
+
 
 ## Coding Guidelines
 
@@ -191,11 +202,9 @@ to differentiate the work from other people working in the repo.
 1. Don’t hand-edit C++ headers or implementation files in `framework/generated`.
    To change those files, edit the Python generator scripts and run the
    generator as noted in [Rebase on Dev](#rebase-on-dev)
-
-
 2. Don't perform unnecessary work in your change (like performing additional
    cleanup beyond your change).
-3. Do not alter existing capture file block structs or IDs.
+4. Do not alter existing capture file block structs or IDs.
    Instead, create new IDs and structs, and deprecate the old blocks so they
    continue to be decoded and consumed.
 
