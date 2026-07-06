@@ -183,7 +183,7 @@ to differentiate the work from other people working in the repo.
 Submitting multiple unrelated changes in a PR makes reviewing the PR difficult.  Create PRs for which the a reviewer can hold the entire change in their head and answer "is this correct and complete?" in a single sitting.
 
 Some suggestions to help this process:
-* Fix one bug per PR
+* Don't fix unrelated bugs in one PR.
 * Don't change in a PR the style of code that isn't related to the new functionality or bugfix in the PR.
 * Separate a refactor from a bugfix in which you discovered the refactor was helpful.  It is okay to have two PRs reference each other in the description.
 
