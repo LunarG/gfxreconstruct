@@ -174,7 +174,9 @@ class CaptureSettings
         // Similar mechanism as page guard. The mapper memory returned by the driver is replaced by a shadow
         // allocation but in this case the memory is monitored using the userfaultfd mechanism provided by the linux
         // kernel.
-        kUserfaultfd = 3
+        kUserfaultfd = 3,
+
+        kHashCompare = 4
     };
 
     enum RuntimeTriggerState

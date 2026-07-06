@@ -37,6 +37,7 @@
 #include "util/file_path.h"
 #include "util/date_time.h"
 #include "util/driver_info.h"
+#include "util/hash_track_manager.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -138,6 +139,10 @@ CommonCaptureManager::~CommonCaptureManager()
         memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
     {
         util::PageGuardManager::Destroy();
+    }
+    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kHashCompare)
+    {
+        util::HashTrackManager::Destroy();
     }
 
     util::Log::Release();
@@ -617,6 +622,10 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                                            trace_settings.page_guard_signal_handler_watcher,
                                            trace_settings.page_guard_signal_handler_watcher_max_restores,
                                            mem_prot_mode);
+        }
+        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kHashCompare)
+        {
+            util::HashTrackManager::Create();
         }
     }
     else
