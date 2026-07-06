@@ -25,6 +25,8 @@
 #define GFXRECON_UTIL_HASH_TRACK_MANAGER_H
 
 #include "util/defines.h"
+#include "util/page_status_tracker.h"
+#include "util/threadpool.h"
 
 #include <functional>
 #include <mutex>
@@ -41,6 +43,9 @@ class HashTrackManager
   private:
     static constexpr size_t block_size_ = 4096;
     static size_t           block_size_pot_shift_;
+
+    // Below this many full pages, hashing serially is faster than paying the thread-dispatch overhead.
+    static constexpr size_t kMinPagesForThreading = 64; // ~256 KiB
 
   public:
     // Callback for processing modified memory.  The function parameters are the ID of the modified memory object,
@@ -64,45 +69,42 @@ class HashTrackManager
     void ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified);
 
   private:
-    // struct PageHash // layout-compatible with XXH128_hash_t
-    // {
-    //     uint64_t low64  = 0;
-    //     uint64_t high64 = 0;
-
-    //     bool operator==(const PageHash& other) const { return low64 == other.low64 && high64 == other.high64; }
-    //     bool operator!=(const PageHash& other) const { return low64 != other.low64 || high64 != other.high64; }
-    // };
-
     using HashVector = std::vector<XXH128_hash_t>;
 
     struct MemoryInfo
     {
         MemoryInfo(const void* mm, size_t s, size_t tp, size_t lss, HashVector&& h) :
-            mapped_memory(mm), size(s), total_pages(tp), last_segment_size(lss), ref_count(0), hashes(std::move(h))
+            mapped_memory(mm), size(s), total_pages(tp), last_segment_size(lss), status_tracker(tp),
+            hashes(std::move(h))
         {}
 
         const void*  mapped_memory; // Pointer to mapped memory to be tracked.
         const size_t size;          // Size of the mapped memory range.
         const size_t total_pages;
         const size_t last_segment_size; // Size of the last segment of the mapped memory, which may not be a full page.
-        uint32_t     ref_count;
+        PageStatusTracker status_tracker;
+        HashVector        hashes;
 
         bool CompareBlock(size_t page);
-
-        HashVector hashes;
     };
 
-    typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
+    typedef std::unordered_map<uint64_t, MemoryInfo>           MemoryInfoMap;
+    typedef std::unordered_map<uint64_t, MemoryInfo>::iterator MemoryInfoEntry;
 
     static HashTrackManager* instance_;
     MemoryInfoMap            memory_info_;
     std::mutex               tracked_memory_lock_;
+    ThreadPool               thread_pool_;
 
     HashTrackManager();
 
+    // Hash `page_count` full (block_size_) pages starting at `base` into `hashes`, parallelized when large enough.
+    void HashFullPages(XXH128_hash_t* hashes, const uint8_t* base, size_t page_count);
+    void HashFullPages(XXH128_hash_t* hashes, const uint8_t* base, size_t page_count, PageStatusTracker& pages_status);
+
     // static XXH128_hash_t HashBlock(const void* block, size_t size);
 
-    void ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info, const ModifiedMemoryFunc& handle_modified);
+    void ProcessEntry(MemoryInfoEntry memory_entry, const ModifiedMemoryFunc& handle_modified);
 
     void ProcessActiveRange(uint64_t                  memory_id,
                             MemoryInfo*               memory_info,
