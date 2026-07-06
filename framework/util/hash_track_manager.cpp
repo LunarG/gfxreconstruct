@@ -23,7 +23,9 @@
 
 #include "hash_track_manager.h"
 #include "util/logging.h"
+#include <algorithm>
 #include <cinttypes>
+#include <future>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -45,8 +47,10 @@ void HashTrackManager::Destroy()
     }
 }
 
-HashTrackManager::HashTrackManager()
+HashTrackManager::HashTrackManager() : thread_pool_(std::thread::hardware_concurrency())
 {
+    GFXRECON_WRITE_CONSOLE("std::thread::hardware_concurrency(): %u", std::thread::hardware_concurrency())
+
     size_t block          = block_size_;
     block_size_pot_shift_ = 0;
 
@@ -54,6 +58,102 @@ HashTrackManager::HashTrackManager()
     {
         block >>= 1;
         ++block_size_pot_shift_;
+    }
+}
+
+void HashTrackManager::HashFullPages(XXH128_hash_t* hashes, const uint8_t* base, size_t page_count)
+{
+    GFXRECON_WRITE_CONSOLE("%s(map)", __func__)
+    // Below a threshold (or with no worker threads) the dispatch overhead outweighs the win.
+    if (page_count < kMinPagesForThreading || thread_pool_.numthreads() == 0)
+    {
+        GFXRECON_WRITE_CONSOLE("  small (%zu)", page_count)
+        for (size_t i = 0; i < page_count; ++i)
+        {
+            hashes[i] = XXH3_128bits(base + i * block_size_, block_size_);
+        }
+        return;
+    }
+
+    const size_t num_tasks  = thread_pool_.numthreads();
+    const size_t pages_each = (page_count + num_tasks - 1) / num_tasks; // ceil-divide
+
+    GFXRECON_WRITE_CONSOLE("  parallel (%zu, %zu)", page_count, pages_each)
+
+    std::vector<std::future<void>> futures;
+    futures.reserve(num_tasks);
+
+    for (size_t begin = 0; begin < page_count; begin += pages_each)
+    {
+        const size_t end = std::min(begin + pages_each, page_count);
+
+        // Each task owns a disjoint [begin, end) slice of `hashes`, so no locking is required.
+        futures.emplace_back(thread_pool_.post([hashes, base, begin, end]() {
+            for (size_t i = begin; i < end; ++i)
+            {
+                hashes[i] = XXH3_128bits(base + i * block_size_, block_size_);
+            }
+        }));
+    }
+
+    for (auto& future : futures)
+    {
+        future.get(); // wait for all slices (also propagates any exception)
+    }
+}
+
+void HashTrackManager::HashFullPages(XXH128_hash_t*     hashes,
+                                     const uint8_t*     base,
+                                     size_t             page_count,
+                                     PageStatusTracker& pages_status)
+{
+    GFXRECON_WRITE_CONSOLE("%s(submit)", __func__)
+
+    // Below a threshold (or with no worker threads) the dispatch overhead outweighs the win.
+    if (page_count < kMinPagesForThreading || thread_pool_.numthreads() == 0)
+    {
+        GFXRECON_WRITE_CONSOLE("  small (%zu)", page_count)
+        for (size_t i = 0; i < page_count; ++i)
+        {
+            const XXH128_hash_t hash = XXH3_128bits(base + i * block_size_, block_size_);
+            if (!XXH128_isEqual(hashes[i], hash))
+            {
+                hashes[i] = hash;
+                pages_status.SetActiveWriteBlock(i, true);
+            }
+        }
+        return;
+    }
+
+    const size_t num_tasks  = thread_pool_.numthreads();
+    const size_t pages_each = (page_count + num_tasks - 1) / num_tasks; // ceil-divide
+
+    GFXRECON_WRITE_CONSOLE("  parallel (%zu, %zu)", page_count, pages_each)
+
+    std::vector<std::future<void>> futures;
+    futures.reserve(num_tasks);
+
+    for (size_t begin = 0; begin < page_count; begin += pages_each)
+    {
+        const size_t end = std::min(begin + pages_each, page_count);
+
+        // Each task owns a disjoint [begin, end) slice of `hashes`, so no locking is required.
+        futures.emplace_back(thread_pool_.post([hashes, base, begin, end, &pages_status]() {
+            for (size_t i = begin; i < end; ++i)
+            {
+                const XXH128_hash_t hash = XXH3_128bits(base + i * block_size_, block_size_);
+                if (!XXH128_isEqual(hashes[i], hash))
+                {
+                    hashes[i] = hash;
+                    pages_status.SetActiveWriteBlock(i, true);
+                }
+            }
+        }));
+    }
+
+    for (auto& future : futures)
+    {
+        future.get(); // wait for all slices (also propagates any exception)
     }
 }
 
@@ -73,21 +173,20 @@ void HashTrackManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory,
         last_segment_size = block_size_;
     }
 
-    std::vector<XXH128_hash_t> hashes(total_pages);
-    const uint8_t*             block = reinterpret_cast<const uint8_t*>(mapped_memory);
-    for (size_t i = 0; i < total_pages - 1; ++i)
-    {
-        hashes[i] = XXH3_128bits(block, block_size_);
-        block += block_size_;
-    }
-    hashes[total_pages - 1] = XXH3_128bits(block, last_segment_size);
+    HashVector           hashes(total_pages);
+    const uint8_t* const base       = reinterpret_cast<const uint8_t*>(mapped_memory);
+    const size_t         full_pages = total_pages - 1; // all but the (possibly partial) last page
+
+    HashFullPages(hashes.data(), base, full_pages);
+
+    // The last page may be a partial block, so hash it on the calling thread.
+    hashes[full_pages] = XXH3_128bits(base + full_pages * block_size_, last_segment_size);
 
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
-    auto                        entry = memory_info_.emplace(
+    memory_info_.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(memory_id),
         std::forward_as_tuple(mapped_memory, mapped_range, total_pages, last_segment_size, std::move(hashes)));
-    ++entry.first->second.ref_count;
 }
 
 void HashTrackManager::RemoveTrackedMemory(uint64_t memory_id)
@@ -95,7 +194,7 @@ void HashTrackManager::RemoveTrackedMemory(uint64_t memory_id)
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
     auto                        entry = memory_info_.find(memory_id);
 
-    if ((entry != memory_info_.end()) && (--(entry->second.ref_count) == 0))
+    if ((entry != memory_info_.end()))
     {
         memory_info_.erase(entry);
     }
@@ -108,8 +207,7 @@ void HashTrackManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
 
     if (entry != memory_info_.end())
     {
-        auto memory_info = &entry->second;
-        ProcessEntry(entry->first, memory_info, handle_modified);
+        ProcessEntry(entry, handle_modified);
     }
 }
 
@@ -119,8 +217,7 @@ void HashTrackManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_mod
 
     for (auto entry = memory_info_.begin(); entry != memory_info_.end(); ++entry)
     {
-        auto memory_info = &entry->second;
-        ProcessEntry(entry->first, memory_info, handle_modified);
+        ProcessEntry(entry, handle_modified);
     }
 }
 
@@ -141,16 +238,28 @@ bool HashTrackManager::MemoryInfo::CompareBlock(size_t page)
     return false;
 }
 
-void HashTrackManager::ProcessEntry(uint64_t                  memory_id,
-                                    MemoryInfo*               memory_info,
-                                    const ModifiedMemoryFunc& handle_modified)
+void HashTrackManager::ProcessEntry(MemoryInfoEntry memory_entry, const ModifiedMemoryFunc& handle_modified)
 {
+    MemoryInfo& memory_info = memory_entry->second;
+
+    const uint8_t* const base       = reinterpret_cast<const uint8_t*>(memory_info.mapped_memory);
+    const size_t         full_pages = memory_info.total_pages - 1; // all but the (possibly partial) last page
+
+    memory_info.status_tracker.ClearAllBlocksActiveWrite();
+    HashFullPages(memory_info.hashes.data(), base, full_pages, memory_info.status_tracker);
+
+    // HashFullPages only covers full pages; handle the (possibly partial) last page.
+    if (memory_info.CompareBlock(full_pages))
+    {
+        memory_info.status_tracker.SetActiveWriteBlock(full_pages, true);
+    }
+
     bool   active_range = false;
     size_t start_index  = 0;
 
-    for (size_t i = 0; i < memory_info->total_pages; ++i)
+    for (size_t i = 0; i < memory_info.total_pages; ++i)
     {
-        if (memory_info->CompareBlock(i))
+        if (memory_info.status_tracker.IsActiveWriteBlock(i))
         {
             if (!active_range)
             {
@@ -163,14 +272,14 @@ void HashTrackManager::ProcessEntry(uint64_t                  memory_id,
             if (active_range)
             {
                 active_range = false;
-                ProcessActiveRange(memory_id, memory_info, start_index, i, handle_modified);
+                ProcessActiveRange(memory_entry->first, &memory_info, start_index, i, handle_modified);
             }
         }
     }
 
     if (active_range)
     {
-        ProcessActiveRange(memory_id, memory_info, start_index, memory_info->total_pages, handle_modified);
+        ProcessActiveRange(memory_entry->first, &memory_info, start_index, memory_info.total_pages, handle_modified);
     }
 }
 
