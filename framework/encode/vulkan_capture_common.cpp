@@ -23,7 +23,7 @@
 #include "vulkan_capture_common.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/platform.h"
-#include "util/hash_track_manager.h"
+#include "util/hashing_manager.h"
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #include <android/hardware_buffer.h>
@@ -232,7 +232,7 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                                               false,  // No shadow memory for the imported AHB memory.
                                               false); // Write watch is not supported for this case.
                 }
-                else if (tracking_mode == CaptureSettings::MemoryTrackingMode::kHashCompare &&
+                else if (tracking_mode == CaptureSettings::MemoryTrackingMode::kHashing &&
                     vulkan_capture_manager->GetPageGuardTrackAhbMemory())
                 {
                     util::HashTrackManager* manager = util::HashTrackManager::Get();

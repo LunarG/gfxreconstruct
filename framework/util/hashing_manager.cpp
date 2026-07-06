@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "hash_track_manager.h"
+#include "hashing_manager.h"
 #include "util/logging.h"
 #include <cinttypes>
 #include <memory>
@@ -47,8 +47,6 @@ void HashTrackManager::Destroy()
 
 HashTrackManager::HashTrackManager() : thread_pool_(std::thread::hardware_concurrency())
 {
-    GFXRECON_WRITE_CONSOLE("std::thread::hardware_concurrency(): %u", std::thread::hardware_concurrency())
-
     size_t block          = block_size_;
     block_size_pot_shift_ = 0;
 
@@ -187,19 +185,18 @@ void HashTrackManager::ProcessEntry(MemoryInfoEntry memory_entry, const Modified
             if (active_range)
             {
                 active_range = false;
-                ProcessActiveRange(memory_entry->first, &memory_info, start_index, i, handle_modified);
+                ProcessActiveRange(memory_entry, start_index, i, handle_modified);
             }
         }
     }
 
     if (active_range)
     {
-        ProcessActiveRange(memory_entry->first, &memory_info, start_index, memory_info.total_pages, handle_modified);
+        ProcessActiveRange(memory_entry, start_index, memory_info.total_pages, handle_modified);
     }
 }
 
-void HashTrackManager::ProcessActiveRange(uint64_t                  memory_id,
-                                          MemoryInfo*               memory_info,
+void HashTrackManager::ProcessActiveRange(MemoryInfoEntry           memory_entry,
                                           size_t                    start_index,
                                           size_t                    end_index,
                                           const ModifiedMemoryFunc& handle_modified)
@@ -210,13 +207,13 @@ void HashTrackManager::ProcessActiveRange(uint64_t                  memory_id,
     const size_t page_offset = start_index << block_size_pot_shift_;
     size_t       page_range  = page_count << block_size_pot_shift_;
 
-    if (end_index == memory_info->total_pages)
+    if (end_index == memory_entry->second.total_pages)
     {
         // Adjust range for memory ranges that end with a partial page.
-        page_range -= block_size_ - memory_info->last_segment_size;
+        page_range -= block_size_ - memory_entry->second.last_segment_size;
     }
 
-    handle_modified(memory_id, memory_info->mapped_memory, page_offset, page_range);
+    handle_modified(memory_entry->first, memory_entry->second.mapped_memory, page_offset, page_range);
 }
 
 GFXRECON_END_NAMESPACE(util)

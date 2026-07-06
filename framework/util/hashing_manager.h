@@ -141,12 +141,9 @@ class HashTrackManager
         }
     }
 
-    // static XXH128_hash_t HashBlock(const void* block, size_t size);
-
     void ProcessEntry(MemoryInfoEntry memory_entry, const ModifiedMemoryFunc& handle_modified);
 
-    void ProcessActiveRange(uint64_t                  memory_id,
-                            MemoryInfo*               memory_info,
+    void ProcessActiveRange(MemoryInfoEntry memory_entry,
                             size_t                    start_index,
                             size_t                    end_index,
                             const ModifiedMemoryFunc& handle_modified);

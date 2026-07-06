@@ -44,7 +44,7 @@
 #include "graphics/vulkan_util.h"
 #include "graphics/vulkan_feature_util.h"
 #include "util/compressor.h"
-#include "util/hash_track_manager.h"
+#include "util/hashing_manager.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -2181,7 +2181,7 @@ void VulkanCaptureManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardwar
 
             manager->RemoveTrackedMemory(entry->second.memory_id);
         }
-        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare)
+        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing)
         {
             util::HashTrackManager* manager = util::HashTrackManager::Get();
             GFXRECON_ASSERT(manager != nullptr);
@@ -2825,7 +2825,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                 std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 mapped_memory_.insert(wrapper);
             }
-            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare
+            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
                      // Hardware buffer memory is tracked separately, so VkDeviceMemory mappings should be ignored to
                      // avoid duplicate memory tracking entries.
@@ -2992,7 +2992,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
 
             manager->RemoveTrackedMemory(wrapper->handle_id);
         }
-        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare)
+        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing)
         {
             util::HashTrackManager* manager = util::HashTrackManager::Get();
             GFXRECON_ASSERT(manager != nullptr);
@@ -3075,7 +3075,7 @@ void VulkanCaptureManager::PreProcess_vkFreeMemory(VkDevice                     
                 // Remove memory tracking.
                 manager->RemoveTrackedMemory(wrapper->handle_id);
             }
-            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare)
+            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing)
             {
                 util::HashTrackManager* manager = util::HashTrackManager::Get();
                 GFXRECON_ASSERT(manager != nullptr);
@@ -3320,7 +3320,7 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
             WriteFillMemoryCmd(memory_id, offset, size, start_address);
         });
     }
-    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare && IsCaptureModeWrite())
+    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing && IsCaptureModeWrite())
     {
         util::HashTrackManager* manager = util::HashTrackManager::Get();
         GFXRECON_ASSERT(manager != nullptr);

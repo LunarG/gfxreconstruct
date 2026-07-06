@@ -176,7 +176,7 @@ class CaptureSettings
         // kernel.
         kUserfaultfd = 3,
 
-        kHashCompare = 4
+        kHashing = 4
     };
 
     enum RuntimeTriggerState

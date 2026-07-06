@@ -67,8 +67,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hash.h
-                    ${CMAKE_CURRENT_LIST_DIR}/hash_track_manager.h
-                    ${CMAKE_CURRENT_LIST_DIR}/hash_track_manager.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/hashing_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/hashing_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/heap_buffer.h
                     ${CMAKE_CURRENT_LIST_DIR}/heap_buffer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/hybrid_linear_allocator.h
