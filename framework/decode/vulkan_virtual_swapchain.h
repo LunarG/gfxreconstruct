@@ -121,13 +121,12 @@ class VulkanVirtualSwapchain : public VulkanSwapchain
                            application::Application*                  application,
                            const std::optional<std::array<float, 2>>& scale) override;
 
-    virtual void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo* device_info,
-                                                      VulkanSwapchainKHRInfo* swapchain_info,
-                                                      uint32_t                last_presented_image,
-                                                      const std::vector<format::SwapchainImageStateInfo>& image_info,
-                                                      const CommonObjectInfoTable& object_info_table,
-                                                      SwapchainImageTracker&       swapchain_image_tracker) override
-    {}
+    void ProcessSetSwapchainImageStateCommand(const VulkanDeviceInfo*                             device_info,
+                                              VulkanSwapchainKHRInfo*                             swapchain_info,
+                                              uint32_t                                            last_presented_image,
+                                              const std::vector<format::SwapchainImageStateInfo>& image_infos,
+                                              const CommonObjectInfoTable&                        object_info_table,
+                                              SwapchainImageTracker& swapchain_image_tracker) override;
 
   protected:
     // Structure necessary to track the necessary information related to the virtual swapchain images

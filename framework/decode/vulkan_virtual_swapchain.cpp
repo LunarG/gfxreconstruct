@@ -1145,6 +1145,138 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     return func(queue, &modified_present_info);
 }
 
+void VulkanVirtualSwapchain::ProcessSetSwapchainImageStateCommand(
+    const VulkanDeviceInfo*                             device_info,
+    VulkanSwapchainKHRInfo*                             swapchain_info,
+    uint32_t                                            last_presented_image,
+    const std::vector<format::SwapchainImageStateInfo>& image_infos,
+    const CommonObjectInfoTable&                        object_info_table,
+    SwapchainImageTracker&                              swapchain_image_tracker)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(last_presented_image);
+    GFXRECON_UNREFERENCED_PARAMETER(swapchain_image_tracker);
+
+    GFXRECON_ASSERT(device_table_ != nullptr);
+
+    VkDevice device             = device_info->handle;
+    uint32_t queue_family_index = swapchain_info->queue_family_indices[0];
+
+    VkQueue transition_queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
+    if (transition_queue == VK_NULL_HANDLE)
+    {
+        GFXRECON_LOG_WARNING("Failed image layout restore for VkSwapchainKHR object (ID = %" PRIu64
+                             "), could not get device queue %u",
+                             swapchain_info->capture_id,
+                             queue_family_index);
+        return;
+    }
+
+    // trim-state setup has already run, so mark as injected from here
+    util::MarkInjectedCommandsHelper mark_injected_commands_helper;
+
+    VkCommandPool   transition_pool    = VK_NULL_HANDLE;
+    VkCommandBuffer transition_command = VK_NULL_HANDLE;
+
+    VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+    pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+    pool_create_info.queueFamilyIndex        = queue_family_index;
+
+    VkResult result = device_table_->CreateCommandPool(device, &pool_create_info, nullptr, &transition_pool);
+
+    if (result == VK_SUCCESS)
+    {
+        VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+        allocate_info.commandPool                 = transition_pool;
+        allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocate_info.commandBufferCount          = 1;
+
+        result = device_table_->AllocateCommandBuffers(device, &allocate_info, &transition_command);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+        begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        result                              = device_table_->BeginCommandBuffer(transition_command, &begin_info);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        // Transition virtual images to captured layouts.
+        // actual swapchain images are transitioned separately on first acquire.
+        VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        image_barrier.srcAccessMask                   = VK_ACCESS_NONE;
+        image_barrier.dstAccessMask                   = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+        image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+        image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.subresourceRange.baseMipLevel   = 0;
+        image_barrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
+        image_barrier.subresourceRange.baseArrayLayer = 0;
+        image_barrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
+
+        uint32_t barrier_count = 0;
+
+        for (const auto& entry : image_infos)
+        {
+            const VulkanImageInfo* image_info = object_info_table.GetVkImageInfo(entry.image_id);
+            if (image_info == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Skipping layout restore for unrecognized VkImage object (ID = %" PRIu64 ")",
+                                     entry.image_id);
+                continue;
+            }
+
+            auto image_layout = static_cast<VkImageLayout>(entry.image_layout);
+            if (image_layout == VK_IMAGE_LAYOUT_UNDEFINED)
+            {
+                continue;
+            }
+
+            image_barrier.newLayout                   = image_layout;
+            image_barrier.image                       = image_info->handle;
+            image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_info->format);
+
+            device_table_->CmdPipelineBarrier(transition_command,
+                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &image_barrier);
+            ++barrier_count;
+        }
+        result = device_table_->EndCommandBuffer(transition_command);
+
+        if (result == VK_SUCCESS && barrier_count > 0)
+        {
+            VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+            submit_info.commandBufferCount = 1;
+            submit_info.pCommandBuffers    = &transition_command;
+            result = device_table_->QueueSubmit(transition_queue, 1, &submit_info, VK_NULL_HANDLE);
+
+            if (result == VK_SUCCESS)
+            {
+                result = device_table_->QueueWaitIdle(transition_queue);
+            }
+        }
+    }
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Failed image layout restore for VkSwapchainKHR object (ID = %" PRIu64 ")",
+                             swapchain_info->capture_id);
+    }
+
+    if (transition_pool != VK_NULL_HANDLE)
+    {
+        device_table_->DestroyCommandPool(device, transition_pool, nullptr);
+    }
+}
+
 VkResult VulkanVirtualSwapchain::CreateRenderPass(VkResult                      original_result,
                                                   PFN_vkCreateRenderPass        func,
                                                   const VulkanDeviceInfo*       device_info,
