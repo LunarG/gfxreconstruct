@@ -22,6 +22,7 @@
  ** DEALINGS IN THE SOFTWARE.
  */
 
+#include "encode/capture_settings.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "vulkan/vulkan_core.h"
 #include <cstdint>
@@ -43,6 +44,7 @@
 #include "graphics/vulkan_util.h"
 #include "graphics/vulkan_feature_util.h"
 #include "util/compressor.h"
+#include "util/hash_track_manager.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -2816,6 +2818,27 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
                 std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
                 mapped_memory_.insert(wrapper);
             }
+            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+                     // Hardware buffer memory is tracked separately, so VkDeviceMemory mappings should be ignored to
+                     // avoid duplicate memory tracking entries.
+                     && (wrapper->hardware_buffer == nullptr)
+#endif
+            )
+            {
+                if (size == VK_WHOLE_SIZE)
+                {
+                    GFXRECON_ASSERT(offset <= wrapper->allocation_size);
+                    size = wrapper->allocation_size - offset;
+                }
+
+                if (size)
+                {
+                    util::HashTrackManager* manager = util::HashTrackManager::Get();
+                    GFXRECON_ASSERT(manager != nullptr);
+                    manager->AddTrackedMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size));
+                }
+            }
         }
         else
         {
@@ -2962,6 +2985,20 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
 
             manager->RemoveTrackedMemory(wrapper->handle_id);
         }
+        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare)
+        {
+            util::HashTrackManager* manager = util::HashTrackManager::Get();
+            GFXRECON_ASSERT(manager != nullptr);
+
+            // Capture any writes made since the last submit, then stop tracking so the
+            // now-invalid mapped pointer is never dereferenced by a later ProcessMemoryEntries().
+            manager->ProcessMemoryEntry(
+                wrapper->handle_id, [this](uint64_t memory_id, const void* start_address, size_t offset, size_t size) {
+                    WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                });
+
+            manager->RemoveTrackedMemory(wrapper->handle_id);
+        }
         else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
         {
             VkDeviceSize size = wrapper->mapped_size;
@@ -3031,6 +3068,14 @@ void VulkanCaptureManager::PreProcess_vkFreeMemory(VkDevice                     
                 assert(manager != nullptr);
 
                 // Remove memory tracking.
+                manager->RemoveTrackedMemory(wrapper->handle_id);
+            }
+            else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare)
+            {
+                util::HashTrackManager* manager = util::HashTrackManager::Get();
+                GFXRECON_ASSERT(manager != nullptr);
+
+                // Remove memory tracking so the freed mapped pointer is never dereferenced.
                 manager->RemoveTrackedMemory(wrapper->handle_id);
             }
             else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -3269,6 +3314,16 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
         manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
             WriteFillMemoryCmd(memory_id, offset, size, start_address);
         });
+    }
+    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare && IsCaptureModeWrite())
+    {
+        util::HashTrackManager* manager = util::HashTrackManager::Get();
+        GFXRECON_ASSERT(manager != nullptr);
+
+        manager->ProcessMemoryEntries(
+            [this](uint64_t memory_id, const void* start_address, size_t offset, size_t size) {
+                WriteFillMemoryCmd(memory_id, offset, size, start_address);
+            });
     }
     else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
