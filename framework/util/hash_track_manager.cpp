@@ -23,9 +23,7 @@
 
 #include "hash_track_manager.h"
 #include "util/logging.h"
-#include <algorithm>
 #include <cinttypes>
-#include <future>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -61,102 +59,6 @@ HashTrackManager::HashTrackManager() : thread_pool_(std::thread::hardware_concur
     }
 }
 
-void HashTrackManager::HashFullPages(XXH128_hash_t* hashes, const uint8_t* base, size_t page_count)
-{
-    GFXRECON_WRITE_CONSOLE("%s(map)", __func__)
-    // Below a threshold (or with no worker threads) the dispatch overhead outweighs the win.
-    if (page_count < kMinPagesForThreading || thread_pool_.numthreads() == 0)
-    {
-        GFXRECON_WRITE_CONSOLE("  small (%zu)", page_count)
-        for (size_t i = 0; i < page_count; ++i)
-        {
-            hashes[i] = XXH3_128bits(base + i * block_size_, block_size_);
-        }
-        return;
-    }
-
-    const size_t num_tasks  = thread_pool_.numthreads();
-    const size_t pages_each = (page_count + num_tasks - 1) / num_tasks; // ceil-divide
-
-    GFXRECON_WRITE_CONSOLE("  parallel (%zu, %zu)", page_count, pages_each)
-
-    std::vector<std::future<void>> futures;
-    futures.reserve(num_tasks);
-
-    for (size_t begin = 0; begin < page_count; begin += pages_each)
-    {
-        const size_t end = std::min(begin + pages_each, page_count);
-
-        // Each task owns a disjoint [begin, end) slice of `hashes`, so no locking is required.
-        futures.emplace_back(thread_pool_.post([hashes, base, begin, end]() {
-            for (size_t i = begin; i < end; ++i)
-            {
-                hashes[i] = XXH3_128bits(base + i * block_size_, block_size_);
-            }
-        }));
-    }
-
-    for (auto& future : futures)
-    {
-        future.get(); // wait for all slices (also propagates any exception)
-    }
-}
-
-void HashTrackManager::HashFullPages(XXH128_hash_t*     hashes,
-                                     const uint8_t*     base,
-                                     size_t             page_count,
-                                     PageStatusTracker& pages_status)
-{
-    GFXRECON_WRITE_CONSOLE("%s(submit)", __func__)
-
-    // Below a threshold (or with no worker threads) the dispatch overhead outweighs the win.
-    if (page_count < kMinPagesForThreading || thread_pool_.numthreads() == 0)
-    {
-        GFXRECON_WRITE_CONSOLE("  small (%zu)", page_count)
-        for (size_t i = 0; i < page_count; ++i)
-        {
-            const XXH128_hash_t hash = XXH3_128bits(base + i * block_size_, block_size_);
-            if (!XXH128_isEqual(hashes[i], hash))
-            {
-                hashes[i] = hash;
-                pages_status.SetActiveWriteBlock(i, true);
-            }
-        }
-        return;
-    }
-
-    const size_t num_tasks  = thread_pool_.numthreads();
-    const size_t pages_each = (page_count + num_tasks - 1) / num_tasks; // ceil-divide
-
-    GFXRECON_WRITE_CONSOLE("  parallel (%zu, %zu)", page_count, pages_each)
-
-    std::vector<std::future<void>> futures;
-    futures.reserve(num_tasks);
-
-    for (size_t begin = 0; begin < page_count; begin += pages_each)
-    {
-        const size_t end = std::min(begin + pages_each, page_count);
-
-        // Each task owns a disjoint [begin, end) slice of `hashes`, so no locking is required.
-        futures.emplace_back(thread_pool_.post([hashes, base, begin, end, &pages_status]() {
-            for (size_t i = begin; i < end; ++i)
-            {
-                const XXH128_hash_t hash = XXH3_128bits(base + i * block_size_, block_size_);
-                if (!XXH128_isEqual(hashes[i], hash))
-                {
-                    hashes[i] = hash;
-                    pages_status.SetActiveWriteBlock(i, true);
-                }
-            }
-        }));
-    }
-
-    for (auto& future : futures)
-    {
-        future.get(); // wait for all slices (also propagates any exception)
-    }
-}
-
 void HashTrackManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory, size_t mapped_range)
 {
     GFXRECON_ASSERT(mapped_range);
@@ -177,7 +79,10 @@ void HashTrackManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory,
     const uint8_t* const base       = reinterpret_cast<const uint8_t*>(mapped_memory);
     const size_t         full_pages = total_pages - 1; // all but the (possibly partial) last page
 
-    HashFullPages(hashes.data(), base, full_pages);
+    XXH128_hash_t* const hash_data = hashes.data();
+    ForEachPage(full_pages, [hash_data, base](size_t page) {
+        hash_data[page] = XXH3_128bits(base + page * block_size_, block_size_);
+    });
 
     // The last page may be a partial block, so hash it on the calling thread.
     hashes[full_pages] = XXH3_128bits(base + full_pages * block_size_, last_segment_size);
@@ -246,9 +151,19 @@ void HashTrackManager::ProcessEntry(MemoryInfoEntry memory_entry, const Modified
     const size_t         full_pages = memory_info.total_pages - 1; // all but the (possibly partial) last page
 
     memory_info.status_tracker.ClearAllBlocksActiveWrite();
-    HashFullPages(memory_info.hashes.data(), base, full_pages, memory_info.status_tracker);
 
-    // HashFullPages only covers full pages; handle the (possibly partial) last page.
+    XXH128_hash_t* const hash_data = memory_info.hashes.data();
+    PageStatusTracker&   status    = memory_info.status_tracker;
+    ForEachPage(full_pages, [hash_data, base, &status](size_t page) {
+        const XXH128_hash_t hash = XXH3_128bits(base + page * block_size_, block_size_);
+        if (!XXH128_isEqual(hash_data[page], hash))
+        {
+            hash_data[page] = hash;
+            status.SetActiveWriteBlock(page, true);
+        }
+    });
+
+    // The parallel loop above only covers full pages; handle the (possibly partial) last page.
     if (memory_info.CompareBlock(full_pages))
     {
         memory_info.status_tracker.SetActiveWriteBlock(full_pages, true);

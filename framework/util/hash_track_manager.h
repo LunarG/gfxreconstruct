@@ -28,7 +28,9 @@
 #include "util/page_status_tracker.h"
 #include "util/threadpool.h"
 
+#include <algorithm>
 #include <functional>
+#include <future>
 #include <mutex>
 #include <vector>
 #include <unordered_map>
@@ -98,9 +100,46 @@ class HashTrackManager
 
     HashTrackManager();
 
-    // Hash `page_count` full (block_size_) pages starting at `base` into `hashes`, parallelized when large enough.
-    void HashFullPages(XXH128_hash_t* hashes, const uint8_t* base, size_t page_count);
-    void HashFullPages(XXH128_hash_t* hashes, const uint8_t* base, size_t page_count, PageStatusTracker& pages_status);
+    // Run `fn(page_index)` for every page in [0, page_count).  The work is fanned out across the thread pool when
+    // the range is large enough to be worth the dispatch overhead.  `fn` is invoked concurrently on disjoint
+    // indices, so it must only touch per-index state.
+    template <typename PerPageFn>
+    void ForEachPage(size_t page_count, PerPageFn&& fn)
+    {
+        // Below a threshold (or with no worker threads) the dispatch overhead outweighs the win.
+        if (page_count < kMinPagesForThreading || thread_pool_.numthreads() == 0)
+        {
+            for (size_t i = 0; i < page_count; ++i)
+            {
+                fn(i);
+            }
+            return;
+        }
+
+        const size_t num_tasks  = thread_pool_.numthreads();
+        const size_t pages_each = (page_count + num_tasks - 1) / num_tasks; // ceil-divide
+
+        std::vector<std::future<void>> futures;
+        futures.reserve(num_tasks);
+
+        for (size_t begin = 0; begin < page_count; begin += pages_each)
+        {
+            const size_t end = std::min(begin + pages_each, page_count);
+
+            // Each task processes a disjoint [begin, end) slice, so `fn` needs no internal locking.
+            futures.emplace_back(thread_pool_.post([&fn, begin, end]() {
+                for (size_t i = begin; i < end; ++i)
+                {
+                    fn(i);
+                }
+            }));
+        }
+
+        for (auto& future : futures)
+        {
+            future.get(); // wait for all slices (also propagates any exception)
+        }
+    }
 
     // static XXH128_hash_t HashBlock(const void* block, size_t size);
 
