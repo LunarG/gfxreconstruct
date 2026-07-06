@@ -2181,6 +2181,13 @@ void VulkanCaptureManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardwar
 
             manager->RemoveTrackedMemory(entry->second.memory_id);
         }
+        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashCompare)
+        {
+            util::HashTrackManager* manager = util::HashTrackManager::Get();
+            GFXRECON_ASSERT(manager != nullptr);
+
+            manager->RemoveTrackedMemory(entry->second.memory_id);
+        }
 
         // There are no more references to the buffer, so we can submit a destroy buffer command.
         WriteDestroyHardwareBufferCmd(entry->first);
@@ -2990,8 +2997,6 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
             util::HashTrackManager* manager = util::HashTrackManager::Get();
             GFXRECON_ASSERT(manager != nullptr);
 
-            // Capture any writes made since the last submit, then stop tracking so the
-            // now-invalid mapped pointer is never dereferenced by a later ProcessMemoryEntries().
             manager->ProcessMemoryEntry(
                 wrapper->handle_id, [this](uint64_t memory_id, const void* start_address, size_t offset, size_t size) {
                     WriteFillMemoryCmd(memory_id, offset, size, start_address);
@@ -3075,7 +3080,7 @@ void VulkanCaptureManager::PreProcess_vkFreeMemory(VkDevice                     
                 util::HashTrackManager* manager = util::HashTrackManager::Get();
                 GFXRECON_ASSERT(manager != nullptr);
 
-                // Remove memory tracking so the freed mapped pointer is never dereferenced.
+                // Remove memory tracking.
                 manager->RemoveTrackedMemory(wrapper->handle_id);
             }
             else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
