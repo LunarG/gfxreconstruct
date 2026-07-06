@@ -43,6 +43,7 @@ target_include_directories(gfxrecon-replay
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}
+                               ${GFXRECON_SOURCE_DIR}/tools
                                ${CMAKE_BINARY_DIR})
 
 target_link_libraries(

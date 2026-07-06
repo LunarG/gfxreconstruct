@@ -36,6 +36,7 @@ target_sources(gfxrecon-extract
                    ${CMAKE_CURRENT_LIST_DIR}/extract_vulkan_feature.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
+                   ${CMAKE_CURRENT_LIST_DIR}/../tool_command_line.h
                    $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
                    $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
               )

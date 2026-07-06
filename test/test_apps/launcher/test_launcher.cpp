@@ -54,6 +54,7 @@
 #include <util/argument_parser.h>
 
 #include <tools/tool_settings.h>
+#include <tools/tool_command_line.h>
 
 #if defined(__ANDROID__)
 #include <util/android/activity.h>

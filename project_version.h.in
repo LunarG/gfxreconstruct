@@ -47,4 +47,11 @@ const char* GetProjectVersionString();
 #define GFXRECON_PROJECT_OPENXR_LAYER_NAME  "XR_APILAYER_LUNARG_gfxreconstruct"
 #define GFXRECON_PROJECT_DESCRIPTION        "GFXReconstruct Capture Layer"
 
+// Optional prefix applied to the display name of the command-line tools (usage banner and
+// --version output). Downstream distributions that repackage these tools under a different
+// product name can set this at configure/compile time. Empty by default.
+#ifndef GFXRECON_APP_NAME_PREFIX
+#define GFXRECON_APP_NAME_PREFIX ""
+#endif
+
 #endif // GFXRECON_PROJECT_VERSION_H
