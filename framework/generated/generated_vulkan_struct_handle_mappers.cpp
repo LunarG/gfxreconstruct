@@ -7255,6 +7255,87 @@ void MapStructHandles(Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID* w
     }
 }
 
+void MapStructHandles(Decoded_VkPhysicalDeviceGpaFeaturesAMD* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPhysicalDeviceGpaPropertiesAMD* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkPhysicalDeviceGpaProperties2AMD* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkGpaSampleBeginInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkGpaDeviceClockModeInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkGpaDeviceGetClockInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkGpaSessionCreateInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkGpaSessionCreateInfoAMD* value = wrapper->decoded_value;
+
+        value->secondaryCopySource = handle_mapping::MapHandle<VulkanGpaSessionAMDInfo>(wrapper->secondaryCopySource, object_info_table, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext, object_info_table);
+        }
+    }
+}
+
 void MapStructHandles(Decoded_VkAttachmentSampleCountInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -13838,6 +13919,18 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
     case VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV:
         MapStructHandles(reinterpret_cast<Decoded_VkGetLatencyMarkerInfoNV*>(wrapper), object_info_table);
         break;
+    case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+        MapStructHandles(reinterpret_cast<Decoded_VkGpaDeviceClockModeInfoAMD*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+        MapStructHandles(reinterpret_cast<Decoded_VkGpaDeviceGetClockInfoAMD*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+        MapStructHandles(reinterpret_cast<Decoded_VkGpaSampleBeginInfoAMD*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+        MapStructHandles(reinterpret_cast<Decoded_VkGpaSessionCreateInfoAMD*>(wrapper), object_info_table);
+        break;
     case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
         MapStructHandles(reinterpret_cast<Decoded_VkGraphicsPipelineCreateInfo*>(wrapper), object_info_table);
         break;
@@ -14599,6 +14692,15 @@ void MapPNextStructHandles(PNextNode* pnext, const CommonObjectInfoTable& object
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceGpaFeaturesAMD*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceGpaProperties2AMD*>(wrapper), object_info_table);
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+        MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceGpaPropertiesAMD*>(wrapper), object_info_table);
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
         MapStructHandles(reinterpret_cast<Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(wrapper), object_info_table);

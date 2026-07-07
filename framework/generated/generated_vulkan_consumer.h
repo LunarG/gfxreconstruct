@@ -3240,6 +3240,84 @@ class VulkanConsumer : public VulkanConsumerBase
         StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>* pInfo,
         PointerDecoder<uint64_t, void*>*            pBuffer) {}
 
+    virtual void Process_vkCreateGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkGpaSessionCreateInfoAMD>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkGpaSessionAMD>*      pGpaSession) {}
+
+    virtual void Process_vkDestroyGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            gpaSession,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) {}
+
+    virtual void Process_vkSetGpaDeviceClockModeAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkGpaDeviceClockModeInfoAMD>* pInfo) {}
+
+    virtual void Process_vkGetGpaDeviceClockInfoAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkGpaDeviceGetClockInfoAMD>* pInfo) {}
+
+    virtual void Process_vkCmdBeginGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession) {}
+
+    virtual void Process_vkCmdEndGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession) {}
+
+    virtual void Process_vkCmdBeginGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession,
+        StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
+        PointerDecoder<uint32_t>*                   pSampleID) {}
+
+    virtual void Process_vkCmdEndGpaSampleAMD(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession,
+        uint32_t                                    sampleID) {}
+
+    virtual void Process_vkGetGpaSessionStatusAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            gpaSession) {}
+
+    virtual void Process_vkGetGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            gpaSession,
+        uint32_t                                    sampleID,
+        PointerDecoder<size_t>*                     pSizeInBytes,
+        PointerDecoder<uint8_t>*                    pData) {}
+
+    virtual void Process_vkResetGpaSessionAMD(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            gpaSession) {}
+
+    virtual void Process_vkCmdCopyGpaSessionResultsAMD(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            gpaSession) {}
+
     virtual void Process_vkCmdSetSampleLocationsEXT(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,

@@ -1247,6 +1247,20 @@ void UnwrapStructHandles(VkExternalFormatANDROID* value, HandleUnwrapMemory* unw
 
 void UnwrapStructHandles(VkAndroidHardwareBufferFormatProperties2ANDROID* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkPhysicalDeviceGpaFeaturesAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceGpaPropertiesAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPhysicalDeviceGpaProperties2AMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaSampleBeginInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaDeviceClockModeInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaDeviceGetClockInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGpaSessionCreateInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkAttachmentSampleCountInfoAMD* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkSampleLocationsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);

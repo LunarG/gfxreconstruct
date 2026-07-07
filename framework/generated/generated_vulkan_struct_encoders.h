@@ -797,6 +797,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImportAndroidHardwareBuffer
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryGetAndroidHardwareBufferInfoANDROID& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExternalFormatANDROID& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferFormatProperties2ANDROID& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaPerfBlockPropertiesAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGpaFeaturesAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGpaPropertiesAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGpaProperties2AMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaPerfCounterAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaSampleBeginInfoAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaDeviceClockModeInfoAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaDeviceGetClockInfoAMD& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaSessionCreateInfoAMD& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentSampleCountInfoAMD& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSampleLocationEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSampleLocationsInfoEXT& value);

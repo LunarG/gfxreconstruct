@@ -645,6 +645,13 @@ template <> constexpr VkStructureType GetSType<VkImportAndroidHardwareBufferInfo
 template <> constexpr VkStructureType GetSType<VkMemoryGetAndroidHardwareBufferInfoANDROID>(){ return VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID; }
 template <> constexpr VkStructureType GetSType<VkExternalFormatANDROID>(){ return VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID; }
 template <> constexpr VkStructureType GetSType<VkAndroidHardwareBufferFormatProperties2ANDROID>(){ return VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceGpaFeaturesAMD>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceGpaPropertiesAMD>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceGpaProperties2AMD>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD; }
+template <> constexpr VkStructureType GetSType<VkGpaSampleBeginInfoAMD>(){ return VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD; }
+template <> constexpr VkStructureType GetSType<VkGpaDeviceClockModeInfoAMD>(){ return VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD; }
+template <> constexpr VkStructureType GetSType<VkGpaDeviceGetClockInfoAMD>(){ return VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD; }
+template <> constexpr VkStructureType GetSType<VkGpaSessionCreateInfoAMD>(){ return VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD; }
 template <> constexpr VkStructureType GetSType<VkAttachmentSampleCountInfoAMD>(){ return VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD; }
 template <> constexpr VkStructureType GetSType<VkSampleLocationsInfoEXT>(){ return VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkRenderPassSampleLocationsBeginInfoEXT>(){ return VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT; }

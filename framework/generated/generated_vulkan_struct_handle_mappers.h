@@ -1548,6 +1548,24 @@ void MapStructHandles(Decoded_VkExternalFormatANDROID* wrapper, const CommonObje
 
 void MapStructHandles(Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_VkGpaPerfBlockPropertiesAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceGpaFeaturesAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceGpaPropertiesAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceGpaProperties2AMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkGpaPerfCounterAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkGpaSampleBeginInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkGpaDeviceClockModeInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkGpaDeviceGetClockInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_VkGpaSessionCreateInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_VkAttachmentSampleCountInfoAMD* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_VkSampleLocationEXT* wrapper, const CommonObjectInfoTable& object_info_table);

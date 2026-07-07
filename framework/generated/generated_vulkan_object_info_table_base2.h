@@ -62,6 +62,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void AddVkEventInfo(VulkanEventInfo&& info) { AddVkObjectInfo(std::move(info), &event_map_); }
     void AddVkFenceInfo(VulkanFenceInfo&& info) { AddVkObjectInfo(std::move(info), &fence_map_); }
     void AddVkFramebufferInfo(VulkanFramebufferInfo&& info) { AddVkObjectInfo(std::move(info), &framebuffer_map_); }
+    void AddVkGpaSessionAMDInfo(VulkanGpaSessionAMDInfo&& info) { AddVkObjectInfo(std::move(info), &gpaSessionAMD_map_); }
     void AddVkImageInfo(VulkanImageInfo&& info) { AddVkObjectInfo(std::move(info), &image_map_); }
     void AddVkImageViewInfo(VulkanImageViewInfo&& info) { AddVkObjectInfo(std::move(info), &imageView_map_); }
     void AddVkIndirectCommandsLayoutEXTInfo(VulkanIndirectCommandsLayoutEXTInfo&& info) { AddVkObjectInfo(std::move(info), &indirectCommandsLayoutEXT_map_); }
@@ -112,6 +113,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemoveVkEventInfo(format::HandleId id) { event_map_.erase(id); }
     void RemoveVkFenceInfo(format::HandleId id) { fence_map_.erase(id); }
     void RemoveVkFramebufferInfo(format::HandleId id) { framebuffer_map_.erase(id); }
+    void RemoveVkGpaSessionAMDInfo(format::HandleId id) { gpaSessionAMD_map_.erase(id); }
     void RemoveVkImageInfo(format::HandleId id) { image_map_.erase(id); }
     void RemoveVkImageViewInfo(format::HandleId id) { imageView_map_.erase(id); }
     void RemoveVkIndirectCommandsLayoutEXTInfo(format::HandleId id) { indirectCommandsLayoutEXT_map_.erase(id); }
@@ -162,6 +164,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     const VulkanEventInfo* GetVkEventInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanEventInfo>(id, &event_map_); }
     const VulkanFenceInfo* GetVkFenceInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanFenceInfo>(id, &fence_map_); }
     const VulkanFramebufferInfo* GetVkFramebufferInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanFramebufferInfo>(id, &framebuffer_map_); }
+    const VulkanGpaSessionAMDInfo* GetVkGpaSessionAMDInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanGpaSessionAMDInfo>(id, &gpaSessionAMD_map_); }
     const VulkanImageInfo* GetVkImageInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanImageInfo>(id, &image_map_); }
     const VulkanImageViewInfo* GetVkImageViewInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanImageViewInfo>(id, &imageView_map_); }
     const VulkanIndirectCommandsLayoutEXTInfo* GetVkIndirectCommandsLayoutEXTInfo(format::HandleId id) const { return GetVkObjectInfo<VulkanIndirectCommandsLayoutEXTInfo>(id, &indirectCommandsLayoutEXT_map_); }
@@ -212,6 +215,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     VulkanEventInfo* GetVkEventInfo(format::HandleId id) { return GetVkObjectInfo<VulkanEventInfo>(id, &event_map_); }
     VulkanFenceInfo* GetVkFenceInfo(format::HandleId id) { return GetVkObjectInfo<VulkanFenceInfo>(id, &fence_map_); }
     VulkanFramebufferInfo* GetVkFramebufferInfo(format::HandleId id) { return GetVkObjectInfo<VulkanFramebufferInfo>(id, &framebuffer_map_); }
+    VulkanGpaSessionAMDInfo* GetVkGpaSessionAMDInfo(format::HandleId id) { return GetVkObjectInfo<VulkanGpaSessionAMDInfo>(id, &gpaSessionAMD_map_); }
     VulkanImageInfo* GetVkImageInfo(format::HandleId id) { return GetVkObjectInfo<VulkanImageInfo>(id, &image_map_); }
     VulkanImageViewInfo* GetVkImageViewInfo(format::HandleId id) { return GetVkObjectInfo<VulkanImageViewInfo>(id, &imageView_map_); }
     VulkanIndirectCommandsLayoutEXTInfo* GetVkIndirectCommandsLayoutEXTInfo(format::HandleId id) { return GetVkObjectInfo<VulkanIndirectCommandsLayoutEXTInfo>(id, &indirectCommandsLayoutEXT_map_); }
@@ -262,6 +266,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void VisitVkEventInfo(std::function<void(const VulkanEventInfo*)> visitor) const {  for (const auto& entry : event_map_) { visitor(&entry.second); }  }
     void VisitVkFenceInfo(std::function<void(const VulkanFenceInfo*)> visitor) const {  for (const auto& entry : fence_map_) { visitor(&entry.second); }  }
     void VisitVkFramebufferInfo(std::function<void(const VulkanFramebufferInfo*)> visitor) const {  for (const auto& entry : framebuffer_map_) { visitor(&entry.second); }  }
+    void VisitVkGpaSessionAMDInfo(std::function<void(const VulkanGpaSessionAMDInfo*)> visitor) const {  for (const auto& entry : gpaSessionAMD_map_) { visitor(&entry.second); }  }
     void VisitVkImageInfo(std::function<void(const VulkanImageInfo*)> visitor) const {  for (const auto& entry : image_map_) { visitor(&entry.second); }  }
     void VisitVkImageViewInfo(std::function<void(const VulkanImageViewInfo*)> visitor) const {  for (const auto& entry : imageView_map_) { visitor(&entry.second); }  }
     void VisitVkIndirectCommandsLayoutEXTInfo(std::function<void(const VulkanIndirectCommandsLayoutEXTInfo*)> visitor) const {  for (const auto& entry : indirectCommandsLayoutEXT_map_) { visitor(&entry.second); }  }
@@ -313,6 +318,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
      std::unordered_map<format::HandleId, VulkanEventInfo> event_map_;
      std::unordered_map<format::HandleId, VulkanFenceInfo> fence_map_;
      std::unordered_map<format::HandleId, VulkanFramebufferInfo> framebuffer_map_;
+     std::unordered_map<format::HandleId, VulkanGpaSessionAMDInfo> gpaSessionAMD_map_;
      std::unordered_map<format::HandleId, VulkanImageInfo> image_map_;
      std::unordered_map<format::HandleId, VulkanImageViewInfo> imageView_map_;
      std::unordered_map<format::HandleId, VulkanIndirectCommandsLayoutEXTInfo> indirectCommandsLayoutEXT_map_;

@@ -130,6 +130,7 @@ enum CommandHandleType : uint32_t
     DeferredOperationKHRHandle,
     MicromapEXTHandle,
     OpticalFlowSessionNVHandle,
+    GpaSessionAMDHandle,
     VideoSessionKHRHandle,
     VideoSessionParametersKHRHandle,
     ShaderEXTHandle,

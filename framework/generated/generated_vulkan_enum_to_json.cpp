@@ -2727,6 +2727,41 @@ void to_json(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagsKHR_t& 
     });
 }
 
+void to_json(nlohmann::ordered_json& jdata, const VkGpaPerfBlockPropertiesFlagsAMD_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<VkGpaPerfBlockPropertiesFlagsAMD>(flags));
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkGpaSqShaderStageFlagsAMD_t& flags)
+{
+    if (!JsonOptions::expand_flags)
+    {
+        jdata = to_hex_fixed_width(static_cast<VkGpaSqShaderStageFlagsAMD>(flags));
+        return;
+    }
+    jdata = ExpandFlags(static_cast<VkGpaSqShaderStageFlagsAMD>(flags), [](VkFlags flags)
+    {
+        switch (flags)
+        {
+            case VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD:
+                return std::string("VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD");
+            case VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD:
+                return std::string("VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD");
+            case VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD:
+                return std::string("VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD");
+            case VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD:
+                return std::string("VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD");
+            case VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD:
+                return std::string("VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD");
+            case VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD:
+                return std::string("VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD");
+            case VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD:
+                return std::string("VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD");
+        }
+        return to_hex_fixed_width(flags);
+    });
+}
+
 void to_json(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagsEXT_t& flags)
 {
     if (!JsonOptions::expand_flags)
@@ -3635,6 +3670,11 @@ void to_json(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescriptio
         }
         return to_hex_fixed_width(flags);
     });
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkPhysicalDeviceGpaPropertiesFlagsAMD_t& flags)
+{
+    jdata = to_hex_fixed_width(static_cast<VkPhysicalDeviceGpaPropertiesFlagsAMD>(flags));
 }
 
 void to_json(nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagsARM_t& flags)
@@ -10879,6 +10919,261 @@ void to_json(nlohmann::ordered_json& jdata, const VkGeometryTypeKHR& value)
             break;
         case VK_GEOMETRY_TYPE_MICROMAP_KHR:
             jdata = "VK_GEOMETRY_TYPE_MICROMAP_KHR";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkGpaDeviceClockModeAMD& value)
+{
+    switch (value) {
+        case VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD:
+            jdata = "VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD";
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD:
+            jdata = "VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD";
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD:
+            jdata = "VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD";
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_MIN_MEMORY_AMD:
+            jdata = "VK_GPA_DEVICE_CLOCK_MODE_MIN_MEMORY_AMD";
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_MIN_ENGINE_AMD:
+            jdata = "VK_GPA_DEVICE_CLOCK_MODE_MIN_ENGINE_AMD";
+            break;
+        case VK_GPA_DEVICE_CLOCK_MODE_PEAK_AMD:
+            jdata = "VK_GPA_DEVICE_CLOCK_MODE_PEAK_AMD";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkGpaPerfBlockAMD& value)
+{
+    switch (value) {
+        case VK_GPA_PERF_BLOCK_CPF_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_CPF_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_IA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_IA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_VGT_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_VGT_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_PA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_PA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_SC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_SC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_SPI_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_SPI_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_SQ_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_SQ_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_SX_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_SX_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_TA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_TA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_TD_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_TD_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_TCP_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_TCP_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_TCC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_TCC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_TCA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_TCA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_DB_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_DB_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_CB_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_CB_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GDS_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GDS_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_SRBM_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_SRBM_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GRBM_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GRBM_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GRBM_SE_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GRBM_SE_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_RLC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_RLC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_DMA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_DMA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_MC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_MC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_CPG_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_CPG_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_CPC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_CPC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_WD_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_WD_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_TCS_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_TCS_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_ATC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_ATC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_ATC_L2_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_ATC_L2_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_MC_VM_L2_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_MC_VM_L2_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_EA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_EA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_RPB_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_RPB_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_RMI_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_RMI_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_UMCCH_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_UMCCH_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GE_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GE_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GL1A_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GL1A_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GL1C_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GL1C_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GL1CG_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GL1CG_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GL2A_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GL2A_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GL2C_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GL2C_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_CHA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_CHA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_CHC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_CHC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_CHCG_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_CHCG_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GUS_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GUS_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GCR_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GCR_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_PH_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_PH_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_UTCL1_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_UTCL1_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GE_DIST_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GE_DIST_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GE_SE_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GE_SE_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_DF_MALL_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_DF_MALL_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_SQ_WGP_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_SQ_WGP_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_PC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_PC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GL1XA_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GL1XA_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_GL1XC_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_GL1XC_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_WGS_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_WGS_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_EACPWD_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_EACPWD_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_EASE_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_EASE_AMD";
+            break;
+        case VK_GPA_PERF_BLOCK_RLCUSER_AMD:
+            jdata = "VK_GPA_PERF_BLOCK_RLCUSER_AMD";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkGpaSampleTypeAMD& value)
+{
+    switch (value) {
+        case VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD:
+            jdata = "VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD";
+            break;
+        case VK_GPA_SAMPLE_TYPE_TRACE_AMD:
+            jdata = "VK_GPA_SAMPLE_TYPE_TRACE_AMD";
+            break;
+        case VK_GPA_SAMPLE_TYPE_TIMING_AMD:
+            jdata = "VK_GPA_SAMPLE_TYPE_TIMING_AMD";
+            break;
+        default:
+            jdata = gfxrecon::decode::to_hex_fixed_width(value);
+            break;
+    }
+}
+
+void to_json(nlohmann::ordered_json& jdata, const VkGpaSqShaderStageFlagBitsAMD& value)
+{
+    switch (value) {
+        case VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD:
+            jdata = "VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD";
+            break;
+        case VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD:
+            jdata = "VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD";
+            break;
+        case VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD:
+            jdata = "VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD";
+            break;
+        case VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD:
+            jdata = "VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD";
+            break;
+        case VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD:
+            jdata = "VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD";
+            break;
+        case VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD:
+            jdata = "VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD";
+            break;
+        case VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD:
+            jdata = "VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD";
             break;
         default:
             jdata = gfxrecon::decode::to_hex_fixed_width(value);

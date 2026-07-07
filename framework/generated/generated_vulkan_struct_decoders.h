@@ -7306,6 +7306,86 @@ struct Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID
     Decoded_VkComponentMapping* samplerYcbcrConversionComponents{ nullptr };
 };
 
+struct Decoded_VkGpaPerfBlockPropertiesAMD
+{
+    using struct_type = VkGpaPerfBlockPropertiesAMD;
+
+    VkGpaPerfBlockPropertiesAMD* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceGpaFeaturesAMD
+{
+    using struct_type = VkPhysicalDeviceGpaFeaturesAMD;
+
+    VkPhysicalDeviceGpaFeaturesAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceGpaPropertiesAMD
+{
+    using struct_type = VkPhysicalDeviceGpaPropertiesAMD;
+
+    VkPhysicalDeviceGpaPropertiesAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkGpaPerfBlockPropertiesAMD>* pPerfBlocks{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceGpaProperties2AMD
+{
+    using struct_type = VkPhysicalDeviceGpaProperties2AMD;
+
+    VkPhysicalDeviceGpaProperties2AMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkGpaPerfCounterAMD
+{
+    using struct_type = VkGpaPerfCounterAMD;
+
+    VkGpaPerfCounterAMD* decoded_value{ nullptr };
+};
+
+struct Decoded_VkGpaSampleBeginInfoAMD
+{
+    using struct_type = VkGpaSampleBeginInfoAMD;
+
+    VkGpaSampleBeginInfoAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkGpaPerfCounterAMD>* pPerfCounters{ nullptr };
+};
+
+struct Decoded_VkGpaDeviceClockModeInfoAMD
+{
+    using struct_type = VkGpaDeviceClockModeInfoAMD;
+
+    VkGpaDeviceClockModeInfoAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkGpaDeviceGetClockInfoAMD
+{
+    using struct_type = VkGpaDeviceGetClockInfoAMD;
+
+    VkGpaDeviceGetClockInfoAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkGpaSessionCreateInfoAMD
+{
+    using struct_type = VkGpaSessionCreateInfoAMD;
+
+    VkGpaSessionCreateInfoAMD* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId secondaryCopySource{ format::kNullHandleId };
+};
+
 struct Decoded_VkAttachmentSampleCountInfoAMD
 {
     using struct_type = VkAttachmentSampleCountInfoAMD;

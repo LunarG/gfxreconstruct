@@ -175,6 +175,11 @@ enum PhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFor
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM = 0
 };
 
+enum GpaSessionAMDArrayIndices : uint32_t
+{
+    kGpaSessionAMDArrayGetGpaSessionResultsAMD = 0
+};
+
 //
 // Structures for storing Vulkan object info.
 //
@@ -588,6 +593,11 @@ struct VulkanDescriptorUpdateTemplateInfo : public VulkanObjectInfo<VkDescriptor
 };
 
 struct VulkanDisplayKHRInfo : public VulkanObjectInfo<VkDisplayKHR>
+{
+    std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct VulkanGpaSessionAMDInfo : public VulkanObjectInfo<VkGpaSessionAMD>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 };

@@ -11804,6 +11804,152 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareB
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaPerfBlockPropertiesAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGpaPerfBlockPropertiesAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkGpaPerfBlockPropertiesAMD& meta_struct = *data;
+
+        jdata["blockType"] = decoded_value.blockType;
+        jdata["flags"] = VkGpaPerfBlockPropertiesFlagsAMD_t{decoded_value.flags};
+        jdata["instanceCount"] = decoded_value.instanceCount;
+        jdata["maxEventID"] = decoded_value.maxEventID;
+        jdata["maxGlobalOnlyCounters"] = decoded_value.maxGlobalOnlyCounters;
+        jdata["maxGlobalSharedCounters"] = decoded_value.maxGlobalSharedCounters;
+        jdata["maxStreamingCounters"] = decoded_value.maxStreamingCounters;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGpaFeaturesAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceGpaFeaturesAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceGpaFeaturesAMD& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["perfCounters"] = static_cast<bool>(decoded_value.perfCounters);
+        jdata["streamingPerfCounters"] = static_cast<bool>(decoded_value.streamingPerfCounters);
+        jdata["sqThreadTracing"] = static_cast<bool>(decoded_value.sqThreadTracing);
+        jdata["clockModes"] = static_cast<bool>(decoded_value.clockModes);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGpaPropertiesAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceGpaPropertiesAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceGpaPropertiesAMD& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["flags"] = VkPhysicalDeviceGpaPropertiesFlagsAMD_t{decoded_value.flags};
+        jdata["maxSqttSeBufferSize"] = decoded_value.maxSqttSeBufferSize;
+        jdata["shaderEngineCount"] = decoded_value.shaderEngineCount;
+        jdata["perfBlockCount"] = decoded_value.perfBlockCount;
+        FieldToJson(jdata["pPerfBlocks"], meta_struct.pPerfBlocks);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGpaProperties2AMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceGpaProperties2AMD& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceGpaProperties2AMD& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["revisionId"] = decoded_value.revisionId;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaPerfCounterAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGpaPerfCounterAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkGpaPerfCounterAMD& meta_struct = *data;
+
+        jdata["blockType"] = decoded_value.blockType;
+        jdata["blockInstance"] = decoded_value.blockInstance;
+        jdata["eventID"] = decoded_value.eventID;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaSampleBeginInfoAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGpaSampleBeginInfoAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkGpaSampleBeginInfoAMD& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["sampleType"] = decoded_value.sampleType;
+        jdata["sampleInternalOperations"] = static_cast<bool>(decoded_value.sampleInternalOperations);
+        jdata["cacheFlushOnCounterCollection"] = static_cast<bool>(decoded_value.cacheFlushOnCounterCollection);
+        jdata["sqShaderMaskEnable"] = static_cast<bool>(decoded_value.sqShaderMaskEnable);
+        jdata["sqShaderMask"] = VkGpaSqShaderStageFlagsAMD_t{decoded_value.sqShaderMask};
+        jdata["perfCounterCount"] = decoded_value.perfCounterCount;
+        FieldToJson(jdata["pPerfCounters"], meta_struct.pPerfCounters);
+        jdata["streamingPerfTraceSampleInterval"] = decoded_value.streamingPerfTraceSampleInterval;
+        jdata["perfCounterDeviceMemoryLimit"] = decoded_value.perfCounterDeviceMemoryLimit;
+        jdata["sqThreadTraceEnable"] = static_cast<bool>(decoded_value.sqThreadTraceEnable);
+        jdata["sqThreadTraceSuppressInstructionTokens"] = static_cast<bool>(decoded_value.sqThreadTraceSuppressInstructionTokens);
+        jdata["sqThreadTraceDeviceMemoryLimit"] = decoded_value.sqThreadTraceDeviceMemoryLimit;
+        jdata["timingPreSample"] = VkPipelineStageFlags_t{decoded_value.timingPreSample};
+        jdata["timingPostSample"] = VkPipelineStageFlags_t{decoded_value.timingPostSample};
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaDeviceClockModeInfoAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGpaDeviceClockModeInfoAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkGpaDeviceClockModeInfoAMD& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        jdata["clockMode"] = decoded_value.clockMode;
+        FieldToJson(jdata["memoryClockRatioToPeak"], decoded_value.memoryClockRatioToPeak);
+        FieldToJson(jdata["engineClockRatioToPeak"], decoded_value.engineClockRatioToPeak);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaDeviceGetClockInfoAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGpaDeviceGetClockInfoAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkGpaDeviceGetClockInfoAMD& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        FieldToJson(jdata["memoryClockRatioToPeak"], decoded_value.memoryClockRatioToPeak);
+        FieldToJson(jdata["engineClockRatioToPeak"], decoded_value.engineClockRatioToPeak);
+        jdata["memoryClockFrequency"] = decoded_value.memoryClockFrequency;
+        jdata["engineClockFrequency"] = decoded_value.engineClockFrequency;
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaSessionCreateInfoAMD* data)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGpaSessionCreateInfoAMD& decoded_value = *data->decoded_value;
+        const Decoded_VkGpaSessionCreateInfoAMD& meta_struct = *data;
+
+        jdata["sType"] = decoded_value.sType;
+        HandleToJson(jdata["secondaryCopySource"], meta_struct.secondaryCopySource);
+        FieldToJson(jdata["pNext"], meta_struct.pNext);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentSampleCountInfoAMD* data)
 {
     if (data && data->decoded_value)
@@ -21601,6 +21747,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGpaDeviceClockModeInfoAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGpaDeviceGetClockInfoAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGpaSampleBeginInfoAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGpaSessionCreateInfoAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkGraphicsPipelineCreateInfo*>(data->GetMetaStructPointer());
@@ -23375,6 +23549,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data)
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGlobalPriorityQueryFeatures*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGpaFeaturesAMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGpaProperties2AMD*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceGpaPropertiesAMD*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext);
                 break;
             }

@@ -851,6 +851,18 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdWriteMarkerToMemoryAMD                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1369),
     ApiCall_vkCreateAccelerationStructure2KHR                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x136a),
     ApiCall_vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM                     = MakeApiCallId(ApiFamily_Vulkan, 0x136b),
+    ApiCall_vkCreateGpaSessionAMD                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x136c),
+    ApiCall_vkDestroyGpaSessionAMD                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x136d),
+    ApiCall_vkGetGpaSessionStatusAMD                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x136e),
+    ApiCall_vkGetGpaSessionResultsAMD                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x136f),
+    ApiCall_vkResetGpaSessionAMD                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1370),
+    ApiCall_vkCmdBeginGpaSessionAMD                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1371),
+    ApiCall_vkCmdEndGpaSessionAMD                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1372),
+    ApiCall_vkCmdBeginGpaSampleAMD                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1373),
+    ApiCall_vkCmdEndGpaSampleAMD                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1374),
+    ApiCall_vkCmdCopyGpaSessionResultsAMD                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1375),
+    ApiCall_vkGetGpaDeviceClockInfoAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1376),
+    ApiCall_vkSetGpaDeviceClockModeAMD                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1377),
 
     ApiCall_VulkanLast,
 

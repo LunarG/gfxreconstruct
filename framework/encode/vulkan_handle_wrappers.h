@@ -92,6 +92,7 @@ struct IndirectCommandsLayoutNVWrapper                : public HandleWrapper<VkI
 struct PerformanceConfigurationINTELWrapper           : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
 struct MicromapEXTWrapper                             : public HandleWrapper<VkMicromapEXT> {};
 struct OpticalFlowSessionNVWrapper                    : public HandleWrapper<VkOpticalFlowSessionNV> {};
+struct GpaSessionAMDWrapper                           : public HandleWrapper<VkGpaSessionAMD> {};
 struct VideoSessionKHRWrapper                         : public HandleWrapper<VkVideoSessionKHR> {};
 struct VideoSessionParametersKHRWrapper               : public HandleWrapper<VkVideoSessionParametersKHR> {};
 struct ShaderEXTWrapper                               : public HandleWrapper<VkShaderEXT> {};

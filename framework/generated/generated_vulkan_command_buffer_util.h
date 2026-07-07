@@ -223,6 +223,16 @@ void TrackCmdDrawIndexedIndirectCountAMDHandles(vulkan_wrappers::CommandBufferWr
 
 void TrackCmdBeginConditionalRenderingEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkConditionalRenderingBeginInfoEXT* pConditionalRenderingBegin);
 
+void TrackCmdBeginGpaSessionAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession);
+
+void TrackCmdEndGpaSessionAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession);
+
+void TrackCmdBeginGpaSampleAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession);
+
+void TrackCmdEndGpaSampleAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession);
+
+void TrackCmdCopyGpaSessionResultsAMDHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkGpaSessionAMD gpaSession);
+
 void TrackCmdBindShadingRateImageNVHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, VkImageView imageView);
 
 void TrackCmdBuildAccelerationStructureNVHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkAccelerationStructureInfoNV* pInfo, VkBuffer instanceData, VkAccelerationStructureNV dst, VkAccelerationStructureNV src, VkBuffer scratch);

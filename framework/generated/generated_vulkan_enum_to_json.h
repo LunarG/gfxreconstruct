@@ -114,6 +114,8 @@ enum class VkFrameBoundaryFlagsEXT_t : VkFrameBoundaryFlagsEXT { };
 enum class VkFramebufferCreateFlags_t : VkFramebufferCreateFlags { };
 enum class VkGeometryFlagsKHR_t : VkGeometryFlagsKHR { };
 enum class VkGeometryInstanceFlagsKHR_t : VkGeometryInstanceFlagsKHR { };
+enum class VkGpaPerfBlockPropertiesFlagsAMD_t : VkGpaPerfBlockPropertiesFlagsAMD { };
+enum class VkGpaSqShaderStageFlagsAMD_t : VkGpaSqShaderStageFlagsAMD { };
 enum class VkGraphicsPipelineLibraryFlagsEXT_t : VkGraphicsPipelineLibraryFlagsEXT { };
 enum class VkHeadlessSurfaceCreateFlagsEXT_t : VkHeadlessSurfaceCreateFlagsEXT { };
 enum class VkHostImageCopyFlags_t : VkHostImageCopyFlags { };
@@ -150,6 +152,7 @@ enum class VkPastPresentationTimingFlagsEXT_t : VkPastPresentationTimingFlagsEXT
 enum class VkPeerMemoryFeatureFlags_t : VkPeerMemoryFeatureFlags { };
 enum class VkPerformanceCounterDescriptionFlagsARM_t : VkPerformanceCounterDescriptionFlagsARM { };
 enum class VkPerformanceCounterDescriptionFlagsKHR_t : VkPerformanceCounterDescriptionFlagsKHR { };
+enum class VkPhysicalDeviceGpaPropertiesFlagsAMD_t : VkPhysicalDeviceGpaPropertiesFlagsAMD { };
 enum class VkPhysicalDeviceSchedulingControlsFlagsARM_t : VkPhysicalDeviceSchedulingControlsFlagsARM { };
 enum class VkPipelineCacheCreateFlags_t : VkPipelineCacheCreateFlags { };
 enum class VkPipelineColorBlendStateCreateFlags_t : VkPipelineColorBlendStateCreateFlags { };
@@ -349,6 +352,8 @@ void to_json(nlohmann::ordered_json& jdata, const VkFrameBoundaryFlagsEXT_t& fla
 void to_json(nlohmann::ordered_json& jdata, const VkFramebufferCreateFlags_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkGeometryFlagsKHR_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagsKHR_t& flags);
+void to_json(nlohmann::ordered_json& jdata, const VkGpaPerfBlockPropertiesFlagsAMD_t& flags);
+void to_json(nlohmann::ordered_json& jdata, const VkGpaSqShaderStageFlagsAMD_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagsEXT_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkHeadlessSurfaceCreateFlagsEXT_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkHostImageCopyFlags_t& flags);
@@ -385,6 +390,7 @@ void to_json(nlohmann::ordered_json& jdata, const VkPastPresentationTimingFlagsE
 void to_json(nlohmann::ordered_json& jdata, const VkPeerMemoryFeatureFlags_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescriptionFlagsARM_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkPerformanceCounterDescriptionFlagsKHR_t& flags);
+void to_json(nlohmann::ordered_json& jdata, const VkPhysicalDeviceGpaPropertiesFlagsAMD_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkPhysicalDeviceSchedulingControlsFlagsARM_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkPipelineCacheCreateFlags_t& flags);
 void to_json(nlohmann::ordered_json& jdata, const VkPipelineColorBlendStateCreateFlags_t& flags);
@@ -630,6 +636,10 @@ void to_json(nlohmann::ordered_json& jdata, const VkFullScreenExclusiveEXT& valu
 void to_json(nlohmann::ordered_json& jdata, const VkGeometryFlagBitsKHR& value);
 void to_json(nlohmann::ordered_json& jdata, const VkGeometryInstanceFlagBitsKHR& value);
 void to_json(nlohmann::ordered_json& jdata, const VkGeometryTypeKHR& value);
+void to_json(nlohmann::ordered_json& jdata, const VkGpaDeviceClockModeAMD& value);
+void to_json(nlohmann::ordered_json& jdata, const VkGpaPerfBlockAMD& value);
+void to_json(nlohmann::ordered_json& jdata, const VkGpaSampleTypeAMD& value);
+void to_json(nlohmann::ordered_json& jdata, const VkGpaSqShaderStageFlagBitsAMD& value);
 void to_json(nlohmann::ordered_json& jdata, const VkGraphicsPipelineLibraryFlagBitsEXT& value);
 void to_json(nlohmann::ordered_json& jdata, const VkHostImageCopyFlagBits& value);
 void to_json(nlohmann::ordered_json& jdata, const VkImageAspectFlagBits& value);

@@ -7363,6 +7363,98 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferFormat
     encoder->EncodeEnumValue(value.suggestedYChromaOffset);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaPerfBlockPropertiesAMD& value)
+{
+    encoder->EncodeEnumValue(value.blockType);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt32Value(value.instanceCount);
+    encoder->EncodeUInt32Value(value.maxEventID);
+    encoder->EncodeUInt32Value(value.maxGlobalOnlyCounters);
+    encoder->EncodeUInt32Value(value.maxGlobalSharedCounters);
+    encoder->EncodeUInt32Value(value.maxStreamingCounters);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGpaFeaturesAMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.perfCounters);
+    encoder->EncodeUInt32Value(value.streamingPerfCounters);
+    encoder->EncodeUInt32Value(value.sqThreadTracing);
+    encoder->EncodeUInt32Value(value.clockModes);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGpaPropertiesAMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt64Value(value.maxSqttSeBufferSize);
+    encoder->EncodeUInt32Value(value.shaderEngineCount);
+    encoder->EncodeUInt32Value(value.perfBlockCount);
+    EncodeStructArray(encoder, value.pPerfBlocks, value.perfBlockCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceGpaProperties2AMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.revisionId);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaPerfCounterAMD& value)
+{
+    encoder->EncodeEnumValue(value.blockType);
+    encoder->EncodeUInt32Value(value.blockInstance);
+    encoder->EncodeUInt32Value(value.eventID);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaSampleBeginInfoAMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.sampleType);
+    encoder->EncodeUInt32Value(value.sampleInternalOperations);
+    encoder->EncodeUInt32Value(value.cacheFlushOnCounterCollection);
+    encoder->EncodeUInt32Value(value.sqShaderMaskEnable);
+    encoder->EncodeFlagsValue(value.sqShaderMask);
+    encoder->EncodeUInt32Value(value.perfCounterCount);
+    EncodeStructArray(encoder, value.pPerfCounters, value.perfCounterCount);
+    encoder->EncodeUInt32Value(value.streamingPerfTraceSampleInterval);
+    encoder->EncodeUInt64Value(value.perfCounterDeviceMemoryLimit);
+    encoder->EncodeUInt32Value(value.sqThreadTraceEnable);
+    encoder->EncodeUInt32Value(value.sqThreadTraceSuppressInstructionTokens);
+    encoder->EncodeUInt64Value(value.sqThreadTraceDeviceMemoryLimit);
+    encoder->EncodeFlagsValue(value.timingPreSample);
+    encoder->EncodeFlagsValue(value.timingPostSample);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaDeviceClockModeInfoAMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.clockMode);
+    encoder->EncodeFloatValue(value.memoryClockRatioToPeak);
+    encoder->EncodeFloatValue(value.engineClockRatioToPeak);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaDeviceGetClockInfoAMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeFloatValue(value.memoryClockRatioToPeak);
+    encoder->EncodeFloatValue(value.engineClockRatioToPeak);
+    encoder->EncodeUInt32Value(value.memoryClockFrequency);
+    encoder->EncodeUInt32Value(value.engineClockFrequency);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGpaSessionCreateInfoAMD& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStructIfValid(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::GpaSessionAMDWrapper>(value.secondaryCopySource);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentSampleCountInfoAMD& value)
 {
     encoder->EncodeEnumValue(value.sType);

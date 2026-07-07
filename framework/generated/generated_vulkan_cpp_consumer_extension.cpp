@@ -3653,6 +3653,36 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceGpaFeaturesAMD*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceGpaFeaturesAMD*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceGpaFeaturesAMD(out,
+                                               casted_struct,
+                                               decoded_struct,
+                                               consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceGpaProperties2AMD*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceGpaProperties2AMD*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceGpaProperties2AMD(out,
+                                                  casted_struct,
+                                                  decoded_struct,
+                                                  consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceGpaPropertiesAMD*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceGpaPropertiesAMD*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceGpaPropertiesAMD(out,
+                                                 casted_struct,
+                                                 decoded_struct,
+                                                 consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD: {
                 auto casted_struct = reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkAttachmentSampleCountInfoAMD*>(pnext_meta_data->GetMetaStructPointer());

@@ -780,6 +780,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportAndroidHar
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalFormatANDROID* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaPerfBlockPropertiesAMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGpaFeaturesAMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGpaPropertiesAMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGpaProperties2AMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaPerfCounterAMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaSampleBeginInfoAMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaDeviceClockModeInfoAMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaDeviceGetClockInfoAMD* data);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGpaSessionCreateInfoAMD* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentSampleCountInfoAMD* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSampleLocationEXT* data);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSampleLocationsInfoEXT* data);

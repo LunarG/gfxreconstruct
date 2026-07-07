@@ -2868,6 +2868,116 @@ template <> std::string ToString<VkGeometryTypeKHR>(const VkGeometryTypeKHR& val
     return "Unhandled VkGeometryTypeKHR";
 }
 
+template <> std::string ToString<VkGpaDeviceClockModeAMD>(const VkGpaDeviceClockModeAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD: return "VK_GPA_DEVICE_CLOCK_MODE_DEFAULT_AMD";
+    case VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD: return "VK_GPA_DEVICE_CLOCK_MODE_QUERY_AMD";
+    case VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD: return "VK_GPA_DEVICE_CLOCK_MODE_PROFILING_AMD";
+    case VK_GPA_DEVICE_CLOCK_MODE_MIN_MEMORY_AMD: return "VK_GPA_DEVICE_CLOCK_MODE_MIN_MEMORY_AMD";
+    case VK_GPA_DEVICE_CLOCK_MODE_MIN_ENGINE_AMD: return "VK_GPA_DEVICE_CLOCK_MODE_MIN_ENGINE_AMD";
+    case VK_GPA_DEVICE_CLOCK_MODE_PEAK_AMD: return "VK_GPA_DEVICE_CLOCK_MODE_PEAK_AMD";
+    default: break;
+    }
+    return "Unhandled VkGpaDeviceClockModeAMD";
+}
+
+template <> std::string ToString<VkGpaPerfBlockAMD>(const VkGpaPerfBlockAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GPA_PERF_BLOCK_CPF_AMD: return "VK_GPA_PERF_BLOCK_CPF_AMD";
+    case VK_GPA_PERF_BLOCK_IA_AMD: return "VK_GPA_PERF_BLOCK_IA_AMD";
+    case VK_GPA_PERF_BLOCK_VGT_AMD: return "VK_GPA_PERF_BLOCK_VGT_AMD";
+    case VK_GPA_PERF_BLOCK_PA_AMD: return "VK_GPA_PERF_BLOCK_PA_AMD";
+    case VK_GPA_PERF_BLOCK_SC_AMD: return "VK_GPA_PERF_BLOCK_SC_AMD";
+    case VK_GPA_PERF_BLOCK_SPI_AMD: return "VK_GPA_PERF_BLOCK_SPI_AMD";
+    case VK_GPA_PERF_BLOCK_SQ_AMD: return "VK_GPA_PERF_BLOCK_SQ_AMD";
+    case VK_GPA_PERF_BLOCK_SX_AMD: return "VK_GPA_PERF_BLOCK_SX_AMD";
+    case VK_GPA_PERF_BLOCK_TA_AMD: return "VK_GPA_PERF_BLOCK_TA_AMD";
+    case VK_GPA_PERF_BLOCK_TD_AMD: return "VK_GPA_PERF_BLOCK_TD_AMD";
+    case VK_GPA_PERF_BLOCK_TCP_AMD: return "VK_GPA_PERF_BLOCK_TCP_AMD";
+    case VK_GPA_PERF_BLOCK_TCC_AMD: return "VK_GPA_PERF_BLOCK_TCC_AMD";
+    case VK_GPA_PERF_BLOCK_TCA_AMD: return "VK_GPA_PERF_BLOCK_TCA_AMD";
+    case VK_GPA_PERF_BLOCK_DB_AMD: return "VK_GPA_PERF_BLOCK_DB_AMD";
+    case VK_GPA_PERF_BLOCK_CB_AMD: return "VK_GPA_PERF_BLOCK_CB_AMD";
+    case VK_GPA_PERF_BLOCK_GDS_AMD: return "VK_GPA_PERF_BLOCK_GDS_AMD";
+    case VK_GPA_PERF_BLOCK_SRBM_AMD: return "VK_GPA_PERF_BLOCK_SRBM_AMD";
+    case VK_GPA_PERF_BLOCK_GRBM_AMD: return "VK_GPA_PERF_BLOCK_GRBM_AMD";
+    case VK_GPA_PERF_BLOCK_GRBM_SE_AMD: return "VK_GPA_PERF_BLOCK_GRBM_SE_AMD";
+    case VK_GPA_PERF_BLOCK_RLC_AMD: return "VK_GPA_PERF_BLOCK_RLC_AMD";
+    case VK_GPA_PERF_BLOCK_DMA_AMD: return "VK_GPA_PERF_BLOCK_DMA_AMD";
+    case VK_GPA_PERF_BLOCK_MC_AMD: return "VK_GPA_PERF_BLOCK_MC_AMD";
+    case VK_GPA_PERF_BLOCK_CPG_AMD: return "VK_GPA_PERF_BLOCK_CPG_AMD";
+    case VK_GPA_PERF_BLOCK_CPC_AMD: return "VK_GPA_PERF_BLOCK_CPC_AMD";
+    case VK_GPA_PERF_BLOCK_WD_AMD: return "VK_GPA_PERF_BLOCK_WD_AMD";
+    case VK_GPA_PERF_BLOCK_TCS_AMD: return "VK_GPA_PERF_BLOCK_TCS_AMD";
+    case VK_GPA_PERF_BLOCK_ATC_AMD: return "VK_GPA_PERF_BLOCK_ATC_AMD";
+    case VK_GPA_PERF_BLOCK_ATC_L2_AMD: return "VK_GPA_PERF_BLOCK_ATC_L2_AMD";
+    case VK_GPA_PERF_BLOCK_MC_VM_L2_AMD: return "VK_GPA_PERF_BLOCK_MC_VM_L2_AMD";
+    case VK_GPA_PERF_BLOCK_EA_AMD: return "VK_GPA_PERF_BLOCK_EA_AMD";
+    case VK_GPA_PERF_BLOCK_RPB_AMD: return "VK_GPA_PERF_BLOCK_RPB_AMD";
+    case VK_GPA_PERF_BLOCK_RMI_AMD: return "VK_GPA_PERF_BLOCK_RMI_AMD";
+    case VK_GPA_PERF_BLOCK_UMCCH_AMD: return "VK_GPA_PERF_BLOCK_UMCCH_AMD";
+    case VK_GPA_PERF_BLOCK_GE_AMD: return "VK_GPA_PERF_BLOCK_GE_AMD";
+    case VK_GPA_PERF_BLOCK_GL1A_AMD: return "VK_GPA_PERF_BLOCK_GL1A_AMD";
+    case VK_GPA_PERF_BLOCK_GL1C_AMD: return "VK_GPA_PERF_BLOCK_GL1C_AMD";
+    case VK_GPA_PERF_BLOCK_GL1CG_AMD: return "VK_GPA_PERF_BLOCK_GL1CG_AMD";
+    case VK_GPA_PERF_BLOCK_GL2A_AMD: return "VK_GPA_PERF_BLOCK_GL2A_AMD";
+    case VK_GPA_PERF_BLOCK_GL2C_AMD: return "VK_GPA_PERF_BLOCK_GL2C_AMD";
+    case VK_GPA_PERF_BLOCK_CHA_AMD: return "VK_GPA_PERF_BLOCK_CHA_AMD";
+    case VK_GPA_PERF_BLOCK_CHC_AMD: return "VK_GPA_PERF_BLOCK_CHC_AMD";
+    case VK_GPA_PERF_BLOCK_CHCG_AMD: return "VK_GPA_PERF_BLOCK_CHCG_AMD";
+    case VK_GPA_PERF_BLOCK_GUS_AMD: return "VK_GPA_PERF_BLOCK_GUS_AMD";
+    case VK_GPA_PERF_BLOCK_GCR_AMD: return "VK_GPA_PERF_BLOCK_GCR_AMD";
+    case VK_GPA_PERF_BLOCK_PH_AMD: return "VK_GPA_PERF_BLOCK_PH_AMD";
+    case VK_GPA_PERF_BLOCK_UTCL1_AMD: return "VK_GPA_PERF_BLOCK_UTCL1_AMD";
+    case VK_GPA_PERF_BLOCK_GE_DIST_AMD: return "VK_GPA_PERF_BLOCK_GE_DIST_AMD";
+    case VK_GPA_PERF_BLOCK_GE_SE_AMD: return "VK_GPA_PERF_BLOCK_GE_SE_AMD";
+    case VK_GPA_PERF_BLOCK_DF_MALL_AMD: return "VK_GPA_PERF_BLOCK_DF_MALL_AMD";
+    case VK_GPA_PERF_BLOCK_SQ_WGP_AMD: return "VK_GPA_PERF_BLOCK_SQ_WGP_AMD";
+    case VK_GPA_PERF_BLOCK_PC_AMD: return "VK_GPA_PERF_BLOCK_PC_AMD";
+    case VK_GPA_PERF_BLOCK_GL1XA_AMD: return "VK_GPA_PERF_BLOCK_GL1XA_AMD";
+    case VK_GPA_PERF_BLOCK_GL1XC_AMD: return "VK_GPA_PERF_BLOCK_GL1XC_AMD";
+    case VK_GPA_PERF_BLOCK_WGS_AMD: return "VK_GPA_PERF_BLOCK_WGS_AMD";
+    case VK_GPA_PERF_BLOCK_EACPWD_AMD: return "VK_GPA_PERF_BLOCK_EACPWD_AMD";
+    case VK_GPA_PERF_BLOCK_EASE_AMD: return "VK_GPA_PERF_BLOCK_EASE_AMD";
+    case VK_GPA_PERF_BLOCK_RLCUSER_AMD: return "VK_GPA_PERF_BLOCK_RLCUSER_AMD";
+    default: break;
+    }
+    return "Unhandled VkGpaPerfBlockAMD";
+}
+
+template <> std::string ToString<VkGpaSampleTypeAMD>(const VkGpaSampleTypeAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD: return "VK_GPA_SAMPLE_TYPE_CUMULATIVE_AMD";
+    case VK_GPA_SAMPLE_TYPE_TRACE_AMD: return "VK_GPA_SAMPLE_TYPE_TRACE_AMD";
+    case VK_GPA_SAMPLE_TYPE_TIMING_AMD: return "VK_GPA_SAMPLE_TYPE_TIMING_AMD";
+    default: break;
+    }
+    return "Unhandled VkGpaSampleTypeAMD";
+}
+
+template <> std::string ToString<VkGpaSqShaderStageFlagBitsAMD>(const VkGpaSqShaderStageFlagBitsAMD& value, ToStringFlags, uint32_t, uint32_t)
+{
+    switch (value) {
+    case VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD: return "VK_GPA_SQ_SHADER_STAGE_PS_BIT_AMD";
+    case VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD: return "VK_GPA_SQ_SHADER_STAGE_VS_BIT_AMD";
+    case VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD: return "VK_GPA_SQ_SHADER_STAGE_GS_BIT_AMD";
+    case VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD: return "VK_GPA_SQ_SHADER_STAGE_ES_BIT_AMD";
+    case VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD: return "VK_GPA_SQ_SHADER_STAGE_HS_BIT_AMD";
+    case VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD: return "VK_GPA_SQ_SHADER_STAGE_LS_BIT_AMD";
+    case VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD: return "VK_GPA_SQ_SHADER_STAGE_CS_BIT_AMD";
+    default: break;
+    }
+    return "Unhandled VkGpaSqShaderStageFlagBitsAMD";
+}
+
+template <> std::string ToString<VkGpaSqShaderStageFlagBitsAMD>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)
+{
+    return BitmaskToString<VkGpaSqShaderStageFlagBitsAMD>(vkFlags);
+}
+
 template <> std::string ToString<VkGraphicsPipelineLibraryFlagBitsEXT>(const VkGraphicsPipelineLibraryFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {

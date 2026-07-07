@@ -2409,6 +2409,34 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkAndroidHardwareBufferFormatProperties2ANDROID*>(pNext), 1, out_ptr);
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceGpaFeaturesAMD*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceGpaPropertiesAMD*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkPhysicalDeviceGpaProperties2AMD*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkGpaSampleBeginInfoAMD*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkGpaDeviceClockModeInfoAMD*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkGpaDeviceGetClockInfoAMD*>(pNext), 1, out_ptr);
+            break;
+        case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+            offset += vulkan_struct_deep_copy(
+                reinterpret_cast<const VkGpaSessionCreateInfoAMD*>(pNext), 1, out_ptr);
+            break;
         case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkAttachmentSampleCountInfoAMD*>(pNext), 1, out_ptr);

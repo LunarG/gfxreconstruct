@@ -857,6 +857,18 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_GET_LATENCY_MARKER_INFO_NV:
             EncodeStructPtr(encoder, reinterpret_cast<const VkGetLatencyMarkerInfoNV*>(base));
             break;
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkGpaDeviceClockModeInfoAMD*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkGpaDeviceGetClockInfoAMD*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkGpaSampleBeginInfoAMD*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkGpaSessionCreateInfoAMD*>(base));
+            break;
         case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO:
             EncodeStructPtr(encoder, reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(base));
             break;
@@ -1630,6 +1642,15 @@ void EncodePNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceGlobalPriorityQueryFeatures*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceGpaFeaturesAMD*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceGpaProperties2AMD*>(base));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+            EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceGpaPropertiesAMD*>(base));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT:
             EncodeStructPtr(encoder, reinterpret_cast<const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(base));

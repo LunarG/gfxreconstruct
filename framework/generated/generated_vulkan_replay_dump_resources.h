@@ -1360,6 +1360,42 @@ void Process_vkCmdInsertDebugUtilsLabelEXT(
     VkCommandBuffer                             commandBuffer,
     const VkDebugUtilsLabelEXT*                 pLabelInfo);
 
+void Process_vkCmdBeginGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBeginGpaSessionAMD                 func,
+    VkResult                                    returnValue,
+    VkCommandBuffer                             commandBuffer,
+    VkGpaSessionAMD                             gpaSession);
+
+void Process_vkCmdEndGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdEndGpaSessionAMD                   func,
+    VkResult                                    returnValue,
+    VkCommandBuffer                             commandBuffer,
+    VkGpaSessionAMD                             gpaSession);
+
+void Process_vkCmdBeginGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdBeginGpaSampleAMD                  func,
+    VkResult                                    returnValue,
+    VkCommandBuffer                             commandBuffer,
+    VkGpaSessionAMD                             gpaSession,
+    const VkGpaSampleBeginInfoAMD*              pGpaSampleBeginInfo,
+    uint32_t*                                   pSampleID);
+
+void Process_vkCmdEndGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdEndGpaSampleAMD                    func,
+    VkCommandBuffer                             commandBuffer,
+    VkGpaSessionAMD                             gpaSession,
+    uint32_t                                    sampleID);
+
+void Process_vkCmdCopyGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdCopyGpaSessionResultsAMD           func,
+    VkCommandBuffer                             commandBuffer,
+    VkGpaSessionAMD                             gpaSession);
+
 void Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetSampleLocationsEXT              func,

@@ -2788,6 +2788,42 @@ void CheckUnsupportedFeatures(VkPhysicalDevice physicalDevice,
                 }
                 break;
             }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            {
+                const VkPhysicalDeviceGpaFeaturesAMD* currentNext = reinterpret_cast<const VkPhysicalDeviceGpaFeaturesAMD*>(next);
+                VkPhysicalDeviceGpaFeaturesAMD query = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD, nullptr };
+                physicalDeviceFeatures2.pNext = &query;
+                GetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
+                if ((currentNext->perfCounters == VK_TRUE) && (query.perfCounters == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature perfCounters %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceGpaFeaturesAMD*>(currentNext)->perfCounters =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->streamingPerfCounters == VK_TRUE) && (query.streamingPerfCounters == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature streamingPerfCounters %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceGpaFeaturesAMD*>(currentNext)->streamingPerfCounters =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->sqThreadTracing == VK_TRUE) && (query.sqThreadTracing == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature sqThreadTracing %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceGpaFeaturesAMD*>(currentNext)->sqThreadTracing =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                if ((currentNext->clockModes == VK_TRUE) && (query.clockModes == VK_FALSE))
+                {
+                    GFXRECON_LOG_WARNING("Feature clockModes %s", warn_message);
+                    found_unsupported = true;
+                    const_cast<VkPhysicalDeviceGpaFeaturesAMD*>(currentNext)->clockModes =
+                        remove_unsupported ? VK_FALSE : VK_TRUE;
+                }
+                break;
+            }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT:
             {
                 const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT* currentNext = reinterpret_cast<const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(next);

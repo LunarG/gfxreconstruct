@@ -8320,6 +8320,209 @@ void VulkanReplayConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     PostProcessExternalObject(replay_result, (*pBuffer->GetPointer()), static_cast<void*>(*out_pBuffer), format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID, "vkGetMemoryAndroidHardwareBufferANDROID");
 }
 
+void VulkanReplayConsumer::Process_vkCreateGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaSessionCreateInfoAMD>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkGpaSessionAMD>*      pGpaSession)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    const VkGpaSessionCreateInfoAMD* in_pCreateInfo = pCreateInfo->GetPointer();
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    if (!pGpaSession->IsNull()) { pGpaSession->SetHandleLength(1); }
+    VkGpaSessionAMD* out_pGpaSession = pGpaSession->GetHandlePointer();
+
+    PushRecaptureHandleId(pGpaSession->GetPointer());
+    VkResult replay_result = GetDeviceTable(in_device)->CreateGpaSessionAMD(in_device, in_pCreateInfo, in_pAllocator, out_pGpaSession);
+    CheckResult("vkCreateGpaSessionAMD", returnValue, replay_result, call_info);
+    ClearRecaptureHandleIds();
+
+    AddHandle<VulkanGpaSessionAMDInfo>(device, pGpaSession->GetPointer(), out_pGpaSession, &CommonObjectInfoTable::AddVkGpaSessionAMDInfo);
+}
+
+void VulkanReplayConsumer::Process_vkDestroyGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    GetDeviceTable(in_device)->DestroyGpaSessionAMD(in_device, in_gpaSession, in_pAllocator);
+    RemoveHandle(gpaSession, &CommonObjectInfoTable::RemoveVkGpaSessionAMDInfo);
+}
+
+void VulkanReplayConsumer::Process_vkSetGpaDeviceClockModeAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaDeviceClockModeInfoAMD>* pInfo)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkGpaDeviceClockModeInfoAMD* out_pInfo = pInfo->IsNull() ? nullptr : pInfo->AllocateOutputData(1, { VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD, nullptr });
+    InitializeOutputStructPNext(pInfo);
+
+    VkResult replay_result = GetDeviceTable(in_device)->SetGpaDeviceClockModeAMD(in_device, out_pInfo);
+    CheckResult("vkSetGpaDeviceClockModeAMD", returnValue, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkGetGpaDeviceClockInfoAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGpaDeviceGetClockInfoAMD>* pInfo)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkGpaDeviceGetClockInfoAMD* out_pInfo = pInfo->IsNull() ? nullptr : pInfo->AllocateOutputData(1, { VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD, nullptr });
+    InitializeOutputStructPNext(pInfo);
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetGpaDeviceClockInfoAMD(in_device, out_pInfo);
+    CheckResult("vkGetGpaDeviceClockInfoAMD", returnValue, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkCmdBeginGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+
+    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdBeginGpaSessionAMD(in_commandBuffer, in_gpaSession);
+    CheckResult("vkCmdBeginGpaSessionAMD", returnValue, replay_result, call_info);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBeginGpaSessionAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginGpaSessionAMD, returnValue, in_commandBuffer, in_gpaSession);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdEndGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+
+    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdEndGpaSessionAMD(in_commandBuffer, in_gpaSession);
+    CheckResult("vkCmdEndGpaSessionAMD", returnValue, replay_result, call_info);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdEndGpaSessionAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdEndGpaSessionAMD, returnValue, in_commandBuffer, in_gpaSession);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdBeginGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    StructPointerDecoder<Decoded_VkGpaSampleBeginInfoAMD>* pGpaSampleBeginInfo,
+    PointerDecoder<uint32_t>*                   pSampleID)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+    const VkGpaSampleBeginInfoAMD* in_pGpaSampleBeginInfo = pGpaSampleBeginInfo->GetPointer();
+    MapStructHandles(pGpaSampleBeginInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    uint32_t* out_pSampleID = pSampleID->IsNull() ? nullptr : pSampleID->AllocateOutputData(1, static_cast<uint32_t>(0));
+
+    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdBeginGpaSampleAMD(in_commandBuffer, in_gpaSession, in_pGpaSampleBeginInfo, out_pSampleID);
+    CheckResult("vkCmdBeginGpaSampleAMD", returnValue, replay_result, call_info);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdBeginGpaSampleAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdBeginGpaSampleAMD, returnValue, in_commandBuffer, in_gpaSession, in_pGpaSampleBeginInfo, out_pSampleID);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkCmdEndGpaSampleAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession,
+    uint32_t                                    sampleID)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+
+    GetDeviceTable(in_commandBuffer)->CmdEndGpaSampleAMD(in_commandBuffer, in_gpaSession, sampleID);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdEndGpaSampleAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdEndGpaSampleAMD, in_commandBuffer, in_gpaSession, sampleID);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkGetGpaSessionStatusAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetGpaSessionStatusAMD(in_device, in_gpaSession);
+    CheckResult("vkGetGpaSessionStatusAMD", returnValue, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkGetGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession,
+    uint32_t                                    sampleID,
+    PointerDecoder<size_t>*                     pSizeInBytes,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+    size_t* out_pSizeInBytes = pSizeInBytes->IsNull() ? nullptr : pSizeInBytes->AllocateOutputData(1, GetOutputArrayCount<size_t, VulkanGpaSessionAMDInfo>("vkGetGpaSessionResultsAMD", returnValue, gpaSession, kGpaSessionAMDArrayGetGpaSessionResultsAMD, pSizeInBytes, pData, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo));
+    void* out_pData = pData->IsNull() ? nullptr : pData->AllocateOutputData(*out_pSizeInBytes);
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetGpaSessionResultsAMD(in_device, in_gpaSession, sampleID, out_pSizeInBytes, out_pData);
+    CheckResult("vkGetGpaSessionResultsAMD", returnValue, replay_result, call_info);
+
+    if (pData->IsNull()) { SetOutputArrayCount<VulkanGpaSessionAMDInfo>(gpaSession, kGpaSessionAMDArrayGetGpaSessionResultsAMD, *out_pSizeInBytes, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo); }
+}
+
+void VulkanReplayConsumer::Process_vkResetGpaSessionAMD(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            gpaSession)
+{
+    VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+
+    VkResult replay_result = GetDeviceTable(in_device)->ResetGpaSessionAMD(in_device, in_gpaSession);
+    CheckResult("vkResetGpaSessionAMD", returnValue, replay_result, call_info);
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyGpaSessionResultsAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    format::HandleId                            gpaSession)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<VulkanCommandBufferInfo>(commandBuffer, &CommonObjectInfoTable::GetVkCommandBufferInfo);
+    VkGpaSessionAMD in_gpaSession = MapHandle<VulkanGpaSessionAMDInfo>(gpaSession, &CommonObjectInfoTable::GetVkGpaSessionAMDInfo);
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyGpaSessionResultsAMD(in_commandBuffer, in_gpaSession);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper_->Process_vkCmdCopyGpaSessionResultsAMD(call_info, GetDeviceTable(in_commandBuffer)->CmdCopyGpaSessionResultsAMD, in_commandBuffer, in_gpaSession);
+    }
+}
+
 void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -15812,6 +16015,41 @@ void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOu
             case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID:
             {
                 output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkAndroidHardwareBufferFormatProperties2ANDROID>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_FEATURES_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceGpaFeaturesAMD>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceGpaPropertiesAMD>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GPA_PROPERTIES_2_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkPhysicalDeviceGpaProperties2AMD>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_GPA_SAMPLE_BEGIN_INFO_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaSampleBeginInfoAMD>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_GPA_DEVICE_CLOCK_MODE_INFO_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaDeviceClockModeInfoAMD>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_GPA_DEVICE_GET_CLOCK_INFO_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaDeviceGetClockInfoAMD>());
+                break;
+            }
+            case VK_STRUCTURE_TYPE_GPA_SESSION_CREATE_INFO_AMD:
+            {
+                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<VkGpaSessionCreateInfoAMD>());
                 break;
             }
             case VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD:

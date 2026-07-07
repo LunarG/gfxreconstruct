@@ -1520,6 +1520,24 @@ std::string GenerateStruct_VkExternalFormatANDROID(std::ostream &out, const VkEx
 
 std::string GenerateStruct_VkMemoryGetAndroidHardwareBufferInfoANDROID(std::ostream &out, const VkMemoryGetAndroidHardwareBufferInfoANDROID* structInfo, Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkGpaDeviceClockModeInfoAMD(std::ostream &out, const VkGpaDeviceClockModeInfoAMD* structInfo, Decoded_VkGpaDeviceClockModeInfoAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkGpaDeviceGetClockInfoAMD(std::ostream &out, const VkGpaDeviceGetClockInfoAMD* structInfo, Decoded_VkGpaDeviceGetClockInfoAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkGpaPerfBlockPropertiesAMD(std::ostream &out, const VkGpaPerfBlockPropertiesAMD* structInfo, Decoded_VkGpaPerfBlockPropertiesAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkGpaPerfCounterAMD(std::ostream &out, const VkGpaPerfCounterAMD* structInfo, Decoded_VkGpaPerfCounterAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkGpaSampleBeginInfoAMD(std::ostream &out, const VkGpaSampleBeginInfoAMD* structInfo, Decoded_VkGpaSampleBeginInfoAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkGpaSessionCreateInfoAMD(std::ostream &out, const VkGpaSessionCreateInfoAMD* structInfo, Decoded_VkGpaSessionCreateInfoAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceGpaFeaturesAMD(std::ostream &out, const VkPhysicalDeviceGpaFeaturesAMD* structInfo, Decoded_VkPhysicalDeviceGpaFeaturesAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceGpaProperties2AMD(std::ostream &out, const VkPhysicalDeviceGpaProperties2AMD* structInfo, Decoded_VkPhysicalDeviceGpaProperties2AMD* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkPhysicalDeviceGpaPropertiesAMD(std::ostream &out, const VkPhysicalDeviceGpaPropertiesAMD* structInfo, Decoded_VkPhysicalDeviceGpaPropertiesAMD* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkAttachmentSampleCountInfoAMD(std::ostream &out, const VkAttachmentSampleCountInfoAMD* structInfo, Decoded_VkAttachmentSampleCountInfoAMD* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkAttachmentSampleLocationsEXT(std::ostream &out, const VkAttachmentSampleLocationsEXT* structInfo, Decoded_VkAttachmentSampleLocationsEXT* metaInfo, VulkanCppConsumerBase &consumer);
