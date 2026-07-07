@@ -77,22 +77,18 @@ void HashingManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory, s
         last_segment_size = block_size_;
     }
 
-    HashVector           hashes(total_pages);
-    const uint8_t* const base       = reinterpret_cast<const uint8_t*>(mapped_memory);
-    const size_t         full_pages = total_pages - 1; // all but the (possibly partial) last page
-
-    XXH128_hash_t* const hash_data = hashes.data();
-    ForEachPage(full_pages, [hash_data, base](size_t page) {
-        hash_data[page] = XXH3_128bits(base + page * block_size_, block_size_);
-    });
-
-    // The last page may be a partial block, so hash it on the calling thread.
-    hashes[full_pages] = XXH3_128bits(base + full_pages * block_size_, last_segment_size);
-
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
-    memory_info_.emplace(std::piecewise_construct,
-                         std::forward_as_tuple(memory_id),
-                         std::forward_as_tuple(mapped_memory, total_pages, last_segment_size, std::move(hashes)));
+    auto                        new_entry = memory_info_.emplace(std::piecewise_construct,
+                                          std::forward_as_tuple(memory_id),
+                                          std::forward_as_tuple(mapped_memory, total_pages, last_segment_size));
+    GFXRECON_ASSERT(new_entry.second);
+    MemoryInfo& new_memory_info = new_entry.first->second;
+
+    XXH128_hash_t* const hash_data = new_memory_info.hashes.data();
+    const uint8_t* const base      = reinterpret_cast<const uint8_t*>(mapped_memory);
+    ForEachPage(new_memory_info, [hash_data, base](size_t page, size_t block_size) {
+        hash_data[page] = XXH3_128bits(base + page * block_size, block_size);
+    });
 }
 
 void HashingManager::RemoveTrackedMemory(uint64_t memory_id)
@@ -131,29 +127,19 @@ void HashingManager::ProcessEntry(MemoryInfoEntry memory_entry, const ModifiedMe
 {
     MemoryInfo& memory_info = memory_entry->second;
 
-    const uint8_t* const base       = reinterpret_cast<const uint8_t*>(memory_info.mapped_memory);
-    const size_t         full_pages = memory_info.total_pages - 1; // all but the (possibly partial) last page
-
     std::fill(memory_info.pages_status.begin(), memory_info.pages_status.end(), 0);
 
     XXH128_hash_t* const hash_data = memory_info.hashes.data();
+    const uint8_t* const base      = reinterpret_cast<const uint8_t*>(memory_info.mapped_memory);
     PagesStatus&         status    = memory_info.pages_status;
-    ForEachPage(full_pages, [hash_data, base, &status](size_t page) {
-        const XXH128_hash_t hash = XXH3_128bits(base + page * block_size_, block_size_);
+    ForEachPage(memory_info, [hash_data, base, &status](size_t page, size_t block_size) {
+        const XXH128_hash_t hash = XXH3_128bits(base + page * block_size, block_size);
         if (!XXH128_isEqual(hash_data[page], hash))
         {
             hash_data[page] = hash;
             status[page]    = 1;
         }
     });
-
-    // The parallel loop above only covers full pages; handle the (possibly partial) last page.
-    const XXH128_hash_t hash = XXH3_128bits(base + full_pages * block_size_, memory_info.last_segment_size);
-    if (!XXH128_isEqual(hash_data[full_pages], hash))
-    {
-        hash_data[full_pages] = hash;
-        status[full_pages]    = 1;
-    }
 
     bool   active_range = false;
     size_t start_index  = 0;

@@ -76,8 +76,8 @@ class HashingManager
 
     struct MemoryInfo
     {
-        MemoryInfo(const void* mm, size_t tp, size_t lss, HashVector&& h) :
-            mapped_memory(mm), total_pages(tp), last_segment_size(lss), pages_status(tp), hashes(std::move(h))
+        MemoryInfo(const void* mm, size_t tp, size_t lss) :
+            mapped_memory(mm), total_pages(tp), last_segment_size(lss), pages_status(tp), hashes(tp)
         {}
 
         // Pointer to mapped memory to be tracked.
@@ -110,35 +110,50 @@ class HashingManager
     // the range is large enough to be worth the dispatch overhead.  `fn` is invoked concurrently on disjoint
     // indices, so it must only touch per-index state.
     template <typename PerPageFn>
-    void ForEachPage(size_t page_count, PerPageFn&& fn)
+    void ForEachPage(const MemoryInfo& memory_info, PerPageFn&& fn)
     {
+        const size_t full_pages =
+            memory_info.last_segment_size == block_size_ ? memory_info.total_pages : memory_info.total_pages - 1;
+
         // Below a threshold (or with no worker threads) the dispatch overhead outweighs the win.
-        if (page_count < kMinPagesForThreading || thread_pool_.numthreads() == 0)
+        if (full_pages < kMinPagesForThreading || thread_pool_.numthreads() == 0)
         {
-            for (size_t i = 0; i < page_count; ++i)
+            for (size_t i = 0; i < full_pages; ++i)
             {
-                fn(i);
+                fn(i, block_size_);
+            }
+
+            // Hash last separately if it is smaller than the block size
+            if (full_pages == memory_info.total_pages - 1)
+            {
+                fn(full_pages, memory_info.last_segment_size);
             }
             return;
         }
 
         const size_t num_tasks  = thread_pool_.numthreads();
-        const size_t pages_each = (page_count + num_tasks - 1) / num_tasks; // ceil-divide
+        const size_t pages_each = (full_pages + num_tasks - 1) / num_tasks; // ceil-divide
 
         std::vector<std::future<void>> futures;
         futures.reserve(num_tasks);
 
-        for (size_t begin = 0; begin < page_count; begin += pages_each)
+        for (size_t begin = 0; begin < full_pages; begin += pages_each)
         {
-            const size_t end = std::min(begin + pages_each, page_count);
+            const size_t end = std::min(begin + pages_each, full_pages);
 
             // Each task processes a disjoint [begin, end) slice, so `fn` needs no internal locking.
             futures.emplace_back(thread_pool_.post([&fn, begin, end]() {
                 for (size_t i = begin; i < end; ++i)
                 {
-                    fn(i);
+                    fn(i, block_size_);
                 }
             }));
+        }
+
+        // Hash the last page
+        if (full_pages == memory_info.total_pages - 1)
+        {
+            fn(full_pages, memory_info.last_segment_size);
         }
 
         for (auto& future : futures)
