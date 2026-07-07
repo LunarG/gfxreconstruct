@@ -64,8 +64,8 @@ const char kFileFormatOnlyOption[] = "--file-format-only";
 const char kVerboseOption[]        = "--verbose";
 const char kOutputFileArgument[]   = "--output";
 
-const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,--"
-                          "enum-gpu-indices,--verbose";
+const char kOptions[]   = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--file-format-only,"
+                          "--verbose";
 const char kArguments[] = "--output,--log-level";
 
 #if defined(D3D12_SUPPORT)
@@ -759,7 +759,7 @@ int main(int argc, const char** argv)
     std::string options   = kOptions;
 
 #if defined(D3D12_SUPPORT)
-    options += " ";
+    options += ",";
     options += kEnumGpuIndices;
 #endif
 
