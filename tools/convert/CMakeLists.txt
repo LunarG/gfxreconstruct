@@ -28,6 +28,7 @@ add_executable(gfxrecon-convert "")
 target_sources(gfxrecon-convert
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
+                   ${CMAKE_CURRENT_LIST_DIR}/../tool_command_line.h
                     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/convert_feature.h
                     ${CMAKE_CURRENT_LIST_DIR}/convert_d3d12_feature.cpp

@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2018-2026 LunarG, Inc.
 ** Copyright (c) 2020 Advanced Micro Devices, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -25,6 +25,7 @@
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 #include "tool_settings.h"
+#include "tool_command_line.h"
 
 #include "decode/json_writer.h" /// @todo move to util?
 #include "decode/decode_api_detection.h"
@@ -42,12 +43,7 @@ const char kArguments[] = "--output,--format,--log-level,--frame-range";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
+    std::string app_name = GetApplicationName(exe_name);
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert the contents of GFXReconstruct capture files to JSON.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");

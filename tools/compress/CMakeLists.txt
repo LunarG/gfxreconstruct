@@ -34,6 +34,7 @@ target_sources(gfxrecon-compress
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/../platform_debug_helper.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/../tool_command_line.h
                    $<$<BOOL:WIN32>:${PROJECT_SOURCE_DIR}/version.rc>
                    $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
 )
@@ -48,7 +49,10 @@ if (MSVC)
     endif()
 endif()
 
-target_include_directories(gfxrecon-compress PUBLIC ${CMAKE_BINARY_DIR})
+target_include_directories(gfxrecon-compress
+                           PUBLIC
+                              ${CMAKE_CURRENT_LIST_DIR}/..
+                              ${CMAKE_BINARY_DIR})
 
 target_link_libraries(gfxrecon-compress gfxrecon_decode gfxrecon_graphics gfxrecon_format gfxrecon_util platform_specific project_version)
 

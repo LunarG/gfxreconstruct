@@ -46,6 +46,7 @@
 
 #include "info_feature.h"
 #include "tool_settings.h"
+#include "tool_command_line.h"
 
 #include <cassert>
 #include <cstdarg>
@@ -187,6 +188,7 @@ static void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
+    app_name = GFXRECON_APP_NAME_PREFIX + app_name;
     WriteOutput("\n%s - Print statistics for a GFXReconstruct capture file.\n", app_name.c_str());
     WriteOutput("Usage:");
     WriteOutput("  %s [-h | --help] [--version] [--exe-info-only] [--verbose] [--output <file>] <capture-file>\n",
@@ -741,9 +743,6 @@ int main(int argc, const char** argv)
 {
     gfxrecon::util::Log::Init();
 
-    // Save the app name first
-    const std::string app_name = std::filesystem::path{ argv[0] }.filename().string();
-
     // Query the module registry for registered modules, and
     // call each generator here and put the unique_ptr into our
     // internal unique_ptr vector.
@@ -765,15 +764,14 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
-    if (CheckOptionPrintUsage(app_name.c_str(), arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser))
     {
         gfxrecon::util::Log::Release();
         exit(0);
     }
     else if (arg_parser.IsOptionSet(kVersionOption))
     {
-        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
+        PrintVersionHeader(argv[0]);
         for (auto& feature : g_info_features)
         {
             GFXRECON_WRITE_CONSOLE(feature->CompiledHeaderVersionString().c_str());
@@ -784,7 +782,7 @@ int main(int argc, const char** argv)
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
-        PrintUsage(app_name.c_str());
+        PrintUsage(argv[0]);
         gfxrecon::util::Log::Release();
         exit(-1);
     }

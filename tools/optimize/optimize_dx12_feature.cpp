@@ -25,8 +25,6 @@
 
 #include "optimize_dx12_feature.h"
 
-// Disable the usage static prototype
-#define GFXR_TOOL_SETTINGS_NO_USAGE
 #include "tool_settings.h"
 
 #include "dx12_optimize_util.h"

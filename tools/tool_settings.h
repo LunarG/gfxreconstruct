@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019-2025 LunarG, Inc.
+** Copyright (c) 2019-2026 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -68,9 +68,6 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
-const char kHelpShortOption[]                    = "-h";
-const char kHelpLongOption[]                     = "--help";
-const char kVersionOption[]                      = "--version";
 const char kLogLevelArgument[]                   = "--log-level";
 const char kLogTimestampsOption[]                = "--log-timestamps";
 const char kDebugMessageSeverityArgument[]       = "--debug-messenger-level";
@@ -1475,53 +1472,5 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     return replay_options;
 }
 #endif
-
-// Only provide the usage functions if a define is not present
-#if !defined(GFXR_TOOL_SETTINGS_NO_USAGE)
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kVersionOption))
-    {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
-        {
-            app_name.replace(0, dir_location + 1, "");
-        }
-
-        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
-                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-#if ENABLE_OPENXR_SUPPORT
-        GFXRECON_WRITE_CONSOLE("  OpenXR Header Version %u.%u.%u",
-                               XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
-                               XR_VERSION_MINOR(XR_CURRENT_API_VERSION),
-                               XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
-#endif
-
-        return true;
-    }
-
-    return false;
-}
-
-static void PrintUsage(const char* exe_name);
-
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
-}
-#endif // GFXR_TOOL_SETTINGS_NO_USAGE
 
 #endif // GFXRECON_PLATFORM_SETTINGS_H

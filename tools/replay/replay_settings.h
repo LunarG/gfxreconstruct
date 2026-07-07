@@ -21,7 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "../tool_settings.h"
+#include "tool_settings.h"
+#include "tool_command_line.h"
 
 #ifndef GFXRECON_REPLAY_SETTINGS_H
 #define GFXRECON_REPLAY_SETTINGS_H
@@ -51,13 +52,7 @@ const char kArguments[] =
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
+    std::string app_name = GetApplicationName(exe_name);
 
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");

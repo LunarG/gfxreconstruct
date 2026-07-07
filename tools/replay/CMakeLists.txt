@@ -31,6 +31,7 @@ add_executable(gfxrecon-replay "")
 target_sources(gfxrecon-replay
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/../tool_settings.h
+                    ${CMAKE_CURRENT_LIST_DIR}/../tool_command_line.h
                     ${CMAKE_CURRENT_LIST_DIR}/replay_settings.h
                     ${CMAKE_CURRENT_LIST_DIR}/replay_feature.h
                     ${CMAKE_CURRENT_LIST_DIR}/replay_main_common.h
@@ -51,7 +52,10 @@ target_sources(gfxrecon-replay
                     $<$<BOOL:WIN32>:${GFXRECON_WIN_MANIFEST}>
 )
 
-target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})
+target_include_directories(gfxrecon-replay
+                           PUBLIC
+                              ${CMAKE_CURRENT_LIST_DIR}/..
+                              ${CMAKE_BINARY_DIR})
 
 target_link_libraries(gfxrecon-replay
                           gfxrecon_application

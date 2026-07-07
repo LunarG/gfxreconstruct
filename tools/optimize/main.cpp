@@ -25,6 +25,7 @@
 
 #include "optimize_feature.h"
 #include "tool_settings.h"
+#include "tool_command_line.h"
 
 #include "decode/decode_api_detection.h"
 #include "decode/file_processor.h"
@@ -56,12 +57,7 @@ static std::vector<std::unique_ptr<gfxrecon::optimize::OptimizeFeature>> g_optim
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
+    std::string app_name = GetApplicationName(exe_name);
 
     // Build synopsis from feature fragments so it stays in sync automatically.
     std::string synopsis = app_name + " [-h | --help] [--version]";

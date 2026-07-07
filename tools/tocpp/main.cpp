@@ -20,6 +20,7 @@
 #include <util/date_time.h>
 
 #include PROJECT_VERSION_HEADER_FILE
+#include "tool_command_line.h"
 
 #include "decode/file_processor.h"
 #include "decode/vulkan_cpp_utilities.h"
@@ -29,8 +30,6 @@
 #include "util/argument_parser.h"
 #include "util/file_path.h"
 #include "util/logging.h"
-
-#include "vulkan/vulkan_core.h"
 
 struct CommandLineArgument
 {
@@ -121,41 +120,9 @@ const std::string path_vulkanmain = "app/src/main/jni/";
 // Directory structure where the image data will be generated in the output directory.
 const std::string path_assets = "app/src/main/assets/";
 
-static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    // We can just check for the short option because the argument parser will assign even
-    // the long option to either one for easier detecting.
-    if (arg_parser.IsOptionSet(g_version_argument.short_option))
-    {
-        std::string app_name     = exe_name;
-        size_t      dir_location = app_name.find_last_of("/\\");
-
-        if (dir_location >= 0)
-        {
-            app_name.replace(0, dir_location + 1, "");
-        }
-
-        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
-        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GetProjectVersionString());
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
-                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
-                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-
-        return true;
-    }
-
-    return false;
-}
-
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
+    std::string app_name = GetApplicationName(exe_name);
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to Vulkan source.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
@@ -189,19 +156,6 @@ static void PrintUsage(const char* exe_name)
                                    argument.restrictions);
         }
     }
-}
-
-static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
-{
-    // We can just check for the short option because the argument parser will assign even
-    // the long option to either one for easier detecting.
-    if (arg_parser.IsOptionSet(g_help_argument.short_option))
-    {
-        PrintUsage(exe_name);
-        return true;
-    }
-
-    return false;
 }
 
 static gfxrecon::decode::GfxToCppPlatform GetCppTargetPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
