@@ -276,6 +276,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain_format.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_temporary_objects.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.cpp

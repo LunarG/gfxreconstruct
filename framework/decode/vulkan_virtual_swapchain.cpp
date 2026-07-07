@@ -27,6 +27,7 @@
 #include "util/callbacks.h"
 #include "graphics/vulkan_resources_util.h"
 #include "decode/vulkan_swapchain_format.h"
+#include "decode/vulkan_temporary_objects.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan/vulkan_core.h"
 #include <sstream>
@@ -1158,47 +1159,14 @@ void VulkanVirtualSwapchain::ProcessSetSwapchainImageStateCommand(
 
     GFXRECON_ASSERT(device_table_ != nullptr);
 
-    VkDevice device             = device_info->handle;
     uint32_t queue_family_index = swapchain_info->queue_family_indices[0];
-
-    VkQueue transition_queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
-    if (transition_queue == VK_NULL_HANDLE)
-    {
-        GFXRECON_LOG_WARNING("Failed image layout restore for VkSwapchainKHR object (ID = %" PRIu64
-                             "), could not get device queue %u",
-                             swapchain_info->capture_id,
-                             queue_family_index);
-        return;
-    }
 
     // trim-state setup has already run, so mark as injected from here
     util::MarkInjectedCommandsHelper mark_injected_commands_helper;
 
-    VkCommandPool   transition_pool    = VK_NULL_HANDLE;
-    VkCommandBuffer transition_command = VK_NULL_HANDLE;
+    TemporaryCommandBuffer transition_command_buffer(*device_info, *device_table_);
 
-    VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-    pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-    pool_create_info.queueFamilyIndex        = queue_family_index;
-
-    VkResult result = device_table_->CreateCommandPool(device, &pool_create_info, nullptr, &transition_pool);
-
-    if (result == VK_SUCCESS)
-    {
-        VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
-        allocate_info.commandPool                 = transition_pool;
-        allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocate_info.commandBufferCount          = 1;
-
-        result = device_table_->AllocateCommandBuffers(device, &allocate_info, &transition_command);
-    }
-
-    if (result == VK_SUCCESS)
-    {
-        VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-        begin_info.flags                    = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        result                              = device_table_->BeginCommandBuffer(transition_command, &begin_info);
-    }
+    VkResult result = transition_command_buffer.CreateAndBegin(queue_family_index);
 
     if (result == VK_SUCCESS)
     {
@@ -1237,7 +1205,7 @@ void VulkanVirtualSwapchain::ProcessSetSwapchainImageStateCommand(
             image_barrier.image                       = image_info->handle;
             image_barrier.subresourceRange.aspectMask = graphics::GetFormatAspects(image_info->format);
 
-            device_table_->CmdPipelineBarrier(transition_command,
+            device_table_->CmdPipelineBarrier(transition_command_buffer.command_buffer,
                                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                               VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                                               0,
@@ -1249,19 +1217,10 @@ void VulkanVirtualSwapchain::ProcessSetSwapchainImageStateCommand(
                                               &image_barrier);
             ++barrier_count;
         }
-        result = device_table_->EndCommandBuffer(transition_command);
 
-        if (result == VK_SUCCESS && barrier_count > 0)
+        if (barrier_count > 0)
         {
-            VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-            submit_info.commandBufferCount = 1;
-            submit_info.pCommandBuffers    = &transition_command;
-            result = device_table_->QueueSubmit(transition_queue, 1, &submit_info, VK_NULL_HANDLE);
-
-            if (result == VK_SUCCESS)
-            {
-                result = device_table_->QueueWaitIdle(transition_queue);
-            }
+            result = transition_command_buffer.SubmitAndDestroy();
         }
     }
 
@@ -1269,11 +1228,6 @@ void VulkanVirtualSwapchain::ProcessSetSwapchainImageStateCommand(
     {
         GFXRECON_LOG_WARNING("Failed image layout restore for VkSwapchainKHR object (ID = %" PRIu64 ")",
                              swapchain_info->capture_id);
-    }
-
-    if (transition_pool != VK_NULL_HANDLE)
-    {
-        device_table_->DestroyCommandPool(device, transition_pool, nullptr);
     }
 }
 
