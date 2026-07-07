@@ -2532,6 +2532,7 @@ VkResult VulkanRebindAllocator::VmaAllocateMemory(MemoryAllocInfo&            me
                                              dedicated_buffer,
                                              dedicated_image,
                                              VmaBufferImageUsage::UNKNOWN,
+                                             nullptr,
                                              create_info,
                                              suballoc_type,
                                              1,
