@@ -758,11 +758,6 @@ int main(int argc, const char** argv)
     std::string arguments = kArguments;
     std::string options   = kOptions;
 
-#if defined(D3D12_SUPPORT)
-    options += " ";
-    options += kEnumGpuIndices;
-#endif
-
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, options, arguments);
 
     if (CheckOptionPrintUsage(app_name.c_str(), arg_parser))
