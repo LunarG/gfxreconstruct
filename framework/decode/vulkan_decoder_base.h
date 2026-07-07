@@ -69,6 +69,14 @@ class VulkanDecoderBase : public ApiDecoder
         }
     }
 
+    virtual void OnFrameBegin() override
+    {
+        for (auto consumer : consumers_)
+        {
+            consumer->OnFrameBegin();
+        }
+    }
+
     virtual bool IsComplete(uint64_t block_index) override
     {
         return decode::IsComplete<VulkanConsumer*>(consumers_, block_index);

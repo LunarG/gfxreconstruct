@@ -34,9 +34,12 @@ BreakConstructorInitializers: AfterColon
 #BreakInheritanceList: BeforeColon
 Cpp11BracedListStyle: false
 ColumnLimit: 120
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 IndentCaseLabels: true
 IndentWidth: 4
+PackConstructorInitializers: NextLine
 PointerAlignment: Left
+PenaltyReturnTypeOnItsOwnLine: 1000
 ReflowComments: true
 SortIncludes: false
 SpaceAfterTemplateKeyword: true

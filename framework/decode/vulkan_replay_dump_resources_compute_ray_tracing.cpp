@@ -553,7 +553,8 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const VulkanImageInfo* s
     const auto img_layout_entry = original_command_buffer_info_->image_layout_barriers.find(src_image_info->capture_id);
     if (img_layout_entry != original_command_buffer_info_->image_layout_barriers.end())
     {
-        old_layout = img_layout_entry->second;
+        old_layout =
+            img_layout_entry->second.empty() ? VK_IMAGE_LAYOUT_GENERAL : img_layout_entry->second.back().layout;
     }
     else
     {

@@ -125,13 +125,27 @@ bool FileProcessor::Initialize(const std::string& filename)
     return success;
 }
 
+void FileProcessor::OnFrameBegin()
+{
+    for (auto decoder : decoders_)
+    {
+        decoder->OnFrameBegin();
+    }
+}
+
 bool FileProcessor::ProcessNextFrame()
 {
+    bool success = false;
     if (AsyncProcessingEnabled())
     {
-        return ProcessNextFrameAsync();
+        success = ProcessNextFrameAsync();
     }
-    return ProcessNextFrameSync();
+    else
+    {
+        success = ProcessNextFrameSync();
+    }
+
+    return success;
 }
 
 bool FileProcessor::ProcessNextFrameAsync()

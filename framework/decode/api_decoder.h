@@ -66,6 +66,8 @@ class ApiDecoder
 
     virtual void OnLoopStart() {}
 
+    virtual void OnFrameBegin() {}
+
     virtual bool IsComplete(uint64_t block_index) = 0;
 
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;

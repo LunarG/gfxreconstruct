@@ -255,6 +255,8 @@ bool Application::PlaySingleFrame()
 
     if (file_processor_)
     {
+        file_processor_->OnFrameBegin();
+
         if (replay_event_sink_)
         {
             // Replay event plugin uses a 0-based frame index.

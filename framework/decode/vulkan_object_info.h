@@ -242,11 +242,15 @@ struct VulkanPoolObjectInfo : public VulkanObjectInfo<T>
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkEvent>                              VulkanEventInfo;
-typedef VulkanObjectInfo<VkQueryPool>                          VulkanQueryPoolInfo;
-typedef VulkanObjectInfo<VkPrivateDataSlot>                    VulkanPrivateDataSlotInfo;
-typedef VulkanObjectInfo<VkSampler>                            VulkanSamplerInfo;
-typedef VulkanPoolInfo<VkCommandPool>                          VulkanCommandPoolInfo;
+typedef VulkanObjectInfo<VkEvent>           VulkanEventInfo;
+typedef VulkanObjectInfo<VkQueryPool>       VulkanQueryPoolInfo;
+typedef VulkanObjectInfo<VkPrivateDataSlot> VulkanPrivateDataSlotInfo;
+typedef VulkanObjectInfo<VkSampler>         VulkanSamplerInfo;
+struct VulkanCommandPoolInfo : public VulkanPoolInfo<VkCommandPool>
+{
+    VkCommandPoolCreateFlags flags              = 0;
+    uint32_t                 queue_family_index = 0;
+};
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>             VulkanSamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                     VulkanDisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>             VulkanDebugReportCallbackEXTInfo;
@@ -441,6 +445,213 @@ struct VulkanBufferViewInfo : public VulkanObjectInfo<VkBufferView>
     VkDeviceSize     range{ 0 };
 };
 
+class ImageSubresourceLayoutTracker
+{
+  public:
+    ImageSubresourceLayoutTracker() = default;
+
+    void Initialize(uint32_t mip_levels, uint32_t array_layers, VkImageAspectFlags aspects)
+    {
+        mip_levels_     = mip_levels;
+        array_layers_   = array_layers;
+        aspects_        = aspects;
+        is_uniform_     = true;
+        uniform_layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
+        subresource_layouts_.clear();
+    }
+
+    void SetLayout(const VkImageSubresourceRange& range, VkImageLayout layout)
+    {
+        if (is_uniform_)
+        {
+            if (range.baseMipLevel == 0 && range.levelCount == mip_levels_ && range.baseArrayLayer == 0 &&
+                range.layerCount == array_layers_ && range.aspectMask == aspects_)
+            {
+                uniform_layout_ = layout;
+                return;
+            }
+            else
+            {
+                // Expanding to per-subresource tracking
+                ExpandUniform();
+            }
+        }
+
+        uint32_t level_count = range.levelCount;
+        if (level_count == VK_REMAINING_MIP_LEVELS)
+        {
+            level_count = (mip_levels_ > range.baseMipLevel) ? (mip_levels_ - range.baseMipLevel) : 0;
+        }
+        uint32_t layer_count = range.layerCount;
+        if (layer_count == VK_REMAINING_ARRAY_LAYERS)
+        {
+            layer_count = (array_layers_ > range.baseArrayLayer) ? (array_layers_ - range.baseArrayLayer) : 0;
+        }
+
+        // Clamp just in case the app passes levelCount/layerCount out of bounds and we don't want to OOM
+        if (range.baseMipLevel + level_count > mip_levels_)
+        {
+            level_count = (mip_levels_ > range.baseMipLevel) ? (mip_levels_ - range.baseMipLevel) : 0;
+        }
+        if (range.baseArrayLayer + layer_count > array_layers_)
+        {
+            layer_count = (array_layers_ > range.baseArrayLayer) ? (array_layers_ - range.baseArrayLayer) : 0;
+        }
+
+        for (uint32_t aspect_bit = 1; aspect_bit <= 0x80; aspect_bit <<= 1)
+        {
+            if (range.aspectMask & aspect_bit)
+            {
+                for (uint32_t mip = range.baseMipLevel; mip < range.baseMipLevel + level_count; ++mip)
+                {
+                    for (uint32_t layer = range.baseArrayLayer; layer < range.baseArrayLayer + layer_count; ++layer)
+                    {
+                        subresource_layouts_[GetSubresourceIndex(aspect_bit, mip, layer)] = layout;
+                    }
+                }
+            }
+        }
+    }
+
+    void SetUniformLayout(VkImageLayout layout)
+    {
+        is_uniform_     = true;
+        uniform_layout_ = layout;
+        subresource_layouts_.clear();
+    }
+
+    VkImageLayout GetLayout(VkImageAspectFlags aspect, uint32_t mip_level, uint32_t array_layer) const
+    {
+        if (is_uniform_)
+        {
+            return uniform_layout_;
+        }
+
+        for (uint32_t aspect_bit = 1; aspect_bit <= 0x80; aspect_bit <<= 1)
+        {
+            if (aspect & aspect_bit)
+            {
+                auto it = subresource_layouts_.find(GetSubresourceIndex(aspect_bit, mip_level, array_layer));
+                if (it != subresource_layouts_.end())
+                {
+                    return it->second;
+                }
+            }
+        }
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    }
+
+    struct SubresourceLayout
+    {
+        VkImageSubresourceRange range;
+        VkImageLayout           layout;
+    };
+
+    std::vector<SubresourceLayout> GetSubresourceLayouts() const
+    {
+        std::vector<SubresourceLayout> res;
+        if (is_uniform_)
+        {
+            VkImageSubresourceRange range = {};
+            range.aspectMask              = aspects_;
+            range.baseMipLevel            = 0;
+            range.levelCount              = mip_levels_;
+            range.baseArrayLayer          = 0;
+            range.layerCount              = array_layers_;
+            res.push_back({ range, uniform_layout_ });
+        }
+        else
+        {
+            for (const auto& entry : subresource_layouts_)
+            {
+                uint32_t idx          = entry.first;
+                uint32_t layer        = idx % array_layers_;
+                uint32_t mip          = (idx / array_layers_) % mip_levels_;
+                uint32_t aspect_index = (idx / array_layers_) / mip_levels_;
+
+                VkImageAspectFlags aspect = GetAspectFromIndex(aspect_index);
+
+                VkImageSubresourceRange range = {};
+                range.aspectMask              = aspect;
+                range.baseMipLevel            = mip;
+                range.levelCount              = 1;
+                range.baseArrayLayer          = layer;
+                range.layerCount              = 1;
+
+                res.push_back({ range, entry.second });
+            }
+        }
+        return res;
+    }
+
+  private:
+    uint32_t           mip_levels_{ 1 };
+    uint32_t           array_layers_{ 1 };
+    VkImageAspectFlags aspects_{ 0 };
+
+    bool                                        is_uniform_{ true };
+    VkImageLayout                               uniform_layout_{ VK_IMAGE_LAYOUT_UNDEFINED };
+    std::unordered_map<uint32_t, VkImageLayout> subresource_layouts_;
+
+    uint32_t GetAspectIndex(VkImageAspectFlags aspect) const
+    {
+        if (aspect == VK_IMAGE_ASPECT_COLOR_BIT)
+            return 0;
+        if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+            return 1;
+        if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+            return 2;
+        if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
+            return 3;
+        if (aspect == VK_IMAGE_ASPECT_PLANE_1_BIT)
+            return 4;
+        if (aspect == VK_IMAGE_ASPECT_PLANE_2_BIT)
+            return 5;
+        return 6;
+    }
+
+    VkImageAspectFlags GetAspectFromIndex(uint32_t index) const
+    {
+        if (index == 0)
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+        if (index == 1)
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
+        if (index == 2)
+            return VK_IMAGE_ASPECT_STENCIL_BIT;
+        if (index == 3)
+            return VK_IMAGE_ASPECT_PLANE_0_BIT;
+        if (index == 4)
+            return VK_IMAGE_ASPECT_PLANE_1_BIT;
+        if (index == 5)
+            return VK_IMAGE_ASPECT_PLANE_2_BIT;
+        return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+
+    uint32_t GetSubresourceIndex(VkImageAspectFlags aspect, uint32_t mip, uint32_t layer) const
+    {
+        return GetAspectIndex(aspect) * (mip_levels_ * array_layers_) + mip * array_layers_ + layer;
+    }
+
+    void ExpandUniform()
+    {
+        is_uniform_ = false;
+        subresource_layouts_.clear();
+        for (uint32_t aspect_bit = 1; aspect_bit <= 0x80; aspect_bit <<= 1)
+        {
+            if (aspects_ & aspect_bit)
+            {
+                for (uint32_t mip = 0; mip < mip_levels_; ++mip)
+                {
+                    for (uint32_t layer = 0; layer < array_layers_; ++layer)
+                    {
+                        subresource_layouts_[GetSubresourceIndex(aspect_bit, mip, layer)] = uniform_layout_;
+                    }
+                }
+            }
+        }
+    }
+};
+
 struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
@@ -471,8 +682,8 @@ struct VulkanImageInfo : public VulkanObjectInfo<VkImage>
     uint32_t              level_count{ 0 };
     uint32_t              queue_family_index{ 0 };
 
-    VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
-    VkImageLayout intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+    ImageSubresourceLayoutTracker subresource_layouts;
+    VkImageLayout                 intermediate_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 
     VkDeviceSize size{ 0 };
 
@@ -646,6 +857,8 @@ struct VulkanValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheE
 
 struct VulkanImageViewInfo : public VulkanObjectInfo<VkImageView>
 {
+    VkImageSubresourceRange subresource_range;
+
     format::HandleId image_id{ format::kNullHandleId };
 };
 
@@ -690,16 +903,24 @@ struct VulkanShaderEXTInfo : VulkanObjectInfoAsync<VkShaderEXT>
 
 struct VulkanCommandBufferInfo : public VulkanPoolObjectInfo<VkCommandBuffer>
 {
-    bool                                                      is_frame_boundary{ false };
-    std::vector<format::HandleId>                             frame_buffer_ids;
-    format::HandleId                                          active_render_pass_id{ format::kNullHandleId };
-    format::HandleId                                          active_framebuffer_id{ format::kNullHandleId };
-    std::vector<format::HandleId>                             active_render_pass_attachment_image_view_ids;
-    std::unordered_map<format::HandleId, VkImageLayout>       image_layout_barriers;
-    std::unordered_map<VkPipelineBindPoint, format::HandleId> bound_pipelines;
-    std::vector<uint8_t>                                      push_constant_data;
-    VkShaderStageFlags                                        push_constant_stage_flags     = 0;
-    VkPipelineLayout                                          push_constant_pipeline_layout = VK_NULL_HANDLE;
+    bool                          is_frame_boundary{ false };
+    std::vector<format::HandleId> frame_buffer_ids;
+    format::HandleId              active_render_pass_id{ format::kNullHandleId };
+    format::HandleId              active_framebuffer_id{ format::kNullHandleId };
+    std::vector<format::HandleId> active_render_pass_attachment_image_view_ids;
+    std::vector<format::HandleId> dynamic_rendering_image_view_ids;
+    struct ImageLayoutTransition
+    {
+        VkImageSubresourceRange range;
+        VkImageLayout           layout;
+    };
+    std::unordered_map<format::HandleId, std::vector<ImageLayoutTransition>> image_layout_barriers;
+    std::vector<format::HandleId>                                            bound_descriptor_sets;
+    std::vector<format::HandleId>                                            executed_secondary_command_buffers;
+    std::unordered_map<VkPipelineBindPoint, format::HandleId>                bound_pipelines;
+    std::vector<uint8_t>                                                     push_constant_data;
+    VkShaderStageFlags                                                       push_constant_stage_flags = 0;
+    VkPipelineLayout push_constant_pipeline_layout                                                     = VK_NULL_HANDLE;
 
     // collect buffer-device-addresses of locations to replace before submit
     std::unordered_set<VkDeviceAddress> addresses_to_replace;

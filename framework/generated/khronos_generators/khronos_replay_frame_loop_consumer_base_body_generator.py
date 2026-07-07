@@ -32,7 +32,9 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_MULTIPLE_HANDLES_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_FREE_SINGLE_HANDLE_OVERRIDES +
                  self.REPLAY_FRAME_LOOP_RESOURCE_ALLOCATE_NOT_FULLY_IMPLEMENTED +
-                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED))
+                 self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED +
+                 self.REPLAY_FRAME_LOOP_SKIP_DURING_LOOPING +
+                 self.REPLAY_FRAME_LOOP_IGNORE_FOR_PRESERVED_COMMAND_BUFFERS))
 
     def genCallReplayConsumer(self, return_type, name, values):
         call = f'{self.platform_type}ReplayConsumer::Process_' + name + '('
@@ -143,6 +145,22 @@ class KhronosReplayFrameLoopConsumerBaseBodyGenerator():
         elif name in self.REPLAY_FRAME_LOOP_RESOURCE_FREE_NOT_FULLY_IMPLEMENTED:
 
             body += '    if (getFrameLoopInfo().IsLooping() && !getFrameLoopInfo().IsFinalIteration())\n'
+            body += '    {\n'
+            body += '        return;\n'
+            body += '    }\n'
+            body += '    ' + self.genCallReplayConsumer(return_type, name, values)
+
+        elif name in self.REPLAY_FRAME_LOOP_SKIP_DURING_LOOPING:
+
+            body += '    if (getFrameLoopInfo().IsLooping())\n'
+            body += '    {\n'
+            body += '        return;\n'
+            body += '    }\n'
+            body += '    ' + self.genCallReplayConsumer(return_type, name, values)
+
+        elif name in self.REPLAY_FRAME_LOOP_IGNORE_FOR_PRESERVED_COMMAND_BUFFERS:
+
+            body += '    if (ShouldIgnoreRecordingCommand(commandBuffer))\n'
             body += '    {\n'
             body += '        return;\n'
             body += '    }\n'
