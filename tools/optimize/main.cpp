@@ -57,10 +57,11 @@ static std::vector<std::unique_ptr<gfxrecon::optimize::OptimizeFeature>> g_optim
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string trimmed_exe_name = GetTrimmedExeName(exe_name);
+    std::string app_name         = GetApplicationName(exe_name);
 
     // Build synopsis from feature fragments so it stays in sync automatically.
-    std::string synopsis = app_name + " [-h | --help] [--version]";
+    std::string synopsis = trimmed_exe_name + " [-h | --help] [--version]";
     for (const auto& feature : g_optimize_features)
     {
         const std::string fragment = feature->GetSynopsisFragment();

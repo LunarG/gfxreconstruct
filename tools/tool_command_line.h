@@ -45,19 +45,25 @@ const char kHelpShortOption[] = "-h";
 const char kHelpLongOption[]  = "--help";
 const char kVersionOption[]   = "--version";
 
+/// @return exe_name with any leading directory components removed
+inline std::string GetTrimmedExeName(const char* exe_name)
+{
+    std::string actual_exe   = exe_name;
+    size_t      dir_location = actual_exe.find_last_of("/\\");
+
+    if (dir_location != std::string::npos)
+    {
+        actual_exe.replace(0, dir_location + 1, "");
+    }
+
+    return actual_exe;
+}
+
 /// @return exe_name with any leading directory components removed, and the
 /// GFXRECON_APP_NAME_PREFIX configured at build time (see project_version.h.in) applied.
 inline std::string GetApplicationName(const char* exe_name)
 {
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-
-    if (dir_location != std::string::npos)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-
-    return GFXRECON_APP_NAME_PREFIX + app_name;
+    return GFXRECON_APP_NAME_PREFIX + GetTrimmedExeName(exe_name);
 }
 
 /// Prints the "<app name> version info:" / "GFXReconstruct Version x.x.x" lines common to every

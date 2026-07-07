@@ -47,9 +47,10 @@ const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string trimmed_exe_name = GetTrimmedExeName(exe_name);
+    std::string app_name         = GetApplicationName(exe_name);
     GFXRECON_WRITE_CONSOLE("\n%s - Patch the file format version of a GFXReconstruct capture file.\n",
-                           app_name.c_str());
+                           trimmed_exe_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version]<file>\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Required arguments:");

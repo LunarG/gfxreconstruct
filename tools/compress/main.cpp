@@ -47,11 +47,12 @@ const char kArgUnknown[] = "<Unknown>";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string trimmed_exe_name = GetTrimmedExeName(exe_name);
+    std::string app_name         = GetApplicationName(exe_name);
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to compress/decompress GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <input_file> <output_file> <compression_format>\n",
-                           app_name.c_str());
+                           trimmed_exe_name.c_str());
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <input_file>\t\tPath to the input file to process.");
     GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");

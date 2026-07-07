@@ -774,7 +774,11 @@ int main(int argc, const char** argv)
         PrintVersionHeader(argv[0]);
         for (auto& feature : g_info_features)
         {
-            GFXRECON_WRITE_CONSOLE(feature->CompiledHeaderVersionString().c_str());
+            std::string feature_version = feature->CompiledHeaderVersionString();
+            if (feature_version.size())
+            {
+                GFXRECON_WRITE_CONSOLE(feature_version.c_str());
+            }
         }
 
         gfxrecon::util::Log::Release();

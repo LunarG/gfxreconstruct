@@ -43,11 +43,12 @@ const char kArguments[] = "--output,--format,--log-level,--frame-range";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string trimmed_exe_name = GetTrimmedExeName(exe_name);
+    std::string app_name         = GetApplicationName(exe_name);
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert the contents of GFXReconstruct capture files to JSON.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <file>\n", trimmed_exe_name.c_str());
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the GFXReconstruct capture file to be converted");
     GFXRECON_WRITE_CONSOLE("        \t\tto text.");

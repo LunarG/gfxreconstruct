@@ -122,12 +122,14 @@ const std::string path_assets = "app/src/main/assets/";
 
 static void PrintUsage(const char* exe_name)
 {
-    std::string app_name = GetApplicationName(exe_name);
+    std::string trimmed_exe_name = GetTrimmedExeName(exe_name);
+    std::string app_name         = GetApplicationName(exe_name);
+
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to Vulkan source.\n",
                            app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [arguments] <capture_file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("     <capture_file> must be a valid GFXReconstruct capture file\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s [arguments] <capture_file>\n", trimmed_exe_name.c_str());
+    GFXRECON_WRITE_CONSOLE("     <capture_file> must be a valid GFXReconstruct capture file\n");
     GFXRECON_WRITE_CONSOLE("     Required Arguments:");
 
     for (auto& argument : g_argument_list)
