@@ -811,6 +811,12 @@ int main(int argc, const char** argv)
     {
         std::string output_filename = arg_parser.GetArgumentValue(kOutputFileArgument);
         g_output_file.open(output_filename);
+        if (!g_output_file.is_open())
+        {
+            GFXRECON_LOG_ERROR("Failed to open output file '%s'", output_filename.c_str());
+            gfxrecon::util::Log::Release();
+            exit(EXIT_FAILURE);
+        }
     }
 
     if (arg_parser.IsOptionSet(kExeInfoOnlyOption))
