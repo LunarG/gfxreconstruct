@@ -56,6 +56,8 @@ struct SampleReplayPlugin
     GfxrReplayPluginV1 base;
     int                sleep_around_gpu_frame_ms   = 0;
     bool               first_queue_submit_in_frame = true;
+    uint64_t           last_frame_index            = UINT64_MAX;
+    uint32_t           frame_loop_iteration        = 0;
 };
 
 static void destroy(GfxrReplayPluginV1* self)
@@ -94,11 +96,18 @@ static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrRepla
         case GFXR_REPLAY_EVENT_QUEUE_SUBMIT_BEGIN:
             if (plugin->first_queue_submit_in_frame)
             {
-                if (half_sleep_ms > 0)
-                    std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
-                TraceBeginSection("GFXRFrame");
-                if (half_sleep_ms > 0)
-                    std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
+                if (plugin->frame_loop_iteration == 0)
+                {
+                    TraceBeginSection("GFXRPrepareFrame");
+                }
+                else
+                {
+                    if (half_sleep_ms > 0)
+                        std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
+                    TraceBeginSection("GFXRFrame");
+                    if (half_sleep_ms > 0)
+                        std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
+                }
                 plugin->first_queue_submit_in_frame = false;
             }
             TraceBeginSection("GFXRQueueSubmit");
@@ -108,12 +117,17 @@ static GfxrReplayPluginResult on_event(GfxrReplayPluginV1* self, const GfxrRepla
             break;
         case GFXR_REPLAY_EVENT_FRAME_BEGIN:
             plugin->first_queue_submit_in_frame = true;
+            if (plugin->last_frame_index != UINT64_MAX && event->frame_index <= plugin->last_frame_index)
+            {
+                plugin->frame_loop_iteration++;
+            }
+            plugin->last_frame_index = event->frame_index;
             break;
         case GFXR_REPLAY_EVENT_FRAME_END:
-            if (half_sleep_ms > 0)
+            if (plugin->frame_loop_iteration > 0 && half_sleep_ms > 0)
                 std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
             TraceEndSection();
-            if (half_sleep_ms > 0)
+            if (plugin->frame_loop_iteration > 0 && half_sleep_ms > 0)
                 std::this_thread::sleep_for(std::chrono::milliseconds(half_sleep_ms));
             break;
         default:
