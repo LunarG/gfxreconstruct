@@ -33,15 +33,6 @@ if (ANDROID)
                                ${ANDROID_NDK}/sources/android/native_app_glue)
 endif()
 
-# Ensure the C language is enabled so xxhash.c is built with the C compiler.
-# This is a no-op where C is already enabled (e.g. the Android project() targets,
-# which default to C and CXX) and avoids relying on subdirectory ordering to pull
-# it in on desktop, where the root project only declares CXX.
-enable_language(C)
-
-add_library(xxhash STATIC ${GFXRECON_SOURCE_DIR}/external/xxHash/xxhash.c)
-target_include_directories(xxhash PUBLIC ${GFXRECON_SOURCE_DIR}/external/xxHash)
-
 add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
@@ -159,8 +150,6 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${GFXRECON_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
 )
-
-target_link_libraries(gfxrecon_util xxhash)
 
 target_include_directories(gfxrecon_util
                            PUBLIC

@@ -35,8 +35,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include <xxhash.h>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -71,7 +69,14 @@ class HashingManager
     void ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified);
 
   private:
-    using HashVector  = std::vector<XXH128_hash_t>;
+    // Declaring this struct mirroring XXH128_hash_t so that xxhash.h is only included in the .cpp file
+    struct Hash128
+    {
+        uint64_t low64;
+        uint64_t high64;
+    };
+
+    using HashVector  = std::vector<Hash128>;
     using PagesStatus = std::vector<uint8_t>;
 
     struct MemoryInfo

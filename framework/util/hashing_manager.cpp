@@ -24,6 +24,10 @@
 #include "hashing_manager.h"
 #include "util/logging.h"
 
+#define XXH_STATIC_LINKING_ONLY
+#define XXH_IMPLEMENTATION
+#include <xxhash.h>
+
 #include <cinttypes>
 #include <memory>
 
@@ -84,10 +88,11 @@ void HashingManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory, s
     GFXRECON_ASSERT(new_entry.second);
     MemoryInfo& new_memory_info = new_entry.first->second;
 
-    XXH128_hash_t* const hash_data = new_memory_info.hashes.data();
+    Hash128* const       hash_data = new_memory_info.hashes.data();
     const uint8_t* const base      = reinterpret_cast<const uint8_t*>(mapped_memory);
     ForEachPage(new_memory_info, [hash_data, base](size_t page, size_t block_size) {
-        hash_data[page] = XXH3_128bits(base + page * block_size, block_size);
+        const XXH128_hash_t hash = XXH3_128bits(base + page * block_size, block_size);
+        hash_data[page]          = { hash.low64, hash.high64 };
     });
 }
 
@@ -129,14 +134,14 @@ void HashingManager::ProcessEntry(MemoryInfoEntry memory_entry, const ModifiedMe
 
     std::fill(memory_info.pages_status.begin(), memory_info.pages_status.end(), 0);
 
-    XXH128_hash_t* const hash_data = memory_info.hashes.data();
+    Hash128* const       hash_data = memory_info.hashes.data();
     const uint8_t* const base      = reinterpret_cast<const uint8_t*>(memory_info.mapped_memory);
     PagesStatus&         status    = memory_info.pages_status;
     ForEachPage(memory_info, [hash_data, base, &status](size_t page, size_t block_size) {
         const XXH128_hash_t hash = XXH3_128bits(base + page * block_size, block_size);
-        if (!XXH128_isEqual(hash_data[page], hash))
+        if (hash_data[page].low64 != hash.low64 || hash_data[page].high64 != hash.high64)
         {
-            hash_data[page] = hash;
+            hash_data[page] = { hash.low64, hash.high64 };
             status[page]    = 1;
         }
     });
