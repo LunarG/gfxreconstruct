@@ -25,11 +25,15 @@
 #include "util/defines.h"
 #include "util/logging.h"
 #include "decode/async_processor.h"
-#include "decode/file_processor.h"
 #include "decode/file_processor_visitors.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+AsyncProcessor::AsyncProcessor(std::unique_ptr<BlockProcessor> block_processor) :
+    block_processor_(std::move(block_processor)), block_parser_(block_processor_->GetBlockParser()),
+    async_batch_iterator_()
+{}
 
 AsyncProcessor::~AsyncProcessor()
 {
@@ -72,22 +76,6 @@ void AsyncProcessor::SetBlockLimit(uint64_t limit)
     // Only callable before launching thread. (Avoids synchronization.)
     GFXRECON_ASSERT(!async_thread_.joinable());
     block_limit_ = limit;
-}
-
-void AsyncProcessor::SetPreloadFrameRange(const FrameRange& frame_range)
-{
-    // Only callable before launching thread. (Avoids synchronization.)
-    GFXRECON_ASSERT(!async_thread_.joinable());
-    preload_frame_range_ = frame_range;
-}
-
-void AsyncProcessor::SetQuitBeforeFrame(FrameNumber frame_number)
-{
-    // Only callable before launching thread. (Avoids synchronization.)
-    GFXRECON_ASSERT(!async_thread_.joinable());
-    // Caller responsible for valid frame numbers.
-    GFXRECON_ASSERT(frame_number > 0);
-    quit_before_frame_ = frame_number;
 }
 
 void AsyncProcessor::WaitForBatchCount(BatchCount wait_target)
@@ -240,14 +228,15 @@ void AsyncProcessor::ThreadMain()
     block_parser_.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kNever);
     file_processor::AsyncProcessPolicy process_policy{ block_limit_, async_stats_ };
 
-    FrameNumber frame_number        = file_processor_.GetProcessFrameNumber();
+    FrameNumber frame_number        = block_processor_->GetProcessFrameNumber();
     bool        continue_processing = true;
     do
     {
-        const bool preloading = preload_frame_range_.contains(frame_number);
+        const FrameRange& preload_range = block_processor_->GetPreloadRange();
+        const bool        preloading    = preload_range.contains(frame_number);
         if (preloading)
         {
-            if (frame_number == preload_frame_range_.begin_frame)
+            if (frame_number == preload_range.begin_frame)
             {
                 // Noting that the "frame_number" is the number of the *next* frame to read
                 // during processing blocks, we flush all content prior to the next frame as it
@@ -267,15 +256,17 @@ void AsyncProcessor::ThreadMain()
                 block_parser_.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
             }
         }
-        ProcessBlockState                   process_state = file_processor_.ProcessBlocks(process_policy);
-        file_processor::ProcessBlocksResult result        = file_processor_.MakeResult(process_state);
-        frame_number                                      = result.frame_number;
-        // Push all processed blocks onto the queue, and add the end of frame/end of process result to the queue
+
+        // ProcessBlocks pushes all processed blocks onto the queue, then add the end of frame/end result to the queue
+        ProcessBlockState                   process_state = block_processor_->ProcessBlocks(process_policy);
+        file_processor::ProcessBlocksResult result        = block_processor_->MakeResult(process_state);
+        GFXRECON_ASSERT(result.snapshot.has_value());
+        frame_number = result.snapshot->frame_number;
         AddResultsBlock(result);
 
         if (preloading)
         {
-            if (!preload_frame_range_.contains(frame_number))
+            if (!preload_range.contains(frame_number))
             {
                 // We don't want any more than the preloaded frames on the queue, as async should quiesce
                 // during preload replay and it simplifies preload loading by having the preload range end on
@@ -298,7 +289,8 @@ void AsyncProcessor::ThreadMain()
             ThrottleQueue();
         }
 
-        continue_processing = file_processor_.ContinueProcessing(process_state) && (frame_number < quit_before_frame_);
+        continue_processing = file_processor::ContinueProcessing(process_state) &&
+                              (frame_number < block_processor_->GetQuitBeforeFrame());
 
     } while (continue_processing && keep_alive_.load(std::memory_order_acquire));
 

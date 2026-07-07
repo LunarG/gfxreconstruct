@@ -42,8 +42,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class FileProcessor;
 class BlockParser;
+class BlockProcessor;
 
 class AsyncProcessor
 {
@@ -58,9 +58,7 @@ class AsyncProcessor
     constexpr static FrameNumber kMaxFrameNumber = std::numeric_limits<FrameNumber>::max();
     constexpr static BatchCount  kMaxBatchCount  = std::numeric_limits<BatchCount>::max();
 
-    AsyncProcessor(FileProcessor& file_processor, BlockParser& block_parser) :
-        file_processor_(file_processor), block_parser_(block_parser), async_batch_iterator_()
-    {}
+    explicit AsyncProcessor(std::unique_ptr<BlockProcessor> block_processor);
     ~AsyncProcessor();
     void LaunchAsyncThread();
     void NotifyBatchIndexDequeued(BatchCount batch_index);
@@ -85,8 +83,6 @@ class AsyncProcessor
 
     AsyncBatchIterator& GetBatchIterator() { return async_batch_iterator_; }
     void                SetBlockLimit(uint64_t limit);
-    void                SetPreloadFrameRange(const FrameRange& frame_range);
-    void                SetQuitBeforeFrame(FrameNumber frame_number);
 
 #if defined(ASYNC_PROCESSING_INSTRUMENTATION)
     class AsyncInstrumentation
@@ -196,27 +192,20 @@ class AsyncProcessor
     // This is the block loading and processing child thread.
     void ThreadMain();
 
-    // State objects from file processor we need to access in the async thread.
-    FileProcessor& file_processor_; // AsyncProcessor is a friend of FileProcessor.
-    BlockParser&   block_parser_;
+    // Async side only fields
+    // Owns all process-side state. block_parser_ is a stable reference into block_processor_.
+    std::unique_ptr<BlockProcessor> block_processor_;
+    BlockParser&                    block_parser_;
+    uint64_t                        block_limit_{ 0 };
+    FrameCount                      enqueued_frame_index_{ 0 };
+    BatchCount                      enqueued_batch_index_{ 0 };
+    AsyncInstrumentation            async_stats_;
 
     // Thread Control group: (constructive alignment)
     //  This is state primarily accessed by the async thread, and only occasionally read by the main thread, so we want
     //  to keep it together and away from the main thread accessed state to avoid cache thrashing on the async thread
     //  when the main thread is reading state.
-    //
-    // Note:
-    // preload frame range is only used for preload, but we need it to control async processing w.r.t. the preload
-    // frame range.  During preload, different rules apply. Highwater becomes "sufficient batches to hold all frames in
-    // preload range" and decompression policy is kAlways.
-    alignas(util::kConstructiveAlign) uint64_t quit_before_frame_{ kMaxFrameNumber };
-    uint64_t          block_limit_{ 0 };
-    FrameRange        preload_frame_range_{};
-    std::atomic<bool> keep_alive_{ false }; // Thread teardown control
-
-    FrameCount           enqueued_frame_index_{ 0 };
-    BatchCount           enqueued_batch_index_{ 0 };
-    AsyncInstrumentation async_stats_;
+    alignas(util::kDestructiveAlign) std::atomic<bool> keep_alive_{ false }; // Thread teardown control
 
     // Shared Control group: (constructive alignment)
     alignas(util::kConstructiveAlign) std::mutex throttle_mutex_;

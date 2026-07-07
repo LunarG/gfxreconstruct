@@ -56,7 +56,7 @@ BlockIOError BlockParser::ReadBlockBuffer(FileInputStreamPtr& input_stream, Bloc
 
     if (status == kErrorNone)
     {
-        // NOTE: If BlockSkippingFileProcessor performance is significantly harmed we could defer the data span read
+        // NOTE: If FileProcessor block skipping performance is significantly harmed we could defer the data span read
         // here For 32bit size_t is << BlockSizeType ... but expecting support for > 4GB blocks on 32 bit platforms
         // isn't reasonable
         using BlockSizeType = decltype(format::BlockHeader::size);

@@ -70,10 +70,15 @@ void PreloadFileProcessor::PreloadNextFrames(size_t count)
                           count);
     }
 
-    // Set the replay controls
-    replay_from_queue_ = true;
-    preload_batch_iterator_.Rewind(); // loads first batch; points cursor to head of preload_queue_
-    preload_block_iterator_ = BlockIterator(&preload_batch_iterator_);
+    // Only enter replay mode if something was actually queued.
+    // An empty queue (e.g. file was invalid before any blocks were read) must not set replay_from_queue_,
+    // or ProcessNextFrame will call ReplayOneFrame with begin == end and assert.
+    if (!preload_queue_.empty())
+    {
+        replay_from_queue_ = true;
+        preload_batch_iterator_.Rewind(); // loads first batch; points cursor to head of preload_queue_
+        preload_block_iterator_ = BlockIterator(&preload_batch_iterator_);
+    }
 }
 
 void PreloadFileProcessor::ReplayAndClearStutterFrame()
@@ -100,19 +105,21 @@ size_t PreloadFileProcessor::PreloadNextFramesSync(size_t preload_count)
 {
     // This should never be called for zero length ranges
     GFXRECON_ASSERT(preload_count > 0U);
-    // Sync preload requires proc_ -- in async mode ownership transfers to AsyncProcessor and
-    // proc_ becomes null.
+    // Sync preload requires block_processor_ -- in async mode ownership transfers to AsyncProcessor and
+    // block_processor_ becomes null.
     GFXRECON_ASSERT(!AsyncProcessingEnabled());
-    GFXRECON_ASSERT(proc_ != nullptr);
+    GFXRECON_ASSERT(block_processor_ != nullptr);
 
-    if (!IsFileValid())
+    if (!block_processor_->IsFileValid())
     {
-        proc_->error_state = CheckFileStatus();
+        dispatch_error_state_ = block_processor_->GetProcessError();
         return 0;
     }
 
+    BlockParser& parser = block_processor_->GetBlockParser();
+
     // Escalate operation mode to enqueueing if needed, saving previous mode
-    auto save_operation_mode = proc_->block_parser->GetOperationMode();
+    auto save_operation_mode = parser.GetOperationMode();
     // NOTE: Preload only works when starting from immediate mode, currently, as there is no
     //       support for draining enqueued blocks back into immediate mode.
     GFXRECON_ASSERT(save_operation_mode == BlockParser::OperationMode::kImmediate);
@@ -122,18 +129,18 @@ size_t PreloadFileProcessor::PreloadNextFramesSync(size_t preload_count)
         // When changing from Immediate need to clear out the last immediate block,
         // as StartBlock does it lazily, and thus the last will be present.
         // NOTE: This must be done before SetBatchSinkProc, or we'll record it to preload
-        proc_->block_parser->GetBlockAllocator().FlushBatch();
-        proc_->block_parser->SetOperationMode(BlockParser::OperationMode::kEnqueued);
+        parser.GetBlockAllocator().FlushBatch();
+        parser.SetOperationMode(BlockParser::OperationMode::kEnqueued);
     }
 
     // Set up block batch sink to collect preloaded blocks, as a single queue of batches.
     // Parsed blocks are tagged with frame boundaries when parsed.
 
-    proc_->block_parser->GetBlockAllocator().SetBatchSinkProc(
+    parser.GetBlockAllocator().SetBatchSinkProc(
         [this](BlockBatch::BatchPtr&& completed_batch) { this->EnqueueBatch(std::move(completed_batch)); });
 
     // Use kAlways decompression policy to move the maximum amount of work outside the measurement loop
-    auto save_decompression_policy = proc_->block_parser->GetDecompressionPolicy();
+    auto save_decompression_policy = parser.GetDecompressionPolicy();
 
     // Use kAlways when preloading for frame looping.
     // This is required not only to move decompression work out of the measurement loop,
@@ -141,51 +148,47 @@ size_t PreloadFileProcessor::PreloadNextFramesSync(size_t preload_count)
     // If decompression were deferred to replay, dispatch args for compressed blocks could
     // point into the temporary working decompression store, which is overwritten/resized
     // by subsequent decompressions, leading to invalid or stale pointers.
-    proc_->block_parser->SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
+    parser.SetDecompressionPolicy(BlockParser::DecompressionPolicy::kAlways);
 
     file_processor::PreloadProcessPolicy process_policy{ block_limit_ };
 
     const FrameNumber end_preload_frame = dispatch_frame_number_ + preload_count;
 
     ProcessBlockState state = ProcessBlockState::kFrameBoundary;
-    while ((proc_->frame_number < end_preload_frame) && (state == ProcessBlockState::kFrameBoundary))
+    while ((block_processor_->GetProcessFrameNumber() < end_preload_frame) &&
+           (state == ProcessBlockState::kFrameBoundary))
     {
-        state = ProcessBlocks(process_policy);
+        state = block_processor_->ProcessBlocks(process_policy);
 
-        // The index is not meaningful during synchronous processing.
-        ProcessBlocksResult preload_result(state,
-                                           proc_->error_state,
-                                           proc_->frame_number,
-                                           proc_->bytes_read,
-                                           proc_->capture_uses_frame_markers,
-                                           proc_->file_supports_frame_markers);
-        proc_->block_parser->EmplaceResultsBlock(preload_result);
+        ProcessBlocksResult preload_result = block_processor_->MakeResult(state);
+        parser.EmplaceResultsBlock(preload_result);
 
         // This is the "leading stutter"" condition.  The ProcessBlocks is repeating the same frame
         // number we started with. Middle stutter (where the duplicate frame boundary is embbedded in
         // the measurement range doesn't need special handling
-        if ((state == ProcessBlockState::kFrameBoundary) && (proc_->frame_number == dispatch_frame_number_))
+        if ((state == ProcessBlockState::kFrameBoundary) &&
+            (block_processor_->GetProcessFrameNumber() == dispatch_frame_number_))
         {
             // This can only happen between frames 0 and 1.
             GFXRECON_ASSERT(dispatch_frame_number_ == (kFirstFrame + 1));
-            proc_->block_parser->GetBlockAllocator().FlushBatch();
+            parser.GetBlockAllocator().FlushBatch();
             ReplayAndClearStutterFrame();
         }
     }
 
     // Flush any pending batches to the preload_queue_
-    proc_->block_parser->GetBlockAllocator().FlushBatch();
+    parser.GetBlockAllocator().FlushBatch();
 
     // Since preload_count can't be zero, the queue mustn't be empty, even with no complete frames.
     // If there are no complete frames, a kError or kEndProcessing result will be on the queue.
     GFXRECON_ASSERT(!preload_queue_.empty());
 
-    size_t frames_preloaded = proc_->frame_number - dispatch_frame_number_;
+    size_t frames_preloaded = block_processor_->GetProcessFrameNumber() - dispatch_frame_number_;
 
     // Restore the original parser policies
-    proc_->block_parser->SetOperationMode(save_operation_mode);
-    proc_->block_parser->SetDecompressionPolicy(save_decompression_policy);
-    proc_->block_parser->GetBlockAllocator().ResetBatchSinkProc();
+    parser.SetOperationMode(save_operation_mode);
+    parser.SetDecompressionPolicy(save_decompression_policy);
+    parser.GetBlockAllocator().ResetBatchSinkProc();
     return frames_preloaded;
 }
 
@@ -249,8 +252,11 @@ size_t PreloadFileProcessor::PreloadNextFramesAsync(size_t count)
             if ((block_result_ptr != nullptr) && (*block_result_ptr != nullptr))
             {
                 const ProcessBlocksResult* const block_result = *block_result_ptr;
-                preload_frame_number                          = block_result->frame_number;
-                state                                         = block_result->state;
+                if (block_result->snapshot.has_value())
+                {
+                    preload_frame_number = block_result->snapshot->frame_number;
+                }
+                state = block_result->state;
 
                 // Ignore the state of "ContinueBlocks" (they don't have one)
                 if (state != ProcessBlockState::kContinue)

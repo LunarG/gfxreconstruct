@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_FILE_PROCESSOR_VISITORS_H
 
 // Implementation header: include only from .cpp files that use DispatchVisitor or ProcessVisitor.
+#include "decode/decode_allocator.h"
 #include "decode/file_processor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -66,20 +67,6 @@ inline bool ContinueBlockProcessing(uint64_t block_limit, const DispatchConfig& 
     }
     return true;
 }
-
-template <bool HasAllocGuard = false>
-struct DecoderAllocGuard
-{};
-
-template <>
-struct DecoderAllocGuard<true>
-{
-    DecoderAllocGuard& operator=(const DecoderAllocGuard&) = delete;
-    DecoderAllocGuard(DecoderAllocGuard&&)                 = delete;
-    DecoderAllocGuard& operator=(DecoderAllocGuard&&)      = delete;
-    DecoderAllocGuard() { DecodeAllocator::Begin(); }
-    ~DecoderAllocGuard() noexcept { DecodeAllocator::End(); }
-};
 
 template <typename Args>
 bool DecoderSupportsDispatch(ApiDecoder& decoder, const Args& args)
@@ -217,45 +204,41 @@ class ProcessVisitor
     // Frame boundary control
     void operator()(const FunctionCallArgs* function_call)
     {
-        is_frame_delimiter = file_processor_.ProcessFrameDelimiter(function_call->call_id);
+        is_frame_delimiter = block_processor_.ProcessFrameDelimiter(function_call->call_id);
         success            = true;
     }
 
     void operator()(const MethodCallArgs* method_call)
     {
-        is_frame_delimiter = file_processor_.ProcessFrameDelimiter(method_call->call_id);
+        is_frame_delimiter = block_processor_.ProcessFrameDelimiter(method_call->call_id);
         success            = true;
     }
 
     void operator()(const FrameEndMarkerArgs* end_frame)
     {
-        // The block and marker type are implied by the Args type
-        is_frame_delimiter = file_processor_.ProcessFrameDelimiter(*end_frame);
+        is_frame_delimiter = block_processor_.ProcessFrameDelimiter(*end_frame);
         success            = true;
     }
 
     // I/O Control
     void operator()(const ExecuteBlocksFromFileArgs* execute_blocks)
     {
-        // The block and marker type are implied by the Args type
         is_frame_delimiter = false;
-        success            = file_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
+        success            = block_processor_.ProcessExecuteBlocksFromFile(*execute_blocks);
     }
 
     void operator()(const StateEndMarkerArgs* state_end)
     {
-        // The block and marker type are implied by the Args type
         is_frame_delimiter = false;
         success            = true;
-        file_processor_.ProcessStateEndMarkerFrameState(*state_end);
+        block_processor_.ProcessStateEndMarkerFrameState(*state_end);
     }
 
     void operator()(const AnnotationArgs* annotation)
     {
-        // The block and marker type are implied by the Command type
         is_frame_delimiter = false;
         success            = true;
-        file_processor_.ProcessAnnotation(*annotation);
+        block_processor_.ProcessAnnotation(*annotation);
     }
 
     void operator()(const std::monostate&) { Reset(); }
@@ -268,7 +251,7 @@ class ProcessVisitor
 
     bool IsSuccess() const { return success; }
     bool IsFrameDelimiter() const { return is_frame_delimiter; }
-    ProcessVisitor(FileProcessor& file_processor) : file_processor_(file_processor) {}
+    ProcessVisitor(BlockProcessor& block_processor) : block_processor_(block_processor) {}
     void Reset()
     {
         is_frame_delimiter = false;
@@ -276,9 +259,9 @@ class ProcessVisitor
     }
 
   private:
-    bool           is_frame_delimiter = false;
-    bool           success            = true;
-    FileProcessor& file_processor_;
+    bool            is_frame_delimiter = false;
+    bool            success            = true;
+    BlockProcessor& block_processor_;
 };
 
 class SynchronousProcessPolicy

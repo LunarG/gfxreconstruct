@@ -66,9 +66,15 @@ enum class ProcessBlockState : int32_t
     kEndOfFile     = -3, // clean EOF on the root capture file
 };
 
+// Returns true if processing should continue (non-negative state values are non-terminal).
+inline bool ContinueProcessing(ProcessBlockState state)
+{
+    return static_cast<int32_t>(state) >= 0;
+}
+
 // Stores block processing state at return of ProcessBlocks in async or preload mode.
-// Constructed either as a full process-side result (has_process_state = true) or as a
-// dispatch-side exit signal carrying only state and error (has_process_state = false).
+// Constructed either as a full process-side result (snapshot.has_value()) or as a
+// dispatch-side inband/exit signal carrying only state and error
 using FrameCount  = uint64_t;
 using FrameNumber = uint64_t;
 struct ProcessBlocksResult
@@ -77,14 +83,16 @@ struct ProcessBlocksResult
     ProcessBlockState state{ ProcessBlockState::kContinue };
     BlockIOError      error{ BlockIOError::kErrorNone };
 
-    // Process-side snapshot fields; only valid when has_process_state is true.
+    // Process-side snapshot fields; only valid when set
     // NOTE: frame_number is the *next* frame -- snapshot of process_frame_number_ at return.
-    uint64_t frame_number{ 0U };
-    uint64_t bytes_read{ 0 };
-    bool     capture_uses_frame_markers{ false };
-    bool     file_supports_frame_markers{ false };
-    bool     has_process_state{ false };
-    // Padding for alignment (5 bytes)
+    struct Snapshot
+    {
+        FrameNumber frame_number{ 0U };
+        uint64_t    bytes_read{ 0 };
+        bool        capture_uses_frame_markers{ false };
+        bool        file_supports_frame_markers{ false };
+    };
+    std::optional<Snapshot> snapshot{ std::nullopt };
 
     ProcessBlocksResult() = default;
 
@@ -95,13 +103,13 @@ struct ProcessBlocksResult
     ProcessBlocksResult(
         ProcessBlockState s, BlockIOError e, uint64_t frame, uint64_t bytes, bool markers, bool file_markers) :
         state(s),
-        error(e), frame_number(frame), bytes_read(bytes), capture_uses_frame_markers(markers),
-        file_supports_frame_markers(file_markers), has_process_state(true)
+        error(e), snapshot{ Snapshot{ frame, bytes, markers, file_markers } }
     {}
 };
 
-// Assert struct size to assure changes are intentional and optimal w.r.t. placement and padding
-static_assert(sizeof(ProcessBlocksResult) <= 32, "ProcessBlocksResult must not exceed 32 bytes");
+// Assert struct size to assure changes are intentional and optimal
+// The std::optional makes this struct somewhat larger, but is clearer than ad hoc validity flags.
+static_assert(sizeof(ProcessBlocksResult) <= 40, "ProcessBlocksResult must not exceed 40 bytes");
 
 // Zero-based index of the first frame.
 constexpr FrameNumber kFirstFrame = 0;
