@@ -175,7 +175,8 @@ class CaptureSettings
         // allocation but in this case the memory is monitored using the userfaultfd mechanism provided by the linux
         // kernel.
         kUserfaultfd = 3,
-
+        // This mode uses no shadow memory, memory protection, or signal handlers. It detects writes by hashing its
+        // content.
         kHashing = 4
     };
 

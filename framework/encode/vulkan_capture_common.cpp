@@ -233,9 +233,9 @@ void CommonProcessHardwareBuffer(format::ThreadId                      thread_id
                                               false); // Write watch is not supported for this case.
                 }
                 else if (tracking_mode == CaptureSettings::MemoryTrackingMode::kHashing &&
-                    vulkan_capture_manager->GetPageGuardTrackAhbMemory())
+                         vulkan_capture_manager->GetPageGuardTrackAhbMemory())
                 {
-                    util::HashTrackManager* manager = util::HashTrackManager::Get();
+                    util::HashingManager* manager = util::HashingManager::Get();
                     GFXRECON_ASSERT(manager != nullptr);
 
                     manager->AddTrackedMemory(memory_id, data, static_cast<size_t>(allocation_size));

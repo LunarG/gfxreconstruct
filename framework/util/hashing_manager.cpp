@@ -23,21 +23,22 @@
 
 #include "hashing_manager.h"
 #include "util/logging.h"
+
 #include <cinttypes>
 #include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-HashTrackManager* HashTrackManager::instance_             = nullptr;
-size_t            HashTrackManager::block_size_pot_shift_ = 0;
+HashingManager* HashingManager::instance_             = nullptr;
+size_t          HashingManager::block_size_pot_shift_ = 0;
 
-void HashTrackManager::Create()
+void HashingManager::Create()
 {
-    instance_ = new HashTrackManager();
+    instance_ = new HashingManager();
 }
 
-void HashTrackManager::Destroy()
+void HashingManager::Destroy()
 {
     if (instance_ != nullptr)
     {
@@ -45,7 +46,7 @@ void HashTrackManager::Destroy()
     }
 }
 
-HashTrackManager::HashTrackManager() : thread_pool_(std::thread::hardware_concurrency())
+HashingManager::HashingManager() : thread_pool_(std::thread::hardware_concurrency())
 {
     size_t block          = block_size_;
     block_size_pot_shift_ = 0;
@@ -57,9 +58,12 @@ HashTrackManager::HashTrackManager() : thread_pool_(std::thread::hardware_concur
     }
 }
 
-void HashTrackManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory, size_t mapped_range)
+void HashingManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory, size_t mapped_range)
 {
-    GFXRECON_ASSERT(mapped_range);
+    if (!mapped_range)
+    {
+        return;
+    }
 
     size_t total_pages       = mapped_range >> block_size_pot_shift_;
     size_t last_segment_size = mapped_range & (block_size_ - 1); // mapped_range % system_page_size_
@@ -86,13 +90,12 @@ void HashTrackManager::AddTrackedMemory(uint64_t memory_id, void* mapped_memory,
     hashes[full_pages] = XXH3_128bits(base + full_pages * block_size_, last_segment_size);
 
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
-    memory_info_.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(memory_id),
-        std::forward_as_tuple(mapped_memory, mapped_range, total_pages, last_segment_size, std::move(hashes)));
+    memory_info_.emplace(std::piecewise_construct,
+                         std::forward_as_tuple(memory_id),
+                         std::forward_as_tuple(mapped_memory, total_pages, last_segment_size, std::move(hashes)));
 }
 
-void HashTrackManager::RemoveTrackedMemory(uint64_t memory_id)
+void HashingManager::RemoveTrackedMemory(uint64_t memory_id)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
     auto                        entry = memory_info_.find(memory_id);
@@ -103,7 +106,7 @@ void HashTrackManager::RemoveTrackedMemory(uint64_t memory_id)
     }
 }
 
-void HashTrackManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified)
+void HashingManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
     auto                        entry = memory_info_.find(memory_id);
@@ -114,7 +117,7 @@ void HashTrackManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
     }
 }
 
-void HashTrackManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified)
+void HashingManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
@@ -124,47 +127,32 @@ void HashTrackManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_mod
     }
 }
 
-bool HashTrackManager::MemoryInfo::CompareBlock(size_t page)
-{
-    GFXRECON_ASSERT(page < total_pages);
-
-    const void* block_ptr = static_cast<const void*>(static_cast<const uint8_t*>(mapped_memory) + page * block_size_);
-
-    const size_t        size = page == total_pages - 1 ? last_segment_size : block_size_;
-    const XXH128_hash_t hash = XXH3_128bits(block_ptr, size);
-    if (!XXH128_isEqual(hashes[page], hash))
-    {
-        hashes[page] = hash;
-        return true;
-    }
-
-    return false;
-}
-
-void HashTrackManager::ProcessEntry(MemoryInfoEntry memory_entry, const ModifiedMemoryFunc& handle_modified)
+void HashingManager::ProcessEntry(MemoryInfoEntry memory_entry, const ModifiedMemoryFunc& handle_modified)
 {
     MemoryInfo& memory_info = memory_entry->second;
 
     const uint8_t* const base       = reinterpret_cast<const uint8_t*>(memory_info.mapped_memory);
     const size_t         full_pages = memory_info.total_pages - 1; // all but the (possibly partial) last page
 
-    memory_info.status_tracker.ClearAllBlocksActiveWrite();
+    std::fill(memory_info.pages_status.begin(), memory_info.pages_status.end(), 0);
 
     XXH128_hash_t* const hash_data = memory_info.hashes.data();
-    PageStatusTracker&   status    = memory_info.status_tracker;
+    PagesStatus&         status    = memory_info.pages_status;
     ForEachPage(full_pages, [hash_data, base, &status](size_t page) {
         const XXH128_hash_t hash = XXH3_128bits(base + page * block_size_, block_size_);
         if (!XXH128_isEqual(hash_data[page], hash))
         {
             hash_data[page] = hash;
-            status.SetActiveWriteBlock(page, true);
+            status[page]    = 1;
         }
     });
 
     // The parallel loop above only covers full pages; handle the (possibly partial) last page.
-    if (memory_info.CompareBlock(full_pages))
+    const XXH128_hash_t hash = XXH3_128bits(base + full_pages * block_size_, memory_info.last_segment_size);
+    if (!XXH128_isEqual(hash_data[full_pages], hash))
     {
-        memory_info.status_tracker.SetActiveWriteBlock(full_pages, true);
+        hash_data[full_pages] = hash;
+        status[full_pages]    = 1;
     }
 
     bool   active_range = false;
@@ -172,7 +160,7 @@ void HashTrackManager::ProcessEntry(MemoryInfoEntry memory_entry, const Modified
 
     for (size_t i = 0; i < memory_info.total_pages; ++i)
     {
-        if (memory_info.status_tracker.IsActiveWriteBlock(i))
+        if (memory_info.pages_status[i])
         {
             if (!active_range)
             {
@@ -196,10 +184,10 @@ void HashTrackManager::ProcessEntry(MemoryInfoEntry memory_entry, const Modified
     }
 }
 
-void HashTrackManager::ProcessActiveRange(MemoryInfoEntry           memory_entry,
-                                          size_t                    start_index,
-                                          size_t                    end_index,
-                                          const ModifiedMemoryFunc& handle_modified)
+void HashingManager::ProcessActiveRange(MemoryInfoEntry           memory_entry,
+                                        size_t                    start_index,
+                                        size_t                    end_index,
+                                        const ModifiedMemoryFunc& handle_modified)
 {
     GFXRECON_ASSERT(end_index > start_index);
 

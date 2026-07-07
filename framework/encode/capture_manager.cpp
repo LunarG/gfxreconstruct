@@ -142,7 +142,7 @@ CommonCaptureManager::~CommonCaptureManager()
     }
     else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kHashing)
     {
-        util::HashTrackManager::Destroy();
+        util::HashingManager::Destroy();
     }
 
     util::Log::Release();
@@ -625,7 +625,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         }
         else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kHashing)
         {
-            util::HashTrackManager::Create();
+            util::HashingManager::Create();
         }
     }
     else

@@ -2183,7 +2183,7 @@ void VulkanCaptureManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardwar
         }
         else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing)
         {
-            util::HashTrackManager* manager = util::HashTrackManager::Get();
+            util::HashingManager* manager = util::HashingManager::Get();
             GFXRECON_ASSERT(manager != nullptr);
 
             manager->RemoveTrackedMemory(entry->second.memory_id);
@@ -2841,7 +2841,7 @@ void VulkanCaptureManager::PostProcess_vkMapMemory(VkResult         result,
 
                 if (size)
                 {
-                    util::HashTrackManager* manager = util::HashTrackManager::Get();
+                    util::HashingManager* manager = util::HashingManager::Get();
                     GFXRECON_ASSERT(manager != nullptr);
                     manager->AddTrackedMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size));
                 }
@@ -2994,7 +2994,7 @@ void VulkanCaptureManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMem
         }
         else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing)
         {
-            util::HashTrackManager* manager = util::HashTrackManager::Get();
+            util::HashingManager* manager = util::HashingManager::Get();
             GFXRECON_ASSERT(manager != nullptr);
 
             manager->ProcessMemoryEntry(
@@ -3077,7 +3077,7 @@ void VulkanCaptureManager::PreProcess_vkFreeMemory(VkDevice                     
             }
             else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing)
             {
-                util::HashTrackManager* manager = util::HashTrackManager::Get();
+                util::HashingManager* manager = util::HashingManager::Get();
                 GFXRECON_ASSERT(manager != nullptr);
 
                 // Remove memory tracking.
@@ -3322,7 +3322,9 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
     }
     else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kHashing && IsCaptureModeWrite())
     {
-        util::HashTrackManager* manager = util::HashTrackManager::Get();
+        // Hashing memory track mode does not have to maintain a shadow memory with the actual mapped memory, so when
+        // in tracking mode QueueSubmit can be a nop for this mode.
+        util::HashingManager* manager = util::HashingManager::Get();
         GFXRECON_ASSERT(manager != nullptr);
 
         manager->ProcessMemoryEntries(
