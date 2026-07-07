@@ -2529,7 +2529,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t               
                             }
 
                             const VkDeviceSize input_attrib_size =
-                                vkuFormatElementSize(input_attrib_desc.format) + input_attrib_desc.offset;
+                                vkuFormatTexelBlockSize(input_attrib_desc.format) + input_attrib_desc.offset;
                             total_size = std::max(total_size, input_attrib_size);
                         }
 

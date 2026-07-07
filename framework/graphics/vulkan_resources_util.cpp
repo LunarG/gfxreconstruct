@@ -422,7 +422,7 @@ bool GetImageTexelSize(VkFormat      format,
             *is_texel_block_format_ptr = false;
         }
 
-        if (format_info.texel_per_block > 1)
+        if (format_info.texels_per_block > 1)
         {
             if (is_texel_block_format_ptr)
             {
@@ -432,7 +432,7 @@ bool GetImageTexelSize(VkFormat      format,
 
         if (texel_size_ptr != nullptr)
         {
-            *texel_size_ptr = format_info.block_size;
+            *texel_size_ptr = format_info.texel_block_size;
         }
 
         if (block_width_ptr != nullptr)
@@ -3497,7 +3497,7 @@ static VkDeviceSize GetBufferSizeFromCopyImage(const RegionCopy& region, uint32_
     else
     {
         // size (bytes) of texel or block
-        unit_size = vkuFormatElementSizeWithAspect(
+        unit_size = GetFormatElementSizeWithAspect(
             format, static_cast<VkImageAspectFlagBits>(region.imageSubresource.aspectMask));
     }
 

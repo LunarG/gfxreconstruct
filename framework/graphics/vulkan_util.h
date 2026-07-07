@@ -74,6 +74,9 @@ VkDeviceSize AlignBufferOffset(VkDeviceSize offset, VkDeviceSize alignment);
 // - all other formats     => block size of the format
 VkDeviceSize GetBufferImageCopyOffsetAlignment(VkFormat format, VkImageAspectFlags aspect_mask);
 
+// Byte size of a single texel block for the given format, taking the image aspect into account.
+uint32_t GetFormatElementSizeWithAspect(VkFormat format, VkImageAspectFlagBits aspect_mask);
+
 /**
  * @brief   copy_dispatch_table_from_device can be used if a command-buffer was not allocated through the loader,
  *          in order to assign the dispatch table from an existing VkDevice.
