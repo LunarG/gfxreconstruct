@@ -2,7 +2,7 @@
 # without the 32/64-bit check.  Since json is a header-only library, it doesn't
 # matter if it was built on a different platform than what it is used on (see
 # https://github.com/nlohmann/json/issues/1697).
-set(PACKAGE_VERSION "3.11.3")
+set(PACKAGE_VERSION "3.12.0")
 
 if(PACKAGE_VERSION VERSION_LESS PACKAGE_FIND_VERSION)
   set(PACKAGE_VERSION_COMPATIBLE FALSE)
