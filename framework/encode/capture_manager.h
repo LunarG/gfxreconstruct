@@ -244,6 +244,7 @@ class CommonCaptureManager
     void PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
     void PostQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
 
+    bool ScreenshotsEnabled() { return screenshots_enabled_; }
     bool ShouldTriggerScreenshot();
 
     util::ScreenshotFormat GetScreenshotFormat()
