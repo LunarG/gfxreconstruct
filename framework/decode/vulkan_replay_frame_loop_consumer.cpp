@@ -1367,7 +1367,16 @@ void VulkanReplayFrameLoopConsumer::Process_vkBeginCommandBuffer(
 
     VulkanReplayConsumer::Process_vkBeginCommandBuffer(call_info, returnValue, commandBuffer, pBeginInfo);
 
+    // Track that this command buffer is currently recording. This is used to determine
+    // which command buffers are open at the frame loop boundaries.
     recording_cbs_.insert(commandBuffer);
+
+    // If this command buffer was open at the start of the loop (so it was open at the trim boundary)
+    // but the application explicitly calls vkBeginCommandBuffer on it again inside the loop,
+    // it means the application has reset and is re-recording it inside the loop range.
+    // In this case, we remove it from loop_start_recording_cbs_ so it is not ignored during
+    // subsequent loop iterations, and we will recreate it during loop rewind to reset its state to INITIAL.
+    loop_start_recording_cbs_.erase(commandBuffer);
 
     auto cb_info = GetObjectInfoTable().GetVkCommandBufferInfo(commandBuffer);
     if (cb_info != nullptr)
