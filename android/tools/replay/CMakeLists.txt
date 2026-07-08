@@ -20,24 +20,26 @@ add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/format format)
 add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/decode decode)
 add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/encode encode)
 add_subdirectory(${GFXRECON_SOURCE_DIR}/framework/application application)
+add_subdirectory(${GFXRECON_SOURCE_DIR}/android/framework/application-multi-win application-multi-win)
 
-add_library(gfxrecon-replay
-            SHARED
-                ${GFXRECON_SOURCE_DIR}/tools/tool_settings.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.cpp
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.cpp
-                ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.h
-                ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_feature.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.cpp
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.cpp
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.h
-                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.cpp
-                ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
+set(GFXRECON_REPLAY_SOURCES
+        ${GFXRECON_SOURCE_DIR}/tools/tool_settings.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/parse_dump_resources_cli.cpp
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.cpp
+        ${GFXRECON_SOURCE_DIR}/tools/replay/recapture_vulkan_entry.h
+        ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_recapture_func_table.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_feature.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_main_common.cpp
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_openxr_feature.cpp
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.h
+        ${GFXRECON_SOURCE_DIR}/tools/replay/replay_vulkan_feature.cpp
+        ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
+
+add_library(gfxrecon-replay SHARED ${GFXRECON_REPLAY_SOURCES})
 
 target_include_directories(gfxrecon-replay
                            PUBLIC
@@ -57,3 +59,23 @@ target_link_libraries(
         project_version)
 
 target_link_options(gfxrecon-replay PRIVATE "-Wl,-z,max-page-size=16384")
+
+add_library(gfxrecon-multiwin-replay SHARED ${GFXRECON_REPLAY_SOURCES})
+
+target_include_directories(gfxrecon-multiwin-replay
+                           PUBLIC
+                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
+                               ${GFXRECON_SOURCE_DIR}/tools
+                               ${GFXRECON_SOURCE_DIR}
+                               ${CMAKE_BINARY_DIR})
+
+target_link_libraries(
+        gfxrecon-multiwin-replay
+        gfxrecon_application_multiwin
+        gfxrecon_decode
+        gfxrecon_encode
+        gfxrecon_graphics
+        gfxrecon_format
+        platform_specific)
+
+target_link_options(gfxrecon-multiwin-replay PRIVATE "-Wl,-z,max-page-size=16384")

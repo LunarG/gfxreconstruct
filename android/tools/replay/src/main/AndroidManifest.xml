@@ -14,15 +14,29 @@
         android:supportsRtl="true">
         <meta-data android:name="com.android.graphics.injectLayers.enable"
                    android:value="true"/>
-        <activity android:name="android.app.NativeActivity"
+        <activity android:name=".LegacyReplayActivity"
                   android:exported="true"
                   android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout"
                   android:screenOrientation="unspecified">
             <meta-data android:name="android.app.lib_name"
                        android:value="gfxrecon-replay" />
+            <!-- No LAUNCHER category: started explicitly via adb shell am start
+                 with a named component and extra args, not tapped from the app drawer. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ReplayActivity"
+                  android:label="@string/app_name_multiwin"
+                  android:exported="true"
+                  android:configChanges="orientation|screenSize|keyboard|keyboardHidden|screenLayout"
+                  android:screenOrientation="unspecified">
+            <meta-data android:name="android.app.lib_name"
+                       android:value="gfxrecon-multiwin-replay" />
+            <!-- No LAUNCHER category: started explicitly via adb shell am start
+                 with a named component and extra args, not tapped from the app drawer. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
     </application>

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">gfxrecon-replay</string>
+    <string name="app_name_multiwin">gfxrecon-replay (multi-window)</string>
 </resources>

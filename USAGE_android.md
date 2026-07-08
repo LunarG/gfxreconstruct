@@ -1057,9 +1057,8 @@ activity with the following:
 
 ```bash
 adb shell am force-stop com.lunarg.gfxreconstruct.replay
-adb shell am start -n "com.lunarg.gfxreconstruct.replay/android.app.NativeActivity" \
+adb shell am start -n "com.lunarg.gfxreconstruct.replay/.LegacyReplayActivity" \
                    -a android.intent.action.MAIN \
-                   -c android.intent.category.LAUNCHER \
                    --es args \
                    '"<arg-list>"'
 ```

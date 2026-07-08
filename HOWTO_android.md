@@ -327,29 +327,19 @@ adb shell "settings put global gpu_debug_layers ''"
 Now, we need to install the Replay application that we built as part of the
 GFXReconstruct source.
 
-Depending on what version of Android you are using, there are two version of the
-replay app that can be installed:
+The replay APK bundles two entry points, both started headlessly via
+`gfxrecon.py` rather than tapped from the app drawer:
 
- * replay
- * multiwin-replay
+ * `replay` - the multi-window replay activity. More functional, and the
+   recommended default, but currently only verified on Android 14 or newer
+   devices.
+ * `legacy-replay` - the original single-window replay activity. Useful as a
+   fallback on older devices.
 
-`multiwin-replay` is more functional and will eventually become the default
-`replay` application, however, it currently only works properly in all our test
-cases on Android 14 or newer devices.
-
-So install the replay application that will work best for you using the
-`gfxrecon.py` script:
-
-**Install Replay APK**
+Install the APK using the `gfxrecon.py` script:
 
 ```bash
 ./android/scripts/gfxrecon.py install-apk android/tools/replay/build/outputs/apk/debug/replay-debug.apk
-```
-
-**Install Multi-Windowed Replay APK**
-
-```bash
-./android/scripts/gfxrecon.py install-apk android/tools/multi-win-replay/build/outputs/apk/debug/multi-win-replay-debug.apk
 ```
 
 #### Additional Permissions
@@ -383,20 +373,19 @@ adb shell appops write-settings
 
 ### 9. Run the replay
 
-Depending if you are using the original `replay` application or the `multiwin-replay`
-version of the application, you can execute the replay in the following way
-using the `gfxrecon.py` script:
+Depending on which entry point you want to use, execute the replay in the
+following way using the `gfxrecon.py` script:
 
-**Original Replay App**
+**Multi-window Replay (recommended default)**
 
 ```bash
 ./android/scripts/gfxrecon.py replay /sdcard/Download/gfxrecon_capture_frames_500_through_700_20221211T130328.gfxr
 ```
 
-**Multi-windowed Replay App**
+**Legacy Single-window Replay**
 
 ```bash
-./android/scripts/gfxrecon.py multiwin-replay /sdcard/Download/gfxrecon_capture_frames_500_through_700_20221211T130328.gfxr
+./android/scripts/gfxrecon.py legacy-replay /sdcard/Download/gfxrecon_capture_frames_500_through_700_20221211T130328.gfxr
 ```
 
 Voila!
@@ -600,46 +589,37 @@ adb shell "setprop debug.hwui.renderer 'skiavk'"
 Now, we need to install the Replay application that we built as part of the
 GFXReconstruct source.
 
-As mentioned in the section above, there are currently 2 replay applications:
+As mentioned in the section above, the replay APK bundles two entry points,
+both started headlessly via `gfxrecon.py` rather than tapped from the app
+drawer:
 
- * replay
- * multiwin-replay
+ * `replay` - the multi-window replay activity. More functional, and the
+   recommended default, but currently only verified on Android 14 or newer
+   devices.
+ * `legacy-replay` - the original single-window replay activity. Useful as a
+   fallback on older devices.
 
-`multiwin-replay` is more functional and will eventually become the default
-`replay` application, however, it currently only works properly in all our test
-cases on Android 14 or newer devices.
-
-So install the replay application that will work best for you using the
-`gfxrecon.py` script:
-
-**Install Replay APK**
+Install the APK using the `gfxrecon.py` script:
 
 ```bash
 ./android/scripts/gfxrecon.py install-apk android/tools/replay/build/outputs/apk/debug/replay-debug.apk
 ```
 
-**Install Multi-Windowed Replay APK**
-
-```bash
-./android/scripts/gfxrecon.py install-apk android/tools/multi-win-replay/build/outputs/apk/debug/multi-win-replay-debug.apk
-```
-
 ### 12. Run the replay
 
-Depending if you are using the original `replay` application or the `multiwin-replay`
-version of the application, you can execute the replay in the following way
-using the `gfxrecon.py` script:
+Depending on which entry point you want to use, execute the replay in the
+following way using the `gfxrecon.py` script:
 
-**Original Replay App**
+**Multi-window Replay (recommended default)**
 
 ```bash
 ./android/scripts/gfxrecon.py replay /storage/emulated/0/Download/sacredpath_capture_frames_100_through_200_20221215T174939.gfxr
 ```
 
-**Multi-windowed Replay App**
+**Legacy Single-window Replay**
 
 ```bash
-./android/scripts/gfxrecon.py multiwin-replay /storage/emulated/0/Download/sacredpath_capture_frames_100_through_200_20221215T174939.gfxr
+./android/scripts/gfxrecon.py legacy-replay /storage/emulated/0/Download/sacredpath_capture_frames_100_through_200_20221215T174939.gfxr
 ```
 
 **NOTE:** Please refer to [Additional Permissions](#additional-permissions)
